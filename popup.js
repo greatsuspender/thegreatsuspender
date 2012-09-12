@@ -1,13 +1,16 @@
 
 function generatePage(tab, previewUrl) {
   
+  var expiryDate = (new Date()).setSeconds((new Date()).getSeconds() + 20);
   var html = '<title>' + tab.title + '</title>';
-  html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
-    if (previewUrl) {
-        html += '<a href="' + tab.url + '"><img src="' + previewUrl + '" /></a>'
-    } else {
-        html += '<a href="' + tab.url + '">click to reload</a>'
-    }
+  html += '<script type="text/javascript" >if (new Date() > ' + expiryDate + ') { document.location.href="' + tab.url + '"; }</script>';
+  html += '<link rel="icon" href="' + tab.favIconUrl + '" />';
+  if (previewUrl) {
+      html += '<a href="' + tab.url + '"><img src="' + previewUrl + '" /></a>';
+  } else {
+      html += '<a href="' + tab.url + '">click to reload</a>';
+  }
+
   html = html.replace(/\s{2,}/g, '')   // <-- Replace all consecutive spaces, 2+
        .replace(/%/g, '%25')     // <-- Escape %
        .replace(/&/g, '%26')     // <-- Escape &
@@ -33,6 +36,18 @@ function handleTab(tab) {
     });    
 }
 
+function suspendOne() {
+
+    chrome.tabs.query({}, function(tabs) {
+        var i;
+        for (i=0; i < tabs.length; i += 1) {
+          if (tabs[i].active) {
+                handleTab(tabs[i]);
+            }
+        }
+    });
+}
+
 function suspendAll() {
 
     chrome.tabs.query({}, function(tabs) {
@@ -48,7 +63,7 @@ function suspendAll() {
 document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('suspendOne').addEventListener('click', function() {
-        suspendAll();
+        suspendOne();
         //window.close();
     });
     document.getElementById('suspendAll').addEventListener('click', function() {
