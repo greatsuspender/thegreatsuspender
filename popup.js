@@ -15,8 +15,8 @@ function generatePage(tab, previewUrl) {
                     'width: 100%;' +
                     'text-align: center;' +
                     'font-family: verdana, arial, sans-serif;' +
-                    'box-shadow: 0 4px 5px -2px #555;">Tab suspended - click to reload.</div>' + 
-                    'border-bottom: 1px solid #6B5811;';
+                    'border-bottom: 1px solid #6B5811;' +
+                    'box-shadow: 0 4px 5px -2px #555;">Tab suspended. Click to reload.</div>';
     } else {
         html += '<a href="' + tab.url + '">click to reload</a>'
     }
