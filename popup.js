@@ -5,6 +5,18 @@ function generatePage(tab, previewUrl) {
   html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
     if (previewUrl) {
         html += '<a href="' + tab.url + '"><img src="' + previewUrl + '" /></a>'
+        html += '<div class="reloadNote" style="position: fixed;' +
+                    'color: #444;' +
+                    'text-shadow: 0 1px 0 #FFF3C5;' +
+                    'height: 40px;' +
+                    'background: #FDE073;' +
+                    'top: 0;' +
+                    'line-height: 40px;' +
+                    'width: 100%;' +
+                    'text-align: center;' +
+                    'font-family: verdana, arial, sans-serif;' +
+                    'box-shadow: 0 4px 5px -2px #555;">Tab suspended - click to reload.</div>' + 
+                    'border-bottom: 1px solid #6B5811;';
     } else {
         html += '<a href="' + tab.url + '">click to reload</a>'
     }

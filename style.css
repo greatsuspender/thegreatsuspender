@@ -34,6 +34,12 @@ ol, ul {
 
 /* END RESET */
 
+/* SUSPENDED TAB STYLES */
+	/* need to be inline maybe?? */
+/* END SUSPENDED TAB STYLES */
+
+
+/* BUTTONS / CONTROLS */
 body {
 	font-family: verdana, arial, sans-serif;
 	font-size: 14px;
@@ -141,3 +147,4 @@ body {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#4e7d0e', endColorstr='#7db72f');
 }
 
+/* END BUTTONS / CONTROLS */
