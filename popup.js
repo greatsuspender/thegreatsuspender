@@ -7,7 +7,7 @@ function generatePage(tab, previewUrl) {
     html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
     html += '<a href="' + tab.url + '">';
     if (previewUrl) {
-        html += '<img src="' + previewUrl + '" />';
+        html += '<img src="' + previewUrl + '" style="padding-top:40px;" />';
     }
     html += '<div class="reloadNote" style="position: fixed;' +
                     'color: #444;' +
