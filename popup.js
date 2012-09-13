@@ -1,14 +1,15 @@
 
 function generatePage(tab, previewUrl) {
 
-  var expiryDate = (new Date()).setSeconds((new Date()).getSeconds() + 20);
-  var html = '<title>' + tab.title + '</title>';
-  html += '<script type="text/javascript" >if (new Date() > ' + expiryDate + ') { document.location.href="' + tab.url + '"; }</script>';    
-  html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
+    var expiryDate = (new Date()).setSeconds((new Date()).getSeconds() + 20);
+    var html = '<title>' + tab.title + '</title>';
+    html += '<script type="text/javascript" >if (new Date() > ' + expiryDate + ') { history.back(); }</script>';    
+    html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
+    html += '<a href="' + tab.url + '">';
     if (previewUrl) {
-        html += 
-        '<a href="' + tab.url + '"><img src="' + previewUrl + '" />' +
-        '<div class="reloadNote" style="position: fixed;' +
+        html += '<img src="' + previewUrl + '" />';
+    }
+    html += '<div class="reloadNote" style="position: fixed;' +
                     'color: #444;' +
                     'text-shadow: 0 1px 0 #FFF3C5;' +
                     'height: 40px;' +
@@ -20,10 +21,8 @@ function generatePage(tab, previewUrl) {
                     'font-family: verdana, arial, sans-serif;' +
                     'border-bottom: 1px solid #6B5811;' +
                     'box-shadow: 0 4px 5px -2px #555;">Tab suspended. Click to reload.' +
-        '</div></a>';
-    } else {
-        html += '<a href="' + tab.url + '">click to reload</a>'
-    }
+            '</div>';
+    html += '</a>';
     html = html.replace(/\s{2,}/g, '')   // <-- Replace all consecutive spaces, 2+
        .replace(/%/g, '%25')     // <-- Escape %
        .replace(/&/g, '%26')     // <-- Escape &
@@ -44,6 +43,7 @@ function suspendTab(tab) {
     console.log('maxHeight:'+maxHeight+' format:'+format+'quality:'+quality);
 
     chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function() {
+
         chrome.tabs.sendMessage(tab.id, {maxHeight:maxHeight, format:format, quality:quality}, function(response) {
 
             var previewUrl = typeof (response) != 'undefined' ? response.previewUrl : false;
@@ -82,21 +82,24 @@ function suspendAll() {
     chrome.windows.getCurrent({populate:true}, function(window) {
         var i;
         for (i=0; i < window.tabs.length; i += 1) {
-        
-            console.log("tab.id"+window.tabs[i].id + " :: " +window.tabs[i].url);
-            suspendTab(window.tabs[i]);
+            if (window.tabs[i].url.indexOf("data") != 0 &&  window.tabs[i].url.indexOf("chrome") != 0) {
+                console.log("tab.id"+window.tabs[i].id + " :: " +window.tabs[i].url);
+                suspendTab(window.tabs[i]);
+            }
         }
     });
 }
-function reloadAll() {
+function unsuspendAll() {
 
     chrome.windows.getCurrent({populate:true}, function(window) {
         var i;
         for (i=0; i < window.tabs.length; i += 1) {
-            window.location.replace("http://stackoverflow.com");
+            if (window.tabs[i].url.indexOf("data") === 0) {
+                chrome.tabs.update(window.tabs[i].id, {url:window.tabs[i].url});
+            }
         }
-    });
-}
+    })
+;}
 
 document.addEventListener('DOMContentLoaded', function () {
 
