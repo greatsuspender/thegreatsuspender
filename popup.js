@@ -31,6 +31,7 @@ function generatePage(tab, previewUrl) {
        .replace(/'/g, '%27');    // <-- Escape ' (to be 100% safe)
     var dataURI = 'data:text/html,' + html;
       
+    console.log('tab.id'+ tab.id +' :: generating placeholder page');
     chrome.tabs.update(tab.id, {url:dataURI});
 
 }
@@ -40,20 +41,20 @@ function suspendTab(tab) {
     var maxHeight = localStorage["maxHeight"] ? localStorage["maxHeight"] : 2;
     var format = localStorage["format"] ? localStorage["format"] : 'image/png';
     var quality = localStorage["quality"] ? localStorage["quality"] : 0.6;
-    console.log('maxHeight:'+maxHeight+' format:'+format+'quality:'+quality);
 
     chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function() {
 
+        console.log('tab.id'+tab.id + " :: " +'sending message...');
         chrome.tabs.sendMessage(tab.id, {maxHeight:maxHeight, format:format, quality:quality}, function(response) {
 
             var previewUrl = typeof (response) != 'undefined' ? response.previewUrl : false;
 
-            console.log('image length: '+previewUrl.length);
+            console.log('tab.id'+tab.id + " :: " +'image length: '+previewUrl.length);
 
             chrome.tabs.update(tab.id, {url:"chrome://kill"});
             var testLoaded = function() {
                 chrome.tabs.get(tab.id, function(killTab) {
-                    console.log('tab.id:'+ tab.id +' :: '+killTab.status);
+                    console.log('tab.id'+ tab.id +' :: '+killTab.status);
                     if (killTab.status === 'complete') {
                         generatePage(tab, previewUrl);
                     } else {

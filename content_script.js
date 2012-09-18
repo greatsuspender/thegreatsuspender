@@ -2,19 +2,19 @@
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
 
-      console.log('maxHeight:'+sender.maxHeight+' format:'+sender.format+'quality:'+sender.quality);
-
-        try {
+      try {
+        console.log('rendering with maxHeight:'+request.maxHeight+' format:'+request.format+' quality:'+request.quality);
 
       	html2canvas([document.body], {
-      		height: Math.min(document.body.offsetHeight, window.innerHeight * sender.maxHeight),
+      		height: Math.min(document.body.offsetHeight, window.innerHeight * request.maxHeight) - 50,
       		width: document.body.clientWidth - 15,
       		proxy: false,
               onrendered: function( canvas ) {
-                  sendResponse({previewUrl: canvas.toDataURL(sender.format, sender.quality)});
+                  sendResponse({previewUrl: canvas.toDataURL(request.format, request.quality)});
               }
           });
       } catch(e) {
+        console.log('failed to render');
         sendResponse({previewUrl: false});
       }
 

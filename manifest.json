@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["html2canvas.min.js"]
+      "js": ["content_script.js", "html2canvas.min.js"]
     }
   ],
   "browser_action": {
