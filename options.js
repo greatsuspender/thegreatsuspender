@@ -1,6 +1,11 @@
 
 // Saves options to localStorage.
 function save_options() {
+
+  
+  var preview = document.getElementById("preview");
+  localStorage["preview"] = preview.checked;
+  
   var select = document.getElementById("format");
   var format = select.children[select.selectedIndex].value;
   localStorage["format"] = format;
@@ -19,6 +24,7 @@ function save_options() {
 // Restores select box state to saved value from localStorage.
 function restore_options() {
 
+  document.getElementById("preview").checked = localStorage["preview"] == "true";
   selectComboBox(document.getElementById("format"), localStorage["format"]);
   selectComboBox(document.getElementById("quality"), localStorage["quality"]);
   document.getElementById("maxHeight").value = localStorage["maxHeight"];

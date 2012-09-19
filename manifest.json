@@ -6,12 +6,6 @@
     "http://*/*",
     "https://*/*"
   ],
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["content_script.js", "html2canvas.min.js"]
-    }
-  ],
   "browser_action": {
       "default_title": "The Great Suspender",
       "default_icon": "icon.png",

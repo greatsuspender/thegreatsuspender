@@ -3,7 +3,10 @@ function generatePage(tab, previewUrl) {
 
     var expiryDate = (new Date()).setSeconds((new Date()).getSeconds() + 20);
     var html = '<title>' + tab.title + '</title>';
-    html += '<script type="text/javascript" >if (new Date() > ' + expiryDate + ') { history.back(); }</script>';    
+    html += '<script type="text/javascript" >';
+    html += 'if (new Date() > ' + expiryDate + ') { history.back(); }';
+    html += 'document.onclick = function(){ history.back(); };';
+    html += '</script>';
     html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
     html += '<a href="' + tab.url + '">';
     if (previewUrl) {
@@ -38,17 +41,20 @@ function generatePage(tab, previewUrl) {
 
 function suspendTab(tab) {
     
+    var preview = localStorage["preview"] ? localStorage["preview"] : false;
     var maxHeight = localStorage["maxHeight"] ? localStorage["maxHeight"] : 2;
     var format = localStorage["format"] ? localStorage["format"] : 'image/png';
     var quality = localStorage["quality"] ? localStorage["quality"] : 0.6;
 
+    chrome.tabs.executeScript(tab.id, {file: "html2canvas.min.js"}, function() {
     chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function() {
 
         console.log('tab.id'+tab.id + " :: " +'sending message...');
-        chrome.tabs.sendMessage(tab.id, {maxHeight:maxHeight, format:format, quality:quality}, function(response) {
+        chrome.tabs.sendMessage(tab.id, {preview:preview, maxHeight:maxHeight, format:format, quality:quality}, function(response) {
 
             var previewUrl = typeof (response) != 'undefined' ? response.previewUrl : false;
 
+            console.dir(response.settings);
             console.log('tab.id'+tab.id + " :: " +'image length: '+previewUrl.length);
 
             chrome.tabs.update(tab.id, {url:"chrome://kill"});
@@ -64,6 +70,7 @@ function suspendTab(tab) {
             }
             testLoaded();
         });
+    });    
     });    
 }
 
@@ -97,10 +104,15 @@ function unsuspendAll() {
         for (i=0; i < window.tabs.length; i += 1) {
             if (window.tabs[i].url.indexOf("data") === 0) {
                 chrome.tabs.update(window.tabs[i].id, {url:window.tabs[i].url});
+
+            } else if (window.tabs[i].url.indexOf("chrome://kill/") === 0) {
+                chrome.tabs.reload(window.tabs[i].id);
             }
         }
     })
 ;}
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -115,5 +127,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('unsuspendAll').addEventListener('click', function() {
         unsuspendAll();
         //window.close();
+    });
+    document.getElementById('settings').addEventListener('click', function() {
+        chrome.tabs.create({
+            url: chrome.extension.getURL("options.html")
+        })
     });
 });
