@@ -1,31 +1,38 @@
 <html>
-<head><title>The Great Suspender :: Options</title></head>
-<script type="text/javascript" src="options.js"></script>
+<head>
+	<link type="text/css" href="style.css" rel="stylesheet">
+	<script type="text/javascript" src="options.js"></script>
+	<title>The Great Suspender</title>
+</head>
+
 
 <body>
 
-Turn on screen capturing (experimental):
-<input type="checkbox" id="preview"></input>
+<h1>The Great Suspender :: Settings</h1>
+
+<input type="checkbox" id="preview">Turn on screen capturing (experimental)</input>
 <br />
 
-Max height of image (in multiples of screen height):
-<input id="maxHeight" value="1"></input>
+
+<input id="maxHeight" value="1">Max height of capture (in multiples of screen height)</input>
 <br />
 
-Preview format:
+
 <select id="format">
- <option value="image/png">png</option>
- <option value="image/jpeg">jpeg</option>
+<option value="image/png">png</option>
+<option value="image/jpeg">jpeg</option>
+Capture format
 </select>
 <br />
 
-Jpeg quality (only if jpeg format selected):
+
 <select id="quality">
- <option value="0.2">0.2</option>
- <option value="0.4">0.4</option>
- <option value="0.6">0.6</option>
- <option value="0.8">0.8</option>
- <option value="1.0">1.0</option>
+<option value="0.2">0.2</option>
+<option value="0.4">0.4</option>
+<option value="0.6">0.6</option>
+<option value="0.8">0.8</option>
+<option value="1.0">1.0</option>
+Jpeg quality (only if jpeg format selected)
 </select>
 <br />
 
