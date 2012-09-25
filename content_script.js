@@ -13,7 +13,8 @@ chrome.extension.onMessage.addListener(
                     width: document.body.clientWidth - 10,
                     proxy: false,
                         onrendered: function( canvas ) {
-                            sendResponse({previewUrl: canvas.toDataURL(request.format, +request.quality), settings: request});
+                            console.log('finished!');
+                            sendResponse({previewUrl: canvas.toDataURL(request.format, request.quality), settings: request});
                         }
                     });
 

@@ -1,5 +1,5 @@
 
-function generatePage(tab, previewUrl) {
+function generatePage(tab, previewUrl, faviconUrl) {
 
     var expiryDate = (new Date()).setSeconds((new Date()).getSeconds() + 10);
     var html = '<title>' + tab.title + '</title>';
@@ -7,9 +7,9 @@ function generatePage(tab, previewUrl) {
     html += 'if (new Date() > ' + expiryDate + ') { history.back(); }';
     html += 'document.onclick = function(){ history.back(); };';
     html += '</script>';
-    html += '<link rel="icon" href="' + tab.favIconUrl + '" />'
+    html += '<link rel="icon" href="' + faviconUrl + '" />'
     html += '<a href="' + tab.url + '">';
-    if (previewUrl) {
+    if (previewUrl !== '') {
         html += '<img src="' + previewUrl + '" style="padding-top:40px;" />';
     }
     html += '<div class="reloadNote" style="position: fixed;' +
@@ -53,6 +53,44 @@ function suspendTab(tab) {
        
 }
 
+function killTab(tab, previewUrl, faviconUrl) {
+
+    var count = 0;
+    chrome.tabs.update(tab.id, {url:"chrome://kill"});
+    var testLoaded = function() {
+        chrome.tabs.get(tab.id, function(killTab) {
+            console.log('tab.id'+ tab.id +' :: '+killTab.status);
+            if (killTab.status === 'complete') {
+                generatePage(tab, previewUrl, faviconUrl);
+                
+            } else {
+                count++;
+                //only try for 20 * 0.5 seconds
+                if (count < 20) {
+                    setTimeout(testLoaded, 500);
+                }
+            }
+        });
+    }
+    testLoaded();
+}
+
+function generateFaviconUri(url, callback) {
+
+    var img = new Image;
+    img.onload = function(){
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var context = canvas.getContext("2d");
+        context.globalAlpha = 0.45;
+        context.drawImage(img, 0, 0);
+        callback(canvas.toDataURL());
+    };
+    url ? img.src = url : callback('');
+
+}
+
 function sendSuspendMessage(tab, preview) {
 
     chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function() {
@@ -63,25 +101,18 @@ function sendSuspendMessage(tab, preview) {
         var quality = localStorage["quality"] ? +localStorage["quality"] : 0.6;
     
         console.log('tab.id'+tab.id + " :: " +'sending message...');
+        
+        var previewUrl = false;
+        var faviconUrl = false;
+
         chrome.tabs.sendMessage(tab.id, {preview:preview, maxHeight:maxHeight, format:format, quality:quality}, function(response) {
+            previewUrl = response ? response.previewUrl : '';
+            if (faviconUrl !== false) {killTab(tab, previewUrl, faviconUrl);}
+        });
 
-            var previewUrl = typeof (response) != 'undefined' ? response.previewUrl : false;
-
-            console.dir(response.settings);
-            console.log('tab.id'+tab.id + " :: " +'image length: '+previewUrl.length);
-
-            chrome.tabs.update(tab.id, {url:"chrome://kill"});
-            var testLoaded = function() {
-                chrome.tabs.get(tab.id, function(killTab) {
-                    console.log('tab.id'+ tab.id +' :: '+killTab.status);
-                    if (killTab.status === 'complete') {
-                        generatePage(tab, previewUrl);
-                    } else {
-                        setTimeout(testLoaded, 100);
-                    }
-                });
-            }
-            testLoaded();
+        generateFaviconUri(tab.favIconUrl, function(response) {
+            faviconUrl = response;
+            if (previewUrl !== false) {killTab(tab, previewUrl, faviconUrl);}
         });
     });   
 }
