@@ -22,8 +22,8 @@ chrome.extension.onMessage.addListener(
             },3000);
 
             html2canvas([document.body], {
-                height: Math.min(document.body.offsetHeight, window.innerHeight * request.maxHeight) - 50,
-                width: document.body.clientWidth - 10,
+                height: Math.min(document.body.offsetHeight, window.innerHeight * request.maxHeight) - 60,
+                width: document.body.clientWidth - 6,
                 proxy: false,
                 onrendered: function( canvas ) {
                     if (processing) {

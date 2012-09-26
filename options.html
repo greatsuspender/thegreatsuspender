@@ -10,32 +10,50 @@
 
 <h1>The Great Suspender :: Settings</h1>
 
-<input type="checkbox" id="preview">Turn on screen capturing (experimental)</input>
-<br />
+<p>
+<input type="checkbox" id="preview"></input>
+<label for="preview">Turn on screen capturing (experimental)</label>
+</p>
 
 
-<input id="maxHeight" value="1">Max height of capture (in multiples of screen height)</input>
-<br />
+<p>
+<select id="maxHeight">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+</select>
+<label id="maxHeightLbl" for="maxHeight">Max height of capture (in multiples of screen height)</label>
+</p>
 
 
+<p>
 <select id="format">
 <option value="image/png">png</option>
 <option value="image/jpeg">jpeg</option>
-Capture format
 </select>
-<br />
+<label id="formatLbl" for="format">Capture format</label>
+</p>
 
 
+<p>
 <select id="quality">
 <option value="0.2">0.2</option>
 <option value="0.4">0.4</option>
 <option value="0.6">0.6</option>
 <option value="0.8">0.8</option>
 <option value="1.0">1.0</option>
-Jpeg quality (only if jpeg format selected)
 </select>
-<br />
+<label id="qualityLbl" for="quality">Jpeg quality</label>
+</p>
 
+<p>
 <button id='save'>Save</button>
+</p>
 </body>
 </html>

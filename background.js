@@ -41,7 +41,7 @@ function generatePage(tab, previewUrl, faviconUrl) {
 
 function suspendTab(tab) {
     
-    var preview = localStorage["preview"] === "true" ? true : false;
+    var preview = localStorage["greatsuspender.preview"] === "true" ? true : false;
 
     if (preview) {
         chrome.tabs.executeScript(tab.id, {file: "html2canvas.min.js"}, function() {
@@ -100,9 +100,9 @@ function sendSuspendMessage(tab, preview) {
     chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function() {
 
 
-        var maxHeight = localStorage["maxHeight"] ? localStorage["maxHeight"] : 2;
-        var format = localStorage["format"] ? localStorage["format"] : 'image/png';
-        var quality = localStorage["quality"] ? +localStorage["quality"] : 0.6;
+        var maxHeight = localStorage["greatsuspender.maxHeight"] ? localStorage["greatsuspender.maxHeight"] : 2;
+        var format = localStorage["greatsuspender.format"] ? localStorage["greatsuspender.format"] : 'image/png';
+        var quality = localStorage["greatsuspender.quality"] ? +localStorage["greatsuspender.quality"] : 0.4;
     
         console.log('tab.id'+tab.id + " :: " +'sending message...');
         

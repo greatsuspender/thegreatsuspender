@@ -20,6 +20,7 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 
 footer, header, hgroup, menu, nav, section {
@@ -31,17 +32,30 @@ ol, ul {
 
 /* END RESET */
 
-/* SUSPENDED TAB STYLES */
-	/* need to be inline maybe?? */
-/* END SUSPENDED TAB STYLES */
+h1 {
+	font-size: 24px;
+	padding-bottom: 15px;
+}
+
+select {
+	min-width: 70px;
+	padding-left: 1px;
+}
+
 
 
 /* BUTTONS / CONTROLS */
 body {
 	font-family: verdana, arial, sans-serif;
 	font-size: 14px;
-	padding: 3px;
+	padding: 20px;
 	background: #f5f5f5;
+}
+p {
+	height: 25px;
+}
+.hidden {
+	visibility: hidden;
 }
 #heading {
 	white-space: nowrap;
