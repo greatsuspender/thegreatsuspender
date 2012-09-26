@@ -65,9 +65,9 @@ function killTab(tab, previewUrl, faviconUrl) {
                 
             } else {
                 count++;
-                //only try for 20 * 0.5 seconds
-                if (count < 20) {
-                    setTimeout(testLoaded, 500);
+                //only try for 50 * 0.1 seconds
+                if (count < 50) {
+                    setTimeout(testLoaded, 100);
                 }
             }
         });
@@ -83,9 +83,13 @@ function generateFaviconUri(url, callback) {
         canvas.width = img.width;
         canvas.height = img.height;
         var context = canvas.getContext("2d");
-        context.globalAlpha = 0.45;
+        context.globalAlpha = 0.5;
         context.drawImage(img, 0, 0);
-        callback(canvas.toDataURL());
+/*        context.globalCompositeOperation = "darker";
+        context.fillStyle = "#000";
+        context.fillRect(0, 0, img.width, img.height);
+        context.fill();
+*/        callback(canvas.toDataURL());
     };
     url ? img.src = url : callback('');
 
