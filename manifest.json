@@ -1,6 +1,6 @@
 {
     "name": "The Great Suspender",
-    "version": "1.4",
+    "version": "1.5",
     "permissions": [
         "tabs",
         "http://*/*",

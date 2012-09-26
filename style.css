@@ -48,8 +48,11 @@ select {
 body {
 	font-family: verdana, arial, sans-serif;
 	font-size: 14px;
-	padding: 20px;
+	padding: 3px;
 	background: #f5f5f5;
+}
+div {
+	padding: 20px;
 }
 p {
 	height: 25px;
