@@ -1,10 +1,11 @@
 {
     "name": "The Great Suspender",
-    "version": "1.5",
+    "version": "2.4",
     "permissions": [
         "tabs",
         "http://*/*",
-        "https://*/*"
+        "https://*/*",
+        "chrome://favicon/*"
     ],
     "background": {
         "scripts": ["background.js"]
@@ -15,9 +16,10 @@
         "default_popup": "popup.html"
     },
     "options_page": "options.html",
-    "icons": { "16": "icon16.png",
-           "48": "icon48.png",
-          "128": "icon128.png" 
+    "icons": { 
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png" 
     },
     "manifest_version": 2
 }

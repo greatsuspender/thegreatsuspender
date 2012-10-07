@@ -36,15 +36,18 @@ h1 {
 	font-size: 24px;
 	padding-bottom: 15px;
 }
-
+h2 {
+	font-size: 20px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
 select {
-	min-width: 70px;
+	min-width: 50px;
 	padding-left: 1px;
 }
-
-
-
-/* BUTTONS / CONTROLS */
+input, select, button {
+	margin-bottom: 8px;
+}
 body {
 	font-family: verdana, arial, sans-serif;
 	font-size: 14px;
@@ -53,9 +56,10 @@ body {
 }
 div {
 	padding: 20px;
+	max-width: 800px;
 }
 p {
-	height: 25px;
+	padding-bottom: 10px;
 }
 .hidden {
 	visibility: hidden;

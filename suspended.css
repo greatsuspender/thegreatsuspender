@@ -1,0 +1,21 @@
+#gsTopBar {
+	position: fixed;
+    color: #444;
+    text-shadow: 0 1px 0 #FFF3C5;
+    height: 40px;
+    background: #FDE073;
+    top: 0;
+    line-height: 40px;
+    width: 100%;
+    text-align: center;
+    font-family: verdana, arial, sans-serif;
+    border-bottom: 1px solid #6B5811;
+    box-shadow: 0 4px 5px -2px #555;
+}
+#gsPreview {
+	padding-top:40px;
+}
+body {
+    cursor: pointer;
+    margin: 0px;
+}
