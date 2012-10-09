@@ -122,16 +122,33 @@
             }
         });
     }
+    function performResponseCheck(tab) {
+        console.log('checking reponse of: '+tab.id);
+        if (tab.status !== 'loading') {
+            var reload = window.setTimeout(function () { chrome.tabs.reload(tab.id); }, 300);
+            chrome.tabs.executeScript(tab.id, {code: ""}, function (response) {
+                window.clearTimeout(reload);
+            });
+        }
+    }
     function unsuspendAll() {
 
         chrome.windows.getLastFocused({populate: true}, function (window) {
+
             var i;
             for (i = 0; i < window.tabs.length; i += 1) {
+
+                //unsuspend if tab has been suspended
                 if (window.tabs[i].url.indexOf("suspended.html") >= 0) {
                     chrome.tabs.update(window.tabs[i].id, {url: window.tabs[i].url});
 
-                } else if (window.tabs[i].url.indexOf("chrome://kill") === 0) {
+                //or if tab is set to chrome://kill page
+                } else if (window.tabs[i].url.indexOf("chrome://kill") >= 0) {
                     chrome.tabs.reload(window.tabs[i].id);
+
+                //otherwise test for an unreponsive page (happens when page has been killed accidentally)
+                } else {
+                    performResponseCheck(window.tabs[i]);
                 }
             }
         });
@@ -152,6 +169,11 @@
             }
         }
     );
+
+    //handler for tab update
+    chrome.tabs.onUpdated.addListener(function() {
+
+    });        
 
     //handler for suspended.html onload
     chrome.extension.onMessage.addListener(
@@ -184,5 +206,6 @@
             }
         }
     );
+
 
 }());
