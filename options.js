@@ -1,4 +1,4 @@
-/*global document, window */
+/*global document, window, localStorage */
 
 (function () {
 
@@ -90,7 +90,9 @@
             window.clearInterval(readyStateCheckInterval);
 
             var previewEl = document.getElementById('preview'),
-                saveEl = document.getElementById('save');
+                saveEl = document.getElementById('save'),
+                showHistoryEl = document.getElementById('showHistory'),
+                clearHistoryEl = document.getElementById('clearHistory');
 
             //var formatEl = document.getElementById('format');
 
@@ -103,6 +105,13 @@
             };*/
             saveEl.onclick = function (e) {
                 save_options();
+            };
+
+            showHistoryEl.onclick = function (e) {
+                chrome.tabs.create({url: chrome.extension.getURL("suspended.html")});
+            };
+            clearHistoryEl.onclick = function (e) {
+                localStorage.setItem("gsHistory", []);
             };
 
             restore_options();

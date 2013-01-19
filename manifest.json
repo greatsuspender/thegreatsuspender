@@ -1,8 +1,9 @@
 {
     "name": "The Great Suspender",
-    "version": "2.53",
+    "version": "2.6",
     "permissions": [
         "tabs",
+        "unlimitedStorage",
         "http://*/*",
         "https://*/*",
         "chrome://favicon/*"

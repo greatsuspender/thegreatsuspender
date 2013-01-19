@@ -1,4 +1,4 @@
-/*global chrome, window, Image, console */
+/*global chrome, window, Image, console, localStorage */
 
 (function () {
 
@@ -98,9 +98,9 @@
 
         chrome.tabs.executeScript(tab.id, {file: "content_script.js"}, function () {
 
-            var maxHeight = window.localStorage.getItem("maxHeight") || 2,
-                format = window.localStorage.getItem("format") || 'image/png',
-                quality = window.localStorage.getItem("quality") || 0.4,
+            var maxHeight = localStorage.getItem("maxHeight") || 2,
+                format = localStorage.getItem("format") || 'image/png',
+                quality = localStorage.getItem("quality") || 0.4,
                 faviconUrl,
                 previewUrl,
                 previewGenerated = false,
@@ -121,7 +121,20 @@
         });
     }
 
+    function getFormattedDate() {
+        var d = new Date(),
+            cur_date = ("0" + d.getDate()).slice(-2),
+            cur_month = ("0" + (d.getMonth() + 1)).slice(-2),
+            cur_year = d.getFullYear(),
+            cur_time = d.toTimeString().match(/^([0-9]{2}:[0-9]{2})/)[0];
+
+        return cur_time + " " + cur_date + "-" + cur_month + "-" + cur_year;
+    }
+
     function suspendTab(tab) {
+
+        var gsHistory,
+            preview;
 
         //don't allow suspending of already suspended tabs
         if (tab.url.indexOf("chrome-extension") >= 0) {
@@ -131,8 +144,21 @@
         //add this tab to the suspended tabs list
         suspendedTabsList[tab.id] = true;
 
-        var preview = window.localStorage.getItem("preview") === "false" ? false : true;
+        //add this tab url to local storage of suspended tabs
+        gsHistory = localStorage.getItem("gsHistory");
+        if (gsHistory === null) {
+            gsHistory = [];
+        } else {
+            try {
+                gsHistory = JSON.parse(gsHistory);
+            } catch (e) {
+                gsHistory = [];
+            }
+        }
+        gsHistory.unshift({title: tab.title, url: tab.url, icon: tab.favIconUrl, date: getFormattedDate()});
+        localStorage.setItem("gsHistory", JSON.stringify(gsHistory));
 
+        preview = localStorage.getItem("preview") === "false" ? false : true;
         if (preview) {
             chrome.tabs.executeScript(tab.id, {file: "html2canvas.min.js"}, function () {
                 sendSuspendMessage(tab, preview);
