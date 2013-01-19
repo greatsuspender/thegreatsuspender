@@ -1,10 +1,59 @@
-/*global chrome, window, Image */
+/*global chrome, window, Image, console */
 
 (function () {
 
     "use strict";
 
-    var temporaryStorage = [];
+    var temporaryStorage = [],
+        suspendedTabsList = [];
+
+    function performResponseCheck(tab) {
+        console.log('checking reponse of: ' + tab.id);
+        if (tab.status !== 'loading') {
+            var reload = window.setTimeout(function () { chrome.tabs.reload(tab.id); }, 300);
+            chrome.tabs.executeScript(tab.id, {code: ""}, function (response) {
+                window.clearTimeout(reload);
+            });
+        }
+    }
+    function checkForMiskilledTabs() {
+
+        //iterate through every tab to see if any have become unresponsive
+        chrome.windows.getAll({"populate" : true}, function (windows) {
+            var i, j, curTab;
+            for (i = 0; i < windows.length; i++) {
+                for (j = 0; j < windows[i].tabs.length; j++) {
+
+                    curTab = windows[i].tabs[j];
+                    if (typeof suspendedTabsList[curTab.id] === 'undefined') {
+                        performResponseCheck(curTab);
+                    }
+                }
+            }
+        });
+    }
+
+    function executeOnComplete(tab, callback) {
+        var count = 0;
+        chrome.tabs.get(tab.id, function (killTab) {
+            //console.log('tab.id: '+ tab.id +' :: '+killTab.status);
+            if (killTab.status === 'complete') {
+                callback();
+
+            } else {
+                count++;
+                //only try for 50 * 0.1 seconds
+                if (count < 50) {
+                    window.setTimeout(function () {
+                        executeOnComplete(tab, callback);
+                    }, 100);
+                //otherwise attempt callback anyway
+                } else {
+                    callback();
+                }
+            }
+        });
+    }
 
     function killTab(tab, previewUrl, faviconUrl) {
 
@@ -17,26 +66,13 @@
         };
 
         //kill the current tab
-        var count = 0,
-            testLoaded = function () {
-                chrome.tabs.get(tab.id, function (killTab) {
-                    //console.log('tab.id: '+ tab.id +' :: '+killTab.status);
-                    if (killTab.status === 'complete') {
-                        //update page to suspended.html
-                        chrome.tabs.update(tab.id, {url: chrome.extension.getURL("suspended.html")});
-
-                    } else {
-                        count++;
-                        //only try for 50 * 0.1 seconds
-                        if (count < 50) {
-                            window.setTimeout(testLoaded, 100);
-                        }
-                    }
-                });
-            };
-
         chrome.tabs.update(tab.id, {url: "chrome://kill"});
-        testLoaded();
+
+        //when page has finished dieing update page to suspended.html
+        executeOnComplete(tab, function () {
+            checkForMiskilledTabs();
+            chrome.tabs.update(tab.id, {url: chrome.extension.getURL("suspended.html")});
+        });
     }
 
     function generateFaviconUri(url, callback) {
@@ -87,6 +123,9 @@
 
     function suspendTab(tab) {
 
+        //add this tab to the suspended tabs list
+        suspendedTabsList[tab.id] = true;
+
         var preview = window.localStorage.getItem("preview") === "false" ? false : true;
 
         if (preview) {
@@ -122,33 +161,23 @@
             }
         });
     }
-    function performResponseCheck(tab) {
-        console.log('checking reponse of: '+tab.id);
-        if (tab.status !== 'loading') {
-            var reload = window.setTimeout(function () { chrome.tabs.reload(tab.id); }, 300);
-            chrome.tabs.executeScript(tab.id, {code: ""}, function (response) {
-                window.clearTimeout(reload);
-            });
-        }
-    }
     function unsuspendAll() {
 
-        chrome.windows.getLastFocused({populate: true}, function (window) {
+        chrome.windows.getLastFocused({populate: true}, function (curWindow) {
 
             var i;
-            for (i = 0; i < window.tabs.length; i += 1) {
+            for (i = 0; i < curWindow.tabs.length; i += 1) {
+
+                //mark tab as unsuspended
+                delete suspendedTabsList[curWindow.tabs[i]];
 
                 //unsuspend if tab has been suspended
-                if (window.tabs[i].url.indexOf("suspended.html") >= 0) {
-                    chrome.tabs.update(window.tabs[i].id, {url: window.tabs[i].url});
+                if (curWindow.tabs[i].url.indexOf("suspended.html") >= 0) {
+                    chrome.tabs.update(curWindow.tabs[i].id, {url: curWindow.tabs[i].url});
 
                 //or if tab is set to chrome://kill page
-                } else if (window.tabs[i].url.indexOf("chrome://kill") >= 0) {
-                    chrome.tabs.reload(window.tabs[i].id);
-
-                //otherwise test for an unreponsive page (happens when page has been killed accidentally)
-                } else {
-                    performResponseCheck(window.tabs[i]);
+                } else if (curWindow.tabs[i].url.indexOf("chrome://kill") >= 0) {
+                    chrome.tabs.reload(curWindow.tabs[i].id);
                 }
             }
         });
@@ -169,11 +198,6 @@
             }
         }
     );
-
-    //handler for tab update
-    chrome.tabs.onUpdated.addListener(function() {
-
-    });        
 
     //handler for suspended.html onload
     chrome.extension.onMessage.addListener(
@@ -198,10 +222,13 @@
 
                 //otherwise force tab to reload original content
                 } else {
+
+                    //mark tab as unsuspended
+                    delete suspendedTabsList[sender.tab.id];
+
                     sendResponse({
                         backtrack: "true"
                     });
-
                 }
             }
         }

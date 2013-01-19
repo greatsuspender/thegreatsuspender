@@ -1,25 +1,22 @@
 {
-    "name": "The Great Suspender",
-    "version": "2.4",
-    "permissions": [
-        "tabs",
-        "http://*/*",
-        "https://*/*",
-        "chrome://favicon/*"
-    ],
-    "background": {
-        "scripts": ["background.js"]
-    },
-    "browser_action": {
-        "default_title": "The Great Suspender",
-        "default_icon": "icon128.png",
-        "default_popup": "popup.html"
-    },
-    "options_page": "options.html",
-    "icons": { 
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png" 
-    },
-    "manifest_version": 2
+   "background": {
+      "scripts": [ "background.js" ]
+   },
+   "browser_action": {
+      "default_icon": "icon128.png",
+      "default_popup": "popup.html",
+      "default_title": "The Great Suspender"
+   },
+   "icons": {
+      "128": "icon128.png",
+      "16": "icon16.png",
+      "48": "icon48.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDWu7+3vUaUm2vuJZQsiPeciQbO5hpq8/Z2o6zP/Kv7I5+rI1ZfDhjsuz6jw2Efi23YwkAGPpXewhKnrmGXAgRSPIq1EHZUTwVwqo1SFWGCyEzywvXjpPiLaP3DsJCHT2wJE0KcWvt/aKeREtFCpvZ3b5vnupYh1oMlSryqBiINewIDAQAB",
+   "manifest_version": 2,
+   "name": "The Great Suspender",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "http://*/*", "https://*/*", "chrome://favicon/*" ],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "2.51"
 }
