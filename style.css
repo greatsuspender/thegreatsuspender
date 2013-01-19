@@ -92,6 +92,7 @@ p {
 	padding:3px 2px 2px 3px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #ffffff;
+	margin:1px;
 	margin-bottom:2px;
 }.button:hover {
 	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );

@@ -123,6 +123,11 @@
 
     function suspendTab(tab) {
 
+        //don't allow suspending of already suspended tabs
+        if (tab.url.indexOf("chrome-extension") >= 0) {
+            return;
+        }
+
         //add this tab to the suspended tabs list
         suspendedTabsList[tab.id] = true;
 
