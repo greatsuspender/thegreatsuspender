@@ -1,46 +1,43 @@
-#gsTopBar {
+#gsTopBar  {
 	position: fixed;
     color: #444;
     text-shadow: 0 1px 0 #FFF3C5;
-    height: 40px;
+    height: 100px;
     background: #FDE073;
     top: 0;
-    line-height: 40px;
+    padding-top: 10px;
+    line-height: 25px;
     width: 100%;
     text-align: center;
     font-family: verdana, arial, sans-serif;
     border-bottom: 1px solid #6B5811;
     box-shadow: 0 4px 5px -2px #555;
 }
-#gsPreview {
-	padding-top:40px;
+#gsTopBarImg {
+    position: absolute;
+    left: 10px;
+    height: 90px;
+    width: 90px;
 }
-body {
+#gsTopBarTitle {
+    font-weight: bold;
+}
+#gsTopBarUrl {
+    font-style: italic;
+    font-size: 14px;
+}
+#gsTopBarInfo {
+    line-height: 40px;
+}
+#gsWhitelistLink {
+    text-decoration:underline;
+}
+html, body {
     cursor: pointer;
     margin: 0px;
+    width: 100%;
+    height: 100%;
 }
-#gsHistory {
-    display: none;
-    padding: 20px;
-}
-#gsHistory h1 {
-    margin-top: 10px;
-    font-size: 30px;
-    color: #666;
-    font-family: verdana, arial, sans-serif;
-}
-#gsHistory img {
-    padding-left: 10px;
-}
-#gsHistory a {
-    line-height: 30px;
-    font-family: verdana, arial, sans-serif;
-    padding-left: 10px;
-}
-#gsHistory span {
-    font-style: italic;
-    font-size: 11px;
-    color: #aaa;
-    font-family: verdana, arial, sans-serif;
-    padding-left: 20px;
+a {
+    color: #333;
 }

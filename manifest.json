@@ -1,9 +1,9 @@
 {
     "name": "The Great Suspender",
-    "version": "2.6",
+    "version": "4.42",
     "permissions": [
         "tabs",
-        "unlimitedStorage",
+        "storage",
         "http://*/*",
         "https://*/*",
         "chrome://favicon/*"
@@ -22,5 +22,7 @@
         "48": "icon48.png",
         "128": "icon128.png" 
     },
+    "web_accessible_resources": ["suspended.html", "history.html"],
+    "incognito": "split",
     "manifest_version": 2
 }

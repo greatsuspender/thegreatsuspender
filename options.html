@@ -11,40 +11,28 @@
 <div>
 	<h1>The Great Suspender :: Settings</h1>
 
-	<input type="checkbox" id="preview"></input>
-	<label for="preview">Turn on screen capturing (experimental)</label>
+
 	<br />
-	<select id="maxHeight">
-		<option value="1">1</option>
-		<option value="2">2</option>
-		<option value="3">3</option>
-		<option value="4">4</option>
-		<option value="5">5</option>
-		<option value="6">6</option>
-		<option value="7">7</option>
-		<option value="8">8</option>
-		<option value="9">9</option>
+	<label for="whitelist">Whitelist (space separated keywords of pages to ignore)</label>
+	<br />
+	<textarea id="whitelist" rows="4" cols="50"></textarea>
+	<br />
+	<br />
+
+	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically:</label>
+	<br />
+	<select id="timeToSuspend">
+		<option value="0">Never</option>
+		<option value="5">5 mins</option>
+		<option value="15">15 mins</option>
+		<option value="30">30 mins</option>
+		<option value="60">1 hour</option>
+		<option value="120">2 hours</option>
+		<option value="360">6 hours</option>
+		<option value="720">12 hours</option>
 	</select>
 
-	<label id="maxHeightLbl" for="maxHeight">Max height of capture (in multiples of screen height)</label>
-
-	<!--
-	<select id="format">
-	<option value="image/png">png</option>
-	<option value="image/jpeg">jpeg</option>
-	</select>
-	<label id="formatLbl" for="format">Capture format</label>
-
-	<select id="quality">
-	<option value="0.2">0.2</option>
-	<option value="0.4">0.4</option>
-	<option value="0.6">0.6</option>
-	<option value="0.8">0.8</option>
-	<option value="1.0">1.0</option>
-	</select>
-	<label id="qualityLbl" for="quality">Jpeg quality</label>
-	-->
-
+	<br />
 	<br />
 	<button id='save'>Save</button>
 
@@ -63,20 +51,11 @@
 
 	<h2>Notes about Screen Capturing:</h2>
 	<p>
-		The screen capturing is done using Niklas von Hertzen's most excellent <a href='https://github.com/niklasvh/html2canvas'>html2canvas</a> script which attempts to render the dom onto an html5 canvas element. As far as I understand, this is still a work in progress and will not always be able to accurately represent the contents of the page in an image, sometimes resulting in missing sections or even no image at all.
-	</p>
-	<p>	
-		Please also note that turning on screen capturing will increase the memory footprint of the suspended page (somewhat contrary to the primary goal of this extension). Likewise, the larger the height of the preview image, the larger the memory footprint of the suspended page.
+		Sorry to all that were using this feature but I have decided to remove the screen capture functionality
+		as it was causing the extension to consume too much memory. If there is enough demand for it, I can 
+		reintroduce this functionality and offer it as a seperate extension.
 	</p>
 
-	<h2>Notes about The Great Suspender:</h2>
-	<p>
-		The great suspender works by first calling chrome://kill on the tab to release all the memory that the tab might be holding on to. It then creates a simple html page consisting of a the url, title and favicon of the page being suspended as well as (optionally) a screen capture of a small section of the page being suspended. Clicking anywhere on this page will result in the navigation back to the previous page that was suspended. On a chrome restart all suspended pages will revert back to the live version.
-	</p>
-	<p>	
-		Please also note that there is another chrome extension called <a href='https://github.com/funroll/jollyroger'>Jolly Roger</a> which takes advantage of chrome's experimental processes api to achieve a similar result to this extension but without having to resort to chrome://kill to unallocate memory. I have written this plugin as an alternative to Jolly Roger that doesn't rely on using api's that are still in the development stage.
-	</p>
-			
 </div>
 
 </body>

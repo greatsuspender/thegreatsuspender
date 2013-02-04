@@ -1,0 +1,41 @@
+html, body {
+    margin: 0px;
+}
+#gsHistory {
+    padding: 20px;
+}
+#gsHistory h1 {
+    margin-top: 10px;
+    font-size: 30px;
+    color: #666;
+    font-family: verdana, arial, sans-serif;
+}
+#gsHistory h2 {
+    font-size: 20px;
+    color: #666;
+    font-family: verdana, arial, sans-serif;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+#gsHistory img {
+    padding-left: 10px;
+}
+#gsHistory a {
+    line-height: 30px;
+    font-family: verdana, arial, sans-serif;
+    padding-left: 10px;
+    color: #333;
+}
+#gsHistory span {
+    font-style: italic;
+    font-size: 11px;
+    color: #aaa;
+    font-family: verdana, arial, sans-serif;
+    padding-left: 20px;
+}
+#gsHistory .groupLink {
+    font-size: 14px;
+    color: #888;
+    font-family: verdana, arial, sans-serif;
+    padding-left: 20px;
+}
