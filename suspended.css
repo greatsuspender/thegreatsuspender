@@ -32,6 +32,9 @@
 #gsWhitelistLink {
     text-decoration:underline;
 }
+#gsPreview {
+    margin-top:115px;
+}
 html, body {
     cursor: pointer;
     margin: 0px;

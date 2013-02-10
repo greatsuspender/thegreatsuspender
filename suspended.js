@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, localStorage, Image */
+/*global window, document, chrome, console, Image, gsStorage */
 
 (function () {
 
@@ -41,39 +41,23 @@
         return false;
     }
 
-    function fetchTabFromHistory(tabId) {
+    function sendUnsuspendMessage(tabUrl) {
 
-        var gsHistory = JSON.parse(localStorage.getItem('gsHistory2')),
-            i;
-
-        for (i = 0; i < gsHistory.length; i++) {
-            if (gsHistory[i].id === parseInt(tabId, 10)) {
-                return gsHistory[i];
-            }
-        }
-        return false;
-    }
-
-    function getPropertiesForTab(tabId) {
-
-        var tabProperties = fetchTabFromHistory(tabId);
-
-        //if no properties found try getting id from hashtag and use that
-        if (!tabProperties && getHashVariable('id')) {
-            tabProperties = fetchTabFromHistory(getHashVariable('id'));
-        }
-        return tabProperties;
+        chrome.extension.sendMessage({ action: "setUnsuspendedState", tabUrl: tabUrl }, function (response) {});
     }
 
     function unsuspendTab() {
+
+        var url = getHashVariable('url');
+        sendUnsuspendMessage(url);
 
         //try using tab history to go back
         if (window.history.length > 1) {
             window.history.back();
 
         //otherwise try to get url from hashtag
-        } else if (getHashVariable('url')) {
-            window.location.replace(getHashVariable('url'));
+        } else if (url) {
+            window.location.replace(url);
 
         //finally, show gs history instead (as all else has failed)
         } else {
@@ -84,7 +68,8 @@
     function suspendTab(tabProperties) {
 
         var faviconUrl,
-            rootUrlStr = tabProperties.url;
+            rootUrlStr = tabProperties.url,
+            showPreview = gsStorage.fetchPreviewOption();
 
         //get root of url
         rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf("//") + 2);
@@ -104,6 +89,15 @@
                 + "#id=" + tabProperties.id
                 + "&url=" + tabProperties.url);
 
+        if (showPreview) {
+
+            gsStorage.fetchPreviewImage(tabProperties.url, function (previewUrl) {
+                if (previewUrl !== null) {
+                    document.getElementById("gsPreview").setAttribute('src', previewUrl);
+                }
+            });
+        }
+
         generateFaviconUri(tabProperties.favicon, function (faviconUrl) {
             document.getElementById("gsFavicon").setAttribute('href', faviconUrl);
         });
@@ -112,7 +106,7 @@
 
     function attemptTabSuspend(tab) {
 
-        var tabProperties = getPropertiesForTab(tab.id);
+        var tabProperties = gsStorage.fetchTabFromHistory(getHashVariable('url'));//getPropertiesForTab(tab.id);
 
         //if we have some suspend information for this tab
         if (tabProperties) {
@@ -131,25 +125,25 @@
         }
     }
 
-    function addToWhitelist() {
-        var whitelist = localStorage.getItem("gsWhitelist") || "",
-            text = document.getElementById("gsWhitelistLink").getAttribute('data-text'),
-            gsHistory = JSON.parse(localStorage.getItem('gsHistory2')),
-            i;
-
-        localStorage.setItem("gsWhitelist", whitelist + " " + text);
-    }
-
     window.onload = function () {
 
         //handler for unsuspend
         chrome.extension.onMessage.addListener(unsuspendTabListener);
 
         //handler for whitelist
-        document.getElementById("gsWhitelistLink").onclick = addToWhitelist;
+        document.getElementById("gsWhitelistLink").onclick = function (e) {
+            gsStorage.saveToWhitelist(e.getAttribute('data-text'));
+        };
 
         //try to suspend tab
         chrome.tabs.getCurrent(attemptTabSuspend);
+    };
+
+    window.onbeforeunload = function () {
+
+        chrome.tabs.getCurrent(function (tab) {
+            sendUnsuspendMessage(getHashVariable('url'));
+        });
     };
 
 }());

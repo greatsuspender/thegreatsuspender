@@ -1,19 +1,8 @@
-/*global window, document, chrome, console, localStorage */
+/*global window, document, chrome, console, gsStorage */
 
 (function () {
 
     "use strict";
-
-    function getGsHistory() {
-
-        var result = localStorage.getItem('gsHistory2');
-        if (result === null) {
-            result = [];
-        } else {
-            result = JSON.parse(result);
-        }
-        return result;
-    }
 
     function getFormattedDate(date, includeTime) {
         var d = new Date(date),
@@ -32,7 +21,7 @@
     function reloadTabs(date) {
         var curDate = date;
         return function () {
-            var gsHistory = getGsHistory(),
+            var gsHistory = gsStorage.fetchGsHistory(),
                 historyMap = {},
                 groupKey,
                 tabProperties,
@@ -45,9 +34,7 @@
                 if (curDate === groupKey) {
                     if (!historyMap.hasOwnProperty(tabProperties.url)) {
                         historyMap[tabProperties.url] = true;
-                        chrome.tabs.create({url: chrome.extension.getURL("suspended.html"
-                                                + "#id=" + tabProperties.id
-                                                + "&url=" + tabProperties.url)});
+                        chrome.tabs.create({url: tabProperties.url});
                     }
                 }
             }
@@ -56,7 +43,7 @@
 
     window.onload = function () {
 
-        var gsHistory = getGsHistory(),
+        var gsHistory = gsStorage.fetchGsHistory(),
             historyMap = {},
             key,
             groupKey,

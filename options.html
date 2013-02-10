@@ -1,6 +1,7 @@
 <html>
 <head>
 	<link type="text/css" href="style.css" rel="stylesheet">
+	<script type="text/javascript" src="gsStorage.js"></script>
 	<script type="text/javascript" src="options.js"></script>
 	<title>The Great Suspender</title>
 </head>
@@ -12,6 +13,10 @@
 	<h1>The Great Suspender :: Settings</h1>
 
 
+	<br />
+	<input type="checkbox" id="preview"></input>
+	<label for="preview">Turn on screen capturing (experimental)</label>
+	<br />
 	<br />
 	<label for="whitelist">Whitelist (space separated keywords of pages to ignore)</label>
 	<br />
@@ -51,9 +56,10 @@
 
 	<h2>Notes about Screen Capturing:</h2>
 	<p>
-		Sorry to all that were using this feature but I have decided to remove the screen capture functionality
-		as it was causing the extension to consume too much memory. If there is enough demand for it, I can 
-		reintroduce this functionality and offer it as a seperate extension.
+		The screen capturing is done using Niklas von Hertzen's most excellent <a href='https://github.com/niklasvh/html2canvas'>html2canvas</a> script which attempts to render the dom onto an html5 canvas element. As far as I understand, this is still a work in progress and will not always be able to accurately represent the contents of the page in an image, sometimes resulting in missing sections or even no image at all.
+	</p>
+	<p>	
+		Please also note that turning on screen capturing will increase the memory footprint of the suspended page (somewhat contrary to the primary goal of this extension). Likewise, the larger the height of the preview image, the larger the memory footprint of the suspended page.
 	</p>
 
 </div>

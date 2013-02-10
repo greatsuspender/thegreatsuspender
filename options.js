@@ -1,4 +1,4 @@
-/*global document, window, localStorage, chrome */
+/*global document, window, gsStorage, chrome */
 
 (function () {
 
@@ -7,12 +7,14 @@
     // Saves options to localStorage.
     function save_options() {
 
-        var whitelist = document.getElementById("whitelist").value,
+        var preview = document.getElementById("preview"),
+            whitelist = document.getElementById("whitelist").value,
             select = document.getElementById("timeToSuspend"),
             timeToSuspend = select.children[select.selectedIndex].value;
 
-        localStorage.setItem("gsWhitelist", whitelist);
-        localStorage.setItem("gsTimeToSuspend", timeToSuspend);
+        gsStorage.setPreviewOption(preview.checked);
+        gsStorage.setWhitelist(whitelist);
+        gsStorage.setTimeToSuspend(timeToSuspend);
     }
 
     function selectComboBox(element, key) {
@@ -31,9 +33,11 @@
     // Restores select box state to saved value from localStorage.
     function restore_options() {
 
-        var timeToSuspend = localStorage.getItem("gsTimeToSuspend") || 0,
-            whitelist = localStorage.getItem("gsWhitelist") || "";
+        var preview = gsStorage.fetchPreviewOption(),
+            timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
+            whitelist = gsStorage.fetchWhitelist();
 
+        document.getElementById("preview").checked = preview;
         document.getElementById("whitelist").value = whitelist;
         selectComboBox(document.getElementById("timeToSuspend"), timeToSuspend);
     }
@@ -44,7 +48,8 @@
 
             window.clearInterval(readyStateCheckInterval);
 
-            var saveEl = document.getElementById('save'),
+            var previewEl = document.getElementById('preview'),
+                saveEl = document.getElementById('save'),
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory');
 
@@ -56,7 +61,8 @@
                 chrome.tabs.create({url: chrome.extension.getURL("history.html")});
             };
             clearHistoryEl.onclick = function (e) {
-                localStorage.setItem('gsHistory2', JSON.stringify([]));
+                gsStorage.clearGsHistory();
+                gsStorage.clearPreviews();
             };
 
             restore_options();
