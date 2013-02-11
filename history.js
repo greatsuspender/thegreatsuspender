@@ -18,26 +18,33 @@
         }
     }
 
-    function reloadTabs(date) {
+    function reloadTabs(date, suspend) {
         var curDate = date;
         return function () {
+
             var gsHistory = gsStorage.fetchGsHistory(),
                 historyMap = {},
                 groupKey,
                 tabProperties,
-                i;
+                i,
+                url,
+                index;
 
-            for (i = 0; i < gsHistory.length; i++) {
-                tabProperties = gsHistory[i];
-                groupKey = getFormattedDate(tabProperties.date, false);
+            chrome.tabs.query({}, function (tabs) {
 
-                if (curDate === groupKey) {
-                    if (!historyMap.hasOwnProperty(tabProperties.url)) {
-                        historyMap[tabProperties.url] = true;
-                        chrome.tabs.create({url: tabProperties.url});
+                for (i = 0; i < gsHistory.length; i++) {
+                    tabProperties = gsHistory[i];
+                    groupKey = getFormattedDate(tabProperties.date, false);
+
+                    if (curDate === groupKey) {
+                        if (!historyMap.hasOwnProperty(tabProperties.url)) {
+                            historyMap[tabProperties.url] = true;
+                            url = suspend ? gsStorage.generateSuspendedUrl(tabProperties.url) : tabProperties.url;
+                            chrome.tabs.create({url: url});
+                        }
                     }
                 }
-            }
+            });
         };
     }
 
@@ -54,7 +61,8 @@
             historyLink,
             historySpan,
             groupHeading,
-            groupLink,
+            groupLinkSuspend,
+            groupLinkUnsuspend,
             i;
 
         try {
@@ -69,12 +77,18 @@
                     curGroupKey = groupKey;
                     groupHeading = document.createElement("h2");
                     groupHeading.innerHTML = groupKey;
-                    groupLink = document.createElement("a");
-                    groupLink.className = "groupLink";
-                    groupLink.innerHTML = "reload all suspended tabs for this day";
-                    groupLink.setAttribute('href', "#");
-                    groupLink.onclick = reloadTabs(groupKey);//reloadTabs(gsHistory, groupKey));
-                    groupHeading.appendChild(groupLink);
+                    groupLinkSuspend = document.createElement("a");
+                    groupLinkSuspend.className = "groupLink";
+                    groupLinkSuspend.innerHTML = "re-suspend all tabs for this day";
+                    groupLinkSuspend.setAttribute('href', "#");
+                    groupLinkSuspend.onclick = reloadTabs(groupKey, true);
+                    groupHeading.appendChild(groupLinkSuspend);
+                    groupLinkUnsuspend = document.createElement("a");
+                    groupLinkUnsuspend.className = "groupLink";
+                    groupLinkUnsuspend.innerHTML = "reload all tabs for this day";
+                    groupLinkUnsuspend.setAttribute('href', "#");
+                    groupLinkUnsuspend.onclick = reloadTabs(groupKey, false);
+                    groupHeading.appendChild(groupLinkUnsuspend);
                     historyDiv.appendChild(groupHeading);
                 }
                 if (!historyMap.hasOwnProperty(key)) {

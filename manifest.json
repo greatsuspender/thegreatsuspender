@@ -1,6 +1,6 @@
 {
     "name": "The Great Suspender",
-    "version": "4.52",
+    "version": "4.60",
     "permissions": [
         "tabs",
         "storage",

@@ -35,7 +35,7 @@
         for (i = 0; i < parts.length; i++) {
             temp = parts[i].split("=");
             if (temp[0] === key) {
-                return temp[1];
+                return decodeURIComponent(temp[1]);
             }
         }
         return false;
@@ -86,8 +86,7 @@
         document.getElementById("gsWhitelistLink").setAttribute('data-text', rootUrlStr);
 
         window.location.replace(chrome.extension.getURL("suspended.html")
-                + "#id=" + tabProperties.id
-                + "&url=" + tabProperties.url);
+                + "#url=" + encodeURIComponent(tabProperties.url));
 
         if (showPreview) {
 
@@ -102,6 +101,9 @@
             document.getElementById("gsFavicon").setAttribute('href', faviconUrl);
         });
 
+        //make sure tab is marked as suspended (may not be if reloaded from chrome restore)
+        tabProperties.state = 'suspended';
+        gsStorage.saveTabToHistory(tabProperties.url, tabProperties);
     }
 
     function attemptTabSuspend(tab) {
@@ -116,6 +118,10 @@
         //otherwise if there is some history information then use it
         } else if (window.history.length > 1) {
             unsuspendTab();
+
+        //else just reload from url
+        } else {
+            chrome.tabs.update(tab.id, {url: getHashVariable('url')});
         }
     }
 

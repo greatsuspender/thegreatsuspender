@@ -5,36 +5,39 @@
 <link  id='gsFavicon' rel="icon" />
 <script type="text/javascript" src="gsStorage.js"></script>
 <script type="text/javascript" src="recovery.js"></script>
-<link type="text/css" href="style.css" rel="stylesheet"></link>
+<link type="text/css" href="history.css" rel="stylesheet"></link>
 
 </head>
 <body>
 
 <div>
 	<h1>The Great Suspender :: Recovery</h1>
-	<br />
+
 	<p>
-		It appears that The Great Suspender has either just been updated, reloaded or has recovered from a crash.
+		The Great Suspender has just recovered from a restart which will have caused any tabs currently suspended to disappear.
 		<br />
-		You had <span id='suspendedCount'></span> tabs in suspension.
-		<ul> 
-			<li><a id='resuspendLink' href='#'>Resuspend these tabs</a> (will reload tabs in a suspended state)</li>
-			<li><a id='unsuspendLink' href='#'>Unsuspend these tabs</a> (will reload tabs in an unsuspended state)</li>
-		</ul>
+		This is common after an extension update or a chrome crash. 
 		<br />
-		Alternatively, you can go to the <a id='historyLink' href='#'>history tab</a> where you can view all tabs that
-		you have previously suspended and selectively reload from there.
+		Below is a list of tabs that were in suspension before the restart. 
+		<br />
+		You can unsuspend them all together or one at a time from the links below.
 	</p>
+
+	<h2>
+		Suspended Tabs:
+		<a id='resuspendLink' href='#' class='groupLink' title="Reopen all tabs in a suspended state">resuspend all tabs</a>
+		<a id='unsuspendLink' href='#' class='groupLink' title="Reopen all tabs in an unsuspended state">reload all tabs</a>
+		<a id='historyLink' href='#' class='groupLink' title="Goto the History page">view history</a>
+		<a id='clearLink' href='#' class='groupLink' title="Remove these tabs from history">clear results</a>
+	</h2>
+	<ul id='recoveryLinks'></ul>
 	<br />
 	<p>
-		Please note: If you are repeatedly seeing this page then something may be wrong with the extension. Feel free to 
-		let me know so that I can attempt to repair the problem.
+		Important: If you are seeing this page repeatedly, then something may be wrong with the extension.
+		<br />
+		Please let me know so that I can attempt to repair the problem.
 	</p>
-	<br />
-	<p>
-		Thanks for using my extension. Any feedback / suggestions are always welcome. You can email me directly 
-		at deanoemcke@gmail.com or use chromes various feedback mechanisms.
-	</p>
+	
 </div>
 
 </body>

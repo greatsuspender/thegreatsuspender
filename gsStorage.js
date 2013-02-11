@@ -8,12 +8,12 @@
 
         fetchPreviewImage : function (tabUrl, callback) {
             chrome.storage.local.get(null, function (items) {
-                if (typeof(items.gsPreviews) === 'undefined') {
+                if (typeof (items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
                     callback(null);
 
-                } else if (typeof(items.gsPreviews[tabUrl]) === 'undefined') {
+                } else if (typeof (items.gsPreviews[tabUrl]) === 'undefined') {
                     callback(null);
 
                 } else {
@@ -25,7 +25,7 @@
         setPreviewImage : function (tabUrl, previewUrl) {
             chrome.storage.local.get(null, function (items) {
 
-                if (typeof(items.gsPreviews) === 'undefined') {
+                if (typeof (items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                 }
                 items.gsPreviews[tabUrl] = previewUrl;
@@ -80,9 +80,7 @@
         fetchOldGsHistory : function () {
 
             var result = localStorage.getItem('gsHistory');
-            if (result === null) {
-                result = null;
-            } else {
+            if (result !== null) {
                 result = JSON.parse(result);
             }
             return result;
@@ -133,10 +131,15 @@
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory[i] = tabProperties;
                     localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
-                    break;
+                    //break; dont break anymore. want to update them all.
                 }
             }
+        },
+
+        generateSuspendedUrl : function (tabUrl) {
+            return chrome.extension.getURL("suspended.html" + "#url=" + encodeURIComponent(tabUrl));
         }
+
     };
     window.gsStorage = gsStorage;
 

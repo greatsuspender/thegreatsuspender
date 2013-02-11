@@ -4,32 +4,42 @@
 
 	"use strict";
 
-	var gsSuspended = [];
-
-    function generateSuspendedUrl(tabUrl) {
-        return chrome.extension.getURL("suspended.html" + "#url=" + tabUrl);
-    }
+	var gsSuspendedMap = {};
 
 	window.onload = function () {
 		document.getElementById('resuspendLink').addEventListener("click", function (event) {
 
 			var i;
-			for (i in gsSuspended) {
-				if (gsSuspended.hasOwnProperty(i)) {
-					chrome.tabs.create({active: false, url: generateSuspendedUrl(gsSuspended[i].url)});
+			for (i in gsSuspendedMap) {
+				if (gsSuspendedMap.hasOwnProperty(i)) {
+					chrome.tabs.create({active: false, url: gsStorage.generateSuspendedUrl(gsSuspendedMap[i].url)});
 				}
 			}
 		});
 		document.getElementById('unsuspendLink').addEventListener("click", function (event) {
 
 			var i;
-			for (i in gsSuspended) {
-				if (gsSuspended.hasOwnProperty(i)) {
-					chrome.tabs.create({active: false, url: gsSuspended[i].url});
-					gsSuspended[i].state = 'unsuspended';
-					gsStorage.saveTabToHistory(gsSuspended[i].url, gsSuspended[i]);
+			for (i in gsSuspendedMap) {
+				if (gsSuspendedMap.hasOwnProperty(i)) {
+					chrome.tabs.create({active: false, url: gsSuspendedMap[i].url});
+					gsSuspendedMap[i].state = 'unsuspended';
+					gsStorage.saveTabToHistory(gsSuspendedMap[i].url, gsSuspendedMap[i]);
 				}
 			}
+		});
+		document.getElementById('clearLink').addEventListener("click", function (event) {
+
+			var i;
+			for (i in gsSuspendedMap) {
+				if (gsSuspendedMap.hasOwnProperty(i)) {
+					gsSuspendedMap[i].state = 'unsuspended';
+					gsStorage.saveTabToHistory(gsSuspendedMap[i].url, gsSuspendedMap[i]);
+				}
+			}
+			chrome.tabs.getCurrent(function (tab) {
+				chrome.tabs.remove(tab.id);
+			});
+
 		});
 		document.getElementById('historyLink').addEventListener("click", function (event) {
 			chrome.tabs.create({url: chrome.extension.getURL("history.html")});
@@ -37,12 +47,16 @@
 
 
 		var gsHistory = gsStorage.fetchGsHistory(),
-			openTabs = {},
-			suspendedCount = 0;
+			openTabs = {};
 
 		chrome.tabs.query({}, function (tabs) {
 
-			var i;
+			var i,
+	            linksList = document.getElementById('recoveryLinks'),
+	            listImg,
+	            listLink,
+	            curUrl;
+
 			for (i in tabs) {
 				if (tabs.hasOwnProperty(i)) {
 					if (tabs[i].url.indexOf('suspended.html') < 0) {
@@ -54,13 +68,25 @@
 			for (i in gsHistory) {
 				if (gsHistory.hasOwnProperty(i)
 						&& gsHistory[i].state === 'suspended'
-						&& typeof (openTabs[gsHistory[i].url]) === 'undefined') {
-					gsSuspended.push(gsHistory[i]);
-					suspendedCount++;
+						&& typeof (openTabs[gsHistory[i].url]) === 'undefined'
+						&& typeof (gsSuspendedMap[gsHistory[i].url]) === 'undefined') {
+					gsSuspendedMap[gsHistory[i].url] = gsHistory[i];
+
+					listImg = document.createElement("img");
+                    listImg.setAttribute('src', 'chrome://favicon/' + gsHistory[i].url);
+                    listImg.setAttribute('height', '16px');
+                    listImg.setAttribute('width', '16px');
+                    linksList.appendChild(listImg);
+                    listLink = document.createElement('a');
+                    listLink.setAttribute('href', gsHistory[i].url);
+                    listLink.setAttribute('target', '_blank');
+                    listLink.innerHTML = gsHistory[i].title;
+                    linksList.appendChild(listLink);
+                    linksList.appendChild(document.createElement("br"));
+
 				}
 			}
 
-			document.getElementById('suspendedCount').innerHTML = suspendedCount;
 		});
 
 

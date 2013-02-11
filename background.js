@@ -11,6 +11,7 @@ var tgs = (function () {
         var tabProperties = gsStorage.fetchTabFromHistory(tabUrl);
 
         //mark tab as unsuspended
+        //console.log("marking tab as unsuspended: " + tabUrl);
         tabProperties.state = 'unsuspended';
         gsStorage.saveTabToHistory(tabUrl, tabProperties);
     }
@@ -35,14 +36,15 @@ var tgs = (function () {
         var gsHistory = gsStorage.fetchGsHistory(),
             tabProperties;
 
+        //console.log("attempting to suspend: " + tab.url);
         if (previewUrl) {
             gsStorage.setPreviewImage(tab.url, previewUrl);
         }
 
         if (tab.incognito) {
-            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', favicon: tab.favIconUrl };
+            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', index: tab.index, favicon: tab.favIconUrl };
         } else {
-            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', favicon: "chrome://favicon/" + tab.url };
+            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', index: tab.index, favicon: "chrome://favicon/" + tab.url };
         }
 
         //add suspend information to start of history array
@@ -68,14 +70,10 @@ var tgs = (function () {
         });
     }
 
-    function generateSuspendedUrl(tabUrl) {
-        return chrome.extension.getURL("suspended.html" + "#url=" + tabUrl);
-    }
-
     function suspendTab(tab) {
 
         //don't allow suspending of already suspended tabs
-        if (tab.url.indexOf("chrome-extension") >= 0 || tab.url.indexOf("chrome:") >= 0) {
+        if (tab.url.indexOf("chrome-extension:") >= 0 || tab.url.indexOf("chrome:") >= 0 || tab.url.indexOf("file:") >= 0) {
             return;
         }
 
@@ -88,12 +86,12 @@ var tgs = (function () {
         if (preview) {
             sendSuspendMessage(tab, function (tab, previewUrl) {
                 saveSuspendData(tab, previewUrl);
-                chrome.tabs.update(tab.id, {url: generateSuspendedUrl(tab.url)});
+                chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
             });
 
         } else {
             saveSuspendData(tab, false);
-            chrome.tabs.update(tab.id, {url: generateSuspendedUrl(tab.url)});
+            chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
         }
     }
 
@@ -151,7 +149,10 @@ var tgs = (function () {
                 for (i in tabs) {
                     if (tabs.hasOwnProperty(i)) {
                         if (gsTimes[tabs[i].id]) {
+                            //console.log("checking time for: " + tabs[i].url);
+                            //console.log("time=" + (new Date() - gsTimes[tabs[i].id]));
                             if (new Date() - gsTimes[tabs[i].id] >  timeToSuspend * 1000 * 60) {
+                                //console.log("tab expired: " + tabs[i].url);
                                 suspendSpecificTab(tabs[i]);
                             }
                         } else {
@@ -227,12 +228,16 @@ var tgs = (function () {
             i,
             ii;
 
-        if (typeof (lastVersion) === 'undefined' || lastVersion !== '4.51') {
+        //if they are installing for the first time
+        if (typeof (lastVersion) === 'undefined') {
+            gsStorage.setVersion('4.60');
 
-            //now we know they are on an old version but check to see if they are installing for the first time
+        //otherwise if they are upgrading
+        } else if (parseFloat(lastVersion) < 4.60) {
+
             oldGsHistory = gsStorage.fetchOldGsHistory();
 
-            //if they have gsHistory then they are upgrading
+            //check for very old history migration
             if (oldGsHistory !== null) {
 
                 //merge old gsHistory with new one
@@ -243,10 +248,11 @@ var tgs = (function () {
                 }
                 gsStorage.setGsHistory(gsHistory);
                 gsStorage.removeOldGsHistory();
-
-                chrome.tabs.create({url: chrome.extension.getURL("update.html")});
             }
-            gsStorage.setVersion('4.51');
+
+            //show new update screen
+            chrome.tabs.create({url: chrome.extension.getURL("update.html")});
+            gsStorage.setVersion('4.60');
         }
     }
 
@@ -270,7 +276,6 @@ var tgs = (function () {
     chrome.extension.onMessage.addListener(
         function (request, sender, sendResponse) {
             if (request.action === "setUnsuspendedState") {
-                console.log("marking tab as unsuspended: " + request.tabUrl);
                 markTabUnsuspended(request.tabUrl);
             }
         }

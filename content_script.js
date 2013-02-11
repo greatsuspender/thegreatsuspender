@@ -24,19 +24,25 @@
                     }
                 }, 3000);
 
-                html2canvas([document.body], {
-                    height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
-                    width: document.body.clientWidth - 6,
-                    proxy: false,
-                    onrendered: function (canvas) {
-                        if (processing) {
-                            processing = false;
-                            sendResponse({previewUrl: canvas.toDataURL()});
+                try {
+                    html2canvas([document.body], {
+                        height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
+                        width: document.body.clientWidth - 6,
+                        proxy: false,
+                        onrendered: function (canvas) {
+                            if (processing) {
+                                processing = false;
+                                sendResponse({previewUrl: canvas.toDataURL()});
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (ex) {
+                    console.error('failed to render');
+                    sendResponse({});
+                }
 
             } else {
+                console.error('too many page elements');
                 sendResponse({});
             }
 

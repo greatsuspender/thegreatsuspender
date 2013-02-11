@@ -14,7 +14,7 @@
 
         gsStorage.setPreviewOption(preview.checked);
         gsStorage.setWhitelist(whitelist);
-        gsStorage.setTimeToSuspend(timeToSuspend);
+        gsStorage.setTimeToSuspendOption(timeToSuspend);
     }
 
     function selectComboBox(element, key) {
