@@ -48,6 +48,16 @@
         };
     }
 
+    function compare(a, b) {
+        if (a.date > b.date) {
+            return -1;
+        }
+        if (a.date < b.date) {
+            return 1;
+        }
+        return 0;
+    }
+
     window.onload = function () {
 
         var gsHistory = gsStorage.fetchGsHistory(),
@@ -67,6 +77,7 @@
 
         try {
             historyDiv = document.getElementById('gsHistory');
+            gsHistory.sort(compare);
 
             for (i = 0; i < gsHistory.length; i++) {
                 tabProperties = gsHistory[i];

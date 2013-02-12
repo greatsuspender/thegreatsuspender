@@ -1,4 +1,5 @@
 html, body {
+    line-height: 20px;
     margin: 0px;
     font-family: verdana, arial, sans-serif;
 }

@@ -179,7 +179,7 @@ var tgs = (function () {
     }
 
     //check for tabs that have a state of 'suspended'
-    function restoreCrashedTabs() {
+    function checkForCrashedTabs() {
 
         chrome.tabs.query({}, function (tabs) {
             //first check to see if there are any suspended tabs already
@@ -226,11 +226,13 @@ var tgs = (function () {
             gsHistory,
             oldGsHistory,
             i,
-            ii;
+            ii,
+            upgraded = false;
 
         //if they are installing for the first time
         if (typeof (lastVersion) === 'undefined') {
             gsStorage.setVersion('4.60');
+            upgraded = true;
 
         //otherwise if they are upgrading
         } else if (parseFloat(lastVersion) < 4.60) {
@@ -253,7 +255,10 @@ var tgs = (function () {
             //show new update screen
             chrome.tabs.create({url: chrome.extension.getURL("update.html")});
             gsStorage.setVersion('4.60');
+            upgraded = true;
         }
+
+        return upgraded;
     }
 
     //handler for popup clicks
@@ -290,9 +295,9 @@ var tgs = (function () {
 
     initialiseAllTabs();
 
-    restoreCrashedTabs();
-
-    checkForNewVersion();
+    if (!checkForNewVersion()) {
+        checkForCrashedTabs();
+    }
 
     //start timer
     setInterval(function () {
