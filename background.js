@@ -229,18 +229,12 @@ var tgs = (function () {
             ii,
             upgraded = false;
 
-        //if they are installing for the first time
-        if (typeof (lastVersion) === 'undefined') {
-            gsStorage.setVersion('4.60');
-            upgraded = true;
 
-        //otherwise if they are upgrading
-        } else if (parseFloat(lastVersion) < 4.60) {
+        oldGsHistory = gsStorage.fetchOldGsHistory();
 
-            oldGsHistory = gsStorage.fetchOldGsHistory();
-
-            //check for very old history migration
-            if (oldGsHistory !== null) {
+        //check for very old history migration
+        if (oldGsHistory !== null &&
+                    (typeof (lastVersion) === 'undefined' || parseFloat(lastVersion) < 4.60)) {
 
                 //merge old gsHistory with new one
                 gsHistory = gsStorage.fetchGsHistory();
@@ -251,6 +245,15 @@ var tgs = (function () {
                 gsStorage.setGsHistory(gsHistory);
                 gsStorage.removeOldGsHistory();
             }
+        }
+
+        //if they are installing for the first time
+        if (typeof (lastVersion) === 'undefined') {
+            gsStorage.setVersion('4.60');
+            upgraded = true;
+
+        //otherwise if they are upgrading
+        } else if (parseFloat(lastVersion) < 4.60) {
 
             //show new update screen
             chrome.tabs.create({url: chrome.extension.getURL("update.html")});

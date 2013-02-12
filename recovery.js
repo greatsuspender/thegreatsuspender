@@ -67,7 +67,7 @@
 
 			for (i in gsHistory) {
 				if (gsHistory.hasOwnProperty(i)
-						&& gsHistory[i].state === 'suspended'
+						&& gsHistory[i].state !== 'unsuspended'
 						&& typeof (openTabs[gsHistory[i].url]) === 'undefined'
 						&& typeof (gsSuspendedMap[gsHistory[i].url]) === 'undefined') {
 					gsSuspendedMap[gsHistory[i].url] = gsHistory[i];
