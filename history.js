@@ -18,37 +18,7 @@
         }
     }
 
-    function reloadTabs(date, suspend) {
-        var curDate = date;
-        return function () {
-
-            var gsHistory = gsStorage.fetchGsHistory(),
-                historyMap = {},
-                groupKey,
-                tabProperties,
-                i,
-                url,
-                index;
-
-            chrome.tabs.query({}, function (tabs) {
-
-                for (i = 0; i < gsHistory.length; i++) {
-                    tabProperties = gsHistory[i];
-                    groupKey = getFormattedDate(tabProperties.date, false);
-
-                    if (curDate === groupKey) {
-                        if (!historyMap.hasOwnProperty(tabProperties.url)) {
-                            historyMap[tabProperties.url] = true;
-                            url = suspend ? gsStorage.generateSuspendedUrl(tabProperties.url) : tabProperties.url;
-                            chrome.tabs.create({url: url});
-                        }
-                    }
-                }
-            });
-        };
-    }
-
-    function compare(a, b) {
+    function compareDate(a, b) {
         if (a.date > b.date) {
             return -1;
         }
@@ -57,6 +27,45 @@
         }
         return 0;
     }
+
+    function fetchGsHistoryForDate(date) {
+
+        var gsHistory = gsStorage.fetchGsHistory(),
+            curDate = date,
+            historyMap = {},
+            historyArray = [],
+            groupKey,
+            tabProperties,
+            i;
+
+        for (i = 0; i < gsHistory.length; i++) {
+            tabProperties = gsHistory[i];
+            groupKey = getFormattedDate(tabProperties.date, false);
+
+            if (curDate === groupKey && !historyMap.hasOwnProperty(tabProperties.url)) {
+                historyMap[tabProperties.url] = true;
+                historyArray.push(tabProperties);
+            }
+        }
+        return historyArray;
+    }
+
+    function reloadTabs(date, suspend) {
+        var curDate = date;
+        return function () {
+
+            var gsHistory = fetchGsHistoryForDate(date),
+                url,
+                i;
+
+            gsHistory.reverse();
+            for (i = 0; i < gsHistory.length; i++) {
+                url = suspend ? gsStorage.generateSuspendedUrl(gsHistory[i].url) : gsHistory[i].url;
+                chrome.tabs.create({url: url});
+            }
+        };
+    }
+
 
     window.onload = function () {
 
@@ -77,32 +86,34 @@
 
         try {
             historyDiv = document.getElementById('gsHistory');
-            gsHistory.sort(compare);
+            gsHistory.sort(compareDate);
 
             for (i = 0; i < gsHistory.length; i++) {
                 tabProperties = gsHistory[i];
                 groupKey = getFormattedDate(tabProperties.date, false);
                 key = groupKey + tabProperties.url;
 
-                if (groupKey !== curGroupKey) {
-                    curGroupKey = groupKey;
-                    groupHeading = document.createElement("h2");
-                    groupHeading.innerHTML = groupKey;
-                    groupLinkSuspend = document.createElement("a");
-                    groupLinkSuspend.className = "groupLink";
-                    groupLinkSuspend.innerHTML = "re-suspend all tabs for this day";
-                    groupLinkSuspend.setAttribute('href', "#");
-                    groupLinkSuspend.onclick = reloadTabs(groupKey, true);
-                    groupHeading.appendChild(groupLinkSuspend);
-                    groupLinkUnsuspend = document.createElement("a");
-                    groupLinkUnsuspend.className = "groupLink";
-                    groupLinkUnsuspend.innerHTML = "reload all tabs for this day";
-                    groupLinkUnsuspend.setAttribute('href', "#");
-                    groupLinkUnsuspend.onclick = reloadTabs(groupKey, false);
-                    groupHeading.appendChild(groupLinkUnsuspend);
-                    historyDiv.appendChild(groupHeading);
-                }
                 if (!historyMap.hasOwnProperty(key)) {
+
+                    //print header for group
+                    if (groupKey !== curGroupKey) {
+                        curGroupKey = groupKey;
+                        groupHeading = document.createElement("h2");
+                        groupHeading.innerHTML = groupKey;
+                        groupLinkSuspend = document.createElement("a");
+                        groupLinkSuspend.className = "groupLink";
+                        groupLinkSuspend.innerHTML = "re-suspend all tabs for this day";
+                        groupLinkSuspend.setAttribute('href', "#");
+                        groupLinkSuspend.onclick = reloadTabs(groupKey, true);
+                        groupHeading.appendChild(groupLinkSuspend);
+                        groupLinkUnsuspend = document.createElement("a");
+                        groupLinkUnsuspend.className = "groupLink";
+                        groupLinkUnsuspend.innerHTML = "reload all tabs for this day";
+                        groupLinkUnsuspend.setAttribute('href', "#");
+                        groupLinkUnsuspend.onclick = reloadTabs(groupKey, false);
+                        groupHeading.appendChild(groupLinkUnsuspend);
+                        historyDiv.appendChild(groupHeading);
+                    }
                     historyMap[key] = true;
                     historyImg = document.createElement("img");
                     historyImg.setAttribute('src', 'chrome://favicon/' + tabProperties.url);

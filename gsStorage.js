@@ -111,7 +111,7 @@
 
         fetchTabFromHistory : function (tabUrl) {
 
-            var gsHistory = JSON.parse(localStorage.getItem('gsHistory2')),
+            var gsHistory = this.fetchGsHistory(),
                 i;
 
             for (i = 0; i < gsHistory.length; i++) {
@@ -124,7 +124,7 @@
 
         saveTabToHistory : function (tabUrl, tabProperties) {
 
-            var gsHistory = JSON.parse(localStorage.getItem('gsHistory2')),
+            var gsHistory = this.fetchGsHistory(),
                 i;
 
             for (i = 0; i < gsHistory.length; i++) {

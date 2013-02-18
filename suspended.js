@@ -65,7 +65,7 @@
         }
     }
 
-    function suspendTab(tabProperties) {
+    function suspendTab(tab, tabProperties) {
 
         var faviconUrl,
             rootUrlStr = tabProperties.url,
@@ -103,17 +103,22 @@
 
         //make sure tab is marked as suspended (may not be if reloaded from chrome restore)
         tabProperties.state = 'suspended';
+
+        //update window and index information (may have changed if chrome has been restarted)
+        tabProperties.windowId = tab.windowId;
+        tabProperties.index = tab.index;
+
         gsStorage.saveTabToHistory(tabProperties.url, tabProperties);
     }
 
     function attemptTabSuspend(tab) {
 
-        var tabProperties = gsStorage.fetchTabFromHistory(getHashVariable('url'));//getPropertiesForTab(tab.id);
+        var tabProperties = gsStorage.fetchTabFromHistory(getHashVariable('url'));
 
         //if we have some suspend information for this tab
         if (tabProperties) {
             console.log("about to suspend tabId: " + tab.id);
-            suspendTab(tabProperties);
+            suspendTab(tab, tabProperties);
 
         //otherwise if there is some history information then use it
         } else if (window.history.length > 1) {
@@ -138,7 +143,7 @@
 
         //handler for whitelist
         document.getElementById("gsWhitelistLink").onclick = function (e) {
-            gsStorage.saveToWhitelist(e.getAttribute('data-text'));
+            gsStorage.saveToWhitelist(e.target.getAttribute('data-text'));
         };
 
         //try to suspend tab

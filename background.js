@@ -41,10 +41,19 @@ var tgs = (function () {
             gsStorage.setPreviewImage(tab.url, previewUrl);
         }
 
+        tabProperties = {
+            date: new Date(),
+            title: tab.title,
+            url: tab.url,
+            state: 'suspended',
+            favicon: "chrome://favicon/" + tab.url,
+            pinned: tab.pinned,
+            index: tab.index,
+            windowId: tab.windowId
+        };
+
         if (tab.incognito) {
-            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', index: tab.index, favicon: tab.favIconUrl };
-        } else {
-            tabProperties = {date: new Date(), title: tab.title, url: tab.url, state: 'suspended', index: tab.index, favicon: "chrome://favicon/" + tab.url };
+            tabProperties.favicon = tab.favIconUrl;
         }
 
         //add suspend information to start of history array
@@ -234,30 +243,33 @@ var tgs = (function () {
 
         //check for very old history migration
         if (oldGsHistory !== null &&
-                    (typeof (lastVersion) === 'undefined' || parseFloat(lastVersion) < 4.60)) {
+                    (lastVersion === null || parseFloat(lastVersion) < 4.61)) {
 
-                //merge old gsHistory with new one
-                gsHistory = gsStorage.fetchGsHistory();
-                ii = oldGsHistory.length;
-                for (i = 0; i < ii; i++) {
-                    gsHistory.push(oldGsHistory[i]);
-                }
-                gsStorage.setGsHistory(gsHistory);
-                gsStorage.removeOldGsHistory();
+            //merge old gsHistory with new one
+            gsHistory = gsStorage.fetchGsHistory();
+            ii = oldGsHistory.length;
+            for (i = 0; i < ii; i++) {
+                gsHistory.push(oldGsHistory[i]);
             }
+            gsStorage.setGsHistory(gsHistory);
+            gsStorage.removeOldGsHistory();
         }
 
         //if they are installing for the first time
-        if (typeof (lastVersion) === 'undefined') {
-            gsStorage.setVersion('4.60');
+        if (lastVersion === null) {
+
+            //show welcome screen
+            chrome.tabs.create({url: chrome.extension.getURL("welcome.html")});
+            gsStorage.setVersion('4.61');
+            gsStorage.setGsHistory([]);
             upgraded = true;
 
         //otherwise if they are upgrading
-        } else if (parseFloat(lastVersion) < 4.60) {
+        } else if (parseFloat(lastVersion) < 4.61) {
 
             //show new update screen
             chrome.tabs.create({url: chrome.extension.getURL("update.html")});
-            gsStorage.setVersion('4.60');
+            gsStorage.setVersion('4.61');
             upgraded = true;
         }
 

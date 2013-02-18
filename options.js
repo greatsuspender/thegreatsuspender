@@ -49,14 +49,20 @@
             window.clearInterval(readyStateCheckInterval);
 
             var previewEl = document.getElementById('preview'),
-                saveEl = document.getElementById('save'),
+                whitelistEl = document.getElementById("whitelist"),
+                timeToSuspendEl = document.getElementById("timeToSuspend"),
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory');
 
-            saveEl.onclick = function (e) {
-                save_options();
+            previewEl.onclick = function (e) {
+                gsStorage.setPreviewOption(preview.checked);
             };
-
+            whitelistEl.onkeyup = function (e) {
+                gsStorage.setWhitelist(whitelistEl.value);
+            };
+            timeToSuspendEl.onchange = function (e) {
+                gsStorage.setTimeToSuspendOption(timeToSuspendEl.children[timeToSuspendEl.selectedIndex].value);
+            };
             showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL("history.html")});
             };

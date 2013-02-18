@@ -10,15 +10,18 @@ h1 {
     margin-top: 10px;
     font-size: 30px;
     color: #666;
+    margin-bottom: 35px;
 }
 h2 {
     font-size: 20px;
     color: #666;
-    padding-left: 10px;
-    padding-top: 10px;
+    padding-top: 15px;
 }
 img {
-    padding-left: 10px;
+    padding-right: 10px;
+}
+p {
+    max-width: 900px;
 }
 ul, li {
     list-style-type: none;
@@ -27,7 +30,7 @@ ul, li {
 }
 a {
     line-height: 30px;
-    padding-left: 10px;
+    font-weight: normal;
     color: #333;
 }
 #gsHistory span {
@@ -40,4 +43,13 @@ a {
     font-size: 14px;
     color: #888;
     padding-left: 20px;
+}
+.recoveryLink .itemHover {
+    visibility: hidden;
+    margin: 0px;
+    padding: 0px 2px 3px;
+    cursor: pointer;
+}
+.recoveryLink:hover .itemHover {
+    visibility: visible;
 }
