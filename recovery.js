@@ -79,7 +79,6 @@
                 urlList = [],
                 i;
 
-            tabsToReload.reverse();
             if (newWindow) {
                 for (i = 0; i < tabsToReload.length; i++) {
                     urlList.push(gsStorage.generateSuspendedUrl(tabsToReload[i].url));
@@ -162,29 +161,30 @@
 
     window.onload = function () {
 
-        document.getElementById('clearLink').addEventListener("click", function (event) {
+        if (document.getElementById('clearLink') !== null) {
+            document.getElementById('clearLink').addEventListener("click", function (event) {
 
-            var gsHistory = fetchSuspendedGsHistory(),
-                i;
+                var gsHistory = fetchSuspendedGsHistory(),
+                    i;
 
-            for (i in gsHistory) {
-                if (gsHistory.hasOwnProperty(i)) {
-                    gsHistory[i].state = 'unsuspended';
-                    gsStorage.saveTabToHistory(gsHistory[i].url, gsHistory[i]);
+                for (i in gsHistory) {
+                    if (gsHistory.hasOwnProperty(i)) {
+                        gsHistory[i].state = 'unsuspended';
+                        gsStorage.saveTabToHistory(gsHistory[i].url, gsHistory[i]);
+                    }
                 }
-            }
-            chrome.tabs.getCurrent(function (tab) {
-                chrome.tabs.remove(tab.id);
-                chrome.tabs.create({url: chrome.extension.getURL("recovery.html")});
-            });
+                chrome.tabs.getCurrent(function (tab) {
+                    chrome.tabs.remove(tab.id);
+                    chrome.tabs.create({url: chrome.extension.getURL("recovery.html")});
+                });
 
-        });
-        document.getElementById('historyLink').addEventListener("click", function (event) {
-            chrome.tabs.create({url: chrome.extension.getURL("history.html")});
-        });
-        document.getElementById('historyLink').addEventListener("click", function (event) {
-            chrome.tabs.create({url: chrome.extension.getURL("history.html")});
-        });
+            });
+        }
+        if (document.getElementById('historyLink') !== null) {
+            document.getElementById('historyLink').addEventListener("click", function (event) {
+                chrome.tabs.create({url: chrome.extension.getURL("history.html")});
+            });
+        }
 
 
 

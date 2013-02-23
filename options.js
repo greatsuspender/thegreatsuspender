@@ -34,10 +34,12 @@
     function restore_options() {
 
         var preview = gsStorage.fetchPreviewOption(),
+            unsuspendOnFocus = gsStorage.fetchUnsuspendOnFocusOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
             whitelist = gsStorage.fetchWhitelist();
 
         document.getElementById("preview").checked = preview;
+        document.getElementById("unsuspendOnFocus").checked = unsuspendOnFocus;
         document.getElementById("whitelist").value = whitelist;
         selectComboBox(document.getElementById("timeToSuspend"), timeToSuspend);
     }
@@ -49,13 +51,17 @@
             window.clearInterval(readyStateCheckInterval);
 
             var previewEl = document.getElementById('preview'),
+                unsuspendOnFocusEl = document.getElementById("unsuspendOnFocus"),
                 whitelistEl = document.getElementById("whitelist"),
                 timeToSuspendEl = document.getElementById("timeToSuspend"),
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory');
 
             previewEl.onclick = function (e) {
-                gsStorage.setPreviewOption(preview.checked);
+                gsStorage.setPreviewOption(previewEl.checked);
+            };
+            unsuspendOnFocusEl.onclick = function (e) {
+                gsStorage.setUnsuspendOnFocusOption(unsuspendOnFocusEl.checked);
             };
             whitelistEl.onkeyup = function (e) {
                 gsStorage.setWhitelist(whitelistEl.value);

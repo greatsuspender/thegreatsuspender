@@ -57,11 +57,15 @@
 
         //otherwise try to get url from hashtag
         } else if (url) {
-            window.location.replace(url);
+            chrome.tabs.getCurrent(function (tab) {
+                chrome.tabs.update(tab.id, {url: url});
+            });
 
         //finally, show gs history instead (as all else has failed)
         } else {
-            window.location.replace(chrome.extension.getURL("history.html"));
+            chrome.tabs.getCurrent(function (tab) {
+                chrome.tabs.update(tab.id, {url: chrome.extension.getURL("history.html")});
+            });
         }
     }
 
@@ -156,5 +160,12 @@
             sendUnsuspendMessage(getHashVariable('url'));
         });
     };
+
+    window.addEventListener("keydown", function (event) {
+        if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 40 || event.keyCode === 116) {
+            event.preventDefault();
+            unsuspendTab();
+        }
+    });
 
 }());

@@ -4,7 +4,8 @@ var tgs = (function () {
 
     "use strict";
 
-    var gsTimes = [];
+    var version = 4.74,
+        gsTimes = [];
 
     function markTabUnsuspended(tabUrl) {
 
@@ -243,7 +244,7 @@ var tgs = (function () {
 
         //check for very old history migration
         if (oldGsHistory !== null &&
-                    (lastVersion === null || parseFloat(lastVersion) < 4.61)) {
+                    (lastVersion === null || parseFloat(lastVersion) < version)) {
 
             //merge old gsHistory with new one
             gsHistory = gsStorage.fetchGsHistory();
@@ -256,20 +257,20 @@ var tgs = (function () {
         }
 
         //if they are installing for the first time
-        if (lastVersion === null) {
+        if (lastVersion === null && gsStorage.fetchGsHistory().length === 0) {
 
             //show welcome screen
             chrome.tabs.create({url: chrome.extension.getURL("welcome.html")});
-            gsStorage.setVersion('4.61');
+            gsStorage.setVersion(version);
             gsStorage.setGsHistory([]);
             upgraded = true;
 
         //otherwise if they are upgrading
-        } else if (parseFloat(lastVersion) < 4.61) {
+        } else if (parseFloat(lastVersion) < version) {
 
             //show new update screen
             chrome.tabs.create({url: chrome.extension.getURL("update.html")});
-            gsStorage.setVersion('4.61');
+            gsStorage.setVersion(version);
             upgraded = true;
         }
 
@@ -301,11 +302,27 @@ var tgs = (function () {
         }
     );
 
+    //listen for tab create
+    chrome.tabs.onCreated.addListener(function (tab) {
+        gsTimes[tab.id] = new Date();
+    });
+
     //listen for tab switching
     chrome.tabs.onSelectionChanged.addListener(function (tabId, info) {
-        if (gsTimes[tabId]) {
+
+        var unsuspend = gsStorage.fetchUnsuspendOnFocusOption();
+
+        if (unsuspend && gsTimes[tabId] && (new Date() - gsTimes[tabId] > 3000)) {
+            chrome.tabs.get(tabId, function (tab) {
+                if (tab.url.indexOf("suspended.html") >= 0) {
+                    chrome.tabs.sendMessage(tab.id, {action: "unsuspendTab"});
+                }
+            });
+
+        } else if (gsTimes[tabId]) {
             gsTimes[tabId] = new Date();
         }
+
     });
 
     initialiseAllTabs();
