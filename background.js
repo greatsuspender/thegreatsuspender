@@ -81,6 +81,9 @@ var tgs = (function () {
     }
 
     function suspendTab(tab) {
+        if( tab.pinned ) {
+            return false;
+        }
 
         //don't allow suspending of already suspended tabs
         if (tab.url.indexOf("chrome-extension:") >= 0 || tab.url.indexOf("chrome:") >= 0 || tab.url.indexOf("file:") >= 0) {
