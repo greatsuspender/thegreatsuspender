@@ -11,10 +11,12 @@
             whitelist = document.getElementById("whitelist").value,
             select = document.getElementById("timeToSuspend"),
             timeToSuspend = select.children[select.selectedIndex].value;
+            dontSuspendPinned = document.getElementById("dontSuspendPinned"),
 
         gsStorage.setPreviewOption(preview.checked);
         gsStorage.setWhitelist(whitelist);
         gsStorage.setTimeToSuspendOption(timeToSuspend);
+        gsStorage.setDontSuspendPinnedOption(dontSuspendPinned.checked);
     }
 
     function selectComboBox(element, key) {
@@ -35,11 +37,13 @@
 
         var preview = gsStorage.fetchPreviewOption(),
             unsuspendOnFocus = gsStorage.fetchUnsuspendOnFocusOption(),
+            dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
             whitelist = gsStorage.fetchWhitelist();
 
         document.getElementById("preview").checked = preview;
         document.getElementById("unsuspendOnFocus").checked = unsuspendOnFocus;
+        document.getElementById("dontSuspendPinned").checked = dontSuspendPinned;
         document.getElementById("whitelist").value = whitelist;
         selectComboBox(document.getElementById("timeToSuspend"), timeToSuspend);
     }
@@ -52,6 +56,7 @@
 
             var previewEl = document.getElementById('preview'),
                 unsuspendOnFocusEl = document.getElementById("unsuspendOnFocus"),
+                dontSuspendPinnedEl = document.getElementById("dontSuspendPinned"),
                 whitelistEl = document.getElementById("whitelist"),
                 timeToSuspendEl = document.getElementById("timeToSuspend"),
                 showHistoryEl = document.getElementById('showHistory'),
@@ -62,6 +67,11 @@
             };
             unsuspendOnFocusEl.onclick = function (e) {
                 gsStorage.setUnsuspendOnFocusOption(unsuspendOnFocusEl.checked);
+            };
+            dontSuspendPinnedEl.onclick = function (e) {
+                var val = dontSuspendPinnedEl.checked;
+                console.log("Dont suspent pinned changed to: " + val);
+                gsStorage.setDontSuspendPinnedOption(val);
             };
             whitelistEl.onkeyup = function (e) {
                 gsStorage.setWhitelist(whitelistEl.value);

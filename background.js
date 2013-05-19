@@ -4,7 +4,7 @@ var tgs = (function () {
 
     "use strict";
 
-    var version = 4.74,
+    var version = 4.75,
         gsTimes = [];
 
     function markTabUnsuspended(tabUrl) {
@@ -148,15 +148,17 @@ var tgs = (function () {
     }
 
     function checkForTabsToAutoSuspend() {
-
         var timeToSuspend = gsStorage.fetchTimeToSuspendOption();
+        var dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption();
 
         if (timeToSuspend > 0) {
-
             chrome.tabs.query({}, function (tabs) {
-
                 var i;
                 for (i in tabs) {
+                    if(dontSuspendPinned && tabs[i].pinned) {
+                        // console.log("Don't suspend pinned: " + tabs[i].url);
+                        continue;
+                    }
                     if (tabs.hasOwnProperty(i)) {
                         if (gsTimes[tabs[i].id]) {
                             //console.log("checking time for: " + tabs[i].url);
