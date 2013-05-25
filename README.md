@@ -5,6 +5,10 @@ A chrome extension for suspending all tabs to free up memory
 
 Changelog 
 
+v4.77   2013-05-25
+- bugfix:   switched off debug mode that was causing very quick suspending
+
+
 v4.76   2013-05-25
 - improv:   URLs starting with chrome-devtools: are never suspended
 - bugfix:   activating a tab does not refresh its timeout

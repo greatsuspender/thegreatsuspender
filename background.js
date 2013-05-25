@@ -4,9 +4,9 @@ var tgs = (function () {
 
     "use strict";
 
-    var version = 4.76;
+    var version = 4.77;
     var gsTimes = [];
-    var debug = true;
+    var debug = false;
 
     function markTabUnsuspended(tabUrl) {
 
