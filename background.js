@@ -316,6 +316,7 @@ var tgs = (function () {
             chrome.tabs.get(tabId, function (tab) {
                 if (tab.url.indexOf("suspended.html") >= 0) {
                     chrome.tabs.sendMessage(tab.id, {action: "unsuspendTab"});
+                    gsTimes[tabId] = new Date(); //reset timer after automatic unsuspend
                 }
             });
 
