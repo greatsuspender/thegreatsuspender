@@ -64,6 +64,19 @@
             localStorage.setItem("gsUnsuspendOnFocus", unsuspendOnFocus);
         },
 
+        fetchDontSuspendPinnedOption : function () {
+            var hasOption = localStorage.getItem("gsDontSuspendPinned");
+            if(hasOption) {
+                var val = localStorage.getItem("gsDontSuspendPinned");
+                // console.log("gsStorage has option dontSuspend, value: " + val)
+            }
+            return hasOption ? localStorage.getItem("gsDontSuspendPinned") === "true" : false;
+        },
+
+        setDontSuspendPinnedOption : function (dontSuspendPinned) {
+            localStorage.setItem("gsDontSuspendPinned", dontSuspendPinned);
+        },
+
         fetchVersion : function () {
             return localStorage.getItem('gsVersion');
         },
