@@ -4,7 +4,7 @@ var tgs = (function () {
 
     "use strict";
 
-    var version = 4.77;
+    var version = 4.80;
     var gsTimes = [];
     var debug = false;
 
@@ -125,17 +125,19 @@ var tgs = (function () {
             chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
         }
     }
-
-    function suspendActiveTab(window) {
-        var i,
-            ii = window.tabs.length;
-        for (i = 0; i < ii; i += 1) {
-            if (window.tabs[i].active) {
-                suspendTab(window.tabs[i]);
-                break;
-            }
-        }
+    
+    function suspendHighlightedTabs(window) {
+        chrome.tabs.query({windowId:window.id,highlighted:true},function(tabs){
+            var i,
+                ii = tabs.length;
+            for (i = 0; i < ii; i += 1) {
+            if (tabs[i].url.indexOf("suspended.html") < 0) {
+                    suspendTab(tabs[i]);
+                }
+            }       
+        });
     }
+
     function suspendAllTabs(window) {
         var i,
             ii = window.tabs.length;
@@ -310,7 +312,7 @@ var tgs = (function () {
         function (request, sender, sendResponse) {
 
             if (request.msg === "suspendOne") {
-                chrome.windows.getLastFocused({populate: true}, suspendActiveTab);
+                chrome.windows.getLastFocused({populate: true}, suspendHighlightedTabs);
 
             } else if (request.msg === "suspendAll") {
                 chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
