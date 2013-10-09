@@ -27,10 +27,17 @@
 	<br />
 	<br />
 
+	<label for="timeToCheck">Time between checking to close tabs</label>
+	<br />
+	<input id="timeToCheck" size="4" > seconds
+	<br />
 	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically:</label>
 	<br />
 	<select id="timeToSuspend">
 		<option value="0">Never</option>
+		<option value="0.166">10 secs</option>
+		<option value="0.5">30 secs</option>
+		<option value="1">1 min</option>
 		<option value="5">5 mins</option>
 		<option value="15">15 mins</option>
 		<option value="30">30 mins</option>
