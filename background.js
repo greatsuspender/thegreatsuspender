@@ -332,8 +332,10 @@ var tgs = (function () {
     }
 
     //start timer
-    setInterval(function () {
-        checkForTabsToAutoSuspend();
-    }, 1000 * 60);
+	function timerCheck(){
+		checkForTabsToAutoSuspend();
+		setTimeout(timerCheck, 1000 * gsStorage.fetchTimeToCheckOption());	
+	}
+    setTimeout(timerCheck, 1000 * gsStorage.fetchTimeToCheckOption());
 
 }());

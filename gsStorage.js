@@ -56,6 +56,16 @@
             localStorage.setItem("gsTimeToSuspend", timeToSuspend);
         },
 
+		fetchTimeToCheckOption : function () {
+            return localStorage.getItem("gsTimeToCheck") || 60;
+        },
+
+        setTimeToCheckOption : function (timeToSuspend) {
+            localStorage.setItem("gsTimeToCheck", timeToSuspend);
+        },
+
+
+
         fetchUnsuspendOnFocusOption : function () {
             return localStorage.getItem("gsUnsuspendOnFocus") ? localStorage.getItem("gsUnsuspendOnFocus") === "true" : false;
         },

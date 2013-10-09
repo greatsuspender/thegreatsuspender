@@ -36,12 +36,18 @@
         var preview = gsStorage.fetchPreviewOption(),
             unsuspendOnFocus = gsStorage.fetchUnsuspendOnFocusOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
+
+			timeToCheck = gsStorage.fetchTimeToCheckOption(),
+
             whitelist = gsStorage.fetchWhitelist();
 
         document.getElementById("preview").checked = preview;
         document.getElementById("unsuspendOnFocus").checked = unsuspendOnFocus;
         document.getElementById("whitelist").value = whitelist;
         selectComboBox(document.getElementById("timeToSuspend"), timeToSuspend);
+
+		document.getElementById("timeToCheck").value = timeToCheck;
+
     }
 
 
@@ -54,6 +60,9 @@
                 unsuspendOnFocusEl = document.getElementById("unsuspendOnFocus"),
                 whitelistEl = document.getElementById("whitelist"),
                 timeToSuspendEl = document.getElementById("timeToSuspend"),
+
+				timeToCheckEl = document.getElementById("timeToCheck"),
+
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory');
 
@@ -69,6 +78,11 @@
             timeToSuspendEl.onchange = function (e) {
                 gsStorage.setTimeToSuspendOption(timeToSuspendEl.children[timeToSuspendEl.selectedIndex].value);
             };
+
+			timeToCheckEl.onchange = function (e) {
+			    gsStorage.setTimeToCheckOption(timeToCheckEl.value);
+			};
+
             showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL("history.html")});
             };
