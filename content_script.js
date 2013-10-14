@@ -32,7 +32,9 @@
                         onrendered: function (canvas) {
                             if (processing) {
                                 processing = false;
-                                sendResponse({previewUrl: canvas.toDataURL()});
+                                // It's just a preview to jog the memory, so
+                                // let's heavily favor small size over quality.
+                                sendResponse({previewUrl: canvas.toDataURL("image/jpeg", 0.1)});
                             }
                         }
                     });

@@ -81,15 +81,18 @@ var tgs = (function () {
     }
 
     function suspendTab(tab) {
+        if( tab.pinned ) {
+            return false;
+        }
 
         //don't allow suspending of already suspended tabs
         if (tab.url.indexOf("chrome-extension:") >= 0 || tab.url.indexOf("chrome:") >= 0 || tab.url.indexOf("file:") >= 0) {
-            return;
+            return false;
         }
 
         //check whitelist
         if (checkWhiteList(tab.url)) {
-            return;
+            return false;
         }
 
         var preview = gsStorage.fetchPreviewOption();
@@ -103,16 +106,18 @@ var tgs = (function () {
             saveSuspendData(tab, false);
             chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
         }
+        return true;
     }
 
     function suspendSpecificTab(tab) {
         if (!tab.active) {
-            suspendTab(tab);
+            return suspendTab(tab);
 
         //if tab is active then refresh timer for this tab
         } else {
             gsTimes[tab.id] = new Date();
         }
+        return false;
     }
     function suspendActiveTab(window) {
         var i,
@@ -163,7 +168,15 @@ var tgs = (function () {
                             //console.log("time=" + (new Date() - gsTimes[tabs[i].id]));
                             if (new Date() - gsTimes[tabs[i].id] >  timeToSuspend * 1000 * 60) {
                                 //console.log("tab expired: " + tabs[i].url);
-                                suspendSpecificTab(tabs[i]);
+                                if( suspendSpecificTab(tabs[i]) ) {
+                                    // Staggering like this lessens the detrimental impact of many
+                                    // tabs auto suspending at once, which isn't uncommon if one restores a large
+                                    // tab session.
+                                    setTimeout(function () {
+                                        checkForTabsToAutoSuspend();
+                                    }, 100);
+                                    return;
+                                }
                             }
                         } else {
                             gsTimes[tabs[i].id] = new Date();
