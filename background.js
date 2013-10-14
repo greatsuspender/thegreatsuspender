@@ -4,8 +4,9 @@ var tgs = (function () {
 
     "use strict";
 
-    var version = 4.74,
-        gsTimes = [];
+    var version = 4.80;
+    var gsTimes = [];
+    var debug = false;
 
     function markTabUnsuspended(tabUrl) {
 
@@ -33,7 +34,6 @@ var tgs = (function () {
     }
 
     function saveSuspendData(tab, previewUrl) {
-
         var gsHistory = gsStorage.fetchGsHistory(),
             tabProperties;
 
@@ -80,20 +80,38 @@ var tgs = (function () {
         });
     }
 
+    function isSpecialTab(tab) {
+        if (tab.url.indexOf("chrome-extension:") == 0 || tab.url.indexOf("chrome:") == 0 || tab.url.indexOf("chrome-devtools:") == 0 || tab.url.indexOf("file:") == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function suspendTabIfNotExcluded(tab) {
+        if (tab.active) {
+        	// refresh time 
+        	gsTimes[tab.id] = new Date();
+        	return;
+        }
+            
+    	//don't allow suspending of already suspended tabs
+    	if (isSpecialTab(tab)) {
+    		return;
+    	}
+    	
+    	//check whitelist
+    	if (checkWhiteList(tab.url)) {
+    		return;
+    	}
+    	
+    	suspendTab(tab);
+    }
+    
     function suspendTab(tab) {
-        if( tab.pinned ) {
-            return false;
-        }
-
-        //don't allow suspending of already suspended tabs
-        if (tab.url.indexOf("chrome-extension:") >= 0 || tab.url.indexOf("chrome:") >= 0 || tab.url.indexOf("file:") >= 0) {
-            return false;
-        }
-
-        //check whitelist
-        if (checkWhiteList(tab.url)) {
-            return false;
-        }
+        var date = new Date();
+        // console.log("suspendTab, tabid: " + tab.id + ", url: " + tab.url + ", date: " + date);
+        //console.trace();
 
         var preview = gsStorage.fetchPreviewOption();
         if (preview) {
@@ -106,28 +124,20 @@ var tgs = (function () {
             saveSuspendData(tab, false);
             chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
         }
-        return true;
+    }
+    
+    function suspendHighlightedTabs(window) {
+        chrome.tabs.query({windowId:window.id,highlighted:true},function(tabs){
+            var i,
+                ii = tabs.length;
+            for (i = 0; i < ii; i += 1) {
+            if (tabs[i].url.indexOf("suspended.html") < 0) {
+                    suspendTab(tabs[i]);
+                }
+            }       
+        });
     }
 
-    function suspendSpecificTab(tab) {
-        if (!tab.active) {
-            return suspendTab(tab);
-
-        //if tab is active then refresh timer for this tab
-        } else {
-            gsTimes[tab.id] = new Date();
-        }
-        return false;
-    }
-    function suspendActiveTab(window) {
-        var i,
-            ii = window.tabs.length;
-        for (i = 0; i < ii; i += 1) {
-            if (window.tabs[i].active) {
-                suspendTab(window.tabs[i]);
-            }
-        }
-    }
     function suspendAllTabs(window) {
         var i,
             ii = window.tabs.length;
@@ -153,33 +163,40 @@ var tgs = (function () {
     }
 
     function checkForTabsToAutoSuspend() {
-
         var timeToSuspend = gsStorage.fetchTimeToSuspendOption();
+        var dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption();
 
         if (timeToSuspend > 0) {
-
             chrome.tabs.query({}, function (tabs) {
-
                 var i;
+                var date = new Date();
+                var diff;
+                // console.log("checkForTabsToAutoSuspend, date: " + date + ", dontSuspendPinned: " + dontSuspendPinned);
                 for (i in tabs) {
+                    if(dontSuspendPinned && tabs[i].pinned) {
+                        // console.log("Don't suspend pinned: " + tabs[i].url);
+                        continue;
+                    }
+                    if(isSpecialTab(tabs[i])) {
+                        continue;
+                    }
                     if (tabs.hasOwnProperty(i)) {
                         if (gsTimes[tabs[i].id]) {
-                            //console.log("checking time for: " + tabs[i].url);
-                            //console.log("time=" + (new Date() - gsTimes[tabs[i].id]));
-                            if (new Date() - gsTimes[tabs[i].id] >  timeToSuspend * 1000 * 60) {
-                                //console.log("tab expired: " + tabs[i].url);
-                                if( suspendSpecificTab(tabs[i]) ) {
-                                    // Staggering like this lessens the detrimental impact of many
-                                    // tabs auto suspending at once, which isn't uncommon if one restores a large
-                                    // tab session.
-                                    setTimeout(function () {
-                                        checkForTabsToAutoSuspend();
-                                    }, 100);
-                                    return;
-                                }
+                            diff = date - gsTimes[tabs[i].id];
+                            // console.log("checking time for: " + tabs[i].url + ", tabid: " + tabs[i].id + ", date: " + date + ", diff: " + diff);                            
+                            var maxTime;
+                            if(debug) {
+                            	maxTime = timeToSuspend * 1000;
+                            } else {
+                            	maxTime = timeToSuspend * 1000 * 60
+                            }
+							if (diff >  maxTime) {
+                                // console.log("tab expired: " + tabs[i].url + ", diff: " + diff + " > " + maxTime);
+                                suspendTabIfNotExcluded(tabs[i]);
                             }
                         } else {
-                            gsTimes[tabs[i].id] = new Date();
+                            // console.log("Add new date for tab: " + tabs[i].id + " to: " + date)
+                            gsTimes[tabs[i].id] = date;
                         }
                     }
                 }
@@ -295,7 +312,7 @@ var tgs = (function () {
         function (request, sender, sendResponse) {
 
             if (request.msg === "suspendOne") {
-                chrome.windows.getLastFocused({populate: true}, suspendActiveTab);
+                chrome.windows.getLastFocused({populate: true}, suspendHighlightedTabs);
 
             } else if (request.msg === "suspendAll") {
                 chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
@@ -317,25 +334,30 @@ var tgs = (function () {
 
     //listen for tab create
     chrome.tabs.onCreated.addListener(function (tab) {
+    	// console.log("onCreated, tab: " + tab)
         gsTimes[tab.id] = new Date();
     });
 
     //listen for tab switching
     chrome.tabs.onSelectionChanged.addListener(function (tabId, info) {
-
+        // console.log("onSelectionChanged tabId: " + tabId + ", gsTimes: " + gsTimes.toString());	
         var unsuspend = gsStorage.fetchUnsuspendOnFocusOption();
+        var date = new Date();
+        var prevDate = gsTimes[tabId];
+        var diff = date - prevDate;
 
-        if (unsuspend && gsTimes[tabId] && (new Date() - gsTimes[tabId] > 3000)) {
+        gsTimes[tabId] = date;
+        if(unsuspend) {
+            // console.log("onSelectionChanged tabId: " + tabId + ", gsTimes: " + prevDate + ", date: " + date + ", diff: " + diff);
+        }
+        if (unsuspend && prevDate && (diff > 3000)) {
             chrome.tabs.get(tabId, function (tab) {
                 if (tab.url.indexOf("suspended.html") >= 0) {
+                    // console.log("Going to send unsuspend msg, tabId " + tab.id);
                     chrome.tabs.sendMessage(tab.id, {action: "unsuspendTab"});
                 }
             });
-
-        } else if (gsTimes[tabId]) {
-            gsTimes[tabId] = new Date();
         }
-
     });
 
     initialiseAllTabs();
@@ -344,9 +366,16 @@ var tgs = (function () {
         checkForCrashedTabs();
     }
 
+    var timer;
+    if(debug) {
+     	timer = 1000 * 10;
+    } else {
+       	timer = 1000 * 60;
+    }
+        
     //start timer
     setInterval(function () {
         checkForTabsToAutoSuspend();
-    }, 1000 * 60);
+    }, timer);
 
 }());
