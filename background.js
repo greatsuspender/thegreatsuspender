@@ -355,6 +355,7 @@ var tgs = (function () {
                 if (tab.url.indexOf("suspended.html") >= 0) {
                     // console.log("Going to send unsuspend msg, tabId " + tab.id);
                     chrome.tabs.sendMessage(tab.id, {action: "unsuspendTab"});
+                    gsTimes[tabId] = new Date(); //reset timer after automatic unsuspend
                 }
             });
         }
