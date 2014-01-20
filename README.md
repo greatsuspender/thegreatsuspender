@@ -5,6 +5,9 @@ A Chrome extension for suspending all tabs to free up memory
 
 Changelog 
 
+v4.81   2013-10-14
+- merged in all pull requests
+
 v4.80   2013-10-01
 - feature:  suspend multiple selected (highlighted) tabs
 

@@ -21,10 +21,14 @@
 }
 #gsTopBarTitle {
     font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 #gsTopBarUrl {
     font-style: italic;
     font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 #gsTopBarInfo {
     line-height: 40px;

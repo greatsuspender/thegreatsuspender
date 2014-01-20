@@ -1,8 +1,8 @@
 /*global window, document, chrome, console, gsStorage */
 
-(function () {
+(function() {
 
-    "use strict";
+    'use strict';
 
     var gsWindowsToRecover = {};
 
@@ -73,7 +73,7 @@
 
     function reloadTabs(windowId, newWindow) {
 
-        return function () {
+        return function() {
 
             var tabsToReload = gsWindowsToRecover[windowId],
                 urlList = [],
@@ -81,13 +81,13 @@
 
             if (newWindow) {
                 for (i = 0; i < tabsToReload.length; i++) {
-                    urlList.push(gsStorage.generateSuspendedUrl(tabsToReload[i].url));
+                    urlList.push(tabsToReload[i].url);
                 }
                 chrome.windows.create({url: urlList});
 
             } else {
                 for (i = 0; i < tabsToReload.length; i++) {
-                    chrome.tabs.create({url: gsStorage.generateSuspendedUrl(tabsToReload[i].url)});
+                    chrome.tabs.create({url: tabsToReload[i].url});
                 }
             }
         };
@@ -95,7 +95,7 @@
 
     function removeTab(element, windowId, tabProperties) {
 
-        return function () {
+        return function() {
             var i;
             for (i in gsWindowsToRecover[windowId]) {
                 if (gsWindowsToRecover[windowId].hasOwnProperty(i) && gsWindowsToRecover[windowId][i].url === tabProperties.url) {
@@ -113,18 +113,18 @@
             groupUnsuspendCurrent,
             groupUnsuspendNew;
 
-        groupHeading = document.createElement("h2");
-        groupHeading.innerHTML = 'Window ' + windowIndex + ":";
-        groupUnsuspendCurrent = document.createElement("a");
-        groupUnsuspendCurrent.className = "groupLink";
-        groupUnsuspendCurrent.innerHTML = "re-suspend in current window";
-        groupUnsuspendCurrent.setAttribute('href', "#");
+        groupHeading = document.createElement('h2');
+        groupHeading.innerHTML = 'Window ' + windowIndex + ':';
+        groupUnsuspendCurrent = document.createElement('a');
+        groupUnsuspendCurrent.className = 'groupLink';
+        groupUnsuspendCurrent.innerHTML = 're-suspend in current window';
+        groupUnsuspendCurrent.setAttribute('href', '#');
         groupUnsuspendCurrent.onclick = reloadTabs(windowIndex, false);
         groupHeading.appendChild(groupUnsuspendCurrent);
-        groupUnsuspendNew = document.createElement("a");
-        groupUnsuspendNew.className = "groupLink";
-        groupUnsuspendNew.setAttribute('href', "#");
-        groupUnsuspendNew.innerHTML = "re-suspend in new window";
+        groupUnsuspendNew = document.createElement('a');
+        groupUnsuspendNew.className = 'groupLink';
+        groupUnsuspendNew.setAttribute('href', '#');
+        groupUnsuspendNew.innerHTML = 're-suspend in new window';
         groupUnsuspendNew.onclick = reloadTabs(windowIndex, true);
         groupHeading.appendChild(groupUnsuspendNew);
 
@@ -138,13 +138,13 @@
             listLink,
             listHover;
 
-        linksSpan.className = "recoveryLink";
+        linksSpan.className = 'recoveryLink';
         listHover = document.createElement('img');
-        listHover.setAttribute('src', chrome.extension.getURL("x.gif"));
-        listHover.className = "itemHover";
+        listHover.setAttribute('src', chrome.extension.getURL('x.gif'));
+        listHover.className = 'itemHover';
         listHover.onclick = removeTab(linksSpan, windowIndex, tabProperties);
         linksSpan.appendChild(listHover);
-        listImg = document.createElement("img");
+        listImg = document.createElement('img');
         listImg.setAttribute('src', 'chrome://favicon/' + tabProperties.url);
         listImg.setAttribute('height', '16px');
         listImg.setAttribute('width', '16px');
@@ -154,71 +154,106 @@
         listLink.setAttribute('target', '_blank');
         listLink.innerHTML = tabProperties.title;
         linksSpan.appendChild(listLink);
-        linksSpan.appendChild(document.createElement("br"));
+        linksSpan.appendChild(document.createElement('br'));
 
         return linksSpan;
     }
 
-    window.onload = function () {
+    window.onload = function() {
 
-        if (document.getElementById('clearLink') !== null) {
-            document.getElementById('clearLink').addEventListener("click", function (event) {
 
-                var gsHistory = fetchSuspendedGsHistory(),
-                    i;
+        //decide whether to use new recovery screen
+        if (gsStorage.fetchGsSessionHistory().length > 0) {
 
-                for (i in gsHistory) {
-                    if (gsHistory.hasOwnProperty(i)) {
-                        gsHistory[i].state = 'unsuspended';
-                        gsStorage.saveTabToHistory(gsHistory[i].url, gsHistory[i]);
+            var gsHistory = gsStorage.fetchGsSessionHistory(),
+                curGroupKey = -1,
+                i,
+                k,
+                j = 1,
+                linksList = document.getElementById('recoveryLinks'),
+                curUrl;
+
+            gsWindowsToRecover = {};
+
+            for (i = 0; i < gsHistory[0].windows.length; i++) {
+                for (k = 0; k < gsHistory[0].windows[i].tabs.length; k++) {
+
+                    //print header for group
+                    if (gsHistory[0].windows[i].id !== curGroupKey) {
+                        gsWindowsToRecover[j] = [];
+                        curGroupKey = gsHistory[0].windows[i].id;
+                        linksList.appendChild(createGroupHtml(j));
+                        j++;
                     }
+
+                    //print tab entry
+                    linksList.appendChild(createTabHtml(j - 1, gsHistory[0].windows[i].tabs[k]));
+
+                    gsWindowsToRecover[j - 1].push(gsHistory[0].windows[i].tabs[k]);
                 }
-                chrome.tabs.getCurrent(function (tab) {
-                    chrome.tabs.remove(tab.id);
-                    chrome.tabs.create({url: chrome.extension.getURL("recovery.html")});
+            }
+
+        //or use old recovery screen
+        } else {
+
+            if (document.getElementById('clearLink') !== null) {
+                document.getElementById('clearLink').addEventListener('click', function(event) {
+
+                    var gsHistory = fetchSuspendedGsHistory(),
+                        i;
+
+                    for (i in gsHistory) {
+                        if (gsHistory.hasOwnProperty(i)) {
+                            gsHistory[i].state = 'unsuspended';
+                            gsStorage.saveTabToHistory(gsHistory[i].url, gsHistory[i]);
+                        }
+                    }
+                    chrome.tabs.getCurrent(function(tab) {
+                        chrome.tabs.remove(tab.id);
+                        chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                    });
+
                 });
-
-            });
-        }
-        if (document.getElementById('historyLink') !== null) {
-            document.getElementById('historyLink').addEventListener("click", function (event) {
-                chrome.tabs.create({url: chrome.extension.getURL("history.html")});
-            });
-        }
+            }
+            if (document.getElementById('historyLink') !== null) {
+                document.getElementById('historyLink').addEventListener('click', function(event) {
+                    chrome.tabs.create({url: chrome.extension.getURL('history.html')});
+                });
+            }
 
 
 
-        var gsHistory = fetchSuspendedGsHistory(),
-            curGroupKey = -1,
-            key,
-            i,
-            j = 1,
-            linksList = document.getElementById('recoveryLinks'),
-            curUrl;
+            var gsHistory = fetchSuspendedGsHistory(),
+                curGroupKey = -1,
+                key,
+                i,
+                j = 1,
+                linksList = document.getElementById('recoveryLinks'),
+                curUrl;
 
-        gsWindowsToRecover = {};
-        gsHistory.sort(compareTabs);
+            gsWindowsToRecover = {};
+            gsHistory.sort(compareTabs);
 
-        for (i in gsHistory) {
-            if (gsHistory.hasOwnProperty(i)) {
+            for (i in gsHistory) {
+                if (gsHistory.hasOwnProperty(i)) {
 
-                key = gsHistory[i].windowId + '_' + gsHistory[i].url;
+                    key = gsHistory[i].windowId + '_' + gsHistory[i].url;
 
-                //print header for group
-                if (gsHistory[i].windowId !== curGroupKey) {
-                    gsWindowsToRecover[j] = [];
-                    curGroupKey = gsHistory[i].windowId;
-                    linksList.appendChild(createGroupHtml(j));
-                    j++;
+                    //print header for group
+                    if (gsHistory[i].windowId !== curGroupKey) {
+                        gsWindowsToRecover[j] = [];
+                        curGroupKey = gsHistory[i].windowId;
+                        linksList.appendChild(createGroupHtml(j));
+                        j++;
+                    }
+
+                    //print tab entry
+                    linksList.appendChild(createTabHtml(j - 1, gsHistory[i]));
+
+                    gsWindowsToRecover[j - 1].push(gsHistory[i]);
                 }
-
-                //print tab entry
-                linksList.appendChild(createTabHtml(j - 1, gsHistory[i]));
-
-                gsWindowsToRecover[j - 1].push(gsHistory[i]);
             }
         }
-
     };
 
 }());

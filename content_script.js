@@ -1,22 +1,22 @@
 /*global chrome, document, window, console, html2canvas */
 
-(function () {
+(function() {
 
-    "use strict";
+    'use strict';
 
     chrome.extension.onMessage.addListener(
-        function (request, sender, sendResponse) {
+        function(request, sender, sendResponse) {
 
             //console.log('received request');
 
-            var elementCount = document.getElementsByTagName("*").length,
+            var elementCount = document.getElementsByTagName('*').length,
                 processing = true;
 
             //safety check here. don't try to use html2canvas if the page has more than 5000 elements
             if (elementCount < 5000) {
 
                 //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
-                window.setTimeout(function () {
+                window.setTimeout(function() {
                     if (processing) {
                         processing = false;
                         console.error('failed to render');
@@ -29,12 +29,11 @@
                         height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
                         width: document.body.clientWidth - 6,
                         proxy: false,
-                        onrendered: function (canvas) {
+                        onrendered: function(canvas) {
                             if (processing) {
                                 processing = false;
-                                // It's just a preview to jog the memory, so
-                                // let's heavily favor small size over quality.
-                                sendResponse({previewUrl: canvas.toDataURL("image/jpeg", 0.1)});
+                                var quality = request.quality ? request.quality : 0.1;
+                                sendResponse({previewUrl: canvas.toDataURL('image/jpeg', quality)});
                             }
                         }
                     });
