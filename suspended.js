@@ -43,7 +43,7 @@ var referrer = false;
 
             window.history.replaceState(null, null, url);
             chrome.tabs.getCurrent(function(tab) {
-                chrome.tabs.reload(tab.id);
+                chrome.tabs.reload(tab.id, {bypassCache: true});
             });
 
         //finally, show gs history instead (as all else has failed)
