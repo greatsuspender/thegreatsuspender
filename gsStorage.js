@@ -73,16 +73,19 @@
         },
 
         fetchDontSuspendPinnedOption: function() {
-            var hasOption = localStorage.getItem('gsDontSuspendPinned');
-            if (hasOption) {
-                var val = localStorage.getItem('gsDontSuspendPinned');
-                // console.log('gsStorage has option dontSuspend, value: ' + val)
-            }
-            return hasOption ? localStorage.getItem('gsDontSuspendPinned') === 'true' : false;
+            return localStorage.getItem('gsDontSuspendPinned') ? localStorage.getItem('gsDontSuspendPinned') === 'true' : false;
         },
 
         setDontSuspendPinnedOption: function(dontSuspendPinned) {
             localStorage.setItem('gsDontSuspendPinned', dontSuspendPinned);
+        },
+
+        fetchDontSuspendFormsOption: function() {
+            return localStorage.getItem('gsDontSuspendForms') ? localStorage.getItem('gsDontSuspendForms') === 'true' : false;
+        },
+
+        setDontSuspendFormsOption: function(dontSuspendForms) {
+            localStorage.setItem('gsDontSuspendForms', dontSuspendForms);
         },
 
         fetchVersion: function() {

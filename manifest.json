@@ -1,6 +1,6 @@
 {
     "name": "The Great Suspender",
-    "version": "4.81",
+    "version": "5.0.0",
     "permissions": [
         "tabs",
         "storage",
@@ -12,6 +12,12 @@
     "background": {
         "scripts": ["gsStorage.js", "background.js"]
     },
+    "content_scripts": [
+        {
+          "matches": ["<all_urls>"],
+          "js": ["contentscript.js"]
+        }
+    ],
     "browser_action": {
         "default_title": "The Great Suspender",
         "default_icon": "icon128.png",

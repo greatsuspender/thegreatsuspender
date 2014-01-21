@@ -7,6 +7,7 @@ var tgs = (function() {
     var gsTimes = [];
     var debug = false;
     var sessionId = Math.floor(Math.random() * 1000000);
+    var tempWhitelist = [];
 
     function markTabUnsuspended(tabUrl) {
 
@@ -70,7 +71,7 @@ var tgs = (function() {
     function sendSuspendMessage(tab, callback) {
 
         chrome.tabs.executeScript(tab.id, {file: 'html2canvas.min.js'}, function() {
-            chrome.tabs.executeScript(tab.id, {file: 'content_script.js'}, function() {
+            chrome.tabs.executeScript(tab.id, {file: 'previewscript.js'}, function() {
 
                 var quality = gsStorage.fetchPreviewQualityOption() ? 0.8 : 0.1;
 
@@ -116,6 +117,10 @@ var tgs = (function() {
             return true;
         }
 
+        //check tempWhitelist (for form inputs)
+        if (tempWhitelist.indexOf(tab.id) >= 0) {
+            return true;
+        }
 
         if (dontSuspendPinned && tabs[i].pinned) {
             return true;
@@ -353,8 +358,15 @@ var tgs = (function() {
     //handler for unsuspend
     chrome.extension.onMessage.addListener(
         function(request, sender, sendResponse) {
+
             if (request.action === 'setUnsuspendedState') {
                 markTabUnsuspended(request.tabUrl);
+
+            } else if (request.action === 'setFormInputState') {
+                if (gsStorage.fetchDontSuspendFormsOption()) {
+                    tempWhitelist.push(sender.tab.id);
+                    console.log('adding tab ' + sender.tab.id + ' to tempWhitelist');
+                }
             }
         }
     );
@@ -386,10 +398,10 @@ var tgs = (function() {
         }
     });
 
-    //listen for tab updating to capture synched suspended tabs from other installation of the great suspender
+    //listen for tab updating
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
-        //if we are on a suspended page
+        //if we are on a suspended page try to capture synched suspended tabs from other installation of the great suspender
         if (tab.url.indexOf('suspended.html#') > 0) {
 
             //if the extension directory does not match this instance of the great suspender
@@ -401,8 +413,17 @@ var tgs = (function() {
                 //convert url to this instance of the great suspender
                 chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(url)});
             }
+        } else {
+
+            //clear any possible tempWhitelist entry for this tab
+            var index = tempWhitelist.indexOf(tabId);
+            if (index > -1) {
+                console.log('clearing tab ' + tabId + ' from tempWhitelist');
+                tempWhitelist.splice(index, 1);
+            }
         }
     });
+
 
     initialiseAllTabs();
 
@@ -415,13 +436,13 @@ var tgs = (function() {
 
     //start timer for suspension checking
     setInterval(function() {
-        console.log("checking for tabs to suspend. next check in " + (timer / 1000) + " seconds.");
+        console.log('checking for tabs to suspend. next check in ' + (timer / 1000) + ' seconds.');
         checkForTabsToAutoSuspend();
     }, timer);
 
     //start timer for saving windowHistory
     setInterval(function() {
-        console.log("saving current session. next save in 60 seconds.");
+        console.log('saving current session. next save in 60 seconds.');
         saveWindowHistory();
     }, 60 * 1000);
 

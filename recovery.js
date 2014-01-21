@@ -80,14 +80,15 @@
                 i;
 
             if (newWindow) {
-                for (i = 0; i < tabsToReload.length; i++) {
-                    urlList.push(tabsToReload[i].url);
-                }
-                chrome.windows.create({url: urlList});
+                chrome.windows.create(function(window) {
+                    for (i = 0; i < tabsToReload.length; i++) {
+                        chrome.tabs.create({url: tabsToReload[i].url, pinned: tabsToReload[i].pinned, windowId: window.id});
+                    }
+                });
 
             } else {
                 for (i = 0; i < tabsToReload.length; i++) {
-                    chrome.tabs.create({url: tabsToReload[i].url});
+                    chrome.tabs.create({url: tabsToReload[i].url, pinned: tabsToReload[i].pinned});
                 }
             }
         };

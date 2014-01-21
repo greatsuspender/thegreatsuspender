@@ -24,6 +24,7 @@
             previewQuality = gsStorage.fetchPreviewQualityOption(),
             unsuspendOnFocus = gsStorage.fetchUnsuspendOnFocusOption(),
             dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption(),
+            dontSuspendForms = gsStorage.fetchDontSuspendFormsOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
             whitelist = gsStorage.fetchWhitelist();
 
@@ -31,6 +32,7 @@
         document.getElementById('previewQuality').checked = previewQuality;
         document.getElementById('unsuspendOnFocus').checked = unsuspendOnFocus;
         document.getElementById('dontSuspendPinned').checked = dontSuspendPinned;
+        document.getElementById('dontSuspendForms').checked = dontSuspendForms;
         document.getElementById('whitelist').value = whitelist;
         selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
         setPreviewQualityVisibility(preview);
@@ -55,6 +57,7 @@
                 qualityEl = document.getElementById('previewQuality'),
                 unsuspendOnFocusEl = document.getElementById('unsuspendOnFocus'),
                 dontSuspendPinnedEl = document.getElementById('dontSuspendPinned'),
+                dontSuspendFormsEl = document.getElementById('dontSuspendForms'),
                 whitelistEl = document.getElementById('whitelist'),
                 timeToSuspendEl = document.getElementById('timeToSuspend'),
                 showHistoryEl = document.getElementById('showHistory'),
@@ -72,8 +75,11 @@
             };
             dontSuspendPinnedEl.onclick = function(e) {
                 var val = dontSuspendPinnedEl.checked;
-                console.log('Dont suspent pinned changed to: ' + val);
                 gsStorage.setDontSuspendPinnedOption(val);
+            };
+            dontSuspendFormsEl.onclick = function(e) {
+                var val = dontSuspendFormsEl.checked;
+                gsStorage.setDontSuspendFormsOption(val);
             };
             whitelistEl.onkeyup = function(e) {
                 gsStorage.setWhitelist(whitelistEl.value);
