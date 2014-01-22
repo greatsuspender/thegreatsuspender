@@ -3,7 +3,7 @@ var tgs = (function() {
 
     'use strict';
 
-    var version = 5.0.1;
+    var version = "5.0.1";
     var gsTimes = [];
     var debug = false;
     var sessionId = Math.floor(Math.random() * 1000000);
