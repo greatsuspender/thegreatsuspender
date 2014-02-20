@@ -1,23 +1,16 @@
 #gsTopBar  {
 	position: fixed;
     color: #444;
-    text-shadow: 0 1px 0 #FFF3C5;
-    height: 100px;
     background: #FDE073;
     top: 0;
-    padding-top: 10px;
+    padding: 10px 10px 5px;
     line-height: 25px;
     width: 100%;
     text-align: center;
     font-family: verdana, arial, sans-serif;
-    border-bottom: 1px solid #6B5811;
-    box-shadow: 0 4px 5px -2px #555;
+    border-bottom: 1px solid #8A8352;
 }
 #gsTopBarImg {
-    position: absolute;
-    left: 10px;
-    height: 90px;
-    width: 90px;
 }
 #gsTopBarTitle {
     font-weight: bold;
@@ -32,9 +25,6 @@
 }
 #gsTopBarInfo {
     line-height: 40px;
-}
-#gsWhitelistLink {
-    text-decoration:underline;
 }
 #gsPreview {
     margin-top:115px;

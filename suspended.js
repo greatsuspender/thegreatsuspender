@@ -86,10 +86,10 @@ var referrer = false;
         rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
         rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
 
-        document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
+        document.getElementById('gsTitle').innerText = 'Tab suspended: ' + tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
-        document.getElementById('gsTopBarUrl').innerText = tabProperties.url;
-        document.getElementById('gsTopBarInfo').innerText = 'Tab suspended: click to reload OR ';
+     //   document.getElementById('gsTopBarUrl').innerText = tabProperties.url;
+        document.getElementById('gsTopBarInfo').innerText = 'Click to reload, or ';
         document.getElementById('gsWhitelistLink').innerText = 'add ' + rootUrlStr + ' to whitelist';
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 

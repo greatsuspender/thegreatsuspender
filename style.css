@@ -34,7 +34,7 @@ ol, ul {
 
 h1 {
 	font-size: 24px;
-	padding-bottom: 15px;
+	margin-bottom: 20px;
 }
 h2 {
 	font-size: 20px;
@@ -65,8 +65,37 @@ div {
 p {
 	padding-bottom: 10px;
 }
+.btn {
+    text-decoration:none;
+    background: linear-gradient(#fff,#ddd);
+    border: 1px solid #aaa;
+    border-top-color: #ccc;
+    padding: 0.1em 0.6em;
+    font-size: 0.9em;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px -2px #000;
+    color: #444;
+    text-shadow: 0 1px 0 #fff;
+}
+.btn:hover {
+    box-shadow: none;
+    background: linear-gradient(#ddd,#d5d5d5);
+}
 .hidden {
 	visibility: hidden;
+}
+#body {
+    background: #FDE073;
+}
+.mainContent {
+    width: 600px;
+    margin: 40px auto 10px;
+    font-size: 14px;
+    font-family: verdana, sans-serif;
+    color: #444;
+    background: #F9F9F9;
+    padding: 20px 20px 30px;
+    box-shadow: 0 2px 10px -4px #000;
 }
 #heading {
 	white-space: nowrap;

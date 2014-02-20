@@ -6,12 +6,12 @@ html, body {
 div {
     padding: 20px;
 }
-h1 {
+/*h1 {
     margin-top: 10px;
     font-size: 30px;
     color: #666;
     margin-bottom: 35px;
-}
+}*/
 h2 {
     font-size: 17px;
     color: #666;
@@ -50,9 +50,8 @@ a.historyLink:hover {
     padding-left: 20px;
 }
 .groupLink {
-    font-size: 13px;
-    color: #888;
-    margin-right: 15px;
+    margin: 0 0 0 10px;
+    font-size: 0.8em;
 }
 .recoveryLink .itemHover {
     visibility: hidden;

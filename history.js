@@ -101,13 +101,13 @@
                         groupHeading = document.createElement("h2");
                         groupHeading.innerHTML = groupKey;
                         groupLinkSuspend = document.createElement("a");
-                        groupLinkSuspend.className = "groupLink";
+                        groupLinkSuspend.className = "groupLink btn";
                         groupLinkSuspend.innerHTML = "re-suspend all tabs for this day";
                         groupLinkSuspend.setAttribute('href', "#");
                         groupLinkSuspend.onclick = reloadTabs(groupKey, true);
                         groupHeading.appendChild(groupLinkSuspend);
                         groupLinkUnsuspend = document.createElement("a");
-                        groupLinkUnsuspend.className = "groupLink";
+                        groupLinkUnsuspend.className = "groupLink btn";
                         groupLinkUnsuspend.innerHTML = "reload all tabs for this day";
                         groupLinkUnsuspend.setAttribute('href', "#");
                         groupLinkUnsuspend.onclick = reloadTabs(groupKey, false);
