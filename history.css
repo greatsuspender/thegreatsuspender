@@ -13,7 +13,7 @@ h1 {
     margin-bottom: 35px;
 }
 h2 {
-    font-size: 20px;
+    font-size: 17px;
     color: #666;
     padding-top: 15px;
 }
@@ -28,10 +28,20 @@ ul, li {
     margin: 0px;
     padding: 0px;
 }
-a {
-    line-height: 30px;
+div.recoveryLink {
+    padding: 0px;
+}
+a.historyLink {
     font-weight: normal;
     color: #333;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+a.historyLink:hover {
+    text-decoration: underline;
 }
 #gsHistory span {
     font-style: italic;
@@ -40,14 +50,14 @@ a {
     padding-left: 20px;
 }
 .groupLink {
-    font-size: 14px;
+    font-size: 13px;
     color: #888;
-    padding-left: 20px;
+    margin-right: 15px;
 }
 .recoveryLink .itemHover {
     visibility: hidden;
     margin: 0px;
-    padding: 0px 2px 3px;
+    padding: 0px 0px 3px;
     cursor: pointer;
 }
 .recoveryLink:hover .itemHover {

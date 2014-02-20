@@ -1,6 +1,6 @@
 {
     "name": "The Great Suspender",
-    "version": "5.0.1",
+    "version": "5.1.1",
     "permissions": [
         "tabs",
         "storage",
@@ -14,7 +14,7 @@
     },
     "content_scripts": [
         {
-          "matches": ["<all_urls>"],
+          "matches": ["http://*/*", "https://*/*"],
           "js": ["contentscript.js"]
         }
     ],

@@ -64,6 +64,14 @@
             localStorage.setItem('gsTimeToSuspend', timeToSuspend);
         },
 
+        fetchMaxHistoriesOption: function() {
+            return localStorage.getItem('gsMaxHistories') || 5;
+        },
+
+        setMaxHistoriesOption: function(maxHistories) {
+            localStorage.setItem('gsMaxHistories', maxHistories);
+        },
+
         fetchUnsuspendOnFocusOption: function() {
             return localStorage.getItem('gsUnsuspendOnFocus') ? localStorage.getItem('gsUnsuspendOnFocus') === 'true' : false;
         },
@@ -86,6 +94,14 @@
 
         setDontSuspendFormsOption: function(dontSuspendForms) {
             localStorage.setItem('gsDontSuspendForms', dontSuspendForms);
+        },
+
+        fetchIgnoreCacheOption: function() {
+            return localStorage.getItem('gsIgnoreCache') ? localStorage.getItem('gsIgnoreCache') === 'true' : false;
+        },
+
+        setIgnoreCacheOption: function(ignoreCache) {
+            localStorage.setItem('gsIgnoreCache', ignoreCache);
         },
 
         fetchVersion: function() {
@@ -162,21 +178,133 @@
             for (i = 0; i < gsHistory.length; i++) {
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory[i] = tabProperties;
-                    //break; dont break anymore. want to update them all.
+                    break;
                 }
             }
             localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
         },
 
+        removeTabFromSessionHistory: function(sessionId, windowId, tabId) {
+
+            var gsSessionHistory = this.fetchGsSessionHistory(),
+                i,
+                j,
+                k;
+
+            for (i = 0; i < gsSessionHistory.length; i++) {
+                if (gsSessionHistory[i].id == sessionId) {
+
+                    for (j = 0; j < gsSessionHistory[i].windows.length; j++) {
+                        if (gsSessionHistory[i].windows[j].id == windowId) {
+
+                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k++) {
+                                if (gsSessionHistory[i].windows[j].tabs[k].id == tabId ||
+                                        gsSessionHistory[i].windows[j].tabs[k].url == tabId) {
+                                    gsSessionHistory[i].windows[j].tabs.splice(k, 1);
+                                    break;
+                                }
+                            }
+                        }
+                        if (gsSessionHistory[i].windows[j].tabs.length === 0) {
+                            gsSessionHistory[i].windows.splice(j, 1);
+                        }
+                    }
+                }
+                if (gsSessionHistory[i].windows.length === 0) {
+                    gsSessionHistory.splice(i, 1);
+                }
+            }
+
+
+            this.setGsSessionHistory(gsSessionHistory);
+        },
+
         fetchGsSessionHistory: function() {
 
-            var result = localStorage.getItem('gsSessionHistory');
+            var result = localStorage.getItem('gsSessionHistory'),
+                sessionHistory;
+
+            //if there is no history, try migrating history for gsHistory
             if (result === null) {
-                result = [];
+
+                var gsHistory = this.fetchGsHistory(),
+                    i,
+                    curSession,
+                    curWindow,
+                    curTab,
+                    groupKey,
+                    tabProperties;
+
+                sessionHistory = [];
+
+                gsHistory.sort(this.compareDate);
+
+                for (i = 0; i < gsHistory.length; i++) {
+                    tabProperties = gsHistory[i];
+                    groupKey = this.getFormattedDate(tabProperties.date, false);
+
+                    curSession = this.getSessionFromGroupKey(groupKey, sessionHistory);
+                    if (!curSession) {
+                        curSession = {id: groupKey, windows: [], date: tabProperties.date};
+                        sessionHistory.unshift(curSession);
+                    }
+
+                    curWindow = this.getWindowFromSession(tabProperties.windowId, curSession);
+                    if (!curWindow) {
+                        curWindow = {id: tabProperties.windowId, tabs: []};
+                        curSession.windows.unshift(curWindow);
+                    }
+
+                    curTab = this.getTabFromWindow(tabProperties.url, curWindow);
+                    if (!curTab) {
+                        curWindow.tabs.unshift(tabProperties);
+                    }
+                }
+                this.setGsSessionHistory(sessionHistory);
+
             } else {
-                result = JSON.parse(result);
+                sessionHistory = JSON.parse(result);
             }
-            return result;
+            return sessionHistory;
+        },
+
+        setGsSessionHistory: function(sessionHistory) {
+            localStorage.setItem('gsSessionHistory', JSON.stringify(sessionHistory));
+        },
+
+        clearGsSessionHistory: function(gsHistory) {
+            this.setGsSessionHistory([]);
+        },
+
+        getSessionFromGroupKey: function(groupKey, sessionHistory) {
+            var i = 0;
+            for (i = 0; i < sessionHistory.length; i++) {
+                if (sessionHistory[i].id == groupKey) {
+                    return sessionHistory[i];
+                }
+            }
+            return false;
+        },
+        getWindowFromSession: function(windowId, session) {
+            var i = 0;
+            for (i = 0; i < session.windows.length; i++) {
+                if (session.windows[i].id == windowId) {
+                    return session.windows[i];
+                }
+            }
+            return false;
+        },
+        getTabFromWindow: function(id, window) {
+            var i = 0;
+            for (i = 0; i < window.tabs.length; i++) {
+                if (window.tabs[i].id == id) {
+                    return window.tabs[i];
+
+                } else if (window.tabs[i].url == id) {
+                    return window.tabs[i];
+                }
+            }
+            return false;
         },
 
         saveWindowsToSessionHistory: function(sessionId, windowsArray) {
@@ -188,6 +316,7 @@
             for (i = 0; i < gsSessionHistory.length; i++) {
                 if (gsSessionHistory[i].id === sessionId) {
                     gsSessionHistory[i].windows = windowsArray;
+                    gsSessionHistory[i].date = new Date();
                     match = true;
                     break;
                 }
@@ -195,19 +324,20 @@
 
             //if no matching window id found. create a new entry
             if (!match) {
-                gsSessionHistory.unshift({id: sessionId, windows: windowsArray});
+                gsSessionHistory.unshift({id: sessionId, windows: windowsArray, date: new Date()});
             }
 
-            //trim stored windows down to last 3
-            while (gsSessionHistory.length > 3) {
+            //trim stored windows down to last x sessions
+            while (gsSessionHistory.length > this.fetchMaxHistoriesOption()) {
                 gsSessionHistory.splice(gsSessionHistory.length - 1, 1);
             }
 
-            localStorage.setItem('gsSessionHistory', JSON.stringify(gsSessionHistory));
+            this.setGsSessionHistory(gsSessionHistory);
         },
 
-        generateSuspendedUrl: function(tabUrl) {
-            return chrome.extension.getURL('suspended.html' + '#url=' + encodeURIComponent(tabUrl));
+        generateSuspendedUrl: function(tabUrl, tabTitle) {
+            var args = '#url=' + encodeURIComponent(tabUrl);
+            return chrome.extension.getURL('suspended.html' + args);
         },
 
         getHashVariable: function(key, hash) {
@@ -228,7 +358,32 @@
                 }
             }
             return false;
+        },
+
+        getFormattedDate: function(date, includeTime) {
+            var d = new Date(date),
+                cur_date = ('0' + d.getDate()).slice(-2),
+                cur_month = ('0' + (d.getMonth() + 1)).slice(-2),
+                cur_year = d.getFullYear(),
+                cur_time = d.toTimeString().match(/^([0-9]{2}:[0-9]{2})/)[0];
+
+            if (includeTime) {
+                return cur_date + '-' + cur_month + '-' + cur_year + ': ' + cur_time;
+            } else {
+                return cur_date + '-' + cur_month + ' ' + cur_year;
+            }
+        },
+
+        compareDate: function(a, b) {
+            if (a.date < b.date) {
+                return -1;
+            }
+            if (a.date > b.date) {
+                return 1;
+            }
+            return 0;
         }
+
 
     };
     window.gsStorage = gsStorage;

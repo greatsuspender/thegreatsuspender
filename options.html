@@ -15,7 +15,7 @@
 
 	<br />
 	<input type="checkbox" id="preview"></input>
-	<label for="preview">Turn on screen capturing</label>
+	<label for="preview">Enable screen capturing</label>
 	<span id="previewQualitySection">
 		<input type="checkbox" id="previewQuality"></input>
 		<label for="previewQuality">Use high quality screen captures</label>
@@ -28,7 +28,10 @@
 	<label for="dontSuspendPinned">Do not suspend pinned tabs</label>
 	<br />
 	<input type="checkbox" id="dontSuspendForms"></input>
-	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved text input</label>
+	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved form inputs</label>
+	<br />
+	<input type="checkbox" id="ignoreCache"></input>
+	<label for="ignoreCache">Skip browser cache when reloading tab</label>
 	<br />
 	<br />
 	<label for="whitelist">Whitelist (keywords of pages to ignore)</label>
@@ -37,10 +40,11 @@
 	<br />
 	<br />
 
-	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically:</label>
+	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically</label>
 	<br />
 	<select id="timeToSuspend">
 		<option value="0">Never</option>
+		<option value="0.33">20 seconds</option>
 		<option value="1">1 min</option>
 		<option value="5">5 mins</option>
 		<option value="10">10 mins</option>
@@ -50,13 +54,21 @@
 		<option value="120">2 hours</option>
 		<option value="360">6 hours</option>
 		<option value="720">12 hours</option>
+		<option value="1440">1 day</option>
+		<option value="2880">2 days</option>
+		<option value="4320">3 days</option>
 	</select>
 
 </div>
 
 <div>
 
-	<h2>Suspended Tab History</h2>
+	<h2>Tab History:</h2>
+
+	<label id="maxHistoryLbl" for="maxHistories">Number of sessions to store in history</label>
+	<br />
+	<input id="maxHistories" value="5" />
+	<br />
 	<p>
 		<button id='showHistory'>Show History</button>
 		<button id='clearHistory'>Clear History</button>

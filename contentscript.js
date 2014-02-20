@@ -14,11 +14,16 @@
                         event.target.tagName.toUpperCase() == 'TEXTAREA' ||
                         event.target.tagName.toUpperCase() == 'FORM') {
                     inputState = true;
-                    chrome.runtime.sendMessage({ action: 'setFormInputState' }, function(response) {});
+
+                    /*chrome.tabs.getCurrent(function(tab) {
+                        chrome.extension.getBackgroundPage().tgs.setFormInputState(tab.id);
+                    });*/
+                    //chrome.extension.getBackgroundPage().tgs.setFormInputState();
+
+console.log('sending new message: setFormInputState');
+                    chrome.runtime.sendMessage({ action: 'setFormInputState' });
                 }
             }
         }
     });
-
-
 }());
