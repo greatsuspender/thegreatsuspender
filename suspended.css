@@ -16,6 +16,8 @@
     font-weight: bold;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 20px;
+    line-height: 35px
 }
 #gsTopBarUrl {
     font-style: italic;
@@ -28,6 +30,9 @@
 }
 #gsPreview {
     margin-top:115px;
+}
+#gsWhitelistLink:hover {
+    text-decoration: underline;
 }
 html, body {
     cursor: pointer;

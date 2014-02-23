@@ -24,25 +24,24 @@ var referrer = false;
     }
 
     function sendSuspendedMessage() {
-        chrome.runtime.sendMessage({action: 'setSuspendedState'});
+        if (typeof(chrome.runtime.getManifest()) !== 'undefined') {
+            chrome.runtime.sendMessage({action: 'setSuspendedState'});
+        }
     }
     function sendUnsuspendedMessage() {
-        chrome.runtime.sendMessage({action: 'setUnsuspendedState'});
-    }
-    function sendConfirmUnsuspensionMessage() {
-        chrome.runtime.sendMessage({action: 'confirmUnsuspension'});
+        if (typeof(chrome.runtime.getManifest()) !== 'undefined') {
+            chrome.runtime.sendMessage({action: 'setUnsuspendedState'});
+        }
     }
 
     function unsuspendTab() {
 
-        var extensionTest = chrome.runtime.getManifest();
+        sendUnsuspendedMessage();
+        window.history.back();
 
-        if (typeof(extensionTest) !== "undefined") {
-            sendConfirmUnsuspensionMessage();
-
-        } else {
-            window.location.reload();
-        }
+        setTimeout(function() {
+            window.history.go(0);
+        }, 2000);
     }
 
     function generateMetaImages(tabProperties) {
@@ -59,15 +58,26 @@ var referrer = false;
         }
 
         generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
+            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
         });
     }
 
     function attemptTabSuspend() {
 
-        var //tab = tabsArray[0],
-            url = gsStorage.getHashVariable('url', window.location.hash),
+        var url = gsStorage.getHashVariable('url', window.location.hash),
             tabProperties = gsStorage.fetchTabFromHistory(url);
+
+        //just incase the url is a suspension url (somehow??) then decode it
+        if (url.indexOf('suspended.html') >= 0) {
+            url = gsStorage.getHashVariable('url', url);
+        }
+
+        //update url with actual url
+        //not sure why but restoring this url crashes the extension?!?!?!
+        if (url.indexOf('chrome.google.com/webstore') < 0) {
+            console.log('replacing state: ' + url);
+            window.history.replaceState(null, null, url);
+        }
 
         //if we have some suspend information for this tab
         if (tabProperties) {
@@ -86,10 +96,10 @@ var referrer = false;
         rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
         rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
 
-        document.getElementById('gsTitle').innerText = 'Tab suspended: ' + tabProperties.title ? tabProperties.title : rootUrlStr;
+        document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
      //   document.getElementById('gsTopBarUrl').innerText = tabProperties.url;
-        document.getElementById('gsTopBarInfo').innerText = 'Click to reload, or ';
+        document.getElementById('gsTopBarInfo').innerText = 'Tab suspended: ' + 'click to reload, or ';
         document.getElementById('gsWhitelistLink').innerText = 'add ' + rootUrlStr + ' to whitelist';
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 
@@ -101,24 +111,9 @@ var referrer = false;
 
         //mark tab as suspended
         sendSuspendedMessage();
-
-        //update url with actual url
-        //not sure why but restoring this url crashes the extension?!?!?!
-        if (url.indexOf('chrome.google.com/webstore') < 0) {
-            window.history.replaceState(null, null, url);
-        }
     }
 
-    /*function tabListener(request, sender, sendResponse) {
-        console.dir('received suspended.js message:' + request.action + ' [' + Date.now() + '] ');
-        if (request.action === 'unsuspendTab') {
-            unsuspendTab();
-        }
-    }*/
-
     window.onload = function() {
-
-        //chrome.runtime.onMessage.addListener(tabListener);
 
         //handler for unsuspend
         document.onclick = unsuspendTab;
@@ -129,7 +124,6 @@ var referrer = false;
         };
 
         //try to suspend tab
-        //chrome.tabs.query({active: true, currentWindow: true}, attemptTabSuspend);
         attemptTabSuspend();
     };
 

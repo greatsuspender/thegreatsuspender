@@ -7,6 +7,11 @@
 </head>
 <body>
 
+	<div id='statusBar'>
+		<span id="whitelisted">Tab whitelisted</span>
+		<span id="formInput">Tab receiving input</span>
+	</div>
+
 	<ul id="options">
 		<li class="menuOption" id="suspendOne" title="Suspend current tab">
 			<div class="button">
@@ -14,6 +19,14 @@
 			</div>
 			<div class="buttonLabel">
 				Suspend current tab
+			</div>
+		</li>
+		<li class="menuOption" id="whitelist" title="Whitelist current tab">
+			<div class="button">
+				<img src="whitelist.png" />
+			</div>
+			<div class="buttonLabel">
+				Whitelist current tab
 			</div>
 		</li>
 		<li class="menuOption" id="suspendAll" title="Suspend all other tabs">
