@@ -4,6 +4,31 @@
 
     'use strict';
 
+    function showStatusBar(divId) {
+
+        document.getElementById('formInput').style.display = 'none';
+        document.getElementById('whitelisted').style.display = 'none';
+        document.getElementById('pinnedTab').style.display = 'none';
+
+        if (divId) {
+            document.getElementById(divId).style.display = 'block';
+        }
+    };
+    function setWhitelistVisibility(visible) {
+        if (visible) {
+            document.getElementById('whitelist').style.display = 'block';
+        } else {
+            document.getElementById('whitelist').style.display = 'none';
+        }
+    };
+    function setSuspendOneVisibility(visible) {
+        if (visible) {
+            document.getElementById('suspendOne').style.display = 'block';
+        } else {
+            document.getElementById('suspendOne').style.display = 'none';
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('whitelist').addEventListener('click', function() {
@@ -35,20 +60,33 @@
 
                 if (tabs.length > 0) {
                     var tab = tabs[0];
+
                     if (chrome.extension.getBackgroundPage().tgs.checkWhiteList(tab.url)) {
-                        document.getElementById('formInput').style.display = 'none';
-                        document.getElementById('whitelisted').style.display = 'block';
-                        document.getElementById('whitelist').style.display = 'none';
+                        showStatusBar('whitelisted');
+                        setWhitelistVisibility(false);
 
                     } else if (chrome.extension.getBackgroundPage().tgs.isTempWhitelisted(tab)) {
-                        document.getElementById('formInput').style.display = 'block';
-                        document.getElementById('whitelisted').style.display = 'none';
-                        document.getElementById('whitelist').style.display = 'block';
+                        showStatusBar('formInput');
+                        setWhitelistVisibility(true);
+
+                    } else if (chrome.extension.getBackgroundPage().tgs.isPinnedTab(tab)) {
+                        showStatusBar('pinnedTab');
+                        setWhitelistVisibility(true);
+
+                    } else if (chrome.extension.getBackgroundPage().tgs.isSpecialTab(tab)) {
+                        showStatusBar(false);
+                        setWhitelistVisibility(false);
 
                     } else {
-                        document.getElementById('formInput').style.display = 'none';
-                        document.getElementById('whitelist').style.display = 'block';
-                        document.getElementById('whitelisted').style.display = 'none';
+                        showStatusBar(false);
+                        setWhitelistVisibility(true);
+                    }
+
+                    if (!chrome.extension.getBackgroundPage().tgs.isSuspended(tab) &&
+                            !chrome.extension.getBackgroundPage().tgs.isSpecialTab(tab)) {
+                        setSuspendOneVisibility(true);
+                    } else {
+                        setSuspendOneVisibility(false);
                     }
                 }
             });

@@ -8,8 +8,9 @@
 <body>
 
 	<div id='statusBar'>
-		<span id="whitelisted">Tab whitelisted</span>
-		<span id="formInput">Tab receiving input</span>
+		<span id="whitelisted" class="hidden">Tab whitelisted</span>
+		<span id="formInput" class="hidden">Tab receiving input</span>
+		<span id="pinnedTab" class="hidden">Tab pinned</span>
 	</div>
 
 	<ul id="options">
@@ -21,6 +22,12 @@
 				Suspend current tab
 			</div>
 		</li>
+		<li class="menuOption" id="suspendAll" title="Suspend all other tabs">
+			<div class="button">
+				<img src="suspend_all.png" />
+			</div>
+			<div class="buttonLabel">Suspend all other tabs</div>
+		</li>
 		<li class="menuOption" id="whitelist" title="Whitelist current tab">
 			<div class="button">
 				<img src="whitelist.png" />
@@ -28,12 +35,6 @@
 			<div class="buttonLabel">
 				Whitelist current tab
 			</div>
-		</li>
-		<li class="menuOption" id="suspendAll" title="Suspend all other tabs">
-			<div class="button">
-				<img src="suspend_all.png" />
-			</div>
-			<div class="buttonLabel">Suspend all other tabs</div>
 		</li>
 		<li class="menuOption" href="#" id="unsuspendAll" title="Reload all tabs">
 			<div class="button">

@@ -13,10 +13,12 @@
                 //console.log('received request');
 
                 var elementCount = document.getElementsByTagName('*').length,
+                    suspendedEl = document.getElementById('gsTopBar'),
                     processing = true;
 
                 //safety check here. don't try to use html2canvas if the page has more than 5000 elements
-                if (elementCount < 5000) {
+                //or if page has already been suspended
+                if (suspendedEl || elementCount < 5000) {
 
                     //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
                     window.setTimeout(function() {

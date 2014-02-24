@@ -6,6 +6,7 @@
     padding: 10px 10px 5px;
     line-height: 25px;
     width: 100%;
+    max-width: 100%;
     text-align: center;
     font-family: verdana, arial, sans-serif;
     border-bottom: 1px solid #8A8352;
@@ -16,8 +17,8 @@
     font-weight: bold;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 20px;
-    line-height: 35px
+    font-size: 18px;
+    line-height: 28px
 }
 #gsTopBarUrl {
     font-style: italic;
@@ -30,9 +31,6 @@
 }
 #gsPreview {
     margin-top:115px;
-}
-#gsWhitelistLink:hover {
-    text-decoration: underline;
 }
 html, body {
     cursor: pointer;

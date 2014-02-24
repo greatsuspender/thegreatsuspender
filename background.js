@@ -83,9 +83,13 @@ var tgs = (function() {
         return tempWhitelist.indexOf(tab.id) >= 0;
     }
 
-    function isExcluded(tab) {
+    function isPinnedTab(tab) {
 
         var dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption();
+        return dontSuspendPinned && tab.pinned;
+    }
+
+    function isExcluded(tab) {
 
         if (tab.active) {
             return true;
@@ -106,7 +110,7 @@ var tgs = (function() {
             return true;
         }
 
-        if (dontSuspendPinned && tab.pinned) {
+        if (isPinnedTab(tab)) {
             return true;
         }
     }
@@ -197,6 +201,16 @@ var tgs = (function() {
 
             if (tabs.length > 0) {
                 suspendTab(tabs[0]);
+            }
+        });
+    }
+
+    function unsuspendHighlightedTab(window) {
+
+        chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
+
+            if (tabs.length > 0) {
+                unsuspendTab(tabs[0]);
             }
         });
     }
@@ -393,6 +407,9 @@ var tgs = (function() {
             if (request.action === 'suspendOne') {
                 chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
 
+            } else if (request.action === 'unsuspendOne') {
+                chrome.windows.getLastFocused({populate: true}, unsuspendHighlightedTab);
+
             } else if (request.action === 'whitelist') {
                 chrome.windows.getLastFocused({populate: true}, whitelistHighlightedTab);
 
@@ -534,6 +551,9 @@ var tgs = (function() {
 
     publicFunctions.checkWhiteList = checkWhiteList;
     publicFunctions.isTempWhitelisted = isTempWhitelisted;
+    publicFunctions.isSpecialTab = isSpecialTab;
+    publicFunctions.isPinnedTab = isPinnedTab;
+    publicFunctions.isSuspended = isSuspended;
     return publicFunctions;
 
 }());
