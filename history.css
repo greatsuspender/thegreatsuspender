@@ -3,9 +3,6 @@ html, body {
     margin: 0px;
     font-family: verdana, arial, sans-serif;
 }
-div {
-    padding: 20px;
-}
 /*h1 {
     margin-top: 10px;
     font-size: 30px;
@@ -47,7 +44,7 @@ a.historyLink:hover {
     font-style: italic;
     font-size: 11px;
     color: #aaa;
-    padding-left: 20px;
+    padding-left: 10px;
 }
 .groupLink {
     margin: 0 0 0 10px;

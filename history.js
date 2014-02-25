@@ -76,6 +76,7 @@
             curGroupKey,
             tabProperties,
             historyDiv,
+            historyRow,
             historyImg,
             historyLink,
             historySpan,
@@ -87,7 +88,7 @@
         try {
             historyDiv = document.getElementById('gsHistory');
             gsHistory.sort(compareDate);
-
+            
             for (i = 0; i < gsHistory.length; i++) {
                 tabProperties = gsHistory[i];
                 groupKey = getFormattedDate(tabProperties.date, false);
@@ -102,7 +103,7 @@
                         groupHeading.innerHTML = groupKey;
                         groupLinkSuspend = document.createElement("a");
                         groupLinkSuspend.className = "groupLink btn";
-                        groupLinkSuspend.innerHTML = "re-suspend all tabs for this day";
+                        groupLinkSuspend.innerHTML = "re-suspend all";
                         groupLinkSuspend.setAttribute('href', "#");
                         groupLinkSuspend.onclick = reloadTabs(groupKey, true);
                         groupHeading.appendChild(groupLinkSuspend);
@@ -115,20 +116,23 @@
                         historyDiv.appendChild(groupHeading);
                     }
                     historyMap[key] = true;
+                    historyRow = document.createElement("div");
+                    historyRow.className = "historyRow";
                     historyImg = document.createElement("img");
                     historyImg.setAttribute('src', 'chrome://favicon/' + tabProperties.url);
                     historyImg.setAttribute('height', '16px');
                     historyImg.setAttribute('width', '16px');
-                    historyDiv.appendChild(historyImg);
+                    historyRow.appendChild(historyImg);
                     historyLink = document.createElement('a');
                     historyLink.setAttribute('href', tabProperties.url);
                     historyLink.setAttribute('target', '_blank');
                     historyLink.innerHTML = tabProperties.title;
-                    historyDiv.appendChild(historyLink);
+                    historyRow.appendChild(historyLink);
                     historySpan = document.createElement("span");
                     historySpan.innerHTML = getFormattedDate(tabProperties.date, true);
-                    historyDiv.appendChild(historySpan);
-                    historyDiv.appendChild(document.createElement("br"));
+                    historyRow.appendChild(historySpan);
+                 //   historyRow.appendChild(document.createElement("br"));
+                    historyDiv.appendChild(historyRow);
                 }
             }
         } catch (e) {

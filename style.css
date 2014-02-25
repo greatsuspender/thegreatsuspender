@@ -55,12 +55,7 @@ input, select, button {
 body {
 	font-family: verdana, arial, sans-serif;
 	font-size: 14px;
-	padding: 3px;
 	background: #f5f5f5;
-}
-div {
-	padding: 20px;
-	max-width: 800px;
 }
 p {
 	padding-bottom: 10px;
@@ -103,4 +98,30 @@ p {
 	font-size: 17px;
 	text-shadow: 0 1px 0 white;
 	margin: 0 0 8px;
+}
+#gsHistory a, #gsHistory a:visited {
+	color: #444;
+	font-size: 13px;
+	text-decoration: none;
+}
+#gsHistory a:hover {
+	text-decoration: underline;
+}
+#gsHistory h2 {
+	clear: both;
+}
+.historyRow {
+	clear: both;
+}
+.historyRow a, .historyRow img, .historyRow span {
+	float: left;
+}
+.historyRow a {
+	max-width: 380px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.historyRow img, .historyRow span {
+	white-space: nowrap;
 }
