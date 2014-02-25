@@ -1,10 +1,10 @@
 /*global window, document, chrome, console, Image, gsStorage */
 
-var referrer = false;
-
 (function() {
 
     'use strict';
+
+    var unsuspending = false;
 
     function generateFaviconUri(url, callback) {
 
@@ -18,7 +18,10 @@ var referrer = false;
             context = canvas.getContext('2d');
             context.globalAlpha = 0.5;
             context.drawImage(img, 0, 0);
-            callback(canvas.toDataURL());
+            /*context.globalAlpha = 1;
+            context.fillStyle = 'rgba(200, 0, 0, 1)';
+            context.fillRect(0, img.height - 3, img.width, img.height);
+            */callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
     }
@@ -36,12 +39,15 @@ var referrer = false;
 
     function unsuspendTab() {
 
-        sendUnsuspendedMessage();
-        window.history.back();
+        if (!unsuspending) {
 
-        setTimeout(function() {
-            window.history.go(0);
-        }, 2000);
+            unsuspending = true;
+            sendUnsuspendedMessage();
+
+            document.body.style.cursor = 'wait';
+
+            window.history.back();
+        }
     }
 
     function generateMetaImages(tabProperties) {
@@ -58,7 +64,7 @@ var referrer = false;
         }
 
         generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
+            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
         });
     }
 
@@ -68,8 +74,8 @@ var referrer = false;
             tabProperties = gsStorage.fetchTabFromHistory(url);
 
         //just incase the url is a suspension url (somehow??) then decode it
-        if (url.indexOf('suspended.html') >= 0) {
-            url = gsStorage.getHashVariable('url', url);
+        if (url.indexOf('suspended.html#') >= 0) {
+            url = gsStorage.getHashVariable('url', url.split('suspended.html')[1]);
         }
 
         //update url with actual url
@@ -131,6 +137,7 @@ var referrer = false;
 
         //update url with suspended url
         window.history.replaceState(null, null, gsStorage.generateSuspendedUrl(window.location.href));
+        document.body.style.cursor = 'wait';
     };
 
 }());

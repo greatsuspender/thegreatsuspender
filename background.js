@@ -308,44 +308,6 @@ var tgs = (function() {
         });
     }
 
-    //check for tabs that have a state of 'suspended'
-    function checkForCrashedTabs() {
-
-        chrome.tabs.query({}, function(tabs) {
-            //first check to see if there are any suspended tabs already
-            var i,
-                possibleCrash = false,
-                openTabs = {},
-                gsHistory;
-
-            //if there is only one open tab then assume its a chrome restart (and don't restore)
-            if (tabs.length < 2) {
-                return;
-            }
-
-            for (i = 0; i < tabs.length; i++) {
-                if (isSuspended(tabs[i])) {
-                    return;
-
-                } else {
-                    openTabs[tabs[i].url] = true;
-                }
-            }
-
-            gsHistory = gsStorage.fetchGsHistory();
-            for (i = 0; i < gsHistory.length; i++) {
-                if (gsHistory[i].state === 'suspended' && typeof (openTabs[gsHistory[i].url]) === 'undefined') {
-                    possibleCrash = true;
-                }
-            }
-
-            //if it's possible that we have crashed then show the recovery tab
-            if (possibleCrash) {
-                chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
-            }
-        });
-    }
-
     function checkForNewVersion() {
 
         var version = chrome.runtime.getManifest().version,
@@ -374,25 +336,32 @@ var tgs = (function() {
         //if they are installing for the first time
         if (lastVersion === null && gsStorage.fetchGsHistory().length === 0) {
 
+            gsStorage.setGsHistory([]);
+            gsStorage.setVersion(version);
+            upgraded = true;
+
             //make sure they are not in an incognito window
             chrome.windows.getLastFocused({populate: true}, function(window) {
                 if (!window.incognito) {
 
                     //show welcome screen
                     chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-                    gsStorage.setVersion(version);
-                    gsStorage.setGsHistory([]);
-                    upgraded = true;
                 }
             });
 
         //otherwise if they are upgrading
         } else if (parseFloat(lastVersion) < version) {
-
-            //show new update screen
-            chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             gsStorage.setVersion(version);
             upgraded = true;
+
+            //make sure they are not in an incognito window
+            chrome.windows.getLastFocused({populate: true}, function(window) {
+                if (!window.incognito) {
+
+                    //show update screen
+                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                }
+            });
         }
 
         return upgraded;
@@ -521,10 +490,7 @@ var tgs = (function() {
     });
 
     initialiseAllTabs();
-
-    if (!checkForNewVersion()) {
-        checkForCrashedTabs();
-    }
+    checkForNewVersion();
 
     //start timer for suspension checking
     var timeToSuspend = gsStorage.fetchTimeToSuspendOption() * 60 * 1000,
@@ -554,6 +520,7 @@ var tgs = (function() {
     publicFunctions.isSpecialTab = isSpecialTab;
     publicFunctions.isPinnedTab = isPinnedTab;
     publicFunctions.isSuspended = isSuspended;
+    publicFunctions.sessionId = sessionId;
     return publicFunctions;
 
 }());

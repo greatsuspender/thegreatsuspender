@@ -3,14 +3,15 @@
 <head>
 <title id='gsTitle'>The Great Suspender :: Update</title>
 <link  id='gsFavicon' rel="icon" />
+<link type="text/css" href="style.css" rel="stylesheet">
+<link type="text/css" href="history.css" rel="stylesheet"></link>
 <script type="text/javascript" src="gsStorage.js"></script>
 <script type="text/javascript" src="recovery.js"></script>
-<link type="text/css" href="history.css" rel="stylesheet"></link>
 
 </head>
-<body>
+<body id="body">
 
-<div>
+<div class="mainContent">
 	<h1>The Great Suspender :: New Version is Out!</h1>
 	<p>
 		First things first. You may notice that any tabs you had suspended before the upgrade have now disappeared. Sorry about this! It's an unfortunate side-effect of how the tab suspension works. The good news is you can go to the <a href='history'>history</a> page and reload these missing tabs back into your browser.
@@ -18,19 +19,22 @@
         There has been a lot of changes made since the last version. Most notably some bug fixes around the auto-suspend feature, and the whitelisting functionality.
 
         <br />
+        - Chrome sync support. Suspended tabs will now appear normally over chrome sync.
+        - Improved error recovery. You will not lose your tabs if the extension restarts or is uninstalled.
         - Introduced an option to never suspend pinned tabs.
         - New 1 minute and 5 minute options for time to auto-suspend.
         - Ability to choose image quality of screen preview.
-        - Support chrome tab sync. Can now handle suspended tabs on another machine if it has the extension installed.
         - Can now prevent tabs with a half-completed form from suspending and losing your entered text.
         - New option to force a cache refresh when reloading a tab.
         - New recovery screen that more accurately restores previous sessions as well as a configurable number of sessions to save.
+        -
 		<br />
 		<br />
 		Thanks again for using my extension. Any feedback / suggestions are always welcome. You can email me directly
 		at <strong>deanoemcke@gmail.com</strong> or use chrome's various feedback mechanisms.
 	</p>
 
+    <span>Lost some tabs during the update? Recover them below.</span>
 	<ul id='recoveryLinks'></ul>
 	<br />
 

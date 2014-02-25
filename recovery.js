@@ -7,7 +7,7 @@
     var tabs = {},
         windows = {};
 
-    function reloadTabs(element, newWindow) {
+    function reloadTabs(element, suspendMode) {
 
         return function() {
 
@@ -16,16 +16,15 @@
                 gsSessionHistory = gsStorage.fetchGsSessionHistory(),
                 session = gsStorage.getSessionFromGroupKey(sessionId, gsSessionHistory),
                 window = gsStorage.getWindowFromSession(windowId, session),
+                curUrl,
                 i;
 
-            if (newWindow) {
-                chrome.windows.create(function(newWindow) {
-                    var newTabId = newWindow.tabs[0].id;
-                    for (i = 0; i < window.tabs.length; i++) {
-                        chrome.tabs.create({url: window.tabs[i].url, pinned: window.tabs[i].pinned, windowId: newWindow.id});
-                    }
-                    chrome.tabs.remove(newTabId);
-                });
+            if (suspendMode) {
+                for (i = 0; i < window.tabs.length; i++) {
+                    curUrl = gsStorage.generateSuspendedUrl(window.tabs[i].url);
+                    chrome.tabs.create({url: curUrl, pinned: window.tabs[i].pinned, active: false});
+                }
+
             } else {
                 for (i = 0; i < window.tabs.length; i++) {
                     chrome.tabs.create({url: window.tabs[i].url, pinned: window.tabs[i].pinned, active: false});
@@ -59,6 +58,12 @@
         linksList.innerHTML = '';
 
         for (i = 0; i < gsHistory.length; i++) {
+
+            //ignore current session
+            if (chrome.extension.getBackgroundPage().tgs.sessionId === gsHistory[i].id) {
+                continue;
+            }
+
             linksList.appendChild(createSessionHtml(gsHistory[i]));
 
             for (j = 0; j < gsHistory[i].windows.length; j++) {
@@ -81,7 +86,7 @@
         var sessionHeading;
 
         sessionHeading = document.createElement('h2');
-        sessionHeading.innerHTML = gsStorage.getFormattedDate(session.date, true);
+        sessionHeading.innerHTML = gsStorage.getHumanDate(session.date);
         //sessionHeading.setAttribute('href', '#');
 
         return sessionHeading;
@@ -96,18 +101,18 @@
         groupHeading = document.createElement('p');
         groupHeading.setAttribute('data-windowId', window.id);
         groupHeading.setAttribute('data-sessionId', window.sessionId);
-        groupHeading.innerHTML = 'Window ' + (count + 1) + '<br />';// + ' (' + window.tabs.length + ' tab' + (window.tabs.length > 1 ? 's)' : ')') + '<br />';
+        //groupHeading.innerHTML = 'Window ' + (count + 1) + '<br />';// + ' (' + window.tabs.length + ' tab' + (window.tabs.length > 1 ? 's)' : ')') + '<br />';
         groupUnsuspendCurrent = document.createElement('a');
         groupUnsuspendCurrent.className = 'groupLink';
         groupUnsuspendCurrent.setAttribute('href', '#');
-        groupUnsuspendCurrent.innerHTML = 'restore to this window';
-        groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, false);
+        groupUnsuspendCurrent.innerHTML = 'resuspend all tabs';
+        groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, true);
         groupHeading.appendChild(groupUnsuspendCurrent);
         groupUnsuspendNew = document.createElement('a');
         groupUnsuspendNew.className = 'groupLink';
         groupUnsuspendNew.setAttribute('href', '#');
-        groupUnsuspendNew.innerHTML = 'restore to new window';
-        groupUnsuspendNew.onclick = reloadTabs(groupHeading, true);
+        groupUnsuspendNew.innerHTML = 'reload all tabs';
+        groupUnsuspendNew.onclick = reloadTabs(groupHeading, false);
         groupHeading.appendChild(groupUnsuspendNew);
 
         return groupHeading;

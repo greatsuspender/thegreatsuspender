@@ -15,12 +15,6 @@
                         event.target.tagName.toUpperCase() == 'FORM') {
                     inputState = true;
 
-                    /*chrome.tabs.getCurrent(function(tab) {
-                        chrome.extension.getBackgroundPage().tgs.setFormInputState(tab.id);
-                    });*/
-                    //chrome.extension.getBackgroundPage().tgs.setFormInputState();
-
-console.log('sending new message: setFormInputState');
                     chrome.runtime.sendMessage({ action: 'setFormInputState' });
                 }
             }
