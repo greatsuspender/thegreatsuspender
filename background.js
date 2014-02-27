@@ -8,6 +8,7 @@ var tgs = (function() {
     var sessionId = Math.floor(Math.random() * 1000000);
     var tempWhitelist = [];
     var suspendedList = {};
+    var suspensionConfirmedList = {};
     var publicFunctions = {};
     var lastSelectedTabs = [];
 
@@ -43,7 +44,7 @@ var tgs = (function() {
             date: new Date(),
             title: tab.title,
             url: tab.url,
-            favicon: 'chrome://favicon/' + tab.url,
+            favicon: tab.favIconUrl,//'chrome://favicon/' + tab.url,
             pinned: tab.pinned,
             index: tab.index,
             windowId: tab.windowId
@@ -120,9 +121,16 @@ var tgs = (function() {
         suspendedList[tabKey] = true;
     }
 
+    function markTabSuspensionConfirmed(tabId, windowId) {
+        var tabKey = generateTabKey(tabId, windowId);
+        suspendedList[tabKey] = true;
+        suspensionConfirmedList[tabKey] = true;
+    }
+
     function markTabUnsuspended(tabId, windowId) {
         var tabKey = generateTabKey(tabId, windowId);
         suspendedList[tabKey] = false;
+        suspensionConfirmedList[tabKey] = false;
     }
 
     function setFormInputState(tab) {
@@ -158,7 +166,7 @@ var tgs = (function() {
             "}" +
             "else { " +
                 "console.log('already suspended');" +
-                "chrome.runtime.sendMessage({action: 'setSuspendedState'}); " +
+                "chrome.runtime.sendMessage({action: 'markAlreadySuspended'}); " +
             "}";
 
         chrome.tabs.executeScript(tab.id, {code: jsCode}, function() {});
@@ -391,6 +399,9 @@ var tgs = (function() {
             } else if (request.action === 'setFormInputState') {
                 setFormInputState(sender.tab);
 
+            } else if (request.action === 'markAlreadySuspended') {
+                markTabSuspensionConfirmed(sender.tab.id, sender.tab.windowId);
+
             } else if (request.action === 'setSuspendedState') {
                 markTabSuspended(sender.tab.id, sender.tab.windowId);
 
@@ -462,30 +473,46 @@ var tgs = (function() {
     //listen for tab updating
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
-        if (debug) console.log('tab updated: ' + tabId);
+        if (changeInfo.status === 'complete') {
 
-        markTabUnsuspended(tabId, tab.windowId);
+            if (debug) console.log('tab update ' + changeInfo.status + ': ' + tabId);
 
-        //if we are on a suspended page try to capture synched suspended tabs from other installation of the great suspender
-        if (tab.url.indexOf('suspended.html#') > 0) {
+            //if we have not yet confirmed the suspension (happens when the suspended page calls history.replace)
+            var tabKey = generateTabKey(tab.id, tab.windowId);
+            if (suspendedList[tabKey] && !suspensionConfirmedList[tabKey]) {
 
-            //if the extension directory does not match this instance of the great suspender
-            /*if (tab.url.substring(tab.url, tab.url.indexOf('suspended.html')) !== chrome.extension.getURL('')) {
+                if (debug) console.log('confirming tab suspension:' + tab.url);
+                markTabSuspensionConfirmed(tab.id, tab.windowId);
 
-                var hash = tab.url.substring(tab.url.indexOf('#'), tab.url.length),
-                    url = gsStorage.getHashVariable('url', hash);
+            //assume at this point that it is a subsequent page refresh (treat as an unsuspend if already suspended)
+            } else {
 
-                //convert url to this instance of the great suspender
-                chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(url)});
-            }*/
-        } else {
+                markTabUnsuspended(tabId, tab.windowId);
 
-            //clear any possible tempWhitelist entry for this tab
-            var index = tempWhitelist.indexOf(tabId);
-            if (index > -1) {
-                console.log('clearing tab ' + tabId + ' from tempWhitelist');
-                tempWhitelist.splice(index, 1);
+                //if we are on a suspended page try to capture synched suspended tabs from other installation of the great suspender
+                if (tab.url.indexOf('suspended.html#') > 0) {
+
+                    //if the extension directory does not match this instance of the great suspender
+                    /*if (tab.url.substring(tab.url, tab.url.indexOf('suspended.html')) !== chrome.extension.getURL('')) {
+
+                        var hash = tab.url.substring(tab.url.indexOf('#'), tab.url.length),
+                            url = gsStorage.getHashVariable('url', hash);
+
+                        //convert url to this instance of the great suspender
+                        chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(url)});
+                    }*/
+                } else {
+
+                    //clear any possible tempWhitelist entry for this tab
+                    var index = tempWhitelist.indexOf(tabId);
+                    if (index > -1) {
+                        console.log('clearing tab ' + tabId + ' from tempWhitelist');
+                        tempWhitelist.splice(index, 1);
+                    }
+                }
+
             }
+
         }
     });
 

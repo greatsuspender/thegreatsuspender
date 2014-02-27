@@ -115,14 +115,25 @@
         fetchWhitelist: function() {
             return localStorage.getItem('gsWhitelist') || '';
         },
+        fetchSynchedWhitelist: function(callback) {
+            var self = this;
+            chrome.storage.sync.get('gsWhitelist', function(items) {
+                self.setWhitelist(items.gsWhitelist);
+                callback(items.gsWhitelist);
+            });
+        },
 
         setWhitelist: function(whitelist) {
+
+            chrome.storage.sync.set({'gsWhitelist': whitelist}, function() {
+                console.log('Saved whitelist in the cloud');
+            });
             localStorage.setItem('gsWhitelist', whitelist);
         },
 
         saveToWhitelist: function(newString) {
             var whitelist = localStorage.getItem('gsWhitelist') || '';
-            localStorage.setItem('gsWhitelist', whitelist + ' ' + newString);
+            this.setWhitelist(whitelist + ' ' + newString);
         },
 
         fetchOldGsHistory: function() {

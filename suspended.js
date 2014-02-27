@@ -20,7 +20,7 @@
             context.drawImage(img, 0, 0);
             /*context.globalAlpha = 1;
             context.fillStyle = 'rgba(200, 0, 0, 1)';
-            context.fillRect(0, img.height - 3, img.width, img.height);
+            context.fillRect(0, img.height - 1, img.width, img.height);
             */callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
@@ -114,9 +114,6 @@
         } else {
             document.getElementById('gsTopBarImg').style.visibility = 'hidden';
         }
-
-        //mark tab as suspended
-        sendSuspendedMessage();
     }
 
     window.onload = function() {
@@ -128,6 +125,9 @@
         document.getElementById('gsWhitelistLink').onclick = function(e) {
             gsStorage.saveToWhitelist(e.target.getAttribute('data-text'));
         };
+
+        //mark tab as suspended
+        sendSuspendedMessage();
 
         //try to suspend tab
         attemptTabSuspend();

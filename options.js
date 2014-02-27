@@ -37,17 +37,23 @@
         document.getElementById('dontSuspendForms').checked = dontSuspendForms;
         document.getElementById('ignoreCache').checked = ignoreCache;
         document.getElementById('maxHistories').value = maxHistories;
-        document.getElementById('whitelist').value = whitelist;
+        //document.getElementById('whitelist').value = whitelist;
         selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
         setPreviewQualityVisibility(preview);
+
+        gsStorage.fetchSynchedWhitelist(function(whitelist) {
+            document.getElementById('whitelist').value = whitelist;
+        });
 
     }
 
     function setPreviewQualityVisibility(visible) {
         if (visible) {
             document.getElementById('previewQualitySection').style.display = 'block';
+            document.getElementById('previewQualityNote').style.display = 'block';
         } else {
             document.getElementById('previewQualitySection').style.display = 'none';
+            document.getElementById('previewQualityNote').style.display = 'none';
         }
     }
 
@@ -109,6 +115,17 @@
             };
 
             restore_options();
+
+
+            chrome.storage.onChanged.addListener(function(changes, namespace) {
+                if (namespace !== 'sync') return;
+                for (var property in changes) {
+                    if (changes.hasOwnProperty(property) && property === 'gsWhitelist') {
+                        document.getElementById('whitelist').value = changes.gsWhitelist.newValue;
+                    }
+                }
+            });
         }
     }, 10);
+
 }());

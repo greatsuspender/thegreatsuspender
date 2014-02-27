@@ -99,6 +99,9 @@ p {
 	text-shadow: 0 1px 0 white;
 	margin: 0 0 8px;
 }
+#previewQualityNote {
+	font-style: italic;
+}
 #gsHistory a, #gsHistory a:visited {
 	color: #444;
 	font-size: 13px;
