@@ -44,7 +44,8 @@ var tgs = (function() {
             date: new Date(),
             title: tab.title,
             url: tab.url,
-            favicon: tab.favIconUrl,//'chrome://favicon/' + tab.url,
+            //favicon: tab.favIconUrl,
+            'chrome://favicon/' + tab.url,
             pinned: tab.pinned,
             index: tab.index,
             windowId: tab.windowId
@@ -251,6 +252,10 @@ var tgs = (function() {
     }
 
     function checkForTabsToAutoSuspend() {
+
+        if (!navigator.onLine) {
+            return;
+        }
 
         chrome.tabs.query({}, function(tabs) {
 

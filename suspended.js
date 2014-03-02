@@ -16,12 +16,12 @@
             canvas.width = img.width;
             canvas.height = img.height;
             context = canvas.getContext('2d');
-            context.globalAlpha = 0.5;
+            //context.globalAlpha = 0.5;
             context.drawImage(img, 0, 0);
-            /*context.globalAlpha = 1;
+            context.globalAlpha = 1;
             context.fillStyle = 'rgba(200, 0, 0, 1)';
             context.fillRect(0, img.height - 1, img.width, img.height);
-            */callback(canvas.toDataURL());
+            callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
     }
@@ -78,13 +78,6 @@
             url = gsStorage.getHashVariable('url', url.split('suspended.html')[1]);
         }
 
-        //update url with actual url
-        //not sure why but restoring this url crashes the extension?!?!?!
-        if (url.indexOf('chrome.google.com/webstore') < 0) {
-            console.log('replacing state: ' + url);
-            window.history.replaceState(null, null, url);
-        }
-
         //if we have some suspend information for this tab
         if (tabProperties) {
             console.log('about to suspend tab: ' + url);
@@ -113,6 +106,13 @@
             document.getElementById('gsTopBarImg').setAttribute('src', tabProperties.favicon);
         } else {
             document.getElementById('gsTopBarImg').style.visibility = 'hidden';
+        }
+
+        //update url with actual url
+        //not sure why but restoring this url crashes the extension?!?!?!
+        if (url.indexOf('chrome.google.com/webstore') < 0) {
+            console.log('replacing state: ' + url);
+            window.history.replaceState(null, null, url);
         }
     }
 
