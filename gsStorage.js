@@ -52,8 +52,16 @@
             return localStorage.getItem('previewQuality') ? localStorage.getItem('previewQuality') === 'true' : false;
         },
 
-        setPreviewQualityOption: function(preview) {
-            localStorage.setItem('previewQuality', preview);
+        setPreviewQualityOption: function(previewQuality) {
+            localStorage.setItem('previewQuality', previewQuality);
+        },
+
+        fetchOnlineCheckOption: function() {
+            return localStorage.getItem('onlineCheck') ? localStorage.getItem('onlineCheck') === 'true' : false;
+        },
+
+        setOnlineCheckOption: function(check) {
+            localStorage.setItem('onlineCheck', check);
         },
 
         fetchTimeToSuspendOption: function() {
@@ -118,8 +126,12 @@
         fetchSynchedWhitelist: function(callback) {
             var self = this;
             chrome.storage.sync.get('gsWhitelist', function(items) {
-                self.setWhitelist(items.gsWhitelist);
-                callback(items.gsWhitelist);
+                if (items) {
+                    localStorage.setItem('gsWhitelist', items.gsWhitelist);
+                    callback(items.gsWhitelist);
+                } else {
+                    callback(self.fetchWhitelist());
+                }
             });
         },
 

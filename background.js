@@ -45,7 +45,7 @@ var tgs = (function() {
             title: tab.title,
             url: tab.url,
             //favicon: tab.favIconUrl,
-            'chrome://favicon/' + tab.url,
+            favicon: 'chrome://favicon/' + tab.url,
             pinned: tab.pinned,
             index: tab.index,
             windowId: tab.windowId
@@ -253,7 +253,9 @@ var tgs = (function() {
 
     function checkForTabsToAutoSuspend() {
 
-        if (!navigator.onLine) {
+        var onlineCheck = gsStorage.fetchOnlineCheckOption();
+
+        if (onlineCheck && !navigator.onLine) {
             return;
         }
 

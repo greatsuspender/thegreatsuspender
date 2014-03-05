@@ -19,9 +19,13 @@
             //context.globalAlpha = 0.5;
             context.drawImage(img, 0, 0);
             context.globalAlpha = 1;
-            context.fillStyle = 'rgba(200, 0, 0, 1)';
-            context.fillRect(0, img.height - 1, img.width, img.height);
-            callback(canvas.toDataURL());
+            //context.strokeRect(0, 0, img.width, img.height);
+            /*context.fillStyle = 'rgba(253, 224, 115, 1)';
+            context.fillRect(0, img.height - 6, 6, 6);
+            context.fillStyle = 'rgba(0, 0, 0, 1)';
+            context.strokeRect(0, img.height - 6, 6, 6);
+            context.fillRect(2, img.height - 3, 1, 2);
+            */callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
     }
@@ -63,9 +67,9 @@
             });
         }
 
-        generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
-        });
+        //generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
+            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
+        //});
     }
 
     function attemptTabSuspend() {

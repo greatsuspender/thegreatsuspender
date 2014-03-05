@@ -26,12 +26,14 @@
             dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption(),
             dontSuspendForms = gsStorage.fetchDontSuspendFormsOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
+            onlineCheck = gsStorage.fetchOnlineCheckOption(),
             ignoreCache = gsStorage.fetchIgnoreCacheOption(),
             maxHistories = gsStorage.fetchMaxHistoriesOption(),
             whitelist = gsStorage.fetchWhitelist();
 
         document.getElementById('preview').checked = preview;
         document.getElementById('previewQuality').checked = previewQuality;
+        document.getElementById('onlineCheck').checked = onlineCheck;
         document.getElementById('unsuspendOnFocus').checked = unsuspendOnFocus;
         document.getElementById('dontSuspendPinned').checked = dontSuspendPinned;
         document.getElementById('dontSuspendForms').checked = dontSuspendForms;
@@ -40,6 +42,7 @@
         //document.getElementById('whitelist').value = whitelist;
         selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
         setPreviewQualityVisibility(preview);
+        setOnlineCheckVisibility(timeToSuspend > 0);
 
         gsStorage.fetchSynchedWhitelist(function(whitelist) {
             document.getElementById('whitelist').value = whitelist;
@@ -57,6 +60,14 @@
         }
     }
 
+    function setOnlineCheckVisibility(visible) {
+        if (visible) {
+            document.getElementById('onlineCheckSection').style.display = 'block';
+        } else {
+            document.getElementById('onlineCheckSection').style.display = 'none';
+        }
+    }
+
 
     var readyStateCheckInterval = window.setInterval(function() {
         if (document.readyState === 'complete') {
@@ -65,6 +76,7 @@
 
             var previewEl = document.getElementById('preview'),
                 qualityEl = document.getElementById('previewQuality'),
+                onlineCheckEl = document.getElementById('onlineCheck'),
                 unsuspendOnFocusEl = document.getElementById('unsuspendOnFocus'),
                 dontSuspendPinnedEl = document.getElementById('dontSuspendPinned'),
                 dontSuspendFormsEl = document.getElementById('dontSuspendForms'),
@@ -100,7 +112,12 @@
                 gsStorage.setWhitelist(whitelistEl.value);
             };
             timeToSuspendEl.onchange = function(e) {
-                gsStorage.setTimeToSuspendOption(timeToSuspendEl.children[timeToSuspendEl.selectedIndex].value);
+                var timeToSuspend = timeToSuspendEl.children[timeToSuspendEl.selectedIndex].value;
+                gsStorage.setTimeToSuspendOption(timeToSuspend);
+                setOnlineCheckVisibility(timeToSuspend > 0);
+            };
+            onlineCheckEl.onclick = function(e) {
+                gsStorage.setOnlineCheckOption(onlineCheckEl.checked);
             };
             maxHistoriesEl.onchange = function(e) {
                 gsStorage.setMaxHistoriesOption(maxHistoriesEl.value);

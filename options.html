@@ -19,25 +19,7 @@
 	</span>
 	<span id="previewQualityNote">NOTE: Enabling screen capturing will cause chrome to take longer and use more CPU when suspending tabs</span>
 	<br />
-	<input type="checkbox" id="unsuspendOnFocus"></input>
-	<label for="unsuspendOnFocus">Automatically unsuspend when tab gains focus</label>
 	<br />
-	<input type="checkbox" id="dontSuspendPinned"></input>
-	<label for="dontSuspendPinned">Do not suspend pinned tabs</label>
-	<br />
-	<input type="checkbox" id="dontSuspendForms"></input>
-	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved form inputs</label>
-	<br />
-	<input type="checkbox" id="ignoreCache"></input>
-	<label for="ignoreCache">Skip browser cache when reloading tab</label>
-	<br />
-	<br />
-	<label for="whitelist">Whitelist (keywords of pages to ignore)</label>
-	<br />
-	<textarea id="whitelist" rows="4" cols="50"></textarea>
-	<br />
-	<br />
-
 	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically</label>
 	<br />
 	<select id="timeToSuspend">
@@ -56,6 +38,32 @@
 		<option value="2880">2 days</option>
 		<option value="4320">3 days</option>
 	</select>
+	<span id="onlineCheckSection">
+		<input type="checkbox" id="onlineCheck"></input>
+		<label for="onlineCheck">Only auto-suspend if connected to the internet</label>
+	</span>
+	<br />
+	<br />
+	<input type="checkbox" id="unsuspendOnFocus"></input>
+	<label for="unsuspendOnFocus">Automatically unsuspend when tab gains focus</label>
+	<br />
+	<input type="checkbox" id="dontSuspendPinned"></input>
+	<label for="dontSuspendPinned">Do not suspend pinned tabs</label>
+	<br />
+	<input type="checkbox" id="dontSuspendForms"></input>
+	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved form inputs</label>
+	<br />
+	<input type="checkbox" id="ignoreCache"></input>
+	<label for="ignoreCache">Skip browser cache when reloading tab</label>
+	<br />
+	<br />
+	<br />
+	<label for="whitelist">Whitelist (keywords of pages to ignore)</label>
+	<br />
+	<textarea id="whitelist" rows="4" cols="50"></textarea>
+	<br />
+	<br />
+
 
 	<h2>Tab History:</h2>
 
@@ -68,14 +76,6 @@
 		<button id='clearHistory'>Clear History</button>
 		<br />
 		<br />
-	</p>
-
-	<h2>Notes about Screen Capturing:</h2>
-	<p>
-		The screen capturing is done using Niklas von Hertzen's most excellent <a href='https://github.com/niklasvh/html2canvas'>html2canvas</a> script which attempts to render the dom onto an html5 canvas element. As far as I understand, this is still a work in progress and will not always be able to accurately represent the contents of the page in an image, sometimes resulting in missing sections or even no image at all.
-	</p>
-	<p>
-		Please also note that turning on screen capturing will increase the memory footprint of the suspended page (somewhat contrary to the primary goal of this extension)
 	</p>
 
 </div>
