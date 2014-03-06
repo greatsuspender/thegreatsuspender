@@ -173,6 +173,28 @@ var tgs = (function() {
         chrome.tabs.executeScript(tab.id, {code: jsCode}, function() {});
     };
 
+    function confirmSuspension(tab, useCachedPreviews) {
+
+        useCachedPreviews = useCachedPreviews || false;
+
+        if (useCachedPreviews) {
+            console.log('updating tab to suspended.html: ' + tab.url);
+            chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
+
+        } else if (gsStorage.fetchPreviewOption()) {
+            sendPreviewRequest(tab, function(tab, previewUrl) {
+                saveSuspendData(tab, previewUrl);
+                console.log('updating tab to suspended.html: ' + tab.url);
+                chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
+            });
+
+        } else {
+            saveSuspendData(tab, false);
+            console.log('updating tab to suspended.html: ' + tab.url);
+            chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
+        }
+    }
+
 
     function sendPreviewRequest(tab, callback) {
 
@@ -386,7 +408,8 @@ var tgs = (function() {
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
 
-            if (debug) console.dir('listener fired: ' + request.action);
+            if (debug) console.log('listener fired: ' + request.action);
+            if (debug) console.dir(sender);
 
             if (request.action === 'suspendOne') {
                 chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
@@ -416,24 +439,13 @@ var tgs = (function() {
                 markTabUnsuspended(sender.tab.id, sender.tab.windowId);
 
             } else if (request.action === 'confirmSuspension') {
-
-                if (gsStorage.fetchPreviewOption()) {
-                    sendPreviewRequest(sender.tab, function(tab, previewUrl) {
-                        saveSuspendData(tab, previewUrl);
-                        console.log('updating tab to suspended.html: ' + tab.url);
-                        chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
-                    });
-                } else {
-                    saveSuspendData(sender.tab, false);
-                    console.log('updating tab to suspended.html: ' + sender.tab.url);
-                    chrome.tabs.update(sender.tab.id, {url: gsStorage.generateSuspendedUrl(sender.tab.url)});
-                }
+                confirmSuspension(sender.tab);
 
             } else if (request.action === 'confirmUnsuspension') {
                 var bypassCache = gsStorage.fetchIgnoreCacheOption();
                 markTabUnsuspended(sender.tab.id, sender.tab.windowId);
-                //chrome.tabs.reload(sender.tab.id, {bypassCache: bypassCache});
-                chrome.tabs.executeScript(sender.tab.id, {code: "window.history.back()"}, function() {});
+                chrome.tabs.reload(sender.tab.id, {bypassCache: bypassCache});
+                //chrome.tabs.executeScript(sender.tab.id, {code: "window.history.back()"}, function() {});
             }
         }
     );
@@ -442,6 +454,13 @@ var tgs = (function() {
     chrome.tabs.onCreated.addListener(function(tab) {
 
         if (debug) console.log('tab created: ' + tab.url);
+
+        if (gsStorage.fetchTabFromHistory(tab.url)) {
+            if (!isExcluded(tab)) {
+                confirmSuspension(tab, true);
+            }
+        }
+
         gsTimes[tab.id] = new Date();
     });
 

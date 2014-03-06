@@ -50,7 +50,12 @@
 
             document.body.style.cursor = 'wait';
 
-            window.history.back();
+            /*if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.reload();
+            }*/
+            window.location.reload();
         }
     }
 
@@ -137,11 +142,12 @@
         attemptTabSuspend();
     };
 
-    window.onbeforeunload = function() {
+/*    window.onbeforeunload = function() {
 
         //update url with suspended url
-        window.history.replaceState(null, null, gsStorage.generateSuspendedUrl(window.location.href));
+        var url = gsStorage.generateSuspendedUrl(window.location.href);
+        window.history.replaceState(null, null, url);
         document.body.style.cursor = 'wait';
     };
-
+*/
 }());
