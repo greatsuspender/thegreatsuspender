@@ -3,17 +3,36 @@ var tgs = (function() {
 
     'use strict';
 
+    var STATE_REQUESTED = 'requested',
+        STATE_INPROGRESS = 'inProgress',
+        STATE_CONFIRMED = 'confirmed',
+        STATE_SUSPENDED = 'suspended',
+        STATE_UNSUSPENDED = 'unsuspended';
+
     var gsTimes = [];
     var debug = true;
     var sessionId = Math.floor(Math.random() * 1000000);
     var tempWhitelist = [];
     var suspendedList = {};
-    var suspensionConfirmedList = {};
+    var suspendedTabs = {};
     var publicFunctions = {};
     var lastSelectedTabs = [];
 
     function generateTabKey(tabId, windowId) {
         return tabId + '_' + windowId;
+    }
+
+    function tabsBeingSuspendedCount() {
+
+        var key,
+            count = 0;
+        for (key in suspendedList) {
+            if (suspendedList.hasOwnProperty(key) &&
+                   suspendedList[key] === STATE_INPROGRESS) {
+                count++;
+            }
+        }
+        return count;
     }
 
     function checkWhiteList(url) {
@@ -31,29 +50,64 @@ var tgs = (function() {
         return false;
     }
 
-    function saveSuspendData(tab, previewUrl) {
+    function generateFaviconUri(url, callback) {
+
+        var img = new Image();
+        img.onload = function() {
+            var canvas,
+                context;
+            canvas = window.document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context = canvas.getContext('2d');
+            context.globalAlpha = 0.5;
+            context.drawImage(img, 0, 0);
+            context.globalAlpha = 1;
+            //context.strokeRect(0, 0, img.width, img.height);
+            /*context.fillStyle = 'rgba(253, 224, 115, 1)';
+            context.fillRect(0, img.height - 6, 6, 6);
+            context.fillStyle = 'rgba(0, 0, 0, 1)';
+            context.strokeRect(0, img.height - 6, 6, 6);
+            context.fillRect(2, img.height - 3, 1, 2);
+            */callback(canvas.toDataURL());
+        };
+        img.src = url || chrome.extension.getURL('default.ico');
+    }
+
+    function saveSuspendData(tab, previewUrl, callback) {
         var gsHistory = gsStorage.fetchGsHistory(),
-            tabProperties;
+            tabProperties,
+            rootUrl = gsStorage.getRootUrl(tab.url),
+            favUrl;
 
         //console.log('attempting to suspend: ' + tab.url);
         if (previewUrl) {
             gsStorage.setPreviewImage(tab.url, previewUrl);
         }
 
+        if (tab.incognito) {
+            favUrl = tab.favIconUrl;
+        } else {
+            favUrl = 'chrome://favicon/' + tab.url;
+        }
+
         tabProperties = {
             date: new Date(),
             title: tab.title,
             url: tab.url,
-            //favicon: tab.favIconUrl,
-            favicon: 'chrome://favicon/' + tab.url,
+            favicon: favUrl,
             pinned: tab.pinned,
             index: tab.index,
             windowId: tab.windowId
         };
 
-        if (tab.incognito) {
-            tabProperties.favicon = tab.favIconUrl;
-        }
+        gsStorage.fetchFavicon(rootUrl, function(result) {
+            if (result === null) {
+                generateFaviconUri(favUrl, function(transparentFavUrl) {
+                    gsStorage.setFavicon(rootUrl, transparentFavUrl);
+                });
+            }
+        });
 
         //add suspend information to start of history array
         gsHistory.unshift(tabProperties);
@@ -78,7 +132,12 @@ var tgs = (function() {
 
     function isSuspended(tab) {
         var tabKey = generateTabKey(tab.id, tab.windowId);
-        return suspendedList[tabKey];
+        return suspendedList[tabKey] === STATE_SUSPENDED;
+    }
+
+    function isSuspensionInProgress(tab) {
+        var tabKey = generateTabKey(tab.id, tab.windowId);
+        return suspendedList[tabKey] === STATE_INPROGRESS;
     }
 
     function isTempWhitelisted(tab) {
@@ -117,21 +176,9 @@ var tgs = (function() {
         }
     }
 
-    function markTabSuspended(tabId, windowId) {
+    function setTabState(tabId, windowId, state) {
         var tabKey = generateTabKey(tabId, windowId);
-        suspendedList[tabKey] = true;
-    }
-
-    function markTabSuspensionConfirmed(tabId, windowId) {
-        var tabKey = generateTabKey(tabId, windowId);
-        suspendedList[tabKey] = true;
-        suspensionConfirmedList[tabKey] = true;
-    }
-
-    function markTabUnsuspended(tabId, windowId) {
-        var tabKey = generateTabKey(tabId, windowId);
-        suspendedList[tabKey] = false;
-        suspensionConfirmedList[tabKey] = false;
+        suspendedList[tabKey] = state;
     }
 
     function setFormInputState(tab) {
@@ -176,6 +223,7 @@ var tgs = (function() {
     function confirmSuspension(tab, useCachedPreviews) {
 
         useCachedPreviews = useCachedPreviews || false;
+        setTabState(tab.id, tab.windowId, STATE_INPROGRESS);
 
         if (useCachedPreviews) {
             console.log('updating tab to suspended.html: ' + tab.url);
@@ -218,9 +266,7 @@ var tgs = (function() {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
 
             if (tabs.length > 0) {
-                var rootUrlStr = tabs[0].url,
-                    rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
-                    rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+                var rootUrlStr = gsStorage.getRootUrl(tabs[0].url);
                 gsStorage.saveToWhitelist(rootUrlStr);
             }
         });
@@ -287,8 +333,7 @@ var tgs = (function() {
                 diff,
                 curDate = new Date(),
                 curTab,
-                timeToSuspend = gsStorage.fetchTimeToSuspendOption() * 60 * 1000,
-                tabsToSuspend = [];
+                timeToSuspend = gsStorage.fetchTimeToSuspendOption() * 60 * 1000;
 
             for (i = 0; i < tabs.length; i++) {
 
@@ -296,32 +341,19 @@ var tgs = (function() {
 
                 if (timeToSuspend > 0) {
 
-                    if (isSuspended(curTab) || isExcluded(curTab) || !gsTimes[curTab.id]) {
+                    if (isSuspensionInProgress(curTab)) {
+console.log(curTab.id + ': tab suspension already in progress...');
+                    }
+                    if (isSuspended(curTab) || isSuspensionInProgress(curTab) || isExcluded(curTab) || !gsTimes[curTab.id]) {
                         gsTimes[curTab.id] = curDate;
                         continue;
                     }
 
                     diff = curDate - gsTimes[curTab.id];
                     if (diff > timeToSuspend) {
-                        tabsToSuspend.push(curTab);
+                        suspendTab(curTab);
                     }
                 }
-            }
-
-            //stagger suspends in 100ms intervals
-            if (tabsToSuspend.length > 0) {
-
-                var i = 0,
-                    intervalLength = 300,
-                    intervalJob = setInterval(function() {
-                    suspendTab(tabsToSuspend[i]);
-                    i++;
-
-                    //clear interval is we have reached the end of the list or if the time taken exceeds the poll length
-                    if (i >= tabsToSuspend.length) {
-                        clearInterval(intervalJob);
-                    }
-                }, intervalLength);
             }
         });
     }
@@ -341,6 +373,8 @@ var tgs = (function() {
             var i;
             for (i = 0; i < tabs.length; i++) {
                 gsTimes[tabs[i].id] = new Date();
+var tabKey = generateTabKey(tabs[i].id, tabs[i].windowId);
+suspendedTabs[tabKey] = tabs[i];
             }
         });
     }
@@ -430,20 +464,35 @@ var tgs = (function() {
                 setFormInputState(sender.tab);
 
             } else if (request.action === 'markAlreadySuspended') {
-                markTabSuspensionConfirmed(sender.tab.id, sender.tab.windowId);
+                setTabState(sender.tab.id, sender.tab.windowId, STATE_CONFIRMED);
 
             } else if (request.action === 'setSuspendedState') {
-                markTabSuspended(sender.tab.id, sender.tab.windowId);
+                setTabState(sender.tab.id, sender.tab.windowId, STATE_SUSPENDED);
 
             } else if (request.action === 'setUnsuspendedState') {
-                markTabUnsuspended(sender.tab.id, sender.tab.windowId);
+                setTabState(sender.tab.id, sender.tab.windowId, STATE_UNSUSPENDED);
 
             } else if (request.action === 'confirmSuspension') {
-                confirmSuspension(sender.tab);
+
+                setTabState(sender.tab.id, sender.tab.windowId, STATE_REQUESTED);
+                if (tabsBeingSuspendedCount() >= 2) {
+console.log(sender.tab.id + ': 2 tabs already being suspended. waiting...');
+                    var intervalJob = setInterval(function() {
+                        if (tabsBeingSuspendedCount() < 2) {
+console.log(sender.tab.id + ': ready to suspend tab now finally...');
+                            clearInterval(intervalJob);
+                            confirmSuspension(sender.tab);
+                        } else {
+                        }
+                    }, 200);
+                } else {
+console.log(sender.tab.id + ': ready to suspend tab now...');
+                    confirmSuspension(sender.tab);
+                }
 
             } else if (request.action === 'confirmUnsuspension') {
                 var bypassCache = gsStorage.fetchIgnoreCacheOption();
-                markTabUnsuspended(sender.tab.id, sender.tab.windowId);
+                setTabState(sender.tab.id, sender.tab.windowId, STATE_UNSUSPENDED);
                 chrome.tabs.reload(sender.tab.id, {bypassCache: bypassCache});
                 //chrome.tabs.executeScript(sender.tab.id, {code: "window.history.back()"}, function() {});
             }
@@ -468,7 +517,7 @@ var tgs = (function() {
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 
         if (debug) console.log('tab removed: ' + tabId);
-        markTabUnsuspended(tabId, removeInfo.windowId);
+        setTabState(tabId, removeInfo.windowId, STATE_UNSUSPENDED);
     });
 
     //listen for tab switching
@@ -505,15 +554,16 @@ var tgs = (function() {
 
             //if we have not yet confirmed the suspension (happens when the suspended page calls history.replace)
             var tabKey = generateTabKey(tab.id, tab.windowId);
-            if (suspendedList[tabKey] && !suspensionConfirmedList[tabKey]) {
+            //if (suspendedList[tabKey] && !suspendedList[tabKey] === STATE_CONFIRMED) {
+            if (suspendedList[tabKey] === STATE_SUSPENDED) {
 
                 if (debug) console.log('confirming tab suspension:' + tab.url);
-                markTabSuspensionConfirmed(tab.id, tab.windowId);
+                setTabState(tab.id, tab.windowId, STATE_CONFIRMED);
 
             //assume at this point that it is a subsequent page refresh (treat as an unsuspend if already suspended)
             } else {
 
-                markTabUnsuspended(tabId, tab.windowId);
+                setTabState(tabId, tab.windowId, STATE_UNSUSPENDED);
 
                 //if we are on a suspended page try to capture synched suspended tabs from other installation of the great suspender
                 if (tab.url.indexOf('suspended.html#') > 0) {
@@ -573,7 +623,10 @@ var tgs = (function() {
     publicFunctions.isSpecialTab = isSpecialTab;
     publicFunctions.isPinnedTab = isPinnedTab;
     publicFunctions.isSuspended = isSuspended;
+    publicFunctions.isSuspensionInProgress = isSuspensionInProgress;
     publicFunctions.sessionId = sessionId;
+    publicFunctions.suspendedList = suspendedList;
+    publicFunctions.suspendedTabs = suspendedTabs;
     return publicFunctions;
 
 }());

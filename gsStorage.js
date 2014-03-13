@@ -33,6 +33,33 @@
             });
         },
 
+        fetchFavicon: function(tabUrl, callback) {
+            chrome.storage.local.get(null, function(items) {
+                if (typeof (items.gsFavicons) === 'undefined') {
+                    items.gsFavicons = {};
+                    chrome.storage.local.set(items);
+                    callback(null);
+
+                } else if (typeof (items.gsFavicons[tabUrl]) === 'undefined') {
+                    callback(null);
+
+                } else {
+                    callback(items.gsFavicons[tabUrl]);
+                }
+            });
+        },
+
+        setFavicon: function(tabUrl, favUrl) {
+            chrome.storage.local.get(null, function(items) {
+
+                if (typeof (items.gsFavicons) === 'undefined') {
+                    items.gsFavicons = {};
+                }
+                items.gsFavicons[tabUrl] = favUrl;
+                chrome.storage.local.set(items);
+            });
+        },
+
         clearPreviews: function() {
             chrome.storage.local.get(null, function(items) {
                 items.gsPreviews = {};
@@ -424,7 +451,16 @@
                 return 1;
             }
             return 0;
+        },
+
+        getRootUrl: function(url) {
+            var rootUrlStr = url,
+                rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
+                rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+            return rootUrlStr;
         }
+
+
 
 
     };

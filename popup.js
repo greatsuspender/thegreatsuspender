@@ -83,6 +83,7 @@
                     }
 
                     if (!chrome.extension.getBackgroundPage().tgs.isSuspended(tab) &&
+                            !chrome.extension.getBackgroundPage().tgs.isSuspensionInProgress(tab) &&
                             !chrome.extension.getBackgroundPage().tgs.isSpecialTab(tab)) {
                         setSuspendOneVisibility(true);
                     } else {

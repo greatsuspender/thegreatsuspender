@@ -128,3 +128,6 @@ p {
 .historyRow img, .historyRow span {
 	white-space: nowrap;
 }
+table, tr, td {
+	padding: 0px 20px 0px 5px;
+}

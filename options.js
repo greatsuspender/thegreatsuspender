@@ -38,7 +38,7 @@
         document.getElementById('dontSuspendPinned').checked = dontSuspendPinned;
         document.getElementById('dontSuspendForms').checked = dontSuspendForms;
         document.getElementById('ignoreCache').checked = ignoreCache;
-        document.getElementById('maxHistories').value = maxHistories;
+        //document.getElementById('maxHistories').value = maxHistories;
         //document.getElementById('whitelist').value = whitelist;
         selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
         setPreviewQualityVisibility(preview);
@@ -119,9 +119,9 @@
             onlineCheckEl.onclick = function(e) {
                 gsStorage.setOnlineCheckOption(onlineCheckEl.checked);
             };
-            maxHistoriesEl.onchange = function(e) {
+            /*maxHistoriesEl.onchange = function(e) {
                 gsStorage.setMaxHistoriesOption(maxHistoriesEl.value);
-            };
+            };*/
             showHistoryEl.onclick = function(e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
             };

@@ -6,30 +6,6 @@
 
     var unsuspending = false;
 
-    function generateFaviconUri(url, callback) {
-
-        var img = new Image();
-        img.onload = function() {
-            var canvas,
-                context;
-            canvas = window.document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context = canvas.getContext('2d');
-            //context.globalAlpha = 0.5;
-            context.drawImage(img, 0, 0);
-            context.globalAlpha = 1;
-            //context.strokeRect(0, 0, img.width, img.height);
-            /*context.fillStyle = 'rgba(253, 224, 115, 1)';
-            context.fillRect(0, img.height - 6, 6, 6);
-            context.fillStyle = 'rgba(0, 0, 0, 1)';
-            context.strokeRect(0, img.height - 6, 6, 6);
-            context.fillRect(2, img.height - 3, 1, 2);
-            */callback(canvas.toDataURL());
-        };
-        img.src = url || chrome.extension.getURL('default.ico');
-    }
-
     function sendSuspendedMessage() {
         if (typeof(chrome.runtime.getManifest()) !== 'undefined') {
             chrome.runtime.sendMessage({action: 'setSuspendedState'});
@@ -59,28 +35,38 @@
         }
     }
 
-    function generateMetaImages(tabProperties) {
+    function generateMetaImages(url) {
 
         var faviconUrl,
             showPreview = gsStorage.fetchPreviewOption();
 
         if (showPreview) {
-            gsStorage.fetchPreviewImage(tabProperties.url, function(previewUrl) {
+            gsStorage.fetchPreviewImage(url, function(previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('gsPreview').setAttribute('src', previewUrl);
                 }
             });
         }
 
-        //generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
+        gsStorage.fetchFavicon(gsStorage.getRootUrl(url), function(faviconUrl) {
+            if (faviconUrl !== null) {
+                console.log('found favicon:' + faviconUrl);
+                document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
+            } else {
+                console.log('could not locate favicon for:' + gsStorage.getRootUrl(url));
+            }
+        });
+/*        generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
             document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
-        //});
+        });*/
     }
 
     function attemptTabSuspend() {
 
         var url = gsStorage.getHashVariable('url', window.location.hash),
-            tabProperties = gsStorage.fetchTabFromHistory(url);
+            tabProperties = gsStorage.fetchTabFromHistory(url),
+            rootUrlStr = gsStorage.getRootUrl(tabProperties.url);
+
 
         //just incase the url is a suspension url (somehow??) then decode it
         if (url.indexOf('suspended.html#') >= 0) {
@@ -88,22 +74,14 @@
         }
 
         //if we have some suspend information for this tab
-        if (tabProperties) {
-            console.log('about to suspend tab: ' + url);
-            generateMetaImages(tabProperties);
-
-        //else create new tabProperties object
-        } else {
+        if (!tabProperties) {
             tabProperties = {url: url};
-            console.log('recovering tab');
         }
 
+        //set favicon and preview image
+        generateMetaImages(url);
 
         //populate suspended tab bar
-        var rootUrlStr = tabProperties.url,
-        rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
-        rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
-
         document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
      //   document.getElementById('gsTopBarUrl').innerText = tabProperties.url;

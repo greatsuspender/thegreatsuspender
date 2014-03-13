@@ -7,7 +7,9 @@
         "unlimitedStorage",
         "http://*/*",
         "https://*/*",
-        "chrome://favicon/*"
+        "chrome://favicon/*",
+        "processes",
+        "system.memory"
     ],
     "background": {
         "scripts": ["gsStorage.js", "background.js"]
