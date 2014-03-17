@@ -26,16 +26,42 @@
 
             document.body.style.cursor = 'wait';
 
-            /*if (window.history.length > 1) {
+            if (window.history.length > 1) {
                 window.history.back();
             } else {
                 window.location.reload();
-            }*/
-            window.location.reload();
+            }
+            //window.location.reload();
         }
     }
 
-    function generateMetaImages(url) {
+    function generateFaviconUri(url, callback) {
+
+        var img = new Image();
+        img.onload = function() {
+            var canvas,
+                context;
+            canvas = window.document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context = canvas.getContext('2d');
+            context.globalAlpha = 0.5;
+            context.drawImage(img, 0, 0);
+            //context.globalAlpha = 1;
+            //context.strokeRect(0, 0, img.width, img.height);
+            context.fillStyle = 'rgba(253, 224, 115, 1)';
+            context.fillRect(0, img.height - 6, 6, 6);
+            context.fillStyle = 'rgba(0, 0, 0, 1)';
+            context.strokeRect(0, img.height - 6, 6, 6);
+            context.fillRect(2, img.height - 3, 1, 2);
+            callback(canvas.toDataURL());
+        };
+        img.src = url || chrome.extension.getURL('default.ico');
+    }
+
+
+
+    function generateMetaImages(tabProperties, url) {
 
         var faviconUrl,
             showPreview = gsStorage.fetchPreviewOption();
@@ -48,17 +74,17 @@
             });
         }
 
-        gsStorage.fetchFavicon(gsStorage.getRootUrl(url), function(faviconUrl) {
+        /*gsStorage.fetchFavicon(gsStorage.getRootUrl(url), function(faviconUrl) {
             if (faviconUrl !== null) {
                 console.log('found favicon:' + faviconUrl);
                 document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
             } else {
                 console.log('could not locate favicon for:' + gsStorage.getRootUrl(url));
             }
-        });
-/*        generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
         });*/
+        generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
+            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
+        });
     }
 
     function attemptTabSuspend() {
@@ -79,7 +105,7 @@
         }
 
         //set favicon and preview image
-        generateMetaImages(url);
+        generateMetaImages(tabProperties, url);
 
         //populate suspended tab bar
         document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;

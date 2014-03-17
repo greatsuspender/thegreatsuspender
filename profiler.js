@@ -63,7 +63,7 @@
                     html += '<td>' + curProc.title + '</td>';
                     html += '</tr>';
 
-                    if (curProc.tabs.length > 0 && curProc.type !== 'renderer') {
+                    if (curProc.tabs.length > 1) {
 
                         for (i = 0; i < curProc.tabs.length; i++) {
                             var tabKey = curProc.tabs[i] + '_' + curWindowId;

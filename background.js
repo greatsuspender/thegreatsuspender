@@ -50,30 +50,6 @@ var tgs = (function() {
         return false;
     }
 
-    function generateFaviconUri(url, callback) {
-
-        var img = new Image();
-        img.onload = function() {
-            var canvas,
-                context;
-            canvas = window.document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context = canvas.getContext('2d');
-            context.globalAlpha = 0.5;
-            context.drawImage(img, 0, 0);
-            context.globalAlpha = 1;
-            //context.strokeRect(0, 0, img.width, img.height);
-            /*context.fillStyle = 'rgba(253, 224, 115, 1)';
-            context.fillRect(0, img.height - 6, 6, 6);
-            context.fillStyle = 'rgba(0, 0, 0, 1)';
-            context.strokeRect(0, img.height - 6, 6, 6);
-            context.fillRect(2, img.height - 3, 1, 2);
-            */callback(canvas.toDataURL());
-        };
-        img.src = url || chrome.extension.getURL('default.ico');
-    }
-
     function saveSuspendData(tab, previewUrl, callback) {
         var gsHistory = gsStorage.fetchGsHistory(),
             tabProperties,
@@ -101,13 +77,13 @@ var tgs = (function() {
             windowId: tab.windowId
         };
 
-        gsStorage.fetchFavicon(rootUrl, function(result) {
+        /*gsStorage.fetchFavicon(rootUrl, function(result) {
             if (result === null) {
                 generateFaviconUri(favUrl, function(transparentFavUrl) {
                     gsStorage.setFavicon(rootUrl, transparentFavUrl);
                 });
             }
-        });
+        });*/
 
         //add suspend information to start of history array
         gsHistory.unshift(tabProperties);
@@ -132,7 +108,7 @@ var tgs = (function() {
 
     function isSuspended(tab) {
         var tabKey = generateTabKey(tab.id, tab.windowId);
-        return suspendedList[tabKey] === STATE_SUSPENDED;
+        return suspendedList[tabKey] === STATE_SUSPENDED || suspendedList[tabKey] === STATE_CONFIRMED;
     }
 
     function isSuspensionInProgress(tab) {
@@ -491,10 +467,15 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
                 }
 
             } else if (request.action === 'confirmUnsuspension') {
-                var bypassCache = gsStorage.fetchIgnoreCacheOption();
+                var bypassCache = gsStorage.fetchIgnoreCacheOption(),
+                    jsCode = 'if (window.history.length > 1) { ' +
+                                'window.history.back(); ' +
+                            '} else { ' +
+                                'window.location.reload(); ' +
+                            '}';
                 setTabState(sender.tab.id, sender.tab.windowId, STATE_UNSUSPENDED);
-                chrome.tabs.reload(sender.tab.id, {bypassCache: bypassCache});
-                //chrome.tabs.executeScript(sender.tab.id, {code: "window.history.back()"}, function() {});
+                //chrome.tabs.reload(sender.tab.id, {bypassCache: bypassCache});
+                chrome.tabs.executeScript(sender.tab.id, {code: jsCode}, function() {});
             }
         }
     );
@@ -569,14 +550,14 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
                 if (tab.url.indexOf('suspended.html#') > 0) {
 
                     //if the extension directory does not match this instance of the great suspender
-                    /*if (tab.url.substring(tab.url, tab.url.indexOf('suspended.html')) !== chrome.extension.getURL('')) {
+                    if (tab.url.substring(tab.url, tab.url.indexOf('suspended.html')) !== chrome.extension.getURL('')) {
 
                         var hash = tab.url.substring(tab.url.indexOf('#'), tab.url.length),
                             url = gsStorage.getHashVariable('url', hash);
 
                         //convert url to this instance of the great suspender
                         chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(url)});
-                    }*/
+                    }
                 } else {
 
                     //clear any possible tempWhitelist entry for this tab
