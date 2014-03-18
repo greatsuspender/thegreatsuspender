@@ -154,6 +154,7 @@ var tgs = (function() {
 
     function setTabState(tabId, windowId, state) {
         var tabKey = generateTabKey(tabId, windowId);
+        if (debug) console.log('new tab state for key: ' + tabKey + '  ' + state);
         suspendedList[tabKey] = state;
     }
 
@@ -182,6 +183,8 @@ var tgs = (function() {
     }
 
     function suspendTab(tab) {
+        
+        setTabState(tab.id, tab.windowId, STATE_INPROGRESS);
 
         var jsCode =
             "if (!document.getElementById('gsTopBar')) { " +
@@ -199,7 +202,6 @@ var tgs = (function() {
     function confirmSuspension(tab, useCachedPreviews) {
 
         useCachedPreviews = useCachedPreviews || false;
-        setTabState(tab.id, tab.windowId, STATE_INPROGRESS);
 
         if (useCachedPreviews) {
             console.log('updating tab to suspended.html: ' + tab.url);

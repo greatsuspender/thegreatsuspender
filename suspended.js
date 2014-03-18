@@ -37,7 +37,8 @@
 
     function generateFaviconUri(url, callback) {
 
-        var img = new Image();
+        var img = new Image(),
+            boxSize = 9;
         img.onload = function() {
             var canvas,
                 context;
@@ -45,15 +46,27 @@
             canvas.width = img.width;
             canvas.height = img.height;
             context = canvas.getContext('2d');
-            context.globalAlpha = 0.5;
+            //context.globalAlpha = 0.5;
             context.drawImage(img, 0, 0);
             //context.globalAlpha = 1;
             //context.strokeRect(0, 0, img.width, img.height);
-            context.fillStyle = 'rgba(253, 224, 115, 1)';
-            context.fillRect(0, img.height - 6, 6, 6);
-            context.fillStyle = 'rgba(0, 0, 0, 1)';
-            context.strokeRect(0, img.height - 6, 6, 6);
-            context.fillRect(2, img.height - 3, 1, 2);
+            //context.fillStyle = 'rgb(233, 176, 127)';
+            //context.fillStyle = 'rgb(243, 186, 115)';
+            context.fillStyle = 'rgb(255, 255, 255)';
+            context.fillRect(img.width - boxSize, img.height - boxSize, boxSize, boxSize);
+
+            context.fillStyle = 'rgb(0, 0, 0)';
+            context.globalAlpha = 1;
+
+            context.fillRect(img.width - boxSize, img.height - boxSize, boxSize, 1);
+            context.fillRect(img.width - boxSize, img.height - boxSize, 1, boxSize);
+            context.fillRect(img.width - 1, img.height - boxSize, 1, boxSize);
+            context.fillRect(img.width - boxSize, img.height - 1, boxSize, 1);
+
+            context.fillRect(img.width - 7, img.height - (boxSize + 1), 3, 1);
+            context.fillRect(img.width - 6, img.height - 7, 1, 3);
+            context.fillRect(img.width - 4, img.height - 7, 1, 2);
+            context.fillRect(img.width - 5, img.height - 3, 2, 1);
             callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
@@ -83,7 +96,7 @@
             }
         });*/
         generateFaviconUri(tabProperties.favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', tabProperties.favicon);
+            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
         });
     }
 
