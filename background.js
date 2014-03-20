@@ -17,6 +17,7 @@ var tgs = (function() {
     var suspendedTabs = {};
     var publicFunctions = {};
     var lastSelectedTabs = [];
+    var progressQueueLength = 0;
 
     function generateTabKey(tabId, windowId) {
         return tabId + '_' + windowId;
@@ -99,7 +100,8 @@ var tgs = (function() {
         if (tab.url.indexOf('chrome-extension:') == 0 ||
                 tab.url.indexOf('chrome:') == 0 ||
                 tab.url.indexOf('chrome-devtools:') == 0 ||
-                tab.url.indexOf('file:') == 0) {
+                tab.url.indexOf('file:') == 0 ||
+                tab.url.indexOf('chrome.google.com/webstore') >= 0) {
             return true;
         } else {
             return false;
@@ -183,7 +185,7 @@ var tgs = (function() {
     }
 
     function suspendTab(tab) {
-        
+
         setTabState(tab.id, tab.windowId, STATE_INPROGRESS);
 
         var jsCode =
@@ -351,8 +353,6 @@ console.log(curTab.id + ': tab suspension already in progress...');
             var i;
             for (i = 0; i < tabs.length; i++) {
                 gsTimes[tabs[i].id] = new Date();
-var tabKey = generateTabKey(tabs[i].id, tabs[i].windowId);
-suspendedTabs[tabKey] = tabs[i];
             }
         });
     }
@@ -456,9 +456,11 @@ suspendedTabs[tabKey] = tabs[i];
                 if (tabsBeingSuspendedCount() >= 2) {
 console.log(sender.tab.id + ': 2 tabs already being suspended. waiting...');
                     var intervalJob = setInterval(function() {
+                        progressQueueLength++;
                         if (tabsBeingSuspendedCount() < 2) {
 console.log(sender.tab.id + ': ready to suspend tab now finally...');
                             clearInterval(intervalJob);
+                            progressQueueLength--;
                             confirmSuspension(sender.tab);
                         } else {
                         }
@@ -573,6 +575,7 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
             }
 
         }
+suspendedTabs[generateTabKey(tab.id, tab.windowId)] = tab;
     });
 
     initialiseAllTabs();
@@ -610,6 +613,7 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
     publicFunctions.sessionId = sessionId;
     publicFunctions.suspendedList = suspendedList;
     publicFunctions.suspendedTabs = suspendedTabs;
+    publicFunctions.progressQueueLength = progressQueueLength;
     return publicFunctions;
 
 }());

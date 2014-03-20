@@ -135,11 +135,8 @@
         }
 
         //update url with actual url
-        //not sure why but restoring this url crashes the extension?!?!?!
-        if (url.indexOf('chrome.google.com/webstore') < 0) {
-            console.log('replacing state: ' + url);
-            window.history.replaceState(null, null, url);
-        }
+        console.log('replacing state: ' + url);
+        window.history.replaceState(null, null, url);
     }
 
     window.onload = function() {

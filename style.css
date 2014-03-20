@@ -130,4 +130,5 @@ p {
 }
 table, tr, td {
 	padding: 0px 20px 0px 5px;
+	white-space: nowrap;
 }
