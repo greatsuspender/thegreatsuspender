@@ -104,8 +104,7 @@
 
         var url = gsStorage.getHashVariable('url', window.location.hash),
             tabProperties = gsStorage.fetchTabFromHistory(url),
-            rootUrlStr = gsStorage.getRootUrl(tabProperties.url);
-
+            rootUrlStr;
 
         //just incase the url is a suspension url (somehow??) then decode it
         if (url.indexOf('suspended.html#') >= 0) {
@@ -116,6 +115,7 @@
         if (!tabProperties) {
             tabProperties = {url: url};
         }
+        rootUrlStr = gsStorage.getRootUrl(tabProperties.url);
 
         //set favicon and preview image
         generateMetaImages(tabProperties, url);
