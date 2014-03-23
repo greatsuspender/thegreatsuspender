@@ -27,7 +27,7 @@
             dontSuspendForms = gsStorage.fetchDontSuspendFormsOption(),
             timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
             onlineCheck = gsStorage.fetchOnlineCheckOption(),
-            ignoreCache = gsStorage.fetchIgnoreCacheOption(),
+            //ignoreCache = gsStorage.fetchIgnoreCacheOption(),
             maxHistories = gsStorage.fetchMaxHistoriesOption(),
             whitelist = gsStorage.fetchWhitelist();
 
@@ -37,7 +37,7 @@
         document.getElementById('unsuspendOnFocus').checked = unsuspendOnFocus;
         document.getElementById('dontSuspendPinned').checked = dontSuspendPinned;
         document.getElementById('dontSuspendForms').checked = dontSuspendForms;
-        document.getElementById('ignoreCache').checked = ignoreCache;
+        //document.getElementById('ignoreCache').checked = ignoreCache;
         //document.getElementById('maxHistories').value = maxHistories;
         //document.getElementById('whitelist').value = whitelist;
         selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
@@ -80,7 +80,7 @@
                 unsuspendOnFocusEl = document.getElementById('unsuspendOnFocus'),
                 dontSuspendPinnedEl = document.getElementById('dontSuspendPinned'),
                 dontSuspendFormsEl = document.getElementById('dontSuspendForms'),
-                ignoreCacheEl = document.getElementById('ignoreCache'),
+                //ignoreCacheEl = document.getElementById('ignoreCache'),
                 maxHistoriesEl = document.getElementById('maxHistories'),
                 whitelistEl = document.getElementById('whitelist'),
                 timeToSuspendEl = document.getElementById('timeToSuspend'),
@@ -97,9 +97,9 @@
             unsuspendOnFocusEl.onclick = function(e) {
                 gsStorage.setUnsuspendOnFocusOption(unsuspendOnFocusEl.checked);
             };
-            ignoreCacheEl.onclick = function(e) {
+            /*ignoreCacheEl.onclick = function(e) {
                 gsStorage.setIgnoreCacheOption(ignoreCacheEl.checked);
-            };
+            };*/
             dontSuspendPinnedEl.onclick = function(e) {
                 var val = dontSuspendPinnedEl.checked;
                 gsStorage.setDontSuspendPinnedOption(val);

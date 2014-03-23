@@ -9,19 +9,21 @@ var tgs = (function() {
         STATE_SUSPENDED = 'suspended',
         STATE_UNSUSPENDED = 'unsuspended';
 
+    var TAB_WHITELIST = 'whitelisted',
+        TAB_TEMP_WHITELIST = 'tempwhitelisted',
+        TAB_PINNED = 'pinned',
+        TAB_SPECIAL = 'special';
+
     var gsTimes = [];
     var debug = true;
+    var profiler = true;
     var sessionId = Math.floor(Math.random() * 1000000);
     var tempWhitelist = [];
     var suspendedList = {};
-    var suspendedTabs = {};
+    var profileTabs = {};
     var publicFunctions = {};
     var lastSelectedTabs = [];
     var progressQueueLength = 0;
-
-    function generateTabKey(tabId, windowId) {
-        return tabId + '_' + windowId;
-    }
 
     function tabsBeingSuspendedCount() {
 
@@ -97,11 +99,13 @@ var tgs = (function() {
     }
 
     function isSpecialTab(tab) {
+
         if (tab.url.indexOf('chrome-extension:') == 0 ||
                 tab.url.indexOf('chrome:') == 0 ||
                 tab.url.indexOf('chrome-devtools:') == 0 ||
                 tab.url.indexOf('file:') == 0 ||
                 tab.url.indexOf('chrome.google.com/webstore') >= 0) {
+
             return true;
         } else {
             return false;
@@ -109,13 +113,11 @@ var tgs = (function() {
     }
 
     function isSuspended(tab) {
-        var tabKey = generateTabKey(tab.id, tab.windowId);
-        return suspendedList[tabKey] === STATE_SUSPENDED || suspendedList[tabKey] === STATE_CONFIRMED;
+        return suspendedList[tab.id] === STATE_SUSPENDED || suspendedList[tab.id] === STATE_CONFIRMED;
     }
 
     function isSuspensionInProgress(tab) {
-        var tabKey = generateTabKey(tab.id, tab.windowId);
-        return suspendedList[tabKey] === STATE_INPROGRESS;
+        return suspendedList[tab.id] === STATE_INPROGRESS;
     }
 
     function isTempWhitelisted(tab) {
@@ -155,9 +157,32 @@ var tgs = (function() {
     }
 
     function setTabState(tabId, windowId, state) {
-        var tabKey = generateTabKey(tabId, windowId);
-        if (debug) console.log('new tab state for key: ' + tabKey + '  ' + state);
-        suspendedList[tabKey] = state;
+
+        var key;
+
+        suspendedList[tabId] = state;
+
+        if (debug) console.log('new tab state for key: ' + tabId + '  ' + state);
+
+        if (profiler) {
+            chrome.processes.getProcessIdForTab(tabId, function(processId) {
+                chrome.processes.getProcessInfo(processId, true, function(processes) {
+                    for (key in processes) {
+                        if (processes.hasOwnProperty(key)) {
+                            var curProc = processes[key],
+                                stateMem;
+                            profileTabs[tabId] = profileTabs[tabId] || new Array();
+                            if (curProc.title.indexOf('Extension: The Great Suspender')) {
+                                stateMem = Math.floor(curProc.privateMemory / (1024 * 1024) / curProc.tabs.length);
+                            } else {
+                                stateMem = Math.floor(curProc.privateMemory / (1024 * 1024));
+                            }
+                            profileTabs[tabId].push({state: state, title: curProc.title, mem: stateMem});
+                        }
+                    }
+                });
+            });
+        }
     }
 
     function setFormInputState(tab) {
@@ -206,19 +231,22 @@ var tgs = (function() {
         useCachedPreviews = useCachedPreviews || false;
 
         if (useCachedPreviews) {
-            console.log('updating tab to suspended.html: ' + tab.url);
+            if (debug) console.log('updating tab to suspended.html: ' + tab.url);
+            if (profiler) setTabState(tab.id, tab.windowId, STATE_REQUESTED);
             chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
 
         } else if (gsStorage.fetchPreviewOption()) {
             sendPreviewRequest(tab, function(tab, previewUrl) {
                 saveSuspendData(tab, previewUrl);
-                console.log('updating tab to suspended.html: ' + tab.url);
+                if (debug) console.log('updating tab to suspended.html: ' + tab.url);
+                if (profiler) setTabState(tab.id, tab.windowId, STATE_REQUESTED);
                 chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
             });
 
         } else {
             saveSuspendData(tab, false);
-            console.log('updating tab to suspended.html: ' + tab.url);
+            if (debug) console.log('updating tab to suspended.html: ' + tab.url);
+            if (profiler) setTabState(tab.id, tab.windowId, STATE_REQUESTED);
             chrome.tabs.update(tab.id, {url: gsStorage.generateSuspendedUrl(tab.url)});
         }
     }
@@ -321,9 +349,6 @@ var tgs = (function() {
 
                 if (timeToSuspend > 0) {
 
-                    if (isSuspensionInProgress(curTab)) {
-console.log(curTab.id + ': tab suspension already in progress...');
-                    }
                     if (isSuspended(curTab) || isSuspensionInProgress(curTab) || isExcluded(curTab) || !gsTimes[curTab.id]) {
                         gsTimes[curTab.id] = curDate;
                         continue;
@@ -454,11 +479,9 @@ console.log(curTab.id + ': tab suspension already in progress...');
 
                 setTabState(sender.tab.id, sender.tab.windowId, STATE_REQUESTED);
                 if (tabsBeingSuspendedCount() >= 2) {
-console.log(sender.tab.id + ': 2 tabs already being suspended. waiting...');
                     var intervalJob = setInterval(function() {
                         progressQueueLength++;
                         if (tabsBeingSuspendedCount() < 2) {
-console.log(sender.tab.id + ': ready to suspend tab now finally...');
                             clearInterval(intervalJob);
                             progressQueueLength--;
                             confirmSuspension(sender.tab);
@@ -466,7 +489,6 @@ console.log(sender.tab.id + ': ready to suspend tab now finally...');
                         }
                     }, 200);
                 } else {
-console.log(sender.tab.id + ': ready to suspend tab now...');
                     confirmSuspension(sender.tab);
                 }
 
@@ -538,9 +560,7 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
             if (debug) console.log('tab update ' + changeInfo.status + ': ' + tabId);
 
             //if we have not yet confirmed the suspension (happens when the suspended page calls history.replace)
-            var tabKey = generateTabKey(tab.id, tab.windowId);
-            //if (suspendedList[tabKey] && !suspendedList[tabKey] === STATE_CONFIRMED) {
-            if (suspendedList[tabKey] === STATE_SUSPENDED) {
+            if (suspendedList[tabId] === STATE_SUSPENDED) {
 
                 if (debug) console.log('confirming tab suspension:' + tab.url);
                 setTabState(tab.id, tab.windowId, STATE_CONFIRMED);
@@ -575,7 +595,6 @@ console.log(sender.tab.id + ': ready to suspend tab now...');
             }
 
         }
-suspendedTabs[generateTabKey(tab.id, tab.windowId)] = tab;
     });
 
     initialiseAllTabs();
@@ -604,15 +623,10 @@ suspendedTabs[generateTabKey(tab.id, tab.windowId)] = tab;
         saveWindowHistory();
     }, 60 * 1000);
 
-    publicFunctions.checkWhiteList = checkWhiteList;
-    publicFunctions.isTempWhitelisted = isTempWhitelisted;
-    publicFunctions.isSpecialTab = isSpecialTab;
-    publicFunctions.isPinnedTab = isPinnedTab;
     publicFunctions.isSuspended = isSuspended;
     publicFunctions.isSuspensionInProgress = isSuspensionInProgress;
     publicFunctions.sessionId = sessionId;
-    publicFunctions.suspendedList = suspendedList;
-    publicFunctions.suspendedTabs = suspendedTabs;
+    publicFunctions.profileTabs = profileTabs;
     publicFunctions.progressQueueLength = progressQueueLength;
     return publicFunctions;
 

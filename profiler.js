@@ -38,7 +38,12 @@
 
                 if (curProc.type === 'renderer' && curProc.tabs.length > 0) {
                     for (i = 0; i < curProc.tabs.length; i++) {
-                        renderedTabs[curProc.tabs[i]] = renderedTabs[curProc.tabs[i]] || {cur: 0, old: 1};
+                        renderedTabs[curProc.tabs[i]] = renderedTabs[curProc.tabs[i]] || {};
+                        renderedTabs[curProc.tabs[i]].cur = Math.floor(curMem / curProc.tabs.length);
+                    }
+                } else if (curProc.title.indexOf('Extension: The Great Suspender') >= 0 && curProc.tabs.length > 0) {
+                    for (i = 0; i < curProc.tabs.length; i++) {
+                        renderedTabs[curProc.tabs[i]] = renderedTabs[curProc.tabs[i]] || {};
                         renderedTabs[curProc.tabs[i]].cur = Math.floor(curMem / curProc.tabs.length);
                     }
                 }
@@ -63,75 +68,45 @@
 
         var tgs = chrome.extension.getBackgroundPage().tgs,
             html = '',
-            totalOld = 0,
-            totalCur = 0,
-            oldMem = 0,
-            curMem = 0,
+            totals = {},
             curTab,
-            tabKey,
-            state,
-            i;
+            curEntry,
+            tabState,
+            i,
+            j;
 
         html += '<table>';
         html += '<tr>';
-        html += '<th>oldMem</th>';
-        html += '<th>curMem</th>';
-        html += '<th>key</th>';
+        html += '<th>id</th>';
         html += '<th>state</th>';
+        html += '<th>mem</th>';
         html += '<th>title</th>';
         html += '</tr>';
 
         for (i = 0; i < tabs.length; i++) {
 
             curTab = tabs[i];
-            tabKey = curTab.id + '_' + curTab.windowId;
-            state = '';
-
-            if (!tgs.suspendedTabs[tabKey]) {
-                state = '???';
-            } else if (tgs.checkWhiteList(tgs.suspendedTabs[tabKey].url)) {
-                state = 'whitelisted';
-            } else if (tgs.isTempWhitelisted(tgs.suspendedTabs[tabKey])) {
-                state = 'tempWhitelisted';
-            } else if (tgs.isPinnedTab(tgs.suspendedTabs[tabKey])) {
-                state = 'pinned';
-            } else if (tgs.isSpecialTab(tgs.suspendedTabs[tabKey])) {
-                state = 'special';
-            } else {
-                state = tgs.suspendedList[tabKey];
-            }
 
             html += '<tr>';
-
-            if (renderedTabs[curTab.id]) {
-                if (state !== 'requested' && state !== 'inProgress' && state !== 'confirmed' && state !== 'suspended') {
-                    renderedTabs[curTab.id].old = renderedTabs[curTab.id].cur;
-                }
-                oldMem = renderedTabs[curTab.id].old || oldMem;
-                curMem = renderedTabs[curTab.id].cur || curMem;
-
-                html += '<td>' + oldMem + '</td>';
-                html += '<td>' + curMem + '</td>';
-
-            } else {
-                html += '<td>?</td>';
-                html += '<td>?</td>';
-            }
-            html += '<td>' + tabKey + '</td>';
-            html += '<td>' + state + '</td>';
+            html += '<td>' + curTab.id + '</td>';
+            html += '<td></td>';
+            html += '<td></td>';
             html += '<td>' + curTab.title + '</td>';
             html += '</tr>';
 
-            totalOld += oldMem;
-            totalCur += curMem;
+            if (tgs.profileTabs[curTab.id]) {
+                for (j = 0; j < tgs.profileTabs[curTab.id].length; j++) {
+                    curEntry = tgs.profileTabs[curTab.id][j];
+                    html += '<tr>';
+                    html += '<td>' + curTab.id + '</td>';
+                    html += '<td>' + curEntry.state + '</td>';
+                    html += '<td>' + curEntry.mem + '</td>';
+                    html += '<td>' + curEntry.title + '</td>';
+                    html += '</tr>';
+                }
+            }
         }
 
-        html += '<tr>';
-        html += '<td>' + totalOld + '</td>';
-        html += '<td>' + totalCur + '</td>';
-        html += '<td></td>';
-        html += '<td></td>';
-        html += '</tr>';
         html += '</table>';
 
         html += '<span>ProgressQueue length: ' + tgs.progressQueueLength + '</span>';
@@ -141,7 +116,14 @@
 
     window.onload = function() {
 
-        chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
+        setInterval(function() {
+            chrome.tabs.query({}, function(tabs) {
+                var html = generateTabStats(tabs);
+                document.getElementById('gsProfiler').innerHTML = html;
+            });
+        }, 1000);
+
+        /*chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
 
             chrome.tabs.query({}, function(tabs) {
                 var html = '';
@@ -151,6 +133,6 @@
                 document.getElementById('gsProfiler').innerHTML = html;
             });
 
-        });
+        });*/
     };
 }());
