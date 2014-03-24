@@ -92,9 +92,9 @@ var tgs = (function() {
         gsHistory.unshift(tabProperties);
 
         //clean up old items
-        while (gsHistory.length > 100) {
+        /*while (gsHistory.length > 100) {
             gsHistory.pop();
-        }
+        }*/
         gsStorage.setGsHistory(gsHistory);
     }
 
@@ -172,7 +172,7 @@ var tgs = (function() {
                             var curProc = processes[key],
                                 stateMem;
                             profileTabs[tabId] = profileTabs[tabId] || new Array();
-                            if (curProc.title.indexOf('Extension: The Great Suspender')) {
+                            if (curProc.title.indexOf('Extension: The Great Suspender') >= 0) {
                                 stateMem = Math.floor(curProc.privateMemory / (1024 * 1024) / curProc.tabs.length);
                             } else {
                                 stateMem = Math.floor(curProc.privateMemory / (1024 * 1024));
@@ -624,6 +624,7 @@ var tgs = (function() {
     }, 60 * 1000);
 
     publicFunctions.isSuspended = isSuspended;
+    publicFunctions.isExcluded = isExcluded;
     publicFunctions.isSuspensionInProgress = isSuspensionInProgress;
     publicFunctions.sessionId = sessionId;
     publicFunctions.profileTabs = profileTabs;

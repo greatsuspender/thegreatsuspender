@@ -100,7 +100,7 @@
         },
 
         fetchMaxHistoriesOption: function() {
-            return localStorage.getItem('gsMaxHistories') || 5;
+            return localStorage.getItem('gsMaxHistories') || 4;
         },
 
         setMaxHistoriesOption: function(maxHistories) {
@@ -228,6 +228,20 @@
             for (i = 0; i < gsHistory.length; i++) {
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory[i] = tabProperties;
+                    break;
+                }
+            }
+            localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
+        },
+
+        removeTabFromHistory: function(tabUrl) {
+
+            var gsHistory = this.fetchGsHistory(),
+                i;
+
+            for (i = 0; i < gsHistory.length; i++) {
+                if (gsHistory[i].url === tabUrl) {
+                    gsHistory.splice(i, 1);
                     break;
                 }
             }

@@ -128,6 +128,57 @@ p {
 .historyRow img, .historyRow span {
 	white-space: nowrap;
 }
+.sessionLink {
+    cursor: pointer;
+}
+.sessionLink:hover {
+	text-decoration: underline;
+}
+div.recoveryLink {
+    padding: 0px;
+}
+a.historyLink {
+    font-weight: normal;
+    color: #333;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+a.historyLink:hover {
+    text-decoration: underline;
+}
+#gsHistory span {
+    font-style: italic;
+    font-size: 11px;
+    color: #aaa;
+    padding-left: 10px;
+}
+.groupLink {
+    margin: 0 0 0 10px;
+    font-size: 0.8em;
+}
+.recoveryLink .itemHover {
+    visibility: hidden;
+    margin: 0px;
+    padding: 0px 0px 3px;
+    cursor: pointer;
+}
+.recoveryLink:hover .itemHover {
+    visibility: visible;
+}
+img {
+    padding-right: 10px;
+}
+p {
+    max-width: 900px;
+}
+ul, li {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
 table, tr, td {
 	padding: 0px 20px 0px 5px;
 	white-space: nowrap;

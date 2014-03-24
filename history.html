@@ -1,18 +1,24 @@
 <!doctype html>
 <html>
 <head>
-	<title id='gsTitle'>The Great Suspender :: History</title>
-	<link  id='gsFavicon' rel="icon" />
-	<script type="text/javascript" src="gsStorage.js"></script>
-	<script type="text/javascript" src="history.js"></script>
-	<link type="text/css" href="style.css" rel="stylesheet"></link>
-	<link type="text/css" href="history.css" rel="stylesheet"></link>
+<title id='gsTitle'>Suspended Tab History</title>
+<link  id='gsFavicon' rel="icon" />
+<link type="text/css" href="style.css" rel="stylesheet"></link>\
+<script type="text/javascript" src="gsStorage.js"></script>
+<script type="text/javascript" src="history.js"></script>
 
 </head>
-<body id="body">
+<body>
 
-<div id='gsHistory' class="mainContent">
+<div  class="mainContent">
 	<h1>Suspended Tab History</h1>
+
+	<h2>Recent sessions:</h2>
+	<ul id='recoveryLinks'></ul>
+
+	<h2>Tab history:</h2>
+	<ul id='historyLinks'></ul>
+
 </div>
 
 </body>
