@@ -6,7 +6,6 @@
         "tabs",
         "storage",
         "unlimitedStorage",
-        "declarativeWebRequest",
         "alarms",
         "http://*/*",
         "https://*/*",
