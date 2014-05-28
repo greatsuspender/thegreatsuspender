@@ -145,4 +145,9 @@
         }
     }, 10);
 
+
+    //TODO: add a pref save button
+    //if suspend interval changes then reset timers in open tabs
+    //chrome.tabs.sendMessage(208, {action: 'resetTimer', timeout: 1000});
+
 }());

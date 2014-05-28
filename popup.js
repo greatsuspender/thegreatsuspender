@@ -54,43 +54,48 @@
             window.close();
         });
 
-        chrome.windows.getLastFocused({populate: true}, function suspendHighlightedTab(window) {
+        chrome.windows.getCurrent({}, function (window) {
 
             chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
 
                 if (tabs.length > 0) {
                     var tab = tabs[0];
-
-                    if (chrome.extension.getBackgroundPage().tgs.checkWhiteList(tab.url)) {
-                        showStatusBar('whitelisted');
-                        setWhitelistVisibility(false);
-
-                    } else if (chrome.extension.getBackgroundPage().tgs.isTempWhitelisted(tab)) {
-                        showStatusBar('formInput');
-                        setWhitelistVisibility(true);
-
-                    } else if (chrome.extension.getBackgroundPage().tgs.isPinnedTab(tab)) {
-                        showStatusBar('pinnedTab');
-                        setWhitelistVisibility(true);
-
-                    } else if (chrome.extension.getBackgroundPage().tgs.isSpecialTab(tab)) {
-                        showStatusBar(false);
-                        setWhitelistVisibility(false);
-
-                    } else {
-                        showStatusBar(false);
-                        setWhitelistVisibility(true);
-                    }
-
-                    if (!chrome.extension.getBackgroundPage().tgs.isSuspended(tab) &&
-                            !chrome.extension.getBackgroundPage().tgs.isSuspensionInProgress(tab) &&
-                            !chrome.extension.getBackgroundPage().tgs.isSpecialTab(tab)) {
-                        setSuspendOneVisibility(true);
-                    } else {
-                        setSuspendOneVisibility(false);
-                    }
+                    chrome.runtime.sendMessage({action: 'requestTabStatus', tab: tab});
                 }
             });
+        });
+
+        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+            if (request.action === 'confirmTabStatus' && request.status) {
+
+                if (request.status === 'whitelisted') {
+                    showStatusBar('whitelisted');
+                    setWhitelistVisibility(false);
+
+                } else if (request.status === 'formInput') {
+                    showStatusBar('formInput');
+                    setWhitelistVisibility(true);
+
+                } else if (request.status === 'pinned') {
+                    showStatusBar('pinnedTab');
+                    setWhitelistVisibility(true);
+
+                } else if (request.status === 'special') {
+                    showStatusBar(false);
+                    setWhitelistVisibility(false);
+
+                } else if (request.status === 'normal') {
+                    showStatusBar(false);
+                    setWhitelistVisibility(true);
+                }
+
+                if (request.status === 'suspended' || request.status === 'special') {
+                    setSuspendOneVisibility(false);
+
+                } else {
+                    setSuspendOneVisibility(true);
+                }
+            }
         });
     });
 

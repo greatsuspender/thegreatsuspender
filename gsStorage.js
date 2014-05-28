@@ -474,9 +474,6 @@
             return rootUrlStr;
         }
 
-
-
-
     };
     window.gsStorage = gsStorage;
 

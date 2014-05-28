@@ -1,18 +1,20 @@
 {
     "name": "The Great Suspender",
-    "version": "5.1.1",
+    "description": "",
+    "version": "5.2",
     "permissions": [
         "tabs",
         "storage",
         "unlimitedStorage",
+        "declarativeWebRequest",
+        "alarms",
         "http://*/*",
         "https://*/*",
-        "chrome://favicon/*",
-        "processes",
-        "system.memory"
+        "chrome://favicon/*"
     ],
     "background": {
-        "scripts": ["gsStorage.js", "background.js"]
+        "scripts": ["gsStorage.js", "background.js"],
+        "persistent": false
     },
     "content_scripts": [
         {
@@ -34,5 +36,15 @@
     "web_accessible_resources": ["suspended.html", "history.html"],
     "incognito": "split",
     "manifest_version": 2,
-    "minimum_chrome_version": "20"
+    "minimum_chrome_version": "22",
+
+  "commands": {
+    "open-google": {
+      "description": "Open a tab to google.com",
+      "suggested_key": { "default": "Ctrl+Shift+L" }
+    },
+    "_execute_browser_action": {
+      "suggested_key": { "default": "Ctrl+Shift+K" }
+    }
+  }
 }
