@@ -153,7 +153,7 @@
         fetchSynchedWhitelist: function(callback) {
             var self = this;
             chrome.storage.sync.get('gsWhitelist', function(items) {
-                if (items) {
+                if (items && items.gsWhitelist) {
                     localStorage.setItem('gsWhitelist', items.gsWhitelist);
                     callback(items.gsWhitelist);
                 } else {
