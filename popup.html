@@ -7,47 +7,41 @@
 </head>
 <body>
 
-	<div id='statusBar'>
+	<div id="popTop">
+		<img src="icon48.png" />
+		<!-- <h1>The Great Suspender</h1> -->
+		
+	</div>
+
+	<div id="statusBar">
 		<span id="whitelisted" class="hidden">Tab whitelisted</span>
 		<span id="formInput" class="hidden">Tab receiving input</span>
 		<span id="pinnedTab" class="hidden">Tab pinned</span>
 	</div>
 
-	<ul id="options">
-		<li class="menuOption" id="suspendOne" title="Suspend current tab">
-			<div class="button">
-				<img src="suspend_one.png" />
-			</div>
-			<div class="buttonLabel">
-				Suspend current tab
-			</div>
-		</li>
-		<li class="menuOption" id="suspendAll" title="Suspend all other tabs">
-			<div class="button">
-				<img src="suspend_all.png" />
-			</div>
-			<div class="buttonLabel">Suspend all other tabs</div>
-		</li>
-		<li class="menuOption" id="whitelist" title="Whitelist current tab">
-			<div class="button">
-				<img src="whitelist.png" />
-			</div>
-			<div class="buttonLabel">
-				Whitelist current tab
-			</div>
-		</li>
-		<li class="menuOption" href="#" id="unsuspendAll" title="Reload all tabs">
-			<div class="button">
-				<img src="reload_all.png" />
-			</div>
-			<div class="buttonLabel">Reload all tabs</div>
-		</li>
-		<li class="menuOption" id="settings" title="Settings">
-			<div class="button">
-				<img src="settings.png" />
-			</div>
-			<div class="buttonLabel">Settings</div>
-		</li>
-	</ul>
+	<div id="middle">
+		<div class="menuOption" id="suspendOne" title="Suspend current tab">
+			<div class="icon iconSuspendCurrent"></div>
+			<div class="optionText">Suspend this tab</div>
+		</div>
+		<div class="menuOption" id="suspendAll" title="Suspend all other tabs">
+			<div class="icon iconSuspendAll"></div>
+			<div class="optionText">Suspend other tabs</div>
+		</div>
+		<div class="menuOption" id="whitelist" title="Whitelist current tab">
+			<div class="icon iconWhitelist"></div>
+			<div class="optionText">Whitelist this tab</div>
+		</div>
+		<div class="menuOption" href="#" id="unsuspendAll" title="Reload all tabs">
+			<div class="icon iconUnsuspendAll"></div>
+			<div class="optionText">Unsuspend all tabs</div>
+		</div>
+	</div>
+
+	<div id="bottom">
+		<a id="settings" title="Settings">Settings</a>
+		&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a id="history" title="History">History</a>
+	</div>
 </body>
 </html>
