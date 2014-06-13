@@ -36,7 +36,6 @@ body {
 	font-size: 12px;
 	padding: 0px;
 	margin: 0;
-	background: url(img/bg4.png) repeat top left;
 	min-width: 220px;
 	position: relative;
 	font-size: 16px;
@@ -98,10 +97,10 @@ body {
 	height: 40px;
 }
 .menuOption:hover {
-	opacity: 0.9;
+	background: #f5f5f5;
 }
 .icon {
-	background: #FDE073;
+	background: #555;
 	width: 40px;
 	height: 40px;
 	background-position: center;
@@ -112,14 +111,13 @@ body {
 	float: left;
 	line-height: 40px;
 	padding: 0 10px;
+	color: #444;
 }
 .iconSuspendCurrent { background-image: url('pause-current.png'); }
 .iconSuspendAll { background-image: url('pause-all.png'); }
 .iconWhitelist { background-image: url('tick.png'); }
 .iconUnsuspendAll { background-image: url('refresh.png'); }
-.menuOption:hover {
-	background-color: #fff;
-}
+
 .menuOption:first-of-type {
 	border-top: 0;
 }
