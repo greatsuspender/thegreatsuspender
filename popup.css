@@ -70,8 +70,13 @@ body {
 	right: 4px;
 	z-index: 2;
 }
+#popTop span {
+	color: #444;
+	font-size: 11px;
+	padding: 20, 10, 10, 10px;
+}
 #statusBar {
-	
+
 }
 #statusBar span {
 	background: #f5f5f5;
@@ -87,7 +92,7 @@ body {
 	border-bottom: 1px solid #aaa;
 }
 .menuOption {
-	cursor: pointer; 
+	cursor: pointer;
 	background: #fff;
 	text-align: left;
 	margin: 0;

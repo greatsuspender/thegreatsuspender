@@ -1,8 +1,32 @@
-/*global document, window, gsStorage, chrome */
+/*global document, window, gsUtils, chrome */
 
 (function() {
 
     'use strict';
+
+    var elementPrefMap = {
+            'preview': gsUtils.SHOW_PREVIEW,
+            'previewQuality': gsUtils.PREVIEW_QUALITY,
+            'onlineCheck': gsUtils.ONLINE_CHECK,
+            'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
+            'dontSuspendPinned': gsUtils.IGNORE_PINNED,
+            'dontSuspendForms': gsUtils.IGNORE_FORMS,
+            'ignoreCache': gsUtils.IGNORE_CACHE,
+            'timeToSuspend': gsUtils.SUSPEND_TIME,
+            'whitelist': gsUtils.WHITELIST
+        },
+        elementIdMap = invert(elementPrefMap);
+
+    function invert(obj) {
+
+        var new_obj = {};
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+               new_obj[obj[prop]] = prop;
+            }
+        }
+        return new_obj;
+    };
 
     function selectComboBox(element, key) {
         var i,
@@ -17,37 +41,48 @@
         }
     }
 
-    // Restores select box state to saved value from localStorage.
-    function restore_options() {
+    //populate settings from synced storage
+    function init() {
 
-        var preview = gsStorage.fetchPreviewOption(),
-            previewQuality = gsStorage.fetchPreviewQualityOption(),
-            unsuspendOnFocus = gsStorage.fetchUnsuspendOnFocusOption(),
-            dontSuspendPinned = gsStorage.fetchDontSuspendPinnedOption(),
-            dontSuspendForms = gsStorage.fetchDontSuspendFormsOption(),
-            timeToSuspend = gsStorage.fetchTimeToSuspendOption(),
-            onlineCheck = gsStorage.fetchOnlineCheckOption(),
-            //ignoreCache = gsStorage.fetchIgnoreCacheOption(),
-            maxHistories = gsStorage.fetchMaxHistoriesOption(),
-            whitelist = gsStorage.fetchWhitelist();
+        var optionEls = document.getElementsByClassName('option'),
+            pref,
+            element,
+            i;
 
-        document.getElementById('preview').checked = preview;
-        document.getElementById('previewQuality').checked = previewQuality;
-        document.getElementById('onlineCheck').checked = onlineCheck;
-        document.getElementById('unsuspendOnFocus').checked = unsuspendOnFocus;
-        document.getElementById('dontSuspendPinned').checked = dontSuspendPinned;
-        document.getElementById('dontSuspendForms').checked = dontSuspendForms;
-        //document.getElementById('ignoreCache').checked = ignoreCache;
-        //document.getElementById('maxHistories').value = maxHistories;
-        //document.getElementById('whitelist').value = whitelist;
-        selectComboBox(document.getElementById('timeToSuspend'), timeToSuspend);
-        setPreviewQualityVisibility(preview);
-        setOnlineCheckVisibility(timeToSuspend > 0);
+        for (i = 0; i < optionEls.length; i++) {
+            element = optionEls[i];
+            pref = elementPrefMap[element.id];
+            populateOption(element, gsUtils.getOption(pref));
+        }
 
-        gsStorage.fetchSynchedWhitelist(function(whitelist) {
-            document.getElementById('whitelist').value = whitelist;
-        });
+        setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
+        setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
+    }
 
+    function populateOption(element, value) {
+
+        if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
+            element.checked = value;
+
+        } else if (element.tagName === 'SELECT') {
+            selectComboBox(element, value);
+
+        } else if (element.tagName === 'TEXTAREA') {
+            element.value = value;
+        }
+    }
+
+    function getOptionValue(element) {
+
+        if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
+            return element.checked;
+
+        } else if (element.tagName === 'SELECT') {
+            return element.children[element.selectedIndex].value;
+
+        } else if (element.tagName === 'TEXTAREA') {
+            return element.value;
+        }
     }
 
     function setPreviewQualityVisibility(visible) {
@@ -68,82 +103,69 @@
         }
     }
 
+    function getHandler(element) {
+
+        return function() {
+
+            var pref = elementPrefMap[element.id];
+            gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
+
+            //add specific screen element listeners
+            if (pref === gsUtils.SHOW_PREVIEW) {
+                setPreviewQualityVisibility(getOptionValue(element));
+
+            } else if (pref === gsUtils.SUSPEND_TIME) {
+                setOnlineCheckVisibility(getOptionValue(element) > 0);
+            }
+        }
+    }
 
     var readyStateCheckInterval = window.setInterval(function() {
         if (document.readyState === 'complete') {
 
             window.clearInterval(readyStateCheckInterval);
 
-            var previewEl = document.getElementById('preview'),
-                qualityEl = document.getElementById('previewQuality'),
-                onlineCheckEl = document.getElementById('onlineCheck'),
-                unsuspendOnFocusEl = document.getElementById('unsuspendOnFocus'),
-                dontSuspendPinnedEl = document.getElementById('dontSuspendPinned'),
-                dontSuspendFormsEl = document.getElementById('dontSuspendForms'),
-                //ignoreCacheEl = document.getElementById('ignoreCache'),
-                maxHistoriesEl = document.getElementById('maxHistories'),
-                whitelistEl = document.getElementById('whitelist'),
-                timeToSuspendEl = document.getElementById('timeToSuspend'),
-                showHistoryEl = document.getElementById('showHistory'),
-                clearHistoryEl = document.getElementById('clearHistory');
+            init();
 
-            previewEl.onclick = function(e) {
-                gsStorage.setPreviewOption(previewEl.checked);
-                setPreviewQualityVisibility(previewEl.checked);
-            };
-            qualityEl.onclick = function(e) {
-                gsStorage.setPreviewQualityOption(qualityEl.checked);
-            };
-            unsuspendOnFocusEl.onclick = function(e) {
-                gsStorage.setUnsuspendOnFocusOption(unsuspendOnFocusEl.checked);
-            };
-            /*ignoreCacheEl.onclick = function(e) {
-                gsStorage.setIgnoreCacheOption(ignoreCacheEl.checked);
-            };*/
-            dontSuspendPinnedEl.onclick = function(e) {
-                var val = dontSuspendPinnedEl.checked;
-                gsStorage.setDontSuspendPinnedOption(val);
-            };
-            dontSuspendFormsEl.onclick = function(e) {
-                var val = dontSuspendFormsEl.checked;
-                gsStorage.setDontSuspendFormsOption(val);
-            };
-            whitelistEl.onkeyup = function(e) {
-                gsStorage.setWhitelist(whitelistEl.value);
-            };
-            timeToSuspendEl.onchange = function(e) {
-                var timeToSuspend = timeToSuspendEl.children[timeToSuspendEl.selectedIndex].value;
-                gsStorage.setTimeToSuspendOption(timeToSuspend);
-                setOnlineCheckVisibility(timeToSuspend > 0);
-            };
-            onlineCheckEl.onclick = function(e) {
-                gsStorage.setOnlineCheckOption(onlineCheckEl.checked);
-            };
-            /*maxHistoriesEl.onchange = function(e) {
-                gsStorage.setMaxHistoriesOption(maxHistoriesEl.value);
-            };*/
+
+            var optionEls = document.getElementsByClassName('option'),
+                showHistoryEl = document.getElementById('showHistory'),
+                clearHistoryEl = document.getElementById('clearHistory'),
+                element,
+                i;
+
+            //add change listeners for all 'option' elements
+            for (i = 0; i < optionEls.length; i++) {
+                element = optionEls[i];
+                element.onchange = getHandler(element);
+            }
+
             showHistoryEl.onclick = function(e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
             };
             clearHistoryEl.onclick = function(e) {
-                gsStorage.clearGsSessionHistory();
-                gsStorage.clearGsHistory();
-                gsStorage.clearPreviews();
+                gsUtils.clearGsSessionHistory();
+                gsUtils.clearGsHistory();
+                gsUtils.clearPreviews();
             };
 
-            restore_options();
-
-
             chrome.storage.onChanged.addListener(function(changes, namespace) {
+                var property,
+                    elementId,
+                    element;
+
                 if (namespace !== 'sync') return;
-                for (var property in changes) {
-                    if (changes.hasOwnProperty(property) && property === 'gsWhitelist') {
-                        document.getElementById('whitelist').value = changes.gsWhitelist.newValue;
+                for (property in changes) {
+                    if (changes.hasOwnProperty(property)) {
+
+                        elementId = elementIdMap[property];
+                        element = document.getElementById(elementId);
+                        populateOption(element, changes[property].newValue);
                     }
                 }
             });
         }
-    }, 10);
+    }, 1000);
 
 
     //TODO: add a pref save button

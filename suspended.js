@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, Image, gsStorage */
+/*global window, document, chrome, console, Image, gsUtils */
 
 (function() {
 
@@ -75,25 +75,25 @@
 
     function attemptTabSuspend() {
 
-        var url = gsStorage.getHashVariable('url', window.location.hash),
-            tabProperties = gsStorage.fetchTabFromHistory(url),
+        var url = gsUtils.getHashVariable('url', window.location.hash),
+            tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
-            showPreview = gsStorage.fetchPreviewOption();
+            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW);
 
         //just incase the url is a suspension url (somehow??) then decode it
         if (url.indexOf('suspended.html#') >= 0) {
-            url = gsStorage.getHashVariable('url', url.split('suspended.html')[1]);
+            url = gsUtils.getHashVariable('url', url.split('suspended.html')[1]);
         }
 
         //if we have some suspend information for this tab
         if (!tabProperties) {
             tabProperties = {url: url};
         }
-        rootUrlStr = gsStorage.getRootUrl(tabProperties.url);
+        rootUrlStr = gsUtils.getRootUrl(tabProperties.url);
 
         //set favicon and preview image
         if (showPreview) {
-            gsStorage.fetchPreviewImage(url, function(previewUrl) {
+            gsUtils.fetchPreviewImage(url, function(previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('gsPreview').setAttribute('src', previewUrl);
                 }
@@ -156,7 +156,7 @@
 
         //handler for whitelist
         document.getElementById('gsWhitelistLink').onclick = function(e) {
-            gsStorage.saveToWhitelist(e.target.getAttribute('data-text'));
+            gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
         };
 
         //mark tab as suspended
@@ -169,7 +169,7 @@
     window.onbeforeunload = function() {
 
         //update url with suspended url
-        var url = gsStorage.generateSuspendedUrl(window.location.href);
+        var url = gsUtils.generateSuspendedUrl(window.location.href);
         window.history.replaceState(null, null, url);
         document.body.style.cursor = 'wait';
     };

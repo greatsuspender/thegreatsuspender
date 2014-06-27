@@ -4,7 +4,124 @@
 
     'use strict';
 
-    var gsStorage = {
+    var gsUtils = {
+
+        SHOW_PREVIEW: 'preview',
+        PREVIEW_QUALTIY: 'previewQuality',
+        ONLINE_CHECK: 'onlineCheck',
+        UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
+        SUSPEND_TIME: 'gsTimeToSuspend',
+        MAX_HISTORIES: 'gsMaxHistories',
+        IGNORE_PINNED: 'gsDontSuspendPinned',
+        IGNORE_FORMS: 'gsDontSuspendForms',
+        IGNORE_CACHE: 'gsIgnoreCache',
+        WHITELIST: 'gsWhitelist',
+
+        APP_VERSION: 'gsVersion',
+        HISTORY_OLD: 'gsHistory',
+        HISTORY: 'gsHistory2',
+        SESSION_HISTORY: 'gsSessionHistory',
+
+        initSettings: function() {
+
+            var self = this;
+
+            chrome.storage.sync.get(null, function(items) {
+
+                //first try to populate settings from the synced store
+                var key,
+                    defaults = [],
+                    settings = {},
+                    migration = false;
+
+                for (key in items) {
+                    if (items.hasOwnProperty(key)) {
+                        settings[key] = items[key];
+                    }
+                }
+
+                //now populate from local store or defaults for any items not already populated (old way)
+                defaults[self.SHOW_PREVIEW] = false;
+                defaults[self.PREVIEW_QUALTIY] = false;
+                defaults[self.ONLINE_CHECK] = false;
+                defaults[self.UNSUSPEND_ON_FOCUS] = false;
+                defaults[self.IGNORE_PINNED] = false;
+                defaults[self.IGNORE_FORMS] = false;
+                defaults[self.IGNORE_CACHE] = false;
+                defaults[self.SUSPEND_TIME] = 0;
+                defaults[self.MAX_HISTORIES] = 4;
+                defaults[self.WHITELIST] = '';
+
+                for (key in defaults) {
+                    if (defaults.hasOwnProperty(key) && typeof(settings[key]) === 'undefined') {
+                        settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' ? localStorage.getItem(key) : defaults[key];
+                        migration = true;
+                    }
+                }
+
+                //if we had to populate any new fields then resave these to chrome.storage.sync
+                if (migration) {
+                    chrome.storage.sync.set(settings, function() {
+                        console.log('Settings migrated to chrome sync storage');
+                    });
+                }
+
+                //finally, store settings on local storage for synchronous access
+                localStorage.setItem('gsSettings', JSON.stringify(settings));
+
+            });
+        },
+
+        getOption: function(prop) {
+            var settings = this.getSettings();
+            if (settings[prop] === 'true') return true;
+            if (settings[prop] === 'false') return false;
+            return settings[prop];
+        },
+
+        setOption: function(prop, value) {
+            var settings = this.getSettings();
+            settings[prop] = value;
+            this.saveSettings(settings);
+        },
+
+        getSettings: function() {
+            var result = localStorage.getItem('gsSettings');
+            if (result !== null) {
+                result = JSON.parse(result);
+            }
+            return result;
+        },
+
+        saveSettings: function(settings) {
+            chrome.storage.sync.set(settings, function() {
+                console.log('Settings saved to chrome sync storage');
+            });
+            localStorage.setItem('gsSettings', JSON.stringify(settings));
+        },
+
+
+
+
+
+
+        saveToWhitelist: function(newString) {
+            var whitelist = this.getOption(this.WHITELIST) + ' ' + newString;
+            this.setOption(this.WHITELIST, whitelist);
+        },
+
+        fetchVersion: function() {
+            return localStorage.getItem(this.APP_VERSION);
+        },
+        setVersion: function(newVersion) {
+            localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
+        },
+
+
+
+
+
+
 
         fetchPreviewImage: function(tabUrl, callback) {
             chrome.storage.local.get(null, function(items) {
@@ -33,33 +150,6 @@
             });
         },
 
-        fetchFavicon: function(tabUrl, callback) {
-            chrome.storage.local.get(null, function(items) {
-                if (typeof (items.gsFavicons) === 'undefined') {
-                    items.gsFavicons = {};
-                    chrome.storage.local.set(items);
-                    callback(null);
-
-                } else if (typeof (items.gsFavicons[tabUrl]) === 'undefined') {
-                    callback(null);
-
-                } else {
-                    callback(items.gsFavicons[tabUrl]);
-                }
-            });
-        },
-
-        setFavicon: function(tabUrl, favUrl) {
-            chrome.storage.local.get(null, function(items) {
-
-                if (typeof (items.gsFavicons) === 'undefined') {
-                    items.gsFavicons = {};
-                }
-                items.gsFavicons[tabUrl] = favUrl;
-                chrome.storage.local.set(items);
-            });
-        },
-
         clearPreviews: function() {
             chrome.storage.local.get(null, function(items) {
                 items.gsPreviews = {};
@@ -67,117 +157,10 @@
             });
         },
 
-        fetchPreviewOption: function() {
-            return localStorage.getItem('preview') ? localStorage.getItem('preview') === 'true' : false;
-        },
-
-        setPreviewOption: function(preview) {
-            localStorage.setItem('preview', preview);
-        },
-
-        fetchPreviewQualityOption: function() {
-            return localStorage.getItem('previewQuality') ? localStorage.getItem('previewQuality') === 'true' : false;
-        },
-
-        setPreviewQualityOption: function(previewQuality) {
-            localStorage.setItem('previewQuality', previewQuality);
-        },
-
-        fetchOnlineCheckOption: function() {
-            return localStorage.getItem('onlineCheck') ? localStorage.getItem('onlineCheck') === 'true' : false;
-        },
-
-        setOnlineCheckOption: function(check) {
-            localStorage.setItem('onlineCheck', check);
-        },
-
-        fetchTimeToSuspendOption: function() {
-            return localStorage.getItem('gsTimeToSuspend') || 0;
-        },
-
-        setTimeToSuspendOption: function(timeToSuspend) {
-            localStorage.setItem('gsTimeToSuspend', timeToSuspend);
-        },
-
-        fetchMaxHistoriesOption: function() {
-            return localStorage.getItem('gsMaxHistories') || 4;
-        },
-
-        setMaxHistoriesOption: function(maxHistories) {
-            localStorage.setItem('gsMaxHistories', maxHistories);
-        },
-
-        fetchUnsuspendOnFocusOption: function() {
-            return localStorage.getItem('gsUnsuspendOnFocus') ? localStorage.getItem('gsUnsuspendOnFocus') === 'true' : false;
-        },
-
-        setUnsuspendOnFocusOption: function(unsuspendOnFocus) {
-            localStorage.setItem('gsUnsuspendOnFocus', unsuspendOnFocus);
-        },
-
-        fetchDontSuspendPinnedOption: function() {
-            return localStorage.getItem('gsDontSuspendPinned') ? localStorage.getItem('gsDontSuspendPinned') === 'true' : false;
-        },
-
-        setDontSuspendPinnedOption: function(dontSuspendPinned) {
-            localStorage.setItem('gsDontSuspendPinned', dontSuspendPinned);
-        },
-
-        fetchDontSuspendFormsOption: function() {
-            return localStorage.getItem('gsDontSuspendForms') ? localStorage.getItem('gsDontSuspendForms') === 'true' : false;
-        },
-
-        setDontSuspendFormsOption: function(dontSuspendForms) {
-            localStorage.setItem('gsDontSuspendForms', dontSuspendForms);
-        },
-
-        fetchIgnoreCacheOption: function() {
-            return localStorage.getItem('gsIgnoreCache') ? localStorage.getItem('gsIgnoreCache') === 'true' : false;
-        },
-
-        setIgnoreCacheOption: function(ignoreCache) {
-            localStorage.setItem('gsIgnoreCache', ignoreCache);
-        },
-
-        fetchVersion: function() {
-            return localStorage.getItem('gsVersion');
-        },
-
-        setVersion: function(newVersion) {
-            localStorage.setItem('gsVersion', newVersion);
-        },
-
-        fetchWhitelist: function() {
-            return localStorage.getItem('gsWhitelist') || '';
-        },
-        fetchSynchedWhitelist: function(callback) {
-            var self = this;
-            chrome.storage.sync.get('gsWhitelist', function(items) {
-                if (items && items.gsWhitelist) {
-                    localStorage.setItem('gsWhitelist', items.gsWhitelist);
-                    callback(items.gsWhitelist);
-                } else {
-                    callback(self.fetchWhitelist());
-                }
-            });
-        },
-
-        setWhitelist: function(whitelist) {
-
-            chrome.storage.sync.set({'gsWhitelist': whitelist}, function() {
-                console.log('Saved whitelist in the cloud');
-            });
-            localStorage.setItem('gsWhitelist', whitelist);
-        },
-
-        saveToWhitelist: function(newString) {
-            var whitelist = localStorage.getItem('gsWhitelist') || '';
-            this.setWhitelist(whitelist + ' ' + newString);
-        },
 
         fetchOldGsHistory: function() {
 
-            var result = localStorage.getItem('gsHistory');
+            var result = localStorage.getItem(this.HISTORY_OLD);
             if (result !== null) {
                 result = JSON.parse(result);
             }
@@ -185,12 +168,12 @@
         },
 
         removeOldGsHistory: function() {
-            localStorage.removeItem('gsHistory');
+            localStorage.removeItem(this.HISTORY_OLD);
         },
 
         fetchGsHistory: function() {
 
-            var result = localStorage.getItem('gsHistory2');
+            var result = localStorage.getItem(this.HISTORY);
             if (result === null) {
                 result = [];
             } else {
@@ -200,7 +183,7 @@
         },
 
         setGsHistory: function(gsHistory) {
-            localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
+            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
         },
 
         clearGsHistory: function(gsHistory) {
@@ -231,7 +214,7 @@
                     break;
                 }
             }
-            localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
+            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
         },
 
         removeTabFromHistory: function(tabUrl) {
@@ -245,7 +228,7 @@
                     break;
                 }
             }
-            localStorage.setItem('gsHistory2', JSON.stringify(gsHistory));
+            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
         },
 
         removeTabFromSessionHistory: function(sessionId, windowId, tabId) {
@@ -285,7 +268,7 @@
 
         fetchGsSessionHistory: function() {
 
-            var result = localStorage.getItem('gsSessionHistory'),
+            var result = localStorage.getItem(this.SESSION_HISTORY),
                 sessionHistory;
 
             //if there is no history, try migrating history for gsHistory
@@ -333,7 +316,7 @@
         },
 
         setGsSessionHistory: function(sessionHistory) {
-            localStorage.setItem('gsSessionHistory', JSON.stringify(sessionHistory));
+            localStorage.setItem(this.SESSION_HISTORY, JSON.stringify(sessionHistory));
         },
 
         clearGsSessionHistory: function(gsHistory) {
@@ -392,7 +375,7 @@
             }
 
             //trim stored windows down to last x sessions
-            while (gsSessionHistory.length > this.fetchMaxHistoriesOption()) {
+            while (gsSessionHistory.length > this.getOption(this.MAX_HISTORIES)) {
                 gsSessionHistory.splice(gsSessionHistory.length - 1, 1);
             }
 
@@ -473,8 +456,9 @@
                 rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
             return rootUrlStr;
         }
-
     };
-    window.gsStorage = gsStorage;
+
+    gsUtils.initSettings();
+    window.gsUtils = gsUtils;
 
 }(window));

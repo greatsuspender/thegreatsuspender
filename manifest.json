@@ -1,7 +1,7 @@
 {
     "name": "The Great Suspender",
     "description": "",
-    "version": "5.2",
+    "version": "5.21",
     "permissions": [
         "tabs",
         "storage",
@@ -12,7 +12,7 @@
         "chrome://favicon/*"
     ],
     "background": {
-        "scripts": ["gsStorage.js", "background.js"],
+        "scripts": ["gsUtils.js", "background.js"],
         "persistent": false
     },
     "content_scripts": [

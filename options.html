@@ -1,7 +1,7 @@
 <html>
 <head>
 	<link type="text/css" href="style.css" rel="stylesheet">
-	<script type="text/javascript" src="gsStorage.js"></script>
+	<script type="text/javascript" src="gsUtils.js"></script>
 	<script type="text/javascript" src="options.js"></script>
 	<title>The Great Suspender</title>
 </head>
@@ -11,10 +11,10 @@
 
 <div class="mainContent">
 	<h1>The Great Suspender Settings</h1>
-	<input type="checkbox" id="preview"></input>
+	<input type="checkbox" id="preview" class='option'></input>
 	<label for="preview">Enable screen capturing</label>
 	<span id="previewQualitySection">
-		<input type="checkbox" id="previewQuality"></input>
+		<input type="checkbox" id="previewQuality" class='option'></input>
 		<label for="previewQuality">Use high quality screen captures</label>
 	</span>
 	<span id="previewQualityNote">NOTE: Enabling screen capturing will cause chrome to take longer and use more CPU when suspending tabs</span>
@@ -22,7 +22,7 @@
 	<br />
 	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically</label>
 	<br />
-	<select id="timeToSuspend">
+	<select id="timeToSuspend" class='option'>
 		<option value="0">Never</option>
 		<option value="0.33">20 seconds</option>
 		<option value="1">1 min</option>
@@ -39,28 +39,28 @@
 		<option value="4320">3 days</option>
 	</select>
 	<span id="onlineCheckSection">
-		<input type="checkbox" id="onlineCheck"></input>
+		<input type="checkbox" id="onlineCheck" class='option'></input>
 		<label for="onlineCheck">Only auto-suspend if connected to the internet</label>
 	</span>
 	<br />
 	<br />
-	<input type="checkbox" id="unsuspendOnFocus"></input>
+	<input type="checkbox" id="unsuspendOnFocus" class='option'></input>
 	<label for="unsuspendOnFocus">Automatically unsuspend when tab gains focus</label>
 	<br />
-	<input type="checkbox" id="dontSuspendPinned"></input>
+	<input type="checkbox" id="dontSuspendPinned" class='option'></input>
 	<label for="dontSuspendPinned">Do not suspend pinned tabs</label>
 	<br />
-	<input type="checkbox" id="dontSuspendForms"></input>
+	<input type="checkbox" id="dontSuspendForms" class='option'></input>
 	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved form inputs</label>
 	<br />
-	<!-- <input type="checkbox" id="ignoreCache"></input>
+	<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
 	<label for="ignoreCache">Skip browser cache when reloading tab</label>
 	<br /> -->
 	<br />
 	<br />
 	<label for="whitelist">Whitelist (keywords of pages to ignore)</label>
 	<br />
-	<textarea id="whitelist" rows="4" cols="50"></textarea>
+	<textarea id="whitelist" class='option' rows="4" cols="50"></textarea>
 	<br />
 	<br />
 
