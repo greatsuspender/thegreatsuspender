@@ -4,21 +4,21 @@
 
     'use strict';
 
-    function showStatusBar(divId) {
-
-        document.getElementById('formInput').style.display = 'none';
-        document.getElementById('whitelisted').style.display = 'none';
-        document.getElementById('pinnedTab').style.display = 'none';
-
-        if (divId) {
-            document.getElementById(divId).style.display = 'block';
+    function setStatusBar(text) {
+        if (text === '') {
+            document.getElementById('statusBar').style.display = 'none';
+        } else {
+            document.getElementById('statusBar').style.display = 'block';
         }
+        document.getElementById('statusText').innerHTML = text;
     };
     function setWhitelistVisibility(visible) {
         if (visible) {
             document.getElementById('whitelist').style.display = 'block';
+            //document.getElementById('whitelist').innerHTML = 'Whitelist tab';
         } else {
             document.getElementById('whitelist').style.display = 'none';
+            //document.getElementById('whitelist').innerHTML = 'Tab whitelisted';
         }
     };
     function setSuspendOneVisibility(visible) {
@@ -53,8 +53,14 @@
             });
             window.close();
         });
+        document.getElementById('history').addEventListener('click', function() {
+            chrome.tabs.create({
+                url: chrome.extension.getURL('history.html')
+            });
+            window.close();
+        });
 
-        chrome.windows.getCurrent({}, function (window) {
+        chrome.windows.getCurrent({}, function(window) {
 
             chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
 
@@ -69,23 +75,23 @@
             if (request.action === 'confirmTabStatus' && request.status) {
 
                 if (request.status === 'whitelisted') {
-                    showStatusBar('whitelisted');
+                    setStatusBar('Tab whitelisted');
                     setWhitelistVisibility(false);
 
                 } else if (request.status === 'formInput') {
-                    showStatusBar('formInput');
+                    setStatusBar('Tab receiving form input');
                     setWhitelistVisibility(true);
 
                 } else if (request.status === 'pinned') {
-                    showStatusBar('pinnedTab');
+                    setStatusBar('Tab pinned');
                     setWhitelistVisibility(true);
 
                 } else if (request.status === 'special') {
-                    showStatusBar(false);
+                    setStatusBar('Tab cannot be suspended');
                     setWhitelistVisibility(false);
 
                 } else if (request.status === 'normal') {
-                    showStatusBar(false);
+                    setStatusBar('');
                     setWhitelistVisibility(true);
                 }
 

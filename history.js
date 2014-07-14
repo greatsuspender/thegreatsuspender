@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, gsStorage */
+/*global window, document, chrome, console, gsUtils */
 
 (function() {
 
@@ -35,33 +35,36 @@
 
         return function() {
 
-            var tgs = chrome.extension.getBackgroundPage().tgs,
-                windowId = element.getAttribute('data-windowId'),
-                sessionId = element.getAttribute('data-sessionId'),
-                gsSessionHistory = gsStorage.fetchGsSessionHistory(),
-                session = gsStorage.getSessionFromGroupKey(sessionId, gsSessionHistory),
-                window = gsStorage.getWindowFromSession(windowId, session),
-                curUrl,
-                i;
+            chrome.runtime.getBackgroundPage(function(backgroundPage) {
 
-            chrome.windows.create(function(newWindow) {
-                if (suspendMode) {
-                    for (i = 0; i < window.tabs.length; i++) {
-                        if (!tgs.isExcluded(window.tabs[i])) {
-                            curUrl = gsStorage.generateSuspendedUrl(window.tabs[i].url);
-                        } else {
-                            curUrl = window.tabs[i].url;
+                var tgs = backgroundPage.tgs,
+                    windowId = element.getAttribute('data-windowId'),
+                    sessionId = element.getAttribute('data-sessionId'),
+                    gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+                    session = gsUtils.getSessionFromGroupKey(sessionId, gsSessionHistory),
+                    window = gsUtils.getWindowFromSession(windowId, session),
+                    curUrl,
+                    i;
+
+                chrome.windows.create(function(newWindow) {
+                    if (suspendMode) {
+                        for (i = 0; i < window.tabs.length; i++) {
+                            if (!tgs.isSpecialTab(window.tabs[i])) {
+                                curUrl = gsUtils.generateSuspendedUrl(window.tabs[i].url);
+                            } else {
+                                curUrl = window.tabs[i].url;
+                            }
+                            chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: window.tabs[i].pinned, active: false});
                         }
-                        chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: window.tabs[i].pinned, active: false});
-                    }
 
-                } else {
-                    for (i = 0; i < window.tabs.length; i++) {
-                        chrome.tabs.create({windowId: newWindow.id, url: window.tabs[i].url, pinned: window.tabs[i].pinned, active: false});
+                    } else {
+                        for (i = 0; i < window.tabs.length; i++) {
+                            chrome.tabs.create({windowId: newWindow.id, url: window.tabs[i].url, pinned: window.tabs[i].pinned, active: false});
+                        }
                     }
-                }
-                chrome.tabs.query({windowId: newWindow.id, index: 0}, function(tabs) {
-                    chrome.tabs.remove(tabs[0].id);
+                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function(tabs) {
+                        chrome.tabs.remove(tabs[0].id);
+                    });
                 });
             });
         };
@@ -77,9 +80,9 @@
                 sessionId = element.getAttribute('data-sessionId');
 
             if (typeof(url) !== 'undefined') {
-                gsStorage.removeTabFromHistory(url);
+                gsUtils.removeTabFromHistory(url);
             } else {
-                gsStorage.removeTabFromSessionHistory(sessionId, windowId, tabId);
+                gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
             }
 
             render();
@@ -118,7 +121,7 @@
 
     function getSessionById(sessionId) {
 
-        var gsHistory = gsStorage.fetchGsSessionHistory(),
+        var gsHistory = gsUtils.fetchGsSessionHistory(),
             i;
 
         for (i = 0; i < gsHistory.length; i++) {
@@ -146,7 +149,7 @@
 
         sessionTitle = document.createElement('h3');
         sessionTitle.className = 'sessionLink';
-        sessionTitle.innerHTML = j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ': ' + gsStorage.getHumanDate(session.date);
+        sessionTitle.innerHTML = j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ': ' + gsUtils.getHumanDate(session.date);
         sessionDiv = document.createElement('div');
         sessionDiv.setAttribute('data-sessionId', session.id);
         sessionTitle.onclick = toggleSession(sessionDiv);
@@ -227,7 +230,7 @@
 
     function render() {
 
-        var gsSessionHistory = gsStorage.fetchGsSessionHistory(),
+        var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
             i,
             sessionsDiv = document.getElementById('recoveryLinks'),
             session,
@@ -238,14 +241,17 @@
         for (i = 0; i < gsSessionHistory.length; i++) {
 
             //ignore current session
-            if (chrome.extension.getBackgroundPage().tgs.sessionId === gsSessionHistory[i].id) {
-                continue;
+            if (i === 0) {
+                //continue;
             }
+            /*if (chrome.runtime.getBackgroundPage().tgs.sessionId === gsSessionHistory[i].id) {
+                continue;
+            }*/
             session = gsSessionHistory[i];
             sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
         }
 
-        var gsHistory = gsStorage.fetchGsHistory(),
+        var gsHistory = gsUtils.fetchGsHistory(),
             historyMap = {},
             tabProperties,
             key,
@@ -270,7 +276,7 @@
                 if (groupKey !== curGroupKey) {
                     curGroupKey = groupKey;
                     groupHeading = document.createElement('h3');
-                    groupHeading.innerHTML = gsStorage.getHumanDate(tabProperties.date);
+                    groupHeading.innerHTML = gsUtils.getHumanDate(tabProperties.date);
                     historyDiv.appendChild(groupHeading);
                 }
                 historyMap[key] = true;

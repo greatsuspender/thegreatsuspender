@@ -59,7 +59,11 @@
     }
 
     function setTimerJob(interval) {
-        return setTimeout(function(){
+
+        //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
+        interval = interval + (Math.random() * Math.min(1, prefs.suspendTime) * 30 * 1000);
+
+        return setTimeout(function() {
             //request suspension
             if (!inputState) {
 

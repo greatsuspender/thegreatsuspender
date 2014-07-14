@@ -1,6 +1,6 @@
 {
     "name": "The Great Suspender",
-    "description": "",
+    "description": "Automatically suspends unused tabs to free up system resources",
     "version": "5.21",
     "permissions": [
         "tabs",

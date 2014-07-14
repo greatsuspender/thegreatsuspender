@@ -30,13 +30,13 @@ ol, ul {
 	list-style: none;
 }
 body {
-	font-family: sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-weight: 200;
 	color: #444;
 	font-size: 12px;
 	padding: 0px;
 	margin: 0;
-	min-width: 220px;
+	min-width: 260px;
 	position: relative;
 	font-size: 16px;
 }
@@ -60,7 +60,6 @@ body {
 	padding-left: 10px;
 	z-index: 5;
 	position: relative;
-	width: 230px;
 	font-size: 17px;
 }
 #popTop img {
@@ -70,9 +69,11 @@ body {
 	z-index: 2;
 }
 #popTop span {
-	color: #444;
-	font-size: 11px;
-	padding: 20, 10, 10, 10px;
+	position: absolute;
+	left: 10px;
+	top: 5px;
+	font-size: 16px;
+	max-width: 210px;
 }
 #statusBar {
 
