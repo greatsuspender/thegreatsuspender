@@ -53,8 +53,10 @@
                 defaults[self.WHITELIST] = '';
 
                 for (key in defaults) {
-                    if (defaults.hasOwnProperty(key) && typeof(settings[key]) === 'undefined') {
-                        settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' ? localStorage.getItem(key) : defaults[key];
+                    if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
+                        settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
+                            ? localStorage.getItem(key) 
+                            : defaults[key];
                         migration = true;
                     }
                 }
