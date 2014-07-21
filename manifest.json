@@ -1,7 +1,7 @@
 {
     "name": "The Great Suspender",
     "description": "Automatically suspends unused tabs to free up system resources",
-    "version": "5.22",
+    "version": "5.23",
     "permissions": [
         "tabs",
         "storage",
@@ -32,7 +32,7 @@
         "48": "icon48.png",
         "128": "icon128.png"
     },
-    "web_accessible_resources": ["suspended.html", "history.html"],
+    "web_accessible_resources": ["suspended.html", "history.html", "style.css", "suspended.css"],
     "incognito": "split",
     "manifest_version": 2,
     "minimum_chrome_version": "22",

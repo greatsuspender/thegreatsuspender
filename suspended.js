@@ -146,8 +146,8 @@
             if (request.action === 'unsuspendTab') {
                 unsuspendTab();
 
-            } else if (request.action === 'requestStatus') {
-                sendResponse({status: 'suspended'});
+            } else if (request.action === 'requestInfo') {
+                sendResponse({status: 'suspended', timerUp: false});
             }
         });
 

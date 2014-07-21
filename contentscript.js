@@ -6,6 +6,7 @@
 
     var inputState = false,
         timer,
+        timerUp,
         prefs,
         suspendedEl = document.getElementById('gsTopBar');
 
@@ -61,7 +62,10 @@
     function setTimerJob(interval) {
 
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
-        interval = interval + (Math.random() * Math.min(1, prefs.suspendTime) * 30 * 1000);
+        if (interval > 4) {
+            interval = interval + (Math.random() * 60 * 1000);
+        }
+        timerUp = new Date((new Date()).getTime() + interval);
 
         return setTimeout(function() {
             //request suspension
@@ -110,13 +114,22 @@
             timer = setTimerJob(request.timeout);
 
         //listen for status request
-        } else if (request.action === 'requestStatus') {
-            var status = inputState ? 'formInput' : 'normal';
-            sendResponse({status: status});
+        } else if (request.action === 'requestInfo') {
+            var status = inputState ? 'formInput' : 'normal',
+                suspendDate;
+
+            if (!timerUp) {
+                suspendDate = new Date(new Date().getTime() + (+prefs.suspendTime * 60 * 1000));
+            } else {
+                suspendDate = timerUp;
+            }
+            suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
+            sendResponse({status: status, timerUp: suspendDate});
 
         //cancel suspension timer
         } else if (request.action === 'cancelTimer') {
             clearTimeout(timer);
+            timerUp = false;
 
         //listen for preview request
         } else if (request.action === 'generatePreview') {

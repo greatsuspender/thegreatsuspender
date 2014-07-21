@@ -4,12 +4,11 @@
 
     'use strict';
 
-    function setStatusBar(text) {
-        if (text === '') {
-            document.getElementById('statusBar').style.display = 'none';
-        } else {
-            document.getElementById('statusBar').style.display = 'block';
-        }
+    function setStatusBar(info) {
+
+        console.dir(info);
+
+        var text = '<span>status: ' + info.status + '</span>';
         document.getElementById('statusText').innerHTML = text;
     };
     function setWhitelistVisibility(visible) {
@@ -66,41 +65,23 @@
 
                 if (tabs.length > 0) {
                     var tab = tabs[0];
-                    chrome.runtime.sendMessage({action: 'requestTabStatus', tab: tab});
+                    chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tab});
                 }
             });
         });
 
         chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-            if (request.action === 'confirmTabStatus' && request.status) {
+            if (request.action === 'confirmTabInfo' && request.info) {
 
-                if (request.status === 'whitelisted') {
-                    setStatusBar('Tab whitelisted');
-                    setWhitelistVisibility(false);
+                var status = request.info.status,
+                    timeLeft = request.info.timerUp,
+                    whitelistVisible = (status === 'whitelisted' || status === 'special') ? false : true,
+                    suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
 
-                } else if (request.status === 'formInput') {
-                    setStatusBar('Tab receiving form input');
-                    setWhitelistVisibility(true);
+                setWhitelistVisibility(whitelistVisible);
+                setSuspendOneVisibility(suspendOneVisible);
 
-                } else if (request.status === 'pinned') {
-                    setStatusBar('Tab pinned');
-                    setWhitelistVisibility(true);
-
-                } else if (request.status === 'special') {
-                    setStatusBar('Tab cannot be suspended');
-                    setWhitelistVisibility(false);
-
-                } else if (request.status === 'normal') {
-                    setStatusBar('');
-                    setWhitelistVisibility(true);
-                }
-
-                if (request.status === 'suspended' || request.status === 'special') {
-                    setSuspendOneVisibility(false);
-
-                } else {
-                    setSuspendOneVisibility(true);
-                }
+                setStatusBar(request.info);
             }
         });
     });

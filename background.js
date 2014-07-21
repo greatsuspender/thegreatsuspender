@@ -259,25 +259,32 @@ var tgs = (function() {
 
     }
 
-    function getTabStatus(tab, callback) {
+    function getTabInfo(tab, callback) {
+
+        var info = {
+            tabId: tab.id,
+            status: 'unknown',
+            timerUp: 0
+        };
 
         if (isSpecialTab(tab)) {
-           callback('special');
+            info.status = 'special';
+            callback(info);
 
         } else {
 
-            chrome.tabs.sendMessage(tab.id, {action: 'requestStatus'}, function(response) {
+            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
 
                 if (response) {
-                    var status = response.status;
-
-                    if (status === 'normal' && checkWhiteList(tab.url)) {
-                        status = 'whitelisted';
-                    } else if (status === 'normal' && isPinnedTab(tab)) {
-                        status = 'pinned';
+                    info.status = response.status;
+                    info.timerUp = response.timerUp;
+                    if (info.status === 'normal' && checkWhiteList(tab.url)) {
+                        info.status = 'whitelisted';
+                    } else if (info.status === 'normal' && isPinnedTab(tab)) {
+                        info.status = 'pinned';
                     }
-                    callback(status);
                 }
+                callback(info);
             });
         }
     }
@@ -307,10 +314,10 @@ var tgs = (function() {
             } else if (request.action === 'savePreviewData') {
                 saveSuspendData(sender.tab, request.previewUrl);
 
-            } else if (request.action === 'requestTabStatus' && request.tab) {
+            } else if (request.action === 'requestTabInfo' && request.tab) {
 
-                getTabStatus(request.tab, function(status) {
-                    chrome.runtime.sendMessage({action: 'confirmTabStatus', status: status});
+                getTabInfo(request.tab, function(info) {
+                    chrome.runtime.sendMessage({action: 'confirmTabInfo', info: info});
                 });
 
             } else if (request.action === 'suspendOne') {
@@ -438,23 +445,29 @@ var tgs = (function() {
         }
 
         //inject new content script into all open pages
-        chrome.windows.getAll({populate: true}, function(windows) {
+        chrome.tabs.query({}, function(tabs) {
             var i,
-                w = windows.length,
-                currentWindow;
-            for (i = 0; i < w; i++) {
-                currentWindow = windows[i];
-                var j,
-                    t = currentWindow.tabs.length,
-                    currentTab;
-                for (j = 0; j < t; j++) {
-                    currentTab = currentWindow.tabs[j];
+                currentTab,
+                timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
 
-                    if (!isSpecialTab(currentTab)) {
-                        chrome.tabs.executeScript(currentTab.id, {
-                            file: 'contentscript.js'
+            for (i = 0; i < tabs.length; i++) {
+                currentTab = tabs[i];
+
+                if (!isSpecialTab(currentTab)) {
+
+                    (function() {
+                        var tabId = currentTab.id;
+                        //test if a content script is active by sending a 'requestInfo' message
+                        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+                            //if no response, then try to dynamically load in the new contentscript.js file
+                            if (typeof(response) === 'undefined') {
+                                chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function() {
+                                    chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                                });
+                            }
                         });
-                    }
+                    })();
                 }
             }
         });

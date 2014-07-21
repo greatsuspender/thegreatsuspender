@@ -115,7 +115,9 @@
                 setPreviewQualityVisibility(getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
-                setOnlineCheckVisibility(getOptionValue(element) > 0);
+                var interval = getOptionValue(element);
+                setOnlineCheckVisibility(interval > 0);
+                if (interval > 0) resetTabTimers(interval);
             }
         }
     }
@@ -169,7 +171,32 @@
 
 
     //TODO: add a pref save button
-    //if suspend interval changes then reset timers in open tabs
-    //chrome.tabs.sendMessage(208, {action: 'resetTimer', timeout: 1000});
+
+    function resetTabTimers(newInterval) {
+
+        chrome.tabs.query({}, function(tabs) {
+            var i,
+                currentTab,
+                timeout = newInterval * 60 * 1000;
+
+            for (i = 0; i < tabs.length; i++) {
+                currentTab = tabs[i];
+
+                (function() {
+                    var tabId = currentTab.id;
+
+                    //test if a content script is active by sending a 'requestInfo' message
+                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+                        //if no response, then try to dynamically load in the new contentscript.js file
+                        if (typeof(response) !== 'undefined') {
+                            chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                        }
+                    });
+                })();
+            }
+        });
+
+    }
 
 }());

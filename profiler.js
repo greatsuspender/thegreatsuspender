@@ -3,125 +3,77 @@
 
     'use strict';
 
-    var renderedTabs = {};
+    var currentTabs = {},
+        tabResponses = {},
+        tabKeys = [];
 
-    function generateMemStats(processes) {
+    function generateTabInfo(info) {
 
         var html = '',
-            totalMem = 0,
-            totalCpu = 0,
-            curProc,
-            curMem,
-            key,
-            i;
+            tabTitle = info && info.tab ? info.tab.title : 'unknown',
+            tabTimer = info ? info.timerUp : -1,
+            tabStatus = info ? info.status : 'unknown';
 
-        html += '<table>';
         html += '<tr>';
-        html += '<th>mem</th>';
-        html += '<th>cpu</th>';
-        html += '<th>type</th>';
-        html += '<th>title</th>';
+        html += '<td style="max-width:800px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + tabTitle + '</td>';
+        html += '<td>' + tabTimer + '</td>';
+        html += '<td>' + tabStatus + '</td>';
         html += '</tr>';
-
-        for (key in processes) {
-            if (processes.hasOwnProperty(key)) {
-
-                curProc = processes[key];
-                curMem = Math.floor(curProc.privateMemory / (1024 * 1024));
-
-                html += '<tr>';
-                html += '<td>' + curMem + '</td>';
-                html += '<td>' + curProc.cpu + '%</td>';
-                html += '<td>' + curProc.type + '</td>';
-                html += '<td>' + curProc.title + '</td>';
-                html += '</tr>';
-
-                if (curProc.type === 'renderer' && curProc.tabs.length > 0) {
-                    for (i = 0; i < curProc.tabs.length; i++) {
-                        renderedTabs[curProc.tabs[i]] = renderedTabs[curProc.tabs[i]] || {};
-                        renderedTabs[curProc.tabs[i]].cur = Math.floor(curMem / curProc.tabs.length);
-                    }
-                } else if (curProc.title.indexOf('Extension: The Great Suspender') >= 0 && curProc.tabs.length > 0) {
-                    for (i = 0; i < curProc.tabs.length; i++) {
-                        renderedTabs[curProc.tabs[i]] = renderedTabs[curProc.tabs[i]] || {};
-                        renderedTabs[curProc.tabs[i]].cur = Math.floor(curMem / curProc.tabs.length);
-                    }
-                }
-
-                totalMem += Math.floor(curProc.privateMemory / (1024 * 1024));
-                totalCpu += curProc.cpu;
-            }
-        }
-        html += '<tr>';
-        html += '<td>' + totalMem + '</td>';
-        html += '<td>' + totalCpu + '%</td>';
-        html += '<td></td>';
-        html += '<td></td>';
-        html += '<td></td>';
-        html += '</tr>';
-        html += '</table>';
 
         return html;
     }
 
-    function generateTabStats(tabs) {
+    function fetchInfo(table) {
 
-        var tgs = chrome.extension.getBackgroundPage().tgs,
-            html = '',
-            totals = {},
-            curTab,
-            curEntry,
-            tabState,
+        var html = '',
+            key = '',
             i,
-            j;
+            tab;
 
-        html += '<table>';
-        html += '<tr>';
-        html += '<th>id</th>';
-        html += '<th>state</th>';
-        html += '<th>mem</th>';
-        html += '<th>title</th>';
-        html += '</tr>';
+        table.innerHTML = '';
 
-        for (i = 0; i < tabs.length; i++) {
-
-            curTab = tabs[i];
-
-            html += '<tr>';
-            html += '<td>' + curTab.id + '</td>';
-            html += '<td></td>';
-            html += '<td></td>';
-            html += '<td>' + curTab.title + '</td>';
-            html += '</tr>';
-
-            if (tgs.profileTabs[curTab.id]) {
-                for (j = 0; j < tgs.profileTabs[curTab.id].length; j++) {
-                    curEntry = tgs.profileTabs[curTab.id][j];
-                    html += '<tr>';
-                    html += '<td>' + curTab.id + '</td>';
-                    html += '<td>' + curEntry.state + '</td>';
-                    html += '<td>' + curEntry.mem + '</td>';
-                    html += '<td>' + curEntry.title + '</td>';
-                    html += '</tr>';
-                }
+        tabKeys.sort();
+        for (i = 0; i < tabKeys.length; i++) {
+            if (tabKeys[i] !== key) {
+                key = tabKeys[i];
+                html = generateTabInfo(tabResponses[key]);
+                table.innerHTML = table.innerHTML + html;
             }
         }
+        tabResponses = {};
+        tabKeys = [];
 
-        html += '</table>';
+        chrome.tabs.query({}, function(tabs) {
+            for (i = 0; i < tabs.length; i++) {
 
-        html += '<span>ProgressQueue length: ' + tgs.progressQueueLength + '</span>';
-
-        return html;
+                tab = tabs[i];
+                currentTabs[tab.id] = tab;
+                tabKeys.push(tab.id);
+                chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tab});
+            }
+        });
     }
 
     window.onload = function() {
 
+        var table = document.getElementById('gsProfilerBody');
         setInterval(function() {
-            chrome.tabs.query({}, function(tabs) {
-                var html = generateTabStats(tabs);
-                document.getElementById('gsProfiler').innerHTML = html;
-            });
-        }, 1000);
+            fetchInfo(table);
+        }, 3000);
+
+        fetchInfo(table);
+
+        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+            if (request.action === 'confirmTabInfo' && request.info) {
+
+                if (typeof(request.info) === 'object') {
+
+                    var tab = currentTabs[request.info.tabId];
+                    request.info.tab = tab;
+                    tabResponses[tab.id] = request.info;
+                }
+            }
+        });
 
         /*chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
 
