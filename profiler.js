@@ -3,9 +3,7 @@
 
     'use strict';
 
-    var currentTabs = {},
-        tabResponses = {},
-        tabKeys = [];
+    var currentTabs = {};
 
     function generateTabInfo(info) {
 
@@ -23,57 +21,43 @@
         return html;
     }
 
-    function fetchInfo(table) {
-
-        var html = '',
-            key = '',
-            i,
-            tab;
-
-        table.innerHTML = '';
-
-        tabKeys.sort();
-        for (i = 0; i < tabKeys.length; i++) {
-            if (tabKeys[i] !== key) {
-                key = tabKeys[i];
-                html = generateTabInfo(tabResponses[key]);
-                table.innerHTML = table.innerHTML + html;
-            }
-        }
-        tabResponses = {};
-        tabKeys = [];
+    function fetchInfo() {
 
         chrome.tabs.query({}, function(tabs) {
-            for (i = 0; i < tabs.length; i++) {
 
-                tab = tabs[i];
-                currentTabs[tab.id] = tab;
-                tabKeys.push(tab.id);
-                chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tab});
+            for (var i = 0; i < tabs.length; i++) {
+                currentTabs[tabs[i].id] = tabs[i];
+                chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tabs[i]});
             }
         });
     }
 
     window.onload = function() {
 
-        var table = document.getElementById('gsProfilerBody');
-        setInterval(function() {
-            fetchInfo(table);
-        }, 3000);
-
-        fetchInfo(table);
+        fetchInfo();
 
         chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             if (request.action === 'confirmTabInfo' && request.info) {
 
                 if (typeof(request.info) === 'object') {
 
-                    var tab = currentTabs[request.info.tabId];
+                    var html = '',
+                        tab = currentTabs[request.info.tabId],
+                        tableEl = document.getElementById('gsProfilerBody');
+
                     request.info.tab = tab;
-                    tabResponses[tab.id] = request.info;
+
+                    html = generateTabInfo(request.info);
+                    tableEl.innerHTML = tableEl.innerHTML + html;
                 }
             }
         });
+
+        //handler for refresh
+        document.getElementById('refreshProfiler').onclick = function(e) {
+            document.getElementById('gsProfilerBody').innerHTML = '';
+            fetchInfo();
+        };
 
         /*chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
 
