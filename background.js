@@ -146,13 +146,40 @@ var tgs = (function() {
     function unsuspendAllTabs(curWindow) {
 
         var i,
-            curTab,
+            currentTab,
             tabProperties;
 
         for (i = 0; i < curWindow.tabs.length; i++) {
 
+            //detect suspended tabs by looking for ones without content scripts
+            /*chrome.tabs.sendMessage(tabId, {
+                action: 'requestInfo'
+            }, function(response) {
+                if (!response) {
+                    chrome.tabs.reload(tabId);
+                }
+            });
+
             //unsuspend if tab has been suspended
-            requestTabUnsuspend(curWindow.tabs[i].id);
+            requestTabUnsuspend(curWindow.tabs[i].id);*/
+
+            currentTab = curWindow.tabs[i];
+
+            //detect suspended tabs by looking for ones without content scripts
+            if (!isSpecialTab(currentTab)) {
+
+                (function() {
+                    var tabId = currentTab.id;
+                    //test if a content script is active by sending a 'requestInfo' message
+                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+                        //if no response, then assume suspended
+                        if (typeof(response) === 'undefined') {
+                            requestTabUnsuspend(tabId);
+                        }
+                    });
+                })();
+            }
         }
     }
 
@@ -216,13 +243,14 @@ var tgs = (function() {
     }
 
     function requestTabUnsuspend(tabId) {
-        chrome.tabs.sendMessage(tabId, {
+        /*chrome.tabs.sendMessage(tabId, {
             action: 'unsuspendTab'
         }, function(response) {
             if (!response) {
                 chrome.tabs.reload(tabId);
             }
-        });
+        });*/
+        chrome.tabs.reload(tabId);
     }
 
     function unsuspendTab(tab) {
@@ -283,6 +311,10 @@ var tgs = (function() {
                     } else if (info.status === 'normal' && isPinnedTab(tab)) {
                         info.status = 'pinned';
                     }
+
+                //assume tab is suspended if there is no response
+                } else {
+                    info.status = 'suspended';
                 }
                 callback(info);
             });

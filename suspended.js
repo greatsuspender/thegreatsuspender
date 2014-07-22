@@ -140,17 +140,6 @@
 
     window.onload = function() {
 
-        //listen for background events
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-
-            if (request.action === 'unsuspendTab') {
-                unsuspendTab();
-
-            } else if (request.action === 'requestInfo') {
-                sendResponse({status: 'suspended', timerUp: false});
-            }
-        });
-
         //handler for unsuspend
         document.onclick = unsuspendTab;
 
