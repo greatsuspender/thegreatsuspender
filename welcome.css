@@ -1,0 +1,13 @@
+
+
+header ul li a {
+    color: #333;
+    text-decoration: none;
+    font-family: "Gotham_SSm_4r",Helvetica,Arial,sans-serif;
+}
+header #logo {
+    color: #abc;
+    text-decoration: none;
+    font-family: "Gotham_SSm_4r",Helvetica,Arial,sans-serif;
+    background: url('icon128.png') no-repeat;
+}

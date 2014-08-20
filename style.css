@@ -101,6 +101,9 @@ p {
 }
 #previewQualityNote {
 	font-style: italic;
+    font-size: 12;
+    background: rgb(255, 247, 202);
+    padding: 5;
 }
 #gsHistory a, #gsHistory a:visited {
 	color: #444;

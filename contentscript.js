@@ -1,3 +1,11 @@
+/*
+ * The Great Suspender
+ * Copyright (C) 2014 Dean Oemcke
+ * Available under GNU GENERAL PUBLIC LICENSE v2
+ * http://github.com/deanoemcke/thegreatsuspender
+ * ლ(ಠ益ಠლ)
+*/
+
 /*global chrome, document, window, console */
 
 (function() {
@@ -106,6 +114,8 @@
     //listen for background events
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
+        var response = {};
+
         console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         //set up suspension timer
@@ -124,7 +134,7 @@
                 suspendDate = timerUp;
             }
             suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
-            sendResponse({status: status, timerUp: suspendDate});
+            response = {status: status, timerUp: suspendDate};
 
         //cancel suspension timer
         } else if (request.action === 'cancelTimer') {
@@ -132,13 +142,15 @@
             timerUp = false;
 
         //listen for preview request
-        } else if (request.action === 'generatePreview') {
+        } else if (request.action === 'generatePreview' && !inputState) {
             generatePreviewImg(request.suspendedUrl);
 
         //listen for suspend request
-        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl && !inputState) {
             window.location.replace(request.suspendedUrl);
         }
+
+        sendResponse(response);
     });
 
 }());
