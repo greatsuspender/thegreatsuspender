@@ -149,7 +149,7 @@ var tgs = (function() {
             requestTabSuspension(window.tabs[i]);
         }
     }
-
+/*
     function unsuspendAllTabs(curWindow) {
 
         var i,
@@ -157,18 +157,6 @@ var tgs = (function() {
             tabProperties;
 
         for (i = 0; i < curWindow.tabs.length; i++) {
-
-            //detect suspended tabs by looking for ones without content scripts
-            /*chrome.tabs.sendMessage(tabId, {
-                action: 'requestInfo'
-            }, function(response) {
-                if (!response) {
-                    chrome.tabs.reload(tabId);
-                }
-            });
-
-            //unsuspend if tab has been suspended
-            requestTabUnsuspend(curWindow.tabs[i].id);*/
 
             currentTab = curWindow.tabs[i];
 
@@ -188,6 +176,66 @@ var tgs = (function() {
                 })();
             }
         }
+    }
+*/
+    function unsuspendAllTabs(curWindow) {
+
+        var i,
+            currentTab,
+            tabProperties,
+            tabIds = [],
+            tabResponses = {};
+
+        for (i = 0; i < curWindow.tabs.length; i++) {
+
+            currentTab = curWindow.tabs[i];
+
+            //detect suspended tabs by looking for ones without content scripts
+            if (!isSpecialTab(currentTab)) {
+    
+                tabIds.push(currentTab.id);
+
+                (function() {
+                    var tabId = currentTab.id;
+                    checkForSuspendedTab(tabId, function(isSuspended) {
+
+                        tabResponses[tabId] = true;
+                        if (isSuspended) {
+                            requestTabUnsuspend(tabId);
+                        }
+                    });
+                })();
+            }
+        }
+
+        //handle any other tabs that didn't respond for whatever reason (usually because the tab has crashed)
+        setTimeout(function() {
+            var i,
+                curId;
+
+            for (i = 0; i < tabIds.length; i++) {
+                curId = tabIds[i];
+                if (typeof(tabResponses[curId]) === 'undefined') {
+                     requestTabUnsuspend(curId);
+                }
+            }
+        }, 5000);
+    }
+
+
+
+    function checkForSuspendedTab(tabId, callback) {
+
+        //test if a content script is active by sending a 'requestInfo' message
+        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+            //if response is given but is undefined, then assume suspended
+            if (typeof(response) === 'undefined') {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        });
     }
 
     function saveWindowHistory() {
