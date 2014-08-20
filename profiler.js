@@ -29,7 +29,21 @@
 
             for (var i = 0; i < tabs.length; i++) {
                 currentTabs[tabs[i].id] = tabs[i];
-                chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tabs[i]});
+
+                (function() {
+
+                    var curTab = tabs[i];
+                    chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function(suspendInfo) {
+
+                        var html = '',
+                            tableEl = document.getElementById('gsProfilerBody');
+
+                        suspendInfo.tab = curTab;
+
+                        html = generateTabInfo(suspendInfo);
+                        tableEl.innerHTML = tableEl.innerHTML + html;
+                    });
+                })();
             }
         });
     }
@@ -37,23 +51,6 @@
     window.onload = function() {
 
         fetchInfo();
-
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-            if (request.action === 'confirmTabInfo' && request.info) {
-
-                if (typeof(request.info) === 'object') {
-
-                    var html = '',
-                        tab = currentTabs[request.info.tabId],
-                        tableEl = document.getElementById('gsProfilerBody');
-
-                    request.info.tab = tab;
-
-                    html = generateTabInfo(request.info);
-                    tableEl.innerHTML = tableEl.innerHTML + html;
-                }
-            }
-        });
 
         //handler for refresh
         document.getElementById('refreshProfiler').onclick = function(e) {

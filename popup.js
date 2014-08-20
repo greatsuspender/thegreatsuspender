@@ -6,8 +6,6 @@
 
     function setStatusBar(info) {
 
-        console.dir(info);
-
         var text = '<span>status: ' + info.status + '</span>';
         document.getElementById('statusText').innerHTML = text;
     };
@@ -18,6 +16,21 @@
         } else {
             document.getElementById('whitelist').style.display = 'none';
             //document.getElementById('whitelist').innerHTML = 'Tab whitelisted';
+        }
+    };
+    function setTemporaryWhitelistVisibility(visible) {
+        if (visible) {
+            document.getElementById('tempWhitelist').style.display = 'block';
+        } else {
+            document.getElementById('tempWhitelist').style.display = 'none';
+        }
+    };
+    function setTemporaryWhitelistedVisibility(visible) {
+        if (visible) {
+            document.getElementById('tempWhitelisted').style.display = 'block';
+            document.getElementById('tempWhitelisted').innerHTML = 'Tab temp whitelisted';
+        } else {
+            document.getElementById('tempWhitelisted').style.display = 'none';
         }
     };
     function setSuspendOneVisibility(visible) {
@@ -46,6 +59,11 @@
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
             window.close();
         });
+        document.getElementById('tempWhitelist').addEventListener('click', function() {
+            chrome.runtime.sendMessage({ action: 'tempWhitelist' });
+            chrome.extension.getBackgroundPage().tgs.updateIcon(false);
+            window.close();
+        });
         document.getElementById('settings').addEventListener('click', function() {
             chrome.tabs.create({
                 url: chrome.extension.getURL('options.html')
@@ -59,30 +77,22 @@
             window.close();
         });
 
-        chrome.windows.getCurrent({}, function(window) {
+        chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function(info) {
 
-            chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
+            var status = info.status,
+                timeLeft = info.timerUp,
+                whitelistVisible = (status === 'whitelisted' || status === 'special') ? false : true,
+                tempWhitelistVisible = (status === 'normal') ? true : false,
+                tempWhitelistedVisible = (status === 'formInput' || status === 'special' 
+                    || status === 'pinned'|| status === 'tempWhitelist') ? true : false,
+                suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
 
-                if (tabs.length > 0) {
-                    var tab = tabs[0];
-                    chrome.runtime.sendMessage({action: 'requestTabInfo', tab: tab});
-                }
-            });
-        });
+            setWhitelistVisibility(whitelistVisible);
+            setTemporaryWhitelistVisibility(tempWhitelistVisible);
+            setTemporaryWhitelistedVisibility(tempWhitelistedVisible);
+            setSuspendOneVisibility(suspendOneVisible);
 
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-            if (request.action === 'confirmTabInfo' && request.info) {
-
-                var status = request.info.status,
-                    timeLeft = request.info.timerUp,
-                    whitelistVisible = (status === 'whitelisted' || status === 'special') ? false : true,
-                    suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
-
-                setWhitelistVisibility(whitelistVisible);
-                setSuspendOneVisibility(suspendOneVisible);
-
-                setStatusBar(request.info);
-            }
+            setStatusBar(info);
         });
     });
 

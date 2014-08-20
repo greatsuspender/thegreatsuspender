@@ -14,6 +14,7 @@ var tgs = (function() {
     var sessionId = Math.floor(Math.random() * 1000000);
     var sessionDate = new Date();
     var lastSelectedTabs = [];
+    var currentTabId;
 
     function checkWhiteList(url) {
 
@@ -120,6 +121,16 @@ var tgs = (function() {
         });
     }
 
+    function temporarilyWhitelistHighlightedTab(window) {
+
+        chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
+
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(tabs[0].id, {action: 'tempWhitelist'});
+            }
+        });
+    }
+
     function suspendHighlightedTab(window) {
 
         chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
@@ -192,7 +203,7 @@ var tgs = (function() {
 
             //detect suspended tabs by looking for ones without content scripts
             if (!isSpecialTab(currentTab)) {
-    
+
                 tabIds.push(currentTab.id);
 
                 (function() {
@@ -327,7 +338,6 @@ var tgs = (function() {
             }
         });
 
-
         //should use declaritiveWebRequest here once it becomes stable
         /*chrome.webRequest.onBeforeRequest.addListener(
             function(details) {
@@ -339,7 +349,6 @@ var tgs = (function() {
             {urls: ["<all_urls>"]},
             ["blocking"]
         );*/
-
     }
 
     function getTabInfo(tab, callback) {
@@ -401,17 +410,14 @@ var tgs = (function() {
             } else if (request.action === 'savePreviewData') {
                 saveSuspendData(sender.tab, request.previewUrl);
 
-            } else if (request.action === 'requestTabInfo' && request.tab) {
-
-                getTabInfo(request.tab, function(info) {
-                    chrome.runtime.sendMessage({action: 'confirmTabInfo', info: info});
-                });
-
             } else if (request.action === 'suspendOne') {
                 chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
 
             } else if (request.action === 'unsuspendOne') {
                 chrome.windows.getLastFocused({populate: true}, unsuspendHighlightedTab);
+
+            } else if (request.action === 'tempWhitelist') {
+                chrome.windows.getLastFocused({populate: true}, temporarilyWhitelistHighlightedTab);
 
             } else if (request.action === 'whitelist') {
                 chrome.windows.getLastFocused({populate: true}, whitelistHighlightedTab);
@@ -438,35 +444,67 @@ var tgs = (function() {
     });*/
 
     //listen for tab switching
-    chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
+    chrome.tabs.onActivated.addListener(function(activeInfo) {
 
-        if (debug) console.log('tab changed: ' + tabId);
+        if (debug) console.log('tab changed: ' + activeInfo.tabId);
 
-        var unsuspend = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
-        var lastSelectedTab = lastSelectedTabs[selectInfo.windowId];
+        var lastSelectedTab = lastSelectedTabs[activeInfo.windowId];
 
-        lastSelectedTabs[selectInfo.windowId] = tabId;
-
-        //if pref is set, then unsuspend newly focused tab
-        //NOTE: only works if tab is currently suspended
-        if (unsuspend) {
-            requestTabUnsuspend(tabId);
-        }
-
-        //clear timer on newly focused tab
-        //NOTE: only works if tab is currently unsuspended
-        cancelTabTimer(tabId);
+        lastSelectedTabs[activeInfo.windowId] = activeInfo.tabId;
+        currentTabId = activeInfo.tabId;
 
         //reset timer on tab that lost focus
         if (lastSelectedTab) {
             resetTabTimer(lastSelectedTab);
         }
 
+        //pause for a bit before assuming we're on a new tab as some users
+        //will key through intermediate tabs to get to the one they want.
+        (function() {
+            var selectedTab = activeInfo.tabId;
+            setTimeout(function() {
+                if (selectedTab === currentTabId) {
+                    handleNewTabFocus(currentTabId);
+                }
+            }, 500);
+        })();
     });
+
+    function handleNewTabFocus(tabId) {
+
+        var unsuspend = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
+
+        //if pref is set, then unsuspend newly focused tab
+        if (unsuspend) {
+
+            //get tab object so we can check if it is a special tab
+            //if not, then we test if the tab is suspended by checking
+            //for an active content script
+            chrome.tabs.get(tabId, function(tab) {
+                if (!isSpecialTab(tab)) {
+                    checkForSuspendedTab(tabId, function(isSuspended) {
+                        if (isSuspended) {
+                            requestTabUnsuspend(tabId);
+                        }
+                    });
+                }
+            });
+        }
+
+        //update icon
+        requestTabInfo(tabId, function(info) {
+            updateIcon(info.status);
+        });
+
+        //clear timer on newly focused tab
+        //NOTE: only works if tab is currently unsuspended
+        cancelTabTimer(tabId);
+    }
 
 
     //listen for tab updating
-    chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    //don't want to put a listener here as it's called too aggressively by chrome
+    /*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
         if (debug) console.log('tab updated: ' + tabId);
 
@@ -474,9 +512,9 @@ var tgs = (function() {
         if (!tab.active) {
             resetTabTimer(tab.id);
         }
-    });
+    });*/
 
-    suspendAllTabsOnStartup();
+    //suspendAllTabsOnStartup();
 
     if (debug) chrome.browserAction.setBadgeText({text: '!'});
 
@@ -560,5 +598,32 @@ var tgs = (function() {
         });
 
     });
+
+    //get info for a tab. defaults to currentTab if no id passed in
+    function requestTabInfo(tabId, callback) {
+
+        tabId = tabId || currentTabId;
+
+        chrome.tabs.get(tabId, function(tab) {
+            getTabInfo(tab, function(info) {
+                callback(info);
+            });
+        });
+    }
+
+    //change the icon to either active or inactive
+    function updateIcon(status) {
+        var icon = 'icon19.png';
+        if (status === 'formInput' || status === 'special' || status === 'pinned'
+                || status === 'tempWhitelist' || status === 'whitelisted') {
+            icon = 'icon19b.png';
+        }
+        chrome.browserAction.setIcon({path: icon});
+    }
+
+    return {
+        requestTabInfo: requestTabInfo,
+        updateIcon: updateIcon
+    };
 
 }());

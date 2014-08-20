@@ -13,6 +13,7 @@
     'use strict';
 
     var inputState = false,
+        tempWhitelist = false,
         timer,
         timerUp,
         prefs,
@@ -77,7 +78,7 @@
 
         return setTimeout(function() {
             //request suspension
-            if (!inputState) {
+            if (!inputState && !tempWhitelist) {
 
                 console.log('requesting suspension');
                 chrome.runtime.sendMessage({action: 'suspendTab'});
@@ -88,7 +89,7 @@
     function setFormInputJob() {
 
         window.addEventListener('keydown', function(event) {
-            if (!inputState) {
+            if (!inputState && !tempWhitelist) {
                 if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
                     if (event.target.tagName.toUpperCase() == 'INPUT' ||
                             event.target.tagName.toUpperCase() == 'TEXTAREA' ||
@@ -125,7 +126,7 @@
 
         //listen for status request
         } else if (request.action === 'requestInfo') {
-            var status = inputState ? 'formInput' : 'normal',
+            var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal'),
                 suspendDate;
 
             if (!timerUp) {
@@ -141,12 +142,16 @@
             clearTimeout(timer);
             timerUp = false;
 
+        //listen for request to temporarily whitelist the tab
+        } else if (request.action === 'tempWhitelist') {
+            tempWhitelist = true;
+
         //listen for preview request
-        } else if (request.action === 'generatePreview' && !inputState) {
+        } else if (request.action === 'generatePreview' && !inputState  && !tempWhitelist) {
             generatePreviewImg(request.suspendedUrl);
 
         //listen for suspend request
-        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl && !inputState) {
+        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl && !inputState && !tempWhitelist) {
             window.location.replace(request.suspendedUrl);
         }
 

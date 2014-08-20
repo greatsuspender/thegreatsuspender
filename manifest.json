@@ -23,7 +23,7 @@
     ],
     "browser_action": {
         "default_title": "The Great Suspender",
-        "default_icon": "icon128.png",
+        "default_icon": "icon19.png",
         "default_popup": "popup.html"
     },
     "options_page": "options.html",
