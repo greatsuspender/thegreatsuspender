@@ -36,7 +36,7 @@
                 if (processing) {
                     processing = false;
                     console.error('failed to render');
-                    window.location.replace(suspendedUrl);
+                    suspendTab(suspendedUrl);
                 }
             }, 3000);
 
@@ -53,18 +53,18 @@
                                 action: 'savePreviewData',
                                 previewUrl: canvas.toDataURL('image/jpeg', quality)
                             });
-                            window.location.replace(suspendedUrl);
+                            suspendTab(suspendedUrl);
                         }
                     }
                 });
             } catch (ex) {
                 console.error('failed to render');
-                window.location.replace(suspendedUrl);
+                suspendTab(suspendedUrl);
             }
 
         } else {
             console.error('too many page elements');
-            window.location.replace(suspendedUrl);
+            suspendTab(suspendedUrl);
         }
     }
 
@@ -101,16 +101,44 @@
         });
     }
 
-    //request preferences
-    chrome.runtime.sendMessage({action: 'prefs'}, function(response) {
+    function suspendTab(suspendedUrl) {
+        reportState('suspended');
+        window.location.replace(suspendedUrl);
+    }
 
-        prefs = response;
+    function calculateState() {
+        var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
+        return status;
+    }
 
-        //add form input listener
-        if (response.dontSuspendForms) {
-            setFormInputJob();
+    function calculateSuspendDate() {
+        var suspendDate;
+        if (!timerUp) {
+            suspendDate = new Date(new Date().getTime() + (+prefs.suspendTime * 60 * 1000));
+        } else {
+            suspendDate = timerUp;
         }
-    });
+        suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
+        return suspendDate;
+    }
+
+    function reportState(state) {
+        state = state || calculateState();
+        chrome.runtime.sendMessage({action: 'reportTabState', status: state});
+    }
+
+    function requestPreferences() {
+
+        chrome.runtime.sendMessage({action: 'prefs'}, function(response) {
+
+            prefs = response;
+
+            //add form input listener
+            if (response.dontSuspendForms) {
+                setFormInputJob();
+            }
+        });
+    }
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -126,15 +154,8 @@
 
         //listen for status request
         } else if (request.action === 'requestInfo') {
-            var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal'),
-                suspendDate;
-
-            if (!timerUp) {
-                suspendDate = new Date(new Date().getTime() + (+prefs.suspendTime * 60 * 1000));
-            } else {
-                suspendDate = timerUp;
-            }
-            suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
+            var status = calculateState(),
+                suspendDate = calculateSuspendDate();
             response = {status: status, timerUp: suspendDate};
 
         //cancel suspension timer
@@ -144,18 +165,25 @@
 
         //listen for request to temporarily whitelist the tab
         } else if (request.action === 'tempWhitelist') {
+            var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
+            response = {status: status};
             tempWhitelist = true;
+            reportState(false);
 
         //listen for preview request
-        } else if (request.action === 'generatePreview' && !inputState  && !tempWhitelist) {
+        } else if (request.action === 'generatePreview') {
             generatePreviewImg(request.suspendedUrl);
 
         //listen for suspend request
-        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl && !inputState && !tempWhitelist) {
-            window.location.replace(request.suspendedUrl);
+        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+            suspendTab(request.suspendedUrl);
         }
 
         sendResponse(response);
     });
+
+    //do startup jobs
+    reportState(false);
+    requestPreferences();
 
 }());

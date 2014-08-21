@@ -351,40 +351,6 @@ var tgs = (function() {
         );*/
     }
 
-    function getTabInfo(tab, callback) {
-
-        var info = {
-            tabId: tab.id,
-            status: 'unknown',
-            timerUp: 0
-        };
-
-        if (isSpecialTab(tab)) {
-            info.status = 'special';
-            callback(info);
-
-        } else {
-
-            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
-
-                if (response) {
-                    info.status = response.status;
-                    info.timerUp = response.timerUp;
-                    if (info.status === 'normal' && checkWhiteList(tab.url)) {
-                        info.status = 'whitelisted';
-                    } else if (info.status === 'normal' && isPinnedTab(tab)) {
-                        info.status = 'pinned';
-                    }
-
-                //assume tab is suspended if there is no response
-                } else {
-                    info.status = 'suspended';
-                }
-                callback(info);
-            });
-        }
-    }
-
     //handler for message requests
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
@@ -392,7 +358,7 @@ var tgs = (function() {
             if (debug) console.log('listener fired: ' + request.action);
             if (debug) console.dir(sender);
 
-
+            //treat this as a handler for initial page load (called by content script on page load)
             if (request.action === 'prefs') {
                 sendResponse({
                     dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
@@ -400,6 +366,9 @@ var tgs = (function() {
                     suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
                     previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
                 });
+
+            } else if (request.action === 'reportTabState') {
+                updateIcon(request.status);
 
             } else if (request.action === 'confirmTabUnsuspend') {
                 unsuspendTab(sender.tab);
@@ -458,6 +427,12 @@ var tgs = (function() {
             resetTabTimer(lastSelectedTab);
         }
 
+        //update icon
+        requestTabInfo(activeInfo.tabId, function(info) {
+            updateIcon(info.status);
+        });
+
+
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
         (function() {
@@ -490,11 +465,6 @@ var tgs = (function() {
                 }
             });
         }
-
-        //update icon
-        requestTabInfo(tabId, function(info) {
-            updateIcon(info.status);
-        });
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
@@ -611,14 +581,72 @@ var tgs = (function() {
         });
     }
 
+    function getTabInfo(tab, callback) {
+
+        var info = {
+            tabId: tab.id,
+            status: 'unknown',
+            timerUp: 0
+        };
+
+        if (isSpecialTab(tab)) {
+            info.status = 'special';
+            callback(info);
+
+        } else {
+
+            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
+
+                if (response) {
+                    info.status = response.status;
+                    info.timerUp = response.timerUp;
+                    if (info.status === 'normal' && checkWhiteList(tab.url)) {
+                        info.status = 'whitelisted';
+                    } else if (info.status === 'normal' && isPinnedTab(tab)) {
+                        info.status = 'pinned';
+                    }
+
+                //assume tab is suspended if there is no response
+                } else {
+                    info.status = 'suspended';
+                }
+                callback(info);
+            });
+        }
+    }
+
+    function checkTabStatus(reportedStatus) {
+        
+    }
+
     //change the icon to either active or inactive
     function updateIcon(status) {
-        var icon = 'icon19.png';
-        if (status === 'formInput' || status === 'special' || status === 'pinned'
+        var icon = 'icon19.png',
+            dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
+            dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
+
+        if (status === 'suspended' || status === 'special') icon = 'icon19b.png';
+        /*if (status === 'formInput' || status === 'special' || status === 'pinned'
                 || status === 'tempWhitelist' || status === 'whitelisted') {
             icon = 'icon19b.png';
-        }
+        }*/
         chrome.browserAction.setIcon({path: icon});
+
+        if (status === 'formInput' && dontSuspendForms) {
+            chrome.browserAction.setBadgeText({text: 'I'});
+
+        } else if (status === 'pinned' && dontSuspendPinned) {
+            chrome.browserAction.setBadgeText({text: 'P'});
+
+        } else if (status === 'tempWhitelist') {
+            chrome.browserAction.setBadgeText({text: 'TW'});
+
+        } else if (status === 'whitelisted') {
+            chrome.browserAction.setBadgeText({text: 'W'});
+
+        } else {
+            chrome.browserAction.setBadgeText({text: ''});
+        }
     }
 
     return {
