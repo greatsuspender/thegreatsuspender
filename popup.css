@@ -36,7 +36,7 @@ body {
 	font-size: 12px;
 	padding: 0px;
 	margin: 0;
-	min-width: 260px;
+	min-width: 300px;
 	position: relative;
 	font-size: 16px;
 }
@@ -44,56 +44,46 @@ body {
 	display: none;
 }
 #popTop {
-	background: #FDE073;
+	background: #36BEF3;
 	color: #444;
 	overflow: hidden;
-	height: 35px;
+	height: 27px;
 	position: relative;
 	z-index: 10;
+	padding: 10px 0 0 60px;
+	margin-bottom: 1px;
 }
 #popTop h1 {
-	color: #555;
-	line-height: 35px;
-	font-weight: normal;
-	text-shadow: 0 1px 0 #FFF8C7;
-	text-align: left;
-	padding-left: 10px;
-	z-index: 5;
-	position: relative;
-	font-size: 17px;
+	font-size: 18px;
+	color: #FFF;
+	margin-top: 5px;
 }
-#popTop img {
+#popTopIcon {
 	position: absolute;
-	top: 3px;
-	right: 4px;
+	top: 5px;
+	left: 4px;
 	z-index: 2;
 }
-#popTop span {
+#popTopSettings {
 	position: absolute;
-	left: 10px;
 	top: 5px;
-	font-size: 16px;
-	max-width: 210px;
+	right: 6px;
+	z-index: 2;
+	cursor: pointer;
 }
-#statusBar {
-
-}
-#statusBar span {
-	color: #555;
+#popTop span {
+	font-weight: bold;
+	color: #FFF;
 	font-size: 14px;
-	font-weight: normal;
-	letter-spacing: .5px;
-	line-height: 20px;
 }
 #middle {
 	padding: 0;
-	border-bottom: 1px solid #aaa;
 }
 .menuOption {
 	cursor: pointer;
 	background: #fff;
 	text-align: left;
-	margin: 0;
+	margin-top: 1px;
 	display: block;
 	border-top: 1px solid #ddd;
 	color: #666;
@@ -103,8 +93,39 @@ body {
 .menuOption:hover {
 	background: #f5f5f5;
 }
+#bottom {
+	background: #FFF;
+	padding-top: 1px;
+	height: 45px;
+}
+.bottomOption {
+	background: #36BEF3;
+	cursor: pointer;
+	text-align: center;
+	display: block;
+	border-top: 1px solid #ddd;
+	overflow: hidden;
+	height: 40px;
+	width: 128px;
+	float: left;
+	line-height: 40px;
+	padding: 0 10px;
+	color: #FFF;
+	font-size: 12px;
+	font-weight: bold;
+}
+.bottomOption:first-of-type {
+	margin-right: 4px;
+}
+.bottomOption:hover {
+	background: #2A8CB3;
+}
+.bottomOption.disabled {
+	background: #6B6B6B;
+	cursor: default;
+}
 .icon {
-	background: #555;
+	background: #6B6B6B;
 	width: 40px;
 	height: 40px;
 	background-position: center;
@@ -125,7 +146,7 @@ body {
 .menuOption:first-of-type {
 	border-top: 0;
 }
-#bottom {
+#footer {
 	padding: 5px;
 	box-shadow: 0 -2px 8px -5px #aaa;
 	border-top: 1px solid #fff;
@@ -134,15 +155,24 @@ body {
 	color: #888;
 	text-align: center;
 	height: 20px;
+	clear: left;
+	float: left;
+	width: 100%;
 }
-#bottom a {
+#footer a {
 	color: #0979E0;
 	cursor: pointer;
 	line-height: 20px;
 	height: 20px;
 }
-#bottom a:hover {
+#footer a:hover {
 	text-decoration: underline;
+}
+#footer img {
+	z-index: 2;
+}
+#footer span {
+	vertical-align: top;
 }
 
 /* remove input highlight borders */

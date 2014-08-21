@@ -1,7 +1,7 @@
 #gsTopBar  {
 	position: fixed;
     color: #444;
-    background: #FDE073;
+    background: #36BEF3;
     top: 0;
     padding: 10px 10px 5px;
     line-height: 25px;
@@ -10,6 +10,7 @@
     text-align: center;
     font-family: verdana, arial, sans-serif;
     border-bottom: 1px solid #8A8352;
+    color: #FFF;
 }
 #gsTopBarImg {
 }
@@ -19,6 +20,7 @@
     white-space: nowrap;
     font-size: 18px;
     line-height: 28px
+    color: #FFF;
 }
 #gsTopBarUrl {
     font-style: italic;

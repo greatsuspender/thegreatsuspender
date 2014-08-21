@@ -3,36 +3,71 @@
 (function() {
 
     'use strict';
+    var enableWhitelist = true,
+        enablePause = true;
 
-    function setStatusBar(info) {
+    function setStatus(status) {
 
-        var text = '<span>status: ' + info.status + '</span>';
-        document.getElementById('statusText').innerHTML = text;
-    };
-    function setWhitelistVisibility(visible) {
-        if (visible) {
-            document.getElementById('whitelist').style.display = 'block';
-            //document.getElementById('whitelist').innerHTML = 'Whitelist tab';
+        if (status === 'normal' || status === 'suspended') {
+            document.getElementById('footer').style.display = 'none';
+
         } else {
-            document.getElementById('whitelist').style.display = 'none';
-            //document.getElementById('whitelist').innerHTML = 'Tab whitelisted';
+            var statusDetail = '';
+            var statusSrc = '';
+
+            if (status === 'special') {
+                statusDetail = 'This tab cannot be suspended';
+                statusSrc = 'status_special.png';
+
+            } else if (status === 'whitelisted') {
+                statusDetail = 'This tab has been whitelisted';
+                statusSrc = 'status_whitelist.png';
+
+            } else if (status === 'formInput') {
+                statusDetail = 'This tab is currently receiving form input';
+                statusSrc = 'status_edit.png';
+
+            } else if (status === 'pinned') {
+                statusDetail = 'This tab has been pinned';
+                statusSrc = 'status_pin.png';
+
+            } else if (status === 'tempWhitelist') {
+                statusDetail = 'Tab suspension has been manually paused';
+                statusSrc = 'status_pause.png';
+            }
+
+            document.getElementById('footer').style.display = 'block';
+            document.getElementById('statusDetail').innerHTML = statusDetail;
+            document.getElementById('statusImg').src = statusSrc;
         }
     };
-    function setTemporaryWhitelistVisibility(visible) {
-        if (visible) {
-            document.getElementById('tempWhitelist').style.display = 'block';
+    function setWhitelistStatus(status) {
+        if (status === 'whitelisted' || status === 'special') {
+            //document.getElementById('whitelist').style.display = 'none';
+            document.getElementById('whitelist').innerHTML = 'Tab Whitelisted';
+            document.getElementById('whitelist').className = 'bottomOption disabled';
         } else {
-            document.getElementById('tempWhitelist').style.display = 'none';
+            //document.getElementById('whitelist').style.display = 'block';
+            document.getElementById('whitelist').innerHTML = 'Whitelist Tab';
+            document.getElementById('whitelist').className = 'bottomOption';
         }
     };
-    function setTemporaryWhitelistedVisibility(visible) {
-        if (visible) {
-            document.getElementById('tempWhitelisted').style.display = 'block';
-            document.getElementById('tempWhitelisted').innerHTML = 'Tab temp whitelisted';
+    function setTemporaryWhitelistStatus(status) {
+        if (status === 'normal') {
+            //document.getElementById('tempWhitelist').style.display = 'block';
+            document.getElementById('tempWhitelist').innerHTML = 'Pause Suspension';
+            document.getElementById('tempWhitelist').className = 'bottomOption';
+        } else if (status === 'suspended') {
+            //document.getElementById('whitelist').style.display = 'block';
+            document.getElementById('tempWhitelist').innerHTML = 'Tab Suspended';
+            document.getElementById('tempWhitelist').className = 'bottomOption disabled';
         } else {
-            document.getElementById('tempWhitelisted').style.display = 'none';
+            //document.getElementById('tempWhitelist').style.display = 'none';
+            document.getElementById('tempWhitelist').innerHTML = 'Suspension Paused';
+            document.getElementById('tempWhitelist').className = 'bottomOption disabled';
         }
     };
+
     function setSuspendOneVisibility(visible) {
         if (visible) {
             document.getElementById('suspendOne').style.display = 'block';
@@ -43,10 +78,6 @@
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        document.getElementById('whitelist').addEventListener('click', function() {
-            chrome.runtime.sendMessage({ action: 'whitelist' });
-            window.close();
-        });
         document.getElementById('suspendOne').addEventListener('click', function() {
             chrome.runtime.sendMessage({ action: 'suspendOne' });
             window.close();
@@ -59,40 +90,46 @@
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
             window.close();
         });
-        document.getElementById('tempWhitelist').addEventListener('click', function() {
-            chrome.runtime.sendMessage({ action: 'tempWhitelist' });
-            chrome.extension.getBackgroundPage().tgs.updateIcon(false);
-            window.close();
+        document.getElementById('whitelist').addEventListener('click', function() {
+            if (enableWhitelist) {
+                chrome.runtime.sendMessage({ action: 'whitelist' });
+               window.close();
+           }
         });
-        document.getElementById('settings').addEventListener('click', function() {
+        document.getElementById('tempWhitelist').addEventListener('click', function() {
+            if (enablePause) {
+                chrome.runtime.sendMessage({ action: 'tempWhitelist' });
+                chrome.extension.getBackgroundPage().tgs.updateIcon(false);
+                window.close();
+            }
+        });
+        document.getElementById('popTopSettings').addEventListener('click', function() {
             chrome.tabs.create({
                 url: chrome.extension.getURL('options.html')
             });
             window.close();
         });
-        document.getElementById('history').addEventListener('click', function() {
+        /*document.getElementById('history').addEventListener('click', function() {
             chrome.tabs.create({
                 url: chrome.extension.getURL('history.html')
             });
             window.close();
         });
-
+*/
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function(info) {
 
             var status = info.status,
                 timeLeft = info.timerUp,
-                whitelistVisible = (status === 'whitelisted' || status === 'special') ? false : true,
-                tempWhitelistVisible = (status === 'normal') ? true : false,
-                tempWhitelistedVisible = (status === 'formInput' || status === 'special' 
-                    || status === 'pinned'|| status === 'tempWhitelist') ? true : false,
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
 
-            setWhitelistVisibility(whitelistVisible);
-            setTemporaryWhitelistVisibility(tempWhitelistVisible);
-            setTemporaryWhitelistedVisibility(tempWhitelistedVisible);
+            enablePause = (status === 'normal') ? true : false;
+            enableWhitelist = (status === 'whitelisted' || status === 'special') ? false : true;
+
             setSuspendOneVisibility(suspendOneVisible);
 
-            setStatusBar(info);
+            setStatus(status);
+            setWhitelistStatus(status);
+            setTemporaryWhitelistStatus(status);
         });
     });
 

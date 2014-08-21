@@ -368,7 +368,10 @@ var tgs = (function() {
                 });
 
             } else if (request.action === 'reportTabState') {
-                updateIcon(request.status);
+                if (sender.tab && sender.tab.id === currentTabId) {
+                    var status = updateTabStatus(sender.tab, request.status);
+                    updateIcon(status);
+                }
 
             } else if (request.action === 'confirmTabUnsuspend') {
                 unsuspendTab(sender.tab);
@@ -597,26 +600,23 @@ var tgs = (function() {
 
             chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
 
-                if (response) {
-                    info.status = response.status;
-                    info.timerUp = response.timerUp;
-                    if (info.status === 'normal' && checkWhiteList(tab.url)) {
-                        info.status = 'whitelisted';
-                    } else if (info.status === 'normal' && isPinnedTab(tab)) {
-                        info.status = 'pinned';
-                    }
-
                 //assume tab is suspended if there is no response
-                } else {
-                    info.status = 'suspended';
-                }
+                info.status = response ? updateTabStatus(tab, response.status) : 'suspended';
+                info.timerUp = response ? response.timerUp : false;
+
                 callback(info);
             });
         }
     }
 
-    function checkTabStatus(reportedStatus) {
-        
+    function updateTabStatus(tab, reportedStatus) {
+
+        if (reportedStatus === 'normal' && checkWhiteList(tab.url)) {
+            reportedStatus = 'whitelisted';
+        } else if (reportedStatus === 'normal' && isPinnedTab(tab)) {
+            reportedStatus = 'pinned';
+        }
+        return reportedStatus;
     }
 
     //change the icon to either active or inactive
@@ -632,17 +632,11 @@ var tgs = (function() {
         }*/
         chrome.browserAction.setIcon({path: icon});
 
-        if (status === 'formInput' && dontSuspendForms) {
-            chrome.browserAction.setBadgeText({text: 'I'});
-
-        } else if (status === 'pinned' && dontSuspendPinned) {
-            chrome.browserAction.setBadgeText({text: 'P'});
-
-        } else if (status === 'tempWhitelist') {
-            chrome.browserAction.setBadgeText({text: 'TW'});
-
-        } else if (status === 'whitelisted') {
-            chrome.browserAction.setBadgeText({text: 'W'});
+        if ((status === 'formInput' && dontSuspendForms) ||
+                (status === 'pinned' && dontSuspendPinned) ||
+                status === 'tempWhitelist' || status === 'whitelisted') {
+            chrome.browserAction.setBadgeBackgroundColor({color: '#777'});//#36BEF3'});
+            chrome.browserAction.setBadgeText({text: '!'});
 
         } else {
             chrome.browserAction.setBadgeText({text: ''});
