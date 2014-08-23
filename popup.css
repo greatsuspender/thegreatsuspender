@@ -44,7 +44,7 @@ body {
 	display: none;
 }
 #popTop {
-	background: #36BEF3;
+	background: url(img/noisebg.png) repeat top left #4EA6CA;
 	color: #444;
 	overflow: hidden;
 	height: 27px;
@@ -64,17 +64,19 @@ body {
 	left: 4px;
 	z-index: 2;
 }
+
 #popTopSettings {
 	position: absolute;
-	top: 5px;
-	right: 6px;
-	z-index: 2;
+	right: 7px;
+	top: 7px;
+	z-index: 10;
+	text-shadow: 0 -1px 0 #4881B9;
+	font-size: 12px;
+	color: #EEE;
 	cursor: pointer;
 }
-#popTop span {
-	font-weight: bold;
-	color: #FFF;
-	font-size: 14px;
+#popTopSettings > * {
+	vertical-align: middle;
 }
 #middle {
 	padding: 0;
@@ -147,7 +149,7 @@ body {
 	border-top: 0;
 }
 #footer {
-	padding: 5px;
+	padding: 5px 0;
 	box-shadow: 0 -2px 8px -5px #aaa;
 	border-top: 1px solid #fff;
 	background: #f1f1f1;
