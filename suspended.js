@@ -97,9 +97,12 @@
         if (showPreview) {
             gsUtils.fetchPreviewImage(url, function(previewUrl) {
                 if (previewUrl !== null) {
+                    document.getElementById('suspendedMsg').style.display = 'none';
                     document.getElementById('gsPreview').setAttribute('src', previewUrl);
                 }
             });
+        } else {
+            document.getElementById('suspendedMsg').style.display = 'table-cell';
         }
 
         var favicon = tabProperties.favicon || 'chrome://favicon/' + url;
@@ -108,7 +111,7 @@
         /*generateFaviconUri(favicon, function(faviconUrl) {
             document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
         });*/
-        setTimeout(function(){
+        setTimeout(function() {
             document.getElementById('gsFavicon').setAttribute('href', favicon);
         }, 1000);
 
@@ -144,6 +147,7 @@
 
         //handler for unsuspend
         document.getElementById('suspendedMsg').onclick = unsuspendTab;
+        document.getElementById('gsPreview').onclick = unsuspendTab;
 
         //handler for whitelist
         document.getElementById('gsWhitelistLink').onclick = function(e) {

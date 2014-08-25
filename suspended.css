@@ -62,7 +62,7 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-#suspendedMsg {
+#suspendedMsg, #gsPreview {
     cursor: pointer;
 }
 #suspendedMsg h1, #suspendedMsg h2 {
