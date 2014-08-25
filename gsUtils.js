@@ -203,7 +203,7 @@
                 }
             }
             return false;
-        },
+        },/*
 
         saveTabToHistory: function(tabUrl, tabProperties) {
 
@@ -217,7 +217,7 @@
                 }
             }
             localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
-        },
+        },*/
 
         removeTabFromHistory: function(tabUrl) {
 

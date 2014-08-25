@@ -84,12 +84,14 @@
         if (url.indexOf('suspended.html#') >= 0) {
             url = gsUtils.getHashVariable('url', url.split('suspended.html')[1]);
         }
+        rootUrlStr = gsUtils.getRootUrl(url);
 
         //if we have some suspend information for this tab
         if (!tabProperties) {
+            console.log('could not fetch tabProperties for tab: ' + url);
+            console.dir(gsUtils.fetchTabFromHistory(url));
             tabProperties = {url: url};
         }
-        rootUrlStr = gsUtils.getRootUrl(tabProperties.url);
 
         //set favicon and preview image
         if (showPreview) {

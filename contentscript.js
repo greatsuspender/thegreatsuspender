@@ -22,7 +22,6 @@
     //safety check here. don't load content script if we are on the suspended page
     if (suspendedEl) return;
 
-
     function generatePreviewImg(suspendedUrl) {
 
         var elementCount = document.getElementsByTagName('*').length,
@@ -35,8 +34,7 @@
             window.setTimeout(function() {
                 if (processing) {
                     processing = false;
-                    console.error('failed to render');
-                    suspendTab(suspendedUrl);
+                    handlePreviewError(suspendedUrl);
                 }
             }, 3000);
 
@@ -58,14 +56,21 @@
                     }
                 });
             } catch (ex) {
-                console.error('failed to render');
-                suspendTab(suspendedUrl);
+                handlePreviewError(suspendedUrl);
             }
 
         } else {
-            console.error('too many page elements');
-            suspendTab(suspendedUrl);
+            handlePreviewError(suspendedUrl);
         }
+    }
+
+    function handlePreviewError(suspendedUrl) {
+        console.error('failed to render');
+        chrome.runtime.sendMessage({
+            action: 'savePreviewData',
+            previewUrl: false
+        });
+        suspendTab(suspendedUrl);
     }
 
     function setTimerJob(interval) {
@@ -131,11 +136,16 @@
 
         chrome.runtime.sendMessage({action: 'prefs'}, function(response) {
 
-            prefs = response;
+            if (response) {
+                prefs = response;
 
-            //add form input listener
-            if (response.dontSuspendForms) {
-                setFormInputJob();
+                //set timer job
+                timer = setTimerJob(response.suspendTime * 60 * 1000);
+
+                //add form input listener
+                if (response.dontSuspendForms) {
+                    setFormInputJob();
+                }
             }
         });
     }
