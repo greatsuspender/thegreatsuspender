@@ -116,8 +116,8 @@
         document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
      //   document.getElementById('gsTopBarUrl').innerText = tabProperties.url;
-        document.getElementById('gsTopBarInfo').innerText = 'Tab suspended: ' + 'click to reload, or ';
-        document.getElementById('gsWhitelistLink').innerText = 'add ' + rootUrlStr + ' to whitelist';
+     //   document.getElementById('gsTopBarInfo').innerText = 'Tab suspended: ' + 'click to reload, or ';
+        document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 
         document.getElementById('gsTopBarImg').setAttribute('src', favicon);
@@ -143,7 +143,7 @@
     window.onload = function() {
 
         //handler for unsuspend
-        document.onclick = unsuspendTab;
+        document.getElementById('suspendedMsg').onclick = unsuspendTab;
 
         //handler for whitelist
         document.getElementById('gsWhitelistLink').onclick = function(e) {

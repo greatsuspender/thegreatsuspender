@@ -1,29 +1,38 @@
+
+img {
+    padding: 0;
+    margin: 0;
+}
+
+
 body {
     background: #f5f5f5;
+    margin: 0px;
+
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+
 }
 #gsTopBar  {
 	position: fixed;
-    color: #444;
-    /*background: url(img/noisebg.png) repeat top left #4ea6ca;*/
     background: #E7F3F8;
     top: 0;
-    padding: 10px 10px 5px;
+    padding: 15px 15px 10px;
     line-height: 25px;
     width: 100%;
     max-width: 100%;
     text-align: center;
     font-family: verdana, arial, sans-serif;
     border-bottom: 1px solid #8A8352;
-    color: #444;
-}
-#gsTopBarImg {
+    color: #555;
 }
 #gsTopBarTitle {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 19px;
-    line-height: 28px
-    color: #FFF;
+    line-height: 26px;
 }
 #gsTopBarUrl {
     font-style: italic;
@@ -34,13 +43,45 @@ body {
 #gsTopBarInfo {
     line-height: 40px;
 }
+#gsWhitelistLink {
+    text-decoration: underline;
+    cursor: pointer;
+}
+#gsWhitelistLink:hover {
+    color: #000;
+}
 #gsPreview {
     margin-top:115px;
 }
-html, body {
-    cursor: pointer;
-    margin: 0px;
+.centerBoxContainer {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
 }
-a {
-    color: #333;
+.centerBox {
+    margin-left: auto;
+    margin-right: auto;
+}
+#suspendedMsg {
+    cursor: pointer;
+}
+#suspendedMsg h1, #suspendedMsg h2 {
+    font-size: 60px;
+    color: #ddd;
+    font-weight: bold;
+    text-shadow: 0 -1px 0 #999;
+}
+#suspendedMsg h2 {
+    font-size: 70px;
+}
+@media all and (max-width: 600px) {
+    #suspendedMsg h1 {
+        font-size: 45px;
+    }
+    #suspendedMsg h2 {
+        font-size: 55px;
+    }
+}
+#suspendedMsg:hover {
+    background: #f9f9f9;
 }
