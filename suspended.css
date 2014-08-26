@@ -10,6 +10,7 @@ body {
     position: absolute;
     height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 #gsTopBar  {
    	position: fixed;
@@ -81,4 +82,9 @@ body {
     #suspendedMsg h2 {
         font-size: 55px;
     }
+}
+#dudePopup {
+    position: absolute;
+    bottom: -16px;
+    left: 30px;
 }
