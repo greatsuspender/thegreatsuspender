@@ -85,6 +85,97 @@ body {
 }
 #dudePopup {
     position: absolute;
-    bottom: -16px;
     left: 30px;
+    bottom: -300px;
+}
+
+@-webkit-keyframes silde_to_top {
+    0% {
+        bottom: -300px;
+    }
+    100% {
+        bottom: 0;
+        z-index: 1000000;
+    }
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+#dudePopup.poppedup {
+    -webkit-animation-name: silde_to_top;
+    -webkit-animation-duration: 1.5s;
+    -webkit-animation-timing-function: ease;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-direction: normal;
+    -webkit-animation-delay: 0;
+    -webkit-animation-play-state: running;
+    -webkit-animation-fill-mode: forwards;
+}
+
+#donateBubble {
+    position: relative;
+    width: 238px;
+    height: 80px;
+    padding: 5px;
+    background: #E7F3F8;
+    border: #87BACE solid 1px;
+    border-radius: 4px;
+    color: #555;
+    bottom: 55px;
+    left: 133px;
+    position: absolute;
+    opacity: 0;
+    text-align: center;
+}
+
+#donateBubble:after {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: -15px;
+    border-style: solid;
+    border-width: 15px 15px 15px 0;
+    border-color: transparent #E7F3F8;
+    display: block;
+    width: 0;
+    z-index: 1;
+}
+
+#donateBubble:before {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: -16px;
+    border-style: solid;
+    border-width: 15px 15px 15px 0;
+    border-color: transparent #87BACE;
+    display: block;
+    width: 0;
+    z-index: 0;
+}
+
+#donateBubble.fadeIn {
+    opacity: 1;   
+    -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
+    animation: fadein 1s;
+}
+
+.paypal_btn {
+    width: 181px;
+    height: 39px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    background: linear-gradient(#66A5C3,#467C96);
+    color: #FFF;
+    font-size: 16px;
+    border: 1px solid #2A5C74;
 }
