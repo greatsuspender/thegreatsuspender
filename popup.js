@@ -44,26 +44,26 @@
     function setWhitelistStatus(status) {
         if (status === 'whitelisted' || status === 'special') {
             //document.getElementById('whitelist').style.display = 'none';
-            document.getElementById('whitelist').innerHTML = 'Tab Whitelisted';
+            document.getElementById('whitelist').innerHTML = 'Tab whitelisted';
             document.getElementById('whitelist').className = 'bottomOption disabled';
         } else {
             //document.getElementById('whitelist').style.display = 'block';
-            document.getElementById('whitelist').innerHTML = 'Whitelist Tab';
+            document.getElementById('whitelist').innerHTML = 'Whitelist tab';
             document.getElementById('whitelist').className = 'bottomOption';
         }
     };
     function setTemporaryWhitelistStatus(status) {
         if (status === 'normal') {
             //document.getElementById('tempWhitelist').style.display = 'block';
-            document.getElementById('tempWhitelist').innerHTML = 'Pause Suspension';
+            document.getElementById('tempWhitelist').innerHTML = 'Pause suspension';
             document.getElementById('tempWhitelist').className = 'bottomOption';
         } else if (status === 'suspended') {
             //document.getElementById('whitelist').style.display = 'block';
-            document.getElementById('tempWhitelist').innerHTML = 'Tab Suspended';
+            document.getElementById('tempWhitelist').innerHTML = 'Tab suspended';
             document.getElementById('tempWhitelist').className = 'bottomOption disabled';
         } else {
             //document.getElementById('tempWhitelist').style.display = 'none';
-            document.getElementById('tempWhitelist').innerHTML = 'Suspension Paused';
+            document.getElementById('tempWhitelist').innerHTML = 'Suspension paused';
             document.getElementById('tempWhitelist').className = 'bottomOption disabled';
         }
     };

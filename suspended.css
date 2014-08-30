@@ -111,7 +111,7 @@ body {
 
 #dudePopup.poppedup {
     -webkit-animation-name: silde_to_top;
-    -webkit-animation-duration: 1.5s;
+    -webkit-animation-duration: 1s;
     -webkit-animation-timing-function: ease;
     -webkit-animation-iteration-count: 1;
     -webkit-animation-direction: normal;
@@ -123,17 +123,19 @@ body {
 #donateBubble {
     position: relative;
     width: 238px;
-    height: 80px;
-    padding: 5px;
+    height: 92px;
+    padding: 5px 0;
     background: #E7F3F8;
     border: #87BACE solid 1px;
     border-radius: 4px;
     color: #555;
-    bottom: 55px;
+    bottom: 30px;
     left: 133px;
     position: absolute;
     opacity: 0;
     text-align: center;
+    font-size: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 
 #donateBubble:after {
@@ -164,18 +166,8 @@ body {
 
 #donateBubble.fadeIn {
     opacity: 1;   
-    -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
-    animation: fadein 1s;
+    -webkit-animation: fadein 0.7s;
+    animation: fadein 0.7s;
 }
 
-.paypal_btn {
-    width: 181px;
-    height: 39px;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    background: linear-gradient(#66A5C3,#467C96);
-    color: #FFF;
-    font-size: 16px;
-    border: 1px solid #2A5C74;
-}
+

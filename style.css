@@ -191,3 +191,22 @@ table, tr, td {
 	padding: 0px 20px 0px 5px;
 	white-space: nowrap;
 }
+.paypal_btn {
+    width: 181px;
+    height: 39px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    background: #36BEF3;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25));
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #FFF;
+    font-size: 16px;
+    border: 1px solid #5B869B;
+    text-shadow: 0 -1px 0 #2A5C74;
+    border-bottom-color: #254858;
+}
+.paypal_btn:hover { 
+    background: #2A8CB3;
+}
