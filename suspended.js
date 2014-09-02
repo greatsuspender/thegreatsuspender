@@ -117,17 +117,6 @@
         }, 1000);
 
 
-        //TODO: do after 10 seconds of suspended tab focus instead
-        setTimeout(function() {
-            //show dude
-            document.getElementById('dudePopup').setAttribute('class', 'poppedup');
-            //then show donate link
-            setTimeout(function() {
-                document.getElementById('donateBubble').setAttribute('class','fadeIn');
-            }, 2000);
-        }, 3000);
-
-
         //populate suspended tab bar
         document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
@@ -183,6 +172,14 @@
 
         //try to suspend tab
         attemptTabSuspend();
+
+        //show dude and donate link (randomly 1 of 5 times)
+        if (Math.random() > 0.8) {
+            window.addEventListener('focus', function() {
+                document.getElementById('dudePopup').setAttribute('class', 'poppedup');
+                document.getElementById('donateBubble').setAttribute('class','fadeIn');
+            });
+        }
     };
 
 /*    window.onbeforeunload = function() {

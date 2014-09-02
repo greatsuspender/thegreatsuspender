@@ -70,7 +70,7 @@ var tgs = (function() {
 
     function isSpecialTab(tab) {
 
-        if (//tab.url.indexOf('chrome-extension:') == 0 ||
+        if ((tab.url.indexOf('chrome-extension:') == 0 && tab.url.indexOf('suspended.html') < 0) ||
                 tab.url.indexOf('chrome:') == 0 ||
                 tab.url.indexOf('chrome-devtools:') == 0 ||
                 tab.url.indexOf('file:') == 0 ||
@@ -485,8 +485,7 @@ var tgs = (function() {
         if (unsuspend) {
 
             //get tab object so we can check if it is a special tab
-            //if not, then we test if the tab is suspended by checking
-            //for an active content script
+            //if not, then we test if the tab is suspended
             chrome.tabs.get(tabId, function(tab) {
                 if (!isSpecialTab(tab)) {
                     checkForSuspendedTab(tab, function(isSuspended) {
@@ -616,10 +615,10 @@ var tgs = (function() {
     function getTabInfo(tab, callback) {
 
         var info = {
-            tabId: tab.id,
-            status: 'unknown',
-            timerUp: 0
-        };
+                tabId: tab.id,
+                status: '',
+                timerUp: '-'
+            };
 
         if (isSpecialTab(tab)) {
             info.status = 'special';
@@ -627,13 +626,19 @@ var tgs = (function() {
 
         } else {
 
-            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
+            checkForSuspendedTab(tab, function(isSuspended) {
 
-                //assume tab is suspended if there is no response
-                info.status = response ? updateTabStatus(tab, response.status) : 'suspended';
-                info.timerUp = response ? response.timerUp : false;
+                if (isSuspended) {
+                    info.status = 'suspended';
+                    callback(info);
 
-                callback(info);
+                } else {
+                    chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
+                        info.status = response ? updateTabStatus(tab, response.status) : 'unknown';
+                        info.timerUp = response ? response.timerUp : '?';
+                        callback(info);
+                    });
+                }
             });
         }
     }
