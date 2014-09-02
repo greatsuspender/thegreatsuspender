@@ -115,7 +115,7 @@ body {
     -webkit-animation-timing-function: ease;
     -webkit-animation-iteration-count: 1;
     -webkit-animation-direction: normal;
-    -webkit-animation-delay: 0;
+    -webkit-animation-delay: 3s;
     -webkit-animation-play-state: running;
     -webkit-animation-fill-mode: forwards;
 }
@@ -132,10 +132,10 @@ body {
     bottom: 30px;
     left: 133px;
     position: absolute;
-    opacity: 0;
     text-align: center;
     font-size: 15px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0;
 }
 
 #donateBubble:after {
@@ -165,9 +165,9 @@ body {
 }
 
 #donateBubble.fadeIn {
-    opacity: 1;   
     -webkit-animation: fadein 0.7s;
     animation: fadein 0.7s;
+    -webkit-animation-delay: 5s;
 }
 
 

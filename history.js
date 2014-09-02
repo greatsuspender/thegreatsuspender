@@ -43,25 +43,25 @@
                     gsSessionHistory = gsUtils.fetchGsSessionHistory(),
                     session = gsUtils.getSessionFromGroupKey(sessionId, gsSessionHistory),
                     window = gsUtils.getWindowFromSession(windowId, session),
+                    curTab,
                     curUrl,
                     i;
 
                 chrome.windows.create(function(newWindow) {
-                    if (suspendMode) {
-                        for (i = 0; i < window.tabs.length; i++) {
-                            if (!tgs.isSpecialTab(window.tabs[i])) {
-                                curUrl = gsUtils.generateSuspendedUrl(window.tabs[i].url);
-                            } else {
-                                curUrl = window.tabs[i].url;
-                            }
-                            chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: window.tabs[i].pinned, active: false});
-                        }
 
-                    } else {
-                        for (i = 0; i < window.tabs.length; i++) {
-                            chrome.tabs.create({windowId: newWindow.id, url: window.tabs[i].url, pinned: window.tabs[i].pinned, active: false});
+                    for (i = 0; i < window.tabs.length; i++) {
+
+                        curTab = window.tabs[i];
+                        curUrl = curTab.url;
+                        if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
+                            curUrl = gsUtils.generateSuspendedUrl(curUrl);
+
+                        } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
+                            curUrl = gsUtils.getHashVariable('url', curTab.url.split('suspended.html')[1]);
                         }
+                        chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
                     }
+
                     chrome.tabs.query({windowId: newWindow.id, index: 0}, function(tabs) {
                         chrome.tabs.remove(tabs[0].id);
                     });

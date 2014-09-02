@@ -70,7 +70,7 @@ var tgs = (function() {
 
     function isSpecialTab(tab) {
 
-        if (tab.url.indexOf('chrome-extension:') == 0 ||
+        if (//tab.url.indexOf('chrome-extension:') == 0 ||
                 tab.url.indexOf('chrome:') == 0 ||
                 tab.url.indexOf('chrome-devtools:') == 0 ||
                 tab.url.indexOf('file:') == 0 ||
@@ -116,7 +116,7 @@ var tgs = (function() {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.saveToWhitelist(rootUrlStr);
-                requestTabUnsuspend(tabs[0].id);
+                requestTabUnsuspend(tabs[0]);
             }
         });
     }
@@ -146,7 +146,7 @@ var tgs = (function() {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
 
             if (tabs.length > 0) {
-                requestTabUnsuspend(tabs[0].id);
+                requestTabUnsuspend(tabs[0]);
             }
         });
     }
@@ -194,7 +194,7 @@ var tgs = (function() {
         var i,
             currentTab,
             tabProperties,
-            tabIds = [],
+            responsiveTabs = [],
             tabResponses = {};
 
         for (i = 0; i < curWindow.tabs.length; i++) {
@@ -204,15 +204,15 @@ var tgs = (function() {
             //detect suspended tabs by looking for ones without content scripts
             if (!isSpecialTab(currentTab)) {
 
-                tabIds.push(currentTab.id);
+                responsiveTabs.push(currentTab);
 
                 (function() {
-                    var tabId = currentTab.id;
-                    checkForSuspendedTab(tabId, function(isSuspended) {
+                    var curTab = currentTab;
+                    checkForSuspendedTab(curTab, function(isSuspended) {
 
-                        tabResponses[tabId] = true;
+                        tabResponses[curTab.id] = true;
                         if (isSuspended) {
-                            requestTabUnsuspend(tabId);
+                            requestTabUnsuspend(curTab);
                         }
                     });
                 })();
@@ -222,12 +222,12 @@ var tgs = (function() {
         //handle any other tabs that didn't respond for whatever reason (usually because the tab has crashed)
         setTimeout(function() {
             var i,
-                curId;
+                curTab;
 
-            for (i = 0; i < tabIds.length; i++) {
-                curId = tabIds[i];
-                if (typeof(tabResponses[curId]) === 'undefined') {
-                     requestTabUnsuspend(curId);
+            for (i = 0; i < responsiveTabs.length; i++) {
+                curTab = responsiveTabs[i];
+                if (typeof(tabResponses[curTab.id]) === 'undefined') {
+                     requestTabUnsuspend(curTab);
                 }
             }
         }, 5000);
@@ -235,18 +235,31 @@ var tgs = (function() {
 
 
 
-    function checkForSuspendedTab(tabId, callback) {
+    function checkForSuspendedTab(tab, callback) {
 
-        //test if a content script is active by sending a 'requestInfo' message
-        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
 
-            //if response is given but is undefined, then assume suspended
-            if (typeof(response) === 'undefined') {
+        if (tidyUrls) {
+
+            //test if a content script is active by sending a 'requestInfo' message
+            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function(response) {
+
+                //if response is given but is undefined, then assume suspended
+                if (typeof(response) === 'undefined') {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            });
+
+        } else {
+
+            if (tab.url.indexOf('suspended.html') >= 0) {
                 callback(true);
             } else {
                 callback(false);
             }
-        });
+        }
     }
 
     function saveWindowHistory() {
@@ -308,7 +321,7 @@ var tgs = (function() {
         }
     }
 
-    function requestTabUnsuspend(tabId) {
+    function requestTabUnsuspend(tab) {
         /*chrome.tabs.sendMessage(tabId, {
             action: 'unsuspendTab'
         }, function(response) {
@@ -316,11 +329,27 @@ var tgs = (function() {
                 chrome.tabs.reload(tabId);
             }
         });*/
-        chrome.tabs.reload(tabId);
+
+        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
+            url;
+        if (tidyUrls) {
+            chrome.tabs.reload(tab.id);
+        } else {
+            url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+            chrome.tabs.update(tab.id, {url: url})
+        }
     }
 
     function unsuspendTab(tab) {
-        chrome.tabs.reload(tab.id);
+
+        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
+            url;
+        if (tidyUrls) {
+            chrome.tabs.reload(tab.id);
+        } else {
+            url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+            chrome.tabs.update(tab.id, {url: url})
+        }
     }
 
 
@@ -460,9 +489,9 @@ var tgs = (function() {
             //for an active content script
             chrome.tabs.get(tabId, function(tab) {
                 if (!isSpecialTab(tab)) {
-                    checkForSuspendedTab(tabId, function(isSuspended) {
+                    checkForSuspendedTab(tab, function(isSuspended) {
                         if (isSuspended) {
-                            requestTabUnsuspend(tabId);
+                            requestTabUnsuspend(tab);
                         }
                     });
                 }
@@ -645,7 +674,8 @@ var tgs = (function() {
 
     return {
         requestTabInfo: requestTabInfo,
-        updateIcon: updateIcon
+        updateIcon: updateIcon,
+        isSpecialTab: isSpecialTab
     };
 
 }());

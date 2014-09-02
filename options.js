@@ -13,7 +13,8 @@
             'dontSuspendForms': gsUtils.IGNORE_FORMS,
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
-            'whitelist': gsUtils.WHITELIST
+            'whitelist': gsUtils.WHITELIST,
+            'tidyUrls' : gsUtils.TIDY_URLS
         },
         elementIdMap = invert(elementPrefMap);
 
@@ -56,6 +57,7 @@
         }
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
+        setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
     }
 
@@ -95,6 +97,14 @@
         }
     }
 
+    function setTidyUrlVisibility(visible) {
+        if (visible) {
+            document.getElementById('tidyUrlsNote').style.display = 'block';
+        } else {
+            document.getElementById('tidyUrlsNote').style.display = 'none';
+        }
+    }
+
     function setOnlineCheckVisibility(visible) {
         if (visible) {
             document.getElementById('onlineCheckSection').style.display = 'block';
@@ -113,6 +123,9 @@
             //add specific screen element listeners
             if (pref === gsUtils.SHOW_PREVIEW) {
                 setPreviewQualityVisibility(getOptionValue(element));
+
+            } else if (pref === gsUtils.TIDY_URLS) {
+                setTidyUrlVisibility(getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 var interval = getOptionValue(element);
@@ -167,7 +180,7 @@
                 }
             });
         }
-    }, 1000);
+    }, 50);
 
 
     //TODO: add a pref save button

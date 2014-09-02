@@ -15,6 +15,7 @@
         IGNORE_PINNED: 'gsDontSuspendPinned',
         IGNORE_FORMS: 'gsDontSuspendForms',
         IGNORE_CACHE: 'gsIgnoreCache',
+        TIDY_URLS: 'gsTidyUrls',
         WHITELIST: 'gsWhitelist',
 
         APP_VERSION: 'gsVersion',
@@ -49,13 +50,14 @@
                 defaults[self.IGNORE_FORMS] = false;
                 defaults[self.IGNORE_CACHE] = false;
                 defaults[self.SUSPEND_TIME] = 0;
+                defaults[self.TIDY_URLS] = false;
                 defaults[self.MAX_HISTORIES] = 4;
                 defaults[self.WHITELIST] = '';
 
                 for (key in defaults) {
                     if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
                         settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
-                            ? localStorage.getItem(key) 
+                            ? localStorage.getItem(key)
                             : defaults[key];
                         migration = true;
                     }

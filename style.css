@@ -103,7 +103,7 @@ button:active {
 	text-shadow: 0 1px 0 white;
 	margin: 0 0 8px;
 }
-#previewQualityNote {
+.gsNote {
 	font-style: italic;
     font-size: 12;
     background: rgb(255, 247, 202);
@@ -207,6 +207,6 @@ table, tr, td {
     text-shadow: 0 -1px 0 #2A5C74;
     border-bottom-color: #254858;
 }
-.paypal_btn:hover { 
+.paypal_btn:hover {
     background: #2A8CB3;
 }

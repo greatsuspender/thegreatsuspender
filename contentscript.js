@@ -85,7 +85,7 @@
             //request suspension
             if (!inputState && !tempWhitelist) {
 
-                console.log('requesting suspension');
+                //console.log('requesting suspension');
                 chrome.runtime.sendMessage({action: 'suspendTab'});
             }
         }, interval);
@@ -136,14 +136,14 @@
 
         chrome.runtime.sendMessage({action: 'prefs'}, function(response) {
 
-            if (response) {
+            if (response && response.suspendTime) {
                 prefs = response;
 
                 //set timer job
-                timer = setTimerJob(response.suspendTime * 60 * 1000);
+                timer = setTimerJob(prefs.suspendTime * 60 * 1000);
 
                 //add form input listener
-                if (response.dontSuspendForms) {
+                if (prefs.dontSuspendForms) {
                     setFormInputJob();
                 }
             }
@@ -155,7 +155,7 @@
 
         var response = {};
 
-        console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
+        //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         //set up suspension timer
         if (request.action === 'resetTimer' && request.timeout > 0) {
@@ -163,7 +163,7 @@
             timer = setTimerJob(request.timeout);
 
         //listen for status request
-        } else if (request.action === 'requestInfo') {
+        } else if (request.action === 'requestInfo' && prefs) {
             var status = calculateState(),
                 suspendDate = calculateSuspendDate();
             response = {status: status, timerUp: suspendDate};

@@ -77,18 +77,20 @@
         var url = gsUtils.getHashVariable('url', window.location.hash),
             tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
-            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW);
+            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
+            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
 
         //just incase the url is a suspension url (somehow??) then decode it
-        if (url.indexOf('suspended.html#') >= 0) {
-            url = gsUtils.getHashVariable('url', url.split('suspended.html')[1]);
+        while (url.indexOf('suspended.html#') >= 0) {
+            url = gsUtils.getHashVariable('url', url.substring(url.indexOf('suspended.html#') + 14));
+            window.location.hash = 'url=' + url;
         }
         rootUrlStr = gsUtils.getRootUrl(url);
 
-        //if we have some suspend information for this tab
+        //if we are missing some suspend information for this tab
         if (!tabProperties) {
-            console.log('could not fetch tabProperties for tab: ' + url);
-            console.dir(gsUtils.fetchTabFromHistory(url));
+            //console.log('could not fetch tabProperties for tab: ' + url);
+            //console.dir(gsUtils.fetchTabFromHistory(url));
             tabProperties = {url: url};
         }
 
@@ -114,7 +116,7 @@
             document.getElementById('gsFavicon').setAttribute('href', favicon);
         }, 1000);
 
-        
+
         //TODO: do after 10 seconds of suspended tab focus instead
         setTimeout(function() {
             //show dude
@@ -139,18 +141,29 @@
             document.getElementById('gsTopBarImg').style.visibility = 'hidden';
         }
 */
-        //update url with actual url
-        console.log('replacing state: ' + url);
-        window.history.replaceState(null, null, url);
+
+        if (tidyUrls) {
+            //update url with actual url
+            //console.log('replacing state: ' + url);
+            window.history.replaceState(null, null, url);
+        }
     }
 
     function unsuspendTab() {
+
+        var url = gsUtils.getHashVariable('url', window.location.hash),
+            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
 
         //request reload
         try {
             chrome.runtime.sendMessage({action: 'confirmTabUnsuspend'});
         } catch (err) {
-            window.location.reload();
+
+            if (tidyUrls) {
+                window.location.reload();
+            } else {
+                window.location.href = url;
+            }
         }
     }
 
@@ -172,12 +185,12 @@
         attemptTabSuspend();
     };
 
-    window.onbeforeunload = function() {
+/*    window.onbeforeunload = function() {
 
         //update url with suspended url
         var url = gsUtils.generateSuspendedUrl(window.location.href);
         window.history.replaceState(null, null, url);
         document.body.style.cursor = 'wait';
     };
-
+*/
 }());
