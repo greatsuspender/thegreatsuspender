@@ -110,7 +110,7 @@
 
 
         saveToWhitelist: function(newString) {
-            var whitelist = this.getOption(this.WHITELIST) + ' ' + newString;
+            var whitelist = this.getOption(this.WHITELIST) + '\n' + newString;
             this.setOption(this.WHITELIST, whitelist);
         },
 
