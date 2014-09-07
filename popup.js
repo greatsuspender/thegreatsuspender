@@ -20,7 +20,7 @@
                 statusSrc = 'status_special.png';
 
             } else if (status === 'whitelisted') {
-                statusDetail = 'This tab has been whitelisted';
+                statusDetail = 'This site has been whitelisted';
                 statusSrc = 'status_whitelist.png';
 
             } else if (status === 'formInput') {
@@ -44,11 +44,11 @@
     function setWhitelistStatus(status) {
         if (status === 'whitelisted' || status === 'special') {
             //document.getElementById('whitelist').style.display = 'none';
-            document.getElementById('whitelist').innerHTML = 'Tab whitelisted';
+            document.getElementById('whitelist').innerHTML = 'Site whitelisted';
             document.getElementById('whitelist').className = 'bottomOption disabled';
         } else {
             //document.getElementById('whitelist').style.display = 'block';
-            document.getElementById('whitelist').innerHTML = 'Whitelist tab';
+            document.getElementById('whitelist').innerHTML = 'Whitelist site';
             document.getElementById('whitelist').className = 'bottomOption';
         }
     };
