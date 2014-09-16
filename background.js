@@ -515,10 +515,6 @@ var tgs = (function() {
         }
     });*/
 
-    //suspendAllTabsOnStartup();
-
-    if (debug) chrome.browserAction.setBadgeText({text: '!'});
-
     chrome.alarms.clearAll();
     chrome.alarms.create('saveWindowHistory', {periodInMinutes: 1});
     if (debug) console.log('alarm created: saveWindowHistory');
@@ -542,32 +538,109 @@ var tgs = (function() {
       chrome.tabs.create({url: "http://www.google.com/"});
     });*/
 
+
+    //careful. this seems to get called on extension reload as well as initial install
     chrome.runtime.onInstalled.addListener(function() {
 
-        //show welcome screen
-        chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-
         var lastVersion = gsUtils.fetchVersion(),
+            curVersion = chrome.runtime.getManifest().version,
             gsHistory = gsUtils.fetchGsHistory(),
             oldGsHistory = gsUtils.fetchOldGsHistory(),
             i;
 
-        gsUtils.setVersion(chrome.runtime.getManifest().version);
 
-        //check for very old history migration
-        if (oldGsHistory !== null) {
+        //if version hasn't changed then assume crashed session
+        if (lastVersion === curVersion) {
 
-            //merge old gsHistory with new one
-            for (i = 0; i < oldGsHistory.length; i++) {
-                gsHistory.push(oldGsHistory[i]);
+            //attempt to automatically restore any lost tabs/windows in their proper positions
+            var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+                crashedSession,
+                windowsMap = {},
+                tabMap = {},
+                curWindow,
+                curTab,
+                i,
+                j;
+
+            //if we have a valid last session and we are not using tidy_urls
+            if (gsSessionHistory.length > 0 && !gsUtils.getOption(gsUtils.TIDY_URLS)) {
+                crashedSession = gsSessionHistory[0];
+
+                chrome.windows.getAll({populate: true}, function(windows) {
+
+                    for (i = 0; i < windows.length; i++) {
+                        curWindow = windows[i];
+                        tabMap = {};
+                        for (j = 0; j < curWindow.tabs.length; j++) {
+                            curTab = curWindow.tabs[j];
+                            tabMap[curTab.id] = curTab;
+                        }
+                        windowsMap[curWindow.id] = tabMap;
+                    }
+
+
+                    for (i = 0; i < crashedSession.windows.length; i++) {
+
+                        curWindow = crashedSession.windows[i];
+
+                        //if crashed window exists in current session
+                        if (windowsMap[curWindow.id]) {
+
+                            tabMap = windowsMap[curWindow.id];
+
+                            //for each tab in crashed window, make sure it exists in cur session
+                            for (j = 0; j < curWindow.tabs.length; j++) {
+
+                                curTab = curWindow.tabs[j];
+
+                                //if current tab was suspended and does not exist then recreate it
+                                if (!tabMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
+
+                                    chrome.tabs.create({
+                                        windowId: curWindow.id,
+                                        url: curTab.url,
+                                        index: curTab.index,
+                                        pinned: curTab.pinned,
+                                        active: false
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
             }
-            gsUtils.setGsHistory(gsHistory);
-            gsUtils.removeOldGsHistory();
-        }
 
-        //if they are installing for the first time
-        if (!lastVersion) {
-            gsUtils.setGsHistory([]);
+
+        //else assume initial install or upgrade
+        } else {
+
+            gsUtils.setVersion(curVersion);
+
+            //if they are installing for the first time
+            if (!lastVersion) {
+                gsUtils.setGsHistory([]);
+
+                //show welcome screen
+                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+
+
+            //else if they are upgrading to a new version
+            } else {
+
+                //check for very old history migration
+                if (oldGsHistory !== null) {
+
+                    //merge old gsHistory with new one
+                    for (i = 0; i < oldGsHistory.length; i++) {
+                        gsHistory.push(oldGsHistory[i]);
+                    }
+                    gsUtils.setGsHistory(gsHistory);
+                    gsUtils.removeOldGsHistory();
+                }
+
+                //show update screen
+                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+            }
         }
 
         //inject new content script into all open pages
@@ -669,8 +742,8 @@ var tgs = (function() {
         if ((status === 'formInput' && dontSuspendForms) ||
                 (status === 'pinned' && dontSuspendPinned) ||
                 status === 'tempWhitelist' || status === 'whitelisted') {
-            chrome.browserAction.setBadgeBackgroundColor({color: '#777'});//#36BEF3'});
-            chrome.browserAction.setBadgeText({text: '!'});
+            //chrome.browserAction.setBadgeBackgroundColor({color: '#777'});//#36BEF3'});
+            //chrome.browserAction.setBadgeText({text: '!'});
 
         } else {
             chrome.browserAction.setBadgeText({text: ''});

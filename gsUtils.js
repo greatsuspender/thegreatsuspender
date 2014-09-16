@@ -16,6 +16,7 @@
         IGNORE_FORMS: 'gsDontSuspendForms',
         IGNORE_CACHE: 'gsIgnoreCache',
         TIDY_URLS: 'gsTidyUrls',
+        NO_NAG: 'gsNoNag',
         WHITELIST: 'gsWhitelist',
 
         APP_VERSION: 'gsVersion',
@@ -51,6 +52,7 @@
                 defaults[self.IGNORE_CACHE] = false;
                 defaults[self.SUSPEND_TIME] = 0;
                 defaults[self.TIDY_URLS] = false;
+                defaults[self.NO_NAG] = false;
                 defaults[self.MAX_HISTORIES] = 4;
                 defaults[self.WHITELIST] = '';
 
@@ -115,7 +117,11 @@
         },
 
         fetchVersion: function() {
-            return localStorage.getItem(this.APP_VERSION);
+            var result = localStorage.getItem(this.APP_VERSION);
+            if (result !== null) {
+                result = JSON.parse(result);
+            }
+            return result;
         },
         setVersion: function(newVersion) {
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
@@ -276,7 +282,7 @@
                 sessionHistory;
 
             //if there is no history, try migrating history for gsHistory
-            if (result === null) {
+            /*if (result === null) {
 
                 var gsHistory = this.fetchGsHistory(),
                     i,
@@ -315,6 +321,11 @@
 
             } else {
                 sessionHistory = JSON.parse(result);
+            }*/
+            if (result) {
+                sessionHistory = JSON.parse(result);
+            } else {
+                sessionHistory = [];
             }
             return sessionHistory;
         },

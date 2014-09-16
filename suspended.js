@@ -39,6 +39,7 @@
 
         var img = new Image(),
             boxSize = 9;
+
         img.onload = function() {
             var canvas,
                 context;
@@ -70,6 +71,15 @@
             callback(canvas.toDataURL());
         };
         img.src = url || chrome.extension.getURL('default.ico');
+    }
+
+    function setFavicon(favicon) {
+
+        document.getElementById('gsFavicon').setAttribute('href', favicon);
+
+        setTimeout(function() {
+            document.getElementById('gsFavicon').setAttribute('href', favicon);
+        }, 1000);
     }
 
     function attemptTabSuspend() {
@@ -108,14 +118,16 @@
 
         var favicon = tabProperties.favicon || 'chrome://favicon/' + url;
 
-        document.getElementById('gsFavicon').setAttribute('href', favicon);
-        /*generateFaviconUri(favicon, function(faviconUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
-        });*/
-        setTimeout(function() {
-            document.getElementById('gsFavicon').setAttribute('href', favicon);
-        }, 1000);
+        //if tidyUrls on then just use normal favicon
+        if (tidyUrls) {
+            setFavicon(favicon);
 
+        //otherwise use semi-opaque favicon
+        } else {
+            generateFaviconUri(favicon, function(faviconUrl) {
+                setFavicon(faviconUrl);
+            });
+        }
 
         //populate suspended tab bar
         document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
@@ -156,6 +168,12 @@
         }
     }
 
+    function hideNagForever() {
+        gsUtils.setOption(gsUtils.NO_NAG, true);
+        document.getElementById('dudePopup').style.display = 'none';
+        document.getElementById('donateBubble').style.display = 'none';
+    }
+
     window.onload = function() {
 
         //handler for unsuspend
@@ -167,6 +185,10 @@
             gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
         };
 
+        //handler for donate options
+        document.getElementById('noDonate').onclick = hideNagForever;
+        document.getElementById('donateBubble').onclick = hideNagForever;
+
         //mark tab as suspended
         //sendSuspendedMessage();
 
@@ -174,10 +196,10 @@
         attemptTabSuspend();
 
         //show dude and donate link (randomly 1 of 5 times)
-        if (Math.random() > 0.8) {
+        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.8) {
             window.addEventListener('focus', function() {
                 document.getElementById('dudePopup').setAttribute('class', 'poppedup');
-                document.getElementById('donateBubble').setAttribute('class','fadeIn');
+                document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
             });
         }
     };
