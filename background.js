@@ -502,6 +502,67 @@ var tgs = (function() {
         cancelTabTimer(tabId);
     }
 
+    function checkForCrashRecovery() {
+
+        //attempt to automatically restore any lost tabs/windows in their proper positions
+        var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+            crashedSession,
+            windowsMap = {},
+            tabMap = {},
+            curWindow,
+            curTab,
+            i,
+            j;
+
+        //if we have a valid last session
+        if (gsSessionHistory.length > 0) {
+            crashedSession = gsSessionHistory[0];
+
+            chrome.windows.getAll({populate: true}, function(windows) {
+
+                for (i = 0; i < windows.length; i++) {
+                    curWindow = windows[i];
+                    tabMap = {};
+                    for (j = 0; j < curWindow.tabs.length; j++) {
+                        curTab = curWindow.tabs[j];
+                        tabMap[curTab.id] = curTab;
+                    }
+                    windowsMap[curWindow.id] = tabMap;
+                }
+
+
+                for (i = 0; i < crashedSession.windows.length; i++) {
+
+                    curWindow = crashedSession.windows[i];
+
+                    //if crashed window exists in current session
+                    if (windowsMap[curWindow.id]) {
+
+                        tabMap = windowsMap[curWindow.id];
+
+                        //for each tab in crashed window, make sure it exists in cur session
+                        for (j = 0; j < curWindow.tabs.length; j++) {
+
+                            curTab = curWindow.tabs[j];
+
+                            //if current tab was suspended and does not exist then recreate it
+                            if (!tabMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
+
+                                chrome.tabs.create({
+                                    windowId: curWindow.id,
+                                    url: curTab.url,
+                                    index: curTab.index,
+                                    pinned: curTab.pinned,
+                                    active: false
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
 
     //listen for tab updating
     //don't want to put a listener here as it's called too aggressively by chrome
@@ -542,77 +603,19 @@ var tgs = (function() {
     //careful. this seems to get called on extension reload as well as initial install
     chrome.runtime.onInstalled.addListener(function() {
 
-        var lastVersion = gsUtils.fetchVersion(),
+        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
+            lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version,
             gsHistory = gsUtils.fetchGsHistory(),
             oldGsHistory = gsUtils.fetchOldGsHistory(),
             i;
 
+        if (!tidyUrls) {
+            checkForCrashRecovery();
+        }
 
-        //if version hasn't changed then assume crashed session
-        if (lastVersion === curVersion) {
-
-            //attempt to automatically restore any lost tabs/windows in their proper positions
-            var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-                crashedSession,
-                windowsMap = {},
-                tabMap = {},
-                curWindow,
-                curTab,
-                i,
-                j;
-
-            //if we have a valid last session and we are not using tidy_urls
-            if (gsSessionHistory.length > 0 && !gsUtils.getOption(gsUtils.TIDY_URLS)) {
-                crashedSession = gsSessionHistory[0];
-
-                chrome.windows.getAll({populate: true}, function(windows) {
-
-                    for (i = 0; i < windows.length; i++) {
-                        curWindow = windows[i];
-                        tabMap = {};
-                        for (j = 0; j < curWindow.tabs.length; j++) {
-                            curTab = curWindow.tabs[j];
-                            tabMap[curTab.id] = curTab;
-                        }
-                        windowsMap[curWindow.id] = tabMap;
-                    }
-
-
-                    for (i = 0; i < crashedSession.windows.length; i++) {
-
-                        curWindow = crashedSession.windows[i];
-
-                        //if crashed window exists in current session
-                        if (windowsMap[curWindow.id]) {
-
-                            tabMap = windowsMap[curWindow.id];
-
-                            //for each tab in crashed window, make sure it exists in cur session
-                            for (j = 0; j < curWindow.tabs.length; j++) {
-
-                                curTab = curWindow.tabs[j];
-
-                                //if current tab was suspended and does not exist then recreate it
-                                if (!tabMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
-
-                                    chrome.tabs.create({
-                                        windowId: curWindow.id,
-                                        url: curTab.url,
-                                        index: curTab.index,
-                                        pinned: curTab.pinned,
-                                        active: false
-                                    });
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-
-        //else assume initial install or upgrade
-        } else {
+        //if version hasn changed then assume initial install or upgrade
+        if (lastVersion !== curVersion) {
 
             gsUtils.setVersion(curVersion);
 
