@@ -118,7 +118,21 @@
 
         saveToWhitelist: function(newString) {
             var whitelist = this.getOption(this.WHITELIST) + '\n' + newString;
+            whitelist = this.cleanupWhitelist(whitelist);
             this.setOption(this.WHITELIST, whitelist);
+        },
+
+        cleanupWhitelist: function(whitelist) {
+            var whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+                i,
+                j;
+
+            for (i = 0; i < whitelistedWords.length; i++) {
+                if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i)
+                    whitelistedWords.splice(i + 1, j - i);
+            }
+
+            return whitelistedWords.join('\n');
         },
 
         fetchVersion: function() {
@@ -275,17 +289,17 @@
             this.setGsSessionHistory([]);
         },
 
-        getSessionFromGroupKey: function(groupKey) {
+        getSessionById: function(sessionId) {
             var i = 0,
                 sessionHistory = this.fetchGsSessionHistory();
             for (i = 0; i < sessionHistory.length; i++) {
-                if (sessionHistory[i].id == groupKey) {
+                if (sessionHistory[i].id == sessionId) {
                     return sessionHistory[i];
                 }
             }
             sessionHistory = this.fetchGsSavedSessions();
             for (i = 0; i < sessionHistory.length; i++) {
-                if (sessionHistory[i].id == groupKey) {
+                if (sessionHistory[i].id == sessionId) {
                     return sessionHistory[i];
                 }
             }
@@ -368,6 +382,15 @@
             this.setGsSavedSessions(savedSessions);
         },
 
+        generateSessionId: function() {
+            var sessionId = false;
+            while (!sessionId) {
+                sessionId = Math.floor(Math.random() * 1000000);
+                if (this.getSessionById(sessionId)) {
+                    sessionId = false;
+                }
+            }
+        },
 
         generateSuspendedUrl: function(tabUrl, tabTitle) {
             var args = '#url=' + encodeURIComponent(tabUrl);

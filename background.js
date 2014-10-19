@@ -10,8 +10,8 @@ var tgs = (function() {
 
     'use strict';
 
-    var debug = false;
-    var sessionId = Math.floor(Math.random() * 1000000);
+    var debug = true;
+    var sessionId = gsUtils.generateSessionId();
     var sessionDate = new Date();
     var lastSelectedTabs = [];
     var currentTabId;

@@ -40,7 +40,7 @@
                 var tgs = backgroundPage.tgs,
                     windowId = element.getAttribute('data-windowId'),
                     sessionId = element.getAttribute('data-sessionId'),
-                    session = gsUtils.getSessionFromGroupKey(sessionId),
+                    session = gsUtils.getSessionById(sessionId),
                     window = gsUtils.getWindowFromSession(windowId, session),
                     curTab,
                     curUrl,
