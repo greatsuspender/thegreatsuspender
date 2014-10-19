@@ -40,8 +40,7 @@
                 var tgs = backgroundPage.tgs,
                     windowId = element.getAttribute('data-windowId'),
                     sessionId = element.getAttribute('data-sessionId'),
-                    gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-                    session = gsUtils.getSessionFromGroupKey(sessionId, gsSessionHistory),
+                    session = gsUtils.getSessionFromGroupKey(sessionId),
                     window = gsUtils.getWindowFromSession(windowId, session),
                     curTab,
                     curUrl,
@@ -74,17 +73,11 @@
 
         return function() {
 
-            var url = element.getAttribute('data-url'),
-                tabId = element.getAttribute('data-tabId'),
+            var tabId = element.getAttribute('data-tabId'),
                 windowId = element.getAttribute('data-windowId'),
                 sessionId = element.getAttribute('data-sessionId');
 
-            if (typeof(url) !== 'undefined') {
-                gsUtils.removeTabFromHistory(url);
-            } else {
-                gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
-            }
-
+            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
             render();
         };
     }
@@ -119,9 +112,34 @@
         };
     }
 
+    function hideModal() {
+        document.getElementById('sessionNameModal').style.display = 'none';
+        document.getElementsByClassName('mainContent')[0].className = 'mainContent';
+    }
+
+    function saveSession(sessionId) {
+
+        var session = getSessionById(sessionId);
+
+        document.getElementsByClassName('mainContent')[0].className += ' blocked';
+        document.getElementById('sessionNameModal').style.display = 'block';
+        document.getElementById('sessionNameText').focus();
+
+        document.getElementById('sessionNameCancel').onclick = hideModal;
+        document.getElementById('sessionNameSubmit').onclick = function() {
+
+            var text = document.getElementById('sessionNameText').value;
+            if (text) {
+                gsUtils.saveSession(text, session);
+                render();
+            }
+        };
+    }
+
     function getSessionById(sessionId) {
 
         var gsHistory = gsUtils.fetchGsSessionHistory(),
+            gsSavedHistory = gsUtils.fetchGsSavedSessions(),
             i;
 
         for (i = 0; i < gsHistory.length; i++) {
@@ -129,13 +147,20 @@
                 return gsHistory[i];
             }
         }
+        for (i = 0; i < gsSavedHistory.length; i++) {
+            if (gsSavedHistory[i].id == sessionId) {
+                return gsSavedHistory[i];
+            }
+        }
         return false;
     }
 
     function createSessionHtml(session) {
 
-        var sessionContainer,
+        var savedSession = session.name ? true : false,
+            sessionContainer,
             sessionTitle,
+            sessionSave,
             sessionDiv,
             j,
             k,
@@ -147,14 +172,25 @@
             }
         }
 
-        sessionTitle = document.createElement('h3');
+        sessionTitle = document.createElement('span');
         sessionTitle.className = 'sessionLink';
-        sessionTitle.innerHTML = j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ': ' + gsUtils.getHumanDate(session.date);
+
+        if (savedSession) {
+            sessionTitle.innerHTML = session.name + ' (' + j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ')';
+        } else {
+            sessionTitle.innerHTML = j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ': ' + gsUtils.getHumanDate(session.date);
+            sessionSave = document.createElement('a');
+            sessionSave.className = 'groupLink';
+            sessionSave.setAttribute('href', '#');
+            sessionSave.innerHTML = 'save session';
+            sessionSave.onclick = function() {saveSession(session.id)};
+        }
         sessionDiv = document.createElement('div');
         sessionDiv.setAttribute('data-sessionId', session.id);
         sessionTitle.onclick = toggleSession(sessionDiv);
         sessionContainer = document.createElement('div');
         sessionContainer.appendChild(sessionTitle);
+        if (!savedSession) sessionContainer.appendChild(sessionSave);
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
@@ -231,27 +267,32 @@
     function render() {
 
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+            gsSavedSessions = gsUtils.fetchGsSavedSessions(),
             i,
             sessionsDiv = document.getElementById('recoveryLinks'),
+            historyDiv = document.getElementById('historyLinks'),
             session,
             sessionEl;
 
+        hideModal();
         sessionsDiv.innerHTML = '';
 
         for (i = 0; i < gsSessionHistory.length; i++) {
 
-            //ignore current session
-            if (i === 0) {
-                //continue;
-            }
-            /*if (chrome.runtime.getBackgroundPage().tgs.sessionId === gsSessionHistory[i].id) {
-                continue;
-            }*/
             session = gsSessionHistory[i];
             sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
         }
 
-        var gsHistory = gsUtils.fetchGsHistory(),
+
+        historyDiv.innerHTML = '';
+
+        for (i = 0; i < gsSavedSessions.length; i++) {
+
+            session = gsSavedSessions[i];
+            sessionEl = historyDiv.appendChild(createSessionHtml(session));
+        }
+
+        /*var gsHistory = gsUtils.fetchGsHistory(),
             historyMap = {},
             tabProperties,
             key,
@@ -282,7 +323,7 @@
                 historyMap[key] = true;
                 historyDiv.appendChild(createTabHtml(tabProperties));
             }
-        }
+        }*/
     }
 
     window.onload = function() {

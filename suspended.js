@@ -183,6 +183,7 @@
         //handler for whitelist
         document.getElementById('gsWhitelistLink').onclick = function(e) {
             gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
+            unsuspendTab();
         };
 
         //handler for donate options

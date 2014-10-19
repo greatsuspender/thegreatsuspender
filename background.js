@@ -62,9 +62,9 @@ var tgs = (function() {
         gsHistory.unshift(tabProperties);
 
         //clean up old items
-        /*while (gsHistory.length > 100) {
+        while (gsHistory.length > 100) {
             gsHistory.pop();
-        }*/
+        }
         gsUtils.setGsHistory(gsHistory);
     }
 
@@ -530,7 +530,6 @@ var tgs = (function() {
                     windowsMap[curWindow.id] = tabMap;
                 }
 
-
                 for (i = 0; i < crashedSession.windows.length; i++) {
 
                     curWindow = crashedSession.windows[i];
@@ -603,18 +602,31 @@ var tgs = (function() {
     //careful. this seems to get called on extension reload as well as initial install
     chrome.runtime.onInstalled.addListener(function() {
 
+        var settings = gsUtils.getSettings();
+
+        if (gsUtils.getSettings() === null) {
+            gsUtils.initSettings(function() {
+                runStartupChecks();
+            });
+        } else {
+            runStartupChecks();
+        }
+    });
+
+    function runStartupChecks() {
+
         var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
             lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version,
             gsHistory = gsUtils.fetchGsHistory(),
-            oldGsHistory = gsUtils.fetchOldGsHistory(),
             i;
 
+        //check for possible crash
         if (!tidyUrls) {
             checkForCrashRecovery();
         }
 
-        //if version hasn changed then assume initial install or upgrade
+        //if version has changed then assume initial install or upgrade
         if (lastVersion !== curVersion) {
 
             gsUtils.setVersion(curVersion);
@@ -630,51 +642,46 @@ var tgs = (function() {
             //else if they are upgrading to a new version
             } else {
 
-                //check for very old history migration
-                if (oldGsHistory !== null) {
-
-                    //merge old gsHistory with new one
-                    for (i = 0; i < oldGsHistory.length; i++) {
-                        gsHistory.push(oldGsHistory[i]);
-                    }
-                    gsUtils.setGsHistory(gsHistory);
-                    gsUtils.removeOldGsHistory();
+                //if pre v5 then perform migration
+                if (parseFloat(lastVersion) < 5) {
+                    gsUtils.performMigration();
                 }
 
                 //show update screen
                 chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             }
+
+
+            //inject new content script into all open pages
+            chrome.tabs.query({}, function(tabs) {
+                var i,
+                    currentTab,
+                    timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
+
+                for (i = 0; i < tabs.length; i++) {
+                    currentTab = tabs[i];
+
+                    if (!isSpecialTab(currentTab)) {
+
+                        (function() {
+                            var tabId = currentTab.id;
+                            //test if a content script is active by sending a 'requestInfo' message
+                            chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+                                //if no response, then try to dynamically load in the new contentscript.js file
+                                if (typeof(response) === 'undefined') {
+                                    chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function() {
+                                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                                    });
+                                }
+                            });
+                        })();
+                    }
+                }
+            });
         }
 
-        //inject new content script into all open pages
-        chrome.tabs.query({}, function(tabs) {
-            var i,
-                currentTab,
-                timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
-
-            for (i = 0; i < tabs.length; i++) {
-                currentTab = tabs[i];
-
-                if (!isSpecialTab(currentTab)) {
-
-                    (function() {
-                        var tabId = currentTab.id;
-                        //test if a content script is active by sending a 'requestInfo' message
-                        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
-
-                            //if no response, then try to dynamically load in the new contentscript.js file
-                            if (typeof(response) === 'undefined') {
-                                chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function() {
-                                    chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                                });
-                            }
-                        });
-                    })();
-                }
-            }
-        });
-
-    });
+    }
 
     //get info for a tab. defaults to currentTab if no id passed in
     function requestTabInfo(tabId, callback) {

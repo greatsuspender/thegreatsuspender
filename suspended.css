@@ -10,7 +10,7 @@ body {
     position: absolute;
     height: 100%;
     width: 100%;
-    overflow: hidden;
+    overflow-y:hidden;
 }
 #gsTopBar  {
    	position: fixed;
@@ -48,7 +48,8 @@ body {
     color: #000;
 }
 #gsPreview {
-    margin-top:115px;
+    margin-top:85px;
+    width: 100%;
 }
 .centerBoxContainer {
     text-align: center;
@@ -86,7 +87,7 @@ body {
 #dudePopup {
     position: absolute;
     left: 30px;
-    bottom: -300px;
+    bottom: -270px;
 }
 
 @-webkit-keyframes silde_to_top {
@@ -94,7 +95,7 @@ body {
         bottom: -300px;
     }
     100% {
-        bottom: 0;
+        bottom: 50px;
         z-index: 1000000;
     }
 }
@@ -122,14 +123,14 @@ body {
 
 #donateBubble {
     position: relative;
-    width: 238px;
+    width: 325px;
     height: 92px;
     padding: 5px 0;
     background: #E7F3F8;
     border: #87BACE solid 1px;
     border-radius: 4px;
     color: #555;
-    bottom: 30px;
+    bottom: 80px;
     left: 133px;
     position: absolute;
     text-align: center;

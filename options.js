@@ -146,7 +146,6 @@
             var optionEls = document.getElementsByClassName('option'),
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory'),
-                cleanupWhitelistEl = document.getElementById('cleanupWhitelist'),
                 element,
                 i;
 
@@ -161,23 +160,7 @@
             };
             clearHistoryEl.onclick = function(e) {
                 gsUtils.clearGsSessionHistory();
-                gsUtils.clearGsHistory();
                 gsUtils.clearPreviews();
-            };
-            cleanupWhitelistEl.onclick = function(e) {
-                var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
-                    whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
-                    whitelistEl = document.getElementById('whitelist'),
-                    i,
-                    j,
-                    ii = whitelistedWords.length;
-
-                for (i = 0; i < ii; i++)
-                    if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i)
-                        whitelistedWords.splice(i+1, j-i);
-
-                whitelistEl.value = whitelistedWords.join('\n');
-                whitelistEl.onchange();
             };
 
             chrome.storage.onChanged.addListener(function(changes, namespace) {
