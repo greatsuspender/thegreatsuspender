@@ -10,7 +10,7 @@ var tgs = (function() {
 
     'use strict';
 
-    var debug = true;
+    var debug = false;
     var sessionId = gsUtils.generateSessionId();
     var sessionDate = new Date();
     var lastSelectedTabs = [];
@@ -121,12 +121,33 @@ var tgs = (function() {
         });
     }
 
+    function unwhitelistHighlightedTab(window) {
+
+        chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
+
+            if (tabs.length > 0) {
+                var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
+                gsUtils.removeFromWhitelist(rootUrlStr);
+            }
+        });
+    }
+
     function temporarilyWhitelistHighlightedTab(window) {
 
         chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
 
             if (tabs.length > 0) {
                 chrome.tabs.sendMessage(tabs[0].id, {action: 'tempWhitelist'});
+            }
+        });
+    }
+
+    function undoTemporarilyWhitelistHighlightedTab(window) {
+
+        chrome.tabs.query({windowId: window.id, highlighted: true}, function(tabs) {
+
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(tabs[0].id, {action: 'undoTempWhitelist'});
             }
         });
     }
@@ -420,8 +441,14 @@ var tgs = (function() {
             } else if (request.action === 'tempWhitelist') {
                 chrome.windows.getLastFocused({populate: true}, temporarilyWhitelistHighlightedTab);
 
+            } else if (request.action === 'undoTempWhitelist') {
+                chrome.windows.getLastFocused({populate: true}, undoTemporarilyWhitelistHighlightedTab);
+
             } else if (request.action === 'whitelist') {
                 chrome.windows.getLastFocused({populate: true}, whitelistHighlightedTab);
+
+            } else if (request.action === 'removeWhitelist') {
+                chrome.windows.getLastFocused({populate: true}, unwhitelistHighlightedTab);
 
             } else if (request.action === 'suspendAll') {
                 chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
@@ -594,9 +621,13 @@ var tgs = (function() {
         if (debug) chrome.browserAction.setBadgeText({text: ''});
     });
 
-    /*chrome.commands.onCommand.addListener(function(command) {
-      chrome.tabs.create({url: "http://www.google.com/"});
-    });*/
+    chrome.commands.onCommand.addListener(function(command) {
+        if (command === 'suspend-tab') {
+            chrome.tabs.query({active: true}, function(tabs) {
+                requestTabSuspension(tabs[0], true);
+            });
+        }
+    });
 
 
     //careful. this seems to get called on extension reload as well as initial install
@@ -650,37 +681,41 @@ var tgs = (function() {
                 //show update screen
                 chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             }
-
-
-            //inject new content script into all open pages
-            chrome.tabs.query({}, function(tabs) {
-                var i,
-                    currentTab,
-                    timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
-
-                for (i = 0; i < tabs.length; i++) {
-                    currentTab = tabs[i];
-
-                    if (!isSpecialTab(currentTab)) {
-
-                        (function() {
-                            var tabId = currentTab.id;
-                            //test if a content script is active by sending a 'requestInfo' message
-                            chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
-
-                                //if no response, then try to dynamically load in the new contentscript.js file
-                                if (typeof(response) === 'undefined') {
-                                    chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function() {
-                                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                                    });
-                                }
-                            });
-                        })();
-                    }
-                }
-            });
         }
 
+        //inject new content script into all open pages
+        reinjectContentScripts();
+
+    }
+
+    function reinjectContentScripts() {
+
+        chrome.tabs.query({}, function(tabs) {
+            var i,
+                currentTab,
+                timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
+
+            for (i = 0; i < tabs.length; i++) {
+                currentTab = tabs[i];
+
+                if (!isSpecialTab(currentTab)) {
+
+                    (function() {
+                        var tabId = currentTab.id;
+                        //test if a content script is active by sending a 'requestInfo' message
+                        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+
+                            //if no response, then try to dynamically load in the new contentscript.js file
+                            if (typeof(response) === 'undefined') {
+                                chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function() {
+                                    chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                                });
+                            }
+                        });
+                    })();
+                }
+            }
+        });
     }
 
     //get info for a tab. defaults to currentTab if no id passed in
@@ -728,7 +763,7 @@ var tgs = (function() {
 
     function updateTabStatus(tab, reportedStatus) {
 
-        if (reportedStatus === 'normal' && checkWhiteList(tab.url)) {
+        if (checkWhiteList(tab.url)) {
             reportedStatus = 'whitelisted';
         } else if (reportedStatus === 'normal' && isPinnedTab(tab)) {
             reportedStatus = 'pinned';

@@ -1,7 +1,7 @@
 {
     "name": "The Great Suspender",
     "description": "Automatically suspends unused tabs to free up system resources",
-    "version": "5.29",
+    "version": "5.30",
     "permissions": [
         "tabs",
         "storage",
@@ -38,12 +38,13 @@
     "minimum_chrome_version": "22",
 
   "commands": {
-    "open-google": {
-      "description": "Open a tab to google.com",
-      "suggested_key": { "default": "Ctrl+Shift+L" }
+    "suspend-tab": {
+      "description": "Suspend active tab",
+      "suggested_key": { "default": "Ctrl+Shift+S" }
     },
-    "_execute_browser_action": {
-      "suggested_key": { "default": "Ctrl+Shift+K" }
+    "unsuspend-tab": {
+      "description": "Unsuspend active tab",
+      "suggested_key": { "default": "Ctrl+Shift+U" }
     }
   }
 }

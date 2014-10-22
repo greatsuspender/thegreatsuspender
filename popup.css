@@ -98,7 +98,6 @@ body {
 #bottom {
 	background: #FFF;
 	padding-top: 1px;
-	height: 40px;
 	padding: 5px 0 0 5px;
 }
 .bottomOption {
@@ -126,8 +125,13 @@ body {
 	background: #2A8CB3;
 }
 .bottomOption.disabled {
-	background: #999999;
+	background: #f1f1f1;
+	color: #888;
 	cursor: default;
+}
+.bottomOption.undo {
+	background: #CF5959;
+	color: #fff;
 }
 .icon {
 	background: #6B6B6B;

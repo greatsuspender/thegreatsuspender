@@ -30,56 +30,56 @@
             var self = this;
             self.callback = fn;
 
-            chrome.storage.sync.get(null, function(items) {
+            /*chrome.storage.sync.get(null, function(items) {*/
+            var items = localStorage.getItem('gsSettings');
 
-                //first try to populate settings from the synced store
-                var key,
-                    defaults = [],
-                    settings = {},
-                    migration = false;
+            //first try to populate settings from the synced store
+            var key,
+                defaults = [],
+                settings = {},
+                migration = false;
 
-                for (key in items) {
-                    if (items.hasOwnProperty(key)) {
-                        settings[key] = items[key];
-                    }
+            for (key in items) {
+                if (items.hasOwnProperty(key)) {
+                    settings[key] = items[key];
                 }
+            }
 
-                //now populate from local store or defaults for any items not already populated (old way)
-                defaults[self.SHOW_PREVIEW] = false;
-                defaults[self.PREVIEW_QUALTIY] = false;
-                defaults[self.ONLINE_CHECK] = false;
-                defaults[self.UNSUSPEND_ON_FOCUS] = false;
-                defaults[self.IGNORE_PINNED] = false;
-                defaults[self.IGNORE_FORMS] = false;
-                defaults[self.IGNORE_CACHE] = false;
-                defaults[self.SUSPEND_TIME] = 0;
-                defaults[self.TIDY_URLS] = false;
-                defaults[self.NO_NAG] = false;
-                defaults[self.MAX_HISTORIES] = 4;
-                defaults[self.WHITELIST] = '';
+            //now populate from local store or defaults for any items not already populated (old way)
+            defaults[self.SHOW_PREVIEW] = false;
+            defaults[self.PREVIEW_QUALTIY] = false;
+            defaults[self.ONLINE_CHECK] = false;
+            defaults[self.UNSUSPEND_ON_FOCUS] = false;
+            defaults[self.IGNORE_PINNED] = false;
+            defaults[self.IGNORE_FORMS] = false;
+            defaults[self.IGNORE_CACHE] = false;
+            defaults[self.SUSPEND_TIME] = 0;
+            defaults[self.TIDY_URLS] = false;
+            defaults[self.NO_NAG] = false;
+            defaults[self.MAX_HISTORIES] = 4;
+            defaults[self.WHITELIST] = '';
 
-                for (key in defaults) {
-                    if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
-                        settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
-                            ? localStorage.getItem(key)
-                            : defaults[key];
-                        migration = true;
-                    }
+            for (key in defaults) {
+                if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
+                    settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
+                        ? localStorage.getItem(key)
+                        : defaults[key];
+                    migration = true;
                 }
+            }
 
-                //if we had to populate any new fields then resave these to chrome.storage.sync
-                if (migration) {
-                    chrome.storage.sync.set(settings, function() {
-                        console.log('Settings migrated to chrome sync storage');
-                    });
-                }
+            //if we had to populate any new fields then resave these to chrome.storage.sync
+            /*if (migration) {
+                chrome.storage.sync.set(settings, function() {
+                    console.log('Settings migrated to chrome sync storage');
+                });
+            }*/
 
-                //finally, store settings on local storage for synchronous access
-                localStorage.setItem('gsSettings', JSON.stringify(settings));
+            //finally, store settings on local storage for synchronous access
+            localStorage.setItem('gsSettings', JSON.stringify(settings));
 
-                self.callback();
-
-            });
+            self.callback();
+            /*});*/
         },
 
         getOption: function(prop) {
@@ -105,16 +105,26 @@
         },
 
         saveSettings: function(settings) {
-            chrome.storage.sync.set(settings, function() {
+            /*chrome.storage.sync.set(settings, function() {
                 console.log('Settings saved to chrome sync storage');
-            });
+            });*/
             localStorage.setItem('gsSettings', JSON.stringify(settings));
         },
 
 
 
+        removeFromWhitelist: function(newString) {
+            var whitelist = this.getOption(this.WHITELIST),
+                whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+                i;
 
-
+            for (i = 0; i < whitelistedWords.length; i++) {
+                if (whitelistedWords[i] === newString) {
+                    whitelistedWords.splice(i, 1);
+                }
+            }
+            this.setOption(this.WHITELIST, whitelistedWords.join('\n'));
+        },
 
         saveToWhitelist: function(newString) {
             var whitelist = this.getOption(this.WHITELIST) + '\n' + newString;
@@ -390,6 +400,7 @@
                     sessionId = false;
                 }
             }
+            return sessionId;
         },
 
         generateSuspendedUrl: function(tabUrl, tabTitle) {

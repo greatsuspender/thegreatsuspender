@@ -180,6 +180,13 @@
             tempWhitelist = true;
             reportState(false);
 
+        //listen for request to undo temporary whitelisting
+        } else if (request.action === 'undoTempWhitelist') {
+            inputState = false;
+            tempWhitelist = false;
+            response = {status: 'normal'};
+            reportState(false);
+
         //listen for preview request
         } else if (request.action === 'generatePreview') {
             generatePreviewImg(request.suspendedUrl);

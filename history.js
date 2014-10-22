@@ -205,7 +205,7 @@
         groupHeading = document.createElement('p');
         groupHeading.setAttribute('data-windowId', window.id);
         groupHeading.setAttribute('data-sessionId', window.sessionId);
-        //groupHeading.innerHTML = 'Window ' + (count + 1) + '<br />';// + ' (' + window.tabs.length + ' tab' + (window.tabs.length > 1 ? 's)' : ')') + '<br />';
+        groupHeading.innerHTML = 'Window ' + (count + 1) + ':&nbsp;';// + ' (' + window.tabs.length + ' tab' + (window.tabs.length > 1 ? 's)' : ')') + '<br />';
         groupUnsuspendCurrent = document.createElement('a');
         groupUnsuspendCurrent.className = 'groupLink';
         groupUnsuspendCurrent.setAttribute('href', '#');

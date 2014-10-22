@@ -3,12 +3,10 @@
 (function() {
 
     'use strict';
-    var enableWhitelist = true,
-        enablePause = true;
 
     function setStatus(status) {
 
-        if (status === 'normal' || status === 'suspended') {
+        if (status === 'normal') {
             document.getElementById('footer').style.display = 'none';
 
         } else {
@@ -18,6 +16,10 @@
             if (status === 'special') {
                 statusDetail = 'This tab cannot be suspended';
                 statusSrc = 'status_special.png';
+
+            } else if (status === 'suspended') {
+                statusDetail = 'Tab suspended';
+                statusSrc = 'status_pause.png';
 
             } else if (status === 'whitelisted') {
                 statusDetail = 'This site has been whitelisted';
@@ -42,29 +44,46 @@
         }
     };
     function setWhitelistStatus(status) {
-        if (status === 'whitelisted' || status === 'special') {
-            //document.getElementById('whitelist').style.display = 'none';
-            document.getElementById('whitelist').innerHTML = 'Site whitelisted';
-            document.getElementById('whitelist').className = 'bottomOption disabled';
+
+        if (status === 'special') {
+            document.getElementById('whitelist').style.display = 'none';
+
+        } else if (status === 'whitelisted') {
+            document.getElementById('whitelist').style.display = 'block';
+            document.getElementById('whitelist').innerHTML = 'Unwhitelist';
+            document.getElementById('whitelist').className = 'bottomOption undo';
+            document.getElementById('whitelist').setAttribute('data-action', 'unwhitelist');
+
         } else {
-            //document.getElementById('whitelist').style.display = 'block';
+            document.getElementById('whitelist').style.display = 'block';
             document.getElementById('whitelist').innerHTML = 'Whitelist site';
             document.getElementById('whitelist').className = 'bottomOption';
+            document.getElementById('whitelist').setAttribute('data-action', 'whitelist');
         }
     };
-    function setTemporaryWhitelistStatus(status) {
-        if (status === 'normal') {
-            //document.getElementById('tempWhitelist').style.display = 'block';
+
+    function setPauseStatus(status) {
+
+        if (status === 'special') {
+            document.getElementById('tempWhitelist').style.display = 'none';
+
+        } else if (status === 'suspended' || status === 'whitelisted') {
+            document.getElementById('tempWhitelist').style.display = 'block';
+            document.getElementById('tempWhitelist').innerHTML = 'Pause suspension';
+            document.getElementById('tempWhitelist').className = 'bottomOption disabled';
+            document.getElementById('tempWhitelist').setAttribute('data-action', '');
+
+        } else if (status === 'normal') {
+            document.getElementById('tempWhitelist').style.display = 'block';
             document.getElementById('tempWhitelist').innerHTML = 'Pause suspension';
             document.getElementById('tempWhitelist').className = 'bottomOption';
-        } else if (status === 'suspended') {
-            //document.getElementById('whitelist').style.display = 'block';
-            document.getElementById('tempWhitelist').innerHTML = 'Tab suspended';
-            document.getElementById('tempWhitelist').className = 'bottomOption disabled';
+            document.getElementById('tempWhitelist').setAttribute('data-action', 'pause');
+
         } else {
-            //document.getElementById('tempWhitelist').style.display = 'none';
-            document.getElementById('tempWhitelist').innerHTML = 'Suspension paused';
-            document.getElementById('tempWhitelist').className = 'bottomOption disabled';
+            document.getElementById('tempWhitelist').style.display = 'block';
+            document.getElementById('tempWhitelist').innerHTML = 'Unpause suspension';
+            document.getElementById('tempWhitelist').className = 'bottomOption undo';
+            document.getElementById('tempWhitelist').setAttribute('data-action', 'unpause');
         }
     };
 
@@ -90,16 +109,22 @@
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
             window.close();
         });
-        document.getElementById('whitelist').addEventListener('click', function() {
-            if (enableWhitelist) {
+        document.getElementById('whitelist').addEventListener('click', function(e) {
+            if (e.target.getAttribute('data-action') === 'whitelist') {
                 chrome.runtime.sendMessage({ action: 'whitelist' });
-               window.close();
-           }
+                window.close();
+            } else if (e.target.getAttribute('data-action') === 'unwhitelist') {
+                chrome.runtime.sendMessage({ action: 'removeWhitelist' });
+                window.close();
+            }
         });
-        document.getElementById('tempWhitelist').addEventListener('click', function() {
-            if (enablePause) {
+        document.getElementById('tempWhitelist').addEventListener('click', function(e) {
+            if (e.target.getAttribute('data-action') === 'pause') {
                 chrome.runtime.sendMessage({ action: 'tempWhitelist' });
                 chrome.extension.getBackgroundPage().tgs.updateIcon(false);
+                window.close();
+            } else if (e.target.getAttribute('data-action') === 'unpause') {
+                chrome.runtime.sendMessage({ action: 'undoTempWhitelist' });
                 window.close();
             }
         });
@@ -122,14 +147,11 @@
                 timeLeft = info.timerUp,
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
 
-            enablePause = (status === 'normal') ? true : false;
-            enableWhitelist = (status === 'whitelisted' || status === 'special') ? false : true;
-
             setSuspendOneVisibility(suspendOneVisible);
 
             setStatus(status);
             setWhitelistStatus(status);
-            setTemporaryWhitelistStatus(status);
+            setPauseStatus(status);
         });
     });
 

@@ -46,8 +46,10 @@
     function init() {
 
         var optionEls = document.getElementsByClassName('option'),
+            shortcutsEl = document.getElementById('keyboardShortcuts'),
             pref,
             element,
+            command,
             i;
 
         for (i = 0; i < optionEls.length; i++) {
@@ -59,6 +61,15 @@
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
         setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
+
+        //populate keyboard shortcuts
+        chrome.commands.getAll(function(commands) {
+            for (i = 0; i < commands.length; i++) {
+                if (commands[i].name !== "_execute_browser_action") {
+                    shortcutsEl.innerHTML += '<span>' + commands[i].description + ': ' + commands[i].shortcut + '</span><br />';
+                }
+            }
+        });
     }
 
     function populateOption(element, value) {
@@ -146,6 +157,7 @@
             var optionEls = document.getElementsByClassName('option'),
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory'),
+                configureShortcutsEl = document.getElementById('configureShortcuts'),
                 element,
                 i;
 
@@ -161,6 +173,9 @@
             clearHistoryEl.onclick = function(e) {
                 gsUtils.clearGsSessionHistory();
                 gsUtils.clearPreviews();
+            };
+            configureShortcutsEl.onclick = function(e) {
+                chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
             };
 
             chrome.storage.onChanged.addListener(function(changes, namespace) {
