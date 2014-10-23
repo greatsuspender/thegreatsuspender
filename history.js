@@ -1,6 +1,6 @@
 /*global window, document, chrome, console, gsUtils */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -33,9 +33,9 @@
 
     function reloadTabs(element, suspendMode) {
 
-        return function() {
+        return function () {
 
-            chrome.runtime.getBackgroundPage(function(backgroundPage) {
+            chrome.runtime.getBackgroundPage(function (backgroundPage) {
 
                 var tgs = backgroundPage.tgs,
                     windowId = element.getAttribute('data-windowId'),
@@ -46,7 +46,7 @@
                     curUrl,
                     i;
 
-                chrome.windows.create(function(newWindow) {
+                chrome.windows.create(function (newWindow) {
 
                     for (i = 0; i < window.tabs.length; i++) {
 
@@ -61,7 +61,7 @@
                         chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
                     }
 
-                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function(tabs) {
+                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
                         chrome.tabs.remove(tabs[0].id);
                     });
                 });
@@ -71,7 +71,7 @@
 
     function removeTab(element) {
 
-        return function() {
+        return function () {
 
             var tabId = element.getAttribute('data-tabId'),
                 windowId = element.getAttribute('data-windowId'),
@@ -84,7 +84,7 @@
 
     function toggleSession(element) {
 
-        return function() {
+        return function () {
             if (element.childElementCount > 0) {
                 element.innerHTML = '';
                 return;
@@ -126,7 +126,7 @@
         document.getElementById('sessionNameText').focus();
 
         document.getElementById('sessionNameCancel').onclick = hideModal;
-        document.getElementById('sessionNameSubmit').onclick = function() {
+        document.getElementById('sessionNameSubmit').onclick = function () {
 
             var text = document.getElementById('sessionNameText').value;
             if (text) {
@@ -183,7 +183,7 @@
             sessionSave.className = 'groupLink';
             sessionSave.setAttribute('href', '#');
             sessionSave.innerHTML = 'save session';
-            sessionSave.onclick = function() {saveSession(session.id)};
+            sessionSave.onclick = function () {saveSession(session.id)};
         }
         sessionDiv = document.createElement('div');
         sessionDiv.setAttribute('data-sessionId', session.id);
@@ -326,7 +326,7 @@
         }*/
     }
 
-    window.onload = function() {
+    window.onload = function () {
         render();
     };
 

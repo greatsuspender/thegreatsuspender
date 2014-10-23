@@ -1,6 +1,6 @@
 /*global document, chrome, window */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -95,21 +95,21 @@
         }
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
 
-        document.getElementById('suspendOne').addEventListener('click', function() {
+        document.getElementById('suspendOne').addEventListener('click', function () {
             chrome.runtime.sendMessage({ action: 'suspendOne' });
             window.close();
         });
-        document.getElementById('suspendAll').addEventListener('click', function() {
+        document.getElementById('suspendAll').addEventListener('click', function () {
             chrome.runtime.sendMessage({ action: 'suspendAll' });
             window.close();
         });
-        document.getElementById('unsuspendAll').addEventListener('click', function() {
+        document.getElementById('unsuspendAll').addEventListener('click', function () {
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
             window.close();
         });
-        document.getElementById('whitelist').addEventListener('click', function(e) {
+        document.getElementById('whitelist').addEventListener('click', function (e) {
             if (e.target.getAttribute('data-action') === 'whitelist') {
                 chrome.runtime.sendMessage({ action: 'whitelist' });
                 window.close();
@@ -118,7 +118,7 @@
                 window.close();
             }
         });
-        document.getElementById('tempWhitelist').addEventListener('click', function(e) {
+        document.getElementById('tempWhitelist').addEventListener('click', function (e) {
             if (e.target.getAttribute('data-action') === 'pause') {
                 chrome.runtime.sendMessage({ action: 'tempWhitelist' });
                 chrome.extension.getBackgroundPage().tgs.updateIcon(false);
@@ -128,20 +128,20 @@
                 window.close();
             }
         });
-        document.getElementById('popTopSettings').addEventListener('click', function() {
+        document.getElementById('popTopSettings').addEventListener('click', function () {
             chrome.tabs.create({
                 url: chrome.extension.getURL('options.html')
             });
             window.close();
         });
-        /*document.getElementById('history').addEventListener('click', function() {
+        /*document.getElementById('history').addEventListener('click', function () {
             chrome.tabs.create({
                 url: chrome.extension.getURL('history.html')
             });
             window.close();
         });
 */
-        chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function(info) {
+        chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
 
             var status = info.status,
                 timeLeft = info.timerUp,

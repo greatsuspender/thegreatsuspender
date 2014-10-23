@@ -8,7 +8,7 @@
 
 /*global chrome, document, window, console */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -20,7 +20,7 @@
         suspendedEl = document.getElementById('gsTopBar');
 
     //safety check here. don't load content script if we are on the suspended page
-    if (suspendedEl) return;
+    if (suspendedEl) { return; }
 
     function generatePreviewImg(suspendedUrl) {
 
@@ -31,7 +31,7 @@
         if (elementCount < 5000) {
 
             //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
-            window.setTimeout(function() {
+            window.setTimeout(function () {
                 if (processing) {
                     processing = false;
                     handlePreviewError(suspendedUrl);
@@ -43,7 +43,7 @@
                     height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
                     width: document.body.clientWidth - 6,
                     proxy: false,
-                    onrendered: function(canvas) {
+                    onrendered: function (canvas) {
                         if (processing) {
                             processing = false;
                             var quality = prefs.previewQuality ? prefs.previewQuality : 0.1;
@@ -81,7 +81,7 @@
         }
         timerUp = new Date((new Date()).getTime() + interval);
 
-        return setTimeout(function() {
+        return setTimeout(function () {
             //request suspension
             if (!inputState && !tempWhitelist) {
 
@@ -93,7 +93,7 @@
 
     function setFormInputJob() {
 
-        window.addEventListener('keydown', function(event) {
+        window.addEventListener('keydown', function (event) {
             if (!inputState && !tempWhitelist) {
                 if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
                     if (event.target.tagName.toUpperCase() == 'INPUT' ||
@@ -134,7 +134,7 @@
 
     function requestPreferences() {
 
-        chrome.runtime.sendMessage({action: 'prefs'}, function(response) {
+        chrome.runtime.sendMessage({action: 'prefs'}, function (response) {
 
             if (response && response.suspendTime) {
                 prefs = response;
@@ -151,7 +151,7 @@
     }
 
     //listen for background events
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
         var response = {};
 

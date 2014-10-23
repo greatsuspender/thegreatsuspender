@@ -1,6 +1,6 @@
 /*global window, document, chrome, console, localStorage */
 
-(function(window) {
+(function (window) {
 
     'use strict';
 
@@ -25,12 +25,12 @@
         SESSION_HISTORY: 'gsSessionHistory',
         SAVED_SESSIONS: 'gsSavedSessions',
 
-        initSettings: function(fn) {
+        initSettings: function (fn) {
 
             var self = this;
             self.callback = fn;
 
-            /*chrome.storage.sync.get(null, function(items) {*/
+            /*chrome.storage.sync.get(null, function (items) {*/
             var items = localStorage.getItem('gsSettings');
 
             //first try to populate settings from the synced store
@@ -70,7 +70,7 @@
 
             //if we had to populate any new fields then resave these to chrome.storage.sync
             /*if (migration) {
-                chrome.storage.sync.set(settings, function() {
+                chrome.storage.sync.set(settings, function () {
                     console.log('Settings migrated to chrome sync storage');
                 });
             }*/
@@ -82,20 +82,20 @@
             /*});*/
         },
 
-        getOption: function(prop) {
+        getOption: function (prop) {
             var settings = this.getSettings();
             if (settings[prop] === 'true') return true;
             if (settings[prop] === 'false') return false;
             return settings[prop];
         },
 
-        setOption: function(prop, value) {
+        setOption: function (prop, value) {
             var settings = this.getSettings();
             settings[prop] = value;
             this.saveSettings(settings);
         },
 
-        getSettings: function() {
+        getSettings: function () {
             var result = localStorage.getItem('gsSettings');
 
             if (result !== null) {
@@ -104,8 +104,8 @@
             return result;
         },
 
-        saveSettings: function(settings) {
-            /*chrome.storage.sync.set(settings, function() {
+        saveSettings: function (settings) {
+            /*chrome.storage.sync.set(settings, function () {
                 console.log('Settings saved to chrome sync storage');
             });*/
             localStorage.setItem('gsSettings', JSON.stringify(settings));
@@ -113,7 +113,7 @@
 
 
 
-        removeFromWhitelist: function(newString) {
+        removeFromWhitelist: function (newString) {
             var whitelist = this.getOption(this.WHITELIST),
                 whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i;
@@ -126,13 +126,13 @@
             this.setOption(this.WHITELIST, whitelistedWords.join('\n'));
         },
 
-        saveToWhitelist: function(newString) {
+        saveToWhitelist: function (newString) {
             var whitelist = this.getOption(this.WHITELIST) + '\n' + newString;
             whitelist = this.cleanupWhitelist(whitelist);
             this.setOption(this.WHITELIST, whitelist);
         },
 
-        cleanupWhitelist: function(whitelist) {
+        cleanupWhitelist: function (whitelist) {
             var whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i,
                 j;
@@ -145,14 +145,14 @@
             return whitelistedWords.join('\n');
         },
 
-        fetchVersion: function() {
+        fetchVersion: function () {
             var result = localStorage.getItem(this.APP_VERSION);
             if (result !== null) {
                 result = JSON.parse(result);
             }
             return result;
         },
-        setVersion: function(newVersion) {
+        setVersion: function (newVersion) {
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
         },
 
@@ -162,8 +162,8 @@
 
 
 
-        fetchPreviewImage: function(tabUrl, callback) {
-            chrome.storage.local.get(null, function(items) {
+        fetchPreviewImage: function (tabUrl, callback) {
+            chrome.storage.local.get(null, function (items) {
                 if (typeof (items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
@@ -178,8 +178,8 @@
             });
         },
 
-        setPreviewImage: function(tabUrl, previewUrl) {
-            chrome.storage.local.get(null, function(items) {
+        setPreviewImage: function (tabUrl, previewUrl) {
+            chrome.storage.local.get(null, function (items) {
 
                 if (typeof (items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
@@ -189,14 +189,14 @@
             });
         },
 
-        clearPreviews: function() {
-            chrome.storage.local.get(null, function(items) {
+        clearPreviews: function () {
+            chrome.storage.local.get(null, function (items) {
                 items.gsPreviews = {};
                 chrome.storage.local.set(items);
             });
         },
 
-        fetchGsHistory: function() {
+        fetchGsHistory: function () {
 
             var result = localStorage.getItem(this.HISTORY);
             if (result === null) {
@@ -207,15 +207,15 @@
             return result;
         },
 
-        setGsHistory: function(gsHistory) {
+        setGsHistory: function (gsHistory) {
             localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
         },
 
-        clearGsHistory: function(gsHistory) {
+        clearGsHistory: function (gsHistory) {
             this.setGsHistory([]);
         },
 
-        fetchTabFromHistory: function(tabUrl) {
+        fetchTabFromHistory: function (tabUrl) {
 
             var gsHistory = this.fetchGsHistory(),
                 i;
@@ -228,7 +228,7 @@
             return false;
         },
 
-        removeTabFromHistory: function(tabUrl) {
+        removeTabFromHistory: function (tabUrl) {
 
             var gsHistory = this.fetchGsHistory(),
                 i;
@@ -242,7 +242,7 @@
             localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
         },
 
-        removeTabFromSessionHistory: function(sessionId, windowId, tabId) {
+        removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
 
             var gsSessionHistory = this.fetchGsSessionHistory(),
                 i,
@@ -277,7 +277,7 @@
             this.setGsSessionHistory(gsSessionHistory);
         },
 
-        fetchGsSessionHistory: function() {
+        fetchGsSessionHistory: function () {
 
             var result = localStorage.getItem(this.SESSION_HISTORY),
                 sessionHistory;
@@ -291,15 +291,15 @@
             return sessionHistory;
         },
 
-        setGsSessionHistory: function(sessionHistory) {
+        setGsSessionHistory: function (sessionHistory) {
             localStorage.setItem(this.SESSION_HISTORY, JSON.stringify(sessionHistory));
         },
 
-        clearGsSessionHistory: function(gsHistory) {
+        clearGsSessionHistory: function (gsHistory) {
             this.setGsSessionHistory([]);
         },
 
-        getSessionById: function(sessionId) {
+        getSessionById: function (sessionId) {
             var i = 0,
                 sessionHistory = this.fetchGsSessionHistory();
             for (i = 0; i < sessionHistory.length; i++) {
@@ -315,7 +315,7 @@
             }
             return false;
         },
-        getWindowFromSession: function(windowId, session) {
+        getWindowFromSession: function (windowId, session) {
             var i = 0;
             for (i = 0; i < session.windows.length; i++) {
                 if (session.windows[i].id == windowId) {
@@ -324,7 +324,7 @@
             }
             return false;
         },
-        getTabFromWindow: function(id, window) {
+        getTabFromWindow: function (id, window) {
             var i = 0;
             for (i = 0; i < window.tabs.length; i++) {
                 if (window.tabs[i].id == id) {
@@ -337,7 +337,7 @@
             return false;
         },
 
-        saveWindowsToSessionHistory: function(sessionId, windowsArray) {
+        saveWindowsToSessionHistory: function (sessionId, windowsArray) {
 
             var gsSessionHistory = this.fetchGsSessionHistory(),
                 i,
@@ -366,7 +366,7 @@
         },
 
 
-        fetchGsSavedSessions: function() {
+        fetchGsSavedSessions: function () {
 
             var result = localStorage.getItem(this.SAVED_SESSIONS),
                 savedSessionHistory;
@@ -380,11 +380,11 @@
             return savedSessionHistory;
         },
 
-        setGsSavedSessions: function(savedSessionHistory) {
+        setGsSavedSessions: function (savedSessionHistory) {
             localStorage.setItem(this.SAVED_SESSIONS, JSON.stringify(savedSessionHistory));
         },
 
-        saveSession: function(sessionName, session) {
+        saveSession: function (sessionName, session) {
 
             var savedSessions = this.fetchGsSavedSessions();
             session.name = sessionName;
@@ -392,7 +392,7 @@
             this.setGsSavedSessions(savedSessions);
         },
 
-        generateSessionId: function() {
+        generateSessionId: function () {
             var sessionId = false;
             while (!sessionId) {
                 sessionId = Math.floor(Math.random() * 1000000);
@@ -403,12 +403,12 @@
             return sessionId;
         },
 
-        generateSuspendedUrl: function(tabUrl, tabTitle) {
+        generateSuspendedUrl: function (tabUrl, tabTitle) {
             var args = '#url=' + encodeURIComponent(tabUrl);
             return chrome.extension.getURL('suspended.html' + args);
         },
 
-        getHashVariable: function(key, hash) {
+        getHashVariable: function (key, hash) {
 
             var parts,
                 temp,
@@ -428,7 +428,7 @@
             return false;
         },
 
-        getFormattedDate: function(date, includeTime) {
+        getFormattedDate: function (date, includeTime) {
             var d = new Date(date),
                 cur_date = ('0' + d.getDate()).slice(-2),
                 cur_month = ('0' + (d.getMonth() + 1)).slice(-2),
@@ -442,7 +442,7 @@
             }
         },
 
-        getHumanDate: function(date) {
+        getHumanDate: function (date) {
             var m_names = new Array('January', 'February', 'March',
                 'April', 'May', 'June', 'July', 'August', 'September',
                 'October', 'November', 'December');
@@ -461,7 +461,7 @@
             return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
         },
 
-        compareDate: function(a, b) {
+        compareDate: function (a, b) {
             if (a.date < b.date) {
                 return -1;
             }
@@ -471,14 +471,14 @@
             return 0;
         },
 
-        getRootUrl: function(url) {
+        getRootUrl: function (url) {
             var rootUrlStr = url,
                 rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
                 rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
             return rootUrlStr;
         },
 
-        performMigration: function() {
+        performMigration: function () {
 
             //check for very old history migration
             var oldGsHistory = localStorage.getItem(this.HISTORY_OLD);
@@ -567,7 +567,7 @@
                     var sortable = [];
                     for (k = 0; k < curWindow.tabs.length; k++) {
                         sortable.push([k, curWindow.tabs[k].index]);
-                        sortable.sort(function(a, b) {return a[1] - b[1]});
+                        sortable.sort(function (a, b) {return a[1] - b[1]});
                     }
 
                     for (j = 0; j < sortable.length; j++) {

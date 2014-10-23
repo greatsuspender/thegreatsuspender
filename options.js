@@ -1,6 +1,6 @@
 /*global document, window, gsUtils, chrome */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -63,7 +63,7 @@
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
 
         //populate keyboard shortcuts
-        chrome.commands.getAll(function(commands) {
+        chrome.commands.getAll(function (commands) {
             for (i = 0; i < commands.length; i++) {
                 if (commands[i].name !== "_execute_browser_action") {
                     shortcutsEl.innerHTML += '<span>' + commands[i].description + ': ' + commands[i].shortcut + '</span><br />';
@@ -126,7 +126,7 @@
 
     function getHandler(element) {
 
-        return function() {
+        return function () {
 
             var pref = elementPrefMap[element.id];
             gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
@@ -146,7 +146,7 @@
         }
     }
 
-    var readyStateCheckInterval = window.setInterval(function() {
+    var readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
 
             window.clearInterval(readyStateCheckInterval);
@@ -167,18 +167,18 @@
                 element.onchange = getHandler(element);
             }
 
-            showHistoryEl.onclick = function(e) {
+            showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
             };
-            clearHistoryEl.onclick = function(e) {
+            clearHistoryEl.onclick = function (e) {
                 gsUtils.clearGsSessionHistory();
                 gsUtils.clearPreviews();
             };
-            configureShortcutsEl.onclick = function(e) {
+            configureShortcutsEl.onclick = function (e) {
                 chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
             };
 
-            chrome.storage.onChanged.addListener(function(changes, namespace) {
+            chrome.storage.onChanged.addListener(function (changes, namespace) {
                 var property,
                     elementId,
                     element;
@@ -201,7 +201,7 @@
 
     function resetTabTimers(newInterval) {
 
-        chrome.tabs.query({}, function(tabs) {
+        chrome.tabs.query({}, function (tabs) {
             var i,
                 currentTab,
                 timeout = newInterval * 60 * 1000;
@@ -209,11 +209,11 @@
             for (i = 0; i < tabs.length; i++) {
                 currentTab = tabs[i];
 
-                (function() {
+                (function () {
                     var tabId = currentTab.id;
 
                     //test if a content script is active by sending a 'requestInfo' message
-                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
+                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
 
                         //if no response, then try to dynamically load in the new contentscript.js file
                         if (typeof(response) !== 'undefined') {

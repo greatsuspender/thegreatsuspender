@@ -1,6 +1,6 @@
 /*global window, document, chrome, console, Image, gsUtils */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -40,7 +40,7 @@
         var img = new Image(),
             boxSize = 9;
 
-        img.onload = function() {
+        img.onload = function () {
             var canvas,
                 context;
             canvas = window.document.createElement('canvas');
@@ -77,7 +77,7 @@
 
         document.getElementById('gsFavicon').setAttribute('href', favicon);
 
-        setTimeout(function() {
+        setTimeout(function () {
             document.getElementById('gsFavicon').setAttribute('href', favicon);
         }, 1000);
     }
@@ -106,7 +106,7 @@
 
         //set favicon and preview image
         if (showPreview) {
-            gsUtils.fetchPreviewImage(url, function(previewUrl) {
+            gsUtils.fetchPreviewImage(url, function (previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('suspendedMsg').style.display = 'none';
                     document.getElementById('gsPreview').setAttribute('src', previewUrl);
@@ -124,7 +124,7 @@
 
         //otherwise use semi-opaque favicon
         } else {
-            generateFaviconUri(favicon, function(faviconUrl) {
+            generateFaviconUri(favicon, function (faviconUrl) {
                 setFavicon(faviconUrl);
             });
         }
@@ -174,14 +174,14 @@
         document.getElementById('donateBubble').style.display = 'none';
     }
 
-    window.onload = function() {
+    window.onload = function () {
 
         //handler for unsuspend
         document.getElementById('suspendedMsg').onclick = unsuspendTab;
         document.getElementById('gsPreview').onclick = unsuspendTab;
 
         //handler for whitelist
-        document.getElementById('gsWhitelistLink').onclick = function(e) {
+        document.getElementById('gsWhitelistLink').onclick = function (e) {
             gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
             unsuspendTab();
         };
@@ -198,14 +198,14 @@
 
         //show dude and donate link (randomly 1 of 5 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.8) {
-            window.addEventListener('focus', function() {
+            window.addEventListener('focus', function () {
                 document.getElementById('dudePopup').setAttribute('class', 'poppedup');
                 document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
             });
         }
     };
 
-/*    window.onbeforeunload = function() {
+/*    window.onbeforeunload = function () {
 
         //update url with suspended url
         var url = gsUtils.generateSuspendedUrl(window.location.href);

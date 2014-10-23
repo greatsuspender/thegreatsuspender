@@ -1,5 +1,5 @@
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -25,15 +25,15 @@
 
     function fetchInfo() {
 
-        chrome.tabs.query({}, function(tabs) {
+        chrome.tabs.query({}, function (tabs) {
 
             for (var i = 0; i < tabs.length; i++) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                (function() {
+                (function () {
 
                     var curTab = tabs[i];
-                    chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function(suspendInfo) {
+                    chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function (suspendInfo) {
 
                         var html = '',
                             tableEl = document.getElementById('gsProfilerBody');
@@ -48,19 +48,19 @@
         });
     }
 
-    window.onload = function() {
+    window.onload = function () {
 
         fetchInfo();
 
         //handler for refresh
-        document.getElementById('refreshProfiler').onclick = function(e) {
+        document.getElementById('refreshProfiler').onclick = function (e) {
             document.getElementById('gsProfilerBody').innerHTML = '';
             fetchInfo();
         };
 
-        /*chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
+        /*chrome.processes.onUpdatedWithMemory.addListener(function (processes) {
 
-            chrome.tabs.query({}, function(tabs) {
+            chrome.tabs.query({}, function (tabs) {
                 var html = '';
                 html += generateMemStats(processes);
                 html += '<br />';
