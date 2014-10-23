@@ -6,7 +6,7 @@
  * ლ(ಠ益ಠლ)
 */
 
-/*global chrome, document, window, console */
+/*global chrome, handlePreviewError, html2canvas, suspendTab, reportState */
 
 (function () {
 
@@ -46,7 +46,7 @@
                     onrendered: function (canvas) {
                         if (processing) {
                             processing = false;
-                            var quality = prefs.previewQuality ? prefs.previewQuality : 0.1;
+                            var quality =  prefs.previewQuality || 0.1;
                             chrome.runtime.sendMessage({
                                 action: 'savePreviewData',
                                 previewUrl: canvas.toDataURL('image/jpeg', quality)
@@ -96,9 +96,9 @@
         window.addEventListener('keydown', function (event) {
             if (!inputState && !tempWhitelist) {
                 if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
-                    if (event.target.tagName.toUpperCase() == 'INPUT' ||
-                            event.target.tagName.toUpperCase() == 'TEXTAREA' ||
-                            event.target.tagName.toUpperCase() == 'FORM') {
+                    if (event.target.tagName.toUpperCase() === 'INPUT' ||
+                            event.target.tagName.toUpperCase() === 'TEXTAREA' ||
+                            event.target.tagName.toUpperCase() === 'FORM') {
                         inputState = true;
                     }
                 }
@@ -153,7 +153,9 @@
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-        var response = {};
+        var response = {},
+            status,
+            suspendDate;
 
         //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
@@ -164,8 +166,8 @@
 
         //listen for status request
         } else if (request.action === 'requestInfo' && prefs) {
-            var status = calculateState(),
-                suspendDate = calculateSuspendDate();
+            status = calculateState();
+            suspendDate = calculateSuspendDate();
             response = {status: status, timerUp: suspendDate};
 
         //cancel suspension timer
@@ -175,7 +177,7 @@
 
         //listen for request to temporarily whitelist the tab
         } else if (request.action === 'tempWhitelist') {
-            var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
+            status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
             response = {status: status};
             tempWhitelist = true;
             reportState(false);
