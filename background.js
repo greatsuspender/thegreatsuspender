@@ -5,6 +5,9 @@
  * http://github.com/deanoemcke/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
+// A LOT of these are just work-arounds for a big refactoring which I'll do
+// later. TODO fix the order of the functions
+/*global gsUtils, gsTimes, chrome, requestTabSuspension, requestTabUnsuspend, checkForSuspendedTab, updateTabStatus, updateIcon, requestTabInfo, handleNewTabFocus, runStartupChecks, reinjectContentScripts, getTabInfo */
 
 var tgs = (function () {
 
@@ -12,7 +15,7 @@ var tgs = (function () {
 
     var debug = false,
         sessionId = gsUtils.generateSessionId(),
-        sessionDate = new Date(),
+        //sessionDate = new Date(),
         lastSelectedTabs = [],
         currentTabId;
 
@@ -187,7 +190,7 @@ var tgs = (function () {
             currentTab,
             tabProperties;
 
-        for (i = 0; i < curWindow.tabs.length; i++) {
+        for (i = 0; i < curWindow.tabs.length; i + 1) {
 
             currentTab = curWindow.tabs[i];
 
@@ -211,46 +214,34 @@ var tgs = (function () {
 */
     function unsuspendAllTabs(curWindow) {
 
-        var i,
-            currentTab,
-            //tabProperties, // unused
+        var //tabProperties, // unused
             responsiveTabs = [],
             tabResponses = {};
 
-        for (i = 0; i < curWindow.tabs.length; i + 1) {
-
-            currentTab = curWindow.tabs[i];
+        curWindow.tabs.forEach(function (currentTab) {
 
             //detect suspended tabs by looking for ones without content scripts
             if (!isSpecialTab(currentTab)) {
 
                 responsiveTabs.push(currentTab);
 
-                // TODO unnecessary function? JSLint reports it
-                (function () {
-                    var curTab = currentTab;
-                    checkForSuspendedTab(curTab, function (isSuspended) {
+                checkForSuspendedTab(currentTab, function (isSuspended) {
 
-                        tabResponses[curTab.id] = true;
-                        if (isSuspended) {
-                            requestTabUnsuspend(curTab);
-                        }
-                    });
-                }());
+                    tabResponses[currentTab.id] = true;
+                    if (isSuspended) {
+                        requestTabUnsuspend(currentTab);
+                    }
+                });
             }
-        }
+        });
 
         //handle any other tabs that didn't respond for whatever reason (usually because the tab has crashed)
         setTimeout(function () {
-            var ii,
-                curTab;
-
-            for (ii = 0; ii < responsiveTabs.length; i + 1) {
-                curTab = responsiveTabs[ii];
+            responsiveTabs.forEach(function (curTab) {
                 if (tabResponses[curTab.id] === 'undefined') {
                     requestTabUnsuspend(curTab);
                 }
-            }
+            });
         }, 5000);
     }
 
@@ -320,7 +311,8 @@ var tgs = (function () {
             return;
 
         //check internet connectivity
-        } else if (!force && gsUtils.getOption(gsUtils.ONLINE_CHECK) && !navigator.onLine) {
+        }
+        if (!force && gsUtils.getOption(gsUtils.ONLINE_CHECK) && !navigator.onLine) {
             return;
 
         //if we need to save a preview image
@@ -358,7 +350,7 @@ var tgs = (function () {
             chrome.tabs.reload(tab.id);
         } else {
             url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
-            chrome.tabs.update(tab.id, {url: url})
+            chrome.tabs.update(tab.id, {url: url});
         }
     }
 
@@ -370,7 +362,7 @@ var tgs = (function () {
             chrome.tabs.reload(tab.id);
         } else {
             url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
-            chrome.tabs.update(tab.id, {url: url})
+            chrome.tabs.update(tab.id, {url: url});
         }
     }
 
@@ -379,14 +371,11 @@ var tgs = (function () {
 
         chrome.tabs.query({}, function (tabs) {
 
-            var i,
-                tab;
-            for (i = 0; i < tabs.length; i++) {
-                tab = tabs[i];
+            tabs.forEach(function (tab) {
                 if (!isSpecialTab(tab) && gsUtils.fetchTabFromHistory(tab.url)) {
                     requestTabSuspension(tab, true);
                 }
-            }
+            });
         });
 
         //should use declaritiveWebRequest here once it becomes stable
@@ -406,8 +395,8 @@ var tgs = (function () {
     chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
 
-            if (debug) console.log('listener fired: ' + request.action);
-            if (debug) console.dir(sender);
+            if (debug) { console.log('listener fired: ' + request.action); }
+            if (debug) { console.dir(sender); }
 
             //treat this as a handler for initial page load (called by content script on page load)
             if (request.action === 'prefs') {
@@ -475,7 +464,7 @@ var tgs = (function () {
     //listen for tab switching
     chrome.tabs.onActivated.addListener(function (activeInfo) {
 
-        if (debug) console.log('tab changed: ' + activeInfo.tabId);
+        if (debug) { console.log('tab changed: ' + activeInfo.tabId); }
 
         var lastSelectedTab = lastSelectedTabs[activeInfo.windowId];
 
@@ -502,7 +491,7 @@ var tgs = (function () {
                     handleNewTabFocus(currentTabId);
                 }
             }, 500);
-        })();
+        }());
     });
 
     function handleNewTabFocus(tabId) {
@@ -548,17 +537,17 @@ var tgs = (function () {
 
             chrome.windows.getAll({populate: true}, function (windows) {
 
-                for (i = 0; i < windows.length; i++) {
+                for (i = 0; i < windows.length; i + 1) {
                     curWindow = windows[i];
                     tabMap = {};
-                    for (j = 0; j < curWindow.tabs.length; j++) {
+                    for (j = 0; j < curWindow.tabs.length; j + 1) {
                         curTab = curWindow.tabs[j];
                         tabMap[curTab.id] = curTab;
                     }
                     windowsMap[curWindow.id] = tabMap;
                 }
 
-                for (i = 0; i < crashedSession.windows.length; i++) {
+                for (i = 0; i < crashedSession.windows.length; i + 1) {
 
                     curWindow = crashedSession.windows[i];
 
@@ -568,7 +557,7 @@ var tgs = (function () {
                         tabMap = windowsMap[curWindow.id];
 
                         //for each tab in crashed window, make sure it exists in cur session
-                        for (j = 0; j < curWindow.tabs.length; j++) {
+                        for (j = 0; j < curWindow.tabs.length; j + 1) {
 
                             curTab = curWindow.tabs[j];
 
@@ -605,10 +594,10 @@ var tgs = (function () {
 
     chrome.alarms.clearAll();
     chrome.alarms.create('saveWindowHistory', {periodInMinutes: 1});
-    if (debug) console.log('alarm created: saveWindowHistory');
+    if (debug) { console.log('alarm created: saveWindowHistory'); }
 
     chrome.alarms.onAlarm.addListener(function (alarm) {
-        if (debug) console.log('alarm fired: ' + alarm.name);
+        if (debug) { console.log('alarm fired: ' + alarm.name); }
 
         if (alarm.name === 'saveWindowHistory') {
             //chrome.browserAction.setBadgeText({text: "SAV"});
@@ -618,8 +607,8 @@ var tgs = (function () {
     });
 
     chrome.runtime.onSuspend.addListener(function () {
-        if (debug) console.log('unloading page.');
-        if (debug) chrome.browserAction.setBadgeText({text: ''});
+        if (debug) { console.log('unloading page.'); }
+        if (debug) { chrome.browserAction.setBadgeText({text: ''}); }
     });
 
     chrome.commands.onCommand.addListener(function (command) {
@@ -634,8 +623,6 @@ var tgs = (function () {
     //careful. this seems to get called on extension reload as well as initial install
     chrome.runtime.onInstalled.addListener(function () {
 
-        var settings = gsUtils.getSettings();
-
         if (gsUtils.getSettings() === null) {
             gsUtils.initSettings(function () {
                 runStartupChecks();
@@ -649,9 +636,7 @@ var tgs = (function () {
 
         var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
             lastVersion = gsUtils.fetchVersion(),
-            curVersion = chrome.runtime.getManifest().version,
-            gsHistory = gsUtils.fetchGsHistory(),
-            i;
+            curVersion = chrome.runtime.getManifest().version;
 
         //check for possible crash
         if (!tidyUrls) {
@@ -692,30 +677,24 @@ var tgs = (function () {
     function reinjectContentScripts() {
 
         chrome.tabs.query({}, function (tabs) {
-            var i,
-                currentTab,
-                timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
+            var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
 
-            for (i = 0; i < tabs.length; i++) {
-                currentTab = tabs[i];
-
+            tabs.forEach(function (currentTab) {
                 if (!isSpecialTab(currentTab)) {
 
-                    (function () {
-                        var tabId = currentTab.id;
-                        //test if a content script is active by sending a 'requestInfo' message
-                        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
+                    var tabId = currentTab.id;
+                    //test if a content script is active by sending a 'requestInfo' message
+                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
 
-                            //if no response, then try to dynamically load in the new contentscript.js file
-                            if (typeof(response) === 'undefined') {
-                                chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
-                                    chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                                });
-                            }
-                        });
-                    })();
+                        //if no response, then try to dynamically load in the new contentscript.js file
+                        if (response === 'undefined') {
+                            chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
+                                chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                            });
+                        }
+                    });
                 }
-            }
+            });
         });
     }
 
@@ -778,19 +757,20 @@ var tgs = (function () {
             dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
-        if (status === 'suspended' || status === 'special') icon = 'icon19b.png';
+        if (status === 'suspended' || status === 'special') { icon = 'icon19b.png'; }
         /*if (status === 'formInput' || status === 'special' || status === 'pinned'
                 || status === 'tempWhitelist' || status === 'whitelisted') {
             icon = 'icon19b.png';
         }*/
         chrome.browserAction.setIcon({path: icon});
 
-        if ((status === 'formInput' && dontSuspendForms) ||
-                (status === 'pinned' && dontSuspendPinned) ||
-                status === 'tempWhitelist' || status === 'whitelisted') {
+        if ((status === 'formInput' && dontSuspendForms)
+                || (status === 'pinned' && dontSuspendPinned)
+                || status === 'tempWhitelist'
+                || status === 'whitelisted') {
             //chrome.browserAction.setBadgeBackgroundColor({color: '#777'});//#36BEF3'});
             //chrome.browserAction.setBadgeText({text: '!'});
-
+            // TODO fill? JSLint complains of emptiness
         } else {
             chrome.browserAction.setBadgeText({text: ''});
         }

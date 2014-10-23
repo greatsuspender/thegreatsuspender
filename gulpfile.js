@@ -2,12 +2,11 @@ var gulp = require('gulp');
 var jslint = require('gulp-jslint');
 
 gulp.task('jslint', function () {
-    gulp.src(['**/*.js'])
+    gulp.src(['background.js'])
         .pipe(jslint({
             browser: true,
-            plusplus: false,
-            sloppy: false,
             todo: true,
+            devel: true,
 
             errorsOnly: true
         }))
