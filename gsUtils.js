@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, localStorage */
+/*global chrome, localStorage */
 
 (function (window) {
 
@@ -27,17 +27,13 @@
 
         initSettings: function (fn) {
 
-            var self = this;
-            self.callback = fn;
-
-            /*chrome.storage.sync.get(null, function (items) {*/
-            var items = localStorage.getItem('gsSettings');
-
-            //first try to populate settings from the synced store
-            var key,
+            var self = this,
+                items = localStorage.getItem('gsSettings'),
+                key,
                 defaults = [],
                 settings = {},
                 migration = false;
+            self.callback = fn;
 
             for (key in items) {
                 if (items.hasOwnProperty(key)) {
@@ -60,8 +56,8 @@
             defaults[self.WHITELIST] = '';
 
             for (key in defaults) {
-                if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
-                    settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
+                if (defaults.hasOwnProperty(key) && (settings[key] === 'undefined' || settings[key] === null)) {
+                    settings[key] = localStorage.getItem(key) !== 'undefined' && localStorage.getItem(key) !== null
                         ? localStorage.getItem(key)
                         : defaults[key];
                     migration = true;
@@ -84,8 +80,8 @@
 
         getOption: function (prop) {
             var settings = this.getSettings();
-            if (settings[prop] === 'true') return true;
-            if (settings[prop] === 'false') return false;
+            if (settings[prop] === 'true') { return true; }
+            if (settings[prop] === 'false') { return false; }
             return settings[prop];
         },
 
@@ -118,7 +114,7 @@
                 whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i;
 
-            for (i = 0; i < whitelistedWords.length; i++) {
+            for (i = 0; i < whitelistedWords.length; i + 1) {
                 if (whitelistedWords[i] === newString) {
                     whitelistedWords.splice(i, 1);
                 }
@@ -137,9 +133,11 @@
                 i,
                 j;
 
-            for (i = 0; i < whitelistedWords.length; i++) {
-                if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i)
+            // TODO is not clear on its function AT ALL
+            for (i = 0; i < whitelistedWords.length; i + 1) {
+                if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i) {
                     whitelistedWords.splice(i + 1, j - i);
+                }
             }
 
             return whitelistedWords.join('\n');
@@ -164,12 +162,12 @@
 
         fetchPreviewImage: function (tabUrl, callback) {
             chrome.storage.local.get(null, function (items) {
-                if (typeof (items.gsPreviews) === 'undefined') {
+                if (items.gsPreviews === 'undefined') {
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
                     callback(null);
 
-                } else if (typeof (items.gsPreviews[tabUrl]) === 'undefined') {
+                } else if (items.gsPreviews[tabUrl] === 'undefined') {
                     callback(null);
 
                 } else {
@@ -181,7 +179,7 @@
         setPreviewImage: function (tabUrl, previewUrl) {
             chrome.storage.local.get(null, function (items) {
 
-                if (typeof (items.gsPreviews) === 'undefined') {
+                if (items.gsPreviews === 'undefined') {
                     items.gsPreviews = {};
                 }
                 items.gsPreviews[tabUrl] = previewUrl;
@@ -220,7 +218,7 @@
             var gsHistory = this.fetchGsHistory(),
                 i;
 
-            for (i = 0; i < gsHistory.length; i++) {
+            for (i = 0; i < gsHistory.length; i + 1) {
                 if (gsHistory[i].url === tabUrl) {
                     return gsHistory[i];
                 }
@@ -233,7 +231,7 @@
             var gsHistory = this.fetchGsHistory(),
                 i;
 
-            for (i = 0; i < gsHistory.length; i++) {
+            for (i = 0; i < gsHistory.length; i + 1) {
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory.splice(i, 1);
                     break;
@@ -249,15 +247,15 @@
                 j,
                 k;
 
-            for (i = 0; i < gsSessionHistory.length; i++) {
-                if (gsSessionHistory[i].id == sessionId) {
+            for (i = 0; i < gsSessionHistory.length; i + 1) {
+                if (gsSessionHistory[i].id === sessionId) {
 
-                    for (j = 0; j < gsSessionHistory[i].windows.length; j++) {
-                        if (gsSessionHistory[i].windows[j].id == windowId) {
+                    for (j = 0; j < gsSessionHistory[i].windows.length; j + 1) {
+                        if (gsSessionHistory[i].windows[j].id === windowId) {
 
-                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k++) {
-                                if (gsSessionHistory[i].windows[j].tabs[k].id == tabId ||
-                                        gsSessionHistory[i].windows[j].tabs[k].url == tabId) {
+                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k + 1) {
+                                if (gsSessionHistory[i].windows[j].tabs[k].id === tabId ||
+                                        gsSessionHistory[i].windows[j].tabs[k].url === tabId) {
                                     gsSessionHistory[i].windows[j].tabs.splice(k, 1);
                                     break;
                                 }
@@ -302,14 +300,14 @@
         getSessionById: function (sessionId) {
             var i = 0,
                 sessionHistory = this.fetchGsSessionHistory();
-            for (i = 0; i < sessionHistory.length; i++) {
-                if (sessionHistory[i].id == sessionId) {
+            for (i = 0; i < sessionHistory.length; i + 1) {
+                if (sessionHistory[i].id === sessionId) {
                     return sessionHistory[i];
                 }
             }
             sessionHistory = this.fetchGsSavedSessions();
-            for (i = 0; i < sessionHistory.length; i++) {
-                if (sessionHistory[i].id == sessionId) {
+            for (i = 0; i < sessionHistory.length; i + 1) {
+                if (sessionHistory[i].id === sessionId) {
                     return sessionHistory[i];
                 }
             }
@@ -317,8 +315,8 @@
         },
         getWindowFromSession: function (windowId, session) {
             var i = 0;
-            for (i = 0; i < session.windows.length; i++) {
-                if (session.windows[i].id == windowId) {
+            for (i = 0; i < session.windows.length; i + 1) {
+                if (session.windows[i].id === windowId) {
                     return session.windows[i];
                 }
             }
@@ -326,11 +324,12 @@
         },
         getTabFromWindow: function (id, window) {
             var i = 0;
-            for (i = 0; i < window.tabs.length; i++) {
-                if (window.tabs[i].id == id) {
+            for (i = 0; i < window.tabs.length; i + 1) {
+                if (window.tabs[i].id === id) {
                     return window.tabs[i];
 
-                } else if (window.tabs[i].url == id) {
+                }
+                if (window.tabs[i].url === id) {
                     return window.tabs[i];
                 }
             }
@@ -343,7 +342,7 @@
                 i,
                 match = false;
 
-            for (i = 0; i < gsSessionHistory.length; i++) {
+            for (i = 0; i < gsSessionHistory.length; i + 1) {
                 if (gsSessionHistory[i].id === sessionId) {
                     gsSessionHistory[i].windows = windowsArray;
                     gsSessionHistory[i].date = new Date();
@@ -419,7 +418,7 @@
             }
 
             parts = hash.substring(1).split('&');
-            for (i = 0; i < parts.length; i++) {
+            for (i = 0; i < parts.length; i + 1) {
                 temp = parts[i].split('=');
                 if (temp[0] === key) {
                     return decodeURIComponent(temp[1]);
@@ -437,26 +436,29 @@
 
             if (includeTime) {
                 return cur_date + '-' + cur_month + '-' + cur_year + ': ' + cur_time;
-            } else {
-                return cur_date + '-' + cur_month + ' ' + cur_year;
             }
+            return cur_date + '-' + cur_month + ' ' + cur_year;
         },
 
         getHumanDate: function (date) {
-            var m_names = new Array('January', 'February', 'March',
-                'April', 'May', 'June', 'July', 'August', 'September',
-                'October', 'November', 'December');
+            var m_names = ['January', 'February', 'March', 'April', 'May',
+                'June', 'July', 'August', 'September', 'October', 'November',
+                'December'],
+                d = new Date(date),
+                curr_date = d.getDate(),
+                sup,
+                curr_month = d.getMonth(),
+                curr_year = d.getFullYear();
 
-            var d = new Date(date);
-            var curr_date = d.getDate();
-            var sup = '';
-            if (curr_date == 1 || curr_date == 21 || curr_date ==31) sup = 'st';
-            else if (curr_date == 2 || curr_date == 22) sup = 'nd';
-            else if (curr_date == 3 || curr_date == 23) sup = 'rd';
-            else sup = 'th';
-
-            var curr_month = d.getMonth();
-            var curr_year = d.getFullYear();
+            if (curr_date === 1 || curr_date === 21 || curr_date === 31) {
+                sup = 'st';
+            } else if (curr_date === 2 || curr_date === 22) {
+                sup = 'nd';
+            } else if (curr_date === 3 || curr_date === 23) {
+                sup = 'rd';
+            } else {
+                sup = 'th';
+            }
 
             return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
         },
@@ -472,30 +474,24 @@
         },
 
         getRootUrl: function (url) {
-            var rootUrlStr = url,
-                rootUrlStr = rootUrlStr.indexOf('//') > 0 ? rootUrlStr.substring(rootUrlStr.indexOf('//') + 2) : rootUrlStr;
-                rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+            var rootUrlStr;
+
+            // TODO make sure this works
+            if (rootUrlStr.indexOf('//') > 0) {
+                rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
+            } else {
+                rootUrlStr = url;
+            }
+            rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+
             return rootUrlStr;
         },
 
         performMigration: function () {
 
-            //check for very old history migration
-            var oldGsHistory = localStorage.getItem(this.HISTORY_OLD);
-
-            if (oldGsHistory !== null) {
-                oldGsHistory = JSON.parse(oldGsHistory);
-
-                //merge old gsHistory with new one
-                for (i = 0; i < oldGsHistory.length; i++) {
-                    gsHistory.push(oldGsHistory[i]);
-                }
-                gsUtils.setGsHistory(gsHistory);
-                localStorage.removeItem(this.HISTORY_OLD);
-            }
-
             //migrate gsHistory to sessionHistory
             var gsHistory = this.fetchGsHistory(),
+                oldGsHistory = localStorage.getItem(this.HISTORY_OLD),
                 i,
                 j,
                 curSession,
@@ -504,19 +500,38 @@
                 groupKey,
                 tabProperties,
                 sessionHistory,
-                allTabsWindow;
+                allTabsWindow,
+                //try restore any lost tabs (due to upgrade) from suspended tab history
+                lastSession,
+                sortable = [],
+                url;
+
+
+
+            //check for very old history migration
+
+            if (oldGsHistory !== null) {
+                oldGsHistory = JSON.parse(oldGsHistory);
+
+                //merge old gsHistory with new one
+                oldGsHistory.forEach(function (val, index, array) {
+                    gsHistory.push(array[index]);
+                });
+                gsUtils.setGsHistory(gsHistory);
+                localStorage.removeItem(this.HISTORY_OLD);
+            }
 
             sessionHistory = [];
             allTabsWindow = {id: '0000', tabs: []};
 
             gsHistory.sort(this.compareDate);
 
-            for (i = 0; i < gsHistory.length; i++) {
+            for (i = 0; i < gsHistory.length; i + 1) {
                 tabProperties = gsHistory[i];
                 groupKey = this.getFormattedDate(tabProperties.date, false);
 
-                for (j = 0; j < sessionHistory.length; j++) {
-                    if (sessionHistory[j].id == groupKey) {
+                for (j = 0; j < sessionHistory.length; j + 1) {
+                    if (sessionHistory[j].id === groupKey) {
                         curSession = sessionHistory[j];
                     }
                 }
@@ -547,36 +562,23 @@
             this.saveSession('Old suspended tab history', curSession);
 
 
-            //try restore any lost tabs (due to upgrade) from suspended tab history
-            var lastSession,
-                curWindow,
-                curTab,
-                i,
-                j,
-                k;
-
             //if we have a valid last session
             if (sessionHistory.length > 0) {
                 lastSession = sessionHistory[0];
 
-                for (i = 0; i < lastSession.windows.length; i++) {
-
-                    curWindow = lastSession.windows[i];
-
+                lastSession.forEach(function (curWindow) {
                     //sort tabs by index
-                    var sortable = [];
-                    for (k = 0; k < curWindow.tabs.length; k++) {
-                        sortable.push([k, curWindow.tabs[k].index]);
-                        sortable.sort(function (a, b) {return a[1] - b[1]});
-                    }
+                    curWindow.tabs.forEach(function (val) {
+                        sortable.push([val, curWindow.tabs[val].index]);
+                        sortable.sort(function (a, b) { return a[1] - b[1]; });
+                    });
 
-                    for (j = 0; j < sortable.length; j++) {
-
-                        curTab = curWindow.tabs[sortable[j][0]];
+                    sortable.forEach(function (val, index, array) {
+                        curTab = curWindow.tabs[array[index][0]];
 
                         if (curTab.state === 'suspended') {
 
-                            var url = gsUtils.generateSuspendedUrl(curTab.url);
+                            url = gsUtils.generateSuspendedUrl(curTab.url);
                             chrome.tabs.create({
                                 url: url,
                                 index: curTab.index,
@@ -584,8 +586,8 @@
                                 active: false
                             });
                         }
-                    }
-                }
+                    });
+                });
             }
 
         }
