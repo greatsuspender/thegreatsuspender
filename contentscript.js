@@ -23,7 +23,6 @@
     if (suspendedEl) { return; }
 
     function generatePreviewImg(suspendedUrl) {
-
         var elementCount = document.getElementsByTagName('*').length,
             processing = true;
 
@@ -74,7 +73,6 @@
     }
 
     function setTimerJob(interval) {
-
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
         if (interval > 4) {
             interval = interval + (Math.random() * 60 * 1000);
@@ -92,7 +90,6 @@
     }
 
     function setFormInputJob() {
-
         window.addEventListener('keydown', function (event) {
             if (!inputState && !tempWhitelist) {
                 if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
@@ -133,9 +130,7 @@
     }
 
     function requestPreferences() {
-
         chrome.runtime.sendMessage({action: 'prefs'}, function (response) {
-
             if (response && response.suspendTime) {
                 prefs = response;
 
@@ -152,7 +147,6 @@
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-
         var response = {},
             status,
             suspendDate;

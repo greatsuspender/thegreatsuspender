@@ -26,7 +26,6 @@
         SAVED_SESSIONS: 'gsSavedSessions',
 
         initSettings: function (fn) {
-
             var self = this,
                 items = localStorage.getItem('gsSettings'),
                 key,
@@ -65,23 +64,26 @@
             }
 
             //if we had to populate any new fields then resave these to chrome.storage.sync
-            /*if (migration) {
+            /*
+            if (migration) {
                 chrome.storage.sync.set(settings, function () {
                     console.log('Settings migrated to chrome sync storage');
                 });
-            }*/
+            }
+            */
 
             //finally, store settings on local storage for synchronous access
             localStorage.setItem('gsSettings', JSON.stringify(settings));
 
             self.callback();
-            /*});*/
         },
 
         getOption: function (prop) {
             var settings = this.getSettings();
-            if (settings[prop] === 'true') { return true; }
-            if (settings[prop] === 'false') { return false; }
+            // TODO make sure this works
+            if (typeof settings[prop] === 'boolean') {
+                return settings[prop];
+            }
             return settings[prop];
         },
 
@@ -93,7 +95,6 @@
 
         getSettings: function () {
             var result = localStorage.getItem('gsSettings');
-
             if (result !== null) {
                 result = JSON.parse(result);
             }
@@ -101,9 +102,11 @@
         },
 
         saveSettings: function (settings) {
-            /*chrome.storage.sync.set(settings, function () {
+            /*
+            chrome.storage.sync.set(settings, function () {
                 console.log('Settings saved to chrome sync storage');
-            });*/
+            });
+            */
             localStorage.setItem('gsSettings', JSON.stringify(settings));
         },
 
@@ -114,6 +117,8 @@
                 whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i;
 
+            // .forEach() not desirable in this case AFAIK
+            // TODO make sure of comment above this one
             for (i = 0; i < whitelistedWords.length; i += 1) {
                 if (whitelistedWords[i] === newString) {
                     whitelistedWords.splice(i, 1);
@@ -134,6 +139,7 @@
                 j;
 
             // TODO is not clear on its function AT ALL
+            // TODO refactor for loop? not sure if necessary
             for (i = 0; i < whitelistedWords.length; i += 1) {
                 if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i) {
                     whitelistedWords.splice(i + 1, j - i);
@@ -150,15 +156,10 @@
             }
             return result;
         },
+
         setVersion: function (newVersion) {
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
         },
-
-
-
-
-
-
 
         fetchPreviewImage: function (tabUrl, callback) {
             chrome.storage.local.get(null, function (items) {
@@ -166,10 +167,8 @@
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
                     callback(null);
-
                 } else if (items.gsPreviews[tabUrl] === 'undefined') {
                     callback(null);
-
                 } else {
                     callback(items.gsPreviews[tabUrl]);
                 }
@@ -178,10 +177,10 @@
 
         setPreviewImage: function (tabUrl, previewUrl) {
             chrome.storage.local.get(null, function (items) {
-
                 if (items.gsPreviews === 'undefined') {
                     items.gsPreviews = {};
                 }
+
                 items.gsPreviews[tabUrl] = previewUrl;
                 chrome.storage.local.set(items);
             });
@@ -195,13 +194,14 @@
         },
 
         fetchGsHistory: function () {
-
             var result = localStorage.getItem(this.HISTORY);
+
             if (result === null) {
                 result = [];
             } else {
                 result = JSON.parse(result);
             }
+
             return result;
         },
 
@@ -214,23 +214,23 @@
         },
 
         fetchTabFromHistory: function (tabUrl) {
+            var gsHistory = this.fetchGsHistory();
 
-            var gsHistory = this.fetchGsHistory(),
-                i;
-
-            for (i = 0; i < gsHistory.length; i += 1) {
-                if (gsHistory[i].url === tabUrl) {
-                    return gsHistory[i];
+            gsHistory.forEach(function (val) {
+                if (val.url === tabUrl) {
+                    return val;
                 }
-            }
+            });
+
             return false;
         },
 
         removeTabFromHistory: function (tabUrl) {
-
             var gsHistory = this.fetchGsHistory(),
                 i;
 
+            // .forEach() not desirable in this case AFAIK
+            // TODO make sure of comment above this one
             for (i = 0; i < gsHistory.length; i += 1) {
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory.splice(i, 1);
@@ -247,7 +247,8 @@
                 j,
                 k;
 
-            // TODO iterative function for sure
+            // TODO iterative function for sure, for now leave as-is
+            // cannot use .forEach() because of .splice() :(
             for (i = 0; i < gsSessionHistory.length; i += 1) {
                 if (gsSessionHistory[i].id === sessionId) {
 
@@ -255,8 +256,8 @@
                         if (gsSessionHistory[i].windows[j].id === windowId) {
 
                             for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k += 1) {
-                                if (gsSessionHistory[i].windows[j].tabs[k].id === tabId ||
-                                        gsSessionHistory[i].windows[j].tabs[k].url === tabId) {
+                                if (gsSessionHistory[i].windows[j].tabs[k].id === tabId
+                                        || gsSessionHistory[i].windows[j].tabs[k].url === tabId) {
                                     gsSessionHistory[i].windows[j].tabs.splice(k, 1);
                                     break;
                                 }
@@ -272,12 +273,10 @@
                 }
             }
 
-
             this.setGsSessionHistory(gsSessionHistory);
         },
 
         fetchGsSessionHistory: function () {
-
             var result = localStorage.getItem(this.SESSION_HISTORY),
                 sessionHistory;
 
@@ -299,50 +298,47 @@
         },
 
         getSessionById: function (sessionId) {
-            var i = 0,
-                sessionHistory = this.fetchGsSessionHistory();
-            for (i = 0; i < sessionHistory.length; i += 1) {
-                if (sessionHistory[i].id === sessionId) {
-                    return sessionHistory[i];
+            var sessionHistory = this.fetchGsSessionHistory();
+            sessionHistory.forEach(function (session) {
+                if (session.id === sessionId) {
+                    return session;
                 }
-            }
-            sessionHistory = this.fetchGsSavedSessions();
-            for (i = 0; i < sessionHistory.length; i += 1) {
-                if (sessionHistory[i].id === sessionId) {
-                    return sessionHistory[i];
-                }
-            }
-            return false;
-        },
-        getWindowFromSession: function (windowId, session) {
-            var i = 0;
-            for (i = 0; i < session.windows.length; i += 1) {
-                if (session.windows[i].id === windowId) {
-                    return session.windows[i];
-                }
-            }
-            return false;
-        },
-        getTabFromWindow: function (id, window) {
-            var i = 0;
-            for (i = 0; i < window.tabs.length; i += 1) {
-                if (window.tabs[i].id === id) {
-                    return window.tabs[i];
+            });
 
+            sessionHistory = this.fetchGsSavedSessions();
+            sessionHistory.forEach(function (session) {
+                if (session.id === sessionId) {
+                    return session;
                 }
-                if (window.tabs[i].url === id) {
-                    return window.tabs[i];
+            });
+
+            return false;
+        },
+
+        getWindowFromSession: function (windowId, session) {
+            session.windows.forEach(function (window) {
+                if (window.id === windowId) {
+                    return window;
                 }
-            }
+            });
+            return false;
+        },
+
+        getTabFromWindow: function (id, window) {
+            window.tabs.forEach(function (tab) {
+                if (tab.id === id || tab.url === id) {
+                    return tab;
+                }
+            });
             return false;
         },
 
         saveWindowsToSessionHistory: function (sessionId, windowsArray) {
-
             var gsSessionHistory = this.fetchGsSessionHistory(),
                 i,
                 match = false;
 
+            // best to leave this as-is because of break statement
             for (i = 0; i < gsSessionHistory.length; i += 1) {
                 if (gsSessionHistory[i].id === sessionId) {
                     gsSessionHistory[i].windows = windowsArray;
@@ -354,7 +350,11 @@
 
             //if no matching window id found. create a new entry
             if (!match) {
-                gsSessionHistory.unshift({id: sessionId, windows: windowsArray, date: new Date()});
+                gsSessionHistory.unshift({
+                    id: sessionId,
+                    windows: windowsArray,
+                    date: new Date()
+                });
             }
 
             //trim stored windows down to last x sessions
@@ -367,7 +367,6 @@
 
 
         fetchGsSavedSessions: function () {
-
             var result = localStorage.getItem(this.SAVED_SESSIONS),
                 savedSessionHistory;
 
@@ -385,7 +384,6 @@
         },
 
         saveSession: function (sessionName, session) {
-
             var savedSessions = this.fetchGsSavedSessions();
             session.name = sessionName;
             savedSessions.unshift(session);
@@ -409,7 +407,6 @@
         },
 
         getHashVariable: function (key, hash) {
-
             var parts,
                 temp,
                 i;
@@ -493,8 +490,6 @@
             //migrate gsHistory to sessionHistory
             var gsHistory = this.fetchGsHistory(),
                 oldGsHistory = localStorage.getItem(this.HISTORY_OLD),
-                i,
-                j,
                 curSession,
                 curWindow,
                 curTab,
@@ -507,10 +502,7 @@
                 sortable = [],
                 url;
 
-
-
             //check for very old history migration
-
             if (oldGsHistory !== null) {
                 oldGsHistory = JSON.parse(oldGsHistory);
 
@@ -523,19 +515,26 @@
             }
 
             sessionHistory = [];
-            allTabsWindow = {id: '0000', tabs: []};
+            allTabsWindow = {
+                id: '0000',
+                tabs: []
+            };
 
             gsHistory.sort(this.compareDate);
 
-            for (i = 0; i < gsHistory.length; i += 1) {
-                tabProperties = gsHistory[i];
+            // TODO make sure this works
+            gsHistory.forEach(function (entry) {
+                tabProperties = entry;
                 groupKey = this.getFormattedDate(tabProperties.date, false);
 
-                for (j = 0; j < sessionHistory.length; j += 1) {
-                    if (sessionHistory[j].id === groupKey) {
-                        curSession = sessionHistory[j];
+                // TODO isn't sessionHistory empty at this point because of some
+                // lines up where it was defined as an empty array?
+                sessionHistory.forEach(function (session) {
+                    if (session.id === groupKey) {
+                        curSession = session;
                     }
-                }
+                });
+
                 if (!curSession) {
                     curSession = {id: groupKey, windows: [], date: tabProperties.date};
                     sessionHistory.unshift(curSession);
@@ -552,8 +551,7 @@
                     curWindow.tabs.unshift(tabProperties);
                 }
                 allTabsWindow.tabs.unshift(tabProperties);
-
-            }
+            });
 
             //approximate new session history from old suspended tab history data
             this.setGsSessionHistory(sessionHistory);
@@ -561,7 +559,6 @@
             //save all old suspended tab history data as a saved session
             curSession = {id: '0000', windows: [allTabsWindow], date: new Date()};
             this.saveSession('Old suspended tab history', curSession);
-
 
             //if we have a valid last session
             if (sessionHistory.length > 0) {
@@ -571,14 +568,15 @@
                     //sort tabs by index
                     curWindow.tabs.forEach(function (val) {
                         sortable.push([val, curWindow.tabs[val].index]);
-                        sortable.sort(function (a, b) { return a[1] - b[1]; });
+                        sortable.sort(function (a, b) {
+                            return a[1] - b[1];
+                        });
                     });
 
                     sortable.forEach(function (val, index, array) {
                         curTab = curWindow.tabs[array[index][0]];
 
                         if (curTab.state === 'suspended') {
-
                             url = gsUtils.generateSuspendedUrl(curTab.url);
                             chrome.tabs.create({
                                 url: url,
