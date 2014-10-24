@@ -1,4 +1,4 @@
-/*global document, window, gsUtils, chrome */
+/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setTidyUrlVisibility, setOnlineCheckVisibility, resetTabTimers */
 
 (function () {
 
@@ -16,24 +16,27 @@
             'whitelist': gsUtils.WHITELIST,
             'tidyUrls' : gsUtils.TIDY_URLS
         },
-        elementIdMap = invert(elementPrefMap);
+        elementIdMap = invert(elementPrefMap),
+        readyStateCheckInterval;
 
     function invert(obj) {
 
-        var new_obj = {};
-        for (var prop in obj) {
+        var new_obj = {},
+            prop;
+
+        for (prop in obj) {
             if (obj.hasOwnProperty(prop)) {
-               new_obj[obj[prop]] = prop;
+                new_obj[obj[prop]] = prop;
             }
         }
         return new_obj;
-    };
+    }
 
     function selectComboBox(element, key) {
         var i,
             child;
 
-        for (i = 0; i < element.children.length; i++) {
+        for (i = 0; i < element.children.length; i += 1) {
             child = element.children[i];
             if (child.value === key) {
                 child.selected = 'true';
@@ -52,7 +55,7 @@
             command,
             i;
 
-        for (i = 0; i < optionEls.length; i++) {
+        for (i = 0; i < optionEls.length; i += 1) {
             element = optionEls[i];
             pref = elementPrefMap[element.id];
             populateOption(element, gsUtils.getOption(pref));
@@ -64,7 +67,7 @@
 
         //populate keyboard shortcuts
         chrome.commands.getAll(function (commands) {
-            for (i = 0; i < commands.length; i++) {
+            for (i = 0; i < commands.length; i += 1) {
                 if (commands[i].name !== "_execute_browser_action") {
                     shortcutsEl.innerHTML += '<span>' + commands[i].description + ': ' + commands[i].shortcut + '</span><br />';
                 }
@@ -89,11 +92,11 @@
 
         if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
             return element.checked;
-
-        } else if (element.tagName === 'SELECT') {
+        }
+        if (element.tagName === 'SELECT') {
             return element.children[element.selectedIndex].value;
-
-        } else if (element.tagName === 'TEXTAREA') {
+        }
+        if (element.tagName === 'TEXTAREA') {
             return element.value;
         }
     }
@@ -128,7 +131,8 @@
 
         return function () {
 
-            var pref = elementPrefMap[element.id];
+            var pref = elementPrefMap[element.id],
+                interval;
             gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
 
             //add specific screen element listeners
@@ -139,14 +143,14 @@
                 setTidyUrlVisibility(getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
-                var interval = getOptionValue(element);
+                interval = getOptionValue(element);
                 setOnlineCheckVisibility(interval > 0);
-                if (interval > 0) resetTabTimers(interval);
+                if (interval > 0) { resetTabTimers(interval); }
             }
-        }
+        };
     }
 
-    var readyStateCheckInterval = window.setInterval(function () {
+    readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
 
             window.clearInterval(readyStateCheckInterval);
@@ -162,7 +166,7 @@
                 i;
 
             //add change listeners for all 'option' elements
-            for (i = 0; i < optionEls.length; i++) {
+            for (i = 0; i < optionEls.length; i += 1) {
                 element = optionEls[i];
                 element.onchange = getHandler(element);
             }
@@ -180,10 +184,9 @@
 
             chrome.storage.onChanged.addListener(function (changes, namespace) {
                 var property,
-                    elementId,
-                    element;
+                    elementId;
 
-                if (namespace !== 'sync') return;
+                if (namespace !== 'sync') { return; }
                 for (property in changes) {
                     if (changes.hasOwnProperty(property)) {
 
@@ -204,24 +207,21 @@
         chrome.tabs.query({}, function (tabs) {
             var i,
                 currentTab,
-                timeout = newInterval * 60 * 1000;
+                timeout = newInterval * 60 * 1000,
+                tabId;
 
-            for (i = 0; i < tabs.length; i++) {
-                currentTab = tabs[i];
+            tabs.forEach(function (currentTab) {
+                tabId = currentTab.id;
+                //
+                //test if a content script is active by sending a 'requestInfo' message
+                chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
 
-                (function () {
-                    var tabId = currentTab.id;
-
-                    //test if a content script is active by sending a 'requestInfo' message
-                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-
-                        //if no response, then try to dynamically load in the new contentscript.js file
-                        if (typeof(response) !== 'undefined') {
-                            chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                        }
-                    });
-                })();
-            }
+                    //if no response, then try to dynamically load in the new contentscript.js file
+                    if (response !== 'undefined') {
+                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                    }
+                });
+            });
         });
 
     }
