@@ -1,41 +1,41 @@
 {
-    "name": "The Great Suspender",
-    "description": "Automatically suspends unused tabs to free up system resources",
-    "version": "5.30",
-    "permissions": [
-        "tabs",
-        "storage",
-        "unlimitedStorage",
-        "alarms",
-        "http://*/*",
-        "https://*/*",
-        "chrome://favicon/*"
-    ],
-    "background": {
-        "scripts": ["gsUtils.js", "background.js"],
-        "persistent": false
-    },
-    "content_scripts": [
-        {
-          "matches": ["http://*/*", "https://*/*"],
-          "js": ["contentscript.js"]
-        }
-    ],
-    "browser_action": {
-        "default_title": "The Great Suspender",
-        "default_icon": "icon19.png",
-        "default_popup": "popup.html"
-    },
-    "options_page": "options.html",
-    "icons": {
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
-    },
-    "web_accessible_resources": ["suspended.html", "history.html", "style.css", "suspended.css"],
-    "incognito": "split",
-    "manifest_version": 2,
-    "minimum_chrome_version": "22",
+  "name": "The Great Suspender",
+  "description": "Automatically suspends unused tabs to free up system resources",
+  "version": "5.30",
+  "permissions": [
+    "tabs",
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "http://*/*",
+    "https://*/*",
+    "chrome://favicon/*"
+  ],
+  "background": {
+    "scripts":["gsUtils.js", "background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["contentscript.js"]
+    }
+  ],
+  "browser_action": {
+    "default_title": "The Great Suspender",
+    "default_icon": "icon19.png",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": ["suspended.html", "history.html", "style.css", "suspended.css"],
+  "incognito": "split",
+  "manifest_version": 2,
+  "minimum_chrome_version": "22",
 
   "commands": {
     "suspend-tab": {
