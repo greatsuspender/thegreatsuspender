@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var jslint = require('gulp-jslint');
 
 gulp.task('jslint', function () {
-    gulp.src(['previewscript.js'])
+    gulp.src(['profiler.js'])
         .pipe(jslint({
             browser: true,
             todo: true,

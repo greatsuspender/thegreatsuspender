@@ -1,3 +1,4 @@
+/*global chrome */
 
 (function () {
 
@@ -25,26 +26,24 @@
 
     function fetchInfo() {
 
+        var i;
+
         chrome.tabs.query({}, function (tabs) {
 
-            for (var i = 0; i < tabs.length; i++) {
+            tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                (function () {
+                chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function (suspendInfo) {
 
-                    var curTab = tabs[i];
-                    chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function (suspendInfo) {
+                    var html = '',
+                        tableEl = document.getElementById('gsProfilerBody');
 
-                        var html = '',
-                            tableEl = document.getElementById('gsProfilerBody');
+                    suspendInfo.tab = curTab;
 
-                        suspendInfo.tab = curTab;
-
-                        html = generateTabInfo(suspendInfo);
-                        tableEl.innerHTML = tableEl.innerHTML + html;
-                    });
-                })();
-            }
+                    html = generateTabInfo(suspendInfo);
+                    tableEl.innerHTML = tableEl.innerHTML + html;
+                });
+            });
         });
     }
 
