@@ -4,8 +4,8 @@
 
     'use strict';
 
-    var tabs = {},
-        windows = {};
+    var tabs = {}, // unused
+        windows = {}; // unused
 
     function getFormattedDate(date, includeTime) {
         var d = new Date(date),
@@ -31,34 +31,26 @@
     }
 
     function reloadTabs(element, suspendMode) {
-
         return function () {
-
             chrome.runtime.getBackgroundPage(function (backgroundPage) {
-
                 var tgs = backgroundPage.tgs,
                     windowId = element.getAttribute('data-windowId'),
                     sessionId = element.getAttribute('data-sessionId'),
                     session = gsUtils.getSessionById(sessionId),
                     window = gsUtils.getWindowFromSession(windowId, session),
-                    curTab,
-                    curUrl,
-                    i;
+                    curUrl;
 
                 chrome.windows.create(function (newWindow) {
-
-                    for (i = 0; i < window.tabs.length; i += 1) {
-
-                        curTab = window.tabs[i];
+                    window.tabs.forEach(function (curTab) {
                         curUrl = curTab.url;
+
                         if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
                             curUrl = gsUtils.generateSuspendedUrl(curUrl);
-
                         } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
                             curUrl = gsUtils.getHashVariable('url', curTab.url.split('suspended.html')[1]);
                         }
                         chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
-                    }
+                    });
 
                     chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
                         chrome.tabs.remove(tabs[0].id);
@@ -82,7 +74,6 @@
     }
 
     function toggleSession(element) {
-
         return function () {
             if (element.childElementCount > 0) {
                 element.innerHTML = '';
@@ -91,23 +82,21 @@
 
             var sessionId = element.getAttribute('data-sessionId'),
                 session = getSessionById(sessionId),
-                j,
-                k,
                 windowProperties,
                 tabProperties;
 
-            for (j = 0; j < session.windows.length; j += 1) {
-                windowProperties = session.windows[j];
+            session.windows.forEach(function (window, index) {
+                windowProperties = window;
                 windowProperties.sessionId = session.id;
-                element.appendChild(createWindowHtml(windowProperties, j));
+                element.appendChild(createWindowHtml(windowProperties, index));
 
-                for (k = 0; k < session.windows[j].tabs.length; k += 1) {
-                    tabProperties = session.windows[j].tabs[k];
-                    tabProperties.windowId = session.windows[j].id;
+                session.windows.tabs.forEach(function (tab) {
+                    tabProperties = tab;
+                    tabProperties.windowId = session.window.id;
                     tabProperties.sessionId = session.id;
                     element.appendChild(createTabHtml(tabProperties));
-                }
-            }
+                });
+            });
         };
     }
 
@@ -117,7 +106,6 @@
     }
 
     function saveSession(sessionId) {
-
         var session = getSessionById(sessionId);
 
         document.getElementsByClassName('mainContent')[0].className += ' blocked';
@@ -126,7 +114,6 @@
 
         document.getElementById('sessionNameCancel').onclick = hideModal;
         document.getElementById('sessionNameSubmit').onclick = function () {
-
             var text = document.getElementById('sessionNameText').value;
             if (text) {
                 gsUtils.saveSession(text, session);
@@ -136,26 +123,23 @@
     }
 
     function getSessionById(sessionId) {
-
         var gsHistory = gsUtils.fetchGsSessionHistory(),
-            gsSavedHistory = gsUtils.fetchGsSavedSessions(),
-            i;
+            gsSavedHistory = gsUtils.fetchGsSavedSessions();
 
-        for (i = 0; i < gsHistory.length; i += 1) {
-            if (gsHistory[i].id === sessionId) {
-                return gsHistory[i];
+        gsHistory.forEach(function (entry) {
+            if (entry.id === sessionId) {
+                return entry;
             }
-        }
-        for (i = 0; i < gsSavedHistory.length; i += 1) {
-            if (gsSavedHistory[i].id === sessionId) {
-                return gsSavedHistory[i];
+        });
+        gsSavedHistory.forEach(function (entry) {
+            if (entry.id === sessionId) {
+                return entry;
             }
-        }
+        });
         return false;
     }
 
     function createSessionHtml(session) {
-
         var savedSession = session.name ? true : false,
             sessionContainer,
             sessionTitle,
@@ -165,6 +149,7 @@
             k,
             tabCount = 0;
 
+        // TODO stop usage of j and k below
         for (j = 0; j < session.windows.length; j += 1) {
             for (k = 0; k < session.windows[j].tabs.length; k += 1) {
                 tabCount += 1;
@@ -174,6 +159,7 @@
         sessionTitle = document.createElement('span');
         sessionTitle.className = 'sessionLink';
 
+        // TODO stop usage of j and k below
         if (savedSession) {
             sessionTitle.innerHTML = session.name + ' (' + j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ')';
         } else {
@@ -267,31 +253,25 @@
 
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
             gsSavedSessions = gsUtils.fetchGsSavedSessions(),
-            i,
             sessionsDiv = document.getElementById('recoveryLinks'),
             historyDiv = document.getElementById('historyLinks'),
-            session,
             sessionEl;
 
         hideModal();
         sessionsDiv.innerHTML = '';
 
-        for (i = 0; i < gsSessionHistory.length; i += 1) {
-
-            session = gsSessionHistory[i];
+        gsSessionHistory.forEach(function (session) {
             sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
-        }
-
+        });
 
         historyDiv.innerHTML = '';
 
-        for (i = 0; i < gsSavedSessions.length; i += 1) {
+        gsSavedSessions.forEach(function (session) {
+            sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
+        });
 
-            session = gsSavedSessions[i];
-            sessionEl = historyDiv.appendChild(createSessionHtml(session));
-        }
-
-        /*var gsHistory = gsUtils.fetchGsHistory(),
+        /*
+        var gsHistory = gsUtils.fetchGsHistory(),
             historyMap = {},
             tabProperties,
             key,
@@ -322,7 +302,8 @@
                 historyMap[key] = true;
                 historyDiv.appendChild(createTabHtml(tabProperties));
             }
-        }*/
+        }
+        */
     }
 
     window.onload = function () {
