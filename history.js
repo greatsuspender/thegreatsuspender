@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, gsUtils */
+/*global chrome, gsUtils, render, createWindowHtml, createTabHtml, getSessionById */
 
 (function () {
 
@@ -16,9 +16,8 @@
 
         if (includeTime) {
             return cur_time + ' ' + cur_date + '-' + cur_month + '-' + cur_year;
-        } else {
-            return cur_date + '-' + cur_month + '-' + cur_year;
         }
+        return cur_date + '-' + cur_month + '-' + cur_year;
     }
 
     function compareDate(a, b) {
@@ -48,7 +47,7 @@
 
                 chrome.windows.create(function (newWindow) {
 
-                    for (i = 0; i < window.tabs.length; i++) {
+                    for (i = 0; i < window.tabs.length; i += 1) {
 
                         curTab = window.tabs[i];
                         curUrl = curTab.url;
@@ -97,12 +96,12 @@
                 windowProperties,
                 tabProperties;
 
-            for (j = 0; j < session.windows.length; j++) {
+            for (j = 0; j < session.windows.length; j += 1) {
                 windowProperties = session.windows[j];
                 windowProperties.sessionId = session.id;
                 element.appendChild(createWindowHtml(windowProperties, j));
 
-                for (k = 0; k < session.windows[j].tabs.length; k++) {
+                for (k = 0; k < session.windows[j].tabs.length; k += 1) {
                     tabProperties = session.windows[j].tabs[k];
                     tabProperties.windowId = session.windows[j].id;
                     tabProperties.sessionId = session.id;
@@ -142,13 +141,13 @@
             gsSavedHistory = gsUtils.fetchGsSavedSessions(),
             i;
 
-        for (i = 0; i < gsHistory.length; i++) {
-            if (gsHistory[i].id == sessionId) {
+        for (i = 0; i < gsHistory.length; i += 1) {
+            if (gsHistory[i].id === sessionId) {
                 return gsHistory[i];
             }
         }
-        for (i = 0; i < gsSavedHistory.length; i++) {
-            if (gsSavedHistory[i].id == sessionId) {
+        for (i = 0; i < gsSavedHistory.length; i += 1) {
+            if (gsSavedHistory[i].id === sessionId) {
                 return gsSavedHistory[i];
             }
         }
@@ -166,9 +165,9 @@
             k,
             tabCount = 0;
 
-        for (j = 0; j < session.windows.length; j++) {
-            for (k = 0; k < session.windows[j].tabs.length; k++) {
-                tabCount++;
+        for (j = 0; j < session.windows.length; j += 1) {
+            for (k = 0; k < session.windows[j].tabs.length; k += 1) {
+                tabCount += 1;
             }
         }
 
@@ -183,14 +182,14 @@
             sessionSave.className = 'groupLink';
             sessionSave.setAttribute('href', '#');
             sessionSave.innerHTML = 'save session';
-            sessionSave.onclick = function () {saveSession(session.id)};
+            sessionSave.onclick = function () { saveSession(session.id); };
         }
         sessionDiv = document.createElement('div');
         sessionDiv.setAttribute('data-sessionId', session.id);
         sessionTitle.onclick = toggleSession(sessionDiv);
         sessionContainer = document.createElement('div');
         sessionContainer.appendChild(sessionTitle);
-        if (!savedSession) sessionContainer.appendChild(sessionSave);
+        if (!savedSession) { sessionContainer.appendChild(sessionSave); }
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
@@ -236,7 +235,7 @@
 
         linksSpan.className = 'recoveryLink';
         if (tabProperties.sessionId) {
-            linksSpan.setAttribute('data-tabId', tabProperties.id ? tabProperties.id : tabProperties.url);
+            linksSpan.setAttribute('data-tabId', tabProperties.id || tabProperties.url);
             linksSpan.setAttribute('data-windowId', tabProperties.windowId);
             linksSpan.setAttribute('data-sessionId', tabProperties.sessionId);
         } else {
@@ -277,7 +276,7 @@
         hideModal();
         sessionsDiv.innerHTML = '';
 
-        for (i = 0; i < gsSessionHistory.length; i++) {
+        for (i = 0; i < gsSessionHistory.length; i += 1) {
 
             session = gsSessionHistory[i];
             sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
@@ -286,7 +285,7 @@
 
         historyDiv.innerHTML = '';
 
-        for (i = 0; i < gsSavedSessions.length; i++) {
+        for (i = 0; i < gsSavedSessions.length; i += 1) {
 
             session = gsSavedSessions[i];
             sessionEl = historyDiv.appendChild(createSessionHtml(session));
@@ -306,7 +305,7 @@
 
         historyDiv.innerHTML = '';
 
-        for (i = 0; i < gsHistory.length; i++) {
+        for (i = 0; i < gsHistory.length; i += 1) {
             tabProperties = gsHistory[i];
             groupKey = getFormattedDate(tabProperties.date, false);
             key = groupKey + tabProperties.url;

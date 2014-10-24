@@ -114,7 +114,7 @@
                 whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i;
 
-            for (i = 0; i < whitelistedWords.length; i + 1) {
+            for (i = 0; i < whitelistedWords.length; i += 1) {
                 if (whitelistedWords[i] === newString) {
                     whitelistedWords.splice(i, 1);
                 }
@@ -134,7 +134,7 @@
                 j;
 
             // TODO is not clear on its function AT ALL
-            for (i = 0; i < whitelistedWords.length; i + 1) {
+            for (i = 0; i < whitelistedWords.length; i += 1) {
                 if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i) {
                     whitelistedWords.splice(i + 1, j - i);
                 }
@@ -218,7 +218,7 @@
             var gsHistory = this.fetchGsHistory(),
                 i;
 
-            for (i = 0; i < gsHistory.length; i + 1) {
+            for (i = 0; i < gsHistory.length; i += 1) {
                 if (gsHistory[i].url === tabUrl) {
                     return gsHistory[i];
                 }
@@ -231,7 +231,7 @@
             var gsHistory = this.fetchGsHistory(),
                 i;
 
-            for (i = 0; i < gsHistory.length; i + 1) {
+            for (i = 0; i < gsHistory.length; i += 1) {
                 if (gsHistory[i].url === tabUrl) {
                     gsHistory.splice(i, 1);
                     break;
@@ -247,13 +247,14 @@
                 j,
                 k;
 
-            for (i = 0; i < gsSessionHistory.length; i + 1) {
+            // TODO iterative function for sure
+            for (i = 0; i < gsSessionHistory.length; i += 1) {
                 if (gsSessionHistory[i].id === sessionId) {
 
-                    for (j = 0; j < gsSessionHistory[i].windows.length; j + 1) {
+                    for (j = 0; j < gsSessionHistory[i].windows.length; j += 1) {
                         if (gsSessionHistory[i].windows[j].id === windowId) {
 
-                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k + 1) {
+                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k += 1) {
                                 if (gsSessionHistory[i].windows[j].tabs[k].id === tabId ||
                                         gsSessionHistory[i].windows[j].tabs[k].url === tabId) {
                                     gsSessionHistory[i].windows[j].tabs.splice(k, 1);
@@ -300,13 +301,13 @@
         getSessionById: function (sessionId) {
             var i = 0,
                 sessionHistory = this.fetchGsSessionHistory();
-            for (i = 0; i < sessionHistory.length; i + 1) {
+            for (i = 0; i < sessionHistory.length; i += 1) {
                 if (sessionHistory[i].id === sessionId) {
                     return sessionHistory[i];
                 }
             }
             sessionHistory = this.fetchGsSavedSessions();
-            for (i = 0; i < sessionHistory.length; i + 1) {
+            for (i = 0; i < sessionHistory.length; i += 1) {
                 if (sessionHistory[i].id === sessionId) {
                     return sessionHistory[i];
                 }
@@ -315,7 +316,7 @@
         },
         getWindowFromSession: function (windowId, session) {
             var i = 0;
-            for (i = 0; i < session.windows.length; i + 1) {
+            for (i = 0; i < session.windows.length; i += 1) {
                 if (session.windows[i].id === windowId) {
                     return session.windows[i];
                 }
@@ -324,7 +325,7 @@
         },
         getTabFromWindow: function (id, window) {
             var i = 0;
-            for (i = 0; i < window.tabs.length; i + 1) {
+            for (i = 0; i < window.tabs.length; i += 1) {
                 if (window.tabs[i].id === id) {
                     return window.tabs[i];
 
@@ -342,7 +343,7 @@
                 i,
                 match = false;
 
-            for (i = 0; i < gsSessionHistory.length; i + 1) {
+            for (i = 0; i < gsSessionHistory.length; i += 1) {
                 if (gsSessionHistory[i].id === sessionId) {
                     gsSessionHistory[i].windows = windowsArray;
                     gsSessionHistory[i].date = new Date();
@@ -418,7 +419,7 @@
             }
 
             parts = hash.substring(1).split('&');
-            for (i = 0; i < parts.length; i + 1) {
+            for (i = 0; i < parts.length; i += 1) {
                 temp = parts[i].split('=');
                 if (temp[0] === key) {
                     return decodeURIComponent(temp[1]);
@@ -526,11 +527,11 @@
 
             gsHistory.sort(this.compareDate);
 
-            for (i = 0; i < gsHistory.length; i + 1) {
+            for (i = 0; i < gsHistory.length; i += 1) {
                 tabProperties = gsHistory[i];
                 groupKey = this.getFormattedDate(tabProperties.date, false);
 
-                for (j = 0; j < sessionHistory.length; j + 1) {
+                for (j = 0; j < sessionHistory.length; j += 1) {
                     if (sessionHistory[j].id === groupKey) {
                         curSession = sessionHistory[j];
                     }
