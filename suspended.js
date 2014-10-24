@@ -88,7 +88,8 @@
             tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
-            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
+            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
+            favicon;
 
         //just incase the url is a suspension url (somehow??) then decode it
         while (url.indexOf('suspended.html#') >= 0) {
@@ -116,7 +117,7 @@
             document.getElementById('suspendedMsg').style.display = 'table-cell';
         }
 
-        var favicon = tabProperties.favicon || 'chrome://favicon/' + url;
+        favicon = tabProperties.favicon || 'chrome://favicon/' + url;
 
         //if tidyUrls on then just use normal favicon
         if (tidyUrls) {
@@ -130,8 +131,8 @@
         }
 
         //populate suspended tab bar
-        document.getElementById('gsTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
-        document.getElementById('gsTopBarTitle').innerText = tabProperties.title ? tabProperties.title : rootUrlStr;
+        document.getElementById('gsTitle').innerText = tabProperties.title || rootUrlStr;
+        document.getElementById('gsTopBarTitle').innerText = tabProperties.title || rootUrlStr;
      //   document.getElementById('gsTopBarUrl').innerText = tabProperties.url;
      //   document.getElementById('gsTopBarInfo').innerText = 'Tab suspended: ' + 'click to reload, or ';
         document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
