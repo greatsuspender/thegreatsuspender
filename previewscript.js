@@ -1,4 +1,4 @@
-/*global chrome, document, window, console, html2canvas */
+/*global chrome, html2canvas */
 
 (function () {
 
@@ -37,7 +37,7 @@
                             onrendered: function (canvas) {
                                 if (processing) {
                                     processing = false;
-                                    var quality = request.quality ? request.quality : 0.1;
+                                    var quality = request.quality || 0.1;
                                     sendResponse({previewUrl: canvas.toDataURL('image/jpeg', quality)});
                                 }
                             }
