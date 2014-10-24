@@ -10,8 +10,8 @@
             document.getElementById('footer').style.display = 'none';
 
         } else {
-            var statusDetail = '';
-            var statusSrc = '';
+            var statusDetail = '',
+                statusSrc = '';
 
             if (status === 'special') {
                 statusDetail = 'This tab cannot be suspended';
@@ -42,7 +42,7 @@
             document.getElementById('statusDetail').innerHTML = statusDetail;
             document.getElementById('statusImg').src = statusSrc;
         }
-    };
+    }
     function setWhitelistStatus(status) {
 
         if (status === 'special') {
@@ -60,7 +60,7 @@
             document.getElementById('whitelist').className = 'bottomOption';
             document.getElementById('whitelist').setAttribute('data-action', 'whitelist');
         }
-    };
+    }
 
     function setPauseStatus(status) {
 
@@ -85,7 +85,7 @@
             document.getElementById('tempWhitelist').className = 'bottomOption undo';
             document.getElementById('tempWhitelist').setAttribute('data-action', 'unpause');
         }
-    };
+    }
 
     function setSuspendOneVisibility(visible) {
         if (visible) {
@@ -93,7 +93,7 @@
         } else {
             document.getElementById('suspendOne').style.display = 'none';
         }
-    };
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
 
