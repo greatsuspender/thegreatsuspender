@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var jslint = require('gulp-jslint');
 
 gulp.task('jslint', function () {
-    gulp.src(['history.js'])
+    gulp.src(['options.js'])
         .pipe(jslint({
             browser: true,
             todo: true,

@@ -52,14 +52,12 @@
             shortcutsEl = document.getElementById('keyboardShortcuts'),
             pref,
             element,
-            command,
-            i;
+            command;
 
-        for (i = 0; i < optionEls.length; i += 1) {
-            element = optionEls[i];
+        optionEls.forEach(function (element) {
             pref = elementPrefMap[element.id];
             populateOption(element, gsUtils.getOption(pref));
-        }
+        });
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
         setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
@@ -67,16 +65,15 @@
 
         //populate keyboard shortcuts
         chrome.commands.getAll(function (commands) {
-            for (i = 0; i < commands.length; i += 1) {
-                if (commands[i].name !== "_execute_browser_action") {
-                    shortcutsEl.innerHTML += '<span>' + commands[i].description + ': ' + commands[i].shortcut + '</span><br />';
+            commands.forEach(function (command) {
+                if (command.name !== '_execute_browser_action') {
+                    shortcutsEl.innerHTML += '<span>' + command.description + ': ' + command.shortcut + '</span><br />';
                 }
-            }
+            });
         });
     }
 
     function populateOption(element, value) {
-
         if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
             element.checked = value;
 
@@ -89,7 +86,7 @@
     }
 
     function getOptionValue(element) {
-
+        // TODO switch statement?
         if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
             return element.checked;
         }
@@ -128,9 +125,7 @@
     }
 
     function getHandler(element) {
-
         return function () {
-
             var pref = elementPrefMap[element.id],
                 interval;
             gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
@@ -162,14 +157,12 @@
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory'),
                 configureShortcutsEl = document.getElementById('configureShortcuts'),
-                element,
-                i;
+                element;
 
             //add change listeners for all 'option' elements
-            for (i = 0; i < optionEls.length; i += 1) {
-                element = optionEls[i];
+            optionEls.forEach(function (element) {
                 element.onchange = getHandler(element);
-            }
+            });
 
             showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
@@ -189,7 +182,6 @@
                 if (namespace !== 'sync') { return; }
                 for (property in changes) {
                     if (changes.hasOwnProperty(property)) {
-
                         elementId = elementIdMap[property];
                         element = document.getElementById(elementId);
                         populateOption(element, changes[property].newValue);
@@ -205,25 +197,24 @@
     function resetTabTimers(newInterval) {
 
         chrome.tabs.query({}, function (tabs) {
-            var i,
-                currentTab,
+            var currentTab,
                 timeout = newInterval * 60 * 1000,
                 tabId;
 
             tabs.forEach(function (currentTab) {
                 tabId = currentTab.id;
-                //
                 //test if a content script is active by sending a 'requestInfo' message
                 chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-
                     //if no response, then try to dynamically load in the new contentscript.js file
                     if (response !== 'undefined') {
-                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+                        chrome.tabs.sendMessage(tabId, {
+                            action: 'resetTimer',
+                            timeout: timeout
+                        });
                     }
                 });
             });
         });
-
     }
 
 }());
