@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var jslint = require('gulp-jslint');
 
 gulp.task('jslint', function () {
-    gulp.src(['options.js'])
+    gulp.src(['popup.js'])
         .pipe(jslint({
             browser: true,
             todo: true,

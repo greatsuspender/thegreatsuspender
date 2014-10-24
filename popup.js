@@ -5,10 +5,8 @@
     'use strict';
 
     function setStatus(status) {
-
         if (status === 'normal') {
             document.getElementById('footer').style.display = 'none';
-
         } else {
             var statusDetail = '',
                 statusSrc = '';
@@ -43,17 +41,15 @@
             document.getElementById('statusImg').src = statusSrc;
         }
     }
-    function setWhitelistStatus(status) {
 
+    function setWhitelistStatus(status) {
         if (status === 'special') {
             document.getElementById('whitelist').style.display = 'none';
-
         } else if (status === 'whitelisted') {
             document.getElementById('whitelist').style.display = 'block';
             document.getElementById('whitelist').innerHTML = 'Unwhitelist';
             document.getElementById('whitelist').className = 'bottomOption undo';
             document.getElementById('whitelist').setAttribute('data-action', 'unwhitelist');
-
         } else {
             document.getElementById('whitelist').style.display = 'block';
             document.getElementById('whitelist').innerHTML = 'Whitelist site';
@@ -63,22 +59,18 @@
     }
 
     function setPauseStatus(status) {
-
         if (status === 'special') {
             document.getElementById('tempWhitelist').style.display = 'none';
-
         } else if (status === 'suspended' || status === 'whitelisted') {
             document.getElementById('tempWhitelist').style.display = 'block';
             document.getElementById('tempWhitelist').innerHTML = 'Pause suspension';
             document.getElementById('tempWhitelist').className = 'bottomOption disabled';
             document.getElementById('tempWhitelist').setAttribute('data-action', '');
-
         } else if (status === 'normal') {
             document.getElementById('tempWhitelist').style.display = 'block';
             document.getElementById('tempWhitelist').innerHTML = 'Pause suspension';
             document.getElementById('tempWhitelist').className = 'bottomOption';
             document.getElementById('tempWhitelist').setAttribute('data-action', 'pause');
-
         } else {
             document.getElementById('tempWhitelist').style.display = 'block';
             document.getElementById('tempWhitelist').innerHTML = 'Unpause suspension';
@@ -96,7 +88,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-
         document.getElementById('suspendOne').addEventListener('click', function () {
             chrome.runtime.sendMessage({ action: 'suspendOne' });
             window.close();
@@ -134,21 +125,20 @@
             });
             window.close();
         });
-        /*document.getElementById('history').addEventListener('click', function () {
+        /*
+        document.getElementById('history').addEventListener('click', function () {
             chrome.tabs.create({
                 url: chrome.extension.getURL('history.html')
             });
             window.close();
         });
-*/
+        */
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
-
             var status = info.status,
-                timeLeft = info.timerUp,
+                //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true;
 
             setSuspendOneVisibility(suspendOneVisible);
-
             setStatus(status);
             setWhitelistStatus(status);
             setPauseStatus(status);
