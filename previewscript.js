@@ -6,10 +6,8 @@
 
     chrome.runtime.onMessage.addListener(
         function (request, sender, sendResponse) {
-
             console.dir('received previewscript.js message:' + request.action + ' [' + Date.now() + ']');
             if (request.action === 'suspendTabWithPreview') {
-
                 //console.log('received request');
 
                 var elementCount = document.getElementsByTagName('*').length,
@@ -19,7 +17,6 @@
                 //safety check here. don't try to use html2canvas if the page has more than 5000 elements
                 //or if page has already been suspended
                 if (suspendedEl || elementCount < 5000) {
-
                     //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
                     window.setTimeout(function () {
                         if (processing) {
@@ -46,13 +43,11 @@
                         console.error('failed to render');
                         sendResponse({});
                     }
-
                 } else {
                     console.error('too many page elements');
                     sendResponse({});
                 }
             }
-
             return true;
         }
     );
