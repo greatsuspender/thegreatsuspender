@@ -1,3 +1,4 @@
+/*global chrome, html2canvas */
 /*
  * The Great Suspender
  * Copyright (C) 2014 Dean Oemcke
@@ -6,10 +7,7 @@
  * ლ(ಠ益ಠლ)
 */
 
-/*global chrome, handlePreviewError, html2canvas, suspendTab, reportState */
-
 (function () {
-
     'use strict';
 
     var inputState = false,
@@ -21,6 +19,30 @@
 
     //safety check here. don't load content script if we are on the suspended page
     if (suspendedEl) { return; }
+
+    function calculateState() {
+        var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
+        return status;
+    }
+
+    function reportState(state) {
+        state = state || calculateState();
+        chrome.runtime.sendMessage({ action: 'reportTabState', status: state });
+    }
+
+    function suspendTab(suspendedUrl) {
+        reportState('suspended');
+        window.location.replace(suspendedUrl);
+    }
+
+    function handlePreviewError(suspendedUrl) {
+        console.error('failed to render');
+        chrome.runtime.sendMessage({
+            action: 'savePreviewData',
+            previewUrl: false
+        });
+        suspendTab(suspendedUrl);
+    }
 
     function generatePreviewImg(suspendedUrl) {
         var elementCount = document.getElementsByTagName('*').length,
@@ -63,15 +85,6 @@
         }
     }
 
-    function handlePreviewError(suspendedUrl) {
-        console.error('failed to render');
-        chrome.runtime.sendMessage({
-            action: 'savePreviewData',
-            previewUrl: false
-        });
-        suspendTab(suspendedUrl);
-    }
-
     function setTimerJob(interval) {
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
         if (interval > 4) {
@@ -83,8 +96,7 @@
             //request suspension
             if (!inputState && !tempWhitelist) {
 
-                //console.log('requesting suspension');
-                chrome.runtime.sendMessage({action: 'suspendTab'});
+                chrome.runtime.sendMessage({ action: 'suspendTab' });
             }
         }, interval);
     }
@@ -93,9 +105,9 @@
         window.addEventListener('keydown', function (event) {
             if (!inputState && !tempWhitelist) {
                 if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
-                    if (event.target.tagName.toUpperCase() === 'INPUT' ||
-                            event.target.tagName.toUpperCase() === 'TEXTAREA' ||
-                            event.target.tagName.toUpperCase() === 'FORM') {
+                    if (event.target.tagName.toUpperCase() === 'INPUT'
+                            || event.target.tagName.toUpperCase() === 'TEXTAREA'
+                            || event.target.tagName.toUpperCase() === 'FORM') {
                         inputState = true;
                     }
                 }
@@ -103,34 +115,21 @@
         });
     }
 
-    function suspendTab(suspendedUrl) {
-        reportState('suspended');
-        window.location.replace(suspendedUrl);
-    }
-
-    function calculateState() {
-        var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
-        return status;
-    }
-
     function calculateSuspendDate() {
         var suspendDate;
+
         if (!timerUp) {
             suspendDate = new Date(new Date().getTime() + (+prefs.suspendTime * 60 * 1000));
         } else {
             suspendDate = timerUp;
         }
+
         suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
         return suspendDate;
     }
 
-    function reportState(state) {
-        state = state || calculateState();
-        chrome.runtime.sendMessage({action: 'reportTabState', status: state});
-    }
-
     function requestPreferences() {
-        chrome.runtime.sendMessage({action: 'prefs'}, function (response) {
+        chrome.runtime.sendMessage({ action: 'prefs' }, function (response) {
             if (response && response.suspendTime) {
                 prefs = response;
 
@@ -153,45 +152,53 @@
 
         //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
-        //set up suspension timer
-        if (request.action === 'resetTimer' && request.timeout > 0) {
+        switch (request.action) {
+        case 'resetTimer':
             clearTimeout(timer);
             timer = setTimerJob(request.timeout);
+            break;
 
         //listen for status request
-        } else if (request.action === 'requestInfo' && prefs) {
+        case 'requestInfo':
             status = calculateState();
             suspendDate = calculateSuspendDate();
             response = {status: status, timerUp: suspendDate};
+            break;
 
         //cancel suspension timer
-        } else if (request.action === 'cancelTimer') {
+        case 'cancelTimer':
             clearTimeout(timer);
             timerUp = false;
+            break;
 
         //listen for request to temporarily whitelist the tab
-        } else if (request.action === 'tempWhitelist') {
+        case 'tempWhitelist':
             status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
             response = {status: status};
             tempWhitelist = true;
             reportState(false);
+            break;
 
         //listen for request to undo temporary whitelisting
-        } else if (request.action === 'undoTempWhitelist') {
+        case 'undoTempWhitelist':
             inputState = false;
             tempWhitelist = false;
             response = {status: 'normal'};
             reportState(false);
+            break;
 
         //listen for preview request
-        } else if (request.action === 'generatePreview') {
+        case 'generatePreview':
             generatePreviewImg(request.suspendedUrl);
+            break;
 
         //listen for suspend request
-        } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+        case 'confirmTabSuspend':
             suspendTab(request.suspendedUrl);
+            break;
         }
 
+        //set up suspension timer
         sendResponse(response);
     });
 
