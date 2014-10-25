@@ -9,6 +9,7 @@ gulp.task('jslint', function () {
             browser: true,
             todo: true,
             devel: true,
+            unparam: true,
 
             errorsOnly: true
         }))
