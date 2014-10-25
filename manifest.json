@@ -12,7 +12,7 @@
     "chrome://favicon/*"
   ],
   "background": {
-    "scripts":["gsUtils.js", "background.js"],
+    "scripts": ["gsUtils.js", "background.js"],
     "persistent": false
   },
   "content_scripts": [

@@ -13,7 +13,7 @@ var tgs = (function () {
 
     'use strict';
 
-    var debug = false,
+    var debug = true,
         sessionId = gsUtils.generateSessionId(),
         //sessionDate = new Date(),
         lastSelectedTabs = [],
@@ -23,12 +23,16 @@ var tgs = (function () {
         var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
             whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/) : '';
 
+        // check in order to avoid errors because the .forEach() method doesn't exist in a string
+        if (typeof whitelistedWords === 'string') {
+            return false;
+        }
+
         whitelistedWords.forEach(function (word) {
             if (word.length > 0 && url.indexOf(word) >= 0) {
                 return true;
             }
         });
-        return false;
     }
 
     function saveSuspendData(tab, previewUrl) {
@@ -70,7 +74,6 @@ var tgs = (function () {
     }
 
     function isSpecialTab(tab) {
-
         if ((tab.url.indexOf('chrome-extension:') === 0
                 && tab.url.indexOf('suspended.html') < 0)
                 || tab.url.indexOf('chrome:') === 0
@@ -109,7 +112,7 @@ var tgs = (function () {
     }
 
     function whitelistHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+        chrome.tabs.query({ windowId: window.id, highlighted: true }, function (tabs) {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.saveToWhitelist(rootUrlStr);
@@ -255,7 +258,7 @@ var tgs = (function () {
         }
         //if we need to save a preview image
         if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
-            chrome.tabs.executeScript(tab.id, {file: 'html2canvas.min.js'}, function () {
+            chrome.tabs.executeScript(tab.id, { file: 'html2canvas.min.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'generatePreview',
                     suspendedUrl: gsUtils.generateSuspendedUrl(tab.url)
@@ -296,7 +299,6 @@ var tgs = (function () {
         }
     }
 
-
     function suspendAllTabsOnStartup() {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (tab) {
@@ -328,54 +330,66 @@ var tgs = (function () {
             console.dir(sender);
         }
 
-        //TODO switch statement
-        //treat this as a handler for initial page load (called by content script on page load)
-        if (request.action === 'prefs') {
+        switch (request.action) {
+        case 'prefs':
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 showPreview: gsUtils.getOption(gsUtils.SHOW_PREVIEW),
                 suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
                 previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
             });
+            break;
 
-        } else if (request.action === 'reportTabState') {
+        case 'reportTabState':
             if (sender.tab && sender.tab.id === currentTabId) {
                 var status = updateTabStatus(sender.tab, request.status);
                 updateIcon(status);
             }
+            break;
 
-        } else if (request.action === 'confirmTabUnsuspend') {
+        case 'confirmTabUnsuspend':
             unsuspendTab(sender.tab);
+            break;
 
-        } else if (request.action === 'suspendTab') {
+        case 'suspendTab':
             requestTabSuspension(sender.tab);
+            break;
 
-        } else if (request.action === 'savePreviewData') {
+        case 'savePreviewData':
             saveSuspendData(sender.tab, request.previewUrl);
+            break;
 
-        } else if (request.action === 'suspendOne') {
+        case 'suspendOne':
             chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
+            break;
 
-        } else if (request.action === 'unsuspendOne') {
+        case 'unsuspendOne':
             chrome.windows.getLastFocused({populate: true}, unsuspendHighlightedTab);
+            break;
 
-        } else if (request.action === 'tempWhitelist') {
+        case'tempWhitelist':
             chrome.windows.getLastFocused({populate: true}, temporarilyWhitelistHighlightedTab);
+            break;
 
-        } else if (request.action === 'undoTempWhitelist') {
+        case 'undoTempWhitelist':
             chrome.windows.getLastFocused({populate: true}, undoTemporarilyWhitelistHighlightedTab);
+            break;
 
-        } else if (request.action === 'whitelist') {
+        case 'whitelist':
             chrome.windows.getLastFocused({populate: true}, whitelistHighlightedTab);
+            break;
 
-        } else if (request.action === 'removeWhitelist') {
+        case 'removeWhitelist':
             chrome.windows.getLastFocused({populate: true}, unwhitelistHighlightedTab);
+            break;
 
-        } else if (request.action === 'suspendAll') {
+        case 'suspendAll':
             chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
+            break;
 
-        } else if (request.action === 'unsuspendAll') {
+        case 'unsuspendAll':
             chrome.windows.getLastFocused({populate: true}, unsuspendAllTabs);
+            break;
         }
     });
 
@@ -397,7 +411,8 @@ var tgs = (function () {
     });
     */
 
-    //listen for tab switching
+    // listen for tab switching
+    // for unsuspending on tab focus
     chrome.tabs.onActivated.addListener(function (activeInfo) {
         if (debug) {
             console.log('tab changed: ' + activeInfo.tabId);
@@ -464,6 +479,7 @@ var tgs = (function () {
         if (gsSessionHistory.length > 0) {
             crashedSession = gsSessionHistory[0];
 
+            // BUG: generates a TypeError on extension reload, investigate
             chrome.windows.getAll({ populate: true }, function (windows) {
                 windows.forEach(function (curWindow) {
                     curWindow.tabs.foreach(function (curTab) {
