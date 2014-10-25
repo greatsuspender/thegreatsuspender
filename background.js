@@ -74,12 +74,13 @@ var tgs = (function () {
     }
 
     function isSpecialTab(tab) {
-        if ((tab.url.indexOf('chrome-extension:') === 0
-                && tab.url.indexOf('suspended.html') < 0)
-                || tab.url.indexOf('chrome:') === 0
-                || tab.url.indexOf('chrome-devtools:') === 0
-                || tab.url.indexOf('file:') === 0
-                || tab.url.indexOf('chrome.google.com/webstore') >= 0) {
+        var f = tab.url; // just for convenience, f stands for fast
+
+        if (f.indexOf('chrome-extension:') === 0
+                || f.indexOf('chrome:') === 0
+                || f.indexOf('chrome-devtools:') === 0
+                || f.indexOf('file:') === 0
+                || f.indexOf('chrome.google.com/webstore') >= 0) {
             return true;
         }
         return false;
@@ -367,7 +368,7 @@ var tgs = (function () {
             chrome.windows.getLastFocused({populate: true}, unsuspendHighlightedTab);
             break;
 
-        case'tempWhitelist':
+        case 'tempWhitelist':
             chrome.windows.getLastFocused({populate: true}, temporarilyWhitelistHighlightedTab);
             break;
 

@@ -2,7 +2,9 @@ var gulp = require('gulp');
 var jslint = require('gulp-jslint');
 
 gulp.task('jslint', function () {
-    gulp.src(['suspended.js'])
+    gulp.src(['background.js', 'contentscript.js', 'gsUtils.js', 'history.js',
+             'options.js', 'popup.js', 'previewscript.js', 'profiler.js',
+             'suspended.js'])
         .pipe(jslint({
             browser: true,
             todo: true,
