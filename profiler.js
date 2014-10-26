@@ -1,12 +1,12 @@
+/*global chrome */
 
-(function() {
+(function () {
 
     'use strict';
 
     var currentTabs = {};
 
     function generateTabInfo(info) {
-
         var html = '',
             tabId = info && info.tabId ? info.tabId : '?',
             tabTitle = info && info.tab ? info.tab.title : 'unknown',
@@ -24,50 +24,42 @@
     }
 
     function fetchInfo() {
-
-        chrome.tabs.query({}, function(tabs) {
-
-            for (var i = 0; i < tabs.length; i++) {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                (function() {
+                chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function (suspendInfo) {
+                    var html = '',
+                        tableEl = document.getElementById('gsProfilerBody');
 
-                    var curTab = tabs[i];
-                    chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function(suspendInfo) {
+                    suspendInfo.tab = curTab;
 
-                        var html = '',
-                            tableEl = document.getElementById('gsProfilerBody');
-
-                        suspendInfo.tab = curTab;
-
-                        html = generateTabInfo(suspendInfo);
-                        tableEl.innerHTML = tableEl.innerHTML + html;
-                    });
-                })();
-            }
+                    html = generateTabInfo(suspendInfo);
+                    tableEl.innerHTML = tableEl.innerHTML + html;
+                });
+            });
         });
     }
 
-    window.onload = function() {
-
+    window.onload = function () {
         fetchInfo();
 
         //handler for refresh
-        document.getElementById('refreshProfiler').onclick = function(e) {
+        document.getElementById('refreshProfiler').onclick = function (e) {
             document.getElementById('gsProfilerBody').innerHTML = '';
             fetchInfo();
         };
 
-        /*chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
-
-            chrome.tabs.query({}, function(tabs) {
+        /*
+        chrome.processes.onUpdatedWithMemory.addListener(function (processes) {
+            chrome.tabs.query({}, function (tabs) {
                 var html = '';
                 html += generateMemStats(processes);
                 html += '<br />';
                 html += generateTabStats(tabs);
                 document.getElementById('gsProfiler').innerHTML = html;
             });
-
-        });*/
+        });
+        */
     };
 }());

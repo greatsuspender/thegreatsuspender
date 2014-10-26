@@ -1,6 +1,6 @@
-/*global document, window, gsUtils, chrome */
+/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setTidyUrlVisibility, setOnlineCheckVisibility, resetTabTimers */
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -16,24 +16,27 @@
             'whitelist': gsUtils.WHITELIST,
             'tidyUrls' : gsUtils.TIDY_URLS
         },
-        elementIdMap = invert(elementPrefMap);
+        elementIdMap = invert(elementPrefMap),
+        readyStateCheckInterval;
 
     function invert(obj) {
 
-        var new_obj = {};
-        for (var prop in obj) {
+        var new_obj = {},
+            prop;
+
+        for (prop in obj) {
             if (obj.hasOwnProperty(prop)) {
-               new_obj[obj[prop]] = prop;
+                new_obj[obj[prop]] = prop;
             }
         }
         return new_obj;
-    };
+    }
 
     function selectComboBox(element, key) {
         var i,
             child;
 
-        for (i = 0; i < element.children.length; i++) {
+        for (i = 0; i < element.children.length; i += 1) {
             child = element.children[i];
             if (child.value === key) {
                 child.selected = 'true';
@@ -49,31 +52,28 @@
             shortcutsEl = document.getElementById('keyboardShortcuts'),
             pref,
             element,
-            command,
-            i;
+            command;
 
-        for (i = 0; i < optionEls.length; i++) {
-            element = optionEls[i];
+        optionEls.forEach(function (element) {
             pref = elementPrefMap[element.id];
             populateOption(element, gsUtils.getOption(pref));
-        }
+        });
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
         setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
 
         //populate keyboard shortcuts
-        chrome.commands.getAll(function(commands) {
-            for (i = 0; i < commands.length; i++) {
-                if (commands[i].name !== "_execute_browser_action") {
-                    shortcutsEl.innerHTML += '<span>' + commands[i].description + ': ' + commands[i].shortcut + '</span><br />';
+        chrome.commands.getAll(function (commands) {
+            commands.forEach(function (command) {
+                if (command.name !== '_execute_browser_action') {
+                    shortcutsEl.innerHTML += '<span>' + command.description + ': ' + command.shortcut + '</span><br />';
                 }
-            }
+            });
         });
     }
 
     function populateOption(element, value) {
-
         if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
             element.checked = value;
 
@@ -86,14 +86,14 @@
     }
 
     function getOptionValue(element) {
-
+        // TODO switch statement?
         if (element.tagName === 'INPUT' && element.hasAttribute('type') && element.getAttribute('type') === 'checkbox') {
             return element.checked;
-
-        } else if (element.tagName === 'SELECT') {
+        }
+        if (element.tagName === 'SELECT') {
             return element.children[element.selectedIndex].value;
-
-        } else if (element.tagName === 'TEXTAREA') {
+        }
+        if (element.tagName === 'TEXTAREA') {
             return element.value;
         }
     }
@@ -125,10 +125,9 @@
     }
 
     function getHandler(element) {
-
-        return function() {
-
-            var pref = elementPrefMap[element.id];
+        return function () {
+            var pref = elementPrefMap[element.id],
+                interval;
             gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
 
             //add specific screen element listeners
@@ -139,14 +138,14 @@
                 setTidyUrlVisibility(getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
-                var interval = getOptionValue(element);
+                interval = getOptionValue(element);
                 setOnlineCheckVisibility(interval > 0);
-                if (interval > 0) resetTabTimers(interval);
+                if (interval > 0) { resetTabTimers(interval); }
             }
-        }
+        };
     }
 
-    var readyStateCheckInterval = window.setInterval(function() {
+    readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
 
             window.clearInterval(readyStateCheckInterval);
@@ -158,35 +157,31 @@
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory'),
                 configureShortcutsEl = document.getElementById('configureShortcuts'),
-                element,
-                i;
+                element;
 
             //add change listeners for all 'option' elements
-            for (i = 0; i < optionEls.length; i++) {
-                element = optionEls[i];
+            optionEls.forEach(function (element) {
                 element.onchange = getHandler(element);
-            }
+            });
 
-            showHistoryEl.onclick = function(e) {
+            showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
             };
-            clearHistoryEl.onclick = function(e) {
+            clearHistoryEl.onclick = function (e) {
                 gsUtils.clearGsSessionHistory();
                 gsUtils.clearPreviews();
             };
-            configureShortcutsEl.onclick = function(e) {
+            configureShortcutsEl.onclick = function (e) {
                 chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
             };
 
-            chrome.storage.onChanged.addListener(function(changes, namespace) {
+            chrome.storage.onChanged.addListener(function (changes, namespace) {
                 var property,
-                    elementId,
-                    element;
+                    elementId;
 
-                if (namespace !== 'sync') return;
+                if (namespace !== 'sync') { return; }
                 for (property in changes) {
                     if (changes.hasOwnProperty(property)) {
-
                         elementId = elementIdMap[property];
                         element = document.getElementById(elementId);
                         populateOption(element, changes[property].newValue);
@@ -201,29 +196,25 @@
 
     function resetTabTimers(newInterval) {
 
-        chrome.tabs.query({}, function(tabs) {
-            var i,
-                currentTab,
-                timeout = newInterval * 60 * 1000;
+        chrome.tabs.query({}, function (tabs) {
+            var currentTab,
+                timeout = newInterval * 60 * 1000,
+                tabId;
 
-            for (i = 0; i < tabs.length; i++) {
-                currentTab = tabs[i];
-
-                (function() {
-                    var tabId = currentTab.id;
-
-                    //test if a content script is active by sending a 'requestInfo' message
-                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function(response) {
-
-                        //if no response, then try to dynamically load in the new contentscript.js file
-                        if (typeof(response) !== 'undefined') {
-                            chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                        }
-                    });
-                })();
-            }
+            tabs.forEach(function (currentTab) {
+                tabId = currentTab.id;
+                //test if a content script is active by sending a 'requestInfo' message
+                chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
+                    //if no response, then try to dynamically load in the new contentscript.js file
+                    if (response !== 'undefined') {
+                        chrome.tabs.sendMessage(tabId, {
+                            action: 'resetTimer',
+                            timeout: timeout
+                        });
+                    }
+                });
+            });
         });
-
     }
 
 }());
