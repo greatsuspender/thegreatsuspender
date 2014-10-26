@@ -30,8 +30,8 @@
                 items = localStorage.getItem('gsSettings'),
                 key,
                 defaults = [],
-                settings = {},
-                migration = false;
+                settings = {};
+                //migration = false; // unused
             self.callback = fn;
 
             for (key in items) {
@@ -59,7 +59,7 @@
                     settings[key] = localStorage.getItem(key) !== 'undefined' && localStorage.getItem(key) !== null
                         ? localStorage.getItem(key)
                         : defaults[key];
-                    migration = true;
+                    //migration = true; // unused
                 }
             }
 
@@ -138,10 +138,9 @@
                 i,
                 j;
 
-            // TODO is not clear on its function AT ALL
-            // TODO refactor for loop? not sure if necessary
             for (i = 0; i < whitelistedWords.length; i += 1) {
-                if ((j = whitelistedWords.lastIndexOf(whitelistedWords[i])) !== i) {
+                j = whitelistedWords.lastIndexOF(whitelistedWords[i]);
+                if (j !== i) {
                     whitelistedWords.splice(i + 1, j - i);
                 }
             }
