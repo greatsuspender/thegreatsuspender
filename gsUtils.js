@@ -139,7 +139,7 @@
                 j;
 
             for (i = 0; i < whitelistedWords.length; i += 1) {
-                j = whitelistedWords.lastIndexOF(whitelistedWords[i]);
+                j = whitelistedWords.lastIndexOf(whitelistedWords[i]);
                 if (j !== i) {
                     whitelistedWords.splice(i + 1, j - i);
                 }

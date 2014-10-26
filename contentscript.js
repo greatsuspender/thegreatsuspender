@@ -154,15 +154,19 @@
 
         switch (request.action) {
         case 'resetTimer':
-            clearTimeout(timer);
-            timer = setTimerJob(request.timeout);
+            if (request.timeout > 0) {
+                clearTimeout(timer);
+                timer = setTimerJob(request.timeout);
+            }
             break;
 
         //listen for status request
         case 'requestInfo':
-            status = calculateState();
-            suspendDate = calculateSuspendDate();
-            response = {status: status, timerUp: suspendDate};
+            if (prefs) {
+                status = calculateState();
+                suspendDate = calculateSuspendDate();
+                response = { status: status, timerUp: suspendDate };
+            }
             break;
 
         //cancel suspension timer
@@ -194,7 +198,9 @@
 
         //listen for suspend request
         case 'confirmTabSuspend':
-            suspendTab(request.suspendedUrl);
+            if (request.suspendedUrl) {
+                suspendTab(request.suspendedUrl);
+            }
             break;
         }
 
