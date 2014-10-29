@@ -13,8 +13,8 @@
     var inputState = false,
         tempWhitelist = false,
         timer,
-        timerUp,
-        prefs,
+        timerUp = false,
+        suspendTime,
         suspendedEl = document.getElementById('gsTopBar');
 
     //safety check here. don't load content script if we are on the suspended page
@@ -32,7 +32,10 @@
 
     function suspendTab(suspendedUrl) {
         reportState('suspended');
+
+        //instead of replacing the current tab with suspended one, lets leave the original tab in the browswer history
         window.location.replace(suspendedUrl);
+        //window.location.href = suspendedUrl;
     }
 
     function handlePreviewError(suspendedUrl) {
@@ -44,7 +47,7 @@
         suspendTab(suspendedUrl);
     }
 
-    function generatePreviewImg(suspendedUrl) {
+    function generatePreviewImg(suspendedUrl, previewQuality) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true;
 
@@ -67,7 +70,7 @@
                     onrendered: function (canvas) {
                         if (processing) {
                             processing = false;
-                            var quality =  prefs.previewQuality || 0.1;
+                            var quality =  previewQuality || 0.1;
                             chrome.runtime.sendMessage({
                                 action: 'savePreviewData',
                                 previewUrl: canvas.toDataURL('image/jpeg', quality)
@@ -86,6 +89,7 @@
     }
 
     function setTimerJob(interval) {
+
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
         if (interval > 4) {
             interval = interval + (Math.random() * 60 * 1000);
@@ -117,32 +121,23 @@
 
     function calculateSuspendDate() {
         var suspendDate;
+        if (!timerUp && suspendTime > 0) {
+            suspendDate = new Date(new Date().getTime() + (+suspendTime));
+            suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
 
-        if (!timerUp) {
-            suspendDate = new Date(new Date().getTime() + (+prefs.suspendTime * 60 * 1000));
         } else {
             suspendDate = timerUp;
         }
 
-        suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
         return suspendDate;
     }
 
-    function requestPreferences() {
+    function requestPreferences(callback) {
         chrome.runtime.sendMessage({ action: 'prefs' }, function (response) {
-            if (response && response.suspendTime) {
-                prefs = response;
-
-                //set timer job
-                timer = setTimerJob(prefs.suspendTime * 60 * 1000);
-
-                //add form input listener
-                if (prefs.dontSuspendForms) {
-                    setFormInputJob();
-                }
-            }
+            callback(response);
         });
     }
+
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -154,19 +149,22 @@
 
         switch (request.action) {
         case 'resetTimer':
-            if (request.timeout > 0) {
-                clearTimeout(timer);
-                timer = setTimerJob(request.timeout);
+            clearTimeout(timer);
+            if (request.suspendTime > 0) {
+                suspendTime = request.suspendTime * 60 * 1000;
+                timer = setTimerJob(suspendTime);
+            } else {
+                timerUp = false;
+                suspendTime = 0;
             }
             break;
 
         //listen for status request
         case 'requestInfo':
-            if (prefs) {
-                status = calculateState();
-                suspendDate = calculateSuspendDate();
-                response = { status: status, timerUp: suspendDate };
-            }
+            status = calculateState();
+            suspendDate = calculateSuspendDate();
+            response = { status: status, timerUp: suspendDate };
+            sendResponse(response);
             break;
 
         //cancel suspension timer
@@ -181,6 +179,7 @@
             response = {status: status};
             tempWhitelist = true;
             reportState(false);
+            sendResponse(response);
             break;
 
         //listen for request to undo temporary whitelisting
@@ -189,11 +188,12 @@
             tempWhitelist = false;
             response = {status: 'normal'};
             reportState(false);
+            sendResponse(response);
             break;
 
         //listen for preview request
         case 'generatePreview':
-            generatePreviewImg(request.suspendedUrl);
+            generatePreviewImg(request.suspendedUrl, request.previewQuality);
             break;
 
         //listen for suspend request
@@ -202,14 +202,31 @@
                 suspendTab(request.suspendedUrl);
             }
             break;
-        }
 
-        //set up suspension timer
-        sendResponse(response);
+        default:
+            break;
+        }
     });
 
     //do startup jobs
-    reportState(false);
-    requestPreferences();
+    //reportState(false);
+    requestPreferences(function(response) {
+
+        if (response && response.suspendTime > 0) {
+
+            suspendTime = response.suspendTime * 60 * 1000;
+
+            //set timer job
+            timer = setTimerJob(suspendTime);
+
+            //add form input listener
+            if (response.dontSuspendForms) {
+                setFormInputJob();
+            }
+
+        } else {
+            suspendTime = 0;
+        }
+    });
 
 }());

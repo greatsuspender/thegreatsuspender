@@ -31,6 +31,13 @@ body {
     font-size: 19px;
     line-height: 26px;
 }
+#gsTopBarTitle a {
+    text-decoration: none;
+    color: inherit;
+}
+#gsTopBarTitle a:hover {
+    text-decoration: underline;
+}
 #gsTopBarUrl {
     font-style: italic;
     font-size: 14px;
@@ -87,7 +94,7 @@ body {
 #dudePopup {
     position: absolute;
     left: 30px;
-    bottom: -270px;
+    bottom: -240px;
 }
 
 @-webkit-keyframes silde_to_top {
@@ -130,7 +137,7 @@ body {
     border: #87BACE solid 1px;
     border-radius: 4px;
     color: #555;
-    bottom: 80px;
+    bottom: 50px;
     left: 133px;
     position: absolute;
     text-align: center;

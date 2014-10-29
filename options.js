@@ -142,7 +142,7 @@
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
                 setOnlineCheckVisibility(interval > 0);
-                if (interval > 0) { resetTabTimers(interval); }
+                resetTabTimers(interval);
             }
         };
     }
@@ -202,14 +202,14 @@
 
         chrome.tabs.query({}, function (tabs) {
             var currentTab,
-                timeout = newInterval * 60 * 1000,
+                timeout = newInterval,
                 tabId;
 
             tabs.forEach(function (currentTab) {
                 tabId = currentTab.id;
                 //test if a content script is active by sending a 'requestInfo' message
                 chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-                    //if no response, then try to dynamically load in the new contentscript.js file
+                    //if response, then request a timer reset
                     if (response !== 'undefined') {
                         chrome.tabs.sendMessage(tabId, {
                             action: 'resetTimer',

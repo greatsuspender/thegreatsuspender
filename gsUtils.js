@@ -443,7 +443,7 @@
         },
 
         performMigration: function () {
-debugger;
+
             //migrate gsHistory to sessionHistory
             var gsHistory = this.fetchGsHistory(),
                 oldGsHistory = localStorage.getItem(this.HISTORY_OLD),

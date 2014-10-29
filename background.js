@@ -120,7 +120,8 @@ var tgs = (function () {
             chrome.tabs.executeScript(tab.id, { file: 'html2canvas.min.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'generatePreview',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url)
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url),
+                    previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY)
                 });
             });
 
@@ -151,7 +152,7 @@ var tgs = (function () {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.saveToWhitelist(rootUrlStr);
-                requestTabUnsuspend(tabs[0]);
+                unsuspendTab(tabs[0]);
             }
         });
     }
@@ -192,12 +193,13 @@ var tgs = (function () {
     function unsuspendHighlightedTab(window) {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
             if (tabs.length > 0) {
-                requestTabUnsuspend(tabs[0]);
+                unsuspendTab(tabs[0]);
             }
         });
     }
 
     function suspendAllTabs(window) {
+
         window.tabs.forEach(function (tab) {
             requestTabSuspension(tab);
         });
@@ -262,8 +264,8 @@ var tgs = (function () {
     }
 
     function resetTabTimer(tabId) {
-        var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
-        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
+        var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME);
+        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
     }
 
     function cancelTabTimer(tabId) {
@@ -280,6 +282,15 @@ var tgs = (function () {
             url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
             chrome.tabs.update(tab.id, {url: url});
         }
+
+        //bit of a hack here as using the chrome.tabs.update method will not allow
+        //me to 'replace' the url - leaving a suspended tab in the history
+        /*tabs = chrome.extension.getViews({type: 'tab'});
+        for (i = 0; i < tabs.length; i++) {
+            if (tabs[i].location.href === tab.url) {
+                tabs[i].location.replace(url);
+            }
+        }*/
     }
 
     function handleNewTabFocus(tabId) {
@@ -293,7 +304,7 @@ var tgs = (function () {
                 if (!isSpecialTab(tab)) {
                     checkForSuspendedTab(tab, function (isSuspended) {
                         if (isSuspended) {
-                            requestTabUnsuspend(tab);
+                            unsuspendTab(tab);
                         }
                     });
                 }
@@ -368,6 +379,7 @@ var tgs = (function () {
     }
 
     function runStartupChecks() {
+
         var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
             lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version;
@@ -456,31 +468,8 @@ var tgs = (function () {
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
         if (status === 'suspended' || status === 'special') { icon = 'icon19b.png'; }
-        /*
-        if (status === 'formInput' || status === 'special' || status === 'pinned'
-                || status === 'tempWhitelist' || status === 'whitelisted') {
-            icon = 'icon19b.png';
-        }
-        */
-        chrome.browserAction.setIcon({path: icon});
 
-        /*
-        if ((status === 'formInput' && dontSuspendForms)
-                || (status === 'pinned' && dontSuspendPinned)
-                || status === 'tempWhitelist'
-                || status === 'whitelisted') {
-            //chrome.browserAction.setBadgeBackgroundColor({color: '#777'});//#36BEF3'});
-            //chrome.browserAction.setBadgeText({text: '!'});
-        } else {
-            chrome.browserAction.setBadgeText({text: ''});
-        }
-        */
-        if (!((status === 'formInput' && dontSuspendForms)
-                || (status === 'pinned' && dontSuspendPinned)
-                || status === 'tempWhitelist'
-                || status === 'whitelisted')) {
-            chrome.browserAction.setBadgeText({text: ''});
-        }
+        chrome.browserAction.setIcon({path: icon});
     }
 
     //handler for message requests
@@ -549,6 +538,9 @@ var tgs = (function () {
 
         case 'unsuspendAll':
             chrome.windows.getLastFocused({populate: true}, unsuspendAllTabs);
+            break;
+
+        default:
             break;
         }
     });
