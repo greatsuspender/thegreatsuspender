@@ -18,18 +18,13 @@ var tgs = (function () {
 
     function checkWhiteList(url) {
         var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
-            whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/) : '';
+            whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/) : [],
+            whitelisted;
 
-        // check in order to avoid errors because the .forEach() method doesn't exist in a string
-        if (typeof whitelistedWords === 'string') {
-            return false;
-        }
-
-        whitelistedWords.forEach(function (word) {
-            if (word.length > 0 && url.indexOf(word) >= 0) {
-                return true;
-            }
+        whitelisted = whitelistedWords.some(function (word) {
+            return word.length > 0 && url.indexOf(word) >= 0;
         });
+        return whitelisted;
     }
 
     function saveSuspendData(tab, previewUrl) {
@@ -71,13 +66,13 @@ var tgs = (function () {
     }
 
     function isSpecialTab(tab) {
-        var f = tab.url; // just for convenience, f stands for fast
+        var url = tab.url;
 
-        if (f.indexOf('chrome-extension:') === 0
-                || f.indexOf('chrome:') === 0
-                || f.indexOf('chrome-devtools:') === 0
-                || f.indexOf('file:') === 0
-                || f.indexOf('chrome.google.com/webstore') >= 0) {
+        if ((url.indexOf('chrome-extension:') === 0 && url.indexOf('suspended.html') < 0)
+                || url.indexOf('chrome:') === 0
+                || url.indexOf('chrome-devtools:') === 0
+                || url.indexOf('file:') === 0
+                || url.indexOf('chrome.google.com/webstore') >= 0) {
             return true;
         }
         return false;
@@ -232,8 +227,7 @@ var tgs = (function () {
     }
 
     function unsuspendAllTabs(curWindow) {
-        var //tabProperties, // unused
-            responsiveTabs = [],
+        var responsiveTabs = [],
             tabResponses = {};
 
         curWindow.tabs.forEach(function (currentTab) {
@@ -321,10 +315,9 @@ var tgs = (function () {
         if (gsSessionHistory.length > 0) {
             crashedSession = gsSessionHistory[0];
 
-            // BUG: generates a TypeError on extension reload, investigate
             chrome.windows.getAll({ populate: true }, function (windows) {
                 windows.forEach(function (curWindow) {
-                    curWindow.tabs.foreach(function (curTab) {
+                    curWindow.tabs.forEach(function (curTab) {
                         tabMap[curTab.id] = curTab;
                     });
                     windowsMap[curWindow.id] = tabMap;

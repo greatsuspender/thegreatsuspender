@@ -1,4 +1,4 @@
-/*global chrome, gsUtils, render, createWindowHtml, createTabHtml, getSessionById */
+/*global chrome, gsUtils, render, createWindowHtml, createTabHtml */
 
 (function () {
 
@@ -81,18 +81,22 @@
             }
 
             var sessionId = element.getAttribute('data-sessionId'),
-                session = getSessionById(sessionId),
+                session = gsUtils.getSessionById(sessionId),
                 windowProperties,
                 tabProperties;
+
+            if (!session) {
+                return;
+            }
 
             session.windows.forEach(function (window, index) {
                 windowProperties = window;
                 windowProperties.sessionId = session.id;
                 element.appendChild(createWindowHtml(windowProperties, index));
 
-                session.windows.tabs.forEach(function (tab) {
+                windowProperties.tabs.forEach(function (tab) {
                     tabProperties = tab;
-                    tabProperties.windowId = session.window.id;
+                    tabProperties.windowId = windowProperties.id;
                     tabProperties.sessionId = session.id;
                     element.appendChild(createTabHtml(tabProperties));
                 });
@@ -106,7 +110,7 @@
     }
 
     function saveSession(sessionId) {
-        var session = getSessionById(sessionId);
+        var session = gsUtils.getSessionById(sessionId);
 
         document.getElementsByClassName('mainContent')[0].className += ' blocked';
         document.getElementById('sessionNameModal').style.display = 'block';
@@ -120,23 +124,6 @@
                 render();
             }
         };
-    }
-
-    function getSessionById(sessionId) {
-        var gsHistory = gsUtils.fetchGsSessionHistory(),
-            gsSavedHistory = gsUtils.fetchGsSavedSessions();
-
-        gsHistory.forEach(function (entry) {
-            if (entry.id === sessionId) {
-                return entry;
-            }
-        });
-        gsSavedHistory.forEach(function (entry) {
-            if (entry.id === sessionId) {
-                return entry;
-            }
-        });
-        return false;
     }
 
     function createSessionHtml(session) {
@@ -252,58 +239,22 @@
     function render() {
 
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-            gsSavedSessions = gsUtils.fetchGsSavedSessions(),
             sessionsDiv = document.getElementById('recoveryLinks'),
             historyDiv = document.getElementById('historyLinks'),
             sessionEl;
 
         hideModal();
         sessionsDiv.innerHTML = '';
+        historyDiv.innerHTML = '';
 
         gsSessionHistory.forEach(function (session) {
-            sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
-        });
-
-        historyDiv.innerHTML = '';
-
-        gsSavedSessions.forEach(function (session) {
-            sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
-        });
-
-        /*
-        var gsHistory = gsUtils.fetchGsHistory(),
-            historyMap = {},
-            tabProperties,
-            key,
-            groupKey,
-            curGroupKey,
-            historyDiv,
-            groupHeading;
-
-        historyDiv = document.getElementById('historyLinks');
-        gsHistory.sort(compareDate);
-
-        historyDiv.innerHTML = '';
-
-        for (i = 0; i < gsHistory.length; i += 1) {
-            tabProperties = gsHistory[i];
-            groupKey = getFormattedDate(tabProperties.date, false);
-            key = groupKey + tabProperties.url;
-
-            if (!historyMap.hasOwnProperty(key)) {
-
-                //print header for group
-                if (groupKey !== curGroupKey) {
-                    curGroupKey = groupKey;
-                    groupHeading = document.createElement('h3');
-                    groupHeading.innerHTML = gsUtils.getHumanDate(tabProperties.date);
-                    historyDiv.appendChild(groupHeading);
-                }
-                historyMap[key] = true;
-                historyDiv.appendChild(createTabHtml(tabProperties));
+            //saved sessions will all have a 'name' attribute
+            if (session.name) {
+                sessionEl = historyDiv.appendChild(createSessionHtml(session));
+            } else {
+                sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
             }
-        }
-        */
+        });
     }
 
     window.onload = function () {

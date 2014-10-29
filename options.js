@@ -52,12 +52,14 @@
             shortcutsEl = document.getElementById('keyboardShortcuts'),
             pref,
             element,
-            command;
+            command,
+            i;
 
-        optionEls.forEach(function (element) {
+        for (i = 0; i < optionEls.length; i++) {
+            element = optionEls[i];
             pref = elementPrefMap[element.id];
             populateOption(element, gsUtils.getOption(pref));
-        });
+        }
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
         setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
@@ -157,12 +159,14 @@
                 showHistoryEl = document.getElementById('showHistory'),
                 clearHistoryEl = document.getElementById('clearHistory'),
                 configureShortcutsEl = document.getElementById('configureShortcuts'),
-                element;
+                element,
+                i;
 
             //add change listeners for all 'option' elements
-            optionEls.forEach(function (element) {
+            for (i = 0; i < optionEls.length; i++) {
+                element = optionEls[i];
                 element.onchange = getHandler(element);
-            });
+            }
 
             showHistoryEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});

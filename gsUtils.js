@@ -23,7 +23,6 @@
         HISTORY_OLD: 'gsHistory',
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
-        SAVED_SESSIONS: 'gsSavedSessions',
 
         initSettings: function (fn) {
             var self = this,
@@ -213,66 +212,35 @@
         },
 
         fetchTabFromHistory: function (tabUrl) {
-            var gsHistory = this.fetchGsHistory();
+            var gsHistory = this.fetchGsHistory(),
+                tab = false;
 
-            gsHistory.forEach(function (val) {
+            gsHistory.some(function (val) {
                 if (val.url === tabUrl) {
-                    return val;
+                    tab = val;
+                    return true;
                 }
             });
-
-            return false;
-        },
-
-        removeTabFromHistory: function (tabUrl) {
-            var gsHistory = this.fetchGsHistory(),
-                i;
-
-            // .forEach() not desirable in this case AFAIK
-            // TODO make sure of comment above this one
-            for (i = 0; i < gsHistory.length; i += 1) {
-                if (gsHistory[i].url === tabUrl) {
-                    gsHistory.splice(i, 1);
-                    break;
-                }
-            }
-            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
+            return tab;
         },
 
         removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
 
-            var gsSessionHistory = this.fetchGsSessionHistory(),
-                i,
-                j,
-                k;
+            var gsSession = this.getSessionById(sessionId);
 
-            // TODO iterative function for sure, for now leave as-is
-            // cannot use .forEach() because of .splice() :(
-            for (i = 0; i < gsSessionHistory.length; i += 1) {
-                if (gsSessionHistory[i].id === sessionId) {
-
-                    for (j = 0; j < gsSessionHistory[i].windows.length; j += 1) {
-                        if (gsSessionHistory[i].windows[j].id === windowId) {
-
-                            for (k = 0; k < gsSessionHistory[i].windows[j].tabs.length; k += 1) {
-                                if (gsSessionHistory[i].windows[j].tabs[k].id === tabId
-                                        || gsSessionHistory[i].windows[j].tabs[k].url === tabId) {
-                                    gsSessionHistory[i].windows[j].tabs.splice(k, 1);
-                                    break;
-                                }
-                            }
-                        }
-                        if (gsSessionHistory[i].windows[j].tabs.length === 0) {
-                            gsSessionHistory[i].windows.splice(j, 1);
-                        }
+            gsSession.windows.some(function (curWindow, windowIndex) {
+                curWindow.tabs.some(function (curTab, tabIndex) {
+                    if (curTab.id === tabId || curTab.url === tabId) {
+                        curWindow.tabs.splice(tabIndex, 1);
                     }
+                });
+                //remove window if it no longer contains any tabs
+                if (curWindow.tabs.length === 0) {
+                    gsSession.windows.splice(windowIndex, 1);
                 }
-                if (gsSessionHistory[i].windows.length === 0) {
-                    gsSessionHistory.splice(i, 1);
-                }
-            }
+            });
 
-            this.setGsSessionHistory(gsSessionHistory);
+            this.saveWindowsToSessionHistory(sessionId, gsSession.windows);
         },
 
         fetchGsSessionHistory: function () {
@@ -292,62 +260,72 @@
             localStorage.setItem(this.SESSION_HISTORY, JSON.stringify(sessionHistory));
         },
 
+        saveSession: function (sessionName, session) {
+            var sessions = this.fetchGsSessionHistory();
+            session.name = sessionName;
+            sessions.unshift(session);
+            this.setGsSessionHistory(sessions);
+        },
+
+
+
         clearGsSessionHistory: function (gsHistory) {
             this.setGsSessionHistory([]);
         },
 
         getSessionById: function (sessionId) {
-            var sessionHistory = this.fetchGsSessionHistory();
-            sessionHistory.forEach(function (session) {
-                if (session.id === sessionId) {
-                    return session;
+            var gsHistory = this.fetchGsSessionHistory(),
+                session = false;
+
+            gsHistory.some(function (entry) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (entry.id == sessionId) {
+                    session = entry;
+                    return true;
                 }
             });
-
-            sessionHistory = this.fetchGsSavedSessions();
-            sessionHistory.forEach(function (session) {
-                if (session.id === sessionId) {
-                    return session;
-                }
-            });
-
-            return false;
+            return session;
         },
 
         getWindowFromSession: function (windowId, session) {
-            session.windows.forEach(function (window) {
-                if (window.id === windowId) {
-                    return window;
+            var window = false;
+            session.windows.some(function (curWindow) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curWindow.id == windowId) {
+                    window = curWindow;
+                    return true;
                 }
             });
-            return false;
+            return window;
         },
 
         getTabFromWindow: function (id, window) {
-            window.tabs.forEach(function (tab) {
-                if (tab.id === id || tab.url === id) {
-                    return tab;
+            var tab = false;
+            window.tabs.some(function (curTab) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curTab.id == id || tab.url == id) {
+                    tab = curTab;
+                    return true;
                 }
             });
-            return false;
+            return tab;
         },
 
         saveWindowsToSessionHistory: function (sessionId, windowsArray) {
             var gsSessionHistory = this.fetchGsSessionHistory(),
-                i,
-                match = false;
+                match = false,
+                recentSessionsCount = 0,
+                maxHistories = this.getOption(this.MAX_HISTORIES);
 
-            // best to leave this as-is because of break statement
-            for (i = 0; i < gsSessionHistory.length; i += 1) {
-                if (gsSessionHistory[i].id === sessionId) {
-                    gsSessionHistory[i].windows = windowsArray;
-                    gsSessionHistory[i].date = new Date();
-                    match = true;
-                    break;
+            //if matching session found, then set new windowsArray
+            gsSessionHistory.forEach(function (curSession) {
+                if (curSession.id === sessionId) {
+                    curSession.windows = windowsArray;
+                    curSession.date = new Date();
                 }
-            }
+            });
 
-            //if no matching window id found. create a new entry
+            //if no matching session found. create a new entry
             if (!match) {
                 gsSessionHistory.unshift({
                     id: sessionId,
@@ -356,37 +334,17 @@
                 });
             }
 
-            //trim stored windows down to last x sessions
-            while (gsSessionHistory.length > this.getOption(this.MAX_HISTORIES)) {
-                gsSessionHistory.splice(gsSessionHistory.length - 1, 1);
-            }
+            //trim stored windows down to last x sessions (ignoring saved sessions)
+            gsSessionHistory.forEach(function (curSession, curIndex) {
+                if (!curSession.name) {
+                    recentSessionsCount++;
+                    if (recentSessionsCount > maxHistories) {
+                        gsSessionHistory.splice(curIndex, 1);
+                    }
+                }
+            });
 
             this.setGsSessionHistory(gsSessionHistory);
-        },
-
-
-        fetchGsSavedSessions: function () {
-            var result = localStorage.getItem(this.SAVED_SESSIONS),
-                savedSessionHistory;
-
-            if (result) {
-                savedSessionHistory = JSON.parse(result);
-            } else {
-                savedSessionHistory = [];
-            }
-
-            return savedSessionHistory;
-        },
-
-        setGsSavedSessions: function (savedSessionHistory) {
-            localStorage.setItem(this.SAVED_SESSIONS, JSON.stringify(savedSessionHistory));
-        },
-
-        saveSession: function (sessionName, session) {
-            var savedSessions = this.fetchGsSavedSessions();
-            session.name = sessionName;
-            savedSessions.unshift(session);
-            this.setGsSavedSessions(savedSessions);
         },
 
         generateSessionId: function () {
@@ -471,11 +429,11 @@
         },
 
         getRootUrl: function (url) {
-            var rootUrlStr;
+            var rootUrlStr = url;
 
             // TODO make sure this works
             if (rootUrlStr.indexOf('//') > 0) {
-                rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
+                rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
             } else {
                 rootUrlStr = url;
             }
@@ -485,7 +443,7 @@
         },
 
         performMigration: function () {
-
+debugger;
             //migrate gsHistory to sessionHistory
             var gsHistory = this.fetchGsHistory(),
                 oldGsHistory = localStorage.getItem(this.HISTORY_OLD),
@@ -493,10 +451,10 @@
                 curWindow,
                 curTab,
                 groupKey,
+                lastGroupKey = false,
                 tabProperties,
                 sessionHistory,
                 allTabsWindow,
-                //try restore any lost tabs (due to upgrade) from suspended tab history
                 lastSession,
                 sortable = [],
                 url;
@@ -515,29 +473,22 @@
 
             sessionHistory = [];
             allTabsWindow = {
-                id: '0000',
+                id: 7777,
                 tabs: []
             };
 
             gsHistory.sort(this.compareDate);
 
-            // TODO make sure this works
             gsHistory.forEach(function (entry) {
                 tabProperties = entry;
                 groupKey = this.getFormattedDate(tabProperties.date, false);
 
-                // TODO isn't sessionHistory empty at this point because of some
-                // lines up where it was defined as an empty array?
-                sessionHistory.forEach(function (session) {
-                    if (session.id === groupKey) {
-                        curSession = session;
-                    }
-                });
-
-                if (!curSession) {
+                //if we are on the first tab for a new date
+                if (lastGroupKey !== groupKey) {
                     curSession = {id: groupKey, windows: [], date: tabProperties.date};
                     sessionHistory.unshift(curSession);
                 }
+                lastGroupKey = groupKey;
 
                 curWindow = this.getWindowFromSession(tabProperties.windowId, curSession);
                 if (!curWindow) {
@@ -550,31 +501,31 @@
                     curWindow.tabs.unshift(tabProperties);
                 }
                 allTabsWindow.tabs.unshift(tabProperties);
-            });
+            }, this);
 
             //approximate new session history from old suspended tab history data
             this.setGsSessionHistory(sessionHistory);
 
             //save all old suspended tab history data as a saved session
-            curSession = {id: '0000', windows: [allTabsWindow], date: new Date()};
+            curSession = {id: 7777, windows: [allTabsWindow], date: new Date()};
             this.saveSession('Old suspended tab history', curSession);
 
             //if we have a valid last session
             if (sessionHistory.length > 0) {
                 lastSession = sessionHistory[0];
 
-                lastSession.forEach(function (curWindow) {
+                lastSession.windows.forEach(function (curWindow) {
                     //sort tabs by index
-                    curWindow.tabs.forEach(function (val) {
-                        sortable.push([val, curWindow.tabs[val].index]);
+                    curWindow.tabs.forEach(function (curTab) {
+                        sortable.push([curTab, curTab.index]);
                         sortable.sort(function (a, b) {
                             return a[1] - b[1];
                         });
                     });
 
-                    sortable.forEach(function (val, index, array) {
-                        curTab = curWindow.tabs[array[index][0]];
+                    sortable.forEach(function (wrapperObj) {
 
+                        curTab = wrapperObj[0];
                         if (curTab.state === 'suspended') {
                             url = gsUtils.generateSuspendedUrl(curTab.url);
                             chrome.tabs.create({
