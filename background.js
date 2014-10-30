@@ -84,9 +84,9 @@ var tgs = (function () {
     }
 
     function isExcluded(tab) {
-        if (tab.active) {
+        /*if (tab.active) {
             return true;
-        }
+        }*/
 
         //don't allow suspending of special tabs
         if (isSpecialTab(tab)) {
@@ -184,8 +184,8 @@ var tgs = (function () {
 
     function suspendHighlightedTab(window) {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
-            if (tabs.length > 0) {
-                requestTabSuspension(tabs[0], true);
+            for (var i=0; i < tabs.length; i++) {
+                requestTabSuspension(tabs[i], false);
             }
         });
     }
@@ -200,8 +200,10 @@ var tgs = (function () {
 
     function suspendAllTabs(window) {
 
-        window.tabs.forEach(function (tab) {
-            requestTabSuspension(tab);
+        chrome.tabs.query({windowId: window.id, highlighted: false}, function (tabs) {
+            for (var i=0; i < tabs.length; i++) {
+                requestTabSuspension(tabs[i], false);
+            }
         });
     }
 
@@ -640,10 +642,12 @@ var tgs = (function () {
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
-            chrome.tabs.query({active: true}, function (tabs) {
-                requestTabSuspension(tabs[0], true);
-            });
-        }
+		chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
+        } else if (command === 'unsuspend-tab') {
+		chrome.windows.getLastFocused({populate: true}, unsuspendAllTabs);
+	} else if (command === 'suspend-others') {
+		chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
+	}	
     });
 
     //careful. this seems to get called on extension reload as well as initial install

@@ -39,8 +39,12 @@
 
   "commands": {
     "suspend-tab": {
-      "description": "Suspend active tab",
+      "description": "Suspend highlighted tabs",
       "suggested_key": { "default": "Ctrl+Shift+S" }
+    },
+    "suspend-others": {
+      "description": "Suspend non-highlighted tabs",
+      "suggested_key": { "default": "Ctrl+Shift+D" }
     },
     "unsuspend-tab": {
       "description": "Unsuspend active tab",
