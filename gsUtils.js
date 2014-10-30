@@ -54,8 +54,8 @@
             defaults[self.WHITELIST] = '';
 
             for (key in defaults) {
-                if (defaults.hasOwnProperty(key) && (settings[key] === 'undefined' || settings[key] === null)) {
-                    settings[key] = localStorage.getItem(key) !== 'undefined' && localStorage.getItem(key) !== null
+                if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
+                    settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
                         ? localStorage.getItem(key)
                         : defaults[key];
                     //migration = true; // unused
@@ -161,11 +161,11 @@
 
         fetchPreviewImage: function (tabUrl, callback) {
             chrome.storage.local.get(null, function (items) {
-                if (items.gsPreviews === 'undefined') {
+                if (typeof(items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
                     callback(null);
-                } else if (items.gsPreviews[tabUrl] === 'undefined') {
+                } else if (typeof(items.gsPreviews[tabUrl]) === 'undefined') {
                     callback(null);
                 } else {
                     callback(items.gsPreviews[tabUrl]);
@@ -175,7 +175,7 @@
 
         setPreviewImage: function (tabUrl, previewUrl) {
             chrome.storage.local.get(null, function (items) {
-                if (items.gsPreviews === 'undefined') {
+                if (typeof(items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                 }
 

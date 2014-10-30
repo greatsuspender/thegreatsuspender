@@ -56,7 +56,7 @@
             gsUtils.fetchPreviewImage(url, function (previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('suspendedMsg').style.display = 'none';
-                    document.getElementById('gsPreview').setAttribute('src', previewUrl);
+                    document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
                 }
             });
         } else {

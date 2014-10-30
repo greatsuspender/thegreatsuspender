@@ -213,7 +213,7 @@ var tgs = (function () {
             chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function (response) {
 
                 //if response is given but is undefined, then assume suspended
-                if (response === 'undefined') {
+                if (typeof(response) === 'undefined') {
                     callback(true);
                 } else {
                     callback(false);
@@ -241,7 +241,7 @@ var tgs = (function () {
                 chrome.tabs.sendMessage(currentTab.id, {action: 'requestInfo'}, function (response) {
 
                     tabResponses[currentTab.id] = true;
-                    if (response === 'undefined') {
+                    if (typeof(response) === 'undefined') {
                         requestTabUnsuspend(currentTab);
                     }
                 });
@@ -251,7 +251,7 @@ var tgs = (function () {
         //handle any other tabs that didn't respond for whatever reason (usually because the tab has crashed)
         setTimeout(function () {
             eligableTabs.forEach(function (curTab) {
-                if (tabResponses[curTab.id] === 'undefined') {
+                if (typeof(tabResponses[curTab.id]) === 'undefined') {
                     requestTabUnsuspend(curTab);
                 }
             });
@@ -368,7 +368,7 @@ var tgs = (function () {
                     //test if a content script is active by sending a 'requestInfo' message
                     chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
                         //if no response, then try to dynamically load in the new contentscript.js file
-                        if (response === 'undefined') {
+                        if (typeof(response) === 'undefined') {
                             chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
                                 chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
                             });

@@ -210,7 +210,7 @@
                 //test if a content script is active by sending a 'requestInfo' message
                 chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
                     //if response, then request a timer reset
-                    if (response !== 'undefined') {
+                    if (typeof(response) !== 'undefined') {
                         chrome.tabs.sendMessage(tabId, {
                             action: 'resetTimer',
                             timeout: timeout

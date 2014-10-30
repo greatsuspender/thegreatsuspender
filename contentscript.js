@@ -145,7 +145,7 @@
             status,
             suspendDate;
 
-        //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
+        console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         switch (request.action) {
         case 'resetTimer':
