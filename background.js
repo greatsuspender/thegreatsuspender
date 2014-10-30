@@ -200,11 +200,9 @@ var tgs = (function () {
 
     function suspendAllTabs(window) {
 
-	chrome.tabs.query( {highlighted:false}, function(tabs) {
-		for (var i=0; i < tabs.length; i++) {	
-			requestTabSuspension(tabs[i]);
-		}
-	});
+        window.tabs.forEach(function (tab) {
+            requestTabSuspension(tab);
+        });
     }
 
     function checkForSuspendedTab(tab, callback) {
