@@ -184,8 +184,8 @@ var tgs = (function () {
 
     function suspendHighlightedTab(window) {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
-            if (tabs.length > 0) {
-                requestTabSuspension(tabs[0], true);
+            for (var i=0; i < tabs.length; i++) {
+                requestTabSuspension(tabs[i], true);
             }
         });
     }
@@ -200,8 +200,10 @@ var tgs = (function () {
 
     function suspendAllTabs(window) {
 
-        window.tabs.forEach(function (tab) {
-            requestTabSuspension(tab);
+        chrome.tabs.query({windowId: window.id, highlighted: false}, function (tabs) {
+            for (var i=0; i < tabs.length; i++) {
+                requestTabSuspension(tabs[i], false);
+            }
         });
     }
 
