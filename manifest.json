@@ -49,6 +49,6 @@
     "unsuspend-tab": {
       "description": "Unsuspend active tab",
       "suggested_key": { "default": "Ctrl+Shift+U" }
-    },
+    }
   }
 }

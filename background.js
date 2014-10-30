@@ -84,9 +84,9 @@ var tgs = (function () {
     }
 
     function isExcluded(tab) {
-        if (tab.active) {
+        /*if (tab.active) {
             return true;
-        }
+        }*/
 
         //don't allow suspending of special tabs
         if (isSpecialTab(tab)) {
@@ -185,7 +185,7 @@ var tgs = (function () {
     function suspendHighlightedTab(window) {
         chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
             for (var i=0; i < tabs.length; i++) {
-                requestTabSuspension(tabs[i], true);
+                requestTabSuspension(tabs[i], false);
             }
         });
     }
