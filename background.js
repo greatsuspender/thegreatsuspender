@@ -229,18 +229,19 @@ var tgs = (function () {
     }
 
     function unsuspendAllTabs(curWindow) {
-        var responsiveTabs = [],
+        var eligableTabs = [],
             tabResponses = {};
 
         curWindow.tabs.forEach(function (currentTab) {
             //detect suspended tabs by looking for ones without content scripts
             if (!isSpecialTab(currentTab)) {
-                responsiveTabs.push(currentTab);
+                eligableTabs.push(currentTab);
 
-                checkForSuspendedTab(currentTab, function (isSuspended) {
+                //test if a content script is active by sending a 'requestInfo' message
+                chrome.tabs.sendMessage(currentTab.id, {action: 'requestInfo'}, function (response) {
+
                     tabResponses[currentTab.id] = true;
-
-                    if (isSuspended) {
+                    if (response === 'undefined') {
                         requestTabUnsuspend(currentTab);
                     }
                 });
@@ -249,7 +250,7 @@ var tgs = (function () {
 
         //handle any other tabs that didn't respond for whatever reason (usually because the tab has crashed)
         setTimeout(function () {
-            responsiveTabs.forEach(function (curTab) {
+            eligableTabs.forEach(function (curTab) {
                 if (tabResponses[curTab.id] === 'undefined') {
                     requestTabUnsuspend(curTab);
                 }
@@ -642,6 +643,12 @@ var tgs = (function () {
         if (command === 'suspend-tab') {
             chrome.tabs.query({active: true}, function (tabs) {
                 requestTabSuspension(tabs[0], true);
+            });
+        } else if (command === 'unsuspend-tab') {
+            chrome.tabs.query({active: true}, function (tabs) {
+                checkForSuspendedTab(tabs[0], function(isSuspended) {
+                    if (isSuspended) unsuspendTab(tabs[0]);
+                });
             });
         }
     });
