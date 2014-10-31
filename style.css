@@ -153,6 +153,11 @@ a.historyLink {
     color: #333;
     font-size: 13px;
     text-decoration: none;
+    max-width: 90%;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 a.historyLink:hover {
     text-decoration: underline;
