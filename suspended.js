@@ -56,10 +56,15 @@
             gsUtils.fetchPreviewImage(url, function (previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('suspendedMsg').style.display = 'none';
+                    document.getElementById('gsPreview').style.display = 'block';
                     document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
+                } else {
+                    document.getElementById('gsPreview').style.display = 'none';
+                    document.getElementById('suspendedMsg').style.display = 'table-cell';
                 }
             });
         } else {
+            document.getElementById('gsPreview').style.display = 'none';
             document.getElementById('suspendedMsg').style.display = 'table-cell';
         }
 

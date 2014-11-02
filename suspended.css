@@ -61,8 +61,7 @@ body {
 }
 #gsPreviewImg {
     width: 100%;
-    position: absolute;
-    margin-top:90px;
+    margin-top:86px;
 }
 .centerBoxContainer {
     text-align: center;
@@ -72,10 +71,12 @@ body {
 .centerBox {
     margin-left: auto;
     margin-right: auto;
-    position: absolute;
+    margin-top: 40px;
 }
 #suspendedMsg {
     background: #fff;
+    width: 100%;
+    height: 100%;
     background: -webkit-gradient(radial, 50% 50%, 650, 50% 50%, 0, from(#DBDBDB), to(#FFF));
 }
 #suspendedMsg, #gsPreview {
