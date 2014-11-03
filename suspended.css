@@ -107,10 +107,10 @@ body {
 
 @-webkit-keyframes silde_to_top {
     0% {
-        bottom: -300px;
+        bottom: -240px;
     }
     100% {
-        bottom: 50px;
+        bottom: 20px;
         z-index: 1000000;
     }
 }

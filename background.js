@@ -654,7 +654,7 @@ var tgs = (function () {
     });
 
     //careful. this seems to get called on extension reload as well as initial install
-    chrome.runtime.onInstalled.addListener(function () {
+    //chrome.runtime.onInstalled.addListener(function () {
         if (gsUtils.getSettings() === null) {
             gsUtils.initSettings(function () {
                 runStartupChecks();
@@ -662,7 +662,7 @@ var tgs = (function () {
         } else {
             runStartupChecks();
         }
-    });
+    //});
 
     return {
         requestTabInfo: requestTabInfo,
