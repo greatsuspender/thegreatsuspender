@@ -31,11 +31,31 @@
     }
 
     function suspendTab(suspendedUrl) {
+
         reportState('suspended');
 
         //instead of replacing the current tab with suspended one, lets leave the original tab in the browswer history
         window.location.replace(suspendedUrl);
         //window.location.href = suspendedUrl;
+    }
+
+    function setScrollPos(reset) {
+        reset = reset || false;
+        var val = reset ? '' : document.body.scrollTop;
+        document.cookie = "gsScrollPos=" + val;
+    }
+
+    function getScrollPos() {
+
+        var key = "gsScrollPos=",
+            keyStart = document.cookie.indexOf(key),
+            keyEnd;
+        if (keyStart >= 0) {
+            keyEnd = document.cookie.indexOf(';', keyStart) > 0 ? document.cookie.indexOf(';', keyStart) : document.cookie.length;
+            return document.cookie.substring(keyStart + key.length, keyEnd);
+        } else {
+            return 50;
+        }
     }
 
     function handlePreviewError(suspendedUrl) {
@@ -50,6 +70,8 @@
     function generatePreviewImg(suspendedUrl, previewQuality) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true;
+
+        setScrollPos();
 
         //safety check here. don't try to use html2canvas if the page has more than 5000 elements
         if (elementCount < 5000) {
@@ -66,6 +88,7 @@
                 html2canvas([document.body], {
                     height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
                     width: document.body.clientWidth - 6,
+                    timeout: 500,
                     proxy: false,
                     onrendered: function (canvas) {
                         if (processing) {
@@ -199,6 +222,7 @@
         //listen for suspend request
         case 'confirmTabSuspend':
             if (request.suspendedUrl) {
+                setScrollPos();
                 suspendTab(request.suspendedUrl);
             }
             break;
@@ -209,7 +233,7 @@
     });
 
     //do startup jobs
-    //reportState(false);
+    reportState(false);
     requestPreferences(function(response) {
 
         if (response && response.suspendTime > 0) {
@@ -228,5 +252,14 @@
             suspendTime = 0;
         }
     });
+
+    window.onload = function() {
+        var scrollPos = getScrollPos();
+        if (scrollPos && scrollPos !== "") {
+            document.body.scrollTop = scrollPos;
+            setScrollPos(true);
+        }
+
+    };
 
 }());

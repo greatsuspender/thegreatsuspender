@@ -10,7 +10,7 @@
 var tgs = (function () {
     'use strict';
 
-    var debug = true,
+    var debug = false,
         sessionId = gsUtils.generateSessionId(),
         //sessionDate = new Date(),
         lastSelectedTabs = [],

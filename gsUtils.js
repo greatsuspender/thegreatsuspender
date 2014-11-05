@@ -358,7 +358,7 @@
             return sessionId;
         },
 
-        generateSuspendedUrl: function (tabUrl, tabTitle) {
+        generateSuspendedUrl: function (tabUrl) {
             var args = '#url=' + encodeURIComponent(tabUrl);
             return chrome.extension.getURL('suspended.html' + args);
         },
