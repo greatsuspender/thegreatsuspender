@@ -230,7 +230,8 @@
 
             gsSession.windows.some(function (curWindow, windowIndex) {
                 curWindow.tabs.some(function (curTab, tabIndex) {
-                    if (curTab.id === tabId || curTab.url === tabId) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                    if (curTab.id == tabId || curTab.url == tabId) {
                         curWindow.tabs.splice(tabIndex, 1);
                     }
                 });
@@ -319,7 +320,8 @@
 
             //if matching session found, then set new windowsArray
             gsSessionHistory.forEach(function (curSession) {
-                if (curSession.id === sessionId) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curSession.id == sessionId) {
                     curSession.windows = windowsArray;
                     curSession.date = new Date();
                 }

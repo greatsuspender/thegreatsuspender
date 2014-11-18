@@ -69,7 +69,7 @@
                 sessionId = element.getAttribute('data-sessionId');
 
             gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
-            render();
+            element.remove();
         };
     }
 
@@ -239,20 +239,23 @@
     function render() {
 
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+            currentDiv = document.getElementById('currentLinks'),
             sessionsDiv = document.getElementById('recoveryLinks'),
-            historyDiv = document.getElementById('historyLinks'),
-            sessionEl;
+            historyDiv = document.getElementById('historyLinks');
 
         hideModal();
+        currentDiv.innerHTML = '';
         sessionsDiv.innerHTML = '';
         historyDiv.innerHTML = '';
 
-        gsSessionHistory.forEach(function (session) {
+        gsSessionHistory.forEach(function (session, index) {
             //saved sessions will all have a 'name' attribute
             if (session.name) {
-                sessionEl = historyDiv.appendChild(createSessionHtml(session));
+                historyDiv.appendChild(createSessionHtml(session));
+            } else if (index === 0) {
+                currentDiv.appendChild(createSessionHtml(session));
             } else {
-                sessionEl = sessionsDiv.appendChild(createSessionHtml(session));
+                sessionsDiv.appendChild(createSessionHtml(session));
             }
         });
     }

@@ -174,6 +174,7 @@
             clearHistoryEl.onclick = function (e) {
                 gsUtils.clearGsSessionHistory();
                 gsUtils.clearPreviews();
+                e.target.remove();
             };
             configureShortcutsEl.onclick = function (e) {
                 chrome.tabs.update({url: 'chrome://extensions/configureCommands'});

@@ -107,6 +107,9 @@ var tgs = (function () {
     function requestTabSuspension(tab, force) {
         force = force || false;
 
+        //safety check
+        if (typeof(tab) === 'undefined') return;
+
         //check whitelist
         if (!force && isExcluded(tab)) {
             return;
