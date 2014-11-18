@@ -550,13 +550,20 @@ var tgs = (function () {
     });
 
     //listen for tab create
-    /*
+
     chrome.tabs.onCreated.addListener(function (tab) {
         if (debug) {
             console.log('tab created: ' + tab.url);
         }
+        //check for a suspended tab from a different installation of TGS
+        //if found, convert to this installation of the extension
+        if (tab.url.indexOf('suspended.html') > 0
+                && gsUtils.getRootUrl(tab.url) !== gsUtils.getRootUrl(chrome.extension.getURL(''))) {
+            var urlTail = tab.url.substring(tab.url.indexOf('suspended.html'));
+            chrome.tabs.update(tab.id, {url: chrome.extension.getURL(urlTail)});
+        }
     });
-    */
+
 
     //listen for tab remove
     /*
