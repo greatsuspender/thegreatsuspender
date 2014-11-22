@@ -142,19 +142,6 @@
         });
     }
 
-    function calculateSuspendDate() {
-        var suspendDate;
-        if (!timerUp && suspendTime > 0) {
-            suspendDate = new Date(new Date().getTime() + (+suspendTime));
-            suspendDate = suspendDate.toTimeString(); //getUTCHours() + ':' + suspendDate.getUTCMinutes() + ':' + suspendDate.getUTCSeconds();
-
-        } else {
-            suspendDate = timerUp;
-        }
-
-        return suspendDate;
-    }
-
     function requestPreferences(callback) {
         chrome.runtime.sendMessage({ action: 'prefs' }, function (response) {
             callback(response);
@@ -185,7 +172,8 @@
         //listen for status request
         case 'requestInfo':
             status = calculateState();
-            suspendDate = calculateSuspendDate();
+            suspendDate = timerUp ? timerUp + '' : '-';
+            console.log(suspendDate);
             response = { status: status, timerUp: suspendDate };
             sendResponse(response);
             break;

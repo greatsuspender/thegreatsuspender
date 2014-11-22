@@ -362,9 +362,15 @@
             return sessionId;
         },
 
-        generateSuspendedUrl: function (tabUrl) {
+        generateSuspendedUrl: function (tabUrl, useBlank) {
             var args = '#url=' + encodeURIComponent(tabUrl);
-            return chrome.extension.getURL('suspended.html' + args);
+            useBlank = useBlank || false;
+
+            if (useBlank) {
+                return chrome.extension.getURL('clean.html');
+            } else {
+                return chrome.extension.getURL('suspended.html' + args);
+            }
         },
 
         getHashVariable: function (key, hash) {

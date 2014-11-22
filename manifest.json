@@ -32,7 +32,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "web_accessible_resources": ["suspended.html", "history.html", "style.css", "suspended.css"],
+  "web_accessible_resources": ["suspended.html", "history.html", "clean.html", "style.css", "suspended.css"],
   "incognito": "split",
   "manifest_version": 2,
   "minimum_chrome_version": "22",

@@ -11,6 +11,7 @@ var tgs = (function () {
     'use strict';
 
     var debug = false,
+        useClean = false,
         sessionId = gsUtils.generateSessionId(),
         //sessionDate = new Date(),
         lastSelectedTabs = [],
@@ -123,7 +124,7 @@ var tgs = (function () {
             chrome.tabs.executeScript(tab.id, { file: 'html2canvas.min.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'generatePreview',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url),
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
                     previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY)
                 });
             });
@@ -133,7 +134,7 @@ var tgs = (function () {
             saveSuspendData(tab);
             chrome.tabs.sendMessage(tab.id, {
                 action: 'confirmTabSuspend',
-                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url)
+                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
             });
         }
     }
@@ -363,19 +364,13 @@ var tgs = (function () {
 
     function reinjectContentScripts() {
         chrome.tabs.query({}, function (tabs) {
-            var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME) * 60 * 1000;
+            var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME);
 
             tabs.forEach(function (currentTab) {
-                if (!isSpecialTab(currentTab)) {
+                if (!isSpecialTab(currentTab) && currentTab.url.indexOf('suspended.html') < 0) {
                     var tabId = currentTab.id;
-                    //test if a content script is active by sending a 'requestInfo' message
-                    chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-                        //if no response, then try to dynamically load in the new contentscript.js file
-                        if (typeof(response) === 'undefined') {
-                            chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
-                                chrome.tabs.sendMessage(tabId, {action: 'resetTimer', timeout: timeout});
-                            });
-                        }
+                    chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
+                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
                     });
                 }
             });
@@ -679,7 +674,8 @@ var tgs = (function () {
     return {
         requestTabInfo: requestTabInfo,
         updateIcon: updateIcon,
-        isSpecialTab: isSpecialTab
+        isSpecialTab: isSpecialTab,
+        reinject: reinjectContentScripts
     };
 
 }());
