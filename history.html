@@ -11,20 +11,23 @@
 <body>
 
 <div  class="mainContent">
-	<h1>Session History</h1>
 
-    <h2>Current session:</h2>
+    <h1><a class='pageLink' href='options.html'>Settings</a> | <a class='pageLink active' href='history.html'>Session History</a></h1>
+
+    <h3>Current session:</h3>
     <div id='currentLinks'></div>
 
-    <h2>Recent sessions:</h2>
+    <h3>Recent sessions:</h3>
     <div id='recoveryLinks'></div>
 
-	<h2>Saved sessions:</h2>
+	<h3>Saved sessions:</h3>
 	<div id='historyLinks'></div>
 
     <br />
+    <br />
     <button id="clearHistory" class="button">Clear tab history</button>
 
+    <script src="footer.js"></script>
 </div>
 
 <div id="sessionNameModal" class="modal">
@@ -33,6 +36,7 @@
     <br />
     <input id="sessionNameSubmit" type="button" value="OK" />
     <input id="sessionNameCancel" type="button" value="Cancel" />
+
 </div>
 
 </body>

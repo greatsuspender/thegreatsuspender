@@ -194,6 +194,7 @@
         sessionExport.onclick = function () { exportSession(session.id); };
 
         sessionDiv = document.createElement('div');
+        sessionDiv.className = 'sessionDiv';
         sessionDiv.setAttribute('data-sessionId', session.id);
         sessionTitle.onclick = toggleSession(sessionDiv);
         sessionContainer = document.createElement('div');
@@ -213,10 +214,10 @@
             groupUnsuspendNew;
 
         groupHeading = document.createElement('p');
+        groupHeading.className = 'windowHeading';
         groupHeading.setAttribute('data-windowId', window.id);
         groupHeading.setAttribute('data-sessionId', window.sessionId);
         windowHeading = document.createElement('span');
-        windowHeading.className = 'windowHeading';
         windowHeading.innerHTML = 'Window ' + (count + 1) + ':&nbsp;';
         groupHeading.appendChild(windowHeading);
         groupUnsuspendCurrent = document.createElement('a');
@@ -283,7 +284,8 @@
             currentDiv = document.getElementById('currentLinks'),
             sessionsDiv = document.getElementById('recoveryLinks'),
             historyDiv = document.getElementById('historyLinks'),
-            clearHistoryEl = document.getElementById('clearHistory');
+            clearHistoryEl = document.getElementById('clearHistory'),
+            firstSession = true;
 
         hideModal();
         currentDiv.innerHTML = '';
@@ -294,8 +296,9 @@
             //saved sessions will all have a 'name' attribute
             if (session.name) {
                 historyDiv.appendChild(createSessionHtml(session));
-            } else if (index === 0) {
+            } else if (firstSession) {
                 currentDiv.appendChild(createSessionHtml(session));
+                firstSession = false;
             } else {
                 sessionsDiv.appendChild(createSessionHtml(session));
             }
