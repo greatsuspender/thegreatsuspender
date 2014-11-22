@@ -10,7 +10,7 @@
 var tgs = (function () {
     'use strict';
 
-    var debug = false,
+    var debug = true,
         sessionId = gsUtils.generateSessionId(),
         //sessionDate = new Date(),
         lastSelectedTabs = [],
@@ -557,11 +557,12 @@ var tgs = (function () {
         }
         //check for a suspended tab from a different installation of TGS
         //if found, convert to this installation of the extension
-        if (tab.url.indexOf('suspended.html') > 0
+        //UPDATE: not sure if this is a good idea. especially if there are two instances of the extension running on the same pc!
+        /*if (tab.url.indexOf('suspended.html') > 0
                 && gsUtils.getRootUrl(tab.url) !== gsUtils.getRootUrl(chrome.extension.getURL(''))) {
             var urlTail = tab.url.substring(tab.url.indexOf('suspended.html'));
             chrome.tabs.update(tab.id, {url: chrome.extension.getURL(urlTail)});
-        }
+        }*/
     });
 
 
@@ -624,8 +625,9 @@ var tgs = (function () {
     });
     */
 
+    var period = debug ? 0.1 : 1;
     chrome.alarms.clearAll();
-    chrome.alarms.create('saveWindowHistory', {periodInMinutes: 1});
+    chrome.alarms.create('saveWindowHistory', {periodInMinutes: period});
     if (debug) {
         console.log('alarm created: saveWindowHistory');
     }

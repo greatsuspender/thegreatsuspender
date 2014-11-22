@@ -119,9 +119,15 @@
                 window.close();
             }
         });
-        document.getElementById('popTopSettings').addEventListener('click', function () {
+        document.getElementById('settingsLink').addEventListener('click', function () {
             chrome.tabs.create({
                 url: chrome.extension.getURL('options.html')
+            });
+            window.close();
+        });
+        document.getElementById('historyLink').addEventListener('click', function () {
+            chrome.tabs.create({
+                url: chrome.extension.getURL('history.html')
             });
             window.close();
         });

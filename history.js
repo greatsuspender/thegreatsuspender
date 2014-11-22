@@ -66,10 +66,16 @@
 
             var tabId = element.getAttribute('data-tabId'),
                 windowId = element.getAttribute('data-windowId'),
-                sessionId = element.getAttribute('data-sessionId');
+                sessionId = element.getAttribute('data-sessionId'),
+                session = gsUtils.getSessionById(sessionId),
+                sessionEl,
+                newSessionEl;
 
-            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
-            element.remove();
+            session = gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
+            sessionEl = element.parentElement.parentElement;
+            newSessionEl = createSessionHtml(session);
+            sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
+            toggleSession(newSessionEl.getElementsByTagName('div')[0])();
         };
     }
 
@@ -126,11 +132,35 @@
         };
     }
 
+    function exportSession(sessionId) {
+        var session = gsUtils.getSessionById(sessionId),
+            csvContent = "data:text/csv;charset=utf-8,",
+            dataString = '';
+
+        session.windows.forEach(function (curWindow, index) {
+            curWindow.tabs.forEach(function (curTab, tabIndex) {
+                if (curTab.url.indexOf("suspended.html") > 0) {
+                    dataString += gsUtils.getHashVariable('url', curTab.url.split('suspended.html')[1]) + '\n';
+                } else {
+                    dataString += curTab.url + '\n';
+                }
+            });
+        });
+        csvContent += dataString;
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "session.txt");
+        link.click();
+    }
+
     function createSessionHtml(session) {
         var savedSession = session.name ? true : false,
             sessionContainer,
             sessionTitle,
             sessionSave,
+            sessionExport,
             sessionDiv,
             j,
             k,
@@ -154,15 +184,22 @@
             sessionSave = document.createElement('a');
             sessionSave.className = 'groupLink';
             sessionSave.setAttribute('href', '#');
-            sessionSave.innerHTML = 'save session';
+            sessionSave.innerHTML = 'save';
             sessionSave.onclick = function () { saveSession(session.id); };
         }
+        sessionExport = document.createElement('a');
+        sessionExport.className = 'groupLink';
+        sessionExport.setAttribute('href', '#');
+        sessionExport.innerHTML = 'export';
+        sessionExport.onclick = function () { exportSession(session.id); };
+
         sessionDiv = document.createElement('div');
         sessionDiv.setAttribute('data-sessionId', session.id);
         sessionTitle.onclick = toggleSession(sessionDiv);
         sessionContainer = document.createElement('div');
         sessionContainer.appendChild(sessionTitle);
         if (!savedSession) { sessionContainer.appendChild(sessionSave); }
+        sessionContainer.appendChild(sessionExport);
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
@@ -171,13 +208,17 @@
     function createWindowHtml(window, count) {
 
         var groupHeading,
+            windowHeading,
             groupUnsuspendCurrent,
             groupUnsuspendNew;
 
         groupHeading = document.createElement('p');
         groupHeading.setAttribute('data-windowId', window.id);
         groupHeading.setAttribute('data-sessionId', window.sessionId);
-        groupHeading.innerHTML = 'Window ' + (count + 1) + ':&nbsp;';// + ' (' + window.tabs.length + ' tab' + (window.tabs.length > 1 ? 's)' : ')') + '<br />';
+        windowHeading = document.createElement('span');
+        windowHeading.className = 'windowHeading';
+        windowHeading.innerHTML = 'Window ' + (count + 1) + ':&nbsp;';
+        groupHeading.appendChild(windowHeading);
         groupUnsuspendCurrent = document.createElement('a');
         groupUnsuspendCurrent.className = 'groupLink';
         groupUnsuspendCurrent.setAttribute('href', '#');
@@ -241,7 +282,8 @@
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
             currentDiv = document.getElementById('currentLinks'),
             sessionsDiv = document.getElementById('recoveryLinks'),
-            historyDiv = document.getElementById('historyLinks');
+            historyDiv = document.getElementById('historyLinks'),
+            clearHistoryEl = document.getElementById('clearHistory');
 
         hideModal();
         currentDiv.innerHTML = '';
@@ -258,6 +300,12 @@
                 sessionsDiv.appendChild(createSessionHtml(session));
             }
         });
+
+        clearHistoryEl.onclick = function (e) {
+            gsUtils.clearGsSessionHistory();
+            gsUtils.clearPreviews();
+            render();
+        };
     }
 
     window.onload = function () {

@@ -242,6 +242,7 @@
             });
 
             this.saveWindowsToSessionHistory(sessionId, gsSession.windows);
+            return gsSession;
         },
 
         fetchGsSessionHistory: function () {
@@ -324,6 +325,7 @@
                 if (curSession.id == sessionId) {
                     curSession.windows = windowsArray;
                     curSession.date = new Date();
+                    match = true;
                 }
             });
 

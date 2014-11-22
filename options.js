@@ -156,8 +156,6 @@
 
 
             var optionEls = document.getElementsByClassName('option'),
-                showHistoryEl = document.getElementById('showHistory'),
-                clearHistoryEl = document.getElementById('clearHistory'),
                 configureShortcutsEl = document.getElementById('configureShortcuts'),
                 element,
                 i;
@@ -167,15 +165,6 @@
                 element = optionEls[i];
                 element.onchange = getHandler(element);
             }
-
-            showHistoryEl.onclick = function (e) {
-                chrome.tabs.create({url: chrome.extension.getURL('history.html')});
-            };
-            clearHistoryEl.onclick = function (e) {
-                gsUtils.clearGsSessionHistory();
-                gsUtils.clearPreviews();
-                e.target.remove();
-            };
             configureShortcutsEl.onclick = function (e) {
                 chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
             };

@@ -71,8 +71,8 @@ body {
 	top: 7px;
 	z-index: 10;
 	text-shadow: 0 -1px 0 #4881B9;
-	font-size: 12px;
-	color: #EEE;
+	font-size: 13px;
+	color: #FFF;
 	cursor: pointer;
 }
 #popTopSettings > * {

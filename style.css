@@ -47,6 +47,9 @@ h3 {
     padding-bottom: 10px;
     color: #444;
 }
+h4 {
+    font-weight: bold;
+}
 select {
 	min-width: 50px;
 }
@@ -188,6 +191,11 @@ a.historyLink:hover {
     color: #aaa;
     padding-left: 10px;
 }
+.windowHeading {
+    font-size: 13px;
+    font-weight: bold;
+    color: #777;
+}
 .groupLink {
     margin: 0 0 0 10px;
     font-size: 0.8em;
@@ -219,7 +227,8 @@ table, tr, td {
 .paypal_btn {
     width: 181px;
     height: 39px;
-    margin: 10px 0;
+    margin: -35px 0 0 0;
+    float: right;
     cursor: pointer;
     border-radius: 4px;
     background: #36BEF3;
@@ -234,4 +243,7 @@ table, tr, td {
 }
 .paypal_btn:hover {
     background: #2A8CB3;
+}
+#configureShortcuts {
+    font-size: 11px;
 }
