@@ -34,9 +34,11 @@
 
         reportState('suspended');
 
-        //instead of replacing the current tab with suspended one, lets leave the original tab in the browswer history
-        window.location.replace(suspendedUrl);
-        //window.location.href = suspendedUrl;
+        if (suspendedUrl.indexOf('suspended.html') > 0) {
+            window.location.replace(suspendedUrl);
+        } else {
+            window.location.href = suspendedUrl;
+        }
     }
 
     function setScrollPos(reset) {
