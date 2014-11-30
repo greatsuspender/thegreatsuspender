@@ -7,13 +7,22 @@
  * ༼ つ ◕_◕ ༽つ
 */
 
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-52338347-1']);
+_gaq.push(['_setCustomVar', 1, 'version', gsUtils.getOption(gsUtils.APP_VERSION) + "", 1]);
+_gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
+_gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
+_gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
+//_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
+_gaq.push(['_trackPageview']);
+
 var tgs = (function () {
     'use strict';
 
     var debug = false,
         useClean = false,
         sessionId = gsUtils.generateSessionId(),
-        //sessionDate = new Date(),
         lastSelectedTabs = [],
         currentTabId;
 
@@ -670,6 +679,13 @@ var tgs = (function () {
             runStartupChecks();
         }
     //});
+
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(ga, s);
 
     return {
         requestTabInfo: requestTabInfo,

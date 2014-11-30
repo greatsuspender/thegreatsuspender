@@ -1,5 +1,13 @@
 /*global chrome */
 
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-52338347-1']);
+_gaq.push(['_trackPageview']);
+
+function trackButtonClick(e) {
+    _gaq.push(['_trackEvent', e.target.id, 'clicked']);
+}
+
 (function () {
 
     'use strict';
@@ -88,19 +96,23 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('suspendOne').addEventListener('click', function () {
+        document.getElementById('suspendOne').addEventListener('click', function (e) {
+            trackButtonClick(e);
             chrome.runtime.sendMessage({ action: 'suspendOne' });
             window.close();
         });
-        document.getElementById('suspendAll').addEventListener('click', function () {
+        document.getElementById('suspendAll').addEventListener('click', function (e) {
+            trackButtonClick(e);
             chrome.runtime.sendMessage({ action: 'suspendAll' });
             window.close();
         });
-        document.getElementById('unsuspendAll').addEventListener('click', function () {
+        document.getElementById('unsuspendAll').addEventListener('click', function (e) {
+            trackButtonClick(e);
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
             window.close();
         });
         document.getElementById('whitelist').addEventListener('click', function (e) {
+            trackButtonClick(e);
             if (e.target.getAttribute('data-action') === 'whitelist') {
                 chrome.runtime.sendMessage({ action: 'whitelist' });
                 window.close();
@@ -110,6 +122,7 @@
             }
         });
         document.getElementById('tempWhitelist').addEventListener('click', function (e) {
+            trackButtonClick(e);
             if (e.target.getAttribute('data-action') === 'pause') {
                 chrome.runtime.sendMessage({ action: 'tempWhitelist' });
                 chrome.extension.getBackgroundPage().tgs.updateIcon(false);
@@ -119,13 +132,15 @@
                 window.close();
             }
         });
-        document.getElementById('settingsLink').addEventListener('click', function () {
+        document.getElementById('settingsLink').addEventListener('click', function (e) {
+            trackButtonClick(e);
             chrome.tabs.create({
                 url: chrome.extension.getURL('options.html')
             });
             window.close();
         });
-        document.getElementById('historyLink').addEventListener('click', function () {
+        document.getElementById('historyLink').addEventListener('click', function (e) {
+            trackButtonClick(e);
             chrome.tabs.create({
                 url: chrome.extension.getURL('history.html')
             });
@@ -150,5 +165,12 @@
             setPauseStatus(status);
         });
     });
+
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(ga, s);
 
 }());
