@@ -10,7 +10,7 @@
 
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-52338347-1']);
-_gaq.push(['_setCustomVar', 1, 'version', gsUtils.getOption(gsUtils.APP_VERSION) + "", 1]);
+_gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
 _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
 _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
 _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
@@ -149,15 +149,8 @@ var tgs = (function () {
     }
 
     function requestTabUnsuspend(tab) {
-        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
-            url;
-
-        if (tidyUrls) {
-            chrome.tabs.reload(tab.id);
-        } else {
-            url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
-            chrome.tabs.update(tab.id, {url: url});
-        }
+        var url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+        chrome.tabs.update(tab.id, {url: url});
     }
 
     function whitelistHighlightedTab(window) {
@@ -219,25 +212,11 @@ var tgs = (function () {
     }
 
     function checkForSuspendedTab(tab, callback) {
-        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
 
-        if (tidyUrls) {
-            //test if a content script is active by sending a 'requestInfo' message
-            chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function (response) {
-
-                //if response is given but is undefined, then assume suspended
-                if (typeof(response) === 'undefined') {
-                    callback(true);
-                } else {
-                    callback(false);
-                }
-            });
+        if (tab.url.indexOf('suspended.html') >= 0) {
+            callback(true);
         } else {
-            if (tab.url.indexOf('suspended.html') >= 0) {
-                callback(true);
-            } else {
-                callback(false);
-            }
+            callback(false);
         }
     }
 
@@ -287,15 +266,8 @@ var tgs = (function () {
     }
 
     function unsuspendTab(tab) {
-        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
-            url;
-
-        if (tidyUrls) {
-            chrome.tabs.reload(tab.id);
-        } else {
-            url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
-            chrome.tabs.update(tab.id, {url: url});
-        }
+        var url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+        chrome.tabs.update(tab.id, {url: url});
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
@@ -388,14 +360,11 @@ var tgs = (function () {
 
     function runStartupChecks() {
 
-        var tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
-            lastVersion = gsUtils.fetchVersion(),
+        var lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version;
 
         //check for possible crash
-        if (!tidyUrls) {
-            checkForCrashRecovery();
-        }
+        checkForCrashRecovery();
 
         //if version has changed then assume initial install or upgrade
         if (lastVersion !== curVersion) {
@@ -691,7 +660,8 @@ var tgs = (function () {
         requestTabInfo: requestTabInfo,
         updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,
-        reinject: reinjectContentScripts
+        reinject: reinjectContentScripts,
+        saveSuspendData: saveSuspendData
     };
 
 }());

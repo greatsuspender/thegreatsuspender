@@ -13,8 +13,7 @@
             'dontSuspendForms': gsUtils.IGNORE_FORMS,
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
-            'whitelist': gsUtils.WHITELIST,
-            'tidyUrls' : gsUtils.TIDY_URLS
+            'whitelist': gsUtils.WHITELIST
         },
         elementIdMap = invert(elementPrefMap),
         readyStateCheckInterval;
@@ -107,14 +106,6 @@
         } else {
             document.getElementById('previewQualitySection').style.display = 'none';
             document.getElementById('previewQualityNote').style.display = 'none';
-        }
-    }
-
-    function setTidyUrlVisibility(visible) {
-        if (visible) {
-            document.getElementById('tidyUrlsNote').style.display = 'block';
-        } else {
-            document.getElementById('tidyUrlsNote').style.display = 'none';
         }
     }
 

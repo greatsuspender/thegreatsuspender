@@ -15,7 +15,6 @@
         IGNORE_PINNED: 'gsDontSuspendPinned',
         IGNORE_FORMS: 'gsDontSuspendForms',
         IGNORE_CACHE: 'gsIgnoreCache',
-        TIDY_URLS: 'gsTidyUrls',
         NO_NAG: 'gsNoNag',
         WHITELIST: 'gsWhitelist',
 

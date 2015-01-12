@@ -35,8 +35,7 @@
         var url = gsUtils.getHashVariable('url', window.location.hash),
             tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
-            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
-            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS),
+            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW)
             favicon;
 
         //just incase the url is a suspension url (somehow??) then decode it
@@ -70,16 +69,9 @@
 
         favicon = tabProperties.favicon || 'chrome://favicon/' + url;
 
-        //if tidyUrls on then just use normal favicon
-        if (tidyUrls) {
-            setFavicon(favicon);
-
-        //otherwise use semi-opaque favicon
-        } else {
-            generateFaviconUri(favicon, function (faviconUrl) {
-                setFavicon(faviconUrl);
-            });
-        }
+        generateFaviconUri(favicon, function (faviconUrl) {
+            setFavicon(faviconUrl);
+        });
 
         //populate suspended tab bar
         var title = tabProperties.title ? tabProperties.title : rootUrlStr;
@@ -89,22 +81,11 @@
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 
         document.getElementById('gsTopBarImg').setAttribute('src', favicon);
-
-        //update url with actual url
-        if (tidyUrls) {
-            window.history.replaceState(null, null, url);
-        }
     }
 
     function unsuspendTab() {
-        var url = gsUtils.getHashVariable('url', window.location.hash),
-            tidyUrls = gsUtils.getOption(gsUtils.TIDY_URLS);
-
-        if (tidyUrls) {
-            window.location.reload();
-        } else {
-            window.location.replace(url);
-        }
+        var url = gsUtils.getHashVariable('url', window.location.hash);
+        window.location.replace(url);
     }
 
     function hideNagForever() {

@@ -157,7 +157,7 @@
             status,
             suspendDate;
 
-        console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
+        //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         switch (request.action) {
         case 'resetTimer':
@@ -175,7 +175,7 @@
         case 'requestInfo':
             status = calculateState();
             suspendDate = timerUp ? timerUp + '' : '-';
-            console.log(suspendDate);
+            //console.log(suspendDate);
             response = { status: status, timerUp: suspendDate };
             sendResponse(response);
             break;
