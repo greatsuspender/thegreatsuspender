@@ -35,7 +35,7 @@
         var url = gsUtils.getHashVariable('url', window.location.hash),
             tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
-            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW)
+            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
             favicon;
 
         //just incase the url is a suspension url (somehow??) then decode it
