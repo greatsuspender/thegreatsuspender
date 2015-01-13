@@ -77,7 +77,6 @@
 
         getOption: function (prop) {
             var settings = this.getSettings();
-            // TODO make sure this works
             if (typeof settings[prop] === 'boolean') {
                 return settings[prop];
             }
@@ -92,8 +91,10 @@
 
         getSettings: function () {
             var result = localStorage.getItem('gsSettings');
-            if (result !== null) {
+            if (result !== null && result !== 'null') {
                 result = JSON.parse(result);
+            } else {
+                result = {};
             }
             return result;
         },
