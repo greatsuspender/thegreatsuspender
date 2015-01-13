@@ -147,7 +147,7 @@ var tgs = (function () {
     }
 
     function requestTabUnsuspend(tab) {
-        var url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+        var url = gsUtils.getSuspendedUrl(tab.url.split('suspended.html')[1]);
         chrome.tabs.update(tab.id, {url: url});
     }
 
@@ -264,7 +264,7 @@ var tgs = (function () {
     }
 
     function unsuspendTab(tab) {
-        var url = gsUtils.getHashVariable('url', tab.url.split('suspended.html')[1]);
+        var url = gsUtils.getSuspendedUrl(tab.url.split('suspended.html')[1]);
         chrome.tabs.update(tab.id, {url: url});
 
         //bit of a hack here as using the chrome.tabs.update method will not allow

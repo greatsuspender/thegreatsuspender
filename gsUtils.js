@@ -361,7 +361,7 @@
         },
 
         generateSuspendedUrl: function (tabUrl, useBlank) {
-            var args = '#url=' + encodeURIComponent(tabUrl);
+            var args = '#url=' + tabUrl;//encodeURIComponent(tabUrl);
             useBlank = useBlank || false;
 
             if (useBlank) {
@@ -371,23 +371,24 @@
             }
         },
 
-        getHashVariable: function (key, hash) {
+        getSuspendedUrl: function (hash) {
             var parts,
-                temp,
-                i;
+                url,
+                re = /%[0-9a-f]{2}/i;
 
-            if (hash.length === 0) {
+            if (hash.length === 0 || hash.indexOf('url=') < 0) {
                 return false;
             }
 
-            parts = hash.substring(1).split('&');
-            for (i = 0; i < parts.length; i += 1) {
-                temp = parts[i].split('=');
-                if (temp[0] === key) {
-                    return decodeURIComponent(temp[1]);
-                }
+            parts = hash.split('=');
+            url = parts[1];
+
+            //check for (old) encoded urls
+            if (re.exec(url) !== null) {
+                return decodeURIComponent(url);
+            } else {
+                return url;
             }
-            return false;
         },
 
         getFormattedDate: function (date, includeTime) {

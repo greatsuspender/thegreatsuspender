@@ -47,7 +47,7 @@
                         if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
                             curUrl = gsUtils.generateSuspendedUrl(curUrl);
                         } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
-                            curUrl = gsUtils.getHashVariable('url', curTab.url.split('suspended.html')[1]);
+                            curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
                         }
                         chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
                     });
@@ -140,7 +140,7 @@
         session.windows.forEach(function (curWindow, index) {
             curWindow.tabs.forEach(function (curTab, tabIndex) {
                 if (curTab.url.indexOf("suspended.html") > 0) {
-                    dataString += gsUtils.getHashVariable('url', curTab.url.split('suspended.html')[1]) + '\n';
+                    dataString += gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]) + '\n';
                 } else {
                     dataString += curTab.url + '\n';
                 }

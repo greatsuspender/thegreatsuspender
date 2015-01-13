@@ -32,7 +32,7 @@
     }
 
     function attemptTabSuspend() {
-        var url = gsUtils.getHashVariable('url', window.location.hash),
+        var url = gsUtils.getSuspendedUrl(window.location.hash),
             tabProperties = gsUtils.fetchTabFromHistory(url),
             rootUrlStr,
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
@@ -40,7 +40,7 @@
 
         //just incase the url is a suspension url (somehow??) then decode it
         while (url.indexOf('suspended.html#') >= 0) {
-            url = gsUtils.getHashVariable('url', url.substring(url.indexOf('suspended.html#') + 14));
+            url = gsUtils.getSuspendedUrl(url.substring(url.indexOf('suspended.html#') + 14));
             window.location.hash = 'url=' + url;
         }
         rootUrlStr = gsUtils.getRootUrl(url);
@@ -84,7 +84,7 @@
     }
 
     function unsuspendTab() {
-        var url = gsUtils.getHashVariable('url', window.location.hash);
+        var url = gsUtils.getSuspendedUrl(window.location.hash);
         window.location.replace(url);
     }
 
