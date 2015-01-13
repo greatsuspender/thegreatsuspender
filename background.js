@@ -40,7 +40,6 @@ var tgs = (function () {
     function saveSuspendData(tab, previewUrl) {
         var gsHistory = gsUtils.fetchGsHistory(),
             tabProperties,
-            //rootUrl = gsUtils.getRootUrl(tab.url), // unused
             favUrl;
 
         //console.log('attempting to suspend: ' + tab.url);
@@ -68,8 +67,7 @@ var tgs = (function () {
         gsHistory.unshift(tabProperties);
 
         //clean up old items
-        //TODO use splice or something here, this is resource wasteful
-        while (gsHistory.length > 100) {
+        while (gsHistory.length > 1000) {
             gsHistory.pop();
         }
         gsUtils.setGsHistory(gsHistory);
@@ -612,7 +610,9 @@ var tgs = (function () {
 
         if (alarm.name === 'saveWindowHistory') {
             //chrome.browserAction.setBadgeText({text: "SAV"});
-            console.log('saving current session. next save in 1 minute.');
+            if (debug) {
+                console.log('saving current session. next save in 1 minute.');
+            }
             saveWindowHistory();
         }
     });
@@ -626,11 +626,11 @@ var tgs = (function () {
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
-            chrome.tabs.query({active: true}, function (tabs) {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 requestTabSuspension(tabs[0], true);
             });
         } else if (command === 'unsuspend-tab') {
-            chrome.tabs.query({active: true}, function (tabs) {
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 checkForSuspendedTab(tabs[0], function(isSuspended) {
                     if (isSuspended) unsuspendTab(tabs[0]);
                 });

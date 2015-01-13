@@ -47,7 +47,6 @@
             defaults[self.IGNORE_FORMS] = false;
             defaults[self.IGNORE_CACHE] = false;
             defaults[self.SUSPEND_TIME] = 0;
-            defaults[self.TIDY_URLS] = false;
             defaults[self.NO_NAG] = false;
             defaults[self.MAX_HISTORIES] = 4;
             defaults[self.WHITELIST] = '';

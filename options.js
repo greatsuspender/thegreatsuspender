@@ -1,4 +1,4 @@
-/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setTidyUrlVisibility, setOnlineCheckVisibility, resetTabTimers */
+/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setOnlineCheckVisibility, resetTabTimers */
 
 (function () {
 
@@ -61,7 +61,6 @@
         }
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
-        setTidyUrlVisibility(gsUtils.getOption(gsUtils.TIDY_URLS));
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
 
         //populate keyboard shortcuts
@@ -126,9 +125,6 @@
             //add specific screen element listeners
             if (pref === gsUtils.SHOW_PREVIEW) {
                 setPreviewQualityVisibility(getOptionValue(element));
-
-            } else if (pref === gsUtils.TIDY_URLS) {
-                setTidyUrlVisibility(getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
