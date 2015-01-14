@@ -373,16 +373,19 @@
         },
 
         getSuspendedUrl: function (hash) {
-            var parts,
-                url,
+            var url,
                 re = /%[0-9a-f]{2}/i;
 
-            if (hash.length === 0 || hash.indexOf('url=') < 0) {
+            //remove possible # prefix
+            if (hash && hash.substring(0,1) === '#') {
+                hash = hash.substring(1,hash.length);
+            }
+
+            if (hash.length === 0 || hash.indexOf('url=') !== 0) {
                 return false;
             }
 
-            parts = hash.split('=');
-            url = parts[1];
+            url = hash.substring(4,hash.length);
 
             //check for (old) encoded urls
             if (re.exec(url) !== null) {
