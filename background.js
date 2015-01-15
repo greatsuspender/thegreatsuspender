@@ -42,7 +42,6 @@ var tgs = (function () {
             tabProperties,
             favUrl;
 
-        //console.log('attempting to suspend: ' + tab.url);
         if (previewUrl) {
             gsUtils.setPreviewImage(tab.url, previewUrl);
         }
@@ -301,25 +300,62 @@ var tgs = (function () {
     }
 
     function checkForCrashRecovery() {
-        //attempt to automatically restore any lost tabs/windows in their proper positions
+
+        //try to detect whether it is an extension restart (due to extension crash/update) or a browser restart (due to chrome crash)
+        //case a: chrome restart with tabs automatically restored - no need to restore tabs as they get restored automatically
+        //case b: chrome restart with tabs not restored - no need to restore tabs as they get restored if user clicks the 'restore' button
+        //case c: extension restart only - want to automatically restore suspended tabs as they will have all disappeared
+
         var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-            crashedSession,
+            lastSession,
             tabMap = {},
-            windowsMap = {};
+            actualTabs = [],
+            expectedTabs = [],
+            windowsMap = {},
+            expectedCount = 0,
+            unexpectedCount = 0;
 
         if (gsSessionHistory.length > 0) {
-            crashedSession = gsSessionHistory[0];
+            lastSession = gsSessionHistory[0];
 
             chrome.windows.getAll({ populate: true }, function (windows) {
                 windows.forEach(function (curWindow) {
                     curWindow.tabs.forEach(function (curTab) {
                         tabMap[curTab.id] = curTab;
+                        actualTabs.push(curTab.id);
                     });
                     windowsMap[curWindow.id] = tabMap;
                 });
 
-                crashedSession.windows.forEach(function (curWindow) {
-                    //if crashed window exists in current session
+                lastSession.windows.forEach(function (curWindow) {
+                    curWindow.tabs.forEach(function (curTab) {
+                        //if there was an extension crash, then we would only expect to see unsuspended tabs after the crash
+                        if (curTab.url.indexOf('suspended.html') < 0) {
+                            expectedTabs.push(curTab.id);
+                        }
+                    });
+                });
+
+                //test to see if we should attempt a recovery of suspended tabs
+                //if the actualTabs and expectedTabs closely resemble each other then attempt a recovery
+                var expectedCount = 0,
+                    unexpectedCount = 0;
+                expectedTabs.forEach(function(curExpectedId) {
+                    if (actualTabs.some(function(curActualId) {return curExpectedId === curActualId;})) {
+                        expectedCount++;
+                    } else {
+                        unexpectedCount++;
+                    }
+                });
+                //if there is a significant number of unexpecteds, then don't attempt crash recovery
+                if (unexpectedCount > 2) {
+                    return;
+                }
+
+                //attempt to automatically restore any lost tabs/windows in their proper positions
+                lastSession.windows.forEach(function (curWindow) {
+
+                    //if crashed window exists in current session then restore suspended tabs in that window
                     if (windowsMap[curWindow.id]) {
                         tabMap = windowsMap[curWindow.id];
 
@@ -335,6 +371,25 @@ var tgs = (function () {
                                 });
                             }
                         });
+
+                    //else restore entire window
+                    } else {
+
+                        chrome.windows.create(function(newWindow) {
+
+                            curWindow.tabs.forEach(function (curTab) {
+                                if (curTab.url.indexOf('suspended.html') > 0) {
+                                    chrome.tabs.create({
+                                        windowId: newWindow.id,
+                                        url: curTab.url,
+                                        index: curTab.index,
+                                        pinned: curTab.pinned,
+                                        active: false
+                                    });
+                                }
+                            });
+                        });
+
                     }
                 });
             });
@@ -617,12 +672,15 @@ var tgs = (function () {
         }
     });
 
-    chrome.runtime.onSuspend.addListener(function () {
-        if (debug) {
-            console.log('unloading page.');
-            chrome.browserAction.setBadgeText({text: ''});
-        }
-    });
+    //this doesn't seem to get called the way i expected it to
+    /*chrome.runtime.onSuspend.addListener(function () {
+
+        chrome.windows.getAll({populate: true}, function (windows) {
+             windows.forEach(function (curWindow) {
+                unsuspendAllTabs(curWindow);
+            });
+        });
+    });*/
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {

@@ -124,6 +124,13 @@
         }
     };
 
+    window.addEventListener('keydown', function(event) {
+        if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 40 || event.keyCode === 116) {
+            event.preventDefault();
+            unsuspendTab();
+        }
+    });
+
     /*
     window.onbeforeunload = function () {
         //update url with suspended url

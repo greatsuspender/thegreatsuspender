@@ -217,6 +217,7 @@
             gsHistory.some(function (val) {
                 if (val.url === tabUrl) {
                     tab = val;
+                    console.log('found tabProperties in storage');
                     return true;
                 }
             });
