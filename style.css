@@ -63,8 +63,18 @@ body {
     background: url(img/noisebg.png) repeat top left #4ea6ca;
 }
 p {
-	padding: 5px 0 10px 15px;
+	margin: 0 0 15px;
 }
+
+ul.unorderedList, ol.orderedList {
+    padding-left: 20px;
+    margin: 7px 0 10px 0;
+}
+ul.unorderedList li {
+    margin: 0 0 3 10px;
+    list-style: disc;
+}
+
 .button {
     outline: 0;
     background: linear-gradient(#666, #444);
