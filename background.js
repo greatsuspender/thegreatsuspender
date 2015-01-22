@@ -38,6 +38,7 @@ var tgs = (function () {
     }
 
     function saveSuspendData(tab, previewUrl) {
+
         var gsHistory = gsUtils.fetchGsHistory(),
             tabProperties,
             favUrl;
@@ -330,7 +331,7 @@ var tgs = (function () {
                 lastSession.windows.forEach(function (curWindow) {
                     curWindow.tabs.forEach(function (curTab) {
                         //if there was an extension crash, then we would only expect to see unsuspended tabs after the crash
-                        if (curTab.url.indexOf('suspended.html') < 0) {
+                        if (curTab.url.indexOf('chrome-extension:') < 0) {
                             expectedTabs.push(curTab.id);
                         }
                     });
@@ -350,50 +351,67 @@ var tgs = (function () {
                 //if there is a significant number of unexpecteds, then don't attempt crash recovery
                 if (unexpectedCount > 2) {
                     return;
+                } else {
+                    recoverLostTabs(lastSession, windowsMap);
                 }
-
-                //attempt to automatically restore any lost tabs/windows in their proper positions
-                lastSession.windows.forEach(function (curWindow) {
-
-                    //if crashed window exists in current session then restore suspended tabs in that window
-                    if (windowsMap[curWindow.id]) {
-                        tabMap = windowsMap[curWindow.id];
-
-                        curWindow.tabs.forEach(function (curTab) {
-                            //if current tab was suspended and does not exist then recreate it
-                            if (!tabMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
-                                chrome.tabs.create({
-                                    windowId: curWindow.id,
-                                    url: curTab.url,
-                                    index: curTab.index,
-                                    pinned: curTab.pinned,
-                                    active: false
-                                });
-                            }
-                        });
-
-                    //else restore entire window
-                    } else {
-
-                        chrome.windows.create(function(newWindow) {
-
-                            curWindow.tabs.forEach(function (curTab) {
-                                if (curTab.url.indexOf('suspended.html') > 0) {
-                                    chrome.tabs.create({
-                                        windowId: newWindow.id,
-                                        url: curTab.url,
-                                        index: curTab.index,
-                                        pinned: curTab.pinned,
-                                        active: false
-                                    });
-                                }
-                            });
-                        });
-
-                    }
-                });
             });
         }
+    }
+
+    function recoverLostTabs(session, windowsMap) {
+
+        var tabIdMap = {},
+            tabUrlMap = {},
+            curTab;
+
+        //attempt to automatically restore any lost tabs/windows in their proper positions
+        session.windows.forEach(function (curWindow) {
+
+            //if crashed window exists in current session then restore suspended tabs in that window
+            if (windowsMap[curWindow.id]) {
+                tabIdMap = windowsMap[curWindow.id];
+
+                //get a list of unsuspended urls already in the window
+                for (var key in tabIdMap) {
+                    if (tabIdMap.hasOwnProperty(key)) {
+                        curTab = tabIdMap[key];
+                        tabUrlMap[curTab.url] = true;
+                    }
+                }
+
+                curWindow.tabs.forEach(function (curTab) {
+                    //if current tab was suspended and does not exist then recreate it
+                    if (!tabUrlMap[curTab.url] && !tabIdMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
+                        chrome.tabs.create({
+                            windowId: curWindow.id,
+                            url: curTab.url,
+                            index: curTab.index,
+                            pinned: curTab.pinned,
+                            active: false
+                        });
+                    }
+                });
+
+            //else restore entire window
+            } else {
+
+                chrome.windows.create(function(newWindow) {
+
+                    curWindow.tabs.forEach(function (curTab) {
+                        if (curTab.url.indexOf('suspended.html') > 0) {
+                            chrome.tabs.create({
+                                windowId: newWindow.id,
+                                url: curTab.url,
+                                index: curTab.index,
+                                pinned: curTab.pinned,
+                                active: false
+                            });
+                        }
+                    });
+                });
+
+            }
+        });
     }
 
     function reinjectContentScripts() {

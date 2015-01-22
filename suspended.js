@@ -41,7 +41,7 @@
         //just incase the url is a suspension url (somehow??) then decode it
         while (url.indexOf('suspended.html#') >= 0) {
             url = gsUtils.getSuspendedUrl(url.substring(url.indexOf('suspended.html#') + 14));
-            window.location.hash = 'url=' + url;
+            window.location.hash = 'uri=' + url;
         }
         rootUrlStr = gsUtils.getRootUrl(url);
 

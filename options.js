@@ -175,26 +175,25 @@
 
     //TODO: add a pref save button
 
-    function resetTabTimers(newInterval) {
+    function resetTabTimers(timeout) {
 
         chrome.tabs.query({}, function (tabs) {
-            var currentTab,
-                timeout = newInterval,
-                tabId;
-
             tabs.forEach(function (currentTab) {
-                tabId = currentTab.id;
-                //test if a content script is active by sending a 'requestInfo' message
-                chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-                    //if response, then request a timer reset
-                    if (typeof(response) !== 'undefined') {
-                        chrome.tabs.sendMessage(tabId, {
-                            action: 'resetTimer',
-                            timeout: timeout
-                        });
-                    }
-                });
+                requestTabReset(currentTab.id, timeout)
             });
+        });
+    }
+
+    function requestTabReset(tabId, timeout) {
+        //test if a content script is active by sending a 'requestInfo' message
+        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
+            //if response, then request a timer reset
+            if (typeof(response) !== 'undefined') {
+                chrome.tabs.sendMessage(tabId, {
+                    action: 'resetTimer',
+                    suspendTime: timeout
+                });
+            }
         });
     }
 

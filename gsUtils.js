@@ -363,7 +363,7 @@
         },
 
         generateSuspendedUrl: function (tabUrl, useBlank) {
-            var args = '#url=' + tabUrl;//encodeURIComponent(tabUrl);
+            var args = '#uri=' + tabUrl;//encodeURIComponent(tabUrl);
             useBlank = useBlank || false;
 
             if (useBlank) {
@@ -382,17 +382,21 @@
                 hash = hash.substring(1,hash.length);
             }
 
-            if (hash.length === 0 || hash.indexOf('url=') !== 0) {
-                return false;
-            }
+            //if it is an old style url encoded hash
+            if (hash.length > 0 && hash.indexOf('url=') === 0) {
+                url = hash.substring(4,hash.length);
+                if (re.exec(url) !== null) {
+                    return decodeURIComponent(url);
+                } else {
+                    return url;
+                }
+                
+            //if it is a new unencoded hash
+            } else if (hash.length > 0 && hash.indexOf('uri=') === 0) {
+                return hash.substring(4,hash.length);                
 
-            url = hash.substring(4,hash.length);
-
-            //check for (old) encoded urls
-            if (re.exec(url) !== null) {
-                return decodeURIComponent(url);
             } else {
-                return url;
+                return false;
             }
         },
 
