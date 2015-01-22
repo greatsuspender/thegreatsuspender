@@ -23,20 +23,11 @@
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
 
-        initSettings: function (fn) {
+        initSettings: function () {
             var self = this,
-                items = localStorage.getItem('gsSettings'),
                 key,
                 defaults = [],
-                settings = {};
-                //migration = false; // unused
-            self.callback = fn;
-
-            for (key in items) {
-                if (items.hasOwnProperty(key)) {
-                    settings[key] = items[key];
-                }
-            }
+                settings = self.getSettings();
 
             //now populate from local store or defaults for any items not already populated (old way)
             defaults[self.SHOW_PREVIEW] = false;
@@ -56,7 +47,6 @@
                     settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
                         ? localStorage.getItem(key)
                         : defaults[key];
-                    //migration = true; // unused
                 }
             }
 
@@ -72,7 +62,6 @@
             //finally, store settings on local storage for synchronous access
             localStorage.setItem('gsSettings', JSON.stringify(settings));
 
-            self.callback();
         },
 
         getOption: function (prop) {
@@ -93,8 +82,6 @@
             var result = localStorage.getItem('gsSettings');
             if (result !== null && result !== 'null') {
                 result = JSON.parse(result);
-            } else {
-                result = {};
             }
             return result;
         },
@@ -390,10 +377,10 @@
                 } else {
                     return url;
                 }
-                
+
             //if it is a new unencoded hash
             } else if (hash.length > 0 && hash.indexOf('uri=') === 0) {
-                return hash.substring(4,hash.length);                
+                return hash.substring(4,hash.length);
 
             } else {
                 return false;

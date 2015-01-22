@@ -8,15 +8,6 @@
 */
 
 
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-52338347-1']);
-_gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
-_gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
-_gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
-_gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
-//_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
-_gaq.push(['_trackPageview']);
-
 var tgs = (function () {
     'use strict';
 
@@ -431,6 +422,8 @@ var tgs = (function () {
 
     function runStartupChecks() {
 
+        gsUtils.initSettings();
+
         var lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version;
 
@@ -714,16 +707,16 @@ var tgs = (function () {
         }
     });
 
-    //careful. this seems to get called on extension reload as well as initial install
-    //chrome.runtime.onInstalled.addListener(function () {
-        if (gsUtils.getSettings() === null) {
-            gsUtils.initSettings(function () {
-                runStartupChecks();
-            });
-        } else {
-            runStartupChecks();
-        }
-    //});
+    runStartupChecks();
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-52338347-1']);
+    _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
+    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
+    _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
+    _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
+    //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
+    _gaq.push(['_trackPageview']);
 
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
