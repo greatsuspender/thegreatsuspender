@@ -48,7 +48,6 @@
     function init() {
 
         var optionEls = document.getElementsByClassName('option'),
-            shortcutsEl = document.getElementById('keyboardShortcuts'),
             pref,
             element,
             command,
@@ -62,15 +61,6 @@
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
         setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
-
-        //populate keyboard shortcuts
-        chrome.commands.getAll(function (commands) {
-            commands.forEach(function (command) {
-                if (command.name !== '_execute_browser_action') {
-                    shortcutsEl.innerHTML += '<span>' + command.description + ': ' + command.shortcut + '</span><br />';
-                }
-            });
-        });
     }
 
     function populateOption(element, value) {
@@ -116,11 +106,10 @@
         }
     }
 
-    function getHandler(element) {
+    function handleChange(element) {
         return function () {
             var pref = elementPrefMap[element.id],
                 interval;
-            gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
 
             //add specific screen element listeners
             if (pref === gsUtils.SHOW_PREVIEW) {
@@ -129,9 +118,23 @@
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
                 setOnlineCheckVisibility(interval > 0);
-                resetTabTimers(interval);
             }
         };
+    }
+
+    function saveChange(element) {
+
+        var pref = elementPrefMap[element.id],
+            interval;
+
+        //save option
+        gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
+
+        //if interval has changed then reset the tab timers
+        if (pref === gsUtils.SUSPEND_TIME) {
+            interval = getOptionValue(element);
+            resetTabTimers(interval);
+        }
     }
 
     readyStateCheckInterval = window.setInterval(function () {
@@ -141,39 +144,28 @@
 
             init();
 
-
             var optionEls = document.getElementsByClassName('option'),
-                configureShortcutsEl = document.getElementById('configureShortcuts'),
+                saveEl = document.getElementById('saveBtn'),
+                cancelEl = document.getElementById('cancelBtn'),
                 element,
                 i;
 
             //add change listeners for all 'option' elements
             for (i = 0; i < optionEls.length; i++) {
                 element = optionEls[i];
-                element.onchange = getHandler(element);
+                element.onchange = handleChange(element);
             }
-            configureShortcutsEl.onclick = function (e) {
-                chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
-            };
-
-            chrome.storage.onChanged.addListener(function (changes, namespace) {
-                var property,
-                    elementId;
-
-                if (namespace !== 'sync') { return; }
-                for (property in changes) {
-                    if (changes.hasOwnProperty(property)) {
-                        elementId = elementIdMap[property];
-                        element = document.getElementById(elementId);
-                        populateOption(element, changes[property].newValue);
-                    }
+            saveEl.onclick = function (e) {
+                for (i = 0; i < optionEls.length; i++) {
+                    saveChange(optionEls[i]);
                 }
-            });
+                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
+            };
+            cancelEl.onclick = function (e) {
+                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
+            };
         }
     }, 50);
-
-
-    //TODO: add a pref save button
 
     function resetTabTimers(timeout) {
 
