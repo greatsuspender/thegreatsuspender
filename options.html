@@ -1,5 +1,6 @@
 <html>
 <head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>	
 	<link type="text/css" href="style.css" rel="stylesheet">
 	<script type="text/javascript" src="gsUtils.js"></script>
 	<script type="text/javascript" src="options.js"></script>
@@ -11,71 +12,87 @@
 
 <div class="mainContent">
 
-	<h1>
-		<a class='pageLink active' href='options.html'>Settings</a>
-		<span>&nbsp;|&nbsp;</span>
-		<a class='pageLink' href='history.html'>Session History</a>
-		<span>&nbsp;|&nbsp;</span>
-		<a class='pageLink' href='shortcuts.html'>Keyboard Shortcuts</a>
-	</h1>
+	<h1 class="pageHeader"><span class="iconCog"></span>Edit your settings</h1>
 
-	<input type="checkbox" id="preview" class='option'></input>
-	<label for="preview">Enable screen capturing</label>
-	<span id="previewQualitySection">
-		<input type="checkbox" id="previewQuality" class='option'></input>
-		<label for="previewQuality">Use high quality screen captures</label>
-	</span>
-	<span id="previewQualityNote" class="gsNote">Enabling screen capturing will add slightly more memory usage to chrome. And enabling high quality screen captures will increase the memory usage even further.<br />
-	Also, the screen capturing feature is quite experimental. If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, I suggest you try turning this feature off.</span>
-	<br />
-	<br />
-	<label id="timeToSuspendLbl" for="timeToSuspend">Length of inactivity before tab suspends automatically:</label>
-	<br />
-	<select id="timeToSuspend" class='option'>
-		<option value="0">Never</option>
-		<option value="0.33">20 seconds</option>
-		<option value="1">1 min</option>
-		<option value="5">5 mins</option>
-		<option value="10">10 mins</option>
-		<option value="15">15 mins</option>
-		<option value="30">30 mins</option>
-		<option value="60">1 hour</option>
-		<option value="120">2 hours</option>
-		<option value="360">6 hours</option>
-		<option value="720">12 hours</option>
-		<option value="1440">1 day</option>
-		<option value="2880">2 days</option>
-		<option value="4320">3 days</option>
-	</select>
-	<span id="onlineCheckSection">
-		<input type="checkbox" id="onlineCheck" class='option'></input>
-		<label for="onlineCheck">Only auto-suspend if connected to the internet</label>
-	</span>
-	<br />
-	<br />
-	<input type="checkbox" id="unsuspendOnFocus" class='option'></input>
-	<label for="unsuspendOnFocus">Automatically unsuspend when tab gains focus</label>
-	<br />
-	<input type="checkbox" id="dontSuspendPinned" class='option'></input>
-	<label for="dontSuspendPinned">Do not suspend pinned tabs</label>
-	<br />
-	<input type="checkbox" id="dontSuspendForms" class='option'></input>
-	<label for="dontSuspendForms">Do not suspend tabs that contain unsaved form inputs</label>
-	<br />
-	<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
-	<label for="ignoreCache">Skip browser cache when reloading tab</label>
-	<br /> -->
-	<br />
-	<br />
-	<label for="whitelist">Whitelist (keywords of pages to ignore)</label>
-	<br />
-	<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
+	<div class="contentNav">
+		<ul>
+			<li><a class='active' href='options.html'>General settings</a></li>
+			<li><a href='history.html'>Session history</a></li>
+			<li><a href='shortcuts.html'>Keyboard shortcuts</a></li>
+		</ul>
+	</div>
 
-	<br />
-	<br />
-	<button id="saveBtn">Save</button><button id="cancelBtn">Cancel</button>
+	<div class="content">
+		<h2>Screen capture settings</h2>
+		<div class="formRow">
+			<input type="checkbox" id="preview" class='option'></input>
+			<label for="preview" class="cbLabel">
+				Enable screen capturing<br />
+				<span class="lesserText">Screen capturing will use more memory</span>
+			</label>
+		</div>
+		
+		<div id="previewQualitySection" class="formRow">
+			<input type="checkbox" id="previewQuality" class='option'></input>
+			<label for="previewQuality" class="cbLabel">
+				Use high quality screen captures<br />
+				<span class="lesserText">High quality captures will use even more memory</span>
+			</label>
+		</div>
+		<div id="previewQualityNote" class="gsNote">Enabling screen capturing will add slightly more memory usage to chrome. And enabling high quality screen captures will increase the memory usage even further.<br />
+		Also, the screen capturing feature is quite experimental. If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, I suggest you try turning this feature off.</div>
+	
+		<h2>Suspend tab settings</h2>
+		<div class="formRow">
+			<label id="timeToSuspendLbl" for="timeToSuspend">Automatically suspend tabs after:</label>
+			<br />
+			<select id="timeToSuspend" class='option' style="margin-top: 8px;">
+				<option value="0">Never</option>
+				<option value="0.33">20 seconds</option>
+				<option value="1">1 min</option>
+				<option value="5">5 mins</option>
+				<option value="10">10 mins</option>
+				<option value="15">15 mins</option>
+				<option value="30">30 mins</option>
+				<option value="60">1 hour</option>
+				<option value="120">2 hours</option>
+				<option value="360">6 hours</option>
+				<option value="720">12 hours</option>
+				<option value="1440">1 day</option>
+				<option value="2880">2 days</option>
+				<option value="4320">3 days</option>
+			</select>
+		</div>
+		<div id="onlineCheckSection" class="formRow">
+			<input type="checkbox" id="onlineCheck" class='option'></input>
+			<label for="onlineCheck" class="cbLabel">Only auto-suspend if connected to the internet</label>
+		</div>
+		<div class="formRow">
+			<input type="checkbox" id="unsuspendOnFocus" class='option'></input>
+			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend when tab gains focus</label>
+		</div>
+		<div class="formRow">
+			<input type="checkbox" id="dontSuspendPinned" class='option'></input>
+			<label for="dontSuspendPinned" class="cbLabel">Do not suspend pinned tabs</label>
+		</div>
+		<div class="formRow">
+			<input type="checkbox" id="dontSuspendForms" class='option'></input>
+			<label for="dontSuspendForms" class="cbLabel">Do not suspend tabs that contain unsaved form inputs</label>
+		</div>
+		<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
+		<label for="ignoreCache">Skip browser cache when reloading tab</label>
+		<br /> -->
+		<h2>Whitelist <span class="lesserText">(keywords of pages to ignore)</span></h2>
+		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
 
-	<script src="footer.js"></script>
+		<hr />
+
+		<a href="javascript:void(0)" id="cancelBtn" class="fl btn btnNeg">Cancel</a>
+		<a href="javascript:void(0)" id="saveBtn" class="fr btn">Save settings</a>
+
+	</div>
+
+	<!--<script src="footer.js"></script>-->
 
 </div>
 

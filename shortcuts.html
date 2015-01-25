@@ -1,5 +1,6 @@
 <html>
 <head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>
 	<link type="text/css" href="style.css" rel="stylesheet">
 	<script type="text/javascript" src="shortcuts.js"></script>
 	<title>The Great Suspender</title>
@@ -10,22 +11,28 @@
 
 <div class="mainContent">
 
-	<h1>
-		<a class='pageLink' href='options.html'>Settings</a>
-		<span>&nbsp;|&nbsp;</span>
-		<a class='pageLink' href='history.html'>Session History</a>
-		<span>&nbsp;|&nbsp;</span>
-		<a class='pageLink active' href='shortcuts.html'>Keyboard Shortcuts</a>
-	</h1>
+	<h1 class="pageHeader"><span class="iconCog"></span>Edit your settings</h1>
 
-	<div id="keyboardShortcuts"></div>
-	<a href="#" id="configureShortcuts">remap keys</a>
+    <div class="contentNav">
+        <ul>
+            <li><a href='options.html' href='options.html'>General settings</a></li>
+            <li><a href="history.html">Session history</a></li>
+            <li><a class="active">Keyboard shortcuts</a></li>
+        </ul>
+    </div>
 
-	<br />
-	<br />
-	<br />
+	<div class="content">
 
-	<script src="footer.js"></script>
+		<h2>Keyboard shortcuts</h2>
+
+		<div id="keyboardShortcuts"></div>
+		<br />
+		<a href="#" id="configureShortcuts" class="btn">Remap keys</a>
+
+		<br />
+	</div>
+
+<!--	<script src="footer.js"></script> -->
 
 </div>
 

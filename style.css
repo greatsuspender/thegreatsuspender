@@ -1,7 +1,8 @@
 /* RESET */
 
 html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+
+, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
@@ -32,40 +33,92 @@ ol, ul {
 
 /* END RESET */
 
-h1 {
-	font-size: 24px;
-	margin-bottom: 20px;
-}
-h2 {
-	font-size: 20px;
-	padding-top: 15px;
-	padding-bottom: 15px;
-}
-h3 {
-    font-weight: bold;
-    padding-top: 15px;
-    padding-bottom: 5px;
-    color: #444;
-}
-h4 {
-    font-weight: bold;
-}
-select {
-	min-width: 50px;
-}
-input, select, button {
-	margin-bottom: 8px;
-}
+
 body {
-	font-family: verdana, arial, sans-serif;
-	font-size: 14px;
-	background: #f5f5f5;
-    background: url(img/noisebg.png) repeat top left #4ea6ca;
+	font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+	font-size: 15px;
+    background: #cfe0e4;
+    padding: 0;
+    margin: 0;
 }
 p {
 	margin: 0 0 15px;
 }
+a {
+    color: #62adcc;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+a.active{
+    color: #444;
+    cursor: default;
+    font-weight: 600;
+    text-decoration: none;
+}
+hr {
+    border-width: 0;
+    border-top: 1px solid #e7e7e7;
+    height: 1px; 
+    margin: 23px 0;
+}
 
+.fl {
+    float: left;
+}
+.fr {
+    float: right;
+}
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.pageHeader {
+    background: #134960;
+    color: #fff;
+    font-weight: normal;
+    height: 76px;
+    line-height: 76px;
+    margin: 0;
+    padding: 0 0 0 50px;
+    font-weight: 300;
+}
+.iconCog {
+    background-image: url('iconCog.png');
+    background-position: center left;
+    background-repeat: no-repeat;
+    padding-right: 44px;
+    width: 24px;
+    height: 24px;
+}
+
+select {
+    min-width: 50px;
+}
+.formRow select {
+    background: #FFF;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    padding: 10px 30px 10px 10px;
+    font-size: 14px;
+    border-color: #ccc;
+    /* TODO: make this better / more scalable */
+    background-image: url(ddArrow.png);
+    background-repeat: no-repeat;
+    background-position: 90% 16px;
+}
+input, select, button {
+    margin-bottom: 8px;
+}
+textarea {
+    width: 100%;
+    border-color: #C3C3C3;
+}
+.formRow {
+    margin: 15px 0;
+}
 ul.unorderedList, ol.orderedList {
     padding-left: 20px;
     margin: 7px 0 10px 0;
@@ -96,29 +149,95 @@ button:active {
     border-bottom-color: #888;
 }
 
+.splash {
+    text-align: center;
+    font-size: 16px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+.splash h1 {
+    font-size: 60px;
+    margin-top: 100px;
+}
+.splash h2 {
+    font-weight: 400;
+    font-size: 22px;
+}
+.splash a {
+    color: #134960;
+    text-decoration: underline;
+    font-weight: 400;
+}
+.splash input[type='submit'] {
+  -webkit-appearance: none;
+  border:none;
+  font-size:1em;
+}
+
+.btn {
+    background: #52a6c8;
+    color: #fff;
+    border-radius: 3px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    display: inline-block;
+    border: 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+.btn.btnNeg {
+    background: #ddd;
+    color: #333;
+}
+.lesserText {
+    color: #929292;
+    font-size: 0.8em;
+    font-weight: 300;
+}
 .hidden {
 	visibility: hidden;
 }
 .mainContent {
-    width: 700px;
-    margin: 40px auto 10px;
-    font-size: 14px;
-    font-family: verdana, sans-serif;
-    color: #444;
-    background: #F9F9F9;
-    padding: 20px 20px 30px;
-    box-shadow: 0 2px 10px -4px #000;
+    width: 800px;
+    margin: 40px auto;
+    color: #010101;
+    background: #fff;
+    overflow: hidden;
+
 }
-.pageLink {
-    color: #444;
-    text-decoration: none;
+.contentNav, .content {
+    box-sizing: border-box;
+    float: left;
+    padding: 20px 50px 40px;
 }
-.pageLink.active {
-    font-weight: bold;
+.contentNav {
+    width: 210px;
+    padding: 35px 10px 50px 50px;
+    margin: 15px 0 0;
 }
-.pageLink:hover {
-    text-decoration: underline;
+.contentNav li {
+    height: 35px;
+    line-height: 100%;
 }
+.content {
+    border-left: 1px solid #E7E7E7;
+    width: 590px;
+    min-height: 250px;
+}
+.content h2 {
+    padding: 0 0 15px 0;
+    margin: 30px 0 15px 0;
+    border-bottom: 1px solid #e7e7e7;
+    font-size: 16px;
+    font-weight: 400;
+}
+.splash {
+    text-align: center;
+}
+
 #heading {
 	white-space: nowrap;
 	text-align: center;
@@ -238,9 +357,7 @@ a.historyLink:hover {
 img {
     padding-right: 10px;
 }
-p {
-    max-width: 900px;
-}
+
 ul, li {
     list-style-type: none;
     margin: 0px;
@@ -250,26 +367,24 @@ table, tr, td {
 	padding: 0px 20px 0px 5px;
 	white-space: nowrap;
 }
-.paypal_btn {
-    width: 181px;
-    height: 39px;
-    margin: -35px 0 0 0;
-    float: right;
-    cursor: pointer;
-    border-radius: 4px;
-    background: #36BEF3;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25));
-    border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: #FFF;
-    font-size: 16px;
-    border: 1px solid #5B869B;
-    text-shadow: 0 -1px 0 #2A5C74;
-    border-bottom-color: #254858;
+
+
+
+/* chstom checkboxes */
+.cbLabel {
+    line-height: 20px;
+    display: inline-block;
+    padding-left: 13px;
+    vertical-align: top;
 }
-.paypal_btn:hover {
-    background: #2A8CB3;
+input[type=checkbox] {
+    height: 20px; 
+    line-height: 20px; 
+    display: inline-block;
+    margin: 0;
+    padding: 0;
 }
-#configureShortcuts {
-    font-size: 11px;
-}
+input[type=checkbox]:before { content:""; display:inline-block; width:20px; height:20px;}
+input[type=checkbox]:before { background: url(checkOff.png) #fff;}
+input[type=checkbox]:checked:before { background: url(checkOn.png) #fff; }
+
