@@ -227,6 +227,9 @@ button:active {
     width: 590px;
     min-height: 250px;
 }
+.contentFull {
+    width: 800px;
+}
 .content h2 {
     padding: 0 0 15px 0;
     margin: 30px 0 15px 0;
