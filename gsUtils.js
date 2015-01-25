@@ -26,8 +26,8 @@
         initSettings: function () {
             var self = this,
                 key,
-                defaults = [],
-                settings = self.getSettings();
+                defaults = {},
+                settings = self.getSettings() || {};
 
             //now populate from local store or defaults for any items not already populated (old way)
             defaults[self.SHOW_PREVIEW] = false;
