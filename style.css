@@ -350,8 +350,8 @@ a.historyLink:hover {
 }
 .recoveryLink .itemHover {
     visibility: hidden;
-    margin: 0px;
-    padding: 0px 0px 3px;
+    margin: 0;
+    padding: 0 0 3px;
     cursor: pointer;
 }
 .recoveryLink:hover .itemHover {
@@ -363,11 +363,11 @@ img {
 
 ul, li {
     list-style-type: none;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 table, tr, td {
-	padding: 0px 20px 0px 5px;
+	padding: 0 20px 0 5px;
 	white-space: nowrap;
 }
 
@@ -377,7 +377,7 @@ table, tr, td {
 .cbLabel {
     line-height: 20px;
     display: inline-block;
-    padding-left: 13px;
+    margin-left: 15px;
     vertical-align: top;
 }
 input[type=checkbox] {

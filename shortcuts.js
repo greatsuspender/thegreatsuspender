@@ -16,7 +16,8 @@
             chrome.commands.getAll(function (commands) {
                 commands.forEach(function (command) {
                     if (command.name !== '_execute_browser_action') {
-                        shortcutsEl.innerHTML += '<span>' + command.description + ': ' + command.shortcut + '</span><br />';
+                        var shortcut = command.shortcut !== '' ? command.shortcut : '(not set)';
+                        shortcutsEl.innerHTML += '<span>' + command.description + ': ' + shortcut + '</span><br />';
                     }
                 });
             });
