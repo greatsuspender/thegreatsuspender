@@ -37,7 +37,7 @@
             defaults[self.IGNORE_PINNED] = false;
             defaults[self.IGNORE_FORMS] = false;
             defaults[self.IGNORE_CACHE] = false;
-            defaults[self.SUSPEND_TIME] = 0;
+            defaults[self.SUSPEND_TIME] = 60;
             defaults[self.NO_NAG] = false;
             defaults[self.MAX_HISTORIES] = 4;
             defaults[self.WHITELIST] = '';
