@@ -15,7 +15,8 @@ var tgs = (function () {
         useClean = false,
         sessionId = gsUtils.generateSessionId(),
         lastSelectedTabs = [],
-        currentTabId;
+        currentTabId,
+        sessionSaveTimer;
 
     function checkWhiteList(url) {
         var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
@@ -237,6 +238,16 @@ var tgs = (function () {
                 }
             });
         }, 5000);
+    }
+
+    function queueSessionTimer() {
+        clearTimeout(sessionSaveTimer);
+        sessionSaveTimer = setTimeout(function() {
+            if (debug) {
+                console.log('savingWindowHistory');
+            }
+            saveWindowHistory();
+        }, 3000);
     }
 
     function saveWindowHistory() {
@@ -586,32 +597,6 @@ var tgs = (function () {
         }
     });
 
-    //listen for tab create
-
-    chrome.tabs.onCreated.addListener(function (tab) {
-        if (debug) {
-            console.log('tab created: ' + tab.url);
-        }
-        //check for a suspended tab from a different installation of TGS
-        //if found, convert to this installation of the extension
-        //UPDATE: not sure if this is a good idea. especially if there are two instances of the extension running on the same pc!
-        /*if (tab.url.indexOf('suspended.html') > 0
-                && gsUtils.getRootUrl(tab.url) !== gsUtils.getRootUrl(chrome.extension.getURL(''))) {
-            var urlTail = tab.url.substring(tab.url.indexOf('suspended.html'));
-            chrome.tabs.update(tab.id, {url: chrome.extension.getURL(urlTail)});
-        }*/
-    });
-
-
-    //listen for tab remove
-    /*
-    chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-        if (debug) {
-            console.log('tab removed: ' + tabId);
-        }
-    });
-    */
-
     // listen for tab switching
     // for unsuspending on tab focus
     chrome.tabs.onActivated.addListener(function (activeInfo) {
@@ -662,7 +647,35 @@ var tgs = (function () {
     });
     */
 
-    var period = debug ? 0.1 : 1;
+    //add listeners for session monitoring
+    chrome.tabs.onCreated.addListener(function() {
+        queueSessionTimer();
+        //check for a suspended tab from a different installation of TGS
+        //if found, convert to this installation of the extension
+        //UPDATE: not sure if this is a good idea. especially if there are two instances of the extension running on the same pc!
+        /*if (tab.url.indexOf('suspended.html') > 0
+                && gsUtils.getRootUrl(tab.url) !== gsUtils.getRootUrl(chrome.extension.getURL(''))) {
+            var urlTail = tab.url.substring(tab.url.indexOf('suspended.html'));
+            chrome.tabs.update(tab.id, {url: chrome.extension.getURL(urlTail)});
+        }*/
+    });
+    chrome.tabs.onRemoved.addListener(function() {
+        queueSessionTimer();
+    });
+    chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+        //only save session if the tab url has changed
+        if (changeInfo && changeInfo.url) {
+            queueSessionTimer();
+        }
+    });
+    chrome.windows.onCreated.addListener(function() {
+        queueSessionTimer();
+    });
+    chrome.windows.onRemoved.addListener(function() {
+        queueSessionTimer();
+    });
+
+/*    var period = debug ? 0.1 : 1;
     chrome.alarms.clearAll();
     chrome.alarms.create('saveWindowHistory', {periodInMinutes: period});
     if (debug) {
@@ -682,17 +695,7 @@ var tgs = (function () {
             saveWindowHistory();
         }
     });
-
-    //this doesn't seem to get called the way i expected it to
-    /*chrome.runtime.onSuspend.addListener(function () {
-
-        chrome.windows.getAll({populate: true}, function (windows) {
-             windows.forEach(function (curWindow) {
-                unsuspendAllTabs(curWindow);
-            });
-        });
-    });*/
-
+*/
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
@@ -709,6 +712,13 @@ var tgs = (function () {
 
     runStartupChecks();
 
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(ga, s);
+
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-52338347-1']);
     _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
@@ -717,13 +727,6 @@ var tgs = (function () {
     _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
     //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
     _gaq.push(['_trackPageview']);
-
-    var ga = document.createElement('script');
-    ga.type = 'text/javascript';
-    ga.async = true;
-    ga.src = 'https://ssl.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ga, s);
 
     return {
         requestTabInfo: requestTabInfo,

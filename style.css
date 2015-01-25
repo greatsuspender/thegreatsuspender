@@ -61,7 +61,7 @@ a.active{
 hr {
     border-width: 0;
     border-top: 1px solid #e7e7e7;
-    height: 1px; 
+    height: 1px;
     margin: 23px 0;
 }
 
@@ -334,7 +334,7 @@ a.historyLink:hover {
     font-size: 13px;
     font-weight: bold;
     color: #777;
-    padding-top: 7px;
+    padding-top: 18px;
     padding-bottom: 4px;
 }
 .sessionDiv div:last-child{
@@ -378,8 +378,8 @@ table, tr, td {
     vertical-align: top;
 }
 input[type=checkbox] {
-    height: 20px; 
-    line-height: 20px; 
+    height: 20px;
+    line-height: 20px;
     display: inline-block;
     margin: 0;
     padding: 0;

@@ -213,7 +213,7 @@
             groupUnsuspendCurrent,
             groupUnsuspendNew;
 
-        groupHeading = document.createElement('p');
+        groupHeading = document.createElement('div');
         groupHeading.className = 'windowHeading';
         groupHeading.setAttribute('data-windowId', window.id);
         groupHeading.setAttribute('data-sessionId', window.sessionId);
