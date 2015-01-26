@@ -106,7 +106,6 @@
         };
 
         //handler for donate options
-        document.getElementById('noDonate').onclick = hideNagForever;
         document.getElementById('donateBubble').onclick = hideNagForever;
 
         //mark tab as suspended

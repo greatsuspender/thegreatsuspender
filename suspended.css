@@ -30,6 +30,7 @@ body {
     white-space: nowrap;
     font-size: 19px;
     line-height: 26px;
+    font-weight: 600;
 }
 #gsTopBarTitle a {
     text-decoration: none;
@@ -50,6 +51,7 @@ body {
 #gsWhitelistLink {
     text-decoration: underline;
     cursor: pointer;
+    color: #555;
 }
 #gsWhitelistLink:hover {
     color: #000;
@@ -139,13 +141,13 @@ body {
 #donateBubble {
     position: relative;
     width: 325px;
-    height: 92px;
+    height: 62px;
     padding: 5px 0;
     background: #E7F3F8;
     border: #87BACE solid 1px;
     border-radius: 4px;
     color: #555;
-    bottom: 50px;
+    bottom: 80px;
     left: 133px;
     position: absolute;
     text-align: center;
