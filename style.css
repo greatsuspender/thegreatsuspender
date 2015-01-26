@@ -86,13 +86,10 @@ h1 {
     padding: 0 0 0 50px;
     font-weight: 300;
 }
-.iconCog {
-    background-image: url('img/iconCog.png');
-    background-position: center left;
-    background-repeat: no-repeat;
-    padding-right: 44px;
-    width: 24px;
-    height: 24px;
+img.headerIcon {
+    margin: 12px 5px 0 0;
+    float: left;
+    height: 50px;
 }
 
 select {

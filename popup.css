@@ -33,8 +33,7 @@ body {
 	font-family: Helvetica, Arial, sans-serif;
 	font-weight: 200;
 	color: #444;
-	font-size: 12px;
-	padding: 0px;
+	padding: 0;
 	margin: 0;
 	min-width: 300px;
 	position: relative;
@@ -98,7 +97,6 @@ body {
 }
 #bottom {
 	background: #FFF;
-	padding-top: 1px;
 	padding: 5px 0 0 5px;
 }
 .bottomOption {
@@ -114,7 +112,7 @@ body {
 	padding: 0 10px;
 	color: #FFF;
 	font-size: 13px;
-	margin: 0 0 0 0px;
+	margin: 0;
 	background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25));
 	border-radius: 4px;
 	border: 1px solid rgba(0, 0, 0, 0.1);
@@ -187,13 +185,3 @@ body {
 #footer span {
 	vertical-align: top;
 }
-
-/* remove input highlight borders */
-/*input:focus,
-select:focus,
-textarea:focus,
-button:focus {
-    outline: none;
-}*/
-
-/* END BUTTONS / CONTROLS */
