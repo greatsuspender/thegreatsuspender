@@ -4,8 +4,8 @@ img {
     margin: 0;
 }
 body {
-    background: #DBDBDB;
-    margin: 0px;
+    background: #cfe0e4;
+    margin: 0;
     display: table;
     position: absolute;
     height: 100%;
@@ -14,16 +14,14 @@ body {
 }
 #gsTopBar  {
    	position: fixed;
-    background: #E7F3F8;
+    background: #134960;
     top: 0;
     padding: 15px 15px 10px;
     line-height: 30px;
     width: 100%;
     max-width: 100%;
     text-align: center;
-    border-bottom: 1px solid #ACBDC2;
-    color: #555;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+    color: #fff;
 }
 #gsTopBarTitle {
     text-overflow: ellipsis;
@@ -33,7 +31,7 @@ body {
 }
 #gsTopBarTitle a {
     text-decoration: none;
-    color: inherit;
+    color: #fff;
 }
 #gsTopBarTitle a:hover {
     text-decoration: underline;
@@ -50,9 +48,10 @@ body {
 #gsWhitelistLink {
     text-decoration: underline;
     cursor: pointer;
+    color: #fff;
 }
 #gsWhitelistLink:hover {
-    color: #000;
+    color: #eee;
 }
 #gsPreview {
     width: 100%;
@@ -74,22 +73,20 @@ body {
     margin-top: 40px;
 }
 #suspendedMsg {
-    background: #fff;
     width: 100%;
     height: 100%;
-    background: -webkit-gradient(radial, 50% 50%, 650, 50% 50%, 0, from(#DBDBDB), to(#FFF));
 }
 #suspendedMsg, #gsPreview {
     cursor: pointer;
 }
 #suspendedMsg h1, #suspendedMsg h2 {
     font-size: 60px;
-    color: #ddd;
-    font-weight: bold;
-    text-shadow: 0 -1px 0 #bbb;
+    color: #134960;
+    margin: 30px 0 0;
+    font-weight: 600;
 }
 #suspendedMsg h2 {
-    font-size: 70px;
+    font-size: 50px;
 }
 @media all and (max-width: 600px) {
     #suspendedMsg h1 {
