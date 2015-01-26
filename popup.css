@@ -67,13 +67,14 @@ body {
 
 #popTopSettings {
 	position: absolute;
-	right: 7px;
-	top: 7px;
-	z-index: 10;
-	text-shadow: 0 -1px 0 #4881B9;
-	font-size: 13px;
-	color: #FFF;
-	cursor: pointer;
+    right: 11px;
+    top: 11px;
+    z-index: 10;
+    text-shadow: 0 -1px 0 #4881B9;
+    font-size: 13px;
+    color: #FFF;
+    cursor: pointer;
+    font-weight: 400;
 }
 #popTopSettings > * {
 	vertical-align: middle;
