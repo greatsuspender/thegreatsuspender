@@ -305,52 +305,36 @@ var tgs = (function () {
     function checkForCrashRecovery() {
 
         //try to detect whether it is an extension restart (due to extension crash/update) or a browser restart (due to chrome crash)
-        //case a: chrome restart with tabs automatically restored - no need to restore tabs as they get restored automatically
-        //case b: chrome restart with tabs not restored - no need to restore tabs as they get restored if user clicks the 'restore' button
+        //case a: chrome restart with tabs automatically restored
+        //case b: chrome restart with tabs not restored (chrome provides a 'restore' button)
         //case c: extension restart only - want to automatically restore suspended tabs as they will have all disappeared
 
         var lastSession = gsUtils.fetchLastSession(),
             actualTabs = [],
-            expectedTabs = [],
-            suspendedCount = 0;
+            attemptRecovery = false;
 
         if (!lastSession) return;
 
         chrome.windows.getAll({ populate: true }, function (windows) {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
-                    actualTabs.push(curTab.id);
+                    actualTabs.push(curTab.url);
                 });
             });
 
+            //for each tab in the session history, check to see if it exists in the current windows
             lastSession.windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
-                    //if there was an extension crash, then we would only expect to see unsuspended tabs after the crash
-                    if (curTab.url.indexOf('chrome-extension:') < 0
-                            && curTab.url.indexOf('chrome-devtools:') < 0
-                            && curTab.url.indexOf('chrome://extensions') < 0) {
-                        expectedTabs.push(curTab.id);
-                    } else {
-                        suspendedCount++;
+
+                    if (curTab.url.indexOf('chrome-devtools:') < 0 
+                            && curTab.url.indexOf('chrome://extensions') < 0
+                            && !actualTabs.some(function(curActualUrl) {return curTab.url === curActualUrl;})) {
+                        attemptRecovery = true;
                     }
                 });
             });
 
-            //test to see if we should attempt a recovery of suspended tabs
-            //if the actualTabs and expectedTabs closely resemble each other then attempt a recovery
-            var expectedCount = 0,
-                unexpectedCount = 0;
-            expectedTabs.forEach(function(curExpectedId) {
-                if (actualTabs.some(function(curActualId) {return curExpectedId === curActualId;})) {
-                    expectedCount++;
-                } else {
-                    unexpectedCount++;
-                }
-            });
-            //if there is a significant number of unexpecteds, then don't attempt crash recovery
-            if (unexpectedCount > 2 || suspendedCount === 0) {
-                return;
-            } else {
+            if (attemptRecovery) {
                 chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
             }
         });

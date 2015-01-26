@@ -14,7 +14,7 @@
 
             restoreEl.onclick = function (e) {
                 gsUtils.recoverLostTabs();
-                //chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
+                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
             };
             cancelEl.onclick = function (e) {
                 chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
