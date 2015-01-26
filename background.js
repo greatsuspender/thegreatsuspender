@@ -309,109 +309,49 @@ var tgs = (function () {
         //case b: chrome restart with tabs not restored - no need to restore tabs as they get restored if user clicks the 'restore' button
         //case c: extension restart only - want to automatically restore suspended tabs as they will have all disappeared
 
-        var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-            lastSession,
-            tabMap = {},
+        var lastSession = gsUtils.fetchLastSession(),
             actualTabs = [],
             expectedTabs = [],
-            windowsMap = {},
-            expectedCount = 0,
-            unexpectedCount = 0;
+            suspendedCount = 0;
 
-        if (gsSessionHistory.length > 0) {
-            lastSession = gsSessionHistory[0];
+        if (!lastSession) return;
 
-            chrome.windows.getAll({ populate: true }, function (windows) {
-                windows.forEach(function (curWindow) {
-                    curWindow.tabs.forEach(function (curTab) {
-                        tabMap[curTab.id] = curTab;
-                        actualTabs.push(curTab.id);
-                    });
-                    windowsMap[curWindow.id] = tabMap;
+        chrome.windows.getAll({ populate: true }, function (windows) {
+            windows.forEach(function (curWindow) {
+                curWindow.tabs.forEach(function (curTab) {
+                    actualTabs.push(curTab.id);
                 });
+            });
 
-                lastSession.windows.forEach(function (curWindow) {
-                    curWindow.tabs.forEach(function (curTab) {
-                        //if there was an extension crash, then we would only expect to see unsuspended tabs after the crash
-                        if (curTab.url.indexOf('chrome-extension:') < 0) {
-                            expectedTabs.push(curTab.id);
-                        }
-                    });
-                });
-
-                //test to see if we should attempt a recovery of suspended tabs
-                //if the actualTabs and expectedTabs closely resemble each other then attempt a recovery
-                var expectedCount = 0,
-                    unexpectedCount = 0;
-                expectedTabs.forEach(function(curExpectedId) {
-                    if (actualTabs.some(function(curActualId) {return curExpectedId === curActualId;})) {
-                        expectedCount++;
+            lastSession.windows.forEach(function (curWindow) {
+                curWindow.tabs.forEach(function (curTab) {
+                    //if there was an extension crash, then we would only expect to see unsuspended tabs after the crash
+                    if (curTab.url.indexOf('chrome-extension:') < 0
+                            && curTab.url.indexOf('chrome-devtools:') < 0
+                            && curTab.url.indexOf('chrome://extensions') < 0) {
+                        expectedTabs.push(curTab.id);
                     } else {
-                        unexpectedCount++;
+                        suspendedCount++;
                     }
                 });
-                //if there is a significant number of unexpecteds, then don't attempt crash recovery
-                if (unexpectedCount > 2) {
-                    return;
+            });
+
+            //test to see if we should attempt a recovery of suspended tabs
+            //if the actualTabs and expectedTabs closely resemble each other then attempt a recovery
+            var expectedCount = 0,
+                unexpectedCount = 0;
+            expectedTabs.forEach(function(curExpectedId) {
+                if (actualTabs.some(function(curActualId) {return curExpectedId === curActualId;})) {
+                    expectedCount++;
                 } else {
-                    recoverLostTabs(lastSession, windowsMap);
+                    unexpectedCount++;
                 }
             });
-        }
-    }
-
-    function recoverLostTabs(session, windowsMap) {
-
-        var tabIdMap = {},
-            tabUrlMap = {},
-            curTab;
-
-        //attempt to automatically restore any lost tabs/windows in their proper positions
-        session.windows.forEach(function (curWindow) {
-
-            //if crashed window exists in current session then restore suspended tabs in that window
-            if (windowsMap[curWindow.id]) {
-                tabIdMap = windowsMap[curWindow.id];
-
-                //get a list of unsuspended urls already in the window
-                for (var key in tabIdMap) {
-                    if (tabIdMap.hasOwnProperty(key)) {
-                        curTab = tabIdMap[key];
-                        tabUrlMap[curTab.url] = true;
-                    }
-                }
-
-                curWindow.tabs.forEach(function (curTab) {
-                    //if current tab was suspended and does not exist then recreate it
-                    if (!tabUrlMap[curTab.url] && !tabIdMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
-                        chrome.tabs.create({
-                            windowId: curWindow.id,
-                            url: curTab.url,
-                            index: curTab.index,
-                            pinned: curTab.pinned,
-                            active: false
-                        });
-                    }
-                });
-
-            //else restore entire window
+            //if there is a significant number of unexpecteds, then don't attempt crash recovery
+            if (unexpectedCount > 2 || suspendedCount === 0) {
+                return;
             } else {
-
-                chrome.windows.create(function(newWindow) {
-
-                    curWindow.tabs.forEach(function (curTab) {
-                        if (curTab.url.indexOf('suspended.html') > 0) {
-                            chrome.tabs.create({
-                                windowId: newWindow.id,
-                                url: curTab.url,
-                                index: curTab.index,
-                                pinned: curTab.pinned,
-                                active: false
-                            });
-                        }
-                    });
-                });
-
+                chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
             }
         });
     }
@@ -710,8 +650,6 @@ var tgs = (function () {
         }
     });
 
-    runStartupChecks();
-
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
     ga.async = true;
@@ -733,7 +671,11 @@ var tgs = (function () {
         updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,
         reinject: reinjectContentScripts,
-        saveSuspendData: saveSuspendData
+        saveSuspendData: saveSuspendData,
+        sessionId: sessionId,
+        runStartupChecks: runStartupChecks
     };
 
 }());
+
+tgs.runStartupChecks();

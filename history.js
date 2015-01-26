@@ -32,29 +32,27 @@
 
     function reloadTabs(element, suspendMode) {
         return function () {
-            chrome.runtime.getBackgroundPage(function (backgroundPage) {
-                var tgs = backgroundPage.tgs,
-                    windowId = element.getAttribute('data-windowId'),
-                    sessionId = element.getAttribute('data-sessionId'),
-                    session = gsUtils.getSessionById(sessionId),
-                    window = gsUtils.getWindowFromSession(windowId, session),
-                    curUrl;
+            var tgs = chrome.extension.getBackgroundPage().tgs,
+                windowId = element.getAttribute('data-windowId'),
+                sessionId = element.getAttribute('data-sessionId'),
+                session = gsUtils.getSessionById(sessionId),
+                window = gsUtils.getWindowFromSession(windowId, session),
+                curUrl;
 
-                chrome.windows.create(function (newWindow) {
-                    window.tabs.forEach(function (curTab) {
-                        curUrl = curTab.url;
+            chrome.windows.create(function (newWindow) {
+                window.tabs.forEach(function (curTab) {
+                    curUrl = curTab.url;
 
-                        if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
-                            curUrl = gsUtils.generateSuspendedUrl(curUrl);
-                        } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
-                            curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
-                        }
-                        chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
-                    });
+                    if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
+                        curUrl = gsUtils.generateSuspendedUrl(curUrl);
+                    } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
+                        curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
+                    }
+                    chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
+                });
 
-                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
-                        chrome.tabs.remove(tabs[0].id);
-                    });
+                chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
+                    chrome.tabs.remove(tabs[0].id);
                 });
             });
         };

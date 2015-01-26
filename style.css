@@ -151,14 +151,12 @@ button:active {
 }
 
 .splash {
-    text-align: center;
     font-size: 16px;
-    max-width: 980px;
-    margin: 0 auto;
-    padding-bottom: 70px;
+    margin-left: 280px;
 }
 .splash h1 {
     font-size: 60px;
+    line-height: 66px;
 }
 .splash h2 {
     font-weight: 400;
@@ -174,11 +172,12 @@ button:active {
   border:none;
   font-size:1em;
 }
-
+.splash p {
+    font-size: 18px;
+}
 .dude-left {
     position: absolute;
-    padding-left: 50px;
-    padding-top: 50px;
+    padding-left: 30px;
 }
 
 .btn {
@@ -241,9 +240,6 @@ button:active {
     border-bottom: 1px solid #e7e7e7;
     font-size: 16px;
     font-weight: 400;
-}
-.splash {
-    text-align: center;
 }
 
 #heading {
