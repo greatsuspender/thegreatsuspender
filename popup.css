@@ -148,10 +148,10 @@ body {
 	padding: 0 10px;
 	color: #444;
 }
-.iconSuspendCurrent { background-image: url('pause-current.png'); }
-.iconSuspendAll { background-image: url('pause-all.png'); }
-.iconWhitelist { background-image: url('tick.png'); }
-.iconUnsuspendAll { background-image: url('refresh.png'); }
+.iconSuspendCurrent { background-image: url('img/pause-current.png'); }
+.iconSuspendAll { background-image: url('img/pause-all.png'); }
+.iconWhitelist { background-image: url('img/tick.png'); }
+.iconUnsuspendAll { background-image: url('img/refresh.png'); }
 
 .menuOption:first-of-type {
 	border-top: 0;

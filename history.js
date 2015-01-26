@@ -257,7 +257,7 @@
             linksSpan.setAttribute('data-url', tabProperties.url);
         }
         listHover = document.createElement('img');
-        listHover.setAttribute('src', chrome.extension.getURL('x.gif'));
+        listHover.setAttribute('src', chrome.extension.getURL('img/x.gif'));
         listHover.className = 'itemHover';
         listHover.onclick = removeTab(linksSpan);
         linksSpan.appendChild(listHover);

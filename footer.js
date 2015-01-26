@@ -3,7 +3,7 @@ document.write('\
     <link type="text/css" href="style.css" rel="stylesheet">\
 \
     <br />\
-    <img src="dude.png" style="float: right;margin-top: -60px;" />\
+    <img src="img/dude.png" style="float: right;margin-top: -60px;" />\
 \
     <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">\
     <input type="hidden" name="cmd" value="_s-xclick">\

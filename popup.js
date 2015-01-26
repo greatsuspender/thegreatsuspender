@@ -21,27 +21,27 @@ function trackButtonClick(e) {
 
             if (status === 'special') {
                 statusDetail = 'This tab cannot be suspended';
-                statusSrc = 'status_special.png';
+                statusSrc = 'img/status_special.png';
 
             } else if (status === 'suspended') {
                 statusDetail = 'Tab suspended';
-                statusSrc = 'status_pause.png';
+                statusSrc = 'img/status_pause.png';
 
             } else if (status === 'whitelisted') {
                 statusDetail = 'This site has been whitelisted';
-                statusSrc = 'status_whitelist.png';
+                statusSrc = 'img/status_whitelist.png';
 
             } else if (status === 'formInput') {
                 statusDetail = 'This tab is currently receiving form input';
-                statusSrc = 'status_edit.png';
+                statusSrc = 'img/status_edit.png';
 
             } else if (status === 'pinned') {
                 statusDetail = 'This tab has been pinned';
-                statusSrc = 'status_pin.png';
+                statusSrc = 'img/status_pin.png';
 
             } else if (status === 'tempWhitelist') {
                 statusDetail = 'Tab suspension has been manually paused';
-                statusSrc = 'status_pause.png';
+                statusSrc = 'img/status_pause.png';
             }
 
             document.getElementById('footer').style.display = 'block';

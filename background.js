@@ -515,11 +515,11 @@ var tgs = (function () {
 
     //change the icon to either active or inactive
     function updateIcon(status) {
-        var icon = 'icon19.png',
+        var icon = 'img/icon19.png',
             dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
-        if (status === 'suspended' || status === 'special') { icon = 'icon19b.png'; }
+        if (status === 'suspended' || status === 'special') { icon = 'img/icon19b.png'; }
 
         chrome.browserAction.setIcon({path: icon});
     }

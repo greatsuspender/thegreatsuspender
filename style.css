@@ -87,7 +87,7 @@ h1 {
     font-weight: 300;
 }
 .iconCog {
-    background-image: url('iconCog.png');
+    background-image: url('img/iconCog.png');
     background-position: center left;
     background-repeat: no-repeat;
     padding-right: 44px;
@@ -106,7 +106,7 @@ select {
     font-size: 14px;
     border-color: #ccc;
     /* TODO: make this better / more scalable */
-    background-image: url(ddArrow.png);
+    background-image: url(img/ddArrow.png);
     background-repeat: no-repeat;
     background-position: 90% 16px;
 }
@@ -155,12 +155,10 @@ button:active {
     font-size: 16px;
     max-width: 980px;
     margin: 0 auto;
-    padding-top: 70px;
     padding-bottom: 70px;
 }
 .splash h1 {
     font-size: 60px;
-    margin-top: 100px;
 }
 .splash h2 {
     font-weight: 400;
@@ -175,6 +173,12 @@ button:active {
   -webkit-appearance: none;
   border:none;
   font-size:1em;
+}
+
+.dude-left {
+    position: absolute;
+    padding-left: 50px;
+    padding-top: 50px;
 }
 
 .btn {
@@ -389,6 +393,5 @@ input[type=checkbox] {
     padding: 0;
 }
 input[type=checkbox]:before { content:""; display:inline-block; width:20px; height:20px;}
-input[type=checkbox]:before { background: url(checkOff.png) #fff;}
-input[type=checkbox]:checked:before { background: url(checkOn.png) #fff; }
-
+input[type=checkbox]:before { background: url(img/checkOff.png) #fff;}
+input[type=checkbox]:checked:before { background: url(img/checkOn.png) #fff; }
