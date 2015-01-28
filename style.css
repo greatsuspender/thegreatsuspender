@@ -89,7 +89,7 @@ h1 {
 img.headerIcon {
     margin: 12px 5px 0 0;
     float: left;
-    height: 50px;
+    height: 36px;
 }
 
 select {
@@ -149,11 +149,14 @@ button:active {
 
 .splash {
     font-size: 16px;
-    margin-left: 280px;
+    width: 900px;
+    margin: 40px auto;
+    overflow: hidden;
 }
 .splash h1 {
     font-size: 60px;
     line-height: 66px;
+    margin-top: 15px;
 }
 .splash h2 {
     font-weight: 400;
@@ -165,16 +168,17 @@ button:active {
     font-weight: 400;
 }
 .splash input[type='submit'] {
-  -webkit-appearance: none;
-  border:none;
-  font-size:1em;
+    -webkit-appearance: none;
+    border:none;
+    font-size:1em;
 }
 .splash p {
     font-size: 18px;
 }
 .dude-left {
-    position: absolute;
+    float: left;
     padding-left: 30px;
+    padding-right: 20px;
 }
 
 .btn {
