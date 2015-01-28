@@ -357,8 +357,6 @@ var tgs = (function () {
 
     function runStartupChecks() {
 
-        gsUtils.initSettings();
-
         var lastVersion = gsUtils.fetchVersion(),
             curVersion = chrome.runtime.getManifest().version;
 
@@ -633,6 +631,8 @@ var tgs = (function () {
             });
         }
     });
+
+    gsUtils.initSettings();
 
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
