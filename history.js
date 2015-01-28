@@ -36,23 +36,35 @@
                 windowId = element.getAttribute('data-windowId'),
                 sessionId = element.getAttribute('data-sessionId'),
                 session = gsUtils.getSessionById(sessionId),
-                window = gsUtils.getWindowFromSession(windowId, session),
+                windows = [],
                 curUrl;
 
-            chrome.windows.create(function (newWindow) {
-                window.tabs.forEach(function (curTab) {
-                    curUrl = curTab.url;
+            //if loading a specific window
+            if (windowId) {
+                windows.push(gsUtils.getWindowFromSession(windowId, session));
 
-                    if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
-                        curUrl = gsUtils.generateSuspendedUrl(curUrl);
-                    } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
-                        curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
-                    }
-                    chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
-                });
+            //else load all windows from session
+            } else {
+                windows = session.windows;
+            }
 
-                chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
-                    chrome.tabs.remove(tabs[0].id);
+            windows.forEach(function(window) {
+
+                chrome.windows.create(function (newWindow) {
+                    window.tabs.forEach(function (curTab) {
+                        curUrl = curTab.url;
+
+                        if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !tgs.isSpecialTab(curTab)) {
+                            curUrl = gsUtils.generateSuspendedUrl(curUrl);
+                        } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
+                            curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
+                        }
+                        chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
+                    });
+
+                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
+                        chrome.tabs.remove(tabs[0].id);
+                    });
                 });
             });
         };
@@ -147,9 +159,10 @@
         csvContent += dataString;
 
         var encodedUri = encodeURI(csvContent);
-        var link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "session.txt");
+        var link = createEl("a", {
+            "href": encodedUri,
+            "download": "session.txt"
+        });
         link.click();
     }
 
@@ -160,45 +173,60 @@
             sessionSave,
             sessionExport,
             sessionDiv,
-            j,
-            k,
-            tabCount = 0;
+            windowResuspend,
+            windowReload,
+            titleText,
+            winCnt = session.windows.length,
+            tabCnt = session.windows.reduce(function(a, b) {return a + b.tabs.length;}, 0);
 
-        // TODO stop usage of j and k below
-        for (j = 0; j < session.windows.length; j += 1) {
-            for (k = 0; k < session.windows[j].tabs.length; k += 1) {
-                tabCount += 1;
-            }
+        if (savedSession) {
+            titleText = session.name + ' (' + winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ')';
+        } else {
+            titleText = winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ': ' + gsUtils.getHumanDate(session.date);
         }
 
-        sessionTitle = document.createElement('span');
-        sessionTitle.className = 'sessionLink';
+        sessionDiv = createEl('div', {
+            'class': 'sessionDiv',
+            'data-sessionId': session.id
+        });
 
-        // TODO stop usage of j and k below
-        if (savedSession) {
-            sessionTitle.innerHTML = session.name + ' (' + j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ')';
-        } else {
-            sessionTitle.innerHTML = j + ' window' + (j > 1 ? 's' : '') + ', ' + tabCount + ' tab' + (tabCount > 1 ? 's' : '') + ': ' + gsUtils.getHumanDate(session.date);
-            sessionSave = document.createElement('a');
-            sessionSave.className = 'groupLink';
-            sessionSave.setAttribute('href', '#');
-            sessionSave.innerHTML = 'save';
+        sessionTitle = createEl('span', {
+            'class': 'sessionLink'
+        }, titleText);
+        sessionTitle.onclick = toggleSession(sessionDiv);
+
+        if (!savedSession) {
+            sessionSave = createEl('a', {
+                'class': 'groupLink',
+                'href': '#'
+            }, 'save');
             sessionSave.onclick = function () { saveSession(session.id); };
         }
-        sessionExport = document.createElement('a');
-        sessionExport.className = 'groupLink';
-        sessionExport.setAttribute('href', '#');
-        sessionExport.innerHTML = 'export';
+
+        sessionExport = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'export');
         sessionExport.onclick = function () { exportSession(session.id); };
 
-        sessionDiv = document.createElement('div');
-        sessionDiv.className = 'sessionDiv';
-        sessionDiv.setAttribute('data-sessionId', session.id);
-        sessionTitle.onclick = toggleSession(sessionDiv);
-        sessionContainer = document.createElement('div');
+        windowResuspend = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'resuspend');
+        windowResuspend.onclick = reloadTabs(sessionDiv, true);
+
+        windowReload = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'reload');
+        windowReload.onclick = reloadTabs(sessionDiv, false);
+
+        sessionContainer = createEl('div');
         sessionContainer.appendChild(sessionTitle);
-        if (!savedSession) { sessionContainer.appendChild(sessionSave); }
+        sessionContainer.appendChild(windowResuspend);
+        sessionContainer.appendChild(windowReload);
         sessionContainer.appendChild(sessionExport);
+        if (!savedSession) sessionContainer.appendChild(sessionSave);
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
@@ -211,24 +239,28 @@
             groupUnsuspendCurrent,
             groupUnsuspendNew;
 
-        groupHeading = document.createElement('div');
-        groupHeading.className = 'windowHeading';
-        groupHeading.setAttribute('data-windowId', window.id);
-        groupHeading.setAttribute('data-sessionId', window.sessionId);
-        windowHeading = document.createElement('span');
-        windowHeading.innerHTML = 'Window ' + (count + 1) + ':&nbsp;';
-        groupHeading.appendChild(windowHeading);
-        groupUnsuspendCurrent = document.createElement('a');
-        groupUnsuspendCurrent.className = 'groupLink';
-        groupUnsuspendCurrent.setAttribute('href', '#');
-        groupUnsuspendCurrent.innerHTML = 'resuspend all tabs';
+        groupHeading = createEl('div', {
+            'class': 'windowHeading',
+            'data-windowId': window.id,
+            'data-sessionId': window.sessionId
+        });
+
+        windowHeading = createEl('span', {}, 'Window ' + (count + 1) + ':&nbsp;');
+
+        groupUnsuspendCurrent = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'resuspend');
         groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, true);
-        groupHeading.appendChild(groupUnsuspendCurrent);
-        groupUnsuspendNew = document.createElement('a');
-        groupUnsuspendNew.className = 'groupLink';
-        groupUnsuspendNew.setAttribute('href', '#');
-        groupUnsuspendNew.innerHTML = 'reload all tabs';
+
+        groupUnsuspendNew = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'reload');
         groupUnsuspendNew.onclick = reloadTabs(groupHeading, false);
+
+        groupHeading.appendChild(windowHeading);
+        groupHeading.appendChild(groupUnsuspendCurrent);
         groupHeading.appendChild(groupUnsuspendNew);
 
         return groupHeading;
@@ -236,7 +268,7 @@
 
     function createTabHtml(tabProperties) {
 
-        var linksSpan = document.createElement('div'),
+        var linksSpan,
             listImg,
             listLink,
             listHover,
@@ -246,35 +278,66 @@
         favicon = favicon || tabProperties.favIconUrl;
         favicon = favicon || 'chrome://favicon/' + tabProperties.url;
 
-        linksSpan.className = 'recoveryLink';
         if (tabProperties.sessionId) {
-            linksSpan.setAttribute('data-tabId', tabProperties.id || tabProperties.url);
-            linksSpan.setAttribute('data-windowId', tabProperties.windowId);
-            linksSpan.setAttribute('data-sessionId', tabProperties.sessionId);
+            linksSpan = createEl('div', {
+                'class': 'recoveryLink',
+                'data-tabId': tabProperties.id || tabProperties.url,
+                'data-windowId': tabProperties.windowId,
+                'data-sessionId': tabProperties.sessionId
+            });
         } else {
-            linksSpan.setAttribute('data-url', tabProperties.url);
+            linksSpan = createEl('div', {
+                'class': 'recoveryLink',
+                'data-url': tabProperties.url
+            });
         }
-        listHover = document.createElement('img');
-        listHover.setAttribute('src', chrome.extension.getURL('img/x.gif'));
-        listHover.className = 'itemHover';
+
+        listHover = createEl('img', {
+            'src': chrome.extension.getURL('img/x.gif'),
+            'class': 'itemHover'
+        });
         listHover.onclick = removeTab(linksSpan);
+
+        listImg = createEl('img', {
+            'src': favicon,
+            'height': '16px',
+            'width': '16px'
+        });
+
+        listLink = createEl('a', {
+            'class': 'historyLink',
+            'href': tabProperties.url,
+            'target': '_blank'
+        }, tabProperties.title);
+
         linksSpan.appendChild(listHover);
-        listImg = document.createElement('img');
-        listImg.setAttribute('src', favicon);
-        listImg.setAttribute('height', '16px');
-        listImg.setAttribute('width', '16px');
         linksSpan.appendChild(listImg);
-        listLink = document.createElement('a');
-        listLink.setAttribute('class', 'historyLink');
-        listLink.setAttribute('href', tabProperties.url);
-        listLink.setAttribute('target', '_blank');
-        listLink.innerHTML = tabProperties.title;
         linksSpan.appendChild(listLink);
-        linksSpan.appendChild(document.createElement('br'));
+        linksSpan.appendChild(createEl('br'));
 
         return linksSpan;
     }
 
+    function createEl(elType, attributes, text) {
+
+        var el = document.createElement(elType);
+        attributes = attributes || {};
+        el = setElAttributes(el, attributes);
+        el.innerHTML = text || '';
+        return el;
+    }
+    function setElAttributes(el, attributes) {
+        for (var key in attributes) {
+            if (attributes.hasOwnProperty(key)) {
+                el.setAttribute(key, attributes[key]);
+            }
+        }
+        return el;
+    }
+
+    function pluralise(text, count) {
+        return text + (count > 1 ? 's' : '');
+    }
 
     function render() {
 
