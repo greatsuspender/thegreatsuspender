@@ -8,6 +8,16 @@
 */
 
 
+ var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-52338347-1']);
+_gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
+_gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
+_gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
+_gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
+//_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
+_gaq.push(['_trackPageview']);
+
+
 var tgs = (function () {
     'use strict';
 
@@ -326,7 +336,7 @@ var tgs = (function () {
             lastSession.windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
 
-                    if (curTab.url.indexOf('chrome-devtools:') < 0 
+                    if (curTab.url.indexOf('chrome-devtools:') < 0
                             && curTab.url.indexOf('chrome://extensions') < 0
                             && !actualTabs.some(function(curActualUrl) {return curTab.url === curActualUrl;})) {
                         attemptRecovery = true;
@@ -400,6 +410,7 @@ var tgs = (function () {
 
     function getTabInfo(tab, callback) {
         var info = {
+                windowId: tab.windowId,
                 tabId: tab.id,
                 status: '',
                 timerUp: '-'
@@ -640,15 +651,6 @@ var tgs = (function () {
     ga.src = 'https://ssl.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(ga, s);
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-52338347-1']);
-    _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
-    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
-    _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
-    _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
-    //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
-    _gaq.push(['_trackPageview']);
 
     return {
         requestTabInfo: requestTabInfo,

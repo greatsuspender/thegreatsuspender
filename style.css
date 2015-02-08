@@ -80,16 +80,15 @@ h1 {
     background: #134960;
     color: #fff;
     font-weight: normal;
-    height: 76px;
-    line-height: 76px;
+    height: 63px;
+    line-height: 63px;
     margin: 0;
     padding: 0 0 0 50px;
     font-weight: 300;
 }
 img.headerIcon {
-    margin: 12px 5px 0 0;
-    float: left;
-    height: 36px;
+    margin: 19px 5px 0 0;
+    float: right;
 }
 
 select {
@@ -196,6 +195,14 @@ button:active {
 .btn.btnNeg {
     background: #ddd;
     color: #333;
+}
+.btnDonate {
+    font-family: 'Open Sans', sans-serif;
+    margin-right: 10px;
+    float: left;
+}
+.btnDonate:hover {
+    text-decoration: underline;
 }
 .lesserText {
     color: #929292;

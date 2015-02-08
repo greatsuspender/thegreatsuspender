@@ -135,9 +135,9 @@ body {
 
 #donateBubble {
     position: relative;
-    width: 325px;
-    height: 92px;
-    padding: 5px 0;
+    width: 340px;
+    height: 80px;
+    padding: 5px 10px;
     background: #E7F3F8;
     border: #87BACE solid 1px;
     border-radius: 4px;

@@ -8,12 +8,14 @@
 
     function generateTabInfo(info) {
         var html = '',
+            windowId = info && info.windowId ? info.windowId : '?',
             tabId = info && info.tabId ? info.tabId : '?',
             tabTitle = info && info.tab ? info.tab.title : 'unknown',
             tabTimer = info ? info.timerUp : -1,
             tabStatus = info ? info.status : 'unknown';
 
         html += '<tr>';
+        html += '<td>' + windowId + '</td>';
         html += '<td>' + tabId + '</td>';
         html += '<td style="max-width:800px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + tabTitle + '</td>';
         html += '<td>' + tabTimer + '</td>';

@@ -16,6 +16,12 @@
             /*configureShortcutsEl.onclick = function (e) {
                 chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
             };*/
+
+            function hideNagForever() {
+                gsUtils.setOption(gsUtils.NO_NAG, true);
+            }
+
+            document.getElementsByClassName('btnDonate').onclick = hideNagForever;
         }
     }, 50);
 
