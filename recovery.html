@@ -4,9 +4,10 @@
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>
 	<title id='gsTitle'>The Great Suspender</title>
 	<link  id='gsFavicon' rel="icon" />
-	<link type="text/css" href="style.css" rel="stylesheet">
-    <script type="text/javascript" src="gsUtils.js"></script>
-    <script type="text/javascript" src="recovery.js"></script>
+	<link type="text/css" href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/gsUtils.js"></script>
+    <script type="text/javascript" src="js/sessionUtils.js"></script>
+    <script type="text/javascript" src="js/recovery.js"></script>
 
 </head>
 <body id="body">
@@ -18,21 +19,30 @@
 	</div>
 
 	<h1>Ruh roh!</h1>
-	<p>
-		Looks like you're recovering from a chrome or extension crash.
+	<p>Looks like you're recovering from a chrome or extension crash.</p>
+	<div id='screenCaptureNotice'>
+		<span><em>Important!</em></span>
+		<p>
+			You currently have the screen capturing option turned on. If this is not the first time this has happened then it is recommended you disable this option. <a id='optionsLink' href='#'>
+			<br />
+			You can do so from the options page.</a>
+		</p>
+	</div>
+
+	<div id='recoverySession'>
+		<p>Would you like to reload your tabs?</p>
+
+
+		<button id='restoreSession' class='btn'>Yes please!</button>&nbsp;&nbsp;<button id='closeTab' class='btn btnNeg'>No way</button>
+
 		<br />
 		<br />
-		Would you like to reload your tabs?
-	</p>
 
-	<button id='restoreSession' class='btn'>Yes please!</button>&nbsp;&nbsp;<button id='closeTab' class='btn btnNeg'>No way</button>
+		<p>
+			Alternatively, you can <a id="manageManuallyLink" href="#">manage your sessions manually</a>
+		</p>
 
-	<br />
-	<br />
-
-	<p>
-		Alternatively, you can <a id="manageManuallyLink" href="#">manage your sessions manually</a>
-	</p>
+	</div>
 
 </div>
 

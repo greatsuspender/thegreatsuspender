@@ -1,0 +1,187 @@
+/* RESET */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+ol, ul {
+	list-style: none;
+}
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: 200;
+	color: #444;
+	padding: 0;
+	margin: 0;
+	min-width: 300px;
+	position: relative;
+	font-size: 16px;
+}
+.hidden {
+	display: none;
+}
+#popTop {
+	background: #134960;
+	color: #444;
+	overflow: hidden;
+	height: 27px;
+	position: relative;
+	z-index: 10;
+	padding: 10px 0 0 60px;
+	margin-bottom: 1px;
+}
+#popTop h1 {
+	font-size: 18px;
+	color: #FFF;
+	margin-top: 5px;
+}
+#popTopIcon {
+	position: absolute;
+	top: 5px;
+	left: 4px;
+	z-index: 2;
+}
+
+#popTopSettings {
+	position: absolute;
+    right: 11px;
+    top: 6px;
+    z-index: 10;
+    text-shadow: 0 -1px 0 #4881B9;
+    font-size: 13px;
+    color: #FFF;
+    cursor: pointer;
+    font-weight: 400;
+}
+#popTopSettings > * {
+	vertical-align: middle;
+}
+#middle {
+	padding: 0;
+}
+.menuOption {
+	cursor: pointer;
+	background: #fff;
+	text-align: left;
+	margin-top: 1px;
+	display: block;
+	border-top: 1px solid #ddd;
+	color: #666;
+	overflow: hidden;
+	height: 40px;
+}
+.menuOption:hover {
+	background: #f5f5f5;
+}
+#bottom {
+	background: #FFF;
+	padding: 5px 0 0 5px;
+}
+.bottomOption {
+	background: #36BEF3;
+	cursor: pointer;
+	text-align: center;
+	display: block;
+	overflow: hidden;
+	height: 35px;
+	width: 121px;
+	float: left;
+	line-height: 35px;
+	padding: 0 10px;
+	color: #FFF;
+	font-size: 13px;
+	margin: 0;
+	background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25));
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.bottomOption:first-of-type {
+	margin-right: 4px;
+}
+.bottomOption:hover {
+	background: #2A8CB3;
+}
+.bottomOption.disabled {
+	background: #f1f1f1;
+	color: #888;
+	cursor: default;
+}
+.bottomOption.undo {
+	background: #CF5959;
+	color: #fff;
+}
+.icon {
+	background: #6B6B6B;
+	width: 40px;
+	height: 40px;
+	background-position: center;
+	background-repeat: no-repeat;
+	float: left;
+}
+.optionText {
+	float: left;
+	line-height: 40px;
+	padding: 0 10px;
+	color: #444;
+}
+.iconSuspendCurrent { background-image: url('/img/pause-current.png'); }
+.iconSuspendAll { background-image: url('/img/pause-all.png'); }
+.iconWhitelist { background-image: url('/img/tick.png'); }
+.iconUnsuspendAll { background-image: url('/img/refresh.png'); }
+
+.menuOption:first-of-type {
+	border-top: 0;
+}
+#footer {
+	padding: 5px 0;
+	box-shadow: 0 -2px 8px -5px #aaa;
+	border-top: 1px solid #fff;
+	background: #f1f1f1;
+	font-size: 13px;
+	color: #888;
+	text-align: center;
+	height: 20px;
+	clear: left;
+	float: left;
+	width: 100%;
+	line-height: 19px;
+
+}
+#footer a {
+	color: #0979E0;
+	cursor: pointer;
+	line-height: 20px;
+	height: 20px;
+}
+#footer a:hover {
+	text-decoration: underline;
+}
+#footer img {
+	z-index: 2;
+	padding-right: 3px;
+}
+#footer span {
+	vertical-align: top;
+}

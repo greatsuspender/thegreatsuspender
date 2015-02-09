@@ -1,33 +1,13 @@
 /*global chrome, gsUtils, render, createWindowHtml, createTabHtml */
 
-(function () {
+var sessionUtils = (function () {
 
     'use strict';
 
-    var tabs = {}, // unused
-        windows = {}; // unused
 
-    function getFormattedDate(date, includeTime) {
-        var d = new Date(date),
-            cur_date = ('0' + d.getDate()).slice(-2),
-            cur_month = ('0' + (d.getMonth() + 1)).slice(-2),
-            cur_year = d.getFullYear(),
-            cur_time = d.toTimeString().match(/^([0-9]{2}:[0-9]{2})/)[0];
-
-        if (includeTime) {
-            return cur_time + ' ' + cur_date + '-' + cur_month + '-' + cur_year;
-        }
-        return cur_date + '-' + cur_month + '-' + cur_year;
-    }
-
-    function compareDate(a, b) {
-        if (a.date > b.date) {
-            return -1;
-        }
-        if (a.date < b.date) {
-            return 1;
-        }
-        return 0;
+    function hideModal() {
+        document.getElementById('sessionNameModal').style.display = 'none';
+        document.getElementsByClassName('mainContent')[0].className = 'mainContent';
     }
 
     function reloadTabs(element, suspendMode) {
@@ -68,6 +48,46 @@
                 });
             });
         };
+    }
+
+    function saveSession(sessionId) {
+        var session = gsUtils.getSessionById(sessionId);
+
+        document.getElementsByClassName('mainContent')[0].className += ' blocked';
+        document.getElementById('sessionNameModal').style.display = 'block';
+        document.getElementById('sessionNameText').focus();
+
+        document.getElementById('sessionNameCancel').onclick = hideModal;
+        document.getElementById('sessionNameSubmit').onclick = function () {
+            var text = document.getElementById('sessionNameText').value;
+            if (text) {
+                gsUtils.saveSession(text, session);
+                render();
+            }
+        };
+    }
+
+    function exportSession(sessionId) {
+        var session = gsUtils.getSessionById(sessionId),
+            csvContent = "data:text/csv;charset=utf-8,",
+            dataString = '';
+
+        session.windows.forEach(function (curWindow, index) {
+            curWindow.tabs.forEach(function (curTab, tabIndex) {
+                if (curTab.url.indexOf("suspended.html") > 0) {
+                    dataString += gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]) + '\n';
+                } else {
+                    dataString += curTab.url + '\n';
+                }
+            });
+        });
+        csvContent += dataString;
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "session.txt");
+        link.click();
     }
 
     function removeTab(element) {
@@ -120,51 +140,6 @@
         };
     }
 
-    function hideModal() {
-        document.getElementById('sessionNameModal').style.display = 'none';
-        document.getElementsByClassName('mainContent')[0].className = 'mainContent';
-    }
-
-    function saveSession(sessionId) {
-        var session = gsUtils.getSessionById(sessionId);
-
-        document.getElementsByClassName('mainContent')[0].className += ' blocked';
-        document.getElementById('sessionNameModal').style.display = 'block';
-        document.getElementById('sessionNameText').focus();
-
-        document.getElementById('sessionNameCancel').onclick = hideModal;
-        document.getElementById('sessionNameSubmit').onclick = function () {
-            var text = document.getElementById('sessionNameText').value;
-            if (text) {
-                gsUtils.saveSession(text, session);
-                render();
-            }
-        };
-    }
-
-    function exportSession(sessionId) {
-        var session = gsUtils.getSessionById(sessionId),
-            csvContent = "data:text/csv;charset=utf-8,",
-            dataString = '';
-
-        session.windows.forEach(function (curWindow, index) {
-            curWindow.tabs.forEach(function (curTab, tabIndex) {
-                if (curTab.url.indexOf("suspended.html") > 0) {
-                    dataString += gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]) + '\n';
-                } else {
-                    dataString += curTab.url + '\n';
-                }
-            });
-        });
-        csvContent += dataString;
-
-        var encodedUri = encodeURI(csvContent);
-        var link = createEl("a", {
-            "href": encodedUri,
-            "download": "session.txt"
-        });
-        link.click();
-    }
 
     function createSessionHtml(session) {
         var savedSession = session.name ? true : false,
@@ -293,7 +268,7 @@
         }
 
         listHover = createEl('img', {
-            'src': chrome.extension.getURL('img/x.gif'),
+            'src': chrome.extension.getURL('/img/x.gif'),
             'class': 'itemHover'
         });
         listHover.onclick = removeTab(linksSpan);
@@ -339,41 +314,9 @@
         return text + (count > 1 ? 's' : '');
     }
 
-    function render() {
-
-        var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-            currentDiv = document.getElementById('currentLinks'),
-            sessionsDiv = document.getElementById('recoveryLinks'),
-            historyDiv = document.getElementById('historyLinks'),
-            clearHistoryEl = document.getElementById('clearHistory'),
-            firstSession = true;
-
-        hideModal();
-        currentDiv.innerHTML = '';
-        sessionsDiv.innerHTML = '';
-        historyDiv.innerHTML = '';
-
-        gsSessionHistory.forEach(function (session, index) {
-            //saved sessions will all have a 'name' attribute
-            if (session.name) {
-                historyDiv.appendChild(createSessionHtml(session));
-            } else if (firstSession) {
-                currentDiv.appendChild(createSessionHtml(session));
-                firstSession = false;
-            } else {
-                sessionsDiv.appendChild(createSessionHtml(session));
-            }
-        });
-
-        clearHistoryEl.onclick = function (e) {
-            gsUtils.clearGsSessionHistory();
-            gsUtils.clearPreviews();
-            render();
-        };
-    }
-
-    window.onload = function () {
-        render();
+    return {
+        createSessionHtml: createSessionHtml,
+        hideModal: hideModal
     };
 
 }());

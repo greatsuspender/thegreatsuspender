@@ -21,27 +21,27 @@ function trackButtonClick(e) {
 
             if (status === 'special') {
                 statusDetail = 'This tab cannot be suspended';
-                statusSrc = 'img/status_special.png';
+                statusSrc = '/img/status_special.png';
 
             } else if (status === 'suspended') {
                 statusDetail = 'Tab suspended';
-                statusSrc = 'img/status_pause.png';
+                statusSrc = '/img/status_pause.png';
 
             } else if (status === 'whitelisted') {
                 statusDetail = 'This site has been whitelisted';
-                statusSrc = 'img/status_whitelist.png';
+                statusSrc = '/img/status_whitelist.png';
 
             } else if (status === 'formInput') {
                 statusDetail = 'This tab is currently receiving form input';
-                statusSrc = 'img/status_edit.png';
+                statusSrc = '/img/status_edit.png';
 
             } else if (status === 'pinned') {
                 statusDetail = 'This tab has been pinned';
-                statusSrc = 'img/status_pin.png';
+                statusSrc = '/img/status_pin.png';
 
             } else if (status === 'tempWhitelist') {
                 statusDetail = 'Tab suspension has been manually paused';
-                statusSrc = 'img/status_pause.png';
+                statusSrc = '/img/status_pause.png';
             }
 
             document.getElementById('footer').style.display = 'block';
@@ -139,21 +139,6 @@ function trackButtonClick(e) {
             });
             window.close();
         });
-        document.getElementById('historyLink').addEventListener('click', function (e) {
-            trackButtonClick(e);
-            chrome.tabs.create({
-                url: chrome.extension.getURL('history.html')
-            });
-            window.close();
-        });
-        /*
-        document.getElementById('history').addEventListener('click', function () {
-            chrome.tabs.create({
-                url: chrome.extension.getURL('history.html')
-            });
-            window.close();
-        });
-        */
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
             var status = info.status,
                 //timeLeft = info.timerUp, // unused

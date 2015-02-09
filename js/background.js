@@ -130,7 +130,7 @@ var tgs = (function () {
         }
         //if we need to save a preview image
         if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
-            chrome.tabs.executeScript(tab.id, { file: 'html2canvas.min.js' }, function () {
+            chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'generatePreview',
                     suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
@@ -357,7 +357,7 @@ var tgs = (function () {
             tabs.forEach(function (currentTab) {
                 if (!isSpecialTab(currentTab) && currentTab.url.indexOf('suspended.html') < 0) {
                     var tabId = currentTab.id;
-                    chrome.tabs.executeScript(tabId, {file: 'contentscript.js'}, function () {
+                    chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
                         chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
                     });
                 }
@@ -448,11 +448,11 @@ var tgs = (function () {
 
     //change the icon to either active or inactive
     function updateIcon(status) {
-        var icon = 'img/icon19.png',
+        var icon = '/img/icon19.png',
             dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
-        if (status === 'suspended' || status === 'special') { icon = 'img/icon19b.png'; }
+        if (status === 'suspended' || status === 'special') { icon = '/img/icon19b.png'; }
 
         chrome.browserAction.setIcon({path: icon});
     }
