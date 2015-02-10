@@ -1,22 +1,14 @@
 /*global gsUtils, gsTimes, chrome */
 /*
  * The Great Suspender
- * Copyright (C) 2014 Dean Oemcke
+ * Copyright (C) 2015 Dean Oemcke
  * Available under GNU GENERAL PUBLIC LICENSE v2
  * http://github.com/deanoemcke/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
 
 
- var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-52338347-1']);
-_gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
-_gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
-_gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
-_gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
-//_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
-_gaq.push(['_trackPageview']);
-
+var _gaq = _gaq || [];
 
 var tgs = (function () {
     'use strict';
@@ -644,6 +636,14 @@ var tgs = (function () {
     });
 
     gsUtils.initSettings();
+
+    _gaq.push(['_setAccount', 'UA-52338347-1']);
+    _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
+    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
+    _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
+    _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
+    //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);
+    _gaq.push(['_trackPageview']);
 
     var ga = document.createElement('script');
     ga.type = 'text/javascript';
