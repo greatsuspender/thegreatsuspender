@@ -9,27 +9,25 @@
 
             window.clearInterval(readyStateCheckInterval);
 
-            var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
+            var lastSession = gsUtils.fetchLastSession(),
                 restoreEl = document.getElementById('restoreSession'),
-                cancelEl = document.getElementById('closeTab'),
                 manageEl = document.getElementById('manageManuallyLink'),
-                optionsEl = document.getElementById('optionsLink'),
+                previewsEl = document.getElementById('previewsOffBtn'),
                 warningEl = document.getElementById('screenCaptureNotice'),
-                recoveryEl = document.getElementById('recoverySession');
+                recoveryEl = document.getElementById('recoverySession'),
+                sessionEl,
+                sessionTitleEl;
 
             restoreEl.onclick = function (e) {
-                debugger;
                 gsUtils.recoverLostTabs();
-                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
-            };
-            cancelEl.onclick = function (e) {
                 chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
             };
             manageEl.onclick = function (e) {
                 chrome.tabs.create({url: chrome.extension.getURL('history.html')});
             };
-            optionsEl.onclick = function (e) {
-                chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+            previewsEl.onclick = function (e) {
+                gsUtils.setOption(gsUtils.SHOW_PREVIEW, false);
+                location.reload();
             };
 
             //show warning if screen capturing turned on
@@ -37,13 +35,14 @@
                 warningEl.style.display = 'block';
             }
 
-            gsSessionHistory.some(function (session, index) {
-                //saved sessions will all have a 'name' attribute
-                if (!session.name) {
-                    recoveryEl.appendChild(sessionUtils.createSessionHtml(session));
+            if (lastSession) {
+                sessionEl = sessionUtils.createSessionHtml(lastSession, true);
+                recoveryEl.appendChild(sessionEl);
+                sessionTitleEl = document.getElementsByClassName('sessionLink')[0];
+                if (typeof sessionTitleEl.onclick == "function") {
+                    sessionTitleEl.onclick.apply(sessionTitleEl);
                 }
-                return true;
-            });
+            }
         }
     }, 50);
 

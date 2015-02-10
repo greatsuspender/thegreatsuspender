@@ -247,11 +247,18 @@
 
         fetchLastSession: function () {
             var gsSessionHistory = this.fetchGsSessionHistory(),
-                lastSession = false;
+                lastSession = false,
+                currentSessionId;
+
+            currentSessionId = typeof(chrome.extension.getBackgroundPage) !== 'undefined'
+                ? chrome.extension.getBackgroundPage().tgs.sessionId
+                : '';
 
             if (gsSessionHistory.length > 0) {
                 gsSessionHistory.some(function(curSession) {
-                    if (curSession.id !== chrome.extension.getBackgroundPage().tgs.sessionId) {
+
+                    //saved sessions will all have a 'name' attribute. also don't want to match on current session
+                    if (!curSession.name && curSession.id !== currentSessionId) {
                         lastSession = curSession;
                         return true;
                     }
@@ -606,11 +613,15 @@
                                     pinned: curTab.pinned,
                                     active: false
                                 });
+
+                            //else if current tab exists and is suspended, reload it (in case it has crashed)
+                            } else if (curTab.url.indexOf('suspended.html') > 0) {
+                                chrome.tabs.reload(curTab.id);
                             }
                         });
 
                     //else restore entire window
-                    } else {
+                    } else if (curWindow.tabs.length > 0) {
 
                         chrome.windows.create(function(newWindow) {
 

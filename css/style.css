@@ -171,9 +171,22 @@ ul.unorderedList li {
     font-size: 14px;
     cursor: pointer;
 }
+.btn:hover {
+    background: #4994B3;
+}
 .btn.btnNeg {
     background: #ddd;
     color: #333;
+}
+.btn.btnNeg:hover {
+    background: #ddd;
+}
+.btn.undo {
+    background: #CF5959;
+    color: #fff;
+}
+.btn.undo:hover {
+    background: #B34E4E;
 }
 .btnDonate {
     font-family: 'Open Sans', sans-serif;
@@ -274,8 +287,10 @@ ul.unorderedList li {
 .sessionLink:hover {
 	text-decoration: underline;
 }
-#recoverySession {
+hr.splashRule {
     clear: left;
+    background-color: #666;
+    border-top: none;
 }
 div.recoveryLink {
     padding: 0px;
@@ -376,10 +391,11 @@ table, tr, td {
 .cbLabel {
     line-height: 20px;
     display: inline-block;
-    padding-left: 15px;
+    padding-left: 10px;
     vertical-align: top;
 }
 input[type=checkbox] {
+    width: 20px;
     height: 20px;
     line-height: 20px;
     display: inline-block;
