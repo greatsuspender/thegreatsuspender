@@ -150,7 +150,9 @@ var tgs = (function () {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.saveToWhitelist(rootUrlStr);
-                unsuspendTab(tabs[0]);
+                if (tabs[0].url.indexOf('suspended.html') > 0) {
+                    unsuspendTab(tabs[0]);
+                }
             }
         });
     }
@@ -444,8 +446,9 @@ var tgs = (function () {
             dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
-        if (status === 'suspended' || status === 'special') { icon = '/img/icon19b.png'; }
-
+        if (status !== 'normal') {
+            icon = '/img/icon19b.png';
+        }
         chrome.browserAction.setIcon({path: icon});
     }
 

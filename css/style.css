@@ -125,27 +125,6 @@ ul.unorderedList li {
     list-style: disc;
 }
 
-.button {
-    outline: 0;
-    background: linear-gradient(#666, #444);
-    padding: 5px 10px;
-    color: #FFF;
-    text-shadow: 0 -1px 0 #222;
-    border-radius: 4px;
-    border: 1px solid #444;
-    border-bottom-color: #222;
-    cursor: pointer;
-    font-size: 13px;
-    border-top-color: #666;
-}
-button:hover {
-    background: #666;
-}
-button:active {
-    background: #555;
-    border-bottom-color: #888;
-}
-
 .splash {
     font-size: 16px;
     width: 900px;
@@ -397,7 +376,7 @@ table, tr, td {
 .cbLabel {
     line-height: 20px;
     display: inline-block;
-    margin-left: 15px;
+    padding-left: 15px;
     vertical-align: top;
 }
 input[type=checkbox] {

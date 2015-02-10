@@ -24,25 +24,6 @@
 	</div>
 
 	<div class="content">
-		<h2>Screen capture settings</h2>
-		<div class="formRow">
-			<input type="checkbox" id="preview" class='option' />
-			<label for="preview" class="cbLabel">
-				Enable screen capturing<br />
-				<span class="lesserText">Screen capturing will use more memory</span>
-			</label>
-		</div>
-
-		<div id="previewQualitySection" class="formRow">
-			<input type="checkbox" id="previewQuality" class='option' />
-			<label for="previewQuality" class="cbLabel">
-				Use high quality screen captures<br />
-				<span class="lesserText">High quality captures will use even more memory</span>
-			</label>
-		</div>
-		<div id="previewQualityNote" class="gsNote">Enabling screen capturing will add more memory usage to chrome and can cause significant CPU usage. Enabling high quality screen captures will increase the memory usage even further.<br />
-		Also, the screen capturing feature is quite experimental. If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, I suggest you try turning this feature off.</div>
-
 		<h2>Suspend tab settings</h2>
 		<div class="formRow">
 			<label id="timeToSuspendLbl" for="timeToSuspend">Automatically suspend tabs after:</label>
@@ -85,6 +66,25 @@
 		<br /> -->
 		<h2>Whitelist <span class="lesserText">(keywords of pages to ignore)</span></h2>
 		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
+
+		<h2>Screen capture settings</h2>
+		<div class="formRow">
+			<input type="checkbox" id="preview" class='option' />
+			<label for="preview" class="cbLabel">
+				Enable screen capturing<br />
+				<span class="lesserText">Screen capturing will use more memory</span>
+			</label>
+		</div>
+
+		<div id="previewQualitySection" class="formRow">
+			<input type="checkbox" id="previewQuality" class='option' />
+			<label for="previewQuality" class="cbLabel">
+				Use high quality screen captures<br />
+				<span class="lesserText">High quality captures will use even more memory</span>
+			</label>
+		</div>
+		<div id="previewQualityNote" class="gsNote">Enabling screen capturing will add more memory usage to chrome and can cause significant CPU usage. Enabling high quality screen captures will increase the memory usage even further.<br />
+		Also, the screen capturing feature is quite experimental. If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, I suggest you try turning this feature off.</div>
 
 		<hr />
 

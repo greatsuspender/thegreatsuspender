@@ -32,12 +32,12 @@
             //now populate from local store or defaults for any items not already populated (old way)
             defaults[self.SHOW_PREVIEW] = false;
             defaults[self.PREVIEW_QUALTIY] = false;
-            defaults[self.ONLINE_CHECK] = false;
+            defaults[self.ONLINE_CHECK] = true;
             defaults[self.UNSUSPEND_ON_FOCUS] = false;
-            defaults[self.IGNORE_PINNED] = false;
-            defaults[self.IGNORE_FORMS] = false;
+            defaults[self.IGNORE_PINNED] = true;
+            defaults[self.IGNORE_FORMS] = true;
             defaults[self.IGNORE_CACHE] = false;
-            defaults[self.SUSPEND_TIME] = 60;
+            defaults[self.SUSPEND_TIME] = '60';
             defaults[self.NO_NAG] = false;
             defaults[self.MAX_HISTORIES] = 4;
             defaults[self.WHITELIST] = '';

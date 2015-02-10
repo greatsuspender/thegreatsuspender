@@ -51,6 +51,7 @@ body {
 	z-index: 10;
 	padding: 10px 0 0 60px;
 	margin-bottom: 1px;
+    width: 201px;
 }
 #popTop h1 {
 	font-size: 18px;
@@ -66,14 +67,18 @@ body {
 
 #popTopSettings {
 	position: absolute;
-    right: 11px;
-    top: 6px;
+    right: 0px;
+    top: 0px;
     z-index: 10;
     text-shadow: 0 -1px 0 #4881B9;
     font-size: 13px;
-    color: #FFF;
+    background-color: #6B6B6B;
     cursor: pointer;
     font-weight: 400;
+    padding: 7px 7px 6px 7px;
+}
+#popTopSettings:hover {
+    background-color: #2D2D2D;
 }
 #popTopSettings > * {
 	vertical-align: middle;
@@ -85,7 +90,6 @@ body {
 	cursor: pointer;
 	background: #fff;
 	text-align: left;
-	margin-top: 1px;
 	display: block;
 	border-top: 1px solid #ddd;
 	color: #666;
@@ -97,24 +101,23 @@ body {
 }
 #bottom {
 	background: #FFF;
-	padding: 5px 0 0 5px;
+	padding: 3px 0 0 0;
 }
 .bottomOption {
-	background: #36BEF3;
+	background: #52a6c8;
 	cursor: pointer;
 	text-align: center;
 	display: block;
 	overflow: hidden;
 	height: 35px;
-	width: 121px;
+	width: 126px;
 	float: left;
 	line-height: 35px;
 	padding: 0 10px;
 	color: #FFF;
 	font-size: 13px;
 	margin: 0;
-	background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.25));
-	border-radius: 4px;
+	border-radius: 3px;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 }
 .bottomOption:first-of-type {
@@ -132,6 +135,9 @@ body {
 	background: #CF5959;
 	color: #fff;
 }
+.bottomOption.undo:hover {
+	background: #B34E4E;
+}
 .icon {
 	background: #6B6B6B;
 	width: 40px;
@@ -148,7 +154,6 @@ body {
 }
 .iconSuspendCurrent { background-image: url('/img/pause-current.png'); }
 .iconSuspendAll { background-image: url('/img/pause-all.png'); }
-.iconWhitelist { background-image: url('/img/tick.png'); }
 .iconUnsuspendAll { background-image: url('/img/refresh.png'); }
 
 .menuOption:first-of-type {
