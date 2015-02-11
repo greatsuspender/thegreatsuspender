@@ -1,9 +1,15 @@
-thegreatsuspender
-=================
+The Great Suspender
+===================
+A Chrome extension that suspends tabs to free up memory
 
-A Chrome extension for suspending all tabs to free up memory
+Under GNU GENERAL PUBLIC LICENSE (v2)
 
-Changelog 
+Changelog:
+
+v5.46   2015-02-12
+- overhauled entire codebase
+- added numerous new features
+- style overhaul
 
 v4.81   2013-10-14
 - merged in all pull requests
@@ -11,10 +17,8 @@ v4.81   2013-10-14
 v4.80   2013-10-01
 - feature:  suspend multiple selected (highlighted) tabs
 
-
 v4.77   2013-05-25
 - bugfix:   switched off debug mode that was causing very quick suspending
-
 
 v4.76   2013-05-25
 - improv:   URLs starting with chrome-devtools: are never suspended
