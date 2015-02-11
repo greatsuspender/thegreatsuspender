@@ -141,7 +141,7 @@ var sessionUtils = (function () {
     }
 
 
-    function createSessionHtml(session, hideLinks) {
+    function createSessionHtml(session) {
         var savedSession = session.name ? true : false,
             sessionContainer,
             sessionTitle,
@@ -153,8 +153,6 @@ var sessionUtils = (function () {
             titleText,
             winCnt = session.windows.length,
             tabCnt = session.windows.reduce(function(a, b) {return a + b.tabs.length;}, 0);
-
-        hideLinks = hideLinks || false;
 
         if (savedSession) {
             titleText = session.name + ' (' + winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ')';
@@ -180,32 +178,30 @@ var sessionUtils = (function () {
             sessionSave.onclick = function () { saveSession(session.id); };
         }
 
-        if (!hideLinks) {
-            sessionExport = createEl('a', {
-                'class': 'groupLink',
-                'href': '#'
-            }, 'export');
-            sessionExport.onclick = function () { exportSession(session.id); };
+        sessionExport = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'export');
+        sessionExport.onclick = function () { exportSession(session.id); };
 
-            windowResuspend = createEl('a', {
-                'class': 'groupLink',
-                'href': '#'
-            }, 'resuspend');
-            windowResuspend.onclick = reloadTabs(sessionDiv, true);
+        windowResuspend = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'resuspend');
+        windowResuspend.onclick = reloadTabs(sessionDiv, true);
 
-            windowReload = createEl('a', {
-                'class': 'groupLink',
-                'href': '#'
-            }, 'reload');
-            windowReload.onclick = reloadTabs(sessionDiv, false);
-        }
+        windowReload = createEl('a', {
+            'class': 'groupLink',
+            'href': '#'
+        }, 'reload');
+        windowReload.onclick = reloadTabs(sessionDiv, false);
 
         sessionContainer = createEl('div');
         sessionContainer.appendChild(sessionTitle);
-        if (!hideLinks) sessionContainer.appendChild(windowResuspend);
-        if (!hideLinks) sessionContainer.appendChild(windowReload);
-        if (!hideLinks) sessionContainer.appendChild(sessionExport);
-        if (!hideLinks && !savedSession) sessionContainer.appendChild(sessionSave);
+        sessionContainer.appendChild(windowResuspend);
+        sessionContainer.appendChild(windowReload);
+        sessionContainer.appendChild(sessionExport);
+        if (!savedSession) sessionContainer.appendChild(sessionSave);
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
@@ -245,13 +241,15 @@ var sessionUtils = (function () {
         return groupHeading;
     }
 
-    function createTabHtml(tabProperties) {
+    function createTabHtml(tabProperties, recoveryMode) {
 
         var linksSpan,
             listImg,
             listLink,
             listHover,
             favicon = false;
+
+        recoveryMode = recoveryMode || false;
 
         favicon = favicon || tabProperties.favicon;
         favicon = favicon || tabProperties.favIconUrl;
@@ -262,7 +260,8 @@ var sessionUtils = (function () {
                 'class': 'recoveryLink',
                 'data-tabId': tabProperties.id || tabProperties.url,
                 'data-windowId': tabProperties.windowId,
-                'data-sessionId': tabProperties.sessionId
+                'data-sessionId': tabProperties.sessionId,
+                'data-url': tabProperties.url
             });
         } else {
             linksSpan = createEl('div', {
@@ -289,7 +288,7 @@ var sessionUtils = (function () {
             'target': '_blank'
         }, tabProperties.title);
 
-        linksSpan.appendChild(listHover);
+        if (!recoveryMode) linksSpan.appendChild(listHover);
         linksSpan.appendChild(listImg);
         linksSpan.appendChild(listLink);
         linksSpan.appendChild(createEl('br'));
@@ -320,8 +319,8 @@ var sessionUtils = (function () {
 
     return {
         createSessionHtml: createSessionHtml,
-        hideModal: hideModal,
-        toggleSession: toggleSession
+        createTabHtml: createTabHtml,
+        hideModal: hideModal
     };
 
 }());

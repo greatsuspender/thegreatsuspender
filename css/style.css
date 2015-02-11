@@ -140,23 +140,13 @@ ul.unorderedList li {
     font-weight: 400;
     font-size: 22px;
 }
-.splash a {
-    color: #134960;
-    text-decoration: underline;
-    font-weight: 400;
-}
-.splash input[type='submit'] {
-    -webkit-appearance: none;
-    border:none;
-    font-size:1em;
-}
 .splash p {
     font-size: 18px;
 }
 .dude-left {
     float: left;
     padding-left: 30px;
-    padding-right: 20px;
+    padding-right: 25px;
 }
 
 .btn {

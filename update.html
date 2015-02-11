@@ -1,66 +1,45 @@
 <!doctype html>
 <html>
 <head>
-
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>
-
-<title id='gsTitle'>The Great Suspender :: Update</title>
-<link  id='gsFavicon' rel="icon" />
-<link type="text/css" href="css/style.css" rel="stylesheet" />
-<link type="text/css" href="history.css" rel="stylesheet" />
-<script type="text/javascript" src="js/gsUtils.js"></script>
-<script type="text/javascript" src="js/recovery.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>
+    <title id='gsTitle'>The Great Suspender</title>
+    <link  id='gsFavicon' rel="icon" />
+    <link type="text/css" href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/gsUtils.js"></script>
+    <script type="text/javascript" src="js/sessionUtils.js"></script>
+    <script type="text/javascript" src="js/recovery.js"></script>
 
 </head>
 <body id="body">
 
-<div class="mainContent">
+<div class="splash">
 
-    <h1 class="pageHeader">The Great Suspender</h1>
-
-
-    <div class="content contentFull">
-
-        <h2>New version</h2>
-
-        <p>You've just updated to a shiny new version of The Great Suspender.
-        Before I get into what's new, I would like to apologise for any suspended tabs that may have just disappeared from your browser.
-            It is an unfortunate side-effect of installing this new release. However, these tabs should be able to be recovered from
-            the <a href='history.html'>history</a> page. And the good news is that this new release has fixed the issue meaning upgrades from now on in should be smooth sailing!</p>
-
-        <p>This new version comes with a lot of new features and some much requested bug fixes. Sorry they've taken so long.</p>
-        <h2>Bug Fixes</h2>
-        <ul class="unorderedList">
-            <li>Fixed a bug around whitelisting not working correctly.</li>
-            <li>Fixed an issue with the extension not obeying the requested suspension timeouts.</li>
-        </ul>
-        <h2>New Features</h2>
-        <ul class="unorderedList">
-            <li>Full support for chrome syncing! This means that all your options and whitelisted tabs will be synced across all your logged in chrome browsers. You will also be able to load suspended tabs from your synced history.</li>
-        </ul>
-
-        <h2>Usability Improvements</h2>
-        <ul class="unorderedList">
-            <li>Chrome sync support. Suspended tabs will now appear normally over chrome sync.</li>
-            <li>Improved error recovery. You will not lose your tabs if the extension restarts or is uninstalled.</li>
-            <li>Introduced an option to never suspend pinned tabs.</li>
-            <li>New 1 minute and 5 minute options for time to auto-suspend.</li>
-            <li>Ability to choose image quality of screen preview.</li>
-            <li>Can now prevent tabs with a half-completed form from suspending and losing your entered text.</li>
-            <li>New option to force a cache refresh when reloading a tab.</li>
-            <li>New recovery screen that more accurately restores previous sessions as well as a configurable number of </li>sessions to save.
-        </ul>
-        <p>Thanks again for using my extension. Any feedback / suggestions are always welcome. You can email me directly
-        at <strong>greatsuspender@gmail.com</strong> or report any issues on my <a href='https://github.com/deanoemcke/thegreatsuspender/issues'>github page</a>.</p>
-
-        <p>Lost some tabs during the update? Recover them below.</p>
-        <ul id='recoveryLinks'></ul>
-        <br />
-
+    <div class="dude-left" style="margin: 20px 0 20px 0;">
+        <img src="img/dude_large.png" />
     </div>
 
+    <h1>OMG! An update!</h1>
+    <h2>Welcome to an all new <strong>Great Suspender</strong>.</h2>
+    <p>What's new? So much stuff. <br />
+    Session management, temporary whitelisting, form input detection... <br />
+    And of course, bug fixes :P<br />
+    You can check it all out in the <a href='/options.html' target='_blank'>settings</a> page.<br /><br />
+    One last thing. You may have lost some tabs during the update process. You can restore them below.<br />
+    <br />
+    Thanks for using <strong>The Great Suspender</strong>!
+    </p>
 
+    <hr class="splashRule" />
+    <div id='recoverySection'>
+        <button id='restoreSession' class='btn'>Restore tabs automatically</button>
+        &nbsp;&nbsp;
+        <button id='manageManuallyLink' class='btn undo'>Manage sessions manually</button>
+        <br />
+        <br />
+        <div id='recoveryLinks'></div>
+    </div>
 </div>
+
 
 </body>
 </html>

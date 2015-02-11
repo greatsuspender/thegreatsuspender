@@ -9,6 +9,7 @@
         SHOW_PREVIEW: 'preview',
         PREVIEW_QUALTIY: 'previewQuality',
         ONLINE_CHECK: 'onlineCheck',
+        BATTERY_CHECK: 'onlineCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
         SUSPEND_TIME: 'gsTimeToSuspend',
         MAX_HISTORIES: 'gsMaxHistories',
@@ -33,6 +34,7 @@
             defaults[self.SHOW_PREVIEW] = false;
             defaults[self.PREVIEW_QUALTIY] = false;
             defaults[self.ONLINE_CHECK] = true;
+            defaults[self.BATTERY_CHECK] = false;
             defaults[self.UNSUSPEND_ON_FOCUS] = false;
             defaults[self.IGNORE_PINNED] = true;
             defaults[self.IGNORE_FORMS] = true;
@@ -574,7 +576,7 @@
                 tabUrlMap = {},
                 tabMap = {},
                 windowsMap = {},
-                curTab,
+                actualTab,
                 lastSession = this.fetchLastSession(),
                 cb;
 
@@ -589,54 +591,54 @@
                 });
 
                 //attempt to automatically restore any lost tabs/windows in their proper positions
-                lastSession.windows.forEach(function (curWindow) {
+                lastSession.windows.forEach(function (sessionWindow) {
 
                     //if crashed window exists in current session then restore suspended tabs in that window
-                    if (windowsMap[curWindow.id]) {
-                        tabIdMap = windowsMap[curWindow.id];
+                    if (windowsMap[sessionWindow.id]) {
+                        tabIdMap = windowsMap[sessionWindow.id];
 
                         //get a list of unsuspended urls already in the window
-                        for (var key in tabIdMap) {
-                            if (tabIdMap.hasOwnProperty(key)) {
-                                curTab = tabIdMap[key];
-                                tabUrlMap[curTab.url] = true;
+                        for (var id in tabIdMap) {
+                            if (tabIdMap.hasOwnProperty(id)) {
+                                actualTab = tabIdMap[id];
+                                tabUrlMap[actualTab.url] = actualTab;
                             }
                         }
 
-                        curWindow.tabs.forEach(function (curTab) {
-                            //if current tab was suspended and does not exist then recreate it
-                            if (!tabUrlMap[curTab.url] && !tabIdMap[curTab.id] && curTab.url.indexOf('suspended.html') > 0) {
+                        sessionWindow.tabs.forEach(function (sessionTab) {
+
+                            //if current tab does not exist then recreate it
+                            if (!tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
                                 chrome.tabs.create({
-                                    windowId: curWindow.id,
-                                    url: curTab.url,
-                                    index: curTab.index,
-                                    pinned: curTab.pinned,
+                                    windowId: sessionWindow.id,
+                                    url: sessionTab.url,
+                                    index: sessionTab.index,
+                                    pinned: sessionTab.pinned,
                                     active: false
                                 });
 
                             //else if current tab exists and is suspended, reload it (in case it has crashed)
-                            } else if (curTab.url.indexOf('suspended.html') > 0) {
-                                chrome.tabs.reload(curTab.id);
+                            } else if (sessionTab.url.indexOf('suspended.html') > 0) {
+
+                                if (tabIdMap[sessionTab.id]) {
+                                    actualTab = tabIdMap[sessionTab.id];
+
+                                } else if (tabUrlMap[sessionTab.url]) {
+                                    actualTab = tabUrlMap[sessionTab.url];
+                                }
+                                chrome.tabs.reload(actualTab.id);
                             }
                         });
 
                     //else restore entire window
-                    } else if (curWindow.tabs.length > 0) {
+                    } else if (sessionWindow.tabs.length > 0) {
 
-                        chrome.windows.create(function(newWindow) {
-
-                            var newTabId = newWindow.tabs[0].id;
-                            curWindow.tabs.forEach(function (curTab) {
-                                chrome.tabs.create({
-                                    windowId: newWindow.id,
-                                    url: curTab.url,
-                                    index: curTab.index,
-                                    pinned: curTab.pinned,
-                                    active: false
-                                });
-                            });
-                            chrome.tabs.remove(newTabId);
+                        //create list of urls to open
+                        var tabUrls = [];
+                        sessionWindow.tabs.forEach(function (sessionTab) {
+                            tabUrls.push(sessionTab.url);
                         });
+                        chrome.windows.create({url: tabUrls}, function(newWindow) {});
 
                     }
                 });

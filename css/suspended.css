@@ -128,7 +128,7 @@ body {
     -webkit-animation-timing-function: ease;
     -webkit-animation-iteration-count: 1;
     -webkit-animation-direction: normal;
-    -webkit-animation-delay: 3s;
+    -webkit-animation-delay: 0.5s;
     -webkit-animation-play-state: running;
     -webkit-animation-fill-mode: forwards;
 }
@@ -181,7 +181,7 @@ body {
     -webkit-animation: fadein 0.7s;
     animation: fadein 0.7s;
     -webkit-animation-fill-mode:forwards;
-    -webkit-animation-delay: 4s;
+    -webkit-animation-delay: 1.5s;
 }
 
 

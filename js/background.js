@@ -107,23 +107,8 @@ var tgs = (function () {
         return false; //TODO make sure this doesn't break anything
     }
 
-    function requestTabSuspension(tab, force) {
-        force = force || false;
+    function confirmTabSuspension(tab) {
 
-        //safety check
-        if (typeof(tab) === 'undefined') return;
-
-        //make sure tab is not already suspended
-        if (isSuspended(tab)) return;
-
-        //check whitelist
-        if (!force && isExcluded(tab)) {
-            return;
-        }
-        //check internet connectivity
-        if (!force && gsUtils.getOption(gsUtils.ONLINE_CHECK) && !navigator.onLine) {
-            return;
-        }
         //if we need to save a preview image
         if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
             chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
@@ -141,6 +126,44 @@ var tgs = (function () {
                 action: 'confirmTabSuspend',
                 suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
             });
+        }
+    }
+
+    function requestTabSuspension(tab, force) {
+        force = force || false;
+
+        //safety check
+        if (typeof(tab) === 'undefined') return;
+
+        //make sure tab is not already suspended
+        if (isSuspended(tab)) return;
+
+        //if forcing tab suspend then skip other checks
+        if (force) {
+            confirmTabSuspension(tab);
+
+        //otherwise perform soft checks before suspending
+        } else {
+
+            //check whitelist
+            if (isExcluded(tab)) {
+                return;
+            }
+            //check internet connectivity
+            if (gsUtils.getOption(gsUtils.ONLINE_CHECK) && !navigator.onLine) {
+                return;
+            }
+            //check if computer is running on battery
+            if (gsUtils.getOption(gsUtils.BATTERY_CHECK)) {
+                navigator.getBattery().then(function(battery) {
+                    if (battery.charging) {
+                        confirmTabSuspension(tab);
+                    }
+                });
+
+            } else {
+                confirmTabSuspension(tab);
+            }
         }
     }
 
@@ -372,6 +395,7 @@ var tgs = (function () {
 
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+
             //else if they are upgrading to a new version
             } else {
                 //if pre v5 then perform migration
@@ -382,14 +406,16 @@ var tgs = (function () {
                 //show update screen
                 chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             }
+
+        //else if restarting the same version
+        } else {
+
+            //check for possible crash
+            checkForCrashRecovery();
         }
 
         //inject new content script into all open pages
         reinjectContentScripts();
-
-        //check for possible crash
-        checkForCrashRecovery();
-
     }
 
     function updateTabStatus(tab, reportedStatus) {
