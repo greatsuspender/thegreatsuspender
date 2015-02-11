@@ -8,6 +8,7 @@
             'preview': gsUtils.SHOW_PREVIEW,
             'previewQuality': gsUtils.PREVIEW_QUALITY,
             'onlineCheck': gsUtils.ONLINE_CHECK,
+            'batteryCheck': gsUtils.BATTERY_CHECK,
             'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
             'dontSuspendPinned': gsUtils.IGNORE_PINNED,
             'dontSuspendForms': gsUtils.IGNORE_FORMS,
