@@ -1,4 +1,4 @@
-/*global chrome, gsUtils, render, createWindowHtml, createTabHtml */
+/*global chrome, gsUtils, createWindowHtml, createTabHtml */
 
 var sessionUtils = (function () {
 
@@ -62,7 +62,7 @@ var sessionUtils = (function () {
             var text = document.getElementById('sessionNameText').value;
             if (text) {
                 gsUtils.saveSession(text, session);
-                render();
+                window.location.reload();
             }
         };
     }
