@@ -87,21 +87,21 @@
             }, 3000);
 
             try {
-                html2canvas([document.body], {
+                html2canvas(document.body,{
                     height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
                     width: document.body.clientWidth - 6,
-                    timeout: 500,
-                    proxy: false,
-                    onrendered: function (canvas) {
-                        if (processing) {
-                            processing = false;
-                            var quality =  previewQuality || 0.1;
-                            chrome.runtime.sendMessage({
-                                action: 'savePreviewData',
-                                previewUrl: canvas.toDataURL('image/jpeg', quality)
-                            });
-                            suspendTab(suspendedUrl);
-                        }
+                    imageTimeout: 500,
+                    proxy: false
+                    }).then(function(canvas) {
+
+                    if (processing) {
+                        processing = false;
+                        var quality =  previewQuality || 0.1;
+                        chrome.runtime.sendMessage({
+                            action: 'savePreviewData',
+                            previewUrl: canvas.toDataURL('image/jpeg', quality)
+                        });
+                        suspendTab(suspendedUrl);
                     }
                 });
             } catch (ex) {

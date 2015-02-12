@@ -1,449 +1,2137 @@
 /*
-  html2canvas 0.4.1 <http://html2canvas.hertzen.com>
-  Copyright (c) 2013 Niklas von Hertzen
+  html2canvas 0.5.0-alpha2 <http://html2canvas.hertzen.com>
+  Copyright (c) 2015 Niklas von Hertzen
 
   Released under MIT License
 */
 
-(function(window, document, undefined){
-
-"use strict";
-
-var _html2canvas = {},
-previousElement,
-computedCSS,
-html2canvas;
-
-_html2canvas.Util = {};
-
-_html2canvas.Util.log = function(a) {
-  if (_html2canvas.logging && window.console && window.console.log) {
-    window.console.log(a);
-  }
-};
-
-_html2canvas.Util.trimText = (function(isNative){
-  return function(input) {
-    return isNative ? isNative.apply(input) : ((input || '') + '').replace( /^\s+|\s+$/g , '' );
-  };
-})(String.prototype.trim);
-
-_html2canvas.Util.asFloat = function(v) {
-  return parseFloat(v);
-};
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.html2canvas=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (process,global){
+/*!
+ * @overview es6-promise - a tiny implementation of Promises/A+.
+ * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
+ * @version   2.0.1
+ */
 
 (function() {
-  // TODO: support all possible length values
-  var TEXT_SHADOW_PROPERTY = /((rgba|rgb)\([^\)]+\)(\s-?\d+px){0,})/g;
-  var TEXT_SHADOW_VALUES = /(-?\d+px)|(#.+)|(rgb\(.+\))|(rgba\(.+\))/g;
-  _html2canvas.Util.parseTextShadows = function (value) {
-    if (!value || value === 'none') {
-      return [];
+    "use strict";
+
+    function $$utils$$objectOrFunction(x) {
+      return typeof x === 'function' || (typeof x === 'object' && x !== null);
     }
 
-    // find multiple shadow declarations
-    var shadows = value.match(TEXT_SHADOW_PROPERTY),
-      results = [];
-    for (var i = 0; shadows && (i < shadows.length); i++) {
-      var s = shadows[i].match(TEXT_SHADOW_VALUES);
-      results.push({
-        color: s[0],
-        offsetX: s[1] ? s[1].replace('px', '') : 0,
-        offsetY: s[2] ? s[2].replace('px', '') : 0,
-        blur: s[3] ? s[3].replace('px', '') : 0
-      });
+    function $$utils$$isFunction(x) {
+      return typeof x === 'function';
     }
-    return results;
-  };
-})();
 
+    function $$utils$$isMaybeThenable(x) {
+      return typeof x === 'object' && x !== null;
+    }
 
-_html2canvas.Util.parseBackgroundImage = function (value) {
-    var whitespace = ' \r\n\t',
-        method, definition, prefix, prefix_i, block, results = [],
-        c, mode = 0, numParen = 0, quote, args;
+    var $$utils$$_isArray;
 
-    var appendResult = function(){
-        if(method) {
-            if(definition.substr( 0, 1 ) === '"') {
-                definition = definition.substr( 1, definition.length - 2 );
-            }
-            if(definition) {
-                args.push(definition);
-            }
-            if(method.substr( 0, 1 ) === '-' &&
-                    (prefix_i = method.indexOf( '-', 1 ) + 1) > 0) {
-                prefix = method.substr( 0, prefix_i);
-                method = method.substr( prefix_i );
-            }
-            results.push({
-                prefix: prefix,
-                method: method.toLowerCase(),
-                value: block,
-                args: args
-            });
-        }
-        args = []; //for some odd reason, setting .length = 0 didn't work in safari
-        method =
-            prefix =
-            definition =
-            block = '';
+    if (!Array.isArray) {
+      $$utils$$_isArray = function (x) {
+        return Object.prototype.toString.call(x) === '[object Array]';
+      };
+    } else {
+      $$utils$$_isArray = Array.isArray;
+    }
+
+    var $$utils$$isArray = $$utils$$_isArray;
+    var $$utils$$now = Date.now || function() { return new Date().getTime(); };
+    function $$utils$$F() { }
+
+    var $$utils$$o_create = (Object.create || function (o) {
+      if (arguments.length > 1) {
+        throw new Error('Second argument not supported');
+      }
+      if (typeof o !== 'object') {
+        throw new TypeError('Argument must be an object');
+      }
+      $$utils$$F.prototype = o;
+      return new $$utils$$F();
+    });
+
+    var $$asap$$len = 0;
+
+    var $$asap$$default = function asap(callback, arg) {
+      $$asap$$queue[$$asap$$len] = callback;
+      $$asap$$queue[$$asap$$len + 1] = arg;
+      $$asap$$len += 2;
+      if ($$asap$$len === 2) {
+        // If len is 1, that means that we need to schedule an async flush.
+        // If additional callbacks are queued before the queue is flushed, they
+        // will be processed by this flush that we are scheduling.
+        $$asap$$scheduleFlush();
+      }
     };
 
-    appendResult();
-    for(var i = 0, ii = value.length; i<ii; i++) {
-        c = value[i];
-        if(mode === 0 && whitespace.indexOf( c ) > -1){
-            continue;
-        }
-        switch(c) {
-            case '"':
-                if(!quote) {
-                    quote = c;
-                }
-                else if(quote === c) {
-                    quote = null;
-                }
-                break;
+    var $$asap$$browserGlobal = (typeof window !== 'undefined') ? window : {};
+    var $$asap$$BrowserMutationObserver = $$asap$$browserGlobal.MutationObserver || $$asap$$browserGlobal.WebKitMutationObserver;
 
-            case '(':
-                if(quote) { break; }
-                else if(mode === 0) {
-                    mode = 1;
-                    block += c;
-                    continue;
-                } else {
-                    numParen++;
-                }
-                break;
+    // test for web worker but not in IE10
+    var $$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
+      typeof importScripts !== 'undefined' &&
+      typeof MessageChannel !== 'undefined';
 
-            case ')':
-                if(quote) { break; }
-                else if(mode === 1) {
-                    if(numParen === 0) {
-                        mode = 0;
-                        block += c;
-                        appendResult();
-                        continue;
-                    } else {
-                        numParen--;
-                    }
-                }
-                break;
-
-            case ',':
-                if(quote) { break; }
-                else if(mode === 0) {
-                    appendResult();
-                    continue;
-                }
-                else if (mode === 1) {
-                    if(numParen === 0 && !method.match(/^url$/i)) {
-                        args.push(definition);
-                        definition = '';
-                        block += c;
-                        continue;
-                    }
-                }
-                break;
-        }
-
-        block += c;
-        if(mode === 0) { method += c; }
-        else { definition += c; }
-    }
-    appendResult();
-
-    return results;
-};
-
-_html2canvas.Util.Bounds = function (element) {
-  var clientRect, bounds = {};
-
-  if (element.getBoundingClientRect){
-    clientRect = element.getBoundingClientRect();
-
-    // TODO add scroll position to bounds, so no scrolling of window necessary
-    bounds.top = clientRect.top;
-    bounds.bottom = clientRect.bottom || (clientRect.top + clientRect.height);
-    bounds.left = clientRect.left;
-
-    bounds.width = element.offsetWidth;
-    bounds.height = element.offsetHeight;
-  }
-
-  return bounds;
-};
-
-// TODO ideally, we'd want everything to go through this function instead of Util.Bounds,
-// but would require further work to calculate the correct positions for elements with offsetParents
-_html2canvas.Util.OffsetBounds = function (element) {
-  var parent = element.offsetParent ? _html2canvas.Util.OffsetBounds(element.offsetParent) : {top: 0, left: 0};
-
-  return {
-    top: element.offsetTop + parent.top,
-    bottom: element.offsetTop + element.offsetHeight + parent.top,
-    left: element.offsetLeft + parent.left,
-    width: element.offsetWidth,
-    height: element.offsetHeight
-  };
-};
-
-function toPX(element, attribute, value ) {
-    var rsLeft = element.runtimeStyle && element.runtimeStyle[attribute],
-        left,
-        style = element.style;
-
-    // Check if we are not dealing with pixels, (Opera has issues with this)
-    // Ported from jQuery css.js
-    // From the awesome hack by Dean Edwards
-    // http://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
-
-    // If we're not dealing with a regular pixel number
-    // but a number that has a weird ending, we need to convert it to pixels
-
-    if ( !/^-?[0-9]+\.?[0-9]*(?:px)?$/i.test( value ) && /^-?\d/.test(value) ) {
-        // Remember the original values
-        left = style.left;
-
-        // Put in the new values to get a computed value out
-        if (rsLeft) {
-            element.runtimeStyle.left = element.currentStyle.left;
-        }
-        style.left = attribute === "fontSize" ? "1em" : (value || 0);
-        value = style.pixelLeft + "px";
-
-        // Revert the changed values
-        style.left = left;
-        if (rsLeft) {
-            element.runtimeStyle.left = rsLeft;
-        }
+    // node
+    function $$asap$$useNextTick() {
+      return function() {
+        process.nextTick($$asap$$flush);
+      };
     }
 
-    if (!/^(thin|medium|thick)$/i.test(value)) {
-        return Math.round(parseFloat(value)) + "px";
+    function $$asap$$useMutationObserver() {
+      var iterations = 0;
+      var observer = new $$asap$$BrowserMutationObserver($$asap$$flush);
+      var node = document.createTextNode('');
+      observer.observe(node, { characterData: true });
+
+      return function() {
+        node.data = (iterations = ++iterations % 2);
+      };
     }
 
-    return value;
-}
-
-function asInt(val) {
-    return parseInt(val, 10);
-}
-
-function parseBackgroundSizePosition(value, element, attribute, index) {
-    value = (value || '').split(',');
-    value = value[index || 0] || value[0] || 'auto';
-    value = _html2canvas.Util.trimText(value).split(' ');
-
-    if(attribute === 'backgroundSize' && (!value[0] || value[0].match(/cover|contain|auto/))) {
-        //these values will be handled in the parent function
-    } else {
-        value[0] = (value[0].indexOf( "%" ) === -1) ? toPX(element, attribute + "X", value[0]) : value[0];
-        if(value[1] === undefined) {
-            if(attribute === 'backgroundSize') {
-                value[1] = 'auto';
-                return value;
-            } else {
-                // IE 9 doesn't return double digit always
-                value[1] = value[0];
-            }
-        }
-        value[1] = (value[1].indexOf("%") === -1) ? toPX(element, attribute + "Y", value[1]) : value[1];
-    }
-    return value;
-}
-
-_html2canvas.Util.getCSS = function (element, attribute, index) {
-    if (previousElement !== element) {
-      computedCSS = document.defaultView.getComputedStyle(element, null);
+    // web worker
+    function $$asap$$useMessageChannel() {
+      var channel = new MessageChannel();
+      channel.port1.onmessage = $$asap$$flush;
+      return function () {
+        channel.port2.postMessage(0);
+      };
     }
 
-    var value = computedCSS[attribute];
+    function $$asap$$useSetTimeout() {
+      return function() {
+        setTimeout($$asap$$flush, 1);
+      };
+    }
 
-    if (/^background(Size|Position)$/.test(attribute)) {
-        return parseBackgroundSizePosition(value, element, attribute, index);
-    } else if (/border(Top|Bottom)(Left|Right)Radius/.test(attribute)) {
-      var arr = value.split(" ");
-      if (arr.length <= 1) {
-          arr[1] = arr[0];
+    var $$asap$$queue = new Array(1000);
+
+    function $$asap$$flush() {
+      for (var i = 0; i < $$asap$$len; i+=2) {
+        var callback = $$asap$$queue[i];
+        var arg = $$asap$$queue[i+1];
+
+        callback(arg);
+
+        $$asap$$queue[i] = undefined;
+        $$asap$$queue[i+1] = undefined;
       }
-      return arr.map(asInt);
+
+      $$asap$$len = 0;
     }
 
-  return value;
-};
+    var $$asap$$scheduleFlush;
 
-_html2canvas.Util.resizeBounds = function( current_width, current_height, target_width, target_height, stretch_mode ){
-  var target_ratio = target_width / target_height,
-    current_ratio = current_width / current_height,
-    output_width, output_height;
-
-  if(!stretch_mode || stretch_mode === 'auto') {
-    output_width = target_width;
-    output_height = target_height;
-  } else if(target_ratio < current_ratio ^ stretch_mode === 'contain') {
-    output_height = target_height;
-    output_width = target_height * current_ratio;
-  } else {
-    output_width = target_width;
-    output_height = target_width / current_ratio;
-  }
-
-  return {
-    width: output_width,
-    height: output_height
-  };
-};
-
-function backgroundBoundsFactory( prop, el, bounds, image, imageIndex, backgroundSize ) {
-    var bgposition =  _html2canvas.Util.getCSS( el, prop, imageIndex ) ,
-    topPos,
-    left,
-    percentage,
-    val;
-
-    if (bgposition.length === 1){
-      val = bgposition[0];
-
-      bgposition = [];
-
-      bgposition[0] = val;
-      bgposition[1] = val;
-    }
-
-    if (bgposition[0].toString().indexOf("%") !== -1){
-      percentage = (parseFloat(bgposition[0])/100);
-      left = bounds.width * percentage;
-      if(prop !== 'backgroundSize') {
-        left -= (backgroundSize || image).width*percentage;
-      }
+    // Decide what async method to use to triggering processing of queued callbacks:
+    if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
+      $$asap$$scheduleFlush = $$asap$$useNextTick();
+    } else if ($$asap$$BrowserMutationObserver) {
+      $$asap$$scheduleFlush = $$asap$$useMutationObserver();
+    } else if ($$asap$$isWorker) {
+      $$asap$$scheduleFlush = $$asap$$useMessageChannel();
     } else {
-      if(prop === 'backgroundSize') {
-        if(bgposition[0] === 'auto') {
-          left = image.width;
-        } else {
-          if (/contain|cover/.test(bgposition[0])) {
-            var resized = _html2canvas.Util.resizeBounds(image.width, image.height, bounds.width, bounds.height, bgposition[0]);
-            left = resized.width;
-            topPos = resized.height;
+      $$asap$$scheduleFlush = $$asap$$useSetTimeout();
+    }
+
+    function $$$internal$$noop() {}
+    var $$$internal$$PENDING   = void 0;
+    var $$$internal$$FULFILLED = 1;
+    var $$$internal$$REJECTED  = 2;
+    var $$$internal$$GET_THEN_ERROR = new $$$internal$$ErrorObject();
+
+    function $$$internal$$selfFullfillment() {
+      return new TypeError("You cannot resolve a promise with itself");
+    }
+
+    function $$$internal$$cannotReturnOwn() {
+      return new TypeError('A promises callback cannot return that same promise.')
+    }
+
+    function $$$internal$$getThen(promise) {
+      try {
+        return promise.then;
+      } catch(error) {
+        $$$internal$$GET_THEN_ERROR.error = error;
+        return $$$internal$$GET_THEN_ERROR;
+      }
+    }
+
+    function $$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+      try {
+        then.call(value, fulfillmentHandler, rejectionHandler);
+      } catch(e) {
+        return e;
+      }
+    }
+
+    function $$$internal$$handleForeignThenable(promise, thenable, then) {
+       $$asap$$default(function(promise) {
+        var sealed = false;
+        var error = $$$internal$$tryThen(then, thenable, function(value) {
+          if (sealed) { return; }
+          sealed = true;
+          if (thenable !== value) {
+            $$$internal$$resolve(promise, value);
           } else {
-            left = parseInt(bgposition[0], 10);
+            $$$internal$$fulfill(promise, value);
+          }
+        }, function(reason) {
+          if (sealed) { return; }
+          sealed = true;
+
+          $$$internal$$reject(promise, reason);
+        }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+        if (!sealed && error) {
+          sealed = true;
+          $$$internal$$reject(promise, error);
+        }
+      }, promise);
+    }
+
+    function $$$internal$$handleOwnThenable(promise, thenable) {
+      if (thenable._state === $$$internal$$FULFILLED) {
+        $$$internal$$fulfill(promise, thenable._result);
+      } else if (promise._state === $$$internal$$REJECTED) {
+        $$$internal$$reject(promise, thenable._result);
+      } else {
+        $$$internal$$subscribe(thenable, undefined, function(value) {
+          $$$internal$$resolve(promise, value);
+        }, function(reason) {
+          $$$internal$$reject(promise, reason);
+        });
+      }
+    }
+
+    function $$$internal$$handleMaybeThenable(promise, maybeThenable) {
+      if (maybeThenable.constructor === promise.constructor) {
+        $$$internal$$handleOwnThenable(promise, maybeThenable);
+      } else {
+        var then = $$$internal$$getThen(maybeThenable);
+
+        if (then === $$$internal$$GET_THEN_ERROR) {
+          $$$internal$$reject(promise, $$$internal$$GET_THEN_ERROR.error);
+        } else if (then === undefined) {
+          $$$internal$$fulfill(promise, maybeThenable);
+        } else if ($$utils$$isFunction(then)) {
+          $$$internal$$handleForeignThenable(promise, maybeThenable, then);
+        } else {
+          $$$internal$$fulfill(promise, maybeThenable);
+        }
+      }
+    }
+
+    function $$$internal$$resolve(promise, value) {
+      if (promise === value) {
+        $$$internal$$reject(promise, $$$internal$$selfFullfillment());
+      } else if ($$utils$$objectOrFunction(value)) {
+        $$$internal$$handleMaybeThenable(promise, value);
+      } else {
+        $$$internal$$fulfill(promise, value);
+      }
+    }
+
+    function $$$internal$$publishRejection(promise) {
+      if (promise._onerror) {
+        promise._onerror(promise._result);
+      }
+
+      $$$internal$$publish(promise);
+    }
+
+    function $$$internal$$fulfill(promise, value) {
+      if (promise._state !== $$$internal$$PENDING) { return; }
+
+      promise._result = value;
+      promise._state = $$$internal$$FULFILLED;
+
+      if (promise._subscribers.length === 0) {
+      } else {
+        $$asap$$default($$$internal$$publish, promise);
+      }
+    }
+
+    function $$$internal$$reject(promise, reason) {
+      if (promise._state !== $$$internal$$PENDING) { return; }
+      promise._state = $$$internal$$REJECTED;
+      promise._result = reason;
+
+      $$asap$$default($$$internal$$publishRejection, promise);
+    }
+
+    function $$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
+      var subscribers = parent._subscribers;
+      var length = subscribers.length;
+
+      parent._onerror = null;
+
+      subscribers[length] = child;
+      subscribers[length + $$$internal$$FULFILLED] = onFulfillment;
+      subscribers[length + $$$internal$$REJECTED]  = onRejection;
+
+      if (length === 0 && parent._state) {
+        $$asap$$default($$$internal$$publish, parent);
+      }
+    }
+
+    function $$$internal$$publish(promise) {
+      var subscribers = promise._subscribers;
+      var settled = promise._state;
+
+      if (subscribers.length === 0) { return; }
+
+      var child, callback, detail = promise._result;
+
+      for (var i = 0; i < subscribers.length; i += 3) {
+        child = subscribers[i];
+        callback = subscribers[i + settled];
+
+        if (child) {
+          $$$internal$$invokeCallback(settled, child, callback, detail);
+        } else {
+          callback(detail);
+        }
+      }
+
+      promise._subscribers.length = 0;
+    }
+
+    function $$$internal$$ErrorObject() {
+      this.error = null;
+    }
+
+    var $$$internal$$TRY_CATCH_ERROR = new $$$internal$$ErrorObject();
+
+    function $$$internal$$tryCatch(callback, detail) {
+      try {
+        return callback(detail);
+      } catch(e) {
+        $$$internal$$TRY_CATCH_ERROR.error = e;
+        return $$$internal$$TRY_CATCH_ERROR;
+      }
+    }
+
+    function $$$internal$$invokeCallback(settled, promise, callback, detail) {
+      var hasCallback = $$utils$$isFunction(callback),
+          value, error, succeeded, failed;
+
+      if (hasCallback) {
+        value = $$$internal$$tryCatch(callback, detail);
+
+        if (value === $$$internal$$TRY_CATCH_ERROR) {
+          failed = true;
+          error = value.error;
+          value = null;
+        } else {
+          succeeded = true;
+        }
+
+        if (promise === value) {
+          $$$internal$$reject(promise, $$$internal$$cannotReturnOwn());
+          return;
+        }
+
+      } else {
+        value = detail;
+        succeeded = true;
+      }
+
+      if (promise._state !== $$$internal$$PENDING) {
+        // noop
+      } else if (hasCallback && succeeded) {
+        $$$internal$$resolve(promise, value);
+      } else if (failed) {
+        $$$internal$$reject(promise, error);
+      } else if (settled === $$$internal$$FULFILLED) {
+        $$$internal$$fulfill(promise, value);
+      } else if (settled === $$$internal$$REJECTED) {
+        $$$internal$$reject(promise, value);
+      }
+    }
+
+    function $$$internal$$initializePromise(promise, resolver) {
+      try {
+        resolver(function resolvePromise(value){
+          $$$internal$$resolve(promise, value);
+        }, function rejectPromise(reason) {
+          $$$internal$$reject(promise, reason);
+        });
+      } catch(e) {
+        $$$internal$$reject(promise, e);
+      }
+    }
+
+    function $$$enumerator$$makeSettledResult(state, position, value) {
+      if (state === $$$internal$$FULFILLED) {
+        return {
+          state: 'fulfilled',
+          value: value
+        };
+      } else {
+        return {
+          state: 'rejected',
+          reason: value
+        };
+      }
+    }
+
+    function $$$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor($$$internal$$noop, label);
+      this._abortOnReject = abortOnReject;
+
+      if (this._validateInput(input)) {
+        this._input     = input;
+        this.length     = input.length;
+        this._remaining = input.length;
+
+        this._init();
+
+        if (this.length === 0) {
+          $$$internal$$fulfill(this.promise, this._result);
+        } else {
+          this.length = this.length || 0;
+          this._enumerate();
+          if (this._remaining === 0) {
+            $$$internal$$fulfill(this.promise, this._result);
           }
         }
       } else {
-        left = parseInt( bgposition[0], 10);
+        $$$internal$$reject(this.promise, this._validationError());
       }
     }
 
+    $$$enumerator$$Enumerator.prototype._validateInput = function(input) {
+      return $$utils$$isArray(input);
+    };
 
-    if(bgposition[1] === 'auto') {
-      topPos = left / image.width * image.height;
-    } else if (bgposition[1].toString().indexOf("%") !== -1){
-      percentage = (parseFloat(bgposition[1])/100);
-      topPos =  bounds.height * percentage;
-      if(prop !== 'backgroundSize') {
-        topPos -= (backgroundSize || image).height * percentage;
+    $$$enumerator$$Enumerator.prototype._validationError = function() {
+      return new Error('Array Methods must be provided an Array');
+    };
+
+    $$$enumerator$$Enumerator.prototype._init = function() {
+      this._result = new Array(this.length);
+    };
+
+    var $$$enumerator$$default = $$$enumerator$$Enumerator;
+
+    $$$enumerator$$Enumerator.prototype._enumerate = function() {
+      var length  = this.length;
+      var promise = this.promise;
+      var input   = this._input;
+
+      for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+        this._eachEntry(input[i], i);
+      }
+    };
+
+    $$$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
+      var c = this._instanceConstructor;
+      if ($$utils$$isMaybeThenable(entry)) {
+        if (entry.constructor === c && entry._state !== $$$internal$$PENDING) {
+          entry._onerror = null;
+          this._settledAt(entry._state, i, entry._result);
+        } else {
+          this._willSettleAt(c.resolve(entry), i);
+        }
+      } else {
+        this._remaining--;
+        this._result[i] = this._makeResult($$$internal$$FULFILLED, i, entry);
+      }
+    };
+
+    $$$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
+      var promise = this.promise;
+
+      if (promise._state === $$$internal$$PENDING) {
+        this._remaining--;
+
+        if (this._abortOnReject && state === $$$internal$$REJECTED) {
+          $$$internal$$reject(promise, value);
+        } else {
+          this._result[i] = this._makeResult(state, i, value);
+        }
       }
 
-    } else {
-      topPos = parseInt(bgposition[1],10);
+      if (this._remaining === 0) {
+        $$$internal$$fulfill(promise, this._result);
+      }
+    };
+
+    $$$enumerator$$Enumerator.prototype._makeResult = function(state, i, value) {
+      return value;
+    };
+
+    $$$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+      var enumerator = this;
+
+      $$$internal$$subscribe(promise, undefined, function(value) {
+        enumerator._settledAt($$$internal$$FULFILLED, i, value);
+      }, function(reason) {
+        enumerator._settledAt($$$internal$$REJECTED, i, reason);
+      });
+    };
+
+    var $$promise$all$$default = function all(entries, label) {
+      return new $$$enumerator$$default(this, entries, true /* abort on reject */, label).promise;
+    };
+
+    var $$promise$race$$default = function race(entries, label) {
+      /*jshint validthis:true */
+      var Constructor = this;
+
+      var promise = new Constructor($$$internal$$noop, label);
+
+      if (!$$utils$$isArray(entries)) {
+        $$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
+        return promise;
+      }
+
+      var length = entries.length;
+
+      function onFulfillment(value) {
+        $$$internal$$resolve(promise, value);
+      }
+
+      function onRejection(reason) {
+        $$$internal$$reject(promise, reason);
+      }
+
+      for (var i = 0; promise._state === $$$internal$$PENDING && i < length; i++) {
+        $$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+      }
+
+      return promise;
+    };
+
+    var $$promise$resolve$$default = function resolve(object, label) {
+      /*jshint validthis:true */
+      var Constructor = this;
+
+      if (object && typeof object === 'object' && object.constructor === Constructor) {
+        return object;
+      }
+
+      var promise = new Constructor($$$internal$$noop, label);
+      $$$internal$$resolve(promise, object);
+      return promise;
+    };
+
+    var $$promise$reject$$default = function reject(reason, label) {
+      /*jshint validthis:true */
+      var Constructor = this;
+      var promise = new Constructor($$$internal$$noop, label);
+      $$$internal$$reject(promise, reason);
+      return promise;
+    };
+
+    var $$es6$promise$promise$$counter = 0;
+
+    function $$es6$promise$promise$$needsResolver() {
+      throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
     }
 
-    return [left, topPos];
+    function $$es6$promise$promise$$needsNew() {
+      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+    }
+
+    var $$es6$promise$promise$$default = $$es6$promise$promise$$Promise;
+
+    /**
+      Promise objects represent the eventual result of an asynchronous operation. The
+      primary way of interacting with a promise is through its `then` method, which
+      registers callbacks to receive either a promise’s eventual value or the reason
+      why the promise cannot be fulfilled.
+
+      Terminology
+      -----------
+
+      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+      - `thenable` is an object or function that defines a `then` method.
+      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+      - `exception` is a value that is thrown using the throw statement.
+      - `reason` is a value that indicates why a promise was rejected.
+      - `settled` the final resting state of a promise, fulfilled or rejected.
+
+      A promise can be in one of three states: pending, fulfilled, or rejected.
+
+      Promises that are fulfilled have a fulfillment value and are in the fulfilled
+      state.  Promises that are rejected have a rejection reason and are in the
+      rejected state.  A fulfillment value is never a thenable.
+
+      Promises can also be said to *resolve* a value.  If this value is also a
+      promise, then the original promise's settled state will match the value's
+      settled state.  So a promise that *resolves* a promise that rejects will
+      itself reject, and a promise that *resolves* a promise that fulfills will
+      itself fulfill.
+
+
+      Basic Usage:
+      ------------
+
+      ```js
+      var promise = new Promise(function(resolve, reject) {
+        // on success
+        resolve(value);
+
+        // on failure
+        reject(reason);
+      });
+
+      promise.then(function(value) {
+        // on fulfillment
+      }, function(reason) {
+        // on rejection
+      });
+      ```
+
+      Advanced Usage:
+      ---------------
+
+      Promises shine when abstracting away asynchronous interactions such as
+      `XMLHttpRequest`s.
+
+      ```js
+      function getJSON(url) {
+        return new Promise(function(resolve, reject){
+          var xhr = new XMLHttpRequest();
+
+          xhr.open('GET', url);
+          xhr.onreadystatechange = handler;
+          xhr.responseType = 'json';
+          xhr.setRequestHeader('Accept', 'application/json');
+          xhr.send();
+
+          function handler() {
+            if (this.readyState === this.DONE) {
+              if (this.status === 200) {
+                resolve(this.response);
+              } else {
+                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+              }
+            }
+          };
+        });
+      }
+
+      getJSON('/posts.json').then(function(json) {
+        // on fulfillment
+      }, function(reason) {
+        // on rejection
+      });
+      ```
+
+      Unlike callbacks, promises are great composable primitives.
+
+      ```js
+      Promise.all([
+        getJSON('/posts'),
+        getJSON('/comments')
+      ]).then(function(values){
+        values[0] // => postsJSON
+        values[1] // => commentsJSON
+
+        return values;
+      });
+      ```
+
+      @class Promise
+      @param {function} resolver
+      Useful for tooling.
+      @constructor
+    */
+    function $$es6$promise$promise$$Promise(resolver) {
+      this._id = $$es6$promise$promise$$counter++;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
+
+      if ($$$internal$$noop !== resolver) {
+        if (!$$utils$$isFunction(resolver)) {
+          $$es6$promise$promise$$needsResolver();
+        }
+
+        if (!(this instanceof $$es6$promise$promise$$Promise)) {
+          $$es6$promise$promise$$needsNew();
+        }
+
+        $$$internal$$initializePromise(this, resolver);
+      }
+    }
+
+    $$es6$promise$promise$$Promise.all = $$promise$all$$default;
+    $$es6$promise$promise$$Promise.race = $$promise$race$$default;
+    $$es6$promise$promise$$Promise.resolve = $$promise$resolve$$default;
+    $$es6$promise$promise$$Promise.reject = $$promise$reject$$default;
+
+    $$es6$promise$promise$$Promise.prototype = {
+      constructor: $$es6$promise$promise$$Promise,
+
+    /**
+      The primary way of interacting with a promise is through its `then` method,
+      which registers callbacks to receive either a promise's eventual value or the
+      reason why the promise cannot be fulfilled.
+
+      ```js
+      findUser().then(function(user){
+        // user is available
+      }, function(reason){
+        // user is unavailable, and you are given the reason why
+      });
+      ```
+
+      Chaining
+      --------
+
+      The return value of `then` is itself a promise.  This second, 'downstream'
+      promise is resolved with the return value of the first promise's fulfillment
+      or rejection handler, or rejected if the handler throws an exception.
+
+      ```js
+      findUser().then(function (user) {
+        return user.name;
+      }, function (reason) {
+        return 'default name';
+      }).then(function (userName) {
+        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+        // will be `'default name'`
+      });
+
+      findUser().then(function (user) {
+        throw new Error('Found user, but still unhappy');
+      }, function (reason) {
+        throw new Error('`findUser` rejected and we're unhappy');
+      }).then(function (value) {
+        // never reached
+      }, function (reason) {
+        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+      });
+      ```
+      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+
+      ```js
+      findUser().then(function (user) {
+        throw new PedagogicalException('Upstream error');
+      }).then(function (value) {
+        // never reached
+      }).then(function (value) {
+        // never reached
+      }, function (reason) {
+        // The `PedgagocialException` is propagated all the way down to here
+      });
+      ```
+
+      Assimilation
+      ------------
+
+      Sometimes the value you want to propagate to a downstream promise can only be
+      retrieved asynchronously. This can be achieved by returning a promise in the
+      fulfillment or rejection handler. The downstream promise will then be pending
+      until the returned promise is settled. This is called *assimilation*.
+
+      ```js
+      findUser().then(function (user) {
+        return findCommentsByAuthor(user);
+      }).then(function (comments) {
+        // The user's comments are now available
+      });
+      ```
+
+      If the assimliated promise rejects, then the downstream promise will also reject.
+
+      ```js
+      findUser().then(function (user) {
+        return findCommentsByAuthor(user);
+      }).then(function (comments) {
+        // If `findCommentsByAuthor` fulfills, we'll have the value here
+      }, function (reason) {
+        // If `findCommentsByAuthor` rejects, we'll have the reason here
+      });
+      ```
+
+      Simple Example
+      --------------
+
+      Synchronous Example
+
+      ```javascript
+      var result;
+
+      try {
+        result = findResult();
+        // success
+      } catch(reason) {
+        // failure
+      }
+      ```
+
+      Errback Example
+
+      ```js
+      findResult(function(result, err){
+        if (err) {
+          // failure
+        } else {
+          // success
+        }
+      });
+      ```
+
+      Promise Example;
+
+      ```javascript
+      findResult().then(function(result){
+        // success
+      }, function(reason){
+        // failure
+      });
+      ```
+
+      Advanced Example
+      --------------
+
+      Synchronous Example
+
+      ```javascript
+      var author, books;
+
+      try {
+        author = findAuthor();
+        books  = findBooksByAuthor(author);
+        // success
+      } catch(reason) {
+        // failure
+      }
+      ```
+
+      Errback Example
+
+      ```js
+
+      function foundBooks(books) {
+
+      }
+
+      function failure(reason) {
+
+      }
+
+      findAuthor(function(author, err){
+        if (err) {
+          failure(err);
+          // failure
+        } else {
+          try {
+            findBoooksByAuthor(author, function(books, err) {
+              if (err) {
+                failure(err);
+              } else {
+                try {
+                  foundBooks(books);
+                } catch(reason) {
+                  failure(reason);
+                }
+              }
+            });
+          } catch(error) {
+            failure(err);
+          }
+          // success
+        }
+      });
+      ```
+
+      Promise Example;
+
+      ```javascript
+      findAuthor().
+        then(findBooksByAuthor).
+        then(function(books){
+          // found books
+      }).catch(function(reason){
+        // something went wrong
+      });
+      ```
+
+      @method then
+      @param {Function} onFulfilled
+      @param {Function} onRejected
+      Useful for tooling.
+      @return {Promise}
+    */
+      then: function(onFulfillment, onRejection) {
+        var parent = this;
+        var state = parent._state;
+
+        if (state === $$$internal$$FULFILLED && !onFulfillment || state === $$$internal$$REJECTED && !onRejection) {
+          return this;
+        }
+
+        var child = new this.constructor($$$internal$$noop);
+        var result = parent._result;
+
+        if (state) {
+          var callback = arguments[state - 1];
+          $$asap$$default(function(){
+            $$$internal$$invokeCallback(state, child, callback, result);
+          });
+        } else {
+          $$$internal$$subscribe(parent, child, onFulfillment, onRejection);
+        }
+
+        return child;
+      },
+
+    /**
+      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+      as the catch block of a try/catch statement.
+
+      ```js
+      function findAuthor(){
+        throw new Error('couldn't find that author');
+      }
+
+      // synchronous
+      try {
+        findAuthor();
+      } catch(reason) {
+        // something went wrong
+      }
+
+      // async with promises
+      findAuthor().catch(function(reason){
+        // something went wrong
+      });
+      ```
+
+      @method catch
+      @param {Function} onRejection
+      Useful for tooling.
+      @return {Promise}
+    */
+      'catch': function(onRejection) {
+        return this.then(null, onRejection);
+      }
+    };
+
+    var $$es6$promise$polyfill$$default = function polyfill() {
+      var local;
+
+      if (typeof global !== 'undefined') {
+        local = global;
+      } else if (typeof window !== 'undefined' && window.document) {
+        local = window;
+      } else {
+        local = self;
+      }
+
+      var es6PromiseSupport =
+        "Promise" in local &&
+        // Some of these methods are missing from
+        // Firefox/Chrome experimental implementations
+        "resolve" in local.Promise &&
+        "reject" in local.Promise &&
+        "all" in local.Promise &&
+        "race" in local.Promise &&
+        // Older version of the spec had a resolver object
+        // as the arg rather than a function
+        (function() {
+          var resolve;
+          new local.Promise(function(r) { resolve = r; });
+          return $$utils$$isFunction(resolve);
+        }());
+
+      if (!es6PromiseSupport) {
+        local.Promise = $$es6$promise$promise$$default;
+      }
+    };
+
+    var es6$promise$umd$$ES6Promise = {
+      'Promise': $$es6$promise$promise$$default,
+      'polyfill': $$es6$promise$polyfill$$default
+    };
+
+    /* global define:true module:true window: true */
+    if (typeof define === 'function' && define['amd']) {
+      define(function() { return es6$promise$umd$$ES6Promise; });
+    } else if (typeof module !== 'undefined' && module['exports']) {
+      module['exports'] = es6$promise$umd$$ES6Promise;
+    } else if (typeof this !== 'undefined') {
+      this['ES6Promise'] = es6$promise$umd$$ES6Promise;
+    }
+}).call(this);
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":2}],2:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
+    }
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],3:[function(require,module,exports){
+(function (global){
+/*! http://mths.be/punycode v1.2.4 by @mathias */
+;(function(root) {
+
+	/** Detect free variables */
+	var freeExports = typeof exports == 'object' && exports;
+	var freeModule = typeof module == 'object' && module &&
+		module.exports == freeExports && module;
+	var freeGlobal = typeof global == 'object' && global;
+	if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+		root = freeGlobal;
+	}
+
+	/**
+	 * The `punycode` object.
+	 * @name punycode
+	 * @type Object
+	 */
+	var punycode,
+
+	/** Highest positive signed 32-bit float value */
+	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+	/** Bootstring parameters */
+	base = 36,
+	tMin = 1,
+	tMax = 26,
+	skew = 38,
+	damp = 700,
+	initialBias = 72,
+	initialN = 128, // 0x80
+	delimiter = '-', // '\x2D'
+
+	/** Regular expressions */
+	regexPunycode = /^xn--/,
+	regexNonASCII = /[^ -~]/, // unprintable ASCII chars + non-ASCII chars
+	regexSeparators = /\x2E|\u3002|\uFF0E|\uFF61/g, // RFC 3490 separators
+
+	/** Error messages */
+	errors = {
+		'overflow': 'Overflow: input needs wider integers to process',
+		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+		'invalid-input': 'Invalid input'
+	},
+
+	/** Convenience shortcuts */
+	baseMinusTMin = base - tMin,
+	floor = Math.floor,
+	stringFromCharCode = String.fromCharCode,
+
+	/** Temporary variable */
+	key;
+
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * A generic error utility function.
+	 * @private
+	 * @param {String} type The error type.
+	 * @returns {Error} Throws a `RangeError` with the applicable error message.
+	 */
+	function error(type) {
+		throw RangeError(errors[type]);
+	}
+
+	/**
+	 * A generic `Array#map` utility function.
+	 * @private
+	 * @param {Array} array The array to iterate over.
+	 * @param {Function} callback The function that gets called for every array
+	 * item.
+	 * @returns {Array} A new array of values returned by the callback function.
+	 */
+	function map(array, fn) {
+		var length = array.length;
+		while (length--) {
+			array[length] = fn(array[length]);
+		}
+		return array;
+	}
+
+	/**
+	 * A simple `Array#map`-like wrapper to work with domain name strings.
+	 * @private
+	 * @param {String} domain The domain name.
+	 * @param {Function} callback The function that gets called for every
+	 * character.
+	 * @returns {Array} A new string of characters returned by the callback
+	 * function.
+	 */
+	function mapDomain(string, fn) {
+		return map(string.split(regexSeparators), fn).join('.');
+	}
+
+	/**
+	 * Creates an array containing the numeric code points of each Unicode
+	 * character in the string. While JavaScript uses UCS-2 internally,
+	 * this function will convert a pair of surrogate halves (each of which
+	 * UCS-2 exposes as separate characters) into a single code point,
+	 * matching UTF-16.
+	 * @see `punycode.ucs2.encode`
+	 * @see <http://mathiasbynens.be/notes/javascript-encoding>
+	 * @memberOf punycode.ucs2
+	 * @name decode
+	 * @param {String} string The Unicode input string (UCS-2).
+	 * @returns {Array} The new array of code points.
+	 */
+	function ucs2decode(string) {
+		var output = [],
+		    counter = 0,
+		    length = string.length,
+		    value,
+		    extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Creates a string based on an array of numeric code points.
+	 * @see `punycode.ucs2.decode`
+	 * @memberOf punycode.ucs2
+	 * @name encode
+	 * @param {Array} codePoints The array of numeric code points.
+	 * @returns {String} The new Unicode string (UCS-2).
+	 */
+	function ucs2encode(array) {
+		return map(array, function(value) {
+			var output = '';
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+			return output;
+		}).join('');
+	}
+
+	/**
+	 * Converts a basic code point into a digit/integer.
+	 * @see `digitToBasic()`
+	 * @private
+	 * @param {Number} codePoint The basic numeric code point value.
+	 * @returns {Number} The numeric value of a basic code point (for use in
+	 * representing integers) in the range `0` to `base - 1`, or `base` if
+	 * the code point does not represent a value.
+	 */
+	function basicToDigit(codePoint) {
+		if (codePoint - 48 < 10) {
+			return codePoint - 22;
+		}
+		if (codePoint - 65 < 26) {
+			return codePoint - 65;
+		}
+		if (codePoint - 97 < 26) {
+			return codePoint - 97;
+		}
+		return base;
+	}
+
+	/**
+	 * Converts a digit/integer into a basic code point.
+	 * @see `basicToDigit()`
+	 * @private
+	 * @param {Number} digit The numeric value of a basic code point.
+	 * @returns {Number} The basic code point whose value (when used for
+	 * representing integers) is `digit`, which needs to be in the range
+	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+	 * used; else, the lowercase form is used. The behavior is undefined
+	 * if `flag` is non-zero and `digit` has no uppercase form.
+	 */
+	function digitToBasic(digit, flag) {
+		//  0..25 map to ASCII a..z or A..Z
+		// 26..35 map to ASCII 0..9
+		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+	}
+
+	/**
+	 * Bias adaptation function as per section 3.4 of RFC 3492.
+	 * http://tools.ietf.org/html/rfc3492#section-3.4
+	 * @private
+	 */
+	function adapt(delta, numPoints, firstTime) {
+		var k = 0;
+		delta = firstTime ? floor(delta / damp) : delta >> 1;
+		delta += floor(delta / numPoints);
+		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+			delta = floor(delta / baseMinusTMin);
+		}
+		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+	}
+
+	/**
+	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The Punycode string of ASCII-only symbols.
+	 * @returns {String} The resulting string of Unicode symbols.
+	 */
+	function decode(input) {
+		// Don't use UCS-2
+		var output = [],
+		    inputLength = input.length,
+		    out,
+		    i = 0,
+		    n = initialN,
+		    bias = initialBias,
+		    basic,
+		    j,
+		    index,
+		    oldi,
+		    w,
+		    k,
+		    digit,
+		    t,
+		    /** Cached calculation results */
+		    baseMinusT;
+
+		// Handle the basic code points: let `basic` be the number of input code
+		// points before the last delimiter, or `0` if there is none, then copy
+		// the first basic code points to the output.
+
+		basic = input.lastIndexOf(delimiter);
+		if (basic < 0) {
+			basic = 0;
+		}
+
+		for (j = 0; j < basic; ++j) {
+			// if it's not a basic code point
+			if (input.charCodeAt(j) >= 0x80) {
+				error('not-basic');
+			}
+			output.push(input.charCodeAt(j));
+		}
+
+		// Main decoding loop: start just after the last delimiter if any basic code
+		// points were copied; start at the beginning otherwise.
+
+		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+			// `index` is the index of the next character to be consumed.
+			// Decode a generalized variable-length integer into `delta`,
+			// which gets added to `i`. The overflow checking is easier
+			// if we increase `i` as we go, then subtract off its starting
+			// value at the end to obtain `delta`.
+			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+				if (index >= inputLength) {
+					error('invalid-input');
+				}
+
+				digit = basicToDigit(input.charCodeAt(index++));
+
+				if (digit >= base || digit > floor((maxInt - i) / w)) {
+					error('overflow');
+				}
+
+				i += digit * w;
+				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+				if (digit < t) {
+					break;
+				}
+
+				baseMinusT = base - t;
+				if (w > floor(maxInt / baseMinusT)) {
+					error('overflow');
+				}
+
+				w *= baseMinusT;
+
+			}
+
+			out = output.length + 1;
+			bias = adapt(i - oldi, out, oldi == 0);
+
+			// `i` was supposed to wrap around from `out` to `0`,
+			// incrementing `n` each time, so we'll fix that now:
+			if (floor(i / out) > maxInt - n) {
+				error('overflow');
+			}
+
+			n += floor(i / out);
+			i %= out;
+
+			// Insert `n` at position `i` of the output
+			output.splice(i++, 0, n);
+
+		}
+
+		return ucs2encode(output);
+	}
+
+	/**
+	 * Converts a string of Unicode symbols to a Punycode string of ASCII-only
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The string of Unicode symbols.
+	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+	 */
+	function encode(input) {
+		var n,
+		    delta,
+		    handledCPCount,
+		    basicLength,
+		    bias,
+		    j,
+		    m,
+		    q,
+		    k,
+		    t,
+		    currentValue,
+		    output = [],
+		    /** `inputLength` will hold the number of code points in `input`. */
+		    inputLength,
+		    /** Cached calculation results */
+		    handledCPCountPlusOne,
+		    baseMinusT,
+		    qMinusT;
+
+		// Convert the input in UCS-2 to Unicode
+		input = ucs2decode(input);
+
+		// Cache the length
+		inputLength = input.length;
+
+		// Initialize the state
+		n = initialN;
+		delta = 0;
+		bias = initialBias;
+
+		// Handle the basic code points
+		for (j = 0; j < inputLength; ++j) {
+			currentValue = input[j];
+			if (currentValue < 0x80) {
+				output.push(stringFromCharCode(currentValue));
+			}
+		}
+
+		handledCPCount = basicLength = output.length;
+
+		// `handledCPCount` is the number of code points that have been handled;
+		// `basicLength` is the number of basic code points.
+
+		// Finish the basic string - if it is not empty - with a delimiter
+		if (basicLength) {
+			output.push(delimiter);
+		}
+
+		// Main encoding loop:
+		while (handledCPCount < inputLength) {
+
+			// All non-basic code points < n have been handled already. Find the next
+			// larger one:
+			for (m = maxInt, j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue >= n && currentValue < m) {
+					m = currentValue;
+				}
+			}
+
+			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+			// but guard against overflow
+			handledCPCountPlusOne = handledCPCount + 1;
+			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+				error('overflow');
+			}
+
+			delta += (m - n) * handledCPCountPlusOne;
+			n = m;
+
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+
+				if (currentValue < n && ++delta > maxInt) {
+					error('overflow');
+				}
+
+				if (currentValue == n) {
+					// Represent delta as a generalized variable-length integer
+					for (q = delta, k = base; /* no condition */; k += base) {
+						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+						if (q < t) {
+							break;
+						}
+						qMinusT = q - t;
+						baseMinusT = base - t;
+						output.push(
+							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+						);
+						q = floor(qMinusT / baseMinusT);
+					}
+
+					output.push(stringFromCharCode(digitToBasic(q, 0)));
+					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+					delta = 0;
+					++handledCPCount;
+				}
+			}
+
+			++delta;
+			++n;
+
+		}
+		return output.join('');
+	}
+
+	/**
+	 * Converts a Punycode string representing a domain name to Unicode. Only the
+	 * Punycoded parts of the domain name will be converted, i.e. it doesn't
+	 * matter if you call it on a string that has already been converted to
+	 * Unicode.
+	 * @memberOf punycode
+	 * @param {String} domain The Punycode domain name to convert to Unicode.
+	 * @returns {String} The Unicode representation of the given Punycode
+	 * string.
+	 */
+	function toUnicode(domain) {
+		return mapDomain(domain, function(string) {
+			return regexPunycode.test(string)
+				? decode(string.slice(4).toLowerCase())
+				: string;
+		});
+	}
+
+	/**
+	 * Converts a Unicode string representing a domain name to Punycode. Only the
+	 * non-ASCII parts of the domain name will be converted, i.e. it doesn't
+	 * matter if you call it with a domain that's already in ASCII.
+	 * @memberOf punycode
+	 * @param {String} domain The domain name to convert, as a Unicode string.
+	 * @returns {String} The Punycode representation of the given domain name.
+	 */
+	function toASCII(domain) {
+		return mapDomain(domain, function(string) {
+			return regexNonASCII.test(string)
+				? 'xn--' + encode(string)
+				: string;
+		});
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	/** Define the public API */
+	punycode = {
+		/**
+		 * A string representing the current Punycode.js version number.
+		 * @memberOf punycode
+		 * @type String
+		 */
+		'version': '1.2.4',
+		/**
+		 * An object of methods to convert from JavaScript's internal character
+		 * representation (UCS-2) to Unicode code points, and back.
+		 * @see <http://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode
+		 * @type Object
+		 */
+		'ucs2': {
+			'decode': ucs2decode,
+			'encode': ucs2encode
+		},
+		'decode': decode,
+		'encode': encode,
+		'toASCII': toASCII,
+		'toUnicode': toUnicode
+	};
+
+	/** Expose `punycode` */
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define('punycode', function() {
+			return punycode;
+		});
+	} else if (freeExports && !freeExports.nodeType) {
+		if (freeModule) { // in Node.js or RingoJS v0.8.0+
+			freeModule.exports = punycode;
+		} else { // in Narwhal or RingoJS v0.7.0-
+			for (key in punycode) {
+				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+			}
+		}
+	} else { // in Rhino or a web browser
+		root.punycode = punycode;
+	}
+
+}(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],4:[function(require,module,exports){
+var log = require('./log');
+var Promise = require('./promise');
+
+var html2canvasCanvasCloneAttribute = "data-html2canvas-canvas-clone";
+var html2canvasCanvasCloneIndex = 0;
+
+function cloneNodeValues(document, clone, nodeName) {
+    var originalNodes = document.getElementsByTagName(nodeName);
+    var clonedNodes = clone.getElementsByTagName(nodeName);
+    var count = originalNodes.length;
+    for (var i = 0; i < count; i++) {
+        clonedNodes[i].value = originalNodes[i].value;
+    }
 }
 
-_html2canvas.Util.BackgroundPosition = function( el, bounds, image, imageIndex, backgroundSize ) {
-    var result = backgroundBoundsFactory( 'backgroundPosition', el, bounds, image, imageIndex, backgroundSize );
-    return { left: result[0], top: result[1] };
-};
-
-_html2canvas.Util.BackgroundSize = function( el, bounds, image, imageIndex ) {
-    var result = backgroundBoundsFactory( 'backgroundSize', el, bounds, image, imageIndex );
-    return { width: result[0], height: result[1] };
-};
-
-_html2canvas.Util.Extend = function (options, defaults) {
-  for (var key in options) {
-    if (options.hasOwnProperty(key)) {
-      defaults[key] = options[key];
+function restoreOwnerScroll(ownerDocument, x, y) {
+    if (ownerDocument.defaultView && (x !== ownerDocument.defaultView.pageXOffset || y !== ownerDocument.defaultView.pageYOffset)) {
+        ownerDocument.defaultView.scrollTo(x, y);
     }
-  }
-  return defaults;
-};
+}
 
+function labelCanvasElements(ownerDocument) {
+    [].slice.call(ownerDocument.querySelectorAll("canvas"), 0).forEach(function(canvas) {
+        canvas.setAttribute(html2canvasCanvasCloneAttribute, "canvas-" + html2canvasCanvasCloneIndex++);
+    });
+}
 
-/*
- * Derived from jQuery.contents()
- * Copyright 2010, John Resig
- * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://jquery.org/license
- */
-_html2canvas.Util.Children = function( elem ) {
-  var children;
-  try {
-    children = (elem.nodeName && elem.nodeName.toUpperCase() === "IFRAME") ? elem.contentDocument || elem.contentWindow.document : (function(array) {
-      var ret = [];
-      if (array !== null) {
-        (function(first, second ) {
-          var i = first.length,
-          j = 0;
-
-          if (typeof second.length === "number") {
-            for (var l = second.length; j < l; j++) {
-              first[i++] = second[j];
+function cloneCanvasContents(ownerDocument, documentClone) {
+    [].slice.call(ownerDocument.querySelectorAll("[" + html2canvasCanvasCloneAttribute + "]"), 0).forEach(function(canvas) {
+        try {
+            var clonedCanvas = documentClone.querySelector('[' + html2canvasCanvasCloneAttribute + '="' + canvas.getAttribute(html2canvasCanvasCloneAttribute) + '"]');
+            if (clonedCanvas) {
+                clonedCanvas.width = canvas.width;
+                clonedCanvas.height = canvas.height;
+                clonedCanvas.getContext("2d").putImageData(canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height), 0, 0);
             }
-          } else {
-            while (second[j] !== undefined) {
-              first[i++] = second[j++];
-            }
-          }
+        } catch(e) {
+            log("Unable to copy canvas content from", canvas, e);
+        }
+        canvas.removeAttribute(html2canvasCanvasCloneAttribute);
+    });
+}
 
-          first.length = i;
+function removeScriptNodes(parent) {
+    [].slice.call(parent.childNodes, 0).filter(isElementNode).forEach(function(node) {
+        if (node.tagName === "SCRIPT") {
+            parent.removeChild(node);
+        } else {
+            removeScriptNodes(node);
+        }
+    });
+    return parent;
+}
 
-          return first;
-        })(ret, array);
-      }
-      return ret;
-    })(elem.childNodes);
+function isIE9() {
+    return document.documentMode && document.documentMode <= 9;
+}
 
-  } catch (ex) {
-    _html2canvas.Util.log("html2canvas.Util.Children failed with exception: " + ex.message);
-    children = [];
-  }
-  return children;
-};
+// https://github.com/niklasvh/html2canvas/issues/503
+function cloneNodeIE9(node, javascriptEnabled) {
+    var clone = node.nodeType === 3 ? document.createTextNode(node.nodeValue) : node.cloneNode(false);
 
-_html2canvas.Util.isTransparent = function(backgroundColor) {
-  return (backgroundColor === "transparent" || backgroundColor === "rgba(0, 0, 0, 0)");
-};
-_html2canvas.Util.Font = (function () {
-
-  var fontData = {};
-
-  return function(font, fontSize, doc) {
-    if (fontData[font + "-" + fontSize] !== undefined) {
-      return fontData[font + "-" + fontSize];
+    var child = node.firstChild;
+    while(child) {
+        if (javascriptEnabled === true || child.nodeType !== 1 || child.nodeName !== 'SCRIPT') {
+            clone.appendChild(cloneNodeIE9(child, javascriptEnabled));
+        }
+        child = child.nextSibling;
     }
 
-    var container = doc.createElement('div'),
-    img = doc.createElement('img'),
-    span = doc.createElement('span'),
-    sampleText = 'Hidden Text',
-    baseline,
-    middle,
-    metricsObj;
+    return clone;
+}
+
+
+
+function isElementNode(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+}
+
+module.exports = function(ownerDocument, containerDocument, width, height, options, x ,y) {
+    labelCanvasElements(ownerDocument);
+    var documentElement = isIE9() ? cloneNodeIE9(ownerDocument.documentElement, options.javascriptEnabled) : ownerDocument.documentElement.cloneNode(true);
+    var container = containerDocument.createElement("iframe");
+
+    container.className = "html2canvas-container";
+    container.style.visibility = "hidden";
+    container.style.position = "fixed";
+    container.style.left = "-10000px";
+    container.style.top = "0px";
+    container.style.border = "0";
+    container.width = width;
+    container.height = height;
+    container.scrolling = "no"; // ios won't scroll without it
+    containerDocument.body.appendChild(container);
+
+    return new Promise(function(resolve) {
+        var documentClone = container.contentWindow.document;
+
+        cloneNodeValues(ownerDocument.documentElement, documentElement, "textarea");
+        cloneNodeValues(ownerDocument.documentElement, documentElement, "select");
+
+        /* Chrome doesn't detect relative background-images assigned in inline <style> sheets when fetched through getComputedStyle
+         if window url is about:blank, we can assign the url to current by writing onto the document
+         */
+        container.contentWindow.onload = container.onload = function() {
+            var interval = setInterval(function() {
+                if (documentClone.body.childNodes.length > 0) {
+                    cloneCanvasContents(ownerDocument, documentClone);
+                    clearInterval(interval);
+                    if (options.type === "view") {
+                        container.contentWindow.scrollTo(x, y);
+                    }
+                    resolve(container);
+                }
+            }, 50);
+        };
+
+        documentClone.open();
+        documentClone.write("<!DOCTYPE html><html></html>");
+        // Chrome scrolls the parent document for some reason after the write to the cloned window???
+        restoreOwnerScroll(ownerDocument, x, y);
+        documentClone.replaceChild(options.javascriptEnabled === true ? documentClone.adoptNode(documentElement) : removeScriptNodes(documentClone.adoptNode(documentElement)), documentClone.documentElement);
+        documentClone.close();
+    });
+};
+
+},{"./log":15,"./promise":18}],5:[function(require,module,exports){
+// http://dev.w3.org/csswg/css-color/
+
+function Color(value) {
+    this.r = 0;
+    this.g = 0;
+    this.b = 0;
+    this.a = null;
+    var result = this.fromArray(value) ||
+        this.namedColor(value) ||
+        this.rgb(value) ||
+        this.rgba(value) ||
+        this.hex6(value) ||
+        this.hex3(value);
+}
+
+Color.prototype.darken = function(amount) {
+    var a = 1 - amount;
+    return  new Color([
+        Math.round(this.r * a),
+        Math.round(this.g * a),
+        Math.round(this.b * a),
+        this.a
+    ]);
+};
+
+Color.prototype.isTransparent = function() {
+    return this.a === 0;
+};
+
+Color.prototype.isBlack = function() {
+    return this.r === 0 && this.g === 0 && this.b === 0;
+};
+
+Color.prototype.fromArray = function(array) {
+    if (Array.isArray(array)) {
+        this.r = Math.min(array[0], 255);
+        this.g = Math.min(array[1], 255);
+        this.b = Math.min(array[2], 255);
+        if (array.length > 3) {
+            this.a = array[3];
+        }
+    }
+
+    return (Array.isArray(array));
+};
+
+var _hex3 = /^#([a-f0-9]{3})$/i;
+
+Color.prototype.hex3 = function(value) {
+    var match = null;
+    if ((match = value.match(_hex3)) !== null) {
+        this.r = parseInt(match[1][0] + match[1][0], 16);
+        this.g = parseInt(match[1][1] + match[1][1], 16);
+        this.b = parseInt(match[1][2] + match[1][2], 16);
+    }
+    return match !== null;
+};
+
+var _hex6 = /^#([a-f0-9]{6})$/i;
+
+Color.prototype.hex6 = function(value) {
+    var match = null;
+    if ((match = value.match(_hex6)) !== null) {
+        this.r = parseInt(match[1].substring(0, 2), 16);
+        this.g = parseInt(match[1].substring(2, 4), 16);
+        this.b = parseInt(match[1].substring(4, 6), 16);
+    }
+    return match !== null;
+};
+
+
+var _rgb = /^rgb\((\d{1,3}) *, *(\d{1,3}) *, *(\d{1,3})\)$/;
+
+Color.prototype.rgb = function(value) {
+    var match = null;
+    if ((match = value.match(_rgb)) !== null) {
+        this.r = Number(match[1]);
+        this.g = Number(match[2]);
+        this.b = Number(match[3]);
+    }
+    return match !== null;
+};
+
+var _rgba = /^rgba\((\d{1,3}) *, *(\d{1,3}) *, *(\d{1,3}) *, *(\d+\.?\d*)\)$/;
+
+Color.prototype.rgba = function(value) {
+    var match = null;
+    if ((match = value.match(_rgba)) !== null) {
+        this.r = Number(match[1]);
+        this.g = Number(match[2]);
+        this.b = Number(match[3]);
+        this.a = Number(match[4]);
+    }
+    return match !== null;
+};
+
+Color.prototype.toString = function() {
+    return this.a !== null && this.a !== 1 ?
+    "rgba(" + [this.r, this.g, this.b, this.a].join(",") + ")" :
+    "rgb(" + [this.r, this.g, this.b].join(",") + ")";
+};
+
+Color.prototype.namedColor = function(value) {
+    var color = colors[value.toLowerCase()];
+    if (color) {
+        this.r = color[0];
+        this.g = color[1];
+        this.b = color[2];
+    } else if (value.toLowerCase() === "transparent") {
+        this.r = this.g = this.b = this.a = 0;
+        return true;
+    }
+
+    return !!color;
+};
+
+Color.prototype.isColor = true;
+
+// JSON.stringify([].slice.call($$('.named-color-table tr'), 1).map(function(row) { return [row.childNodes[3].textContent, row.childNodes[5].textContent.trim().split(",").map(Number)] }).reduce(function(data, row) {data[row[0]] = row[1]; return data}, {}))
+var colors = {
+    "aliceblue": [240, 248, 255],
+    "antiquewhite": [250, 235, 215],
+    "aqua": [0, 255, 255],
+    "aquamarine": [127, 255, 212],
+    "azure": [240, 255, 255],
+    "beige": [245, 245, 220],
+    "bisque": [255, 228, 196],
+    "black": [0, 0, 0],
+    "blanchedalmond": [255, 235, 205],
+    "blue": [0, 0, 255],
+    "blueviolet": [138, 43, 226],
+    "brown": [165, 42, 42],
+    "burlywood": [222, 184, 135],
+    "cadetblue": [95, 158, 160],
+    "chartreuse": [127, 255, 0],
+    "chocolate": [210, 105, 30],
+    "coral": [255, 127, 80],
+    "cornflowerblue": [100, 149, 237],
+    "cornsilk": [255, 248, 220],
+    "crimson": [220, 20, 60],
+    "cyan": [0, 255, 255],
+    "darkblue": [0, 0, 139],
+    "darkcyan": [0, 139, 139],
+    "darkgoldenrod": [184, 134, 11],
+    "darkgray": [169, 169, 169],
+    "darkgreen": [0, 100, 0],
+    "darkgrey": [169, 169, 169],
+    "darkkhaki": [189, 183, 107],
+    "darkmagenta": [139, 0, 139],
+    "darkolivegreen": [85, 107, 47],
+    "darkorange": [255, 140, 0],
+    "darkorchid": [153, 50, 204],
+    "darkred": [139, 0, 0],
+    "darksalmon": [233, 150, 122],
+    "darkseagreen": [143, 188, 143],
+    "darkslateblue": [72, 61, 139],
+    "darkslategray": [47, 79, 79],
+    "darkslategrey": [47, 79, 79],
+    "darkturquoise": [0, 206, 209],
+    "darkviolet": [148, 0, 211],
+    "deeppink": [255, 20, 147],
+    "deepskyblue": [0, 191, 255],
+    "dimgray": [105, 105, 105],
+    "dimgrey": [105, 105, 105],
+    "dodgerblue": [30, 144, 255],
+    "firebrick": [178, 34, 34],
+    "floralwhite": [255, 250, 240],
+    "forestgreen": [34, 139, 34],
+    "fuchsia": [255, 0, 255],
+    "gainsboro": [220, 220, 220],
+    "ghostwhite": [248, 248, 255],
+    "gold": [255, 215, 0],
+    "goldenrod": [218, 165, 32],
+    "gray": [128, 128, 128],
+    "green": [0, 128, 0],
+    "greenyellow": [173, 255, 47],
+    "grey": [128, 128, 128],
+    "honeydew": [240, 255, 240],
+    "hotpink": [255, 105, 180],
+    "indianred": [205, 92, 92],
+    "indigo": [75, 0, 130],
+    "ivory": [255, 255, 240],
+    "khaki": [240, 230, 140],
+    "lavender": [230, 230, 250],
+    "lavenderblush": [255, 240, 245],
+    "lawngreen": [124, 252, 0],
+    "lemonchiffon": [255, 250, 205],
+    "lightblue": [173, 216, 230],
+    "lightcoral": [240, 128, 128],
+    "lightcyan": [224, 255, 255],
+    "lightgoldenrodyellow": [250, 250, 210],
+    "lightgray": [211, 211, 211],
+    "lightgreen": [144, 238, 144],
+    "lightgrey": [211, 211, 211],
+    "lightpink": [255, 182, 193],
+    "lightsalmon": [255, 160, 122],
+    "lightseagreen": [32, 178, 170],
+    "lightskyblue": [135, 206, 250],
+    "lightslategray": [119, 136, 153],
+    "lightslategrey": [119, 136, 153],
+    "lightsteelblue": [176, 196, 222],
+    "lightyellow": [255, 255, 224],
+    "lime": [0, 255, 0],
+    "limegreen": [50, 205, 50],
+    "linen": [250, 240, 230],
+    "magenta": [255, 0, 255],
+    "maroon": [128, 0, 0],
+    "mediumaquamarine": [102, 205, 170],
+    "mediumblue": [0, 0, 205],
+    "mediumorchid": [186, 85, 211],
+    "mediumpurple": [147, 112, 219],
+    "mediumseagreen": [60, 179, 113],
+    "mediumslateblue": [123, 104, 238],
+    "mediumspringgreen": [0, 250, 154],
+    "mediumturquoise": [72, 209, 204],
+    "mediumvioletred": [199, 21, 133],
+    "midnightblue": [25, 25, 112],
+    "mintcream": [245, 255, 250],
+    "mistyrose": [255, 228, 225],
+    "moccasin": [255, 228, 181],
+    "navajowhite": [255, 222, 173],
+    "navy": [0, 0, 128],
+    "oldlace": [253, 245, 230],
+    "olive": [128, 128, 0],
+    "olivedrab": [107, 142, 35],
+    "orange": [255, 165, 0],
+    "orangered": [255, 69, 0],
+    "orchid": [218, 112, 214],
+    "palegoldenrod": [238, 232, 170],
+    "palegreen": [152, 251, 152],
+    "paleturquoise": [175, 238, 238],
+    "palevioletred": [219, 112, 147],
+    "papayawhip": [255, 239, 213],
+    "peachpuff": [255, 218, 185],
+    "peru": [205, 133, 63],
+    "pink": [255, 192, 203],
+    "plum": [221, 160, 221],
+    "powderblue": [176, 224, 230],
+    "purple": [128, 0, 128],
+    "rebeccapurple": [102, 51, 153],
+    "red": [255, 0, 0],
+    "rosybrown": [188, 143, 143],
+    "royalblue": [65, 105, 225],
+    "saddlebrown": [139, 69, 19],
+    "salmon": [250, 128, 114],
+    "sandybrown": [244, 164, 96],
+    "seagreen": [46, 139, 87],
+    "seashell": [255, 245, 238],
+    "sienna": [160, 82, 45],
+    "silver": [192, 192, 192],
+    "skyblue": [135, 206, 235],
+    "slateblue": [106, 90, 205],
+    "slategray": [112, 128, 144],
+    "slategrey": [112, 128, 144],
+    "snow": [255, 250, 250],
+    "springgreen": [0, 255, 127],
+    "steelblue": [70, 130, 180],
+    "tan": [210, 180, 140],
+    "teal": [0, 128, 128],
+    "thistle": [216, 191, 216],
+    "tomato": [255, 99, 71],
+    "turquoise": [64, 224, 208],
+    "violet": [238, 130, 238],
+    "wheat": [245, 222, 179],
+    "white": [255, 255, 255],
+    "whitesmoke": [245, 245, 245],
+    "yellow": [255, 255, 0],
+    "yellowgreen": [154, 205, 50]
+};
+
+module.exports = Color;
+
+},{}],6:[function(require,module,exports){
+var Promise = require('./promise');
+var Support = require('./support');
+var CanvasRenderer = require('./renderers/canvas');
+var ImageLoader = require('./imageloader');
+var NodeParser = require('./nodeparser');
+var NodeContainer = require('./nodecontainer');
+var log = require('./log');
+var utils = require('./utils');
+var createWindowClone = require('./clone');
+var loadUrlDocument = require('./proxy').loadUrlDocument;
+var getBounds = utils.getBounds;
+
+var html2canvasNodeAttribute = "data-html2canvas-node";
+var html2canvasCloneIndex = 0;
+
+function html2canvas(nodeList, options) {
+    var index = html2canvasCloneIndex++;
+    options = options || {};
+    if (options.logging) {
+        window.html2canvas.logging = true;
+        window.html2canvas.start = Date.now();
+    }
+
+    options.async = typeof(options.async) === "undefined" ? true : options.async;
+    options.allowTaint = typeof(options.allowTaint) === "undefined" ? false : options.allowTaint;
+    options.removeContainer = typeof(options.removeContainer) === "undefined" ? true : options.removeContainer;
+    options.javascriptEnabled = typeof(options.javascriptEnabled) === "undefined" ? false : options.javascriptEnabled;
+    options.imageTimeout = typeof(options.imageTimeout) === "undefined" ? 10000 : options.imageTimeout;
+    options.renderer = typeof(options.renderer) === "function" ? options.renderer : CanvasRenderer;
+    options.strict = !!options.strict;
+
+    if (typeof(nodeList) === "string") {
+        if (typeof(options.proxy) !== "string") {
+            return Promise.reject("Proxy must be used when rendering url");
+        }
+        var width = options.width != null ? options.width : window.innerWidth;
+        var height = options.height != null ? options.height : window.innerHeight;
+        return loadUrlDocument(absoluteUrl(nodeList), options.proxy, document, width, height, options).then(function(container) {
+            return renderWindow(container.contentWindow.document.documentElement, container, options, width, height);
+        });
+    }
+
+    var node = ((nodeList === undefined) ? [document.documentElement] : ((nodeList.length) ? nodeList : [nodeList]))[0];
+    node.setAttribute(html2canvasNodeAttribute + index, index);
+    return renderDocument(node.ownerDocument, options, node.ownerDocument.defaultView.innerWidth, node.ownerDocument.defaultView.innerHeight, index).then(function(canvas) {
+        if (typeof(options.onrendered) === "function") {
+            log("options.onrendered is deprecated, html2canvas returns a Promise containing the canvas");
+            options.onrendered(canvas);
+        }
+        return canvas;
+    });
+}
+
+html2canvas.Promise = Promise;
+html2canvas.CanvasRenderer = CanvasRenderer;
+html2canvas.NodeContainer = NodeContainer;
+html2canvas.log = log;
+html2canvas.utils = utils;
+
+module.exports = (typeof(document) === "undefined" || typeof(Object.create) !== "function" || typeof(document.createElement("canvas").getContext) !== "function") ? function() {
+    return Promise.reject("No canvas support");
+} : html2canvas;
+
+function renderDocument(document, options, windowWidth, windowHeight, html2canvasIndex) {
+    return createWindowClone(document, document, windowWidth, windowHeight, options, document.defaultView.pageXOffset, document.defaultView.pageYOffset).then(function(container) {
+        log("Document cloned");
+        var attributeName = html2canvasNodeAttribute + html2canvasIndex;
+        var selector = "[" + attributeName + "='" + html2canvasIndex + "']";
+        document.querySelector(selector).removeAttribute(attributeName);
+        var clonedWindow = container.contentWindow;
+        var node = clonedWindow.document.querySelector(selector);
+        var oncloneHandler = (typeof(options.onclone) === "function") ? Promise.resolve(options.onclone(clonedWindow.document)) : Promise.resolve(true);
+        return oncloneHandler.then(function() {
+            return renderWindow(node, container, options, windowWidth, windowHeight);
+        });
+    });
+}
+
+function renderWindow(node, container, options, windowWidth, windowHeight) {
+    var clonedWindow = container.contentWindow;
+    var support = new Support(clonedWindow.document);
+    var imageLoader = new ImageLoader(options, support);
+    var bounds = getBounds(node);
+    var width = options.type === "view" ? windowWidth : documentWidth(clonedWindow.document);
+    var height = options.type === "view" ? windowHeight : documentHeight(clonedWindow.document);
+    var renderer = new options.renderer(width, height, imageLoader, options, document);
+    var parser = new NodeParser(node, renderer, support, imageLoader, options);
+    return parser.ready.then(function() {
+        log("Finished rendering");
+        var canvas;
+
+        if (options.type === "view") {
+            canvas = crop(renderer.canvas, {width: renderer.canvas.width, height: renderer.canvas.height, top: 0, left: 0, x: 0, y: 0});
+        } else if (node === clonedWindow.document.body || node === clonedWindow.document.documentElement || options.canvas != null) {
+            canvas = renderer.canvas;
+        } else {
+            canvas = crop(renderer.canvas, {width:  options.width != null ? options.width : bounds.width, height: options.height != null ? options.height : bounds.height, top: bounds.top, left: bounds.left, x: clonedWindow.pageXOffset, y: clonedWindow.pageYOffset});
+        }
+
+        cleanupContainer(container, options);
+        return canvas;
+    });
+}
+
+function cleanupContainer(container, options) {
+    if (options.removeContainer) {
+        container.parentNode.removeChild(container);
+        log("Cleaned up container");
+    }
+}
+
+function crop(canvas, bounds) {
+    var croppedCanvas = document.createElement("canvas");
+    var x1 = Math.min(canvas.width - 1, Math.max(0, bounds.left));
+    var x2 = Math.min(canvas.width, Math.max(1, bounds.left + bounds.width));
+    var y1 = Math.min(canvas.height - 1, Math.max(0, bounds.top));
+    var y2 = Math.min(canvas.height, Math.max(1, bounds.top + bounds.height));
+    croppedCanvas.width = bounds.width;
+    croppedCanvas.height =  bounds.height;
+    log("Cropping canvas at:", "left:", bounds.left, "top:", bounds.top, "width:", (x2-x1), "height:", (y2-y1));
+    log("Resulting crop with width", bounds.width, "and height", bounds.height, " with x", x1, "and y", y1);
+    croppedCanvas.getContext("2d").drawImage(canvas, x1, y1, x2-x1, y2-y1, bounds.x, bounds.y, x2-x1, y2-y1);
+    return croppedCanvas;
+}
+
+function documentWidth (doc) {
+    return Math.max(
+        Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth),
+        Math.max(doc.body.offsetWidth, doc.documentElement.offsetWidth),
+        Math.max(doc.body.clientWidth, doc.documentElement.clientWidth)
+    );
+}
+
+function documentHeight (doc) {
+    return Math.max(
+        Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight),
+        Math.max(doc.body.offsetHeight, doc.documentElement.offsetHeight),
+        Math.max(doc.body.clientHeight, doc.documentElement.clientHeight)
+    );
+}
+
+function absoluteUrl(url) {
+    var link = document.createElement("a");
+    link.href = url;
+    link.href = link.href;
+    return link;
+}
+
+},{"./clone":4,"./imageloader":13,"./log":15,"./nodecontainer":16,"./nodeparser":17,"./promise":18,"./proxy":19,"./renderers/canvas":23,"./support":25,"./utils":29}],7:[function(require,module,exports){
+var Promise = require('./promise');
+var log = require('./log');
+var smallImage = require('./utils').smallImage;
+
+function DummyImageContainer(src) {
+    this.src = src;
+    log("DummyImageContainer for", src);
+    if (!this.promise || !this.image) {
+        log("Initiating DummyImageContainer");
+        DummyImageContainer.prototype.image = new Image();
+        var image = this.image;
+        DummyImageContainer.prototype.promise = new Promise(function(resolve, reject) {
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = smallImage();
+            if (image.complete === true) {
+                resolve(image);
+            }
+        });
+    }
+}
+
+module.exports = DummyImageContainer;
+
+},{"./log":15,"./promise":18,"./utils":29}],8:[function(require,module,exports){
+var smallImage = require('./utils').smallImage;
+
+function Font(family, size) {
+    var container = document.createElement('div'),
+        img = document.createElement('img'),
+        span = document.createElement('span'),
+        sampleText = 'Hidden Text',
+        baseline,
+        middle;
 
     container.style.visibility = "hidden";
-    container.style.fontFamily = font;
-    container.style.fontSize = fontSize;
+    container.style.fontFamily = family;
+    container.style.fontSize = size;
     container.style.margin = 0;
     container.style.padding = 0;
 
-    doc.body.appendChild(container);
+    document.body.appendChild(container);
 
-    // http://probablyprogramming.com/2009/03/15/the-tiniest-gif-ever (handtinywhite.gif)
-    img.src = "data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=";
+    img.src = smallImage();
     img.width = 1;
     img.height = 1;
 
@@ -451,1192 +2139,1257 @@ _html2canvas.Util.Font = (function () {
     img.style.padding = 0;
     img.style.verticalAlign = "baseline";
 
-    span.style.fontFamily = font;
-    span.style.fontSize = fontSize;
+    span.style.fontFamily = family;
+    span.style.fontSize = size;
     span.style.margin = 0;
     span.style.padding = 0;
 
-    span.appendChild(doc.createTextNode(sampleText));
+    span.appendChild(document.createTextNode(sampleText));
     container.appendChild(span);
     container.appendChild(img);
     baseline = (img.offsetTop - span.offsetTop) + 1;
 
     container.removeChild(span);
-    container.appendChild(doc.createTextNode(sampleText));
+    container.appendChild(document.createTextNode(sampleText));
 
     container.style.lineHeight = "normal";
     img.style.verticalAlign = "super";
 
     middle = (img.offsetTop-container.offsetTop) + 1;
-    metricsObj = {
-      baseline: baseline,
-      lineWidth: 1,
-      middle: middle
-    };
 
-    fontData[font + "-" + fontSize] = metricsObj;
+    document.body.removeChild(container);
 
-    doc.body.removeChild(container);
-
-    return metricsObj;
-  };
-})();
-
-(function(){
-  var Util = _html2canvas.Util,
-    Generate = {};
-
-  _html2canvas.Generate = Generate;
-
-  var reGradients = [
-  /^(-webkit-linear-gradient)\(([a-z\s]+)([\w\d\.\s,%\(\)]+)\)$/,
-  /^(-o-linear-gradient)\(([a-z\s]+)([\w\d\.\s,%\(\)]+)\)$/,
-  /^(-webkit-gradient)\((linear|radial),\s((?:\d{1,3}%?)\s(?:\d{1,3}%?),\s(?:\d{1,3}%?)\s(?:\d{1,3}%?))([\w\d\.\s,%\(\)\-]+)\)$/,
-  /^(-moz-linear-gradient)\(((?:\d{1,3}%?)\s(?:\d{1,3}%?))([\w\d\.\s,%\(\)]+)\)$/,
-  /^(-webkit-radial-gradient)\(((?:\d{1,3}%?)\s(?:\d{1,3}%?)),\s(\w+)\s([a-z\-]+)([\w\d\.\s,%\(\)]+)\)$/,
-  /^(-moz-radial-gradient)\(((?:\d{1,3}%?)\s(?:\d{1,3}%?)),\s(\w+)\s?([a-z\-]*)([\w\d\.\s,%\(\)]+)\)$/,
-  /^(-o-radial-gradient)\(((?:\d{1,3}%?)\s(?:\d{1,3}%?)),\s(\w+)\s([a-z\-]+)([\w\d\.\s,%\(\)]+)\)$/
-  ];
-
-  /*
- * TODO: Add IE10 vendor prefix (-ms) support
- * TODO: Add W3C gradient (linear-gradient) support
- * TODO: Add old Webkit -webkit-gradient(radial, ...) support
- * TODO: Maybe some RegExp optimizations are possible ;o)
- */
-  Generate.parseGradient = function(css, bounds) {
-    var gradient, i, len = reGradients.length, m1, stop, m2, m2Len, step, m3, tl,tr,br,bl;
-
-    for(i = 0; i < len; i+=1){
-      m1 = css.match(reGradients[i]);
-      if(m1) {
-        break;
-      }
-    }
-
-    if(m1) {
-      switch(m1[1]) {
-        case '-webkit-linear-gradient':
-        case '-o-linear-gradient':
-
-          gradient = {
-            type: 'linear',
-            x0: null,
-            y0: null,
-            x1: null,
-            y1: null,
-            colorStops: []
-          };
-
-          // get coordinates
-          m2 = m1[2].match(/\w+/g);
-          if(m2){
-            m2Len = m2.length;
-            for(i = 0; i < m2Len; i+=1){
-              switch(m2[i]) {
-                case 'top':
-                  gradient.y0 = 0;
-                  gradient.y1 = bounds.height;
-                  break;
-
-                case 'right':
-                  gradient.x0 = bounds.width;
-                  gradient.x1 = 0;
-                  break;
-
-                case 'bottom':
-                  gradient.y0 = bounds.height;
-                  gradient.y1 = 0;
-                  break;
-
-                case 'left':
-                  gradient.x0 = 0;
-                  gradient.x1 = bounds.width;
-                  break;
-              }
-            }
-          }
-          if(gradient.x0 === null && gradient.x1 === null){ // center
-            gradient.x0 = gradient.x1 = bounds.width / 2;
-          }
-          if(gradient.y0 === null && gradient.y1 === null){ // center
-            gradient.y0 = gradient.y1 = bounds.height / 2;
-          }
-
-          // get colors and stops
-          m2 = m1[3].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\)(?:\s\d{1,3}(?:%|px))?)+/g);
-          if(m2){
-            m2Len = m2.length;
-            step = 1 / Math.max(m2Len - 1, 1);
-            for(i = 0; i < m2Len; i+=1){
-              m3 = m2[i].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\))\s*(\d{1,3})?(%|px)?/);
-              if(m3[2]){
-                stop = parseFloat(m3[2]);
-                if(m3[3] === '%'){
-                  stop /= 100;
-                } else { // px - stupid opera
-                  stop /= bounds.width;
-                }
-              } else {
-                stop = i * step;
-              }
-              gradient.colorStops.push({
-                color: m3[1],
-                stop: stop
-              });
-            }
-          }
-          break;
-
-        case '-webkit-gradient':
-
-          gradient = {
-            type: m1[2] === 'radial' ? 'circle' : m1[2], // TODO: Add radial gradient support for older mozilla definitions
-            x0: 0,
-            y0: 0,
-            x1: 0,
-            y1: 0,
-            colorStops: []
-          };
-
-          // get coordinates
-          m2 = m1[3].match(/(\d{1,3})%?\s(\d{1,3})%?,\s(\d{1,3})%?\s(\d{1,3})%?/);
-          if(m2){
-            gradient.x0 = (m2[1] * bounds.width) / 100;
-            gradient.y0 = (m2[2] * bounds.height) / 100;
-            gradient.x1 = (m2[3] * bounds.width) / 100;
-            gradient.y1 = (m2[4] * bounds.height) / 100;
-          }
-
-          // get colors and stops
-          m2 = m1[4].match(/((?:from|to|color-stop)\((?:[0-9\.]+,\s)?(?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\)\))+/g);
-          if(m2){
-            m2Len = m2.length;
-            for(i = 0; i < m2Len; i+=1){
-              m3 = m2[i].match(/(from|to|color-stop)\(([0-9\.]+)?(?:,\s)?((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\))\)/);
-              stop = parseFloat(m3[2]);
-              if(m3[1] === 'from') {
-                stop = 0.0;
-              }
-              if(m3[1] === 'to') {
-                stop = 1.0;
-              }
-              gradient.colorStops.push({
-                color: m3[3],
-                stop: stop
-              });
-            }
-          }
-          break;
-
-        case '-moz-linear-gradient':
-
-          gradient = {
-            type: 'linear',
-            x0: 0,
-            y0: 0,
-            x1: 0,
-            y1: 0,
-            colorStops: []
-          };
-
-          // get coordinates
-          m2 = m1[2].match(/(\d{1,3})%?\s(\d{1,3})%?/);
-
-          // m2[1] == 0%   -> left
-          // m2[1] == 50%  -> center
-          // m2[1] == 100% -> right
-
-          // m2[2] == 0%   -> top
-          // m2[2] == 50%  -> center
-          // m2[2] == 100% -> bottom
-
-          if(m2){
-            gradient.x0 = (m2[1] * bounds.width) / 100;
-            gradient.y0 = (m2[2] * bounds.height) / 100;
-            gradient.x1 = bounds.width - gradient.x0;
-            gradient.y1 = bounds.height - gradient.y0;
-          }
-
-          // get colors and stops
-          m2 = m1[3].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\)(?:\s\d{1,3}%)?)+/g);
-          if(m2){
-            m2Len = m2.length;
-            step = 1 / Math.max(m2Len - 1, 1);
-            for(i = 0; i < m2Len; i+=1){
-              m3 = m2[i].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\))\s*(\d{1,3})?(%)?/);
-              if(m3[2]){
-                stop = parseFloat(m3[2]);
-                if(m3[3]){ // percentage
-                  stop /= 100;
-                }
-              } else {
-                stop = i * step;
-              }
-              gradient.colorStops.push({
-                color: m3[1],
-                stop: stop
-              });
-            }
-          }
-          break;
-
-        case '-webkit-radial-gradient':
-        case '-moz-radial-gradient':
-        case '-o-radial-gradient':
-
-          gradient = {
-            type: 'circle',
-            x0: 0,
-            y0: 0,
-            x1: bounds.width,
-            y1: bounds.height,
-            cx: 0,
-            cy: 0,
-            rx: 0,
-            ry: 0,
-            colorStops: []
-          };
-
-          // center
-          m2 = m1[2].match(/(\d{1,3})%?\s(\d{1,3})%?/);
-          if(m2){
-            gradient.cx = (m2[1] * bounds.width) / 100;
-            gradient.cy = (m2[2] * bounds.height) / 100;
-          }
-
-          // size
-          m2 = m1[3].match(/\w+/);
-          m3 = m1[4].match(/[a-z\-]*/);
-          if(m2 && m3){
-            switch(m3[0]){
-              case 'farthest-corner':
-              case 'cover': // is equivalent to farthest-corner
-              case '': // mozilla removes "cover" from definition :(
-                tl = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                tr = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                br = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                bl = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                gradient.rx = gradient.ry = Math.max(tl, tr, br, bl);
-                break;
-              case 'closest-corner':
-                tl = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                tr = Math.sqrt(Math.pow(gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                br = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.y1 - gradient.cy, 2));
-                bl = Math.sqrt(Math.pow(gradient.x1 - gradient.cx, 2) + Math.pow(gradient.cy, 2));
-                gradient.rx = gradient.ry = Math.min(tl, tr, br, bl);
-                break;
-              case 'farthest-side':
-                if(m2[0] === 'circle'){
-                  gradient.rx = gradient.ry = Math.max(
-                    gradient.cx,
-                    gradient.cy,
-                    gradient.x1 - gradient.cx,
-                    gradient.y1 - gradient.cy
-                    );
-                } else { // ellipse
-
-                  gradient.type = m2[0];
-
-                  gradient.rx = Math.max(
-                    gradient.cx,
-                    gradient.x1 - gradient.cx
-                    );
-                  gradient.ry = Math.max(
-                    gradient.cy,
-                    gradient.y1 - gradient.cy
-                    );
-                }
-                break;
-              case 'closest-side':
-              case 'contain': // is equivalent to closest-side
-                if(m2[0] === 'circle'){
-                  gradient.rx = gradient.ry = Math.min(
-                    gradient.cx,
-                    gradient.cy,
-                    gradient.x1 - gradient.cx,
-                    gradient.y1 - gradient.cy
-                    );
-                } else { // ellipse
-
-                  gradient.type = m2[0];
-
-                  gradient.rx = Math.min(
-                    gradient.cx,
-                    gradient.x1 - gradient.cx
-                    );
-                  gradient.ry = Math.min(
-                    gradient.cy,
-                    gradient.y1 - gradient.cy
-                    );
-                }
-                break;
-
-            // TODO: add support for "30px 40px" sizes (webkit only)
-            }
-          }
-
-          // color stops
-          m2 = m1[5].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\)(?:\s\d{1,3}(?:%|px))?)+/g);
-          if(m2){
-            m2Len = m2.length;
-            step = 1 / Math.max(m2Len - 1, 1);
-            for(i = 0; i < m2Len; i+=1){
-              m3 = m2[i].match(/((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\))\s*(\d{1,3})?(%|px)?/);
-              if(m3[2]){
-                stop = parseFloat(m3[2]);
-                if(m3[3] === '%'){
-                  stop /= 100;
-                } else { // px - stupid opera
-                  stop /= bounds.width;
-                }
-              } else {
-                stop = i * step;
-              }
-              gradient.colorStops.push({
-                color: m3[1],
-                stop: stop
-              });
-            }
-          }
-          break;
-      }
-    }
-
-    return gradient;
-  };
-
-  function addScrollStops(grad) {
-    return function(colorStop) {
-      try {
-        grad.addColorStop(colorStop.stop, colorStop.color);
-      }
-      catch(e) {
-        Util.log(['failed to add color stop: ', e, '; tried to add: ', colorStop]);
-      }
-    };
-  }
-
-  Generate.Gradient = function(src, bounds) {
-    if(bounds.width === 0 || bounds.height === 0) {
-      return;
-    }
-
-    var canvas = document.createElement('canvas'),
-    ctx = canvas.getContext('2d'),
-    gradient, grad;
-
-    canvas.width = bounds.width;
-    canvas.height = bounds.height;
-
-    // TODO: add support for multi defined background gradients
-    gradient = _html2canvas.Generate.parseGradient(src, bounds);
-
-    if(gradient) {
-      switch(gradient.type) {
-        case 'linear':
-          grad = ctx.createLinearGradient(gradient.x0, gradient.y0, gradient.x1, gradient.y1);
-          gradient.colorStops.forEach(addScrollStops(grad));
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, bounds.width, bounds.height);
-          break;
-
-        case 'circle':
-          grad = ctx.createRadialGradient(gradient.cx, gradient.cy, 0, gradient.cx, gradient.cy, gradient.rx);
-          gradient.colorStops.forEach(addScrollStops(grad));
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, bounds.width, bounds.height);
-          break;
-
-        case 'ellipse':
-          var canvasRadial = document.createElement('canvas'),
-            ctxRadial = canvasRadial.getContext('2d'),
-            ri = Math.max(gradient.rx, gradient.ry),
-            di = ri * 2;
-
-          canvasRadial.width = canvasRadial.height = di;
-
-          grad = ctxRadial.createRadialGradient(gradient.rx, gradient.ry, 0, gradient.rx, gradient.ry, ri);
-          gradient.colorStops.forEach(addScrollStops(grad));
-
-          ctxRadial.fillStyle = grad;
-          ctxRadial.fillRect(0, 0, di, di);
-
-          ctx.fillStyle = gradient.colorStops[gradient.colorStops.length - 1].color;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(canvasRadial, gradient.cx - gradient.rx, gradient.cy - gradient.ry, 2 * gradient.rx, 2 * gradient.ry);
-          break;
-      }
-    }
-
-    return canvas;
-  };
-
-  Generate.ListAlpha = function(number) {
-    var tmp = "",
-    modulus;
-
-    do {
-      modulus = number % 26;
-      tmp = String.fromCharCode((modulus) + 64) + tmp;
-      number = number / 26;
-    }while((number*26) > 26);
-
-    return tmp;
-  };
-
-  Generate.ListRoman = function(number) {
-    var romanArray = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"],
-    decimal = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1],
-    roman = "",
-    v,
-    len = romanArray.length;
-
-    if (number <= 0 || number >= 4000) {
-      return number;
-    }
-
-    for (v=0; v < len; v+=1) {
-      while (number >= decimal[v]) {
-        number -= decimal[v];
-        roman += romanArray[v];
-      }
-    }
-
-    return roman;
-  };
-})();
-function h2cRenderContext(width, height) {
-  var storage = [];
-  return {
-    storage: storage,
-    width: width,
-    height: height,
-    clip: function() {
-      storage.push({
-        type: "function",
-        name: "clip",
-        'arguments': arguments
-      });
-    },
-    translate: function() {
-      storage.push({
-        type: "function",
-        name: "translate",
-        'arguments': arguments
-      });
-    },
-    fill: function() {
-      storage.push({
-        type: "function",
-        name: "fill",
-        'arguments': arguments
-      });
-    },
-    save: function() {
-      storage.push({
-        type: "function",
-        name: "save",
-        'arguments': arguments
-      });
-    },
-    restore: function() {
-      storage.push({
-        type: "function",
-        name: "restore",
-        'arguments': arguments
-      });
-    },
-    fillRect: function () {
-      storage.push({
-        type: "function",
-        name: "fillRect",
-        'arguments': arguments
-      });
-    },
-    createPattern: function() {
-      storage.push({
-        type: "function",
-        name: "createPattern",
-        'arguments': arguments
-      });
-    },
-    drawShape: function() {
-
-      var shape = [];
-
-      storage.push({
-        type: "function",
-        name: "drawShape",
-        'arguments': shape
-      });
-
-      return {
-        moveTo: function() {
-          shape.push({
-            name: "moveTo",
-            'arguments': arguments
-          });
-        },
-        lineTo: function() {
-          shape.push({
-            name: "lineTo",
-            'arguments': arguments
-          });
-        },
-        arcTo: function() {
-          shape.push({
-            name: "arcTo",
-            'arguments': arguments
-          });
-        },
-        bezierCurveTo: function() {
-          shape.push({
-            name: "bezierCurveTo",
-            'arguments': arguments
-          });
-        },
-        quadraticCurveTo: function() {
-          shape.push({
-            name: "quadraticCurveTo",
-            'arguments': arguments
-          });
-        }
-      };
-
-    },
-    drawImage: function () {
-      storage.push({
-        type: "function",
-        name: "drawImage",
-        'arguments': arguments
-      });
-    },
-    fillText: function () {
-      storage.push({
-        type: "function",
-        name: "fillText",
-        'arguments': arguments
-      });
-    },
-    setVariable: function (variable, value) {
-      storage.push({
-        type: "variable",
-        name: variable,
-        'arguments': value
-      });
-      return value;
-    }
-  };
+    this.baseline = baseline;
+    this.lineWidth = 1;
+    this.middle = middle;
 }
-_html2canvas.Parse = function (images, options) {
-  window.scroll(0,0);
 
-  var element = (( options.elements === undefined ) ? document.body : options.elements[0]), // select body by default
-  numDraws = 0,
-  doc = element.ownerDocument,
-  Util = _html2canvas.Util,
-  support = Util.Support(options, doc),
-  ignoreElementsRegExp = new RegExp("(" + options.ignoreElements + ")"),
-  body = doc.body,
-  getCSS = Util.getCSS,
-  pseudoHide = "___html2canvas___pseudoelement",
-  hidePseudoElements = doc.createElement('style');
+module.exports = Font;
 
-  hidePseudoElements.innerHTML = '.' + pseudoHide + '-before:before { content: "" !important; display: none !important; }' +
-  '.' + pseudoHide + '-after:after { content: "" !important; display: none !important; }';
+},{"./utils":29}],9:[function(require,module,exports){
+var Font = require('./font');
 
-  body.appendChild(hidePseudoElements);
+function FontMetrics() {
+    this.data = {};
+}
 
-  images = images || {};
-
-  function documentWidth () {
-    return Math.max(
-      Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth),
-      Math.max(doc.body.offsetWidth, doc.documentElement.offsetWidth),
-      Math.max(doc.body.clientWidth, doc.documentElement.clientWidth)
-      );
-  }
-
-  function documentHeight () {
-    return Math.max(
-      Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight),
-      Math.max(doc.body.offsetHeight, doc.documentElement.offsetHeight),
-      Math.max(doc.body.clientHeight, doc.documentElement.clientHeight)
-      );
-  }
-
-  function getCSSInt(element, attribute) {
-    var val = parseInt(getCSS(element, attribute), 10);
-    return (isNaN(val)) ? 0 : val; // borders in old IE are throwing 'medium' for demo.html
-  }
-
-  function renderRect (ctx, x, y, w, h, bgcolor) {
-    if (bgcolor !== "transparent"){
-      ctx.setVariable("fillStyle", bgcolor);
-      ctx.fillRect(x, y, w, h);
-      numDraws+=1;
+FontMetrics.prototype.getMetrics = function(family, size) {
+    if (this.data[family + "-" + size] === undefined) {
+        this.data[family + "-" + size] = new Font(family, size);
     }
-  }
+    return this.data[family + "-" + size];
+};
 
-  function capitalize(m, p1, p2) {
-    if (m.length > 0) {
-      return p1 + p2.toUpperCase();
+module.exports = FontMetrics;
+
+},{"./font":8}],10:[function(require,module,exports){
+var utils = require('./utils');
+var Promise = require('./promise');
+var getBounds = utils.getBounds;
+var loadUrlDocument = require('./proxy').loadUrlDocument;
+
+function FrameContainer(container, sameOrigin, options) {
+    this.image = null;
+    this.src = container;
+    var self = this;
+    var bounds = getBounds(container);
+    this.promise = (!sameOrigin ? this.proxyLoad(options.proxy, bounds, options) : new Promise(function(resolve) {
+        if (container.contentWindow.document.URL === "about:blank" || container.contentWindow.document.documentElement == null) {
+            container.contentWindow.onload = container.onload = function() {
+                resolve(container);
+            };
+        } else {
+            resolve(container);
+        }
+    })).then(function(container) {
+        var html2canvas = require('./core');
+        return html2canvas(container.contentWindow.document.documentElement, {type: 'view', width: container.width, height: container.height, proxy: options.proxy, javascriptEnabled: options.javascriptEnabled, removeContainer: options.removeContainer, allowTaint: options.allowTaint, imageTimeout: options.imageTimeout / 2});
+    }).then(function(canvas) {
+        return self.image = canvas;
+    });
+}
+
+FrameContainer.prototype.proxyLoad = function(proxy, bounds, options) {
+    var container = this.src;
+    return loadUrlDocument(container.src, proxy, container.ownerDocument, bounds.width, bounds.height, options);
+};
+
+module.exports = FrameContainer;
+
+},{"./core":6,"./promise":18,"./proxy":19,"./utils":29}],11:[function(require,module,exports){
+var Promise = require('./promise');
+
+function GradientContainer(imageData) {
+    this.src = imageData.value;
+    this.colorStops = [];
+    this.type = null;
+    this.x0 = 0.5;
+    this.y0 = 0.5;
+    this.x1 = 0.5;
+    this.y1 = 0.5;
+    this.promise = Promise.resolve(true);
+}
+
+GradientContainer.prototype.TYPES = {
+    LINEAR: 1,
+    RADIAL: 2
+};
+
+module.exports = GradientContainer;
+
+},{"./promise":18}],12:[function(require,module,exports){
+var Promise = require('./promise');
+
+function ImageContainer(src, cors) {
+    this.src = src;
+    this.image = new Image();
+    var self = this;
+    this.tainted = null;
+    this.promise = new Promise(function(resolve, reject) {
+        self.image.onload = resolve;
+        self.image.onerror = reject;
+        if (cors) {
+            self.image.crossOrigin = "anonymous";
+        }
+        self.image.src = src;
+        if (self.image.complete === true) {
+            resolve(self.image);
+        }
+    });
+}
+
+module.exports = ImageContainer;
+
+},{"./promise":18}],13:[function(require,module,exports){
+var Promise = require('./promise');
+var log = require('./log');
+var ImageContainer = require('./imagecontainer');
+var DummyImageContainer = require('./dummyimagecontainer');
+var ProxyImageContainer = require('./proxyimagecontainer');
+var FrameContainer = require('./framecontainer');
+var SVGContainer = require('./svgcontainer');
+var SVGNodeContainer = require('./svgnodecontainer');
+var LinearGradientContainer = require('./lineargradientcontainer');
+var WebkitGradientContainer = require('./webkitgradientcontainer');
+var bind = require('./utils').bind;
+
+function ImageLoader(options, support) {
+    this.link = null;
+    this.options = options;
+    this.support = support;
+    this.origin = this.getOrigin(window.location.href);
+}
+
+ImageLoader.prototype.findImages = function(nodes) {
+    var images = [];
+    nodes.reduce(function(imageNodes, container) {
+        switch(container.node.nodeName) {
+        case "IMG":
+            return imageNodes.concat([{
+                args: [container.node.src],
+                method: "url"
+            }]);
+        case "svg":
+        case "IFRAME":
+            return imageNodes.concat([{
+                args: [container.node],
+                method: container.node.nodeName
+            }]);
+        }
+        return imageNodes;
+    }, []).forEach(this.addImage(images, this.loadImage), this);
+    return images;
+};
+
+ImageLoader.prototype.findBackgroundImage = function(images, container) {
+    container.parseBackgroundImages().filter(this.hasImageBackground).forEach(this.addImage(images, this.loadImage), this);
+    return images;
+};
+
+ImageLoader.prototype.addImage = function(images, callback) {
+    return function(newImage) {
+        newImage.args.forEach(function(image) {
+            if (!this.imageExists(images, image)) {
+                images.splice(0, 0, callback.call(this, newImage));
+                log('Added image #' + (images.length), typeof(image) === "string" ? image.substring(0, 100) : image);
+            }
+        }, this);
+    };
+};
+
+ImageLoader.prototype.hasImageBackground = function(imageData) {
+    return imageData.method !== "none";
+};
+
+ImageLoader.prototype.loadImage = function(imageData) {
+    if (imageData.method === "url") {
+        var src = imageData.args[0];
+        if (this.isSVG(src) && !this.support.svg && !this.options.allowTaint) {
+            return new SVGContainer(src);
+        } else if (src.match(/data:image\/.*;base64,/i)) {
+            return new ImageContainer(src.replace(/url\(['"]{0,}|['"]{0,}\)$/ig, ''), false);
+        } else if (this.isSameOrigin(src) || this.options.allowTaint === true || this.isSVG(src)) {
+            return new ImageContainer(src, false);
+        } else if (this.support.cors && !this.options.allowTaint && this.options.useCORS) {
+            return new ImageContainer(src, true);
+        } else if (this.options.proxy) {
+            return new ProxyImageContainer(src, this.options.proxy);
+        } else {
+            return new DummyImageContainer(src);
+        }
+    } else if (imageData.method === "linear-gradient") {
+        return new LinearGradientContainer(imageData);
+    } else if (imageData.method === "gradient") {
+        return new WebkitGradientContainer(imageData);
+    } else if (imageData.method === "svg") {
+        return new SVGNodeContainer(imageData.args[0], this.support.svg);
+    } else if (imageData.method === "IFRAME") {
+        return new FrameContainer(imageData.args[0], this.isSameOrigin(imageData.args[0].src), this.options);
+    } else {
+        return new DummyImageContainer(imageData);
     }
-  }
+};
 
-  function textTransform (text, transform) {
-    switch(transform){
-      case "lowercase":
-        return text.toLowerCase();
-      case "capitalize":
-        return text.replace( /(^|\s|:|-|\(|\))([a-z])/g, capitalize);
-      case "uppercase":
-        return text.toUpperCase();
-      default:
-        return text;
+ImageLoader.prototype.isSVG = function(src) {
+    return src.substring(src.length - 3).toLowerCase() === "svg" || SVGContainer.prototype.isInline(src);
+};
+
+ImageLoader.prototype.imageExists = function(images, src) {
+    return images.some(function(image) {
+        return image.src === src;
+    });
+};
+
+ImageLoader.prototype.isSameOrigin = function(url) {
+    return (this.getOrigin(url) === this.origin);
+};
+
+ImageLoader.prototype.getOrigin = function(url) {
+    var link = this.link || (this.link = document.createElement("a"));
+    link.href = url;
+    link.href = link.href; // IE9, LOL! - http://jsfiddle.net/niklasvh/2e48b/
+    return link.protocol + link.hostname + link.port;
+};
+
+ImageLoader.prototype.getPromise = function(container) {
+    return this.timeout(container, this.options.imageTimeout)['catch'](function() {
+        var dummy = new DummyImageContainer(container.src);
+        return dummy.promise.then(function(image) {
+            container.image = image;
+        });
+    });
+};
+
+ImageLoader.prototype.get = function(src) {
+    var found = null;
+    return this.images.some(function(img) {
+        return (found = img).src === src;
+    }) ? found : null;
+};
+
+ImageLoader.prototype.fetch = function(nodes) {
+    this.images = nodes.reduce(bind(this.findBackgroundImage, this), this.findImages(nodes));
+    this.images.forEach(function(image, index) {
+        image.promise.then(function() {
+            log("Succesfully loaded image #"+ (index+1), image);
+        }, function(e) {
+            log("Failed loading image #"+ (index+1), image, e);
+        });
+    });
+    this.ready = Promise.all(this.images.map(this.getPromise, this));
+    log("Finished searching images");
+    return this;
+};
+
+ImageLoader.prototype.timeout = function(container, timeout) {
+    var timer;
+    var promise = Promise.race([container.promise, new Promise(function(res, reject) {
+        timer = setTimeout(function() {
+            log("Timed out loading image", container);
+            reject(container);
+        }, timeout);
+    })]).then(function(container) {
+        clearTimeout(timer);
+        return container;
+    });
+    promise['catch'](function() {
+        clearTimeout(timer);
+    });
+    return promise;
+};
+
+module.exports = ImageLoader;
+
+},{"./dummyimagecontainer":7,"./framecontainer":10,"./imagecontainer":12,"./lineargradientcontainer":14,"./log":15,"./promise":18,"./proxyimagecontainer":20,"./svgcontainer":26,"./svgnodecontainer":27,"./utils":29,"./webkitgradientcontainer":30}],14:[function(require,module,exports){
+var GradientContainer = require('./gradientcontainer');
+var Color = require('./color');
+
+function LinearGradientContainer(imageData) {
+    GradientContainer.apply(this, arguments);
+    this.type = this.TYPES.LINEAR;
+
+    var hasDirection = imageData.args[0].match(this.stepRegExp) === null;
+
+    if (hasDirection) {
+        imageData.args[0].split(" ").reverse().forEach(function(position) {
+            switch(position) {
+            case "left":
+                this.x0 = 0;
+                this.x1 = 1;
+                break;
+            case "top":
+                this.y0 = 0;
+                this.y1 = 1;
+                break;
+            case "right":
+                this.x0 = 1;
+                this.x1 = 0;
+                break;
+            case "bottom":
+                this.y0 = 1;
+                this.y1 = 0;
+                break;
+            case "to":
+                var y0 = this.y0;
+                var x0 = this.x0;
+                this.y0 = this.y1;
+                this.x0 = this.x1;
+                this.x1 = x0;
+                this.y1 = y0;
+                break;
+            }
+        }, this);
+    } else {
+        this.y0 = 0;
+        this.y1 = 1;
     }
-  }
 
-  function noLetterSpacing(letter_spacing) {
-    return (/^(normal|none|0px)$/.test(letter_spacing));
-  }
+    this.colorStops = imageData.args.slice(hasDirection ? 1 : 0).map(function(colorStop) {
+        var colorStopMatch = colorStop.match(this.stepRegExp);
+        return {
+            color: new Color(colorStopMatch[1]),
+            stop: colorStopMatch[3] === "%" ? colorStopMatch[2] / 100 : null
+        };
+    }, this);
 
-  function drawText(currentText, x, y, ctx){
-    if (currentText !== null && Util.trimText(currentText).length > 0) {
-      ctx.fillText(currentText, x, y);
-      numDraws+=1;
+    if (this.colorStops[0].stop === null) {
+        this.colorStops[0].stop = 0;
     }
-  }
 
-  function setTextVariables(ctx, el, text_decoration, color) {
-    var align = false,
-    bold = getCSS(el, "fontWeight"),
-    family = getCSS(el, "fontFamily"),
-    size = getCSS(el, "fontSize"),
-    shadows = Util.parseTextShadows(getCSS(el, "textShadow"));
+    if (this.colorStops[this.colorStops.length - 1].stop === null) {
+        this.colorStops[this.colorStops.length - 1].stop = 1;
+    }
 
-    switch(parseInt(bold, 10)){
-      case 401:
-        bold = "bold";
+    this.colorStops.forEach(function(colorStop, index) {
+        if (colorStop.stop === null) {
+            this.colorStops.slice(index).some(function(find, count) {
+                if (find.stop !== null) {
+                    colorStop.stop = ((find.stop - this.colorStops[index - 1].stop) / (count + 1)) + this.colorStops[index - 1].stop;
+                    return true;
+                } else {
+                    return false;
+                }
+            }, this);
+        }
+    }, this);
+}
+
+LinearGradientContainer.prototype = Object.create(GradientContainer.prototype);
+
+LinearGradientContainer.prototype.stepRegExp = /((?:rgb|rgba)\(\d{1,3},\s\d{1,3},\s\d{1,3}(?:,\s[0-9\.]+)?\))\s*(\d{1,3})?(%|px)?/;
+
+module.exports = LinearGradientContainer;
+
+},{"./color":5,"./gradientcontainer":11}],15:[function(require,module,exports){
+module.exports = function() {
+    if (window.html2canvas.logging && window.console && window.console.log) {
+        Function.prototype.bind.call(window.console.log, (window.console)).apply(window.console, [(Date.now() - window.html2canvas.start) + "ms", "html2canvas:"].concat([].slice.call(arguments, 0)));
+    }
+};
+
+},{}],16:[function(require,module,exports){
+var Color = require('./color');
+var utils = require('./utils');
+var getBounds = utils.getBounds;
+var parseBackgrounds = utils.parseBackgrounds;
+var offsetBounds = utils.offsetBounds;
+
+function NodeContainer(node, parent) {
+    this.node = node;
+    this.parent = parent;
+    this.stack = null;
+    this.bounds = null;
+    this.borders = null;
+    this.clip = [];
+    this.backgroundClip = [];
+    this.offsetBounds = null;
+    this.visible = null;
+    this.computedStyles = null;
+    this.colors = {};
+    this.styles = {};
+    this.backgroundImages = null;
+    this.transformData = null;
+    this.transformMatrix = null;
+    this.isPseudoElement = false;
+    this.opacity = null;
+}
+
+NodeContainer.prototype.cloneTo = function(stack) {
+    stack.visible = this.visible;
+    stack.borders = this.borders;
+    stack.bounds = this.bounds;
+    stack.clip = this.clip;
+    stack.backgroundClip = this.backgroundClip;
+    stack.computedStyles = this.computedStyles;
+    stack.styles = this.styles;
+    stack.backgroundImages = this.backgroundImages;
+    stack.opacity = this.opacity;
+};
+
+NodeContainer.prototype.getOpacity = function() {
+    return this.opacity === null ? (this.opacity = this.cssFloat('opacity')) : this.opacity;
+};
+
+NodeContainer.prototype.assignStack = function(stack) {
+    this.stack = stack;
+    stack.children.push(this);
+};
+
+NodeContainer.prototype.isElementVisible = function() {
+    return this.node.nodeType === Node.TEXT_NODE ? this.parent.visible : (
+        this.css('display') !== "none" &&
+        this.css('visibility') !== "hidden" &&
+        !this.node.hasAttribute("data-html2canvas-ignore") &&
+        (this.node.nodeName !== "INPUT" || this.node.getAttribute("type") !== "hidden")
+    );
+};
+
+NodeContainer.prototype.css = function(attribute) {
+    if (!this.computedStyles) {
+        this.computedStyles = this.isPseudoElement ? this.parent.computedStyle(this.before ? ":before" : ":after") : this.computedStyle(null);
+    }
+
+    return this.styles[attribute] || (this.styles[attribute] = this.computedStyles[attribute]);
+};
+
+NodeContainer.prototype.prefixedCss = function(attribute) {
+    var prefixes = ["webkit", "moz", "ms", "o"];
+    var value = this.css(attribute);
+    if (value === undefined) {
+        prefixes.some(function(prefix) {
+            value = this.css(prefix + attribute.substr(0, 1).toUpperCase() + attribute.substr(1));
+            return value !== undefined;
+        }, this);
+    }
+    return value === undefined ? null : value;
+};
+
+NodeContainer.prototype.computedStyle = function(type) {
+    return this.node.ownerDocument.defaultView.getComputedStyle(this.node, type);
+};
+
+NodeContainer.prototype.cssInt = function(attribute) {
+    var value = parseInt(this.css(attribute), 10);
+    return (isNaN(value)) ? 0 : value; // borders in old IE are throwing 'medium' for demo.html
+};
+
+NodeContainer.prototype.color = function(attribute) {
+    return this.colors[attribute] || (this.colors[attribute] = new Color(this.css(attribute)));
+};
+
+NodeContainer.prototype.cssFloat = function(attribute) {
+    var value = parseFloat(this.css(attribute));
+    return (isNaN(value)) ? 0 : value;
+};
+
+NodeContainer.prototype.fontWeight = function() {
+    var weight = this.css("fontWeight");
+    switch(parseInt(weight, 10)){
+    case 401:
+        weight = "bold";
         break;
-      case 400:
-        bold = "normal";
+    case 400:
+        weight = "normal";
         break;
     }
+    return weight;
+};
 
-    ctx.setVariable("fillStyle", color);
-    ctx.setVariable("font", [getCSS(el, "fontStyle"), getCSS(el, "fontVariant"), bold, size, family].join(" "));
-    ctx.setVariable("textAlign", (align) ? "right" : "left");
+NodeContainer.prototype.parseClip = function() {
+    var matches = this.css('clip').match(this.CLIP);
+    if (matches) {
+        return {
+            top: parseInt(matches[1], 10),
+            right: parseInt(matches[2], 10),
+            bottom: parseInt(matches[3], 10),
+            left: parseInt(matches[4], 10)
+        };
+    }
+    return null;
+};
 
+NodeContainer.prototype.parseBackgroundImages = function() {
+    return this.backgroundImages || (this.backgroundImages = parseBackgrounds(this.css("backgroundImage")));
+};
+
+NodeContainer.prototype.cssList = function(property, index) {
+    var value = (this.css(property) || '').split(',');
+    value = value[index || 0] || value[0] || 'auto';
+    value = value.trim().split(' ');
+    if (value.length === 1) {
+        value = [value[0], isPercentage(value[0]) ? 'auto' : value[0]];
+    }
+    return value;
+};
+
+NodeContainer.prototype.parseBackgroundSize = function(bounds, image, index) {
+    var size = this.cssList("backgroundSize", index);
+    var width, height;
+
+    if (isPercentage(size[0])) {
+        width = bounds.width * parseFloat(size[0]) / 100;
+    } else if (/contain|cover/.test(size[0])) {
+        var targetRatio = bounds.width / bounds.height, currentRatio = image.width / image.height;
+        return (targetRatio < currentRatio ^ size[0] === 'contain') ?  {width: bounds.height * currentRatio, height: bounds.height} : {width: bounds.width, height: bounds.width / currentRatio};
+    } else {
+        width = parseInt(size[0], 10);
+    }
+
+    if (size[0] === 'auto' && size[1] === 'auto') {
+        height = image.height;
+    } else if (size[1] === 'auto') {
+        height = width / image.width * image.height;
+    } else if (isPercentage(size[1])) {
+        height =  bounds.height * parseFloat(size[1]) / 100;
+    } else {
+        height = parseInt(size[1], 10);
+    }
+
+    if (size[0] === 'auto') {
+        width = height / image.height * image.width;
+    }
+
+    return {width: width, height: height};
+};
+
+NodeContainer.prototype.parseBackgroundPosition = function(bounds, image, index, backgroundSize) {
+    var position = this.cssList('backgroundPosition', index);
+    var left, top;
+
+    if (isPercentage(position[0])){
+        left = (bounds.width - (backgroundSize || image).width) * (parseFloat(position[0]) / 100);
+    } else {
+        left = parseInt(position[0], 10);
+    }
+
+    if (position[1] === 'auto') {
+        top = left / image.width * image.height;
+    } else if (isPercentage(position[1])){
+        top =  (bounds.height - (backgroundSize || image).height) * parseFloat(position[1]) / 100;
+    } else {
+        top = parseInt(position[1], 10);
+    }
+
+    if (position[0] === 'auto') {
+        left = top / image.height * image.width;
+    }
+
+    return {left: left, top: top};
+};
+
+NodeContainer.prototype.parseBackgroundRepeat = function(index) {
+    return this.cssList("backgroundRepeat", index)[0];
+};
+
+NodeContainer.prototype.parseTextShadows = function() {
+    var textShadow = this.css("textShadow");
+    var results = [];
+
+    if (textShadow && textShadow !== 'none') {
+        var shadows = textShadow.match(this.TEXT_SHADOW_PROPERTY);
+        for (var i = 0; shadows && (i < shadows.length); i++) {
+            var s = shadows[i].match(this.TEXT_SHADOW_VALUES);
+            results.push({
+                color: new Color(s[0]),
+                offsetX: s[1] ? parseFloat(s[1].replace('px', '')) : 0,
+                offsetY: s[2] ? parseFloat(s[2].replace('px', '')) : 0,
+                blur: s[3] ? s[3].replace('px', '') : 0
+            });
+        }
+    }
+    return results;
+};
+
+NodeContainer.prototype.parseTransform = function() {
+    if (!this.transformData) {
+        if (this.hasTransform()) {
+            var offset = this.parseBounds();
+            var origin = this.prefixedCss("transformOrigin").split(" ").map(removePx).map(asFloat);
+            origin[0] += offset.left;
+            origin[1] += offset.top;
+            this.transformData = {
+                origin: origin,
+                matrix: this.parseTransformMatrix()
+            };
+        } else {
+            this.transformData = {
+                origin: [0, 0],
+                matrix: [1, 0, 0, 1, 0, 0]
+            };
+        }
+    }
+    return this.transformData;
+};
+
+NodeContainer.prototype.parseTransformMatrix = function() {
+    if (!this.transformMatrix) {
+        var transform = this.prefixedCss("transform");
+        var matrix = transform ? parseMatrix(transform.match(this.MATRIX_PROPERTY)) : null;
+        this.transformMatrix = matrix ? matrix : [1, 0, 0, 1, 0, 0];
+    }
+    return this.transformMatrix;
+};
+
+NodeContainer.prototype.parseBounds = function() {
+    return this.bounds || (this.bounds = this.hasTransform() ? offsetBounds(this.node) : getBounds(this.node));
+};
+
+NodeContainer.prototype.hasTransform = function() {
+    return this.parseTransformMatrix().join(",") !== "1,0,0,1,0,0" || (this.parent && this.parent.hasTransform());
+};
+
+NodeContainer.prototype.getValue = function() {
+    var value = this.node.value || "";
+    if (this.node.tagName === "SELECT") {
+        value = selectionValue(this.node);
+    } else if (this.node.type === "password") {
+        value = Array(value.length + 1).join('\u2022'); // jshint ignore:line
+    }
+    return value.length === 0 ? (this.node.placeholder || "") : value;
+};
+
+NodeContainer.prototype.MATRIX_PROPERTY = /(matrix)\((.+)\)/;
+NodeContainer.prototype.TEXT_SHADOW_PROPERTY = /((rgba|rgb)\([^\)]+\)(\s-?\d+px){0,})/g;
+NodeContainer.prototype.TEXT_SHADOW_VALUES = /(-?\d+px)|(#.+)|(rgb\(.+\))|(rgba\(.+\))/g;
+NodeContainer.prototype.CLIP = /^rect\((\d+)px,? (\d+)px,? (\d+)px,? (\d+)px\)$/;
+
+function selectionValue(node) {
+    var option = node.options[node.selectedIndex || 0];
+    return option ? (option.text || "") : "";
+}
+
+function parseMatrix(match) {
+    if (match && match[1] === "matrix") {
+        return match[2].split(",").map(function(s) {
+            return parseFloat(s.trim());
+        });
+    }
+}
+
+function isPercentage(value) {
+    return value.toString().indexOf("%") !== -1;
+}
+
+function removePx(str) {
+    return str.replace("px", "");
+}
+
+function asFloat(str) {
+    return parseFloat(str);
+}
+
+module.exports = NodeContainer;
+
+},{"./color":5,"./utils":29}],17:[function(require,module,exports){
+var log = require('./log');
+var punycode = require('punycode');
+var NodeContainer = require('./nodecontainer');
+var TextContainer = require('./textcontainer');
+var PseudoElementContainer = require('./pseudoelementcontainer');
+var FontMetrics = require('./fontmetrics');
+var Color = require('./color');
+var Promise = require('./promise');
+var StackingContext = require('./stackingcontext');
+var utils = require('./utils');
+var bind = utils.bind;
+var getBounds = utils.getBounds;
+var parseBackgrounds = utils.parseBackgrounds;
+var offsetBounds = utils.offsetBounds;
+
+function NodeParser(element, renderer, support, imageLoader, options) {
+    log("Starting NodeParser");
+    this.renderer = renderer;
+    this.options = options;
+    this.range = null;
+    this.support = support;
+    this.renderQueue = [];
+    this.stack = new StackingContext(true, 1, element.ownerDocument, null);
+    var parent = new NodeContainer(element, null);
+    if (options.background) {
+        renderer.rectangle(0, 0, renderer.width, renderer.height, new Color(options.background));
+    }
+    if (element === element.ownerDocument.documentElement) {
+        // http://www.w3.org/TR/css3-background/#special-backgrounds
+        var canvasBackground = new NodeContainer(parent.color('backgroundColor').isTransparent() ? element.ownerDocument.body : element.ownerDocument.documentElement, null);
+        renderer.rectangle(0, 0, renderer.width, renderer.height, canvasBackground.color('backgroundColor'));
+    }
+    parent.visibile = parent.isElementVisible();
+    this.createPseudoHideStyles(element.ownerDocument);
+    this.disableAnimations(element.ownerDocument);
+    this.nodes = flatten([parent].concat(this.getChildren(parent)).filter(function(container) {
+        return container.visible = container.isElementVisible();
+    }).map(this.getPseudoElements, this));
+    this.fontMetrics = new FontMetrics();
+    log("Fetched nodes, total:", this.nodes.length);
+    log("Calculate overflow clips");
+    this.calculateOverflowClips();
+    log("Start fetching images");
+    this.images = imageLoader.fetch(this.nodes.filter(isElement));
+    this.ready = this.images.ready.then(bind(function() {
+        log("Images loaded, starting parsing");
+        log("Creating stacking contexts");
+        this.createStackingContexts();
+        log("Sorting stacking contexts");
+        this.sortStackingContexts(this.stack);
+        this.parse(this.stack);
+        log("Render queue created with " + this.renderQueue.length + " items");
+        return new Promise(bind(function(resolve) {
+            if (!options.async) {
+                this.renderQueue.forEach(this.paint, this);
+                resolve();
+            } else if (typeof(options.async) === "function") {
+                options.async.call(this, this.renderQueue, resolve);
+            } else if (this.renderQueue.length > 0){
+                this.renderIndex = 0;
+                this.asyncRenderer(this.renderQueue, resolve);
+            } else {
+                resolve();
+            }
+        }, this));
+    }, this));
+}
+
+NodeParser.prototype.calculateOverflowClips = function() {
+    this.nodes.forEach(function(container) {
+        if (isElement(container)) {
+            if (isPseudoElement(container)) {
+                container.appendToDOM();
+            }
+            container.borders = this.parseBorders(container);
+            var clip = (container.css('overflow') === "hidden") ? [container.borders.clip] : [];
+            var cssClip = container.parseClip();
+            if (cssClip && ["absolute", "fixed"].indexOf(container.css('position')) !== -1) {
+                clip.push([["rect",
+                        container.bounds.left + cssClip.left,
+                        container.bounds.top + cssClip.top,
+                        cssClip.right - cssClip.left,
+                        cssClip.bottom - cssClip.top
+                ]]);
+            }
+            container.clip = hasParentClip(container) ? container.parent.clip.concat(clip) : clip;
+            container.backgroundClip = (container.css('overflow') !== "hidden") ? container.clip.concat([container.borders.clip]) : container.clip;
+            if (isPseudoElement(container)) {
+                container.cleanDOM();
+            }
+        } else if (isTextNode(container)) {
+            container.clip = hasParentClip(container) ? container.parent.clip : [];
+        }
+        if (!isPseudoElement(container)) {
+            container.bounds = null;
+        }
+    }, this);
+};
+
+function hasParentClip(container) {
+    return container.parent && container.parent.clip.length;
+}
+
+NodeParser.prototype.asyncRenderer = function(queue, resolve, asyncTimer) {
+    asyncTimer = asyncTimer || Date.now();
+    this.paint(queue[this.renderIndex++]);
+    if (queue.length === this.renderIndex) {
+        resolve();
+    } else if (asyncTimer + 20 > Date.now()) {
+        this.asyncRenderer(queue, resolve, asyncTimer);
+    } else {
+        setTimeout(bind(function() {
+            this.asyncRenderer(queue, resolve);
+        }, this), 0);
+    }
+};
+
+NodeParser.prototype.createPseudoHideStyles = function(document) {
+    this.createStyles(document, '.' + PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_BEFORE + ':before { content: "" !important; display: none !important; }' +
+        '.' + PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_AFTER + ':after { content: "" !important; display: none !important; }');
+};
+
+NodeParser.prototype.disableAnimations = function(document) {
+    this.createStyles(document, '* { -webkit-animation: none !important; -moz-animation: none !important; -o-animation: none !important; animation: none !important; ' +
+        '-webkit-transition: none !important; -moz-transition: none !important; -o-transition: none !important; transition: none !important;}');
+};
+
+NodeParser.prototype.createStyles = function(document, styles) {
+    var hidePseudoElements = document.createElement('style');
+    hidePseudoElements.innerHTML = styles;
+    document.body.appendChild(hidePseudoElements);
+};
+
+NodeParser.prototype.getPseudoElements = function(container) {
+    var nodes = [[container]];
+    if (container.node.nodeType === Node.ELEMENT_NODE) {
+        var before = this.getPseudoElement(container, ":before");
+        var after = this.getPseudoElement(container, ":after");
+
+        if (before) {
+            nodes.push(before);
+        }
+
+        if (after) {
+            nodes.push(after);
+        }
+    }
+    return flatten(nodes);
+};
+
+function toCamelCase(str) {
+    return str.replace(/(\-[a-z])/g, function(match){
+        return match.toUpperCase().replace('-','');
+    });
+}
+
+NodeParser.prototype.getPseudoElement = function(container, type) {
+    var style = container.computedStyle(type);
+    if(!style || !style.content || style.content === "none" || style.content === "-moz-alt-content" || style.display === "none") {
+        return null;
+    }
+
+    var content = stripQuotes(style.content);
+    var isImage = content.substr(0, 3) === 'url';
+    var pseudoNode = document.createElement(isImage ? 'img' : 'html2canvaspseudoelement');
+    var pseudoContainer = new PseudoElementContainer(pseudoNode, container, type);
+
+    for (var i = style.length-1; i >= 0; i--) {
+        var property = toCamelCase(style.item(i));
+        pseudoNode.style[property] = style[property];
+    }
+
+    pseudoNode.className = PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_BEFORE + " " + PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
+
+    if (isImage) {
+        pseudoNode.src = parseBackgrounds(content)[0].args[0];
+        return [pseudoContainer];
+    } else {
+        var text = document.createTextNode(content);
+        pseudoNode.appendChild(text);
+        return [pseudoContainer, new TextContainer(text, pseudoContainer)];
+    }
+};
+
+
+NodeParser.prototype.getChildren = function(parentContainer) {
+    return flatten([].filter.call(parentContainer.node.childNodes, renderableNode).map(function(node) {
+        var container = [node.nodeType === Node.TEXT_NODE ? new TextContainer(node, parentContainer) : new NodeContainer(node, parentContainer)].filter(nonIgnoredElement);
+        return node.nodeType === Node.ELEMENT_NODE && container.length && node.tagName !== "TEXTAREA" ? (container[0].isElementVisible() ? container.concat(this.getChildren(container[0])) : []) : container;
+    }, this));
+};
+
+NodeParser.prototype.newStackingContext = function(container, hasOwnStacking) {
+    var stack = new StackingContext(hasOwnStacking, container.getOpacity(), container.node, container.parent);
+    container.cloneTo(stack);
+    var parentStack = hasOwnStacking ? stack.getParentStack(this) : stack.parent.stack;
+    parentStack.contexts.push(stack);
+    container.stack = stack;
+};
+
+NodeParser.prototype.createStackingContexts = function() {
+    this.nodes.forEach(function(container) {
+        if (isElement(container) && (this.isRootElement(container) || hasOpacity(container) || isPositionedForStacking(container) || this.isBodyWithTransparentRoot(container) || container.hasTransform())) {
+            this.newStackingContext(container, true);
+        } else if (isElement(container) && ((isPositioned(container) && zIndex0(container)) || isInlineBlock(container) || isFloating(container))) {
+            this.newStackingContext(container, false);
+        } else {
+            container.assignStack(container.parent.stack);
+        }
+    }, this);
+};
+
+NodeParser.prototype.isBodyWithTransparentRoot = function(container) {
+    return container.node.nodeName === "BODY" && container.parent.color('backgroundColor').isTransparent();
+};
+
+NodeParser.prototype.isRootElement = function(container) {
+    return container.parent === null;
+};
+
+NodeParser.prototype.sortStackingContexts = function(stack) {
+    stack.contexts.sort(zIndexSort(stack.contexts.slice(0)));
+    stack.contexts.forEach(this.sortStackingContexts, this);
+};
+
+NodeParser.prototype.parseTextBounds = function(container) {
+    return function(text, index, textList) {
+        if (container.parent.css("textDecoration").substr(0, 4) !== "none" || text.trim().length !== 0) {
+            if (this.support.rangeBounds && !container.parent.hasTransform()) {
+                var offset = textList.slice(0, index).join("").length;
+                return this.getRangeBounds(container.node, offset, text.length);
+            } else if (container.node && typeof(container.node.data) === "string") {
+                var replacementNode = container.node.splitText(text.length);
+                var bounds = this.getWrapperBounds(container.node, container.parent.hasTransform());
+                container.node = replacementNode;
+                return bounds;
+            }
+        } else if(!this.support.rangeBounds || container.parent.hasTransform()){
+            container.node = container.node.splitText(text.length);
+        }
+        return {};
+    };
+};
+
+NodeParser.prototype.getWrapperBounds = function(node, transform) {
+    var wrapper = node.ownerDocument.createElement('html2canvaswrapper');
+    var parent = node.parentNode,
+        backupText = node.cloneNode(true);
+
+    wrapper.appendChild(node.cloneNode(true));
+    parent.replaceChild(wrapper, node);
+    var bounds = transform ? offsetBounds(wrapper) : getBounds(wrapper);
+    parent.replaceChild(backupText, wrapper);
+    return bounds;
+};
+
+NodeParser.prototype.getRangeBounds = function(node, offset, length) {
+    var range = this.range || (this.range = node.ownerDocument.createRange());
+    range.setStart(node, offset);
+    range.setEnd(node, offset + length);
+    return range.getBoundingClientRect();
+};
+
+function ClearTransform() {}
+
+NodeParser.prototype.parse = function(stack) {
+    // http://www.w3.org/TR/CSS21/visuren.html#z-index
+    var negativeZindex = stack.contexts.filter(negativeZIndex); // 2. the child stacking contexts with negative stack levels (most negative first).
+    var descendantElements = stack.children.filter(isElement);
+    var descendantNonFloats = descendantElements.filter(not(isFloating));
+    var nonInlineNonPositionedDescendants = descendantNonFloats.filter(not(isPositioned)).filter(not(inlineLevel)); // 3 the in-flow, non-inline-level, non-positioned descendants.
+    var nonPositionedFloats = descendantElements.filter(not(isPositioned)).filter(isFloating); // 4. the non-positioned floats.
+    var inFlow = descendantNonFloats.filter(not(isPositioned)).filter(inlineLevel); // 5. the in-flow, inline-level, non-positioned descendants, including inline tables and inline blocks.
+    var stackLevel0 = stack.contexts.concat(descendantNonFloats.filter(isPositioned)).filter(zIndex0); // 6. the child stacking contexts with stack level 0 and the positioned descendants with stack level 0.
+    var text = stack.children.filter(isTextNode).filter(hasText);
+    var positiveZindex = stack.contexts.filter(positiveZIndex); // 7. the child stacking contexts with positive stack levels (least positive first).
+    negativeZindex.concat(nonInlineNonPositionedDescendants).concat(nonPositionedFloats)
+        .concat(inFlow).concat(stackLevel0).concat(text).concat(positiveZindex).forEach(function(container) {
+            this.renderQueue.push(container);
+            if (isStackingContext(container)) {
+                this.parse(container);
+                this.renderQueue.push(new ClearTransform());
+            }
+        }, this);
+};
+
+NodeParser.prototype.paint = function(container) {
+    try {
+        if (container instanceof ClearTransform) {
+            this.renderer.ctx.restore();
+        } else if (isTextNode(container)) {
+            if (isPseudoElement(container.parent)) {
+                container.parent.appendToDOM();
+            }
+            this.paintText(container);
+            if (isPseudoElement(container.parent)) {
+                container.parent.cleanDOM();
+            }
+        } else {
+            this.paintNode(container);
+        }
+    } catch(e) {
+        log(e);
+        if (this.options.strict) {
+            throw e;
+        }
+    }
+};
+
+NodeParser.prototype.paintNode = function(container) {
+    if (isStackingContext(container)) {
+        this.renderer.setOpacity(container.opacity);
+        this.renderer.ctx.save();
+        if (container.hasTransform()) {
+            this.renderer.setTransform(container.parseTransform());
+        }
+    }
+
+    if (container.node.nodeName === "INPUT" && container.node.type === "checkbox") {
+        this.paintCheckbox(container);
+    } else if (container.node.nodeName === "INPUT" && container.node.type === "radio") {
+        this.paintRadio(container);
+    } else {
+        this.paintElement(container);
+    }
+};
+
+NodeParser.prototype.paintElement = function(container) {
+    var bounds = container.parseBounds();
+    this.renderer.clip(container.backgroundClip, function() {
+        this.renderer.renderBackground(container, bounds, container.borders.borders.map(getWidth));
+    }, this);
+
+    this.renderer.clip(container.clip, function() {
+        this.renderer.renderBorders(container.borders.borders);
+    }, this);
+
+    this.renderer.clip(container.backgroundClip, function() {
+        switch (container.node.nodeName) {
+        case "svg":
+        case "IFRAME":
+            var imgContainer = this.images.get(container.node);
+            if (imgContainer) {
+                this.renderer.renderImage(container, bounds, container.borders, imgContainer);
+            } else {
+                log("Error loading <" + container.node.nodeName + ">", container.node);
+            }
+            break;
+        case "IMG":
+            var imageContainer = this.images.get(container.node.src);
+            if (imageContainer) {
+                this.renderer.renderImage(container, bounds, container.borders, imageContainer);
+            } else {
+                log("Error loading <img>", container.node.src);
+            }
+            break;
+        case "CANVAS":
+            this.renderer.renderImage(container, bounds, container.borders, {image: container.node});
+            break;
+        case "SELECT":
+        case "INPUT":
+        case "TEXTAREA":
+            this.paintFormValue(container);
+            break;
+        }
+    }, this);
+};
+
+NodeParser.prototype.paintCheckbox = function(container) {
+    var b = container.parseBounds();
+
+    var size = Math.min(b.width, b.height);
+    var bounds = {width: size - 1, height: size - 1, top: b.top, left: b.left};
+    var r = [3, 3];
+    var radius = [r, r, r, r];
+    var borders = [1,1,1,1].map(function(w) {
+        return {color: new Color('#A5A5A5'), width: w};
+    });
+
+    var borderPoints = calculateCurvePoints(bounds, radius, borders);
+
+    this.renderer.clip(container.backgroundClip, function() {
+        this.renderer.rectangle(bounds.left + 1, bounds.top + 1, bounds.width - 2, bounds.height - 2, new Color("#DEDEDE"));
+        this.renderer.renderBorders(calculateBorders(borders, bounds, borderPoints, radius));
+        if (container.node.checked) {
+            this.renderer.font(new Color('#424242'), 'normal', 'normal', 'bold', (size - 3) + "px", 'arial');
+            this.renderer.text("\u2714", bounds.left + size / 6, bounds.top + size - 1);
+        }
+    }, this);
+};
+
+NodeParser.prototype.paintRadio = function(container) {
+    var bounds = container.parseBounds();
+
+    var size = Math.min(bounds.width, bounds.height) - 2;
+
+    this.renderer.clip(container.backgroundClip, function() {
+        this.renderer.circleStroke(bounds.left + 1, bounds.top + 1, size, new Color('#DEDEDE'), 1, new Color('#A5A5A5'));
+        if (container.node.checked) {
+            this.renderer.circle(Math.ceil(bounds.left + size / 4) + 1, Math.ceil(bounds.top + size / 4) + 1, Math.floor(size / 2), new Color('#424242'));
+        }
+    }, this);
+};
+
+NodeParser.prototype.paintFormValue = function(container) {
+    var value = container.getValue();
+    if (value.length > 0) {
+        var document = container.node.ownerDocument;
+        var wrapper = document.createElement('html2canvaswrapper');
+        var properties = ['lineHeight', 'textAlign', 'fontFamily', 'fontWeight', 'fontSize', 'color',
+            'paddingLeft', 'paddingTop', 'paddingRight', 'paddingBottom',
+            'width', 'height', 'borderLeftStyle', 'borderTopStyle', 'borderLeftWidth', 'borderTopWidth',
+            'boxSizing', 'whiteSpace', 'wordWrap'];
+
+        properties.forEach(function(property) {
+            try {
+                wrapper.style[property] = container.css(property);
+            } catch(e) {
+                // Older IE has issues with "border"
+                log("html2canvas: Parse: Exception caught in renderFormValue: " + e.message);
+            }
+        });
+        var bounds = container.parseBounds();
+        wrapper.style.position = "fixed";
+        wrapper.style.left = bounds.left + "px";
+        wrapper.style.top = bounds.top + "px";
+        wrapper.textContent = value;
+        document.body.appendChild(wrapper);
+        this.paintText(new TextContainer(wrapper.firstChild, container));
+        document.body.removeChild(wrapper);
+    }
+};
+
+NodeParser.prototype.paintText = function(container) {
+    container.applyTextTransform();
+    var characters = punycode.ucs2.decode(container.node.data);
+    var textList = (!this.options.letterRendering || noLetterSpacing(container)) && !hasUnicode(container.node.data) ? getWords(characters) : characters.map(function(character) {
+        return punycode.ucs2.encode([character]);
+    });
+
+    var weight = container.parent.fontWeight();
+    var size = container.parent.css('fontSize');
+    var family = container.parent.css('fontFamily');
+    var shadows = container.parent.parseTextShadows();
+
+    this.renderer.font(container.parent.color('color'), container.parent.css('fontStyle'), container.parent.css('fontVariant'), weight, size, family);
     if (shadows.length) {
-      // TODO: support multiple text shadows
-      // apply the first text shadow
-      ctx.setVariable("shadowColor", shadows[0].color);
-      ctx.setVariable("shadowOffsetX", shadows[0].offsetX);
-      ctx.setVariable("shadowOffsetY", shadows[0].offsetY);
-      ctx.setVariable("shadowBlur", shadows[0].blur);
+        // TODO: support multiple text shadows
+        this.renderer.fontShadow(shadows[0].color, shadows[0].offsetX, shadows[0].offsetY, shadows[0].blur);
+    } else {
+        this.renderer.clearShadow();
     }
 
-    if (text_decoration !== "none"){
-      return Util.Font(family, size, doc);
-    }
-  }
+    this.renderer.clip(container.parent.clip, function() {
+        textList.map(this.parseTextBounds(container), this).forEach(function(bounds, index) {
+            if (bounds) {
+                this.renderer.text(textList[index], bounds.left, bounds.bottom);
+                this.renderTextDecoration(container.parent, bounds, this.fontMetrics.getMetrics(family, size));
+            }
+        }, this);
+    }, this);
+};
 
-  function renderTextDecoration(ctx, text_decoration, bounds, metrics, color) {
-    switch(text_decoration) {
-      case "underline":
+NodeParser.prototype.renderTextDecoration = function(container, bounds, metrics) {
+    switch(container.css("textDecoration").split(" ")[0]) {
+    case "underline":
         // Draws a line at the baseline of the font
         // TODO As some browsers display the line as more than 1px if the font-size is big, need to take that into account both in position and size
-        renderRect(ctx, bounds.left, Math.round(bounds.top + metrics.baseline + metrics.lineWidth), bounds.width, 1, color);
+        this.renderer.rectangle(bounds.left, Math.round(bounds.top + metrics.baseline + metrics.lineWidth), bounds.width, 1, container.color("color"));
         break;
-      case "overline":
-        renderRect(ctx, bounds.left, Math.round(bounds.top), bounds.width, 1, color);
+    case "overline":
+        this.renderer.rectangle(bounds.left, Math.round(bounds.top), bounds.width, 1, container.color("color"));
         break;
-      case "line-through":
+    case "line-through":
         // TODO try and find exact position for line-through
-        renderRect(ctx, bounds.left, Math.ceil(bounds.top + metrics.middle + metrics.lineWidth), bounds.width, 1, color);
+        this.renderer.rectangle(bounds.left, Math.ceil(bounds.top + metrics.middle + metrics.lineWidth), bounds.width, 1, container.color("color"));
         break;
     }
-  }
+};
 
-  function getTextBounds(state, text, textDecoration, isLast, transform) {
-    var bounds;
-    if (support.rangeBounds && !transform) {
-      if (textDecoration !== "none" || Util.trimText(text).length !== 0) {
-        bounds = textRangeBounds(text, state.node, state.textOffset);
-      }
-      state.textOffset += text.length;
-    } else if (state.node && typeof state.node.nodeValue === "string" ){
-      var newTextNode = (isLast) ? state.node.splitText(text.length) : null;
-      bounds = textWrapperBounds(state.node, transform);
-      state.node = newTextNode;
-    }
-    return bounds;
-  }
+var borderColorTransforms = {
+    inset: [
+        ["darken", 0.60],
+        ["darken", 0.10],
+        ["darken", 0.10],
+        ["darken", 0.60]
+    ]
+};
 
-  function textRangeBounds(text, textNode, textOffset) {
-    var range = doc.createRange();
-    range.setStart(textNode, textOffset);
-    range.setEnd(textNode, textOffset + text.length);
-    return range.getBoundingClientRect();
-  }
-
-  function textWrapperBounds(oldTextNode, transform) {
-    var parent = oldTextNode.parentNode,
-    wrapElement = doc.createElement('wrapper'),
-    backupText = oldTextNode.cloneNode(true);
-
-    wrapElement.appendChild(oldTextNode.cloneNode(true));
-    parent.replaceChild(wrapElement, oldTextNode);
-
-    var bounds = transform ? Util.OffsetBounds(wrapElement) : Util.Bounds(wrapElement);
-    parent.replaceChild(backupText, wrapElement);
-    return bounds;
-  }
-
-  function renderText(el, textNode, stack) {
-    var ctx = stack.ctx,
-    color = getCSS(el, "color"),
-    textDecoration = getCSS(el, "textDecoration"),
-    textAlign = getCSS(el, "textAlign"),
-    metrics,
-    textList,
-    state = {
-      node: textNode,
-      textOffset: 0
-    };
-
-    if (Util.trimText(textNode.nodeValue).length > 0) {
-      textNode.nodeValue = textTransform(textNode.nodeValue, getCSS(el, "textTransform"));
-      textAlign = textAlign.replace(["-webkit-auto"],["auto"]);
-
-      textList = (!options.letterRendering && /^(left|right|justify|auto)$/.test(textAlign) && noLetterSpacing(getCSS(el, "letterSpacing"))) ?
-      textNode.nodeValue.split(/(\b| )/)
-      : textNode.nodeValue.split("");
-
-      metrics = setTextVariables(ctx, el, textDecoration, color);
-
-      if (options.chinese) {
-        textList.forEach(function(word, index) {
-          if (/.*[\u4E00-\u9FA5].*$/.test(word)) {
-            word = word.split("");
-            word.unshift(index, 1);
-            textList.splice.apply(textList, word);
-          }
-        });
-      }
-
-      textList.forEach(function(text, index) {
-        var bounds = getTextBounds(state, text, textDecoration, (index < textList.length - 1), stack.transform.matrix);
-        if (bounds) {
-          drawText(text, bounds.left, bounds.bottom, ctx);
-          renderTextDecoration(ctx, textDecoration, bounds, metrics, color);
+NodeParser.prototype.parseBorders = function(container) {
+    var nodeBounds = container.parseBounds();
+    var radius = getBorderRadiusData(container);
+    var borders = ["Top", "Right", "Bottom", "Left"].map(function(side, index) {
+        var style = container.css('border' + side + 'Style');
+        var color = container.color('border' + side + 'Color');
+        if (style === "inset" && color.isBlack()) {
+            color = new Color([255, 255, 255, color.a]); // this is wrong, but
         }
-      });
-    }
-  }
+        var colorTransform = borderColorTransforms[style] ? borderColorTransforms[style][index] : null;
+        return {
+            width: container.cssInt('border' + side + 'Width'),
+            color: colorTransform ? color[colorTransform[0]](colorTransform[1]) : color,
+            args: null
+        };
+    });
+    var borderPoints = calculateCurvePoints(nodeBounds, radius, borders);
 
-  function listPosition (element, val) {
-    var boundElement = doc.createElement( "boundelement" ),
-    originalType,
-    bounds;
+    return {
+        clip: this.parseBackgroundClip(container, borderPoints, borders, radius, nodeBounds),
+        borders: calculateBorders(borders, nodeBounds, borderPoints, radius)
+    };
+};
 
-    boundElement.style.display = "inline";
+function calculateBorders(borders, nodeBounds, borderPoints, radius) {
+    return borders.map(function(border, borderSide) {
+        if (border.width > 0) {
+            var bx = nodeBounds.left;
+            var by = nodeBounds.top;
+            var bw = nodeBounds.width;
+            var bh = nodeBounds.height - (borders[2].width);
 
-    originalType = element.style.listStyleType;
-    element.style.listStyleType = "none";
+            switch(borderSide) {
+            case 0:
+                // top border
+                bh = borders[0].width;
+                border.args = drawSide({
+                        c1: [bx, by],
+                        c2: [bx + bw, by],
+                        c3: [bx + bw - borders[1].width, by + bh],
+                        c4: [bx + borders[3].width, by + bh]
+                    }, radius[0], radius[1],
+                    borderPoints.topLeftOuter, borderPoints.topLeftInner, borderPoints.topRightOuter, borderPoints.topRightInner);
+                break;
+            case 1:
+                // right border
+                bx = nodeBounds.left + nodeBounds.width - (borders[1].width);
+                bw = borders[1].width;
 
-    boundElement.appendChild(doc.createTextNode(val));
-
-    element.insertBefore(boundElement, element.firstChild);
-
-    bounds = Util.Bounds(boundElement);
-    element.removeChild(boundElement);
-    element.style.listStyleType = originalType;
-    return bounds;
-  }
-
-  function elementIndex(el) {
-    var i = -1,
-    count = 1,
-    childs = el.parentNode.childNodes;
-
-    if (el.parentNode) {
-      while(childs[++i] !== el) {
-        if (childs[i].nodeType === 1) {
-          count++;
+                border.args = drawSide({
+                        c1: [bx + bw, by],
+                        c2: [bx + bw, by + bh + borders[2].width],
+                        c3: [bx, by + bh],
+                        c4: [bx, by + borders[0].width]
+                    }, radius[1], radius[2],
+                    borderPoints.topRightOuter, borderPoints.topRightInner, borderPoints.bottomRightOuter, borderPoints.bottomRightInner);
+                break;
+            case 2:
+                // bottom border
+                by = (by + nodeBounds.height) - (borders[2].width);
+                bh = borders[2].width;
+                border.args = drawSide({
+                        c1: [bx + bw, by + bh],
+                        c2: [bx, by + bh],
+                        c3: [bx + borders[3].width, by],
+                        c4: [bx + bw - borders[3].width, by]
+                    }, radius[2], radius[3],
+                    borderPoints.bottomRightOuter, borderPoints.bottomRightInner, borderPoints.bottomLeftOuter, borderPoints.bottomLeftInner);
+                break;
+            case 3:
+                // left border
+                bw = borders[3].width;
+                border.args = drawSide({
+                        c1: [bx, by + bh + borders[2].width],
+                        c2: [bx, by],
+                        c3: [bx + bw, by + borders[0].width],
+                        c4: [bx + bw, by + bh]
+                    }, radius[3], radius[0],
+                    borderPoints.bottomLeftOuter, borderPoints.bottomLeftInner, borderPoints.topLeftOuter, borderPoints.topLeftInner);
+                break;
+            }
         }
-      }
-      return count;
-    } else {
-      return -1;
-    }
-  }
-
-  function listItemText(element, type) {
-    var currentIndex = elementIndex(element), text;
-    switch(type){
-      case "decimal":
-        text = currentIndex;
-        break;
-      case "decimal-leading-zero":
-        text = (currentIndex.toString().length === 1) ? currentIndex = "0" + currentIndex.toString() : currentIndex.toString();
-        break;
-      case "upper-roman":
-        text = _html2canvas.Generate.ListRoman( currentIndex );
-        break;
-      case "lower-roman":
-        text = _html2canvas.Generate.ListRoman( currentIndex ).toLowerCase();
-        break;
-      case "lower-alpha":
-        text = _html2canvas.Generate.ListAlpha( currentIndex ).toLowerCase();
-        break;
-      case "upper-alpha":
-        text = _html2canvas.Generate.ListAlpha( currentIndex );
-        break;
-    }
-
-    return text + ". ";
-  }
-
-  function renderListItem(element, stack, elBounds) {
-    var x,
-    text,
-    ctx = stack.ctx,
-    type = getCSS(element, "listStyleType"),
-    listBounds;
-
-    if (/^(decimal|decimal-leading-zero|upper-alpha|upper-latin|upper-roman|lower-alpha|lower-greek|lower-latin|lower-roman)$/i.test(type)) {
-      text = listItemText(element, type);
-      listBounds = listPosition(element, text);
-      setTextVariables(ctx, element, "none", getCSS(element, "color"));
-
-      if (getCSS(element, "listStylePosition") === "inside") {
-        ctx.setVariable("textAlign", "left");
-        x = elBounds.left;
-      } else {
-        return;
-      }
-
-      drawText(text, x, listBounds.bottom, ctx);
-    }
-  }
-
-  function loadImage (src){
-    var img = images[src];
-    return (img && img.succeeded === true) ? img.img : false;
-  }
-
-  function clipBounds(src, dst){
-    var x = Math.max(src.left, dst.left),
-    y = Math.max(src.top, dst.top),
-    x2 = Math.min((src.left + src.width), (dst.left + dst.width)),
-    y2 = Math.min((src.top + src.height), (dst.top + dst.height));
-
-    return {
-      left:x,
-      top:y,
-      width:x2-x,
-      height:y2-y
-    };
-  }
-
-  function setZ(element, stack, parentStack){
-    var newContext,
-    isPositioned = stack.cssPosition !== 'static',
-    zIndex = isPositioned ? getCSS(element, 'zIndex') : 'auto',
-    opacity = getCSS(element, 'opacity'),
-    isFloated = getCSS(element, 'cssFloat') !== 'none';
-
-    // https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Understanding_z_index/The_stacking_context
-    // When a new stacking context should be created:
-    // the root element (HTML),
-    // positioned (absolutely or relatively) with a z-index value other than "auto",
-    // elements with an opacity value less than 1. (See the specification for opacity),
-    // on mobile WebKit and Chrome 22+, position: fixed always creates a new stacking context, even when z-index is "auto" (See this post)
-
-    stack.zIndex = newContext = h2czContext(zIndex);
-    newContext.isPositioned = isPositioned;
-    newContext.isFloated = isFloated;
-    newContext.opacity = opacity;
-    newContext.ownStacking = (zIndex !== 'auto' || opacity < 1);
-
-    if (parentStack) {
-      parentStack.zIndex.children.push(stack);
-    }
-  }
-
-  function renderImage(ctx, element, image, bounds, borders) {
-
-    var paddingLeft = getCSSInt(element, 'paddingLeft'),
-    paddingTop = getCSSInt(element, 'paddingTop'),
-    paddingRight = getCSSInt(element, 'paddingRight'),
-    paddingBottom = getCSSInt(element, 'paddingBottom');
-
-    drawImage(
-      ctx,
-      image,
-      0, //sx
-      0, //sy
-      image.width, //sw
-      image.height, //sh
-      bounds.left + paddingLeft + borders[3].width, //dx
-      bounds.top + paddingTop + borders[0].width, // dy
-      bounds.width - (borders[1].width + borders[3].width + paddingLeft + paddingRight), //dw
-      bounds.height - (borders[0].width + borders[2].width + paddingTop + paddingBottom) //dh
-      );
-  }
-
-  function getBorderData(element) {
-    return ["Top", "Right", "Bottom", "Left"].map(function(side) {
-      return {
-        width: getCSSInt(element, 'border' + side + 'Width'),
-        color: getCSS(element, 'border' + side + 'Color')
-      };
+        return border;
     });
-  }
+}
 
-  function getBorderRadiusData(element) {
-    return ["TopLeft", "TopRight", "BottomRight", "BottomLeft"].map(function(side) {
-      return getCSS(element, 'border' + side + 'Radius');
-    });
-  }
-
-  var getCurvePoints = (function(kappa) {
-
-    return function(x, y, r1, r2) {
-      var ox = (r1) * kappa, // control point offset horizontal
-      oy = (r2) * kappa, // control point offset vertical
-      xm = x + r1, // x-middle
-      ym = y + r2; // y-middle
-      return {
-        topLeft: bezierCurve({
-          x:x,
-          y:ym
-        }, {
-          x:x,
-          y:ym - oy
-        }, {
-          x:xm - ox,
-          y:y
-        }, {
-          x:xm,
-          y:y
-        }),
-        topRight: bezierCurve({
-          x:x,
-          y:y
-        }, {
-          x:x + ox,
-          y:y
-        }, {
-          x:xm,
-          y:ym - oy
-        }, {
-          x:xm,
-          y:ym
-        }),
-        bottomRight: bezierCurve({
-          x:xm,
-          y:y
-        }, {
-          x:xm,
-          y:y + oy
-        }, {
-          x:x + ox,
-          y:ym
-        }, {
-          x:x,
-          y:ym
-        }),
-        bottomLeft: bezierCurve({
-          x:xm,
-          y:ym
-        }, {
-          x:xm - ox,
-          y:ym
-        }, {
-          x:x,
-          y:y + oy
-        }, {
-          x:x,
-          y:y
-        })
-      };
-    };
-  })(4 * ((Math.sqrt(2) - 1) / 3));
-
-  function bezierCurve(start, startControl, endControl, end) {
-
-    var lerp = function (a, b, t) {
-      return {
-        x:a.x + (b.x - a.x) * t,
-        y:a.y + (b.y - a.y) * t
-      };
-    };
-
-    return {
-      start: start,
-      startControl: startControl,
-      endControl: endControl,
-      end: end,
-      subdivide: function(t) {
-        var ab = lerp(start, startControl, t),
-        bc = lerp(startControl, endControl, t),
-        cd = lerp(endControl, end, t),
-        abbc = lerp(ab, bc, t),
-        bccd = lerp(bc, cd, t),
-        dest = lerp(abbc, bccd, t);
-        return [bezierCurve(start, ab, abbc, dest), bezierCurve(dest, bccd, cd, end)];
-      },
-      curveTo: function(borderArgs) {
-        borderArgs.push(["bezierCurve", startControl.x, startControl.y, endControl.x, endControl.y, end.x, end.y]);
-      },
-      curveToReversed: function(borderArgs) {
-        borderArgs.push(["bezierCurve", endControl.x, endControl.y, startControl.x, startControl.y, start.x, start.y]);
-      }
-    };
-  }
-
-  function parseCorner(borderArgs, radius1, radius2, corner1, corner2, x, y) {
-    if (radius1[0] > 0 || radius1[1] > 0) {
-      borderArgs.push(["line", corner1[0].start.x, corner1[0].start.y]);
-      corner1[0].curveTo(borderArgs);
-      corner1[1].curveTo(borderArgs);
-    } else {
-      borderArgs.push(["line", x, y]);
-    }
-
-    if (radius2[0] > 0 || radius2[1] > 0) {
-      borderArgs.push(["line", corner2[0].start.x, corner2[0].start.y]);
-    }
-  }
-
-  function drawSide(borderData, radius1, radius2, outer1, inner1, outer2, inner2) {
-    var borderArgs = [];
-
-    if (radius1[0] > 0 || radius1[1] > 0) {
-      borderArgs.push(["line", outer1[1].start.x, outer1[1].start.y]);
-      outer1[1].curveTo(borderArgs);
-    } else {
-      borderArgs.push([ "line", borderData.c1[0], borderData.c1[1]]);
-    }
-
-    if (radius2[0] > 0 || radius2[1] > 0) {
-      borderArgs.push(["line", outer2[0].start.x, outer2[0].start.y]);
-      outer2[0].curveTo(borderArgs);
-      borderArgs.push(["line", inner2[0].end.x, inner2[0].end.y]);
-      inner2[0].curveToReversed(borderArgs);
-    } else {
-      borderArgs.push([ "line", borderData.c2[0], borderData.c2[1]]);
-      borderArgs.push([ "line", borderData.c3[0], borderData.c3[1]]);
-    }
-
-    if (radius1[0] > 0 || radius1[1] > 0) {
-      borderArgs.push(["line", inner1[1].end.x, inner1[1].end.y]);
-      inner1[1].curveToReversed(borderArgs);
-    } else {
-      borderArgs.push([ "line", borderData.c4[0], borderData.c4[1]]);
-    }
-
-    return borderArgs;
-  }
-
-  function calculateCurvePoints(bounds, borderRadius, borders) {
-
-    var x = bounds.left,
-    y = bounds.top,
-    width = bounds.width,
-    height = bounds.height,
-
-    tlh = borderRadius[0][0],
-    tlv = borderRadius[0][1],
-    trh = borderRadius[1][0],
-    trv = borderRadius[1][1],
-    brh = borderRadius[2][0],
-    brv = borderRadius[2][1],
-    blh = borderRadius[3][0],
-    blv = borderRadius[3][1],
-
-    topWidth = width - trh,
-    rightHeight = height - brv,
-    bottomWidth = width - brh,
-    leftHeight = height - blv;
-
-    return {
-      topLeftOuter: getCurvePoints(
-        x,
-        y,
-        tlh,
-        tlv
-        ).topLeft.subdivide(0.5),
-
-      topLeftInner: getCurvePoints(
-        x + borders[3].width,
-        y + borders[0].width,
-        Math.max(0, tlh - borders[3].width),
-        Math.max(0, tlv - borders[0].width)
-        ).topLeft.subdivide(0.5),
-
-      topRightOuter: getCurvePoints(
-        x + topWidth,
-        y,
-        trh,
-        trv
-        ).topRight.subdivide(0.5),
-
-      topRightInner: getCurvePoints(
-        x + Math.min(topWidth, width + borders[3].width),
-        y + borders[0].width,
-        (topWidth > width + borders[3].width) ? 0 :trh - borders[3].width,
-        trv - borders[0].width
-        ).topRight.subdivide(0.5),
-
-      bottomRightOuter: getCurvePoints(
-        x + bottomWidth,
-        y + rightHeight,
-        brh,
-        brv
-        ).bottomRight.subdivide(0.5),
-
-      bottomRightInner: getCurvePoints(
-        x + Math.min(bottomWidth, width + borders[3].width),
-        y + Math.min(rightHeight, height + borders[0].width),
-        Math.max(0, brh - borders[1].width),
-        Math.max(0, brv - borders[2].width)
-        ).bottomRight.subdivide(0.5),
-
-      bottomLeftOuter: getCurvePoints(
-        x,
-        y + leftHeight,
-        blh,
-        blv
-        ).bottomLeft.subdivide(0.5),
-
-      bottomLeftInner: getCurvePoints(
-        x + borders[3].width,
-        y + leftHeight,
-        Math.max(0, blh - borders[3].width),
-        Math.max(0, blv - borders[2].width)
-        ).bottomLeft.subdivide(0.5)
-    };
-  }
-
-  function getBorderClip(element, borderPoints, borders, radius, bounds) {
-    var backgroundClip = getCSS(element, 'backgroundClip'),
-    borderArgs = [];
+NodeParser.prototype.parseBackgroundClip = function(container, borderPoints, borders, radius, bounds) {
+    var backgroundClip = container.css('backgroundClip'),
+        borderArgs = [];
 
     switch(backgroundClip) {
-      case "content-box":
-      case "padding-box":
+    case "content-box":
+    case "padding-box":
         parseCorner(borderArgs, radius[0], radius[1], borderPoints.topLeftInner, borderPoints.topRightInner, bounds.left + borders[3].width, bounds.top + borders[0].width);
         parseCorner(borderArgs, radius[1], radius[2], borderPoints.topRightInner, borderPoints.bottomRightInner, bounds.left + bounds.width - borders[1].width, bounds.top + borders[0].width);
         parseCorner(borderArgs, radius[2], radius[3], borderPoints.bottomRightInner, borderPoints.bottomLeftInner, bounds.left + bounds.width - borders[1].width, bounds.top + bounds.height - borders[2].width);
         parseCorner(borderArgs, radius[3], radius[0], borderPoints.bottomLeftInner, borderPoints.topLeftInner, bounds.left + borders[3].width, bounds.top + bounds.height - borders[2].width);
         break;
 
-      default:
+    default:
         parseCorner(borderArgs, radius[0], radius[1], borderPoints.topLeftOuter, borderPoints.topRightOuter, bounds.left, bounds.top);
         parseCorner(borderArgs, radius[1], radius[2], borderPoints.topRightOuter, borderPoints.bottomRightOuter, bounds.left + bounds.width, bounds.top);
         parseCorner(borderArgs, radius[2], radius[3], borderPoints.bottomRightOuter, borderPoints.bottomLeftOuter, bounds.left + bounds.width, bounds.top + bounds.height);
@@ -1645,1224 +3398,1137 @@ _html2canvas.Parse = function (images, options) {
     }
 
     return borderArgs;
-  }
-
-  function parseBorders(element, bounds, borders){
-    var x = bounds.left,
-    y = bounds.top,
-    width = bounds.width,
-    height = bounds.height,
-    borderSide,
-    bx,
-    by,
-    bw,
-    bh,
-    borderArgs,
-    // http://www.w3.org/TR/css3-background/#the-border-radius
-    borderRadius = getBorderRadiusData(element),
-    borderPoints = calculateCurvePoints(bounds, borderRadius, borders),
-    borderData = {
-      clip: getBorderClip(element, borderPoints, borders, borderRadius, bounds),
-      borders: []
-    };
-
-    for (borderSide = 0; borderSide < 4; borderSide++) {
-
-      if (borders[borderSide].width > 0) {
-        bx = x;
-        by = y;
-        bw = width;
-        bh = height - (borders[2].width);
-
-        switch(borderSide) {
-          case 0:
-            // top border
-            bh = borders[0].width;
-
-            borderArgs = drawSide({
-              c1: [bx, by],
-              c2: [bx + bw, by],
-              c3: [bx + bw - borders[1].width, by + bh],
-              c4: [bx + borders[3].width, by + bh]
-            }, borderRadius[0], borderRadius[1],
-            borderPoints.topLeftOuter, borderPoints.topLeftInner, borderPoints.topRightOuter, borderPoints.topRightInner);
-            break;
-          case 1:
-            // right border
-            bx = x + width - (borders[1].width);
-            bw = borders[1].width;
-
-            borderArgs = drawSide({
-              c1: [bx + bw, by],
-              c2: [bx + bw, by + bh + borders[2].width],
-              c3: [bx, by + bh],
-              c4: [bx, by + borders[0].width]
-            }, borderRadius[1], borderRadius[2],
-            borderPoints.topRightOuter, borderPoints.topRightInner, borderPoints.bottomRightOuter, borderPoints.bottomRightInner);
-            break;
-          case 2:
-            // bottom border
-            by = (by + height) - (borders[2].width);
-            bh = borders[2].width;
-
-            borderArgs = drawSide({
-              c1: [bx + bw, by + bh],
-              c2: [bx, by + bh],
-              c3: [bx + borders[3].width, by],
-              c4: [bx + bw - borders[3].width, by]
-            }, borderRadius[2], borderRadius[3],
-            borderPoints.bottomRightOuter, borderPoints.bottomRightInner, borderPoints.bottomLeftOuter, borderPoints.bottomLeftInner);
-            break;
-          case 3:
-            // left border
-            bw = borders[3].width;
-
-            borderArgs = drawSide({
-              c1: [bx, by + bh + borders[2].width],
-              c2: [bx, by],
-              c3: [bx + bw, by + borders[0].width],
-              c4: [bx + bw, by + bh]
-            }, borderRadius[3], borderRadius[0],
-            borderPoints.bottomLeftOuter, borderPoints.bottomLeftInner, borderPoints.topLeftOuter, borderPoints.topLeftInner);
-            break;
-        }
-
-        borderData.borders.push({
-          args: borderArgs,
-          color: borders[borderSide].color
-        });
-
-      }
-    }
-
-    return borderData;
-  }
-
-  function createShape(ctx, args) {
-    var shape = ctx.drawShape();
-    args.forEach(function(border, index) {
-      shape[(index === 0) ? "moveTo" : border[0] + "To" ].apply(null, border.slice(1));
-    });
-    return shape;
-  }
-
-  function renderBorders(ctx, borderArgs, color) {
-    if (color !== "transparent") {
-      ctx.setVariable( "fillStyle", color);
-      createShape(ctx, borderArgs);
-      ctx.fill();
-      numDraws+=1;
-    }
-  }
-
-  function renderFormValue (el, bounds, stack){
-
-    var valueWrap = doc.createElement('valuewrap'),
-    cssPropertyArray = ['lineHeight','textAlign','fontFamily','color','fontSize','paddingLeft','paddingTop','width','height','border','borderLeftWidth','borderTopWidth'],
-    textValue,
-    textNode;
-
-    cssPropertyArray.forEach(function(property) {
-      try {
-        valueWrap.style[property] = getCSS(el, property);
-      } catch(e) {
-        // Older IE has issues with "border"
-        Util.log("html2canvas: Parse: Exception caught in renderFormValue: " + e.message);
-      }
-    });
-
-    valueWrap.style.borderColor = "black";
-    valueWrap.style.borderStyle = "solid";
-    valueWrap.style.display = "block";
-    valueWrap.style.position = "absolute";
-
-    if (/^(submit|reset|button|text|password)$/.test(el.type) || el.nodeName === "SELECT"){
-      valueWrap.style.lineHeight = getCSS(el, "height");
-    }
-
-    valueWrap.style.top = bounds.top + "px";
-    valueWrap.style.left = bounds.left + "px";
-
-    textValue = (el.nodeName === "SELECT") ? (el.options[el.selectedIndex] || 0).text : el.value;
-    if(!textValue) {
-      textValue = el.placeholder;
-    }
-
-    textNode = doc.createTextNode(textValue);
-
-    valueWrap.appendChild(textNode);
-    body.appendChild(valueWrap);
-
-    renderText(el, textNode, stack);
-    body.removeChild(valueWrap);
-  }
-
-  function drawImage (ctx) {
-    ctx.drawImage.apply(ctx, Array.prototype.slice.call(arguments, 1));
-    numDraws+=1;
-  }
-
-  function getPseudoElement(el, which) {
-    var elStyle = window.getComputedStyle(el, which);
-    if(!elStyle || !elStyle.content || elStyle.content === "none" || elStyle.content === "-moz-alt-content" || elStyle.display === "none") {
-      return;
-    }
-    var content = elStyle.content + '',
-    first = content.substr( 0, 1 );
-    //strips quotes
-    if(first === content.substr( content.length - 1 ) && first.match(/'|"/)) {
-      content = content.substr( 1, content.length - 2 );
-    }
-
-    var isImage = content.substr( 0, 3 ) === 'url',
-    elps = document.createElement( isImage ? 'img' : 'span' );
-
-    elps.className = pseudoHide + "-before " + pseudoHide + "-after";
-
-    Object.keys(elStyle).filter(indexedProperty).forEach(function(prop) {
-      // Prevent assigning of read only CSS Rules, ex. length, parentRule
-      try {
-        elps.style[prop] = elStyle[prop];
-      } catch (e) {
-        Util.log(['Tried to assign readonly property ', prop, 'Error:', e]);
-      }
-    });
-
-    if(isImage) {
-      elps.src = Util.parseBackgroundImage(content)[0].args[0];
-    } else {
-      elps.innerHTML = content;
-    }
-    return elps;
-  }
-
-  function indexedProperty(property) {
-    return (isNaN(window.parseInt(property, 10)));
-  }
-
-  function injectPseudoElements(el, stack) {
-    var before = getPseudoElement(el, ':before'),
-    after = getPseudoElement(el, ':after');
-    if(!before && !after) {
-      return;
-    }
-
-    if(before) {
-      el.className += " " + pseudoHide + "-before";
-      el.parentNode.insertBefore(before, el);
-      parseElement(before, stack, true);
-      el.parentNode.removeChild(before);
-      el.className = el.className.replace(pseudoHide + "-before", "").trim();
-    }
-
-    if (after) {
-      el.className += " " + pseudoHide + "-after";
-      el.appendChild(after);
-      parseElement(after, stack, true);
-      el.removeChild(after);
-      el.className = el.className.replace(pseudoHide + "-after", "").trim();
-    }
-
-  }
-
-  function renderBackgroundRepeat(ctx, image, backgroundPosition, bounds) {
-    var offsetX = Math.round(bounds.left + backgroundPosition.left),
-    offsetY = Math.round(bounds.top + backgroundPosition.top);
-
-    ctx.createPattern(image);
-    ctx.translate(offsetX, offsetY);
-    ctx.fill();
-    ctx.translate(-offsetX, -offsetY);
-  }
-
-  function backgroundRepeatShape(ctx, image, backgroundPosition, bounds, left, top, width, height) {
-    var args = [];
-    args.push(["line", Math.round(left), Math.round(top)]);
-    args.push(["line", Math.round(left + width), Math.round(top)]);
-    args.push(["line", Math.round(left + width), Math.round(height + top)]);
-    args.push(["line", Math.round(left), Math.round(height + top)]);
-    createShape(ctx, args);
-    ctx.save();
-    ctx.clip();
-    renderBackgroundRepeat(ctx, image, backgroundPosition, bounds);
-    ctx.restore();
-  }
-
-  function renderBackgroundColor(ctx, backgroundBounds, bgcolor) {
-    renderRect(
-      ctx,
-      backgroundBounds.left,
-      backgroundBounds.top,
-      backgroundBounds.width,
-      backgroundBounds.height,
-      bgcolor
-      );
-  }
-
-  function renderBackgroundRepeating(el, bounds, ctx, image, imageIndex) {
-    var backgroundSize = Util.BackgroundSize(el, bounds, image, imageIndex),
-    backgroundPosition = Util.BackgroundPosition(el, bounds, image, imageIndex, backgroundSize),
-    backgroundRepeat = getCSS(el, "backgroundRepeat").split(",").map(Util.trimText);
-
-    image = resizeImage(image, backgroundSize);
-
-    backgroundRepeat = backgroundRepeat[imageIndex] || backgroundRepeat[0];
-
-    switch (backgroundRepeat) {
-      case "repeat-x":
-        backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
-          bounds.left, bounds.top + backgroundPosition.top, 99999, image.height);
-        break;
-
-      case "repeat-y":
-        backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
-          bounds.left + backgroundPosition.left, bounds.top, image.width, 99999);
-        break;
-
-      case "no-repeat":
-        backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
-          bounds.left + backgroundPosition.left, bounds.top + backgroundPosition.top, image.width, image.height);
-        break;
-
-      default:
-        renderBackgroundRepeat(ctx, image, backgroundPosition, {
-          top: bounds.top,
-          left: bounds.left,
-          width: image.width,
-          height: image.height
-        });
-        break;
-    }
-  }
-
-  function renderBackgroundImage(element, bounds, ctx) {
-    var backgroundImage = getCSS(element, "backgroundImage"),
-    backgroundImages = Util.parseBackgroundImage(backgroundImage),
-    image,
-    imageIndex = backgroundImages.length;
-
-    while(imageIndex--) {
-      backgroundImage = backgroundImages[imageIndex];
-
-      if (!backgroundImage.args || backgroundImage.args.length === 0) {
-        continue;
-      }
-
-      var key = backgroundImage.method === 'url' ?
-      backgroundImage.args[0] :
-      backgroundImage.value;
-
-      image = loadImage(key);
-
-      // TODO add support for background-origin
-      if (image) {
-        renderBackgroundRepeating(element, bounds, ctx, image, imageIndex);
-      } else {
-        Util.log("html2canvas: Error loading background:", backgroundImage);
-      }
-    }
-  }
-
-  function resizeImage(image, bounds) {
-    if(image.width === bounds.width && image.height === bounds.height) {
-      return image;
-    }
-
-    var ctx, canvas = doc.createElement('canvas');
-    canvas.width = bounds.width;
-    canvas.height = bounds.height;
-    ctx = canvas.getContext("2d");
-    drawImage(ctx, image, 0, 0, image.width, image.height, 0, 0, bounds.width, bounds.height );
-    return canvas;
-  }
-
-  function setOpacity(ctx, element, parentStack) {
-    return ctx.setVariable("globalAlpha", getCSS(element, "opacity") * ((parentStack) ? parentStack.opacity : 1));
-  }
-
-  function removePx(str) {
-    return str.replace("px", "");
-  }
-
-  var transformRegExp = /(matrix)\((.+)\)/;
-
-  function getTransform(element, parentStack) {
-    var transform = getCSS(element, "transform") || getCSS(element, "-webkit-transform") || getCSS(element, "-moz-transform") || getCSS(element, "-ms-transform") || getCSS(element, "-o-transform");
-    var transformOrigin = getCSS(element, "transform-origin") || getCSS(element, "-webkit-transform-origin") || getCSS(element, "-moz-transform-origin") || getCSS(element, "-ms-transform-origin") || getCSS(element, "-o-transform-origin") || "0px 0px";
-
-    transformOrigin = transformOrigin.split(" ").map(removePx).map(Util.asFloat);
-
-    var matrix;
-    if (transform && transform !== "none") {
-      var match = transform.match(transformRegExp);
-      if (match) {
-        switch(match[1]) {
-          case "matrix":
-            matrix = match[2].split(",").map(Util.trimText).map(Util.asFloat);
-            break;
-        }
-      }
-    }
-
-    return {
-      origin: transformOrigin,
-      matrix: matrix
-    };
-  }
-
-  function createStack(element, parentStack, bounds, transform) {
-    var ctx = h2cRenderContext((!parentStack) ? documentWidth() : bounds.width , (!parentStack) ? documentHeight() : bounds.height),
-    stack = {
-      ctx: ctx,
-      opacity: setOpacity(ctx, element, parentStack),
-      cssPosition: getCSS(element, "position"),
-      borders: getBorderData(element),
-      transform: transform,
-      clip: (parentStack && parentStack.clip) ? Util.Extend( {}, parentStack.clip ) : null
-    };
-
-    setZ(element, stack, parentStack);
-
-    // TODO correct overflow for absolute content residing under a static position
-    if (options.useOverflow === true && /(hidden|scroll|auto)/.test(getCSS(element, "overflow")) === true && /(BODY)/i.test(element.nodeName) === false){
-      stack.clip = (stack.clip) ? clipBounds(stack.clip, bounds) : bounds;
-    }
-
-    return stack;
-  }
-
-  function getBackgroundBounds(borders, bounds, clip) {
-    var backgroundBounds = {
-      left: bounds.left + borders[3].width,
-      top: bounds.top + borders[0].width,
-      width: bounds.width - (borders[1].width + borders[3].width),
-      height: bounds.height - (borders[0].width + borders[2].width)
-    };
-
-    if (clip) {
-      backgroundBounds = clipBounds(backgroundBounds, clip);
-    }
-
-    return backgroundBounds;
-  }
-
-  function getBounds(element, transform) {
-    var bounds = (transform.matrix) ? Util.OffsetBounds(element) : Util.Bounds(element);
-    transform.origin[0] += bounds.left;
-    transform.origin[1] += bounds.top;
-    return bounds;
-  }
-
-  function renderElement(element, parentStack, pseudoElement, ignoreBackground) {
-    var transform = getTransform(element, parentStack),
-    bounds = getBounds(element, transform),
-    image,
-    stack = createStack(element, parentStack, bounds, transform),
-    borders = stack.borders,
-    ctx = stack.ctx,
-    backgroundBounds = getBackgroundBounds(borders, bounds, stack.clip),
-    borderData = parseBorders(element, bounds, borders),
-    backgroundColor = (ignoreElementsRegExp.test(element.nodeName)) ? "#efefef" : getCSS(element, "backgroundColor");
-
-
-    createShape(ctx, borderData.clip);
-
-    ctx.save();
-    ctx.clip();
-
-    if (backgroundBounds.height > 0 && backgroundBounds.width > 0 && !ignoreBackground) {
-      renderBackgroundColor(ctx, bounds, backgroundColor);
-      renderBackgroundImage(element, backgroundBounds, ctx);
-    } else if (ignoreBackground) {
-      stack.backgroundColor =  backgroundColor;
-    }
-
-    ctx.restore();
-
-    borderData.borders.forEach(function(border) {
-      renderBorders(ctx, border.args, border.color);
-    });
-
-    if (!pseudoElement) {
-      injectPseudoElements(element, stack);
-    }
-
-    switch(element.nodeName){
-      case "IMG":
-        if ((image = loadImage(element.getAttribute('src')))) {
-          renderImage(ctx, element, image, bounds, borders);
-        } else {
-          Util.log("html2canvas: Error loading <img>:" + element.getAttribute('src'));
-        }
-        break;
-      case "INPUT":
-        // TODO add all relevant type's, i.e. HTML5 new stuff
-        // todo add support for placeholder attribute for browsers which support it
-        if (/^(text|url|email|submit|button|reset)$/.test(element.type) && (element.value || element.placeholder || "").length > 0){
-          renderFormValue(element, bounds, stack);
-        }
-        break;
-      case "TEXTAREA":
-        if ((element.value || element.placeholder || "").length > 0){
-          renderFormValue(element, bounds, stack);
-        }
-        break;
-      case "SELECT":
-        if ((element.options||element.placeholder || "").length > 0){
-          renderFormValue(element, bounds, stack);
-        }
-        break;
-      case "LI":
-        renderListItem(element, stack, backgroundBounds);
-        break;
-      case "CANVAS":
-        renderImage(ctx, element, element, bounds, borders);
-        break;
-    }
-
-    return stack;
-  }
-
-  function isElementVisible(element) {
-    return (getCSS(element, 'display') !== "none" && getCSS(element, 'visibility') !== "hidden" && !element.hasAttribute("data-html2canvas-ignore"));
-  }
-
-  function parseElement (element, stack, pseudoElement) {
-    if (isElementVisible(element)) {
-      stack = renderElement(element, stack, pseudoElement, false) || stack;
-      if (!ignoreElementsRegExp.test(element.nodeName)) {
-        parseChildren(element, stack, pseudoElement);
-      }
-    }
-  }
-
-  function parseChildren(element, stack, pseudoElement) {
-    Util.Children(element).forEach(function(node) {
-      if (node.nodeType === node.ELEMENT_NODE) {
-        parseElement(node, stack, pseudoElement);
-      } else if (node.nodeType === node.TEXT_NODE) {
-        renderText(element, node, stack);
-      }
-    });
-  }
-
-  function init() {
-    var background = getCSS(document.documentElement, "backgroundColor"),
-      transparentBackground = (Util.isTransparent(background) && element === document.body),
-      stack = renderElement(element, null, false, transparentBackground);
-    parseChildren(element, stack);
-
-    if (transparentBackground) {
-      background = stack.backgroundColor;
-    }
-
-    body.removeChild(hidePseudoElements);
-    return {
-      backgroundColor: background,
-      stack: stack
-    };
-  }
-
-  return init();
 };
 
-function h2czContext(zindex) {
-  return {
-    zindex: zindex,
-    children: []
-  };
+function getCurvePoints(x, y, r1, r2) {
+    var kappa = 4 * ((Math.sqrt(2) - 1) / 3);
+    var ox = (r1) * kappa, // control point offset horizontal
+        oy = (r2) * kappa, // control point offset vertical
+        xm = x + r1, // x-middle
+        ym = y + r2; // y-middle
+    return {
+        topLeft: bezierCurve({x: x, y: ym}, {x: x, y: ym - oy}, {x: xm - ox, y: y}, {x: xm, y: y}),
+        topRight: bezierCurve({x: x, y: y}, {x: x + ox,y: y}, {x: xm, y: ym - oy}, {x: xm, y: ym}),
+        bottomRight: bezierCurve({x: xm, y: y}, {x: xm, y: y + oy}, {x: x + ox, y: ym}, {x: x, y: ym}),
+        bottomLeft: bezierCurve({x: xm, y: ym}, {x: xm - ox, y: ym}, {x: x, y: y + oy}, {x: x, y:y})
+    };
 }
 
-_html2canvas.Preload = function( options ) {
+function calculateCurvePoints(bounds, borderRadius, borders) {
+    var x = bounds.left,
+        y = bounds.top,
+        width = bounds.width,
+        height = bounds.height,
 
-  var images = {
-    numLoaded: 0,   // also failed are counted here
-    numFailed: 0,
-    numTotal: 0,
-    cleanupDone: false
-  },
-  pageOrigin,
-  Util = _html2canvas.Util,
-  methods,
-  i,
-  count = 0,
-  element = options.elements[0] || document.body,
-  doc = element.ownerDocument,
-  domImages = element.getElementsByTagName('img'), // Fetch images of the present element only
-  imgLen = domImages.length,
-  link = doc.createElement("a"),
-  supportCORS = (function( img ){
-    return (img.crossOrigin !== undefined);
-  })(new Image()),
-  timeoutTimer;
+        tlh = borderRadius[0][0],
+        tlv = borderRadius[0][1],
+        trh = borderRadius[1][0],
+        trv = borderRadius[1][1],
+        brh = borderRadius[2][0],
+        brv = borderRadius[2][1],
+        blh = borderRadius[3][0],
+        blv = borderRadius[3][1];
 
-  link.href = window.location.href;
-  pageOrigin  = link.protocol + link.host;
+    var topWidth = width - trh,
+        rightHeight = height - brv,
+        bottomWidth = width - brh,
+        leftHeight = height - blv;
 
-  function isSameOrigin(url){
-    link.href = url;
-    link.href = link.href; // YES, BELIEVE IT OR NOT, that is required for IE9 - http://jsfiddle.net/niklasvh/2e48b/
-    var origin = link.protocol + link.host;
-    return (origin === pageOrigin);
-  }
+    return {
+        topLeftOuter: getCurvePoints(x, y, tlh, tlv).topLeft.subdivide(0.5),
+        topLeftInner: getCurvePoints(x + borders[3].width, y + borders[0].width, Math.max(0, tlh - borders[3].width), Math.max(0, tlv - borders[0].width)).topLeft.subdivide(0.5),
+        topRightOuter: getCurvePoints(x + topWidth, y, trh, trv).topRight.subdivide(0.5),
+        topRightInner: getCurvePoints(x + Math.min(topWidth, width + borders[3].width), y + borders[0].width, (topWidth > width + borders[3].width) ? 0 :trh - borders[3].width, trv - borders[0].width).topRight.subdivide(0.5),
+        bottomRightOuter: getCurvePoints(x + bottomWidth, y + rightHeight, brh, brv).bottomRight.subdivide(0.5),
+        bottomRightInner: getCurvePoints(x + Math.min(bottomWidth, width - borders[3].width), y + Math.min(rightHeight, height + borders[0].width), Math.max(0, brh - borders[1].width),  brv - borders[2].width).bottomRight.subdivide(0.5),
+        bottomLeftOuter: getCurvePoints(x, y + leftHeight, blh, blv).bottomLeft.subdivide(0.5),
+        bottomLeftInner: getCurvePoints(x + borders[3].width, y + leftHeight, Math.max(0, blh - borders[3].width), blv - borders[2].width).bottomLeft.subdivide(0.5)
+    };
+}
 
-  function start(){
-    Util.log("html2canvas: start: images: " + images.numLoaded + " / " + images.numTotal + " (failed: " + images.numFailed + ")");
-    if (!images.firstRun && images.numLoaded >= images.numTotal){
-      Util.log("Finished loading images: # " + images.numTotal + " (failed: " + images.numFailed + ")");
-
-      if (typeof options.complete === "function"){
-        options.complete(images);
-      }
-
-    }
-  }
-
-  // TODO modify proxy to serve images with CORS enabled, where available
-  function proxyGetImage(url, img, imageObj){
-    var callback_name,
-    scriptUrl = options.proxy,
-    script;
-
-    link.href = url;
-    url = link.href; // work around for pages with base href="" set - WARNING: this may change the url
-
-    callback_name = 'html2canvas_' + (count++);
-    imageObj.callbackname = callback_name;
-
-    if (scriptUrl.indexOf("?") > -1) {
-      scriptUrl += "&";
-    } else {
-      scriptUrl += "?";
-    }
-    scriptUrl += 'url=' + encodeURIComponent(url) + '&callback=' + callback_name;
-    script = doc.createElement("script");
-
-    window[callback_name] = function(a){
-      if (a.substring(0,6) === "error:"){
-        imageObj.succeeded = false;
-        images.numLoaded++;
-        images.numFailed++;
-        start();
-      } else {
-        setImageLoadHandlers(img, imageObj);
-        img.src = a;
-      }
-      window[callback_name] = undefined; // to work with IE<9  // NOTE: that the undefined callback property-name still exists on the window object (for IE<9)
-      try {
-        delete window[callback_name];  // for all browser that support this
-      } catch(ex) {}
-      script.parentNode.removeChild(script);
-      script = null;
-      delete imageObj.script;
-      delete imageObj.callbackname;
+function bezierCurve(start, startControl, endControl, end) {
+    var lerp = function (a, b, t) {
+        return {
+            x: a.x + (b.x - a.x) * t,
+            y: a.y + (b.y - a.y) * t
+        };
     };
 
-    script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", scriptUrl);
-    imageObj.script = script;
-    window.document.body.appendChild(script);
-
-  }
-
-  function loadPseudoElement(element, type) {
-    var style = window.getComputedStyle(element, type),
-    content = style.content;
-    if (content.substr(0, 3) === 'url') {
-      methods.loadImage(_html2canvas.Util.parseBackgroundImage(content)[0].args[0]);
-    }
-    loadBackgroundImages(style.backgroundImage, element);
-  }
-
-  function loadPseudoElementImages(element) {
-    loadPseudoElement(element, ":before");
-    loadPseudoElement(element, ":after");
-  }
-
-  function loadGradientImage(backgroundImage, bounds) {
-    var img = _html2canvas.Generate.Gradient(backgroundImage, bounds);
-
-    if (img !== undefined){
-      images[backgroundImage] = {
-        img: img,
-        succeeded: true
-      };
-      images.numTotal++;
-      images.numLoaded++;
-      start();
-    }
-  }
-
-  function invalidBackgrounds(background_image) {
-    return (background_image && background_image.method && background_image.args && background_image.args.length > 0 );
-  }
-
-  function loadBackgroundImages(background_image, el) {
-    var bounds;
-
-    _html2canvas.Util.parseBackgroundImage(background_image).filter(invalidBackgrounds).forEach(function(background_image) {
-      if (background_image.method === 'url') {
-        methods.loadImage(background_image.args[0]);
-      } else if(background_image.method.match(/\-?gradient$/)) {
-        if(bounds === undefined) {
-          bounds = _html2canvas.Util.Bounds(el);
+    return {
+        start: start,
+        startControl: startControl,
+        endControl: endControl,
+        end: end,
+        subdivide: function(t) {
+            var ab = lerp(start, startControl, t),
+                bc = lerp(startControl, endControl, t),
+                cd = lerp(endControl, end, t),
+                abbc = lerp(ab, bc, t),
+                bccd = lerp(bc, cd, t),
+                dest = lerp(abbc, bccd, t);
+            return [bezierCurve(start, ab, abbc, dest), bezierCurve(dest, bccd, cd, end)];
+        },
+        curveTo: function(borderArgs) {
+            borderArgs.push(["bezierCurve", startControl.x, startControl.y, endControl.x, endControl.y, end.x, end.y]);
+        },
+        curveToReversed: function(borderArgs) {
+            borderArgs.push(["bezierCurve", endControl.x, endControl.y, startControl.x, startControl.y, start.x, start.y]);
         }
-        loadGradientImage(background_image.value, bounds);
-      }
+    };
+}
+
+function drawSide(borderData, radius1, radius2, outer1, inner1, outer2, inner2) {
+    var borderArgs = [];
+
+    if (radius1[0] > 0 || radius1[1] > 0) {
+        borderArgs.push(["line", outer1[1].start.x, outer1[1].start.y]);
+        outer1[1].curveTo(borderArgs);
+    } else {
+        borderArgs.push([ "line", borderData.c1[0], borderData.c1[1]]);
+    }
+
+    if (radius2[0] > 0 || radius2[1] > 0) {
+        borderArgs.push(["line", outer2[0].start.x, outer2[0].start.y]);
+        outer2[0].curveTo(borderArgs);
+        borderArgs.push(["line", inner2[0].end.x, inner2[0].end.y]);
+        inner2[0].curveToReversed(borderArgs);
+    } else {
+        borderArgs.push(["line", borderData.c2[0], borderData.c2[1]]);
+        borderArgs.push(["line", borderData.c3[0], borderData.c3[1]]);
+    }
+
+    if (radius1[0] > 0 || radius1[1] > 0) {
+        borderArgs.push(["line", inner1[1].end.x, inner1[1].end.y]);
+        inner1[1].curveToReversed(borderArgs);
+    } else {
+        borderArgs.push(["line", borderData.c4[0], borderData.c4[1]]);
+    }
+
+    return borderArgs;
+}
+
+function parseCorner(borderArgs, radius1, radius2, corner1, corner2, x, y) {
+    if (radius1[0] > 0 || radius1[1] > 0) {
+        borderArgs.push(["line", corner1[0].start.x, corner1[0].start.y]);
+        corner1[0].curveTo(borderArgs);
+        corner1[1].curveTo(borderArgs);
+    } else {
+        borderArgs.push(["line", x, y]);
+    }
+
+    if (radius2[0] > 0 || radius2[1] > 0) {
+        borderArgs.push(["line", corner2[0].start.x, corner2[0].start.y]);
+    }
+}
+
+function negativeZIndex(container) {
+    return container.cssInt("zIndex") < 0;
+}
+
+function positiveZIndex(container) {
+    return container.cssInt("zIndex") > 0;
+}
+
+function zIndex0(container) {
+    return container.cssInt("zIndex") === 0;
+}
+
+function inlineLevel(container) {
+    return ["inline", "inline-block", "inline-table"].indexOf(container.css("display")) !== -1;
+}
+
+function isStackingContext(container) {
+    return (container instanceof StackingContext);
+}
+
+function hasText(container) {
+    return container.node.data.trim().length > 0;
+}
+
+function noLetterSpacing(container) {
+    return (/^(normal|none|0px)$/.test(container.parent.css("letterSpacing")));
+}
+
+function getBorderRadiusData(container) {
+    return ["TopLeft", "TopRight", "BottomRight", "BottomLeft"].map(function(side) {
+        var value = container.css('border' + side + 'Radius');
+        var arr = value.split(" ");
+        if (arr.length <= 1) {
+            arr[1] = arr[0];
+        }
+        return arr.map(asInt);
     });
-  }
+}
 
-  function getImages (el) {
-    var elNodeType = false;
+function renderableNode(node) {
+    return (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE);
+}
 
-    // Firefox fails with permission denied on pages with iframes
-    try {
-      Util.Children(el).forEach(getImages);
-    }
-    catch( e ) {}
+function isPositionedForStacking(container) {
+    var position = container.css("position");
+    var zIndex = (["absolute", "relative", "fixed"].indexOf(position) !== -1) ? container.css("zIndex") : "auto";
+    return zIndex !== "auto";
+}
 
-    try {
-      elNodeType = el.nodeType;
-    } catch (ex) {
-      elNodeType = false;
-      Util.log("html2canvas: failed to access some element's nodeType - Exception: " + ex.message);
-    }
+function isPositioned(container) {
+    return container.css("position") !== "static";
+}
 
-    if (elNodeType === 1 || elNodeType === undefined) {
-      loadPseudoElementImages(el);
-      try {
-        loadBackgroundImages(Util.getCSS(el, 'backgroundImage'), el);
-      } catch(e) {
-        Util.log("html2canvas: failed to get background-image - Exception: " + e.message);
-      }
-      loadBackgroundImages(el);
-    }
-  }
+function isFloating(container) {
+    return container.css("float") !== "none";
+}
 
-  function setImageLoadHandlers(img, imageObj) {
-    img.onload = function() {
-      if ( imageObj.timer !== undefined ) {
-        // CORS succeeded
-        window.clearTimeout( imageObj.timer );
-      }
+function isInlineBlock(container) {
+    return ["inline-block", "inline-table"].indexOf(container.css("display")) !== -1;
+}
 
-      images.numLoaded++;
-      imageObj.succeeded = true;
-      img.onerror = img.onload = null;
-      start();
+function not(callback) {
+    var context = this;
+    return function() {
+        return !callback.apply(context, arguments);
     };
-    img.onerror = function() {
-      if (img.crossOrigin === "anonymous") {
-        // CORS failed
-        window.clearTimeout( imageObj.timer );
+}
 
-        // let's try with proxy instead
-        if ( options.proxy ) {
-          var src = img.src;
-          img = new Image();
-          imageObj.img = img;
-          img.src = src;
+function isElement(container) {
+    return container.node.nodeType === Node.ELEMENT_NODE;
+}
 
-          proxyGetImage( img.src, img, imageObj );
-          return;
-        }
-      }
+function isPseudoElement(container) {
+    return container.isPseudoElement === true;
+}
 
-      images.numLoaded++;
-      images.numFailed++;
-      imageObj.succeeded = false;
-      img.onerror = img.onload = null;
-      start();
+function isTextNode(container) {
+    return container.node.nodeType === Node.TEXT_NODE;
+}
+
+function zIndexSort(contexts) {
+    return function(a, b) {
+        return (a.cssInt("zIndex") + (contexts.indexOf(a) / contexts.length)) - (b.cssInt("zIndex") + (contexts.indexOf(b) / contexts.length));
     };
-  }
+}
 
-  methods = {
-    loadImage: function( src ) {
-      var img, imageObj;
-      if ( src && images[src] === undefined ) {
-        img = new Image();
-        if ( src.match(/data:image\/.*;base64,/i) ) {
-          img.src = src.replace(/url\(['"]{0,}|['"]{0,}\)$/ig, '');
-          imageObj = images[src] = {
-            img: img
-          };
-          images.numTotal++;
-          setImageLoadHandlers(img, imageObj);
-        } else if ( isSameOrigin( src ) || options.allowTaint ===  true ) {
-          imageObj = images[src] = {
-            img: img
-          };
-          images.numTotal++;
-          setImageLoadHandlers(img, imageObj);
-          img.src = src;
-        } else if ( supportCORS && !options.allowTaint && options.useCORS ) {
-          // attempt to load with CORS
+function hasOpacity(container) {
+    return container.getOpacity() < 1;
+}
 
-          img.crossOrigin = "anonymous";
-          imageObj = images[src] = {
-            img: img
-          };
-          images.numTotal++;
-          setImageLoadHandlers(img, imageObj);
-          img.src = src;
-        } else if ( options.proxy ) {
-          imageObj = images[src] = {
-            img: img
-          };
-          images.numTotal++;
-          proxyGetImage( src, img, imageObj );
-        }
-      }
+function asInt(value) {
+    return parseInt(value, 10);
+}
 
-    },
-    cleanupDOM: function(cause) {
-      var img, src;
-      if (!images.cleanupDone) {
-        if (cause && typeof cause === "string") {
-          Util.log("html2canvas: Cleanup because: " + cause);
-        } else {
-          Util.log("html2canvas: Cleanup after timeout: " + options.timeout + " ms.");
-        }
+function getWidth(border) {
+    return border.width;
+}
 
-        for (src in images) {
-          if (images.hasOwnProperty(src)) {
-            img = images[src];
-            if (typeof img === "object" && img.callbackname && img.succeeded === undefined) {
-              // cancel proxy image request
-              window[img.callbackname] = undefined; // to work with IE<9  // NOTE: that the undefined callback property-name still exists on the window object (for IE<9)
-              try {
-                delete window[img.callbackname];  // for all browser that support this
-              } catch(ex) {}
-              if (img.script && img.script.parentNode) {
-                img.script.setAttribute("src", "about:blank");  // try to cancel running request
-                img.script.parentNode.removeChild(img.script);
-              }
-              images.numLoaded++;
-              images.numFailed++;
-              Util.log("html2canvas: Cleaned up failed img: '" + src + "' Steps: " + images.numLoaded + " / " + images.numTotal);
+function nonIgnoredElement(nodeContainer) {
+    return (nodeContainer.node.nodeType !== Node.ELEMENT_NODE || ["SCRIPT", "HEAD", "TITLE", "OBJECT", "BR", "OPTION"].indexOf(nodeContainer.node.nodeName) === -1);
+}
+
+function flatten(arrays) {
+    return [].concat.apply([], arrays);
+}
+
+function stripQuotes(content) {
+    var first = content.substr(0, 1);
+    return (first === content.substr(content.length - 1) && first.match(/'|"/)) ? content.substr(1, content.length - 2) : content;
+}
+
+function getWords(characters) {
+    var words = [], i = 0, onWordBoundary = false, word;
+    while(characters.length) {
+        if (isWordBoundary(characters[i]) === onWordBoundary) {
+            word = characters.splice(0, i);
+            if (word.length) {
+                words.push(punycode.ucs2.encode(word));
             }
-          }
-        }
-
-        // cancel any pending requests
-        if(window.stop !== undefined) {
-          window.stop();
-        } else if(document.execCommand !== undefined) {
-          document.execCommand("Stop", false);
-        }
-        if (document.close !== undefined) {
-          document.close();
-        }
-        images.cleanupDone = true;
-        if (!(cause && typeof cause === "string")) {
-          start();
-        }
-      }
-    },
-
-    renderingDone: function() {
-      if (timeoutTimer) {
-        window.clearTimeout(timeoutTimer);
-      }
-    }
-  };
-
-  if (options.timeout > 0) {
-    timeoutTimer = window.setTimeout(methods.cleanupDOM, options.timeout);
-  }
-
-  Util.log('html2canvas: Preload starts: finding background-images');
-  images.firstRun = true;
-
-  getImages(element);
-
-  Util.log('html2canvas: Preload: Finding images');
-  // load <img> images
-  for (i = 0; i < imgLen; i+=1){
-    methods.loadImage( domImages[i].getAttribute( "src" ) );
-  }
-
-  images.firstRun = false;
-  Util.log('html2canvas: Preload: Done.');
-  if (images.numTotal === images.numLoaded) {
-    start();
-  }
-
-  return methods;
-};
-
-_html2canvas.Renderer = function(parseQueue, options){
-
-  // http://www.w3.org/TR/CSS21/zindex.html
-  function createRenderQueue(parseQueue) {
-    var queue = [],
-    rootContext;
-
-    rootContext = (function buildStackingContext(rootNode) {
-      var rootContext = {};
-      function insert(context, node, specialParent) {
-        var zi = (node.zIndex.zindex === 'auto') ? 0 : Number(node.zIndex.zindex),
-        contextForChildren = context, // the stacking context for children
-        isPositioned = node.zIndex.isPositioned,
-        isFloated = node.zIndex.isFloated,
-        stub = {node: node},
-        childrenDest = specialParent; // where children without z-index should be pushed into
-
-        if (node.zIndex.ownStacking) {
-          // '!' comes before numbers in sorted array
-          contextForChildren = stub.context = { '!': [{node:node, children: []}]};
-          childrenDest = undefined;
-        } else if (isPositioned || isFloated) {
-          childrenDest = stub.children = [];
-        }
-
-        if (zi === 0 && specialParent) {
-          specialParent.push(stub);
+            onWordBoundary =! onWordBoundary;
+            i = 0;
         } else {
-          if (!context[zi]) { context[zi] = []; }
-          context[zi].push(stub);
+            i++;
         }
 
-        node.zIndex.children.forEach(function(childNode) {
-          insert(contextForChildren, childNode, childrenDest);
-        });
-      }
-      insert(rootContext, rootNode);
-      return rootContext;
-    })(parseQueue);
-
-    function sortZ(context) {
-      Object.keys(context).sort().forEach(function(zi) {
-        var nonPositioned = [],
-        floated = [],
-        positioned = [],
-        list = [];
-
-        // positioned after static
-        context[zi].forEach(function(v) {
-          if (v.node.zIndex.isPositioned || v.node.zIndex.opacity < 1) {
-            // http://www.w3.org/TR/css3-color/#transparency
-            // non-positioned element with opactiy < 1 should be stacked as if it were a positioned element with ‘z-index: 0’ and ‘opacity: 1’.
-            positioned.push(v);
-          } else if (v.node.zIndex.isFloated) {
-            floated.push(v);
-          } else {
-            nonPositioned.push(v);
-          }
-        });
-
-        (function walk(arr) {
-          arr.forEach(function(v) {
-            list.push(v);
-            if (v.children) { walk(v.children); }
-          });
-        })(nonPositioned.concat(floated, positioned));
-
-        list.forEach(function(v) {
-          if (v.context) {
-            sortZ(v.context);
-          } else {
-            queue.push(v.node);
-          }
-        });
-      });
+        if (i >= characters.length) {
+            word = characters.splice(0, i);
+            if (word.length) {
+                words.push(punycode.ucs2.encode(word));
+            }
+        }
     }
+    return words;
+}
 
-    sortZ(rootContext);
+function isWordBoundary(characterCode) {
+    return [
+        32, // <space>
+        13, // \r
+        10, // \n
+        9, // \t
+        45 // -
+    ].indexOf(characterCode) !== -1;
+}
 
-    return queue;
-  }
+function hasUnicode(string) {
+    return (/[^\u0000-\u00ff]/).test(string);
+}
 
-  function getRenderer(rendererName) {
-    var renderer;
+module.exports = NodeParser;
 
-    if (typeof options.renderer === "string" && _html2canvas.Renderer[rendererName] !== undefined) {
-      renderer = _html2canvas.Renderer[rendererName](options);
-    } else if (typeof rendererName === "function") {
-      renderer = rendererName(options);
-    } else {
-      throw new Error("Unknown renderer");
+},{"./color":5,"./fontmetrics":9,"./log":15,"./nodecontainer":16,"./promise":18,"./pseudoelementcontainer":21,"./stackingcontext":24,"./textcontainer":28,"./utils":29,"punycode":3}],18:[function(require,module,exports){
+module.exports = require('es6-promise').Promise;
+
+},{"es6-promise":1}],19:[function(require,module,exports){
+var Promise = require('./promise');
+var XHR = require('./xhr');
+var utils = require('./utils');
+var log = require('./log');
+var createWindowClone = require('./clone');
+var decode64 = utils.decode64;
+
+function Proxy(src, proxyUrl, document) {
+    var supportsCORS = ('withCredentials' in new XMLHttpRequest());
+    if (!proxyUrl) {
+        return Promise.reject("No proxy configured");
     }
+    var callback = createCallback(supportsCORS);
+    var url = createProxyUrl(proxyUrl, src, callback);
 
-    if ( typeof renderer !== "function" ) {
-      throw new Error("Invalid renderer defined");
-    }
-    return renderer;
-  }
+    return supportsCORS ? XHR(url) : (jsonp(document, url, callback).then(function(response) {
+        return decode64(response.content);
+    }));
+}
+var proxyCount = 0;
 
-  return getRenderer(options.renderer)(parseQueue, options, document, createRenderQueue(parseQueue.stack), _html2canvas);
+function ProxyURL(src, proxyUrl, document) {
+    var supportsCORSImage = ('crossOrigin' in new Image());
+    var callback = createCallback(supportsCORSImage);
+    var url = createProxyUrl(proxyUrl, src, callback);
+    return (supportsCORSImage ? Promise.resolve(url) : jsonp(document, url, callback).then(function(response) {
+        return "data:" + response.type + ";base64," + response.content;
+    }));
+}
+
+function jsonp(document, url, callback) {
+    return new Promise(function(resolve, reject) {
+        var s = document.createElement("script");
+        var cleanup = function() {
+            delete window.html2canvas.proxy[callback];
+            document.body.removeChild(s);
+        };
+        window.html2canvas.proxy[callback] = function(response) {
+            cleanup();
+            resolve(response);
+        };
+        s.src = url;
+        s.onerror = function(e) {
+            cleanup();
+            reject(e);
+        };
+        document.body.appendChild(s);
+    });
+}
+
+function createCallback(useCORS) {
+    return !useCORS ? "html2canvas_" + Date.now() + "_" + (++proxyCount) + "_" + Math.round(Math.random() * 100000) : "";
+}
+
+function createProxyUrl(proxyUrl, src, callback) {
+    return proxyUrl + "?url=" + encodeURIComponent(src) + (callback.length ? "&callback=html2canvas.proxy." + callback : "");
+}
+
+function documentFromHTML(src) {
+    return function(html) {
+        var parser = new DOMParser(), doc;
+        try {
+            doc = parser.parseFromString(html, "text/html");
+        } catch(e) {
+            log("DOMParser not supported, falling back to createHTMLDocument");
+            doc = document.implementation.createHTMLDocument("");
+            try {
+                doc.open();
+                doc.write(html);
+                doc.close();
+            } catch(ee) {
+                log("createHTMLDocument write not supported, falling back to document.body.innerHTML");
+                doc.body.innerHTML = html; // ie9 doesnt support writing to documentElement
+            }
+        }
+
+        var b = doc.querySelector("base");
+        if (!b || !b.href.host) {
+            var base = doc.createElement("base");
+            base.href = src;
+            doc.head.insertBefore(base, doc.head.firstChild);
+        }
+
+        return doc;
+    };
+}
+
+function loadUrlDocument(src, proxy, document, width, height, options) {
+    return new Proxy(src, proxy, window.document).then(documentFromHTML(src)).then(function(doc) {
+        return createWindowClone(doc, document, width, height, options, 0, 0);
+    });
+}
+
+exports.Proxy = Proxy;
+exports.ProxyURL = ProxyURL;
+exports.loadUrlDocument = loadUrlDocument;
+
+},{"./clone":4,"./log":15,"./promise":18,"./utils":29,"./xhr":31}],20:[function(require,module,exports){
+var ProxyURL = require('./proxy').ProxyURL;
+var Promise = require('./promise');
+
+function ProxyImageContainer(src, proxy) {
+    var link = document.createElement("a");
+    link.href = src;
+    src = link.href;
+    this.src = src;
+    this.image = new Image();
+    var self = this;
+    this.promise = new Promise(function(resolve, reject) {
+        self.image.crossOrigin = "Anonymous";
+        self.image.onload = resolve;
+        self.image.onerror = reject;
+
+        new ProxyURL(src, proxy, document).then(function(url) {
+            self.image.src = url;
+        })['catch'](reject);
+    });
+}
+
+module.exports = ProxyImageContainer;
+
+},{"./promise":18,"./proxy":19}],21:[function(require,module,exports){
+var NodeContainer = require('./nodecontainer');
+
+function PseudoElementContainer(node, parent, type) {
+    NodeContainer.call(this, node, parent);
+    this.isPseudoElement = true;
+    this.before = type === ":before";
+}
+
+PseudoElementContainer.prototype.cloneTo = function(stack) {
+    PseudoElementContainer.prototype.cloneTo.call(this, stack);
+    stack.isPseudoElement = true;
+    stack.before = this.before;
 };
 
-_html2canvas.Util.Support = function (options, doc) {
+PseudoElementContainer.prototype = Object.create(NodeContainer.prototype);
 
-  function supportSVGRendering() {
-    var img = new Image(),
-    canvas = doc.createElement("canvas"),
-    ctx = (canvas.getContext === undefined) ? false : canvas.getContext("2d");
-    if (ctx === false) {
-      return false;
+PseudoElementContainer.prototype.appendToDOM = function() {
+    if (this.before) {
+        this.parent.node.insertBefore(this.node, this.parent.node.firstChild);
+    } else {
+        this.parent.node.appendChild(this.node);
     }
-    canvas.width = canvas.height = 10;
-    img.src = [
-    "data:image/svg+xml,",
-    "<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'>",
-    "<foreignObject width='10' height='10'>",
-    "<div xmlns='http://www.w3.org/1999/xhtml' style='width:10;height:10;'>",
-    "sup",
-    "</div>",
-    "</foreignObject>",
-    "</svg>"
-    ].join("");
-    try {
-      ctx.drawImage(img, 0, 0);
-      canvas.toDataURL();
-    } catch(e) {
-      return false;
+    this.parent.node.className += " " + this.getHideClass();
+};
+
+PseudoElementContainer.prototype.cleanDOM = function() {
+    this.node.parentNode.removeChild(this.node);
+    this.parent.node.className = this.parent.node.className.replace(this.getHideClass(), "");
+};
+
+PseudoElementContainer.prototype.getHideClass = function() {
+    return this["PSEUDO_HIDE_ELEMENT_CLASS_" + (this.before ? "BEFORE" : "AFTER")];
+};
+
+PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_BEFORE = "___html2canvas___pseudoelement_before";
+PseudoElementContainer.prototype.PSEUDO_HIDE_ELEMENT_CLASS_AFTER = "___html2canvas___pseudoelement_after";
+
+module.exports = PseudoElementContainer;
+
+},{"./nodecontainer":16}],22:[function(require,module,exports){
+var log = require('./log');
+
+function Renderer(width, height, images, options, document) {
+    this.width = width;
+    this.height = height;
+    this.images = images;
+    this.options = options;
+    this.document = document;
+}
+
+Renderer.prototype.renderImage = function(container, bounds, borderData, imageContainer) {
+    var paddingLeft = container.cssInt('paddingLeft'),
+        paddingTop = container.cssInt('paddingTop'),
+        paddingRight = container.cssInt('paddingRight'),
+        paddingBottom = container.cssInt('paddingBottom'),
+        borders = borderData.borders;
+
+    var width = bounds.width - (borders[1].width + borders[3].width + paddingLeft + paddingRight);
+    var height = bounds.height - (borders[0].width + borders[2].width + paddingTop + paddingBottom);
+    this.drawImage(
+        imageContainer,
+        0,
+        0,
+        imageContainer.image.width || width,
+        imageContainer.image.height || height,
+        bounds.left + paddingLeft + borders[3].width,
+        bounds.top + paddingTop + borders[0].width,
+        width,
+        height
+    );
+};
+
+Renderer.prototype.renderBackground = function(container, bounds, borderData) {
+    if (bounds.height > 0 && bounds.width > 0) {
+        this.renderBackgroundColor(container, bounds);
+        this.renderBackgroundImage(container, bounds, borderData);
     }
-    _html2canvas.Util.log('html2canvas: Parse: SVG powered rendering available');
-    return true;
-  }
+};
 
-  // Test whether we can use ranges to measure bounding boxes
-  // Opera doesn't provide valid bounds.height/bottom even though it supports the method.
+Renderer.prototype.renderBackgroundColor = function(container, bounds) {
+    var color = container.color("backgroundColor");
+    if (!color.isTransparent()) {
+        this.rectangle(bounds.left, bounds.top, bounds.width, bounds.height, color);
+    }
+};
 
-  function supportRangeBounds() {
-    var r, testElement, rangeBounds, rangeHeight, support = false;
+Renderer.prototype.renderBorders = function(borders) {
+    borders.forEach(this.renderBorder, this);
+};
 
-    if (doc.createRange) {
-      r = doc.createRange();
-      if (r.getBoundingClientRect) {
-        testElement = doc.createElement('boundtest');
-        testElement.style.height = "123px";
-        testElement.style.display = "block";
-        doc.body.appendChild(testElement);
+Renderer.prototype.renderBorder = function(data) {
+    if (!data.color.isTransparent() && data.args !== null) {
+        this.drawShape(data.args, data.color);
+    }
+};
 
-        r.selectNode(testElement);
-        rangeBounds = r.getBoundingClientRect();
-        rangeHeight = rangeBounds.height;
-
-        if (rangeHeight === 123) {
-          support = true;
+Renderer.prototype.renderBackgroundImage = function(container, bounds, borderData) {
+    var backgroundImages = container.parseBackgroundImages();
+    backgroundImages.reverse().forEach(function(backgroundImage, index, arr) {
+        switch(backgroundImage.method) {
+        case "url":
+            var image = this.images.get(backgroundImage.args[0]);
+            if (image) {
+                this.renderBackgroundRepeating(container, bounds, image, arr.length - (index+1), borderData);
+            } else {
+                log("Error loading background-image", backgroundImage.args[0]);
+            }
+            break;
+        case "linear-gradient":
+        case "gradient":
+            var gradientImage = this.images.get(backgroundImage.value);
+            if (gradientImage) {
+                this.renderBackgroundGradient(gradientImage, bounds, borderData);
+            } else {
+                log("Error loading background-image", backgroundImage.args[0]);
+            }
+            break;
+        case "none":
+            break;
+        default:
+            log("Unknown background-image type", backgroundImage.args[0]);
         }
-        doc.body.removeChild(testElement);
-      }
+    }, this);
+};
+
+Renderer.prototype.renderBackgroundRepeating = function(container, bounds, imageContainer, index, borderData) {
+    var size = container.parseBackgroundSize(bounds, imageContainer.image, index);
+    var position = container.parseBackgroundPosition(bounds, imageContainer.image, index, size);
+    var repeat = container.parseBackgroundRepeat(index);
+    switch (repeat) {
+    case "repeat-x":
+    case "repeat no-repeat":
+        this.backgroundRepeatShape(imageContainer, position, size, bounds, bounds.left + borderData[3], bounds.top + position.top + borderData[0], 99999, size.height, borderData);
+        break;
+    case "repeat-y":
+    case "no-repeat repeat":
+        this.backgroundRepeatShape(imageContainer, position, size, bounds, bounds.left + position.left + borderData[3], bounds.top + borderData[0], size.width, 99999, borderData);
+        break;
+    case "no-repeat":
+        this.backgroundRepeatShape(imageContainer, position, size, bounds, bounds.left + position.left + borderData[3], bounds.top + position.top + borderData[0], size.width, size.height, borderData);
+        break;
+    default:
+        this.renderBackgroundRepeat(imageContainer, position, size, {top: bounds.top, left: bounds.left}, borderData[3], borderData[0]);
+        break;
+    }
+};
+
+module.exports = Renderer;
+
+},{"./log":15}],23:[function(require,module,exports){
+var Renderer = require('../renderer');
+var LinearGradientContainer = require('../lineargradientcontainer');
+var log = require('../log');
+
+function CanvasRenderer(width, height) {
+    Renderer.apply(this, arguments);
+    this.canvas = this.options.canvas || this.document.createElement("canvas");
+    if (!this.options.canvas) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
+    this.ctx = this.canvas.getContext("2d");
+    this.taintCtx = this.document.createElement("canvas").getContext("2d");
+    this.ctx.textBaseline = "bottom";
+    this.variables = {};
+    log("Initialized CanvasRenderer with size", width, "x", height);
+}
+
+CanvasRenderer.prototype = Object.create(Renderer.prototype);
+
+CanvasRenderer.prototype.setFillStyle = function(fillStyle) {
+    this.ctx.fillStyle = typeof(fillStyle) === "object" && !!fillStyle.isColor ? fillStyle.toString() : fillStyle;
+    return this.ctx;
+};
+
+CanvasRenderer.prototype.rectangle = function(left, top, width, height, color) {
+    this.setFillStyle(color).fillRect(left, top, width, height);
+};
+
+CanvasRenderer.prototype.circle = function(left, top, size, color) {
+    this.setFillStyle(color);
+    this.ctx.beginPath();
+    this.ctx.arc(left + size / 2, top + size / 2, size / 2, 0, Math.PI*2, true);
+    this.ctx.closePath();
+    this.ctx.fill();
+};
+
+CanvasRenderer.prototype.circleStroke = function(left, top, size, color, stroke, strokeColor) {
+    this.circle(left, top, size, color);
+    this.ctx.strokeStyle = strokeColor.toString();
+    this.ctx.stroke();
+};
+
+CanvasRenderer.prototype.drawShape = function(shape, color) {
+    this.shape(shape);
+    this.setFillStyle(color).fill();
+};
+
+CanvasRenderer.prototype.taints = function(imageContainer) {
+    if (imageContainer.tainted === null) {
+        this.taintCtx.drawImage(imageContainer.image, 0, 0);
+        try {
+            this.taintCtx.getImageData(0, 0, 1, 1);
+            imageContainer.tainted = false;
+        } catch(e) {
+            this.taintCtx = document.createElement("canvas").getContext("2d");
+            imageContainer.tainted = true;
+        }
+    }
+
+    return imageContainer.tainted;
+};
+
+CanvasRenderer.prototype.drawImage = function(imageContainer, sx, sy, sw, sh, dx, dy, dw, dh) {
+    if (!this.taints(imageContainer) || this.options.allowTaint) {
+        this.ctx.drawImage(imageContainer.image, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
+};
+
+CanvasRenderer.prototype.clip = function(shapes, callback, context) {
+    this.ctx.save();
+    shapes.filter(hasEntries).forEach(function(shape) {
+        this.shape(shape).clip();
+    }, this);
+    callback.call(context);
+    this.ctx.restore();
+};
+
+CanvasRenderer.prototype.shape = function(shape) {
+    this.ctx.beginPath();
+    shape.forEach(function(point, index) {
+        if (point[0] === "rect") {
+            this.ctx.rect.apply(this.ctx, point.slice(1));
+        } else {
+            this.ctx[(index === 0) ? "moveTo" : point[0] + "To" ].apply(this.ctx, point.slice(1));
+        }
+    }, this);
+    this.ctx.closePath();
+    return this.ctx;
+};
+
+CanvasRenderer.prototype.font = function(color, style, variant, weight, size, family) {
+    this.setFillStyle(color).font = [style, variant, weight, size, family].join(" ").split(",")[0];
+};
+
+CanvasRenderer.prototype.fontShadow = function(color, offsetX, offsetY, blur) {
+    this.setVariable("shadowColor", color.toString())
+        .setVariable("shadowOffsetY", offsetX)
+        .setVariable("shadowOffsetX", offsetY)
+        .setVariable("shadowBlur", blur);
+};
+
+CanvasRenderer.prototype.clearShadow = function() {
+    this.setVariable("shadowColor", "rgba(0,0,0,0)");
+};
+
+CanvasRenderer.prototype.setOpacity = function(opacity) {
+    this.ctx.globalAlpha = opacity;
+};
+
+CanvasRenderer.prototype.setTransform = function(transform) {
+    this.ctx.translate(transform.origin[0], transform.origin[1]);
+    this.ctx.transform.apply(this.ctx, transform.matrix);
+    this.ctx.translate(-transform.origin[0], -transform.origin[1]);
+};
+
+CanvasRenderer.prototype.setVariable = function(property, value) {
+    if (this.variables[property] !== value) {
+        this.variables[property] = this.ctx[property] = value;
+    }
+
+    return this;
+};
+
+CanvasRenderer.prototype.text = function(text, left, bottom) {
+    this.ctx.fillText(text, left, bottom);
+};
+
+CanvasRenderer.prototype.backgroundRepeatShape = function(imageContainer, backgroundPosition, size, bounds, left, top, width, height, borderData) {
+    var shape = [
+        ["line", Math.round(left), Math.round(top)],
+        ["line", Math.round(left + width), Math.round(top)],
+        ["line", Math.round(left + width), Math.round(height + top)],
+        ["line", Math.round(left), Math.round(height + top)]
+    ];
+    this.clip([shape], function() {
+        this.renderBackgroundRepeat(imageContainer, backgroundPosition, size, bounds, borderData[3], borderData[0]);
+    }, this);
+};
+
+CanvasRenderer.prototype.renderBackgroundRepeat = function(imageContainer, backgroundPosition, size, bounds, borderLeft, borderTop) {
+    var offsetX = Math.round(bounds.left + backgroundPosition.left + borderLeft), offsetY = Math.round(bounds.top + backgroundPosition.top + borderTop);
+    this.setFillStyle(this.ctx.createPattern(this.resizeImage(imageContainer, size), "repeat"));
+    this.ctx.translate(offsetX, offsetY);
+    this.ctx.fill();
+    this.ctx.translate(-offsetX, -offsetY);
+};
+
+CanvasRenderer.prototype.renderBackgroundGradient = function(gradientImage, bounds) {
+    if (gradientImage instanceof LinearGradientContainer) {
+        var gradient = this.ctx.createLinearGradient(
+            bounds.left + bounds.width * gradientImage.x0,
+            bounds.top + bounds.height * gradientImage.y0,
+            bounds.left +  bounds.width * gradientImage.x1,
+            bounds.top +  bounds.height * gradientImage.y1);
+        gradientImage.colorStops.forEach(function(colorStop) {
+            gradient.addColorStop(colorStop.stop, colorStop.color.toString());
+        });
+        this.rectangle(bounds.left, bounds.top, bounds.width, bounds.height, gradient);
+    }
+};
+
+CanvasRenderer.prototype.resizeImage = function(imageContainer, size) {
+    var image = imageContainer.image;
+    if(image.width === size.width && image.height === size.height) {
+        return image;
+    }
+
+    var ctx, canvas = document.createElement('canvas');
+    canvas.width = size.width;
+    canvas.height = size.height;
+    ctx = canvas.getContext("2d");
+    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, size.width, size.height );
+    return canvas;
+};
+
+function hasEntries(array) {
+    return array.length > 0;
+}
+
+module.exports = CanvasRenderer;
+
+},{"../lineargradientcontainer":14,"../log":15,"../renderer":22}],24:[function(require,module,exports){
+var NodeContainer = require('./nodecontainer');
+
+function StackingContext(hasOwnStacking, opacity, element, parent) {
+    NodeContainer.call(this, element, parent);
+    this.ownStacking = hasOwnStacking;
+    this.contexts = [];
+    this.children = [];
+    this.opacity = (this.parent ? this.parent.stack.opacity : 1) * opacity;
+}
+
+StackingContext.prototype = Object.create(NodeContainer.prototype);
+
+StackingContext.prototype.getParentStack = function(context) {
+    var parentStack = (this.parent) ? this.parent.stack : null;
+    return parentStack ? (parentStack.ownStacking ? parentStack : parentStack.getParentStack(context)) : context.stack;
+};
+
+module.exports = StackingContext;
+
+},{"./nodecontainer":16}],25:[function(require,module,exports){
+function Support(document) {
+    this.rangeBounds = this.testRangeBounds(document);
+    this.cors = this.testCORS();
+    this.svg = this.testSVG();
+}
+
+Support.prototype.testRangeBounds = function(document) {
+    var range, testElement, rangeBounds, rangeHeight, support = false;
+
+    if (document.createRange) {
+        range = document.createRange();
+        if (range.getBoundingClientRect) {
+            testElement = document.createElement('boundtest');
+            testElement.style.height = "123px";
+            testElement.style.display = "block";
+            document.body.appendChild(testElement);
+
+            range.selectNode(testElement);
+            rangeBounds = range.getBoundingClientRect();
+            rangeHeight = rangeBounds.height;
+
+            if (rangeHeight === 123) {
+                support = true;
+            }
+            document.body.removeChild(testElement);
+        }
     }
 
     return support;
-  }
-
-  return {
-    rangeBounds: supportRangeBounds(),
-    svgRendering: options.svgRendering && supportSVGRendering()
-  };
-};
-window.html2canvas = function(elements, opts) {
-  elements = (elements.length) ? elements : [elements];
-  var queue,
-  canvas,
-  options = {
-    // general
-    logging: false,
-    elements: elements,
-    background: "#fff",
-
-    // preload options
-    proxy: null,
-    timeout: 0,    // no timeout
-    useCORS: false, // try to load images as CORS (where available), before falling back to proxy
-    allowTaint: false, // whether to allow images to taint the canvas, won't need proxy if set to true
-
-    // parse options
-    svgRendering: false, // use svg powered rendering where available (FF11+)
-    ignoreElements: "IFRAME|OBJECT|PARAM",
-    useOverflow: true,
-    letterRendering: false,
-    chinese: false,
-
-    // render options
-
-    width: null,
-    height: null,
-    taintTest: true, // do a taint test with all images before applying to canvas
-    renderer: "Canvas"
-  };
-
-  options = _html2canvas.Util.Extend(opts, options);
-
-  _html2canvas.logging = options.logging;
-  options.complete = function( images ) {
-
-    if (typeof options.onpreloaded === "function") {
-      if ( options.onpreloaded( images ) === false ) {
-        return;
-      }
-    }
-    queue = _html2canvas.Parse( images, options );
-
-    if (typeof options.onparsed === "function") {
-      if ( options.onparsed( queue ) === false ) {
-        return;
-      }
-    }
-
-    canvas = _html2canvas.Renderer( queue, options );
-
-    if (typeof options.onrendered === "function") {
-      options.onrendered( canvas );
-    }
-
-
-  };
-
-  // for pages without images, we still want this to be async, i.e. return methods before executing
-  window.setTimeout( function(){
-    _html2canvas.Preload( options );
-  }, 0 );
-
-  return {
-    render: function( queue, opts ) {
-      return _html2canvas.Renderer( queue, _html2canvas.Util.Extend(opts, options) );
-    },
-    parse: function( images, opts ) {
-      return _html2canvas.Parse( images, _html2canvas.Util.Extend(opts, options) );
-    },
-    preload: function( opts ) {
-      return _html2canvas.Preload( _html2canvas.Util.Extend(opts, options) );
-    },
-    log: _html2canvas.Util.log
-  };
 };
 
-window.html2canvas.log = _html2canvas.Util.log; // for renderers
-window.html2canvas.Renderer = {
-  Canvas: undefined // We are assuming this will be used
+Support.prototype.testCORS = function() {
+    return typeof((new Image()).crossOrigin) !== "undefined";
 };
-_html2canvas.Renderer.Canvas = function(options) {
-  options = options || {};
 
-  var doc = document,
-  safeImages = [],
-  testCanvas = document.createElement("canvas"),
-  testctx = testCanvas.getContext("2d"),
-  Util = _html2canvas.Util,
-  canvas = options.canvas || doc.createElement('canvas');
+Support.prototype.testSVG = function() {
+    var img = new Image();
+    var canvas = document.createElement("canvas");
+    var ctx =  canvas.getContext("2d");
+    img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'></svg>";
 
-  function createShape(ctx, args) {
-    ctx.beginPath();
-    args.forEach(function(arg) {
-      ctx[arg.name].apply(ctx, arg['arguments']);
-    });
-    ctx.closePath();
-  }
-
-  function safeImage(item) {
-    if (safeImages.indexOf(item['arguments'][0].src ) === -1) {
-      testctx.drawImage(item['arguments'][0], 0, 0);
-      try {
-        testctx.getImageData(0, 0, 1, 1);
-      } catch(e) {
-        testCanvas = doc.createElement("canvas");
-        testctx = testCanvas.getContext("2d");
+    try {
+        ctx.drawImage(img, 0, 0);
+        canvas.toDataURL();
+    } catch(e) {
         return false;
-      }
-      safeImages.push(item['arguments'][0].src);
     }
     return true;
-  }
+};
 
-  function renderItem(ctx, item) {
-    switch(item.type){
-      case "variable":
-        ctx[item.name] = item['arguments'];
-        break;
-      case "function":
-        switch(item.name) {
-          case "createPattern":
-            if (item['arguments'][0].width > 0 && item['arguments'][0].height > 0) {
-              try {
-                ctx.fillStyle = ctx.createPattern(item['arguments'][0], "repeat");
-              }
-              catch(e) {
-                Util.log("html2canvas: Renderer: Error creating pattern", e.message);
-              }
-            }
-            break;
-          case "drawShape":
-            createShape(ctx, item['arguments']);
-            break;
-          case "drawImage":
-            if (item['arguments'][8] > 0 && item['arguments'][7] > 0) {
-              if (!options.taintTest || (options.taintTest && safeImage(item))) {
-                ctx.drawImage.apply( ctx, item['arguments'] );
-              }
-            }
-            break;
-          default:
-            ctx[item.name].apply(ctx, item['arguments']);
-        }
-        break;
-    }
-  }
+module.exports = Support;
 
-  return function(parsedData, options, document, queue, _html2canvas) {
-    var ctx = canvas.getContext("2d"),
-    newCanvas,
-    bounds,
-    fstyle,
-    zStack = parsedData.stack;
+},{}],26:[function(require,module,exports){
+var Promise = require('./promise');
+var XHR = require('./xhr');
+var decode64 = require('./utils').decode64;
 
-    canvas.width = canvas.style.width =  options.width || zStack.ctx.width;
-    canvas.height = canvas.style.height = options.height || zStack.ctx.height;
+function SVGContainer(src) {
+    this.src = src;
+    this.image = null;
+    var self = this;
 
-    fstyle = ctx.fillStyle;
-    ctx.fillStyle = (Util.isTransparent(zStack.backgroundColor) && options.background !== undefined) ? options.background : parsedData.backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = fstyle;
-
-    queue.forEach(function(storageContext) {
-      // set common settings for canvas
-      ctx.textBaseline = "bottom";
-      ctx.save();
-
-      if (storageContext.transform.matrix) {
-        ctx.translate(storageContext.transform.origin[0], storageContext.transform.origin[1]);
-        ctx.transform.apply(ctx, storageContext.transform.matrix);
-        ctx.translate(-storageContext.transform.origin[0], -storageContext.transform.origin[1]);
-      }
-
-      if (storageContext.clip){
-        ctx.beginPath();
-        ctx.rect(storageContext.clip.left, storageContext.clip.top, storageContext.clip.width, storageContext.clip.height);
-        ctx.clip();
-      }
-
-      if (storageContext.ctx.storage) {
-        storageContext.ctx.storage.forEach(function(item) {
-          renderItem(ctx, item);
+    this.promise = this.hasFabric().then(function() {
+        return (self.isInline(src) ? Promise.resolve(self.inlineFormatting(src)) : XHR(src));
+    }).then(function(svg) {
+        return new Promise(function(resolve) {
+            window.html2canvas.svg.fabric.loadSVGFromString(svg, self.createCanvas.call(self, resolve));
         });
-      }
+    });
+}
 
-      ctx.restore();
+SVGContainer.prototype.hasFabric = function() {
+    return !window.html2canvas.svg || !window.html2canvas.svg.fabric ? Promise.reject(new Error("html2canvas.svg.js is not loaded, cannot render svg")) : Promise.resolve();
+};
+
+SVGContainer.prototype.inlineFormatting = function(src) {
+    return (/^data:image\/svg\+xml;base64,/.test(src)) ? this.decode64(this.removeContentType(src)) : this.removeContentType(src);
+};
+
+SVGContainer.prototype.removeContentType = function(src) {
+    return src.replace(/^data:image\/svg\+xml(;base64)?,/,'');
+};
+
+SVGContainer.prototype.isInline = function(src) {
+    return (/^data:image\/svg\+xml/i.test(src));
+};
+
+SVGContainer.prototype.createCanvas = function(resolve) {
+    var self = this;
+    return function (objects, options) {
+        var canvas = new window.html2canvas.svg.fabric.StaticCanvas('c');
+        self.image = canvas.lowerCanvasEl;
+        canvas
+            .setWidth(options.width)
+            .setHeight(options.height)
+            .add(window.html2canvas.svg.fabric.util.groupSVGElements(objects, options))
+            .renderAll();
+        resolve(canvas.lowerCanvasEl);
+    };
+};
+
+SVGContainer.prototype.decode64 = function(str) {
+    return (typeof(window.atob) === "function") ? window.atob(str) : decode64(str);
+};
+
+module.exports = SVGContainer;
+
+},{"./promise":18,"./utils":29,"./xhr":31}],27:[function(require,module,exports){
+var SVGContainer = require('./svgcontainer');
+var Promise = require('./promise');
+
+function SVGNodeContainer(node, _native) {
+    this.src = node;
+    this.image = null;
+    var self = this;
+
+    this.promise = _native ? new Promise(function(resolve, reject) {
+        self.image = new Image();
+        self.image.onload = resolve;
+        self.image.onerror = reject;
+        self.image.src = "data:image/svg+xml," + (new XMLSerializer()).serializeToString(node);
+        if (self.image.complete === true) {
+            resolve(self.image);
+        }
+    }) : this.hasFabric().then(function() {
+        return new Promise(function(resolve) {
+            window.html2canvas.svg.fabric.parseSVGDocument(node, self.createCanvas.call(self, resolve));
+        });
+    });
+}
+
+SVGNodeContainer.prototype = Object.create(SVGContainer.prototype);
+
+module.exports = SVGNodeContainer;
+
+},{"./promise":18,"./svgcontainer":26}],28:[function(require,module,exports){
+var NodeContainer = require('./nodecontainer');
+
+function TextContainer(node, parent) {
+    NodeContainer.call(this, node, parent);
+}
+
+TextContainer.prototype = Object.create(NodeContainer.prototype);
+
+TextContainer.prototype.applyTextTransform = function() {
+    this.node.data = this.transform(this.parent.css("textTransform"));
+};
+
+TextContainer.prototype.transform = function(transform) {
+    var text = this.node.data;
+    switch(transform){
+        case "lowercase":
+            return text.toLowerCase();
+        case "capitalize":
+            return text.replace(/(^|\s|:|-|\(|\))([a-z])/g, capitalize);
+        case "uppercase":
+            return text.toUpperCase();
+        default:
+            return text;
+    }
+};
+
+function capitalize(m, p1, p2) {
+    if (m.length > 0) {
+        return p1 + p2.toUpperCase();
+    }
+}
+
+module.exports = TextContainer;
+
+},{"./nodecontainer":16}],29:[function(require,module,exports){
+exports.smallImage = function smallImage() {
+    return "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+};
+
+exports.bind = function(callback, context) {
+    return function() {
+        return callback.apply(context, arguments);
+    };
+};
+
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+
+exports.decode64 = function(base64) {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var len = base64.length, i, encoded1, encoded2, encoded3, encoded4, byte1, byte2, byte3;
+
+    var output = "";
+
+    for (i = 0; i < len; i+=4) {
+        encoded1 = chars.indexOf(base64[i]);
+        encoded2 = chars.indexOf(base64[i+1]);
+        encoded3 = chars.indexOf(base64[i+2]);
+        encoded4 = chars.indexOf(base64[i+3]);
+
+        byte1 = (encoded1 << 2) | (encoded2 >> 4);
+        byte2 = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+        byte3 = ((encoded3 & 3) << 6) | encoded4;
+        if (encoded3 === 64) {
+            output += String.fromCharCode(byte1);
+        } else if (encoded4 === 64 || encoded4 === -1) {
+            output += String.fromCharCode(byte1, byte2);
+        } else{
+            output += String.fromCharCode(byte1, byte2, byte3);
+        }
+    }
+
+    return output;
+};
+
+exports.getBounds = function(node) {
+    if (node.getBoundingClientRect) {
+        var clientRect = node.getBoundingClientRect();
+        var width = node.offsetWidth == null ? clientRect.width : node.offsetWidth;
+        return {
+            top: clientRect.top,
+            bottom: clientRect.bottom || (clientRect.top + clientRect.height),
+            right: clientRect.left + width,
+            left: clientRect.left,
+            width:  width,
+            height: node.offsetHeight == null ? clientRect.height : node.offsetHeight
+        };
+    }
+    return {};
+};
+
+exports.offsetBounds = function(node) {
+    var parent = node.offsetParent ? exports.offsetBounds(node.offsetParent) : {top: 0, left: 0};
+
+    return {
+        top: node.offsetTop + parent.top,
+        bottom: node.offsetTop + node.offsetHeight + parent.top,
+        right: node.offsetLeft + parent.left + node.offsetWidth,
+        left: node.offsetLeft + parent.left,
+        width: node.offsetWidth,
+        height: node.offsetHeight
+    };
+};
+
+exports.parseBackgrounds = function(backgroundImage) {
+    var whitespace = ' \r\n\t',
+        method, definition, prefix, prefix_i, block, results = [],
+        mode = 0, numParen = 0, quote, args;
+    var appendResult = function() {
+        if(method) {
+            if (definition.substr(0, 1) === '"') {
+                definition = definition.substr(1, definition.length - 2);
+            }
+            if (definition) {
+                args.push(definition);
+            }
+            if (method.substr(0, 1) === '-' && (prefix_i = method.indexOf('-', 1 ) + 1) > 0) {
+                prefix = method.substr(0, prefix_i);
+                method = method.substr(prefix_i);
+            }
+            results.push({
+                prefix: prefix,
+                method: method.toLowerCase(),
+                value: block,
+                args: args,
+                image: null
+            });
+        }
+        args = [];
+        method = prefix = definition = block = '';
+    };
+    args = [];
+    method = prefix = definition = block = '';
+    backgroundImage.split("").forEach(function(c) {
+        if (mode === 0 && whitespace.indexOf(c) > -1) {
+            return;
+        }
+        switch(c) {
+        case '"':
+            if(!quote) {
+                quote = c;
+            } else if(quote === c) {
+                quote = null;
+            }
+            break;
+        case '(':
+            if(quote) {
+                break;
+            } else if(mode === 0) {
+                mode = 1;
+                block += c;
+                return;
+            } else {
+                numParen++;
+            }
+            break;
+        case ')':
+            if (quote) {
+                break;
+            } else if(mode === 1) {
+                if(numParen === 0) {
+                    mode = 0;
+                    block += c;
+                    appendResult();
+                    return;
+                } else {
+                    numParen--;
+                }
+            }
+            break;
+
+        case ',':
+            if (quote) {
+                break;
+            } else if(mode === 0) {
+                appendResult();
+                return;
+            } else if (mode === 1) {
+                if (numParen === 0 && !method.match(/^url$/i)) {
+                    args.push(definition);
+                    definition = '';
+                    block += c;
+                    return;
+                }
+            }
+            break;
+        }
+
+        block += c;
+        if (mode === 0) {
+            method += c;
+        } else {
+            definition += c;
+        }
     });
 
-    Util.log("html2canvas: Renderer: Canvas renderer done - returning canvas obj");
-
-    if (options.elements.length === 1) {
-      if (typeof options.elements[0] === "object" && options.elements[0].nodeName !== "BODY") {
-        // crop image to the bounds of selected (single) element
-        bounds = _html2canvas.Util.Bounds(options.elements[0]);
-        newCanvas = document.createElement('canvas');
-        newCanvas.width = Math.ceil(bounds.width);
-        newCanvas.height = Math.ceil(bounds.height);
-        ctx = newCanvas.getContext("2d");
-
-        ctx.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height);
-        canvas = null;
-        return newCanvas;
-      }
-    }
-
-    return canvas;
-  };
+    appendResult();
+    return results;
 };
-})(window,document);
+
+},{}],30:[function(require,module,exports){
+var GradientContainer = require('./gradientcontainer');
+
+function WebkitGradientContainer(imageData) {
+    GradientContainer.apply(this, arguments);
+    this.type = (imageData.args[0] === "linear") ? this.TYPES.LINEAR : this.TYPES.RADIAL;
+}
+
+WebkitGradientContainer.prototype = Object.create(GradientContainer.prototype);
+
+module.exports = WebkitGradientContainer;
+
+},{"./gradientcontainer":11}],31:[function(require,module,exports){
+var Promise = require('./promise');
+
+function XHR(url) {
+    return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                resolve(xhr.responseText);
+            } else {
+                reject(new Error(xhr.statusText));
+            }
+        };
+
+        xhr.onerror = function() {
+            reject(new Error("Network Error"));
+        };
+
+        xhr.send();
+    });
+}
+
+module.exports = XHR;
+
+},{"./promise":18}]},{},[6])(6)
+});
