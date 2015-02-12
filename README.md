@@ -2,31 +2,23 @@ The Great Suspender
 ===================
 A Chrome extension that suspends tabs to free up memory
 
-Under GNU GENERAL PUBLIC LICENSE (v2)
 
-Changelog:
+# <img src="/img/icon_48.png" align="absmiddle"> The Great Suspender
 
-v5.46   2015-02-12
-- overhauled entire codebase
-- added numerous new features
-- style overhaul
+"The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
-v4.81   2013-10-14
-- merged in all pull requests
+If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/).
 
-v4.80   2013-10-01
-- feature:  suspend multiple selected (highlighted) tabs
+### Installation
 
-v4.77   2013-05-25
-- bugfix:   switched off debug mode that was causing very quick suspending
+1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/archive/v5.46-beta.1.zip)** and unarchive to your preferred location (whichever suits you).
+2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
+3. Click on the <kbd>Load unpacked extension...</kbd> button, browse to the unarchived directory of the downloaded release and confirm.
 
-v4.76   2013-05-25
-- improv:   URLs starting with chrome-devtools: are never suspended
-- bugfix:   activating a tab does not refresh its timeout
-- bugfix:   'Suspend this tab' could potentially suspend more than one tab
-- internal: added extra logging for easier debugging
-- internal: some refactoring in background.js
+If you have completed the above steps, the "options" page will open indicating successfull installation of the extension.
 
-v4.75   2013-05-20
-- improv:   added option 'Don't suspend pinned tabs'
+### License
 
+This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
+
+This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.
