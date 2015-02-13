@@ -14,44 +14,30 @@ body {
 }
 #gsTopBar  {
    	position: fixed;
-    background: #134960;
+    background: #efefef;
     top: 0;
     padding: 15px 0;
     line-height: 30px;
     width: 100%;
     max-width: 100%;
     text-align: center;
-    color: #fff;
+    color: #444;
+    border-bottom: 1px solid #AAA;
+    box-shadow: 0 0 4px -2px rgba(0, 0, 0, 0.5);
+}
+#gsTitleWrap {
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 #gsTopBarTitle {
-    text-overflow: ellipsis;
-    white-space: nowrap;
     font-size: 19px;
     line-height: 26px;
-}
-#gsTopBarTitle a {
-    text-decoration: none;
-    color: #fff;
-}
-#gsTopBarTitle a:hover {
-    text-decoration: underline;
-}
-#gsTopBarUrl {
-    font-style: italic;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-#gsTopBarInfo {
-    line-height: 40px;
 }
 #gsWhitelistLink {
     text-decoration: underline;
     cursor: pointer;
-    color: #fff;
-}
-#gsWhitelistLink:hover {
-    color: #eee;
 }
 #gsPreview {
     width: 100%;

@@ -76,7 +76,8 @@
         //populate suspended tab bar
         var title = tabProperties.title ? tabProperties.title : rootUrlStr;
         document.getElementById('gsTitle').innerText = title;
-        document.getElementById('gsTopBarTitle').innerHTML = '<a href="' + url + '">' + title + '</a>';
+    //    document.getElementById('gsTopBarTitle').innerHTML = '<a href="' + url + '">' + title + '</a>';
+        document.getElementById('gsTopBarTitle').innerHTML = title;
         document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 

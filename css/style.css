@@ -46,7 +46,7 @@ p {
 	margin: 0 0 15px;
 }
 a {
-    color: #62adcc;
+    color: #3889AB;
     text-decoration: none;
     font-weight: 400;
 }
@@ -279,7 +279,7 @@ ul.unorderedList li {
 }
 hr.splashRule {
     clear: left;
-    background-color: #666;
+    background-color: #99A7AD;
     border-top: none;
 }
 div.recoveryLink {
