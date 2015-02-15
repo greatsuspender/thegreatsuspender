@@ -311,7 +311,7 @@ var tgs = (function () {
         //case c: extension restart only - want to automatically restore suspended tabs as they will have all disappeared
 
         var lastSession = gsUtils.fetchLastSession(),
-            actualTabs = [],
+            openTabs = [],
             eligableTabs = [],
             tabResponses = {},
             attemptRecovery = false;
@@ -322,7 +322,7 @@ var tgs = (function () {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
 
-                    actualTabs.push(curTab.url);
+                    openTabs.push(curTab.url);
 
                     //test if a tab has crashed by sending a 'requestInfo' message
                     if (!isSpecialTab(curTab)) {
@@ -335,12 +335,11 @@ var tgs = (function () {
             });
 
             //for each tab in the session history, check to see if it exists in the current windows
-            lastSession.windows.forEach(function (curWindow) {
-                curWindow.tabs.forEach(function (curTab) {
+            lastSession.windows.forEach(function (sessionWindow) {
+                sessionWindow.tabs.forEach(function (sessionTab) {
 
-                    if (curTab.url.indexOf('chrome-devtools:') < 0
-                            && curTab.url.indexOf('chrome://extensions') < 0
-                            && !actualTabs.some(function(curActualUrl) {return curTab.url === curActualUrl;})) {
+                    if (!isSpecialTab(sessionTab)
+                            && !openTabs.some(function(curOpenUrl) {return sessionTab.url === curOpenUrl;})) {
                         attemptRecovery = true;
                     }
                 });
@@ -353,9 +352,10 @@ var tgs = (function () {
             } else {
                 setTimeout(function () {
                     eligableTabs.some(function (curTab) {
-                        if (typeof(tabResponses[curTab.id]) === 'undefined') {
-                            chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
-                            return true;
+                        if (typeof(tabResponses[curTab.id]) === 'undefined' && isSuspended(curTab.url)) {
+
+                            //automatically reload unresponsive suspended tabs
+                            chrome.tabs.reload(curTab.id);
                         }
                     });
                 }, 5000);
@@ -457,9 +457,13 @@ var tgs = (function () {
         tabId = tabId || currentTabId;
 
         chrome.tabs.get(tabId, function (tab) {
-            getTabInfo(tab, function (info) {
-                callback(info);
-            });
+            if (chrome.runtime.lastError) {
+                if (debug) console.log(chrome.runtime.lastError.message);
+            } else {
+                getTabInfo(tab, function (info) {
+                    callback(info);
+                });
+            }
         });
     }
 

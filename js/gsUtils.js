@@ -206,7 +206,6 @@
             gsHistory.some(function (val) {
                 if (val.url === tabUrl) {
                     tab = val;
-                    console.log('found tabProperties in storage');
                     return true;
                 }
             });
@@ -570,17 +569,19 @@
 
         },
 
-        recoverLostTabs: function () {
+        recoverLostTabs: function (callback) {
 
             var tabIdMap = {},
                 tabUrlMap = {},
                 tabMap = {},
                 windowsMap = {},
-                actualTab,
+                openTab,
                 lastSession = this.fetchLastSession(),
                 cb;
 
-            if (!lastSession) return;
+            if (!lastSession) {
+                callback();
+            }
 
             chrome.windows.getAll({ populate: true }, function (windows) {
                 windows.forEach(function (curWindow) {
@@ -600,15 +601,16 @@
                         //get a list of unsuspended urls already in the window
                         for (var id in tabIdMap) {
                             if (tabIdMap.hasOwnProperty(id)) {
-                                actualTab = tabIdMap[id];
-                                tabUrlMap[actualTab.url] = actualTab;
+                                openTab = tabIdMap[id];
+                                tabUrlMap[openTab.url] = openTab;
                             }
                         }
 
                         sessionWindow.tabs.forEach(function (sessionTab) {
 
                             //if current tab does not exist then recreate it
-                            if (!tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
+                            if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(sessionTab)
+                                    && !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
                                 chrome.tabs.create({
                                     windowId: sessionWindow.id,
                                     url: sessionTab.url,
@@ -616,17 +618,6 @@
                                     pinned: sessionTab.pinned,
                                     active: false
                                 });
-
-                            //else if current tab exists and is suspended, reload it (in case it has crashed)
-                            } else if (sessionTab.url.indexOf('suspended.html') > 0) {
-
-                                if (tabIdMap[sessionTab.id]) {
-                                    actualTab = tabIdMap[sessionTab.id];
-
-                                } else if (tabUrlMap[sessionTab.url]) {
-                                    actualTab = tabUrlMap[sessionTab.url];
-                                }
-                                chrome.tabs.reload(actualTab.id);
                             }
                         });
 
@@ -642,6 +633,8 @@
 
                     }
                 });
+
+                callback();
             });
         }
     };

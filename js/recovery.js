@@ -4,21 +4,35 @@
 
     'use strict';
 
-    function removeTabFromList(url) {
+    var restoreAttempted = false;
+
+    function removeTabFromList(tab) {
 
         var recoveryLinksEl = document.getElementById('recoveryLinks'),
+            recoverySectionEls = document.getElementsByClassName('recoverySection'),
             childLinks = recoveryLinksEl.children;
 
         for (var i = 0; i < childLinks.length; i++) {
             var element = childLinks[i];
-            if (element.getAttribute('data-url') === url) {
+            if (element.getAttribute('data-url') === tab.url
+                    || element.getAttribute('data-tabId') == tab.id) { //do a loose match on id here
                 recoveryLinksEl.removeChild(element);
             }
         }
 
         //if removing the last element
         if (recoveryLinks.children.length === 0) {
-            window.location.href = chrome.extension.getURL('success.html');
+
+            //if we have already clicked the restore button then redirect to success page
+            if (restoreAttempted) {
+                window.location.href = chrome.extension.getURL('success.html');
+
+            //otherwise we have no tabs to recover so just hide references to recovery
+            } else {
+                for (i = 0; i < recoverySectionEls.length; i++) {
+                    recoverySectionEls[i].style.display = 'none';
+                }
+            }
         }
     }
 
@@ -26,24 +40,25 @@
 
         var lastSession = gsUtils.fetchLastSession(),
             recoveryEl = document.getElementById('recoveryLinks'),
-            tabEl,
-            tabProperties;
+            tabEl;
 
         if (lastSession) {
 
             lastSession.windows.forEach(function (window, index) {
 
-                window.tabs.forEach(function (tab) {
-                    tabProperties = tab;
-                    tabProperties.windowId = window.id;
-                    tabProperties.sessionId = lastSession.id;
-                    tabEl = sessionUtils.createTabHtml(tabProperties, true);
-                    tabEl.onclick = function(e) {
-                        e.preventDefault();
-                        chrome.tabs.create({url: tab.url, active: false});
-                        removeTabFromList(tab.url);
+                window.tabs.forEach(function (tabProperties) {
+
+                    if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(tabProperties)) {
+                        tabProperties.windowId = window.id;
+                        tabProperties.sessionId = lastSession.id;
+                        tabEl = sessionUtils.createTabHtml(tabProperties, true);
+                        tabEl.onclick = function(e) {
+                            e.preventDefault();
+                            chrome.tabs.create({url: tab.url, active: false});
+                            removeTabFromList(tab);
+                        }
+                        recoveryEl.appendChild(tabEl);
                     }
-                    recoveryEl.appendChild(tabEl);
                 });
             });
             checkForActiveTabs();
@@ -57,7 +72,7 @@
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
                     chrome.tabs.sendMessage(curTab.id, {action: 'requestInfo'}, function (response) {
-                        removeTabFromList(curTab.url);
+                        removeTabFromList(curTab);
                     });
                 });
             });
@@ -75,8 +90,8 @@
                 warningEl = document.getElementById('screenCaptureNotice');
 
             restoreEl.onclick = function (e) {
-                gsUtils.recoverLostTabs();
-                window.location.reload();
+                restoreAttempted = true;
+                gsUtils.recoverLostTabs(checkForActiveTabs);
             };
             manageEl.onclick = function (e) {
                 window.location.href = chrome.extension.getURL('history.html');
