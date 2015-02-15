@@ -20,6 +20,8 @@ var tgs = (function () {
         currentTabId,
         sessionSaveTimer;
 
+    if (debug) console.log('sessionId: ' + sessionId);
+
     function checkWhiteList(url) {
         var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
             whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/) : [],
