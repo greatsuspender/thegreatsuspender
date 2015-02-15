@@ -324,7 +324,7 @@ var tgs = (function () {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
 
-                    openTabs.push(curTab.url);
+                    openTabs.push(curTab);
 
                     //test if a tab has crashed by sending a 'requestInfo' message
                     if (!isSpecialTab(curTab)) {
@@ -341,7 +341,9 @@ var tgs = (function () {
                 sessionWindow.tabs.forEach(function (sessionTab) {
 
                     if (!isSpecialTab(sessionTab)
-                            && !openTabs.some(function(curOpenUrl) {return sessionTab.url === curOpenUrl;})) {
+                            && !openTabs.some(function(curOpenTab) {
+                                return (sessionTab.url === curOpenTab.url || sessionTab.id === curOpenTab.id);
+                            })) {
                         attemptRecovery = true;
                     }
                 });
