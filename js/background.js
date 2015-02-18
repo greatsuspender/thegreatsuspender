@@ -158,7 +158,7 @@ var tgs = (function () {
             //check if computer is running on battery
             if (gsUtils.getOption(gsUtils.BATTERY_CHECK)) {
                 navigator.getBattery().then(function(battery) {
-                    if (battery.charging) {
+                    if (!battery.charging) {
                         confirmTabSuspension(tab);
                     }
                 });
