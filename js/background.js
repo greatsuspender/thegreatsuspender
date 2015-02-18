@@ -376,8 +376,13 @@ var tgs = (function () {
             tabs.forEach(function (currentTab) {
                 if (!isSpecialTab(currentTab) && !isSuspended(currentTab)) {
                     var tabId = currentTab.id;
+
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
-                        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
+                        if (chrome.runtime.lastError) {
+                            if (debug) console.log(chrome.runtime.lastError.message);
+                        } else {
+                            chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
+                        }
                     });
                 }
             });

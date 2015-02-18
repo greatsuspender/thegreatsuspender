@@ -186,6 +186,15 @@ ul.unorderedList li {
 .btnDonate:hover {
     text-decoration: underline;
 }
+.btnDisabled {
+    background: #f1f1f1;
+    color: #888;
+    cursor: default;
+}
+.btnDisabled:hover {
+    background: #f1f1f1;
+    color: #888;
+}
 .lesserText {
     color: #929292;
     font-size: 0.8em;

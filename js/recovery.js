@@ -88,11 +88,16 @@
                 manageEl = document.getElementById('manageManuallyLink'),
                 previewsEl = document.getElementById('previewsOffBtn'),
                 warningEl = document.getElementById('screenCaptureNotice');
-
-            restoreEl.onclick = function (e) {
+            
+            var handleAutoRestore = function () {                
                 restoreAttempted = true;
+                restoreEl.className += " btnDisabled";
                 gsUtils.recoverLostTabs(checkForActiveTabs);
+                restoreEl.removeEventListener('click', handleAutoRestore);
             };
+
+            restoreEl.addEventListener('click', handleAutoRestore);
+
             manageEl.onclick = function (e) {
                 window.location.href = chrome.extension.getURL('history.html');
             };
