@@ -12,37 +12,43 @@
 		<img id="popTopIcon" src="img/icon48.png" />
 
 	</div>
-	<div id="popTopSettings">
-		<img id="settingsLink" src="img/cogWhite_24x24.png" />
+
+	<div id="header">
+		<img id="statusImg" />
+		<span id="statusDetail"></span>
 	</div>
 
-	<div id="middle">
-		<div class="menuOption" id="suspendOne" title="Suspend current tab">
+	<div class="group">
+		<div class="menuOption" id="suspendOne">
 			<div class="icon iconSuspendCurrent"></div>
-			<div class="optionText">Suspend this tab</div>
+			<div class="optionText">Suspend tab now</div>
 		</div>
-		<div class="menuOption" id="suspendAll" title="Suspend all other tabs">
+		<div class="menuOption" id="tempWhitelist">
+			<div class="icon iconSuspendCurrent"></div>
+			<div class="optionText">Pause suspension for now</div>
+		</div>
+		<div class="menuOption" id="whitelist">
+			<div class="icon iconSuspendCurrent"></div>
+			<div class="optionText">Never suspend this site</div>
+		</div>
+	</div>
+
+	<div class="group">
+		<div class="menuOption" id="suspendAll">
 			<div class="icon iconSuspendAll"></div>
 			<div class="optionText">Suspend other tabs</div>
 		</div>
-		<div class="menuOption" href="#" id="unsuspendAll" title="Reload all tabs">
+		<div class="menuOption" href="#" id="unsuspendAll">
 			<div class="icon iconUnsuspendAll"></div>
 			<div class="optionText">Unsuspend all tabs</div>
 		</div>
 	</div>
 
-	<div id="bottom">
-		<div class="bottomOption" id="tempWhitelist">
-			Pause suspension
+	<div class="group">
+		<div class="menuOption" id="settingsLink">
+			<div class="icon iconSettings"></div>
+			<div class="optionText">Settings</div>
 		</div>
-		<div class="bottomOption" id="whitelist">
-			Whitelist site
-		</div>
-	</div>
-
-	<div id="footer">
-		<img id="statusImg" />
-		<span id="statusDetail"></span>
 	</div>
 </body>
 </html>
