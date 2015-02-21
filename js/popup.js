@@ -7,38 +7,38 @@
     function setStatus(status) {
 
         var statusDetail = '',
-            statusSrc = '',
+            statusIconClass = '',
             message;
 
         if (status === 'normal') {
             statusDetail = 'Tab will be suspended.';
-            statusSrc = '';
+            statusIconClass = 'fa fa-ellipsis-h';
 
         } else if (status === 'special') {
             statusDetail = 'Tab cannot be suspended.';
-            statusSrc = '/img/status_special.png';
+            statusIconClass = 'fa fa-remove';
 
         } else if (status === 'suspended') {
-            statusDetail = 'Tab suspended. <a>Reload</a>';
-            statusSrc = '/img/status_pause.png';
+            statusDetail = 'Tab suspended. <a href="#">Unsuspend</a>';
+            statusIconClass = 'fa fa-pause';
             message = 'unsuspendOne';
 
         } else if (status === 'whitelisted') {
-            statusDetail = 'Site is whitelisted. <a>Remove from whitelist</a>';
-            statusSrc = '/img/status_whitelist.png';
+            statusDetail = 'Site whitelisted. <a href="#">Remove from whitelist</a>';
+            statusIconClass = 'fa fa-remove';
             message = 'removeWhitelist';
 
         } else if (status === 'formInput') {
-            statusDetail = 'Tab is currently receiving form input.';
-            statusSrc = '/img/status_edit.png';
+            statusDetail = 'Tab is receiving form input.';
+            statusIconClass = 'fa fa-edit';
 
         } else if (status === 'pinned') {
             statusDetail = 'Tab has been pinned.';
-            statusSrc = '/img/status_pin.png';
+            statusIconClass = 'fa fa-thumb-tack';
 
         } else if (status === 'tempWhitelist') {
             statusDetail = 'Tab suspension paused. <a>Unpause</a>';
-            statusSrc = '/img/status_pause.png';
+            statusIconClass = 'fa fa-pause';
             message = 'undoTempWhitelist';
         }
 
@@ -48,7 +48,7 @@
 
         document.getElementById('header').style.display = 'block';
         document.getElementById('statusDetail').innerHTML = statusDetail;
-        document.getElementById('statusImg').src = statusSrc;
+        document.getElementById('statusIcon').className = statusIconClass;
 
         if (message) {
             document.getElementsByTagName('a')[0].addEventListener('click', function (e) {
