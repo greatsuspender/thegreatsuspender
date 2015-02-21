@@ -12,7 +12,7 @@
 
         if (status === 'normal') {
             statusDetail = 'Tab will be suspended.';
-            statusIconClass = 'fa fa-ellipsis-h';
+            statusIconClass = 'fa fa-clock-o';
 
         } else if (status === 'special') {
             statusDetail = 'Tab cannot be suspended.';
@@ -37,7 +37,7 @@
             statusIconClass = 'fa fa-thumb-tack';
 
         } else if (status === 'tempWhitelist') {
-            statusDetail = 'Tab suspension paused. <a>Unpause</a>';
+            statusDetail = 'Tab suspension paused. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-pause';
             message = 'undoTempWhitelist';
         }

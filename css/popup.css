@@ -12,8 +12,6 @@ body {
 a {
 	outline : none;
 	color: #3889AB;
-    text-decoration: none;
-    font-weight: 400;
 }
 .hidden {
 	display: none;
