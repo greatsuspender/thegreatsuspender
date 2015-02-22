@@ -5,13 +5,12 @@
     'use strict';
 
     function setStatus(status) {
-
         var statusDetail = '',
             statusIconClass = '',
             message;
 
         if (status === 'normal') {
-            statusDetail = 'Tab will be suspended.';
+            statusDetail = 'Tab will be suspended automatically.';
             statusIconClass = 'fa fa-clock-o';
 
         } else if (status === 'special') {
@@ -40,6 +39,18 @@
             statusDetail = 'Tab suspension paused. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-pause';
             message = 'undoTempWhitelist';
+
+        } else if (status === 'noConnectivity') {
+            statusDetail = 'No network connection.';
+            statusIconClass = 'fa fa-pause';
+
+        } else if (status === 'charging') {
+            statusDetail = 'Connected to power source.';
+            statusIconClass = 'fa fa-pause';
+
+        } else if (status === 'never') {
+            statusDetail = 'Automatic tab suspension disabled.';
+            statusIconClass = 'fa fa-pause';
         }
 
         if (document.getElementsByTagName('a')[0]) {
@@ -116,7 +127,7 @@
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true,
-                whitelistVisibe = (status !== 'whitelisted') ? true : false,
+                whitelistVisibe = (status !== 'whitelisted' && status !== 'special') ? true : false,
                 pauseVisibe = (status === 'normal') ? true : false;
 
             setSuspendOneVisibility(suspendOneVisible);

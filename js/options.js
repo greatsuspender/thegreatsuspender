@@ -61,7 +61,7 @@
         }
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
-        setOnlineCheckVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
+        setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
     }
 
     function populateOption(element, value) {
@@ -99,12 +99,14 @@
         }
     }
 
-    function setOnlineCheckVisibility(visible) {
-        if (visible) {
-            document.getElementById('onlineCheckSection').style.display = 'block';
-        } else {
-            document.getElementById('onlineCheckSection').style.display = 'none';
-        }
+    function setAutoSuspendOptionsVisibility(visible) {
+        Array.prototype.forEach.call(document.getElementsByClassName('autoSuspendOption'), function(el) {
+            if (visible) {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
     }
 
     function handleChange(element) {
@@ -118,7 +120,7 @@
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
-                setOnlineCheckVisibility(interval > 0);
+                setAutoSuspendOptionsVisibility(interval > 0);
             }
         };
     }

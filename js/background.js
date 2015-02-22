@@ -18,7 +18,8 @@ var tgs = (function () {
         sessionId = gsUtils.generateSessionId(),
         lastSelectedTabs = [],
         currentTabId,
-        sessionSaveTimer;
+        sessionSaveTimer,
+        chargingMode = false;
 
     if (debug) console.log('sessionId: ' + sessionId);
 
@@ -156,12 +157,8 @@ var tgs = (function () {
                 return;
             }
             //check if computer is running on battery
-            if (gsUtils.getOption(gsUtils.BATTERY_CHECK)) {
-                navigator.getBattery().then(function(battery) {
-                    if (!battery.charging) {
-                        confirmTabSuspension(tab);
-                    }
-                });
+            if (gsUtils.getOption(gsUtils.BATTERY_CHECK) && chargingMode) {
+                return;
 
             } else {
                 confirmTabSuspension(tab);
@@ -427,53 +424,108 @@ var tgs = (function () {
         reinjectContentScripts();
     }
 
-    function updateTabStatus(tab, reportedStatus) {
-        if (checkWhiteList(tab.url)) {
-            reportedStatus = 'whitelisted';
-        } else if (reportedStatus === 'normal' && isPinnedTab(tab)) {
-            reportedStatus = 'pinned';
-        }
-        return reportedStatus;
-    }
-
-    function getTabInfo(tab, callback) {
-        var info = {
-                windowId: tab.windowId,
-                tabId: tab.id,
-                status: '',
-                timerUp: '-'
-            };
-
-        if (isSpecialTab(tab)) {
-            info.status = 'special';
-            callback(info);
-        } else {
-            if (isSuspended(tab)) {
-                info.status = 'suspended';
-                callback(info);
-            } else {
-                chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function (response) {
-                    info.status = response ? updateTabStatus(tab, response.status) : 'unknown';
-                    info.timerUp = response ? response.timerUp : '?';
-                    callback(info);
-                });
-            }
-        }
-    }
-
     //get info for a tab. defaults to currentTab if no id passed in
+    //returns the current tab suspension and timer states. possible suspension states are:
+
+    //normal: a tab that will be suspended
+    //special: a tab that cannot be suspended
+    //suspended: a tab that is suspended
+    //never: suspension timer set to 'never suspend'
+    //formInput: a tab that has a partially completed form (and IGNORE_FORMS is true)
+    //tempWhitelist: a tab that has been manually paused
+    //pinned: a pinned tab (and IGNORE_PINNED is true)
+    //whitelisted: a tab that has been whitelisted
+    //charging: computer currently charging (and BATTERY_CHECK is true)
+    //noConnectivity: internet currently offline (and ONLINE_CHECK is true)
+    //unknown: an error detecting tab status
     function requestTabInfo(tabId, callback) {
+
+        var info = {
+            windowId: '',
+            tabId: '',
+            status: 'unknown',
+            timerUp: '-'
+        };
         tabId = tabId || currentTabId;
 
         chrome.tabs.get(tabId, function (tab) {
+
             if (chrome.runtime.lastError) {
                 if (debug) console.log(chrome.runtime.lastError.message);
+                callback(info);
+
             } else {
-                getTabInfo(tab, function (info) {
+
+                info.windowId = tab.windowId;
+                info.tabId = tab.id;
+
+                //check if it is a special tab
+                if (isSpecialTab(tab)) {
+                    info.status = 'special';
                     callback(info);
-                });
+
+                //check if it has already been suspended
+                } else  if (isSuspended(tab)) {
+                    info.status = 'suspended';
+                    callback(info);
+
+                //request tab state and timer state from the content script
+                } else {
+                    requestTabInfoFromContentScript(tab, function(tabInfo) {
+                        if (tabInfo) {
+                            info.status = processActiveTabStatus(tab, tabInfo.status);
+                            info.timerUp = tabInfo.timerUp;
+                        }
+                        callback(info);
+                    });
+
+                }
             }
         });
+    }
+
+
+    function requestTabInfoFromContentScript(tab, callback) {
+
+        chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function (response) {
+            if (response) {
+                var tabInfo = {};
+                tabInfo.status = response.status;
+                tabInfo.timerUp = response.timerUp;
+                callback(tabInfo);
+            } else {
+                callback(false);
+            }
+        });
+    }
+
+    function processActiveTabStatus(tab, status) {
+
+        var suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME),
+            onlySuspendOnBattery = gsUtils.getOption(gsUtils.BATTERY_CHECK),
+            onlySuspendWithInternet = gsUtils.getOption(gsUtils.ONLINE_CHECK);
+
+        //check whitelist
+        if (checkWhiteList(tab.url)) {
+            status = 'whitelisted';
+
+        //check pinned tab
+        } else if (status === 'normal' && isPinnedTab(tab)) {
+            status = 'pinned';
+
+        //check never suspend
+        } else if (status === 'normal' && suspendTime === "0") {
+            status = 'never';
+
+        //check running on battery
+        } else if (status === 'normal' && onlySuspendOnBattery && chargingMode) {
+            status = 'charging';
+
+        //check internet connectivity
+        } else if (status === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
+            status = 'noConnectivity';
+        }
+        return status;
     }
 
     //change the icon to either active or inactive
@@ -507,7 +559,7 @@ var tgs = (function () {
 
         case 'reportTabState':
             if (sender.tab && sender.tab.id === currentTabId) {
-                var status = updateTabStatus(sender.tab, request.status);
+                var status = processActiveTabStatus(sender.tab, request.status);
                 updateIcon(status);
             }
             break;
@@ -649,6 +701,16 @@ var tgs = (function () {
                 if (isSuspended(tabs[0])) unsuspendTab(tabs[0]);
             });
         }
+    });
+
+    //add listener for battery state changes
+    navigator.getBattery().then(function(battery) {
+
+        chargingMode = battery.charging;
+
+        battery.onchargingchange = function () {
+             chargingMode = battery.charging;
+        };
     });
 
     gsUtils.initSettings();
