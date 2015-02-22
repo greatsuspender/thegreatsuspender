@@ -45,25 +45,25 @@
 				<option value="4320">3 days</option>
 			</select>
 		</div>
-		<div class="formRow">
-			<input type="checkbox" id="unsuspendOnFocus" class='option' />
-			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend when tab gains focus</label>
-		</div>
-		<div class="formRow">
+		<div class="formRow autoSuspendOption">
 			<input type="checkbox" id="dontSuspendPinned" class='option' />
 			<label for="dontSuspendPinned" class="cbLabel">Do not suspend pinned tabs</label>
 		</div>
-		<div class="formRow">
+		<div class="formRow autoSuspendOption">
 			<input type="checkbox" id="dontSuspendForms" class='option' />
 			<label for="dontSuspendForms" class="cbLabel">Do not suspend tabs that contain unsaved form inputs</label>
 		</div>
-		<div id="onlineCheckSection" class="formRow">
+		<div class="formRow autoSuspendOption">
 			<input type="checkbox" id="onlineCheck" class='option' />
 			<label for="onlineCheck" class="cbLabel">Only auto-suspend if connected to the internet</label>
 		</div>
-		<div id="batteryCheckSection" class="formRow">
+		<div class="formRow autoSuspendOption">
 			<input type="checkbox" id="batteryCheck" class='option' />
 			<label for="batteryCheck" class="cbLabel">Only auto-suspend if running on battery</label>
+		</div>
+		<div class="formRow">
+			<input type="checkbox" id="unsuspendOnFocus" class='option' />
+			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend when tab gains focus</label>
 		</div>
 		<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
 		<label for="ignoreCache">Skip browser cache when reloading tab</label>
