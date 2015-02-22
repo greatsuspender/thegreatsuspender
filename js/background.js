@@ -304,10 +304,11 @@ var tgs = (function () {
 
     function checkForCrashRecovery() {
 
-        //try to detect whether it is an extension restart (due to extension crash/update) or a browser restart (due to chrome crash)
-        //case a: chrome restart with tabs automatically restored
-        //case b: chrome restart with tabs not restored (chrome provides a 'restore' button)
-        //case c: extension restart only - want to automatically restore suspended tabs as they will have all disappeared
+        //try to detect whether the extension has crashed
+        //this only checks to see if the window ids from the previous session still exist
+        //and if they do, checks that all the suspended tabs are still open in that window
+        //if there was a window containing only suspended tabs, this won't detect it as the
+        //window id will no longer exist
 
         var lastSession = gsUtils.fetchLastSession(),
             openTabs = [],
@@ -319,9 +320,11 @@ var tgs = (function () {
 
         chrome.windows.getAll({ populate: true }, function (windows) {
             windows.forEach(function (curWindow) {
+
+                openTabs[curWindow.id] = [];
                 curWindow.tabs.forEach(function (curTab) {
 
-                    openTabs.push(curTab);
+                    openTabs[curWindow.id].push(curTab);
 
                     //test if a tab has crashed by sending a 'requestInfo' message
                     if (!isSpecialTab(curTab)) {
@@ -335,15 +338,19 @@ var tgs = (function () {
 
             //for each tab in the session history, check to see if it exists in the current windows
             lastSession.windows.forEach(function (sessionWindow) {
-                sessionWindow.tabs.forEach(function (sessionTab) {
 
-                    if (!isSpecialTab(sessionTab)
-                            && !openTabs.some(function(curOpenTab) {
-                                return (sessionTab.url === curOpenTab.url || sessionTab.id === curOpenTab.id);
-                            })) {
-                        attemptRecovery = true;
-                    }
-                });
+                //only perform check if there is still a window open that matches the sessionWindow id
+                if (openTabs[sessionWindow.id]) {
+                    sessionWindow.tabs.forEach(function (sessionTab) {
+
+                        if (!isSpecialTab(sessionTab)
+                                && !openTabs[sessionWindow.id].some(function(curOpenTab) {
+                                    return (sessionTab.url === curOpenTab.url);
+                                })) {
+                            attemptRecovery = true;
+                        }
+                    });
+                }
             });
 
             if (attemptRecovery) {
@@ -353,7 +360,7 @@ var tgs = (function () {
             } else {
                 setTimeout(function () {
                     eligableTabs.some(function (curTab) {
-                        if (typeof(tabResponses[curTab.id]) === 'undefined' && isSuspended(curTab.url)) {
+                        if (typeof(tabResponses[curTab.id]) === 'undefined' && isSuspended(curTab)) {
 
                             //automatically reload unresponsive suspended tabs
                             chrome.tabs.reload(curTab.id);

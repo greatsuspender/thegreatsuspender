@@ -54,8 +54,8 @@
                         tabEl = sessionUtils.createTabHtml(tabProperties, true);
                         tabEl.onclick = function(e) {
                             e.preventDefault();
-                            chrome.tabs.create({url: tab.url, active: false});
-                            removeTabFromList(tab);
+                            chrome.tabs.create({url: tabProperties.url, active: false});
+                            removeTabFromList(tabProperties);
                         }
                         recoveryEl.appendChild(tabEl);
                     }
@@ -88,8 +88,8 @@
                 manageEl = document.getElementById('manageManuallyLink'),
                 previewsEl = document.getElementById('previewsOffBtn'),
                 warningEl = document.getElementById('screenCaptureNotice');
-            
-            var handleAutoRestore = function () {                
+
+            var handleAutoRestore = function () {
                 restoreAttempted = true;
                 restoreEl.className += " btnDisabled";
                 gsUtils.recoverLostTabs(checkForActiveTabs);

@@ -377,14 +377,17 @@ table, tr, td {
 }
 #screenCaptureNotice {
     display: none;
-    margin-left: 245px;
+    clear: left;
+    margin-top: 30px;
     background: rgb(255, 247, 202);
-    padding: 8px 0 1px;
+    padding: 10px 0 10px 10px;
 }
 #screenCaptureNotice p {
     font-size: 15px;
 }
-
+#previewsOffBtn:hover {
+    cursor: pointer;
+}
 
 /* custom checkboxes */
 .cbLabel {

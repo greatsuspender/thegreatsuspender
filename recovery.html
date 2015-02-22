@@ -19,21 +19,22 @@
 	</div>
 
 	<h1>Ruh roh!</h1>
-	<p>Looks like you're recovering from a chrome or extension crash.<br />
+	<p>Looks like you're recovering from an extension crash.<br />
 	Your suspended tabs may have crashed or disappeared.</p>
+
+	<button id='restoreSession' class='btn'>Restore tabs automatically</button>
+	&nbsp;&nbsp;
+	<button id='manageManuallyLink' class='btn undo'>Go to session manager</button>
+
 	<div id='screenCaptureNotice'>
 		<span><em>Important!</em></span>
 		<p>You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option.</p>
-		 <button id='previewsOffBtn' class='btn undo'>Turn off screen capturing</button>
+		 <a id='previewsOffBtn'>Turn off screen capturing</a>
 	</div>
 
     <hr class="splashRule" />
 	<div class='recoverySection'>
-		<button id='restoreSession' class='btn'>Restore tabs automatically</button>
-		&nbsp;&nbsp;
-		<button id='manageManuallyLink' class='btn undo'>Manage sessions manually</button>
-		<br />
-		<br />
+		<p>Tabs to restore:</p>
 		<div id='recoveryLinks'></div>
 	</div>
 
