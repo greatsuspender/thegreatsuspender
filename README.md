@@ -10,7 +10,7 @@ If you have suggestions or problems using the extension, please [submit a bug or
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
 3. Click on the <kbd>Load unpacked extension...</kbd> button, browse to the unarchived directory of the downloaded release and confirm.
 
-If you have completed the above steps, the "options" page will open indicating successfull installation of the extension.
+If you have completed the above steps, the "welcome" page will open indicating successfull installation of the extension.
 
 ### License
 
