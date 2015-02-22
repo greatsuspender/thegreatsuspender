@@ -34,6 +34,12 @@ body {
 #gsTopBarTitle {
     font-size: 19px;
     line-height: 26px;
+    color: rgb(68, 68, 68);
+    font-weight: 300;
+    cursor: pointer;
+}
+#gsTopBarTitle:hover {
+    text-decoration: underline;
 }
 #gsWhitelistLink {
     text-decoration: underline;
