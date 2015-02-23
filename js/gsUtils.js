@@ -33,7 +33,7 @@
             //now populate from local store or defaults for any items not already populated (old way)
             defaults[self.SHOW_PREVIEW] = false;
             defaults[self.PREVIEW_QUALTIY] = false;
-            defaults[self.ONLINE_CHECK] = true;
+            defaults[self.ONLINE_CHECK] = false;
             defaults[self.BATTERY_CHECK] = false;
             defaults[self.UNSUSPEND_ON_FOCUS] = false;
             defaults[self.IGNORE_PINNED] = true;

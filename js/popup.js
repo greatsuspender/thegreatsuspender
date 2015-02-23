@@ -24,7 +24,7 @@
 
         } else if (status === 'whitelisted') {
             statusDetail = 'Site whitelisted. <a href="#">Remove from whitelist</a>';
-            statusIconClass = 'fa fa-remove';
+            statusIconClass = 'fa fa-check';
             message = 'removeWhitelist';
 
         } else if (status === 'formInput') {
@@ -40,16 +40,16 @@
             statusIconClass = 'fa fa-pause';
             message = 'undoTempWhitelist';
 
+        } else if (status === 'never') {
+            statusDetail = 'Automatic tab suspension disabled.';
+            statusIconClass = 'fa fa-ban';
+
         } else if (status === 'noConnectivity') {
             statusDetail = 'No network connection.';
             statusIconClass = 'fa fa-pause';
 
         } else if (status === 'charging') {
             statusDetail = 'Connected to power source.';
-            statusIconClass = 'fa fa-pause';
-
-        } else if (status === 'never') {
-            statusDetail = 'Automatic tab suspension disabled.';
             statusIconClass = 'fa fa-pause';
         }
 
@@ -123,7 +123,9 @@
             });
             window.close();
         });
+
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
+            
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true,
@@ -136,5 +138,4 @@
             setStatus(status);
         });
     });
-
 }());

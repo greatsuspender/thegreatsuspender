@@ -31,6 +31,10 @@
         }, 1000);
     }
 
+    function htmlEncode(html) {
+        return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML;
+    };
+
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.hash),
             tabProperties = gsUtils.fetchTabFromHistory(url),
@@ -52,6 +56,7 @@
 
         //set favicon and preview image
         if (showPreview) {
+            document.getElementById('suspendedMsg').innerText = 'Generating image preview..';
             gsUtils.fetchPreviewImage(url, function (previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('suspendedMsg').style.display = 'none';
@@ -75,8 +80,8 @@
 
         //populate suspended tab bar
         var title = tabProperties.title ? tabProperties.title : rootUrlStr;
-        document.getElementById('gsTitle').innerText = title;
-        document.getElementById('gsTopBarTitle').innerHTML = title;
+        document.getElementById('gsTitle').innerHTML = htmlEncode(title);
+        document.getElementById('gsTopBarTitle').innerHTML = htmlEncode(title);
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
         document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
         document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);

@@ -169,14 +169,14 @@ ul.unorderedList li {
     color: #333;
 }
 .btn.btnNeg:hover {
-    background: #ddd;
+    background: #DDD;
 }
-.btn.undo {
-    background: #CF5959;
+.btn.secondary {
+    background: #A6A6A6;
     color: #fff;
 }
-.btn.undo:hover {
-    background: #B34E4E;
+.btn.secondary:hover {
+    background: #8C8C8C;
 }
 .btnDonate {
     font-family: 'Open Sans', sans-serif;

@@ -13,41 +13,21 @@ a {
 	outline : none;
 	color: #3889AB;
 }
+#statusDetail a {
+	color: #FFFFFF;
+}
 .hidden {
 	display: none;
 }
-#popTop {
-	background: #134960;
-	color: #444;
-	overflow: hidden;
-	height: 37px;
-	position: relative;
-	z-index: 10;
-	padding: 10px 0 0 60px;
-	margin-bottom: 1px;
-}
-#popTop h1 {
-	font-size: 18px;
-	color: #FFF;
-	margin: 4px 0 0 8px;
-	font-weight: 300;
-}
-#popTopIcon {
-	position: absolute;
-	top: 5px;
-	left: 4px;
-	z-index: 2;
-}
-
 #header {
-	padding: 5px 15px;
+	padding: 5px 15px 5px 16px;
 	border-bottom: 1px solid #ccc;
-	background: #fff;
 	font-size: 14px;
-	color: #666;
 	height: 20px;
 	width: 100%;
 	line-height: 19px;
+	background: #134960;
+	color: #fff;
 }
 #header img {
 	z-index: 2;
