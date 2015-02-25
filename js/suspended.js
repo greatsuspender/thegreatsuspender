@@ -33,7 +33,7 @@
 
     function htmlEncode(html) {
         return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML;
-    };
+    }
 
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.hash),
@@ -56,7 +56,6 @@
 
         //set favicon and preview image
         if (showPreview) {
-            document.getElementById('suspendedMsg').innerText = 'Generating image preview..';
             gsUtils.fetchPreviewImage(url, function (previewUrl) {
                 if (previewUrl !== null) {
                     document.getElementById('suspendedMsg').style.display = 'none';

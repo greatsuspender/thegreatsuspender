@@ -32,7 +32,6 @@
 
         clearHistoryEl.onclick = function (e) {
             gsUtils.clearGsSessionHistory();
-            gsUtils.clearPreviews();
             render();
         };
     }

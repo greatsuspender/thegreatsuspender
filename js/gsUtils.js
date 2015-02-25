@@ -24,6 +24,8 @@
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
 
+        indexedDb: false,
+
         initSettings: function () {
             var self = this,
                 key,
@@ -147,8 +149,27 @@
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
         },
 
+        getDb: function () {
+
+            var self = this;
+            return new Promise(function(resolve, reject){
+
+                if (self.indexedDb) {
+                    resolve();
+
+                } else {
+                    db.open( {
+                        server: 'tgs',
+                        version: 1
+                    }).then(function ( s ) {
+                        self.indexedDb = s;
+                        resolve();
+                    });
+                }
+            });
+        },
         fetchPreviewImage: function (tabUrl, callback) {
-            chrome.storage.local.get(null, function (items) {
+            /*chrome.storage.local.get(null, function (items) {
                 if (typeof(items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                     chrome.storage.local.set(items);
@@ -158,24 +179,36 @@
                 } else {
                     callback(items.gsPreviews[tabUrl]);
                 }
+            });*/
+            var self = this;
+            this.getDb().then(function(response) {
+
+                self.indexedDb.query( 'gsPreviews' , 'url' )
+                        .only(tabUrl)
+                        .execute()
+                        .then(function (results) {
+                    if (results.length > 0) {
+                        callback(results[0]['img']);
+                    } else {
+                        callback(null);
+                    }
+                });
             });
+
         },
 
         setPreviewImage: function (tabUrl, previewUrl) {
-            chrome.storage.local.get(null, function (items) {
+            /*chrome.storage.local.get(null, function (items) {
                 if (typeof(items.gsPreviews) === 'undefined') {
                     items.gsPreviews = {};
                 }
 
                 items.gsPreviews[tabUrl] = previewUrl;
                 chrome.storage.local.set(items);
-            });
-        },
-
-        clearPreviews: function () {
-            chrome.storage.local.get(null, function (items) {
-                items.gsPreviews = {};
-                chrome.storage.local.set(items);
+            });*/
+            var self = this;
+            this.getDb().then(function(response) {
+                self.indexedDb.add( 'gsPreviews' , {url: tabUrl, img: previewUrl});
             });
         },
 
@@ -470,7 +503,7 @@
             return rootUrlStr;
         },
 
-        performMigration: function () {
+        performV5Migration: function () {
 
             //migrate gsHistory to sessionHistory
             var gsHistory = this.fetchGsHistory(),
@@ -567,6 +600,53 @@
                 });
             }
 
+        },
+
+        performV6Migration: function () {
+
+            //create a new indexedDb called tgs
+            db.open( {
+                server: 'tgs',
+                version: 1,
+                schema: {
+                    gsPreviews: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            url: {}
+                        }
+                    }
+                }
+
+            //populate the database with existing preview data
+            }).then(function ( s ) {
+                self.indexedDb = s;
+
+                chrome.storage.local.get(null, function (items) {
+                    if (typeof(items.gsPreviews) !== 'undefined') {
+                        var objs = [],
+                            key;
+                        for (key in items.gsPreviews) {
+                            if (items.gsPreviews.hasOwnProperty(key)) {
+
+                                objs.push({
+                                    url: key,
+                                    img: items.gsPreviews[key]
+                                });
+                            }
+                        }
+
+                        //populate database
+                        self.indexedDb.add( 'gsPreviews' , objs);
+
+                        //remove old chrome.storage.local
+                        chrome.storage.local.clear();
+
+                    }
+                });
+            });
         },
 
         recoverLostTabs: function (callback) {

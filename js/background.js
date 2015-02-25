@@ -19,7 +19,8 @@ var tgs = (function () {
         lastSelectedTabs = [],
         currentTabId,
         sessionSaveTimer,
-        chargingMode = false;
+        chargingMode = false,
+        lastStatus = 'normal';
 
     if (debug) console.log('sessionId: ' + sessionId);
 
@@ -413,7 +414,12 @@ var tgs = (function () {
             } else {
                 //if pre v5 then perform migration
                 if (parseFloat(lastVersion) < 5) {
-                    gsUtils.performMigration();
+                    gsUtils.performV5Migration();
+                }
+
+                //if pre v6 then perform migration
+                if (parseFloat(lastVersion) < 7) {
+                    gsUtils.performV6Migration();
                 }
 
                 //show update screen
@@ -541,8 +547,19 @@ var tgs = (function () {
             dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
             dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
 
+        lastStatus = status;
+
         if (status !== 'normal') {
             icon = '/img/icon19b.png';
+        }
+        chrome.browserAction.setIcon({path: icon});
+    }
+    function blinkIcon(showBlink) {
+        var icon;
+        if (lastStatus === 'normal') {
+            icon = showBlink ? '/img/icon19c.png' : '/img/icon19.png';
+        } else {
+            icon = showBlink ? '/img/icon19d.png' : '/img/icon19b.png';
         }
         chrome.browserAction.setIcon({path: icon});
     }
@@ -697,6 +714,25 @@ var tgs = (function () {
     chrome.windows.onRemoved.addListener(function() {
         queueSessionTimer();
     });
+
+    chrome.webRequest.onBeforeRequest.addListener(function (details) {
+        if (details.tabId === currentTabId) {
+            blinkIcon(true);
+        }
+
+    }, {urls: ["<all_urls>"]});
+    chrome.webRequest.onCompleted.addListener(function (details) {
+        if (details.tabId === currentTabId) {
+            blinkIcon(false);
+        }
+
+    }, {urls: ["<all_urls>"]});
+    chrome.webRequest.onErrorOccurred.addListener(function (details) {
+        if (details.tabId === currentTabId) {
+            blinkIcon(false);
+        }
+
+    }, {urls: ["<all_urls>"]});
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
