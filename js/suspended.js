@@ -3,6 +3,7 @@
 (function () {
 
     'use strict';
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function generateFaviconUri(url, callback) {
         var img = new Image(),
@@ -119,8 +120,8 @@
         //try to suspend tab
         attemptTabSuspend();
 
-        //show dude and donate link (randomly 1 of 5 times)
-        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.8) {
+        //show dude and donate link (randomly 1 of 10 times)
+        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.9) {
             window.addEventListener('focus', function () {
                 document.getElementById('dudePopup').setAttribute('class', 'poppedup');
                 document.getElementById('donateBubble').setAttribute('class', 'fadeIn');

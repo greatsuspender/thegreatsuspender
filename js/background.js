@@ -598,6 +598,9 @@ var tgs = (function () {
 
         case 'savePreviewData':
             saveSuspendData(sender.tab, request.previewUrl);
+            if (debug && sender.tab && request.errorMsg) {
+                console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
+            }
             break;
 
         case 'suspendOne':
@@ -774,6 +777,7 @@ var tgs = (function () {
     s.parentNode.insertBefore(ga, s);
 
     return {
+        debug: debug,
         requestTabInfo: requestTabInfo,
         updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,

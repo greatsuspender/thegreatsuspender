@@ -60,11 +60,11 @@
         }
     }
 
-    function handlePreviewError(suspendedUrl) {
-        console.error('failed to render');
+    function handlePreviewError(suspendedUrl, err) {
         chrome.runtime.sendMessage({
             action: 'savePreviewData',
-            previewUrl: false
+            previewUrl: false,
+            errorMsg: err
         });
         suspendTab(suspendedUrl);
     }
@@ -78,13 +78,13 @@
         //safety check here. don't try to use html2canvas if the page has more than 5000 elements
         if (elementCount < 5000) {
 
-            //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
+            //allow max of 4 seconds to finish generating image (used to catch unexpected html2canvas failures)
             window.setTimeout(function () {
                 if (processing) {
                     processing = false;
-                    handlePreviewError(suspendedUrl);
+                    handlePreviewError(suspendedUrl, '4sec timeout reached');
                 }
-            }, 3000);
+            }, 4000);
 
             try {
                 html2canvas(document.body,{
@@ -105,11 +105,11 @@
                     }
                 });
             } catch (ex) {
-                handlePreviewError(suspendedUrl);
+                handlePreviewError(suspendedUrl, ex.message);
             }
 
         } else {
-            handlePreviewError(suspendedUrl);
+            handlePreviewError(suspendedUrl, 'element count > 5000');
         }
     }
 

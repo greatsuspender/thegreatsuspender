@@ -26,6 +26,8 @@
 
         indexedDb: false,
 
+        noop: function() {},
+
         initSettings: function () {
             var self = this,
                 key,
@@ -181,6 +183,10 @@
                 }
             });*/
             var self = this;
+
+            if (typeof callback !== 'function') {
+                callback = noop;
+            }
             this.getDb().then(function(response) {
 
                 self.indexedDb.query( 'gsPreviews' , 'url' )
@@ -193,8 +199,9 @@
                         callback(null);
                     }
                 });
+            }, function(err) {
+                console.log(err);
             });
-
         },
 
         setPreviewImage: function (tabUrl, previewUrl) {
