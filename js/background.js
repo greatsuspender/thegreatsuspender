@@ -349,10 +349,11 @@ var tgs = (function () {
                 }
             });
 
-            unsuspendedSessionTabs.forEach(function (sessionTab) {
+            unsuspendedSessionTabs.some(function (sessionTab) {
                 //if any of the tabIds from the session don't exist in the current session then abort recovery
                 if (typeof(currentlyOpenTabs[sessionTab.id]) === 'undefined') {
                     attemptRecovery = false;
+                    return true;
                 }
             });
 
