@@ -24,7 +24,11 @@
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
 
-        indexedDb: false,
+        DB_SERVER: 'tgs',
+        DB_PREVIEWS: 'gsPreviews',
+        DB_HISTORY: 'gsHistory',
+
+        tgsDb: false,
 
         noop: function() {},
 
@@ -156,7 +160,7 @@
             var self = this;
             return new Promise(function(resolve, reject){
 
-                if (self.indexedDb) {
+                if (self.tgsDb) {
                     resolve();
 
                 } else {
@@ -164,32 +168,19 @@
                         server: 'tgs',
                         version: 1
                     }).then(function ( s ) {
-                        self.indexedDb = s;
+                        self.tgsDb = s;
                         resolve();
                     });
                 }
             });
         },
         fetchPreviewImage: function (tabUrl, callback) {
-            /*chrome.storage.local.get(null, function (items) {
-                if (typeof(items.gsPreviews) === 'undefined') {
-                    items.gsPreviews = {};
-                    chrome.storage.local.set(items);
-                    callback(null);
-                } else if (typeof(items.gsPreviews[tabUrl]) === 'undefined') {
-                    callback(null);
-                } else {
-                    callback(items.gsPreviews[tabUrl]);
-                }
-            });*/
             var self = this;
+            callback = typeof callback !== 'function' ? noop : callback;
 
-            if (typeof callback !== 'function') {
-                callback = noop;
-            }
             this.getDb().then(function(response) {
 
-                self.indexedDb.query( 'gsPreviews' , 'url' )
+                self.tgsDb.query(this.DB_PREVIEWS , 'url' )
                         .only(tabUrl)
                         .execute()
                         .then(function (results) {
@@ -204,52 +195,58 @@
             });
         },
 
-        setPreviewImage: function (tabUrl, previewUrl) {
-            /*chrome.storage.local.get(null, function (items) {
-                if (typeof(items.gsPreviews) === 'undefined') {
-                    items.gsPreviews = {};
-                }
-
-                items.gsPreviews[tabUrl] = previewUrl;
-                chrome.storage.local.set(items);
-            });*/
+        addPreviewImage: function (tabUrl, previewUrl) {
             var self = this;
             this.getDb().then(function(response) {
-                self.indexedDb.add( 'gsPreviews' , {url: tabUrl, img: previewUrl});
+                self.tgsDb.add( 'gsPreviews' , {url: tabUrl, img: previewUrl});
             });
         },
 
-        fetchGsHistory: function () {
-            var result = localStorage.getItem(this.HISTORY);
+        addGsHistory: function (tabProperties) {
+            var self = this;
 
-            if (result === null) {
-                result = [];
-            } else {
-                result = JSON.parse(result);
+            if (!tabProperties.url) {
+                console.error('tabProperties.url not set.');
+                return;
             }
 
-            return result;
-        },
+            this.getDb().then(function(response) {
+                self.tgsDb.add(DB_HISTORY , tabProperties).done(function(item) {
 
-        setGsHistory: function (gsHistory) {
-            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
-        },
-
-        clearGsHistory: function (gsHistory) {
-            this.setGsHistory([]);
-        },
-
-        fetchTabFromHistory: function (tabUrl) {
-            var gsHistory = this.fetchGsHistory(),
-                tab = false;
-
-            gsHistory.some(function (val) {
-                if (val.url === tabUrl) {
-                    tab = val;
-                    return true;
-                }
+                    // item stored. clean up old items
+                    if (item.id > 1000) {
+                        self.tgsDb.remove(DB_HISTORY, item.id - 1000);
+                    }
+                });
             });
-            return tab;
+        },
+
+        clearGsHistory: function () {
+            this.getDb().then(function(response) {
+                self.tgsDb.clear();
+            });
+        },
+
+        fetchTabFromHistory: function (tabUrl, callback) {
+
+            var self = this;
+            callback = typeof callback !== 'function' ? noop : callback;
+
+            this.getDb().then(function(response) {
+
+                self.tgsDb.query(self.DB_HISTORY , 'url' )
+                        .only(tabUrl)
+                        .execute()
+                        .then(function (results) {
+                    if (results.length > 0) {
+                        callback(results[0]);
+                    } else {
+                        callback(null);
+                    }
+                });
+            }, function(err) {
+                console.log(err);
+            });
         },
 
         removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
@@ -513,7 +510,7 @@
         performV5Migration: function () {
 
             //migrate gsHistory to sessionHistory
-            var gsHistory = this.fetchGsHistory(),
+            var gsHistory = localStorage.getItem(this.HISTORY),
                 oldGsHistory = localStorage.getItem(this.HISTORY_OLD),
                 curSession,
                 curWindow,
@@ -527,6 +524,8 @@
                 sortable = [],
                 url;
 
+            gsHistory = gsHistory ? JSON.parse(gsHistory) : [];
+
             //check for very old history migration
             if (oldGsHistory !== null) {
                 oldGsHistory = JSON.parse(oldGsHistory);
@@ -535,7 +534,7 @@
                 oldGsHistory.forEach(function (val, index, array) {
                     gsHistory.push(array[index]);
                 });
-                gsUtils.setGsHistory(gsHistory);
+                localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
                 localStorage.removeItem(this.HISTORY_OLD);
             }
 
@@ -611,7 +610,13 @@
 
         performV6Migration: function () {
 
-            //create a new indexedDb called tgs
+            var self = this,
+                objs = [],
+                key,
+                gsHistory,
+                ser;
+
+            //create a new tgsDb called tgs
             db.open( {
                 server: 'tgs',
                 version: 1,
@@ -624,17 +629,26 @@
                         indexes: {
                             url: {}
                         }
+                    },
+                    gsHistory: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            url: {}
+                        }
                     }
                 }
 
-            //populate the database with existing preview data
+            //populate the database with existing data
             }).then(function ( s ) {
-                self.indexedDb = s;
+                self.tgsDb = s;
 
+                //migrate screen previews
                 chrome.storage.local.get(null, function (items) {
                     if (typeof(items.gsPreviews) !== 'undefined') {
-                        var objs = [],
-                            key;
+
                         for (key in items.gsPreviews) {
                             if (items.gsPreviews.hasOwnProperty(key)) {
 
@@ -646,13 +660,31 @@
                         }
 
                         //populate database
-                        self.indexedDb.add( 'gsPreviews' , objs);
+                        self.tgsDb.add(self.DB_PREVIEWS , objs);
 
                         //remove old chrome.storage.local
                         chrome.storage.local.clear();
 
                     }
                 });
+
+                //migrate session history
+                var gsHistory = localStorage.getItem(self.HISTORY);
+
+                if (gsHistory) {
+                    objs = [];
+                    gsHistory = JSON.parse(gsHistory);
+                    gsHistory.forEach(function (tabProperties) {
+                        objs.push(tabProperties);
+                    });
+
+
+                    //populate database
+                    self.tgsDb.add(self.DB_HISTORY , objs);
+
+                    //remove old localStorage
+                    //localStorage.setItem(self.HISTORY, null);
+                }
             });
         },
 

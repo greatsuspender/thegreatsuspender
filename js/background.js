@@ -37,12 +37,11 @@ var tgs = (function () {
 
     function saveSuspendData(tab, previewUrl) {
 
-        var gsHistory = gsUtils.fetchGsHistory(),
-            tabProperties,
+        var tabProperties,
             favUrl;
 
         if (previewUrl) {
-            gsUtils.setPreviewImage(tab.url, previewUrl);
+            gsUtils.addPreviewImage(tab.url, previewUrl);
         }
 
         if (tab.incognito) {
@@ -61,14 +60,8 @@ var tgs = (function () {
             windowId: tab.windowId
         };
 
-        //add suspend information to start of history array
-        gsHistory.unshift(tabProperties);
-
-        //clean up old items
-        while (gsHistory.length > 1000) {
-            gsHistory.pop();
-        }
-        gsUtils.setGsHistory(gsHistory);
+        //add suspend information to gsHistory
+        gsUtils.addGsHistory(tabProperties);
     }
 
     //tests for non-standard web pages. does not check for suspended pages!
@@ -405,7 +398,6 @@ var tgs = (function () {
 
             //if they are installing for the first time
             if (!lastVersion) {
-                gsUtils.setGsHistory([]);
 
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});

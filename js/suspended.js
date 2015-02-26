@@ -38,7 +38,7 @@
 
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.hash),
-            tabProperties = gsUtils.fetchTabFromHistory(url),
+            tabProperties,
             rootUrlStr,
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
             favicon;
@@ -50,43 +50,47 @@
         }
         rootUrlStr = gsUtils.getRootUrl(url);
 
-        //if we are missing some suspend information for this tab
-        if (!tabProperties) {
-            tabProperties = {url: url};
-        }
+        //try to fetch saved tab information for this url
+        gsUtils.fetchTabFromHistory(url, function(tabProperties) {
 
-        //set favicon and preview image
-        if (showPreview) {
-            gsUtils.fetchPreviewImage(url, function (previewUrl) {
-                if (previewUrl !== null) {
-                    document.getElementById('suspendedMsg').style.display = 'none';
-                    document.getElementById('gsPreview').style.display = 'block';
-                    document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
-                } else {
-                    document.getElementById('gsPreview').style.display = 'none';
-                    document.getElementById('suspendedMsg').style.display = 'table-cell';
-                }
+            //if we are missing some suspend information for this tab
+            if (!tabProperties) {
+                tabProperties = {url: url};
+            }
+
+            //set favicon and preview image
+            if (showPreview) {
+                gsUtils.fetchPreviewImage(url, function (previewUrl) {
+                    if (previewUrl !== null) {
+                        document.getElementById('suspendedMsg').style.display = 'none';
+                        document.getElementById('gsPreview').style.display = 'block';
+                        document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
+                    } else {
+                        document.getElementById('gsPreview').style.display = 'none';
+                        document.getElementById('suspendedMsg').style.display = 'table-cell';
+                    }
+                });
+            } else {
+                document.getElementById('gsPreview').style.display = 'none';
+                document.getElementById('suspendedMsg').style.display = 'table-cell';
+            }
+
+            favicon = tabProperties.favicon || 'chrome://favicon/' + url;
+
+            generateFaviconUri(favicon, function (faviconUrl) {
+                setFavicon(faviconUrl);
             });
-        } else {
-            document.getElementById('gsPreview').style.display = 'none';
-            document.getElementById('suspendedMsg').style.display = 'table-cell';
-        }
 
-        favicon = tabProperties.favicon || 'chrome://favicon/' + url;
+            //populate suspended tab bar
+            var title = tabProperties.title ? tabProperties.title : rootUrlStr;
+            document.getElementById('gsTitle').innerHTML = htmlEncode(title);
+            document.getElementById('gsTopBarTitle').innerHTML = htmlEncode(title);
+            document.getElementById('gsTopBarTitle').setAttribute('href', url);
+            document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
+            document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
 
-        generateFaviconUri(favicon, function (faviconUrl) {
-            setFavicon(faviconUrl);
+            document.getElementById('gsTopBarImg').setAttribute('src', favicon);
         });
-
-        //populate suspended tab bar
-        var title = tabProperties.title ? tabProperties.title : rootUrlStr;
-        document.getElementById('gsTitle').innerHTML = htmlEncode(title);
-        document.getElementById('gsTopBarTitle').innerHTML = htmlEncode(title);
-        document.getElementById('gsTopBarTitle').setAttribute('href', url);
-        document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
-        document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
-
-        document.getElementById('gsTopBarImg').setAttribute('src', favicon);
     }
 
     function unsuspendTab() {
