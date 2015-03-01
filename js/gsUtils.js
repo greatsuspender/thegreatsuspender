@@ -170,35 +170,53 @@
                     }).then(function ( s ) {
                         self.tgsDb = s;
                         resolve();
+                    }, function(error) {
+                        console.log('promise error: ' + error);
                     });
                 }
             });
         },
+        queryDb: function (table, lookupKey, lookupVal) {
+
+            var self = this;
+            return new Promise(function(resolve, reject) {
+
+                self.tgsDb.query(table , lookupKey)
+                        .only(lookupVal)
+                        .execute()
+                        .then(function (result) {
+                    resolve(result);
+                }, function(error) {
+                    console.log('promise error: ' + error);
+                    reject([]);
+                });
+            });
+        },
+
         fetchPreviewImage: function (tabUrl, callback) {
             var self = this;
             callback = typeof callback !== 'function' ? noop : callback;
 
-            this.getDb().then(function(response) {
-
-                self.tgsDb.query(this.DB_PREVIEWS , 'url' )
-                        .only(tabUrl)
-                        .execute()
-                        .then(function (results) {
-                    if (results.length > 0) {
-                        callback(results[0]['img']);
-                    } else {
-                        callback(null);
-                    }
-                });
-            }, function(err) {
-                console.log(err);
+            self.getDb().then(function() {
+                return self.queryDb(self.DB_PREVIEWS , 'url', tabUrl);
+            }).then(function(results) {
+                if (results.length > 0) {
+                    callback(results[0]['img']);
+                } else {
+                    callback(null);
+                }
+            }, function(error) {
+                console.log('promise error: ' + error);
+                    callback(null);
             });
         },
 
         addPreviewImage: function (tabUrl, previewUrl) {
             var self = this;
             this.getDb().then(function(response) {
-                self.tgsDb.add( 'gsPreviews' , {url: tabUrl, img: previewUrl});
+                self.tgsDb.update( 'gsPreviews' , {url: tabUrl, img: previewUrl});
+            }, function(error) {
+                console.log('promise error: ' + error);
             });
         },
 
@@ -211,19 +229,20 @@
             }
 
             this.getDb().then(function(response) {
-                self.tgsDb.add(DB_HISTORY , tabProperties).done(function(item) {
-
-                    // item stored. clean up old items
-                    if (item.id > 1000) {
-                        self.tgsDb.remove(DB_HISTORY, item.id - 1000);
-                    }
-                });
+                self.tgsDb.add(self.DB_HISTORY , tabProperties);
+            }, function(error) {
+                console.log('promise error: ' + error);
             });
         },
 
         clearGsHistory: function () {
+            var self = this;
+
             this.getDb().then(function(response) {
-                self.tgsDb.clear();
+                self.tgsDb.clear(self.DB_HISTORY);
+                self.tgsDb.clear(self.DB_PREVIEWS);
+            }, function(error) {
+                console.log('promise error: ' + error);
             });
         },
 
@@ -244,8 +263,8 @@
                         callback(null);
                     }
                 });
-            }, function(err) {
-                console.log(err);
+            }, function(error) {
+                console.log('promise error: ' + error);
             });
         },
 
@@ -623,7 +642,7 @@
                 schema: {
                     gsPreviews: {
                         key: {
-                            keyPath: 'id',
+                            keyPath: 'url',
                             autoIncrement: true
                         },
                         indexes: {
@@ -674,10 +693,11 @@
                 if (gsHistory) {
                     objs = [];
                     gsHistory = JSON.parse(gsHistory);
-                    gsHistory.forEach(function (tabProperties) {
-                        objs.push(tabProperties);
-                    });
-
+                    if (gsHistory) {
+                        gsHistory.forEach(function (tabProperties) {
+                            objs.push(tabProperties);
+                        });
+                    }
 
                     //populate database
                     self.tgsDb.add(self.DB_HISTORY , objs);
@@ -685,6 +705,8 @@
                     //remove old localStorage
                     //localStorage.setItem(self.HISTORY, null);
                 }
+            }, function(error) {
+                console.log('promise error: ' + error);
             });
         },
 

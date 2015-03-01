@@ -717,7 +717,7 @@ var tgs = (function () {
         queueSessionTimer();
     });
 
-    chrome.webRequest.onBeforeRequest.addListener(function (details) {
+    /*chrome.webRequest.onBeforeRequest.addListener(function (details) {
         if (details.tabId === currentTabId) {
             blinkIcon(true);
         }
@@ -734,7 +734,7 @@ var tgs = (function () {
             blinkIcon(false);
         }
 
-    }, {urls: ["<all_urls>"]});
+    }, {urls: ["<all_urls>"]});*/
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
