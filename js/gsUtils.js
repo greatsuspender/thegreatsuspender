@@ -225,6 +225,7 @@
                 if (result.length > 0) {
                     result = result[0];
                     session.id = result.id; //copy across id from matching session
+                    session.date = new Date();
                     server.update(tableName , session); //then update based on that id
                 } else {
                     server.add(tableName, session);
@@ -339,7 +340,6 @@
                     }
                 });
 
-                gsSession.date = new Date();
                 self.updateSession(gsSession);
             });
         },
@@ -663,7 +663,7 @@
 
                 //migrate gsSessionHistory to indexedDb gsCurrentSessions and gsSavedSessions
                 if (oldVersion < 5) {
-                    sessionHistory = convertGsHistoryToSessionHistory(self, gsHistory);
+                    sessionHistory = self.convertGsHistoryToSessionHistory(self, gsHistory);
                     currentSessions = sessionHistory['currentSessions'];
                     savedSessions = sessionHistory['savedSessions'];
 
@@ -673,6 +673,10 @@
                     if (sessionHistory) {
                         sessionHistory = JSON.parse(sessionHistory);
                         sessionHistory.forEach(function (curSession, curIndex) {
+
+                            curSession.sessionId = curSession.id + "";
+                            curSession.id = null;
+
                             if (!curSession.name) {
                                 currentSessions.push(curSession);
                             } else {
@@ -742,7 +746,7 @@
 
                 //if we are on the first tab for a new date
                 if (lastGroupKey !== groupKey) {
-                    curSession = {id: groupKey, windows: [], date: tabProperties.date};
+                    curSession = {sessionId: groupKey, windows: [], date: tabProperties.date};
                     currentSessions.unshift(curSession);
                 }
                 lastGroupKey = groupKey;

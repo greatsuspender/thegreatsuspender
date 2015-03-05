@@ -10,7 +10,6 @@
     function removeTabFromList(tab) {
 
         var recoveryLinksEl = document.getElementById('recoveryLinks'),
-            recoverySectionEls = document.getElementsByClassName('recoverySection'),
             childLinks = recoveryLinksEl.children;
 
         for (var i = 0; i < childLinks.length; i++) {
@@ -30,10 +29,15 @@
 
             //otherwise we have no tabs to recover so just hide references to recovery
             } else {
-                for (i = 0; i < recoverySectionEls.length; i++) {
-                    recoverySectionEls[i].style.display = 'none';
-                }
+                hideRecoverySection();
             }
+        }
+    }
+
+    function hideRecoverySection() {
+        var recoverySectionEls = document.getElementsByClassName('recoverySection');
+        for (var i = 0; i < recoverySectionEls.length; i++) {
+            recoverySectionEls[i].style.display = 'none';
         }
     }
 
@@ -45,6 +49,7 @@
         gsUtils.fetchLastSession().then(function (lastSession) {
 
             if (!lastSession) {
+                hideRecoverySection();
                 return;
             }
 
