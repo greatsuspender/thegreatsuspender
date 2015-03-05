@@ -3,6 +3,7 @@
 (function () {
 
     'use strict';
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     var restoreAttempted = false;
 
@@ -38,11 +39,14 @@
 
     function populateMissingTabs() {
 
-        var lastSession = gsUtils.fetchLastSession(),
-            recoveryEl = document.getElementById('recoveryLinks'),
+        var recoveryEl = document.getElementById('recoveryLinks'),
             tabEl;
 
-        if (lastSession) {
+        gsUtils.fetchLastSession().then(function (lastSession) {
+
+            if (!lastSession) {
+                return;
+            }
 
             lastSession.windows.forEach(function (window, index) {
 
@@ -50,19 +54,19 @@
 
                     if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
-                        tabProperties.sessionId = lastSession.id;
+                        tabProperties.sessionId = lastSession.sessionId;
                         tabEl = sessionUtils.createTabHtml(tabProperties, true);
                         tabEl.onclick = function(e) {
                             e.preventDefault();
                             chrome.tabs.create({url: tabProperties.url, active: false});
                             removeTabFromList(tabProperties);
-                        }
+                        };
                         recoveryEl.appendChild(tabEl);
                     }
                 });
             });
             checkForActiveTabs();
-        }
+        });
     }
 
     function checkForActiveTabs() {

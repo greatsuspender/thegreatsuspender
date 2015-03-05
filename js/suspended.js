@@ -51,7 +51,7 @@
         rootUrlStr = gsUtils.getRootUrl(url);
 
         //try to fetch saved tab information for this url
-        gsUtils.fetchTabFromHistory(url, function(tabProperties) {
+        gsUtils.fetchTabInfo(url).then(function(tabProperties) {
 
             //if we are missing some suspend information for this tab
             if (!tabProperties) {

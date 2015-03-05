@@ -15,13 +15,16 @@ var tgs = (function () {
 
     var debug = false,
         useClean = false,
-        sessionId = gsUtils.generateSessionId(),
+        sessionId,
         lastSelectedTabs = [],
         currentTabId,
         sessionSaveTimer,
         chargingMode = false,
         lastStatus = 'normal';
 
+
+    //set gloabl sessionId
+    sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
     function checkWhiteList(url) {
@@ -60,8 +63,8 @@ var tgs = (function () {
             windowId: tab.windowId
         };
 
-        //add suspend information to gsHistory
-        gsUtils.addGsHistory(tabProperties);
+        //add suspend information to suspendedTabInfo
+        gsUtils.addSuspendedTabInfo(tabProperties);
     }
 
     //tests for non-standard web pages. does not check for suspended pages!
@@ -246,12 +249,21 @@ var tgs = (function () {
                 console.log('savingWindowHistory');
             }
             saveWindowHistory();
-        }, 3000);
+        }, 1000);
     }
 
     function saveWindowHistory() {
         chrome.windows.getAll({populate: true}, function (windows) {
+            //uses global sessionId
             gsUtils.saveWindowsToSessionHistory(sessionId, windows);
+        });
+    }
+
+    function resetAllTabTimers() {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                resetTabTimer(currentTab.id);
+            });
         });
     }
 
@@ -302,8 +314,7 @@ var tgs = (function () {
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
         //and all normal tabs will still exist with the same ids
 
-        var lastSession = gsUtils.fetchLastSession(),
-            suspendedTabCount = 0,
+        var suspendedTabCount = 0,
             unsuspendedTabCount = 0,
             suspendedTabs = [],
             tabResponses = [],
@@ -311,66 +322,73 @@ var tgs = (function () {
             currentlyOpenTabs = [],
             attemptRecovery = true;
 
-        //collect all nonspecial, unsuspended tabs from the last session
-        lastSession.windows.forEach(function (sessionWindow) {
-            sessionWindow.tabs.forEach(function (sessionTab) {
+        gsUtils.fetchLastSession().then(function (lastSession) {
 
-                if (!isSpecialTab(sessionTab) && !isSuspended(sessionTab)) {
-                    unsuspendedSessionTabs.push(sessionTab);
-                    unsuspendedTabCount++;
-                } else {
-                    suspendedTabCount++;
-                }
-            });
-        });
-
-        //don't attempt recovery if last session had no suspended tabs
-        if (suspendedTabCount === 0) return;
-
-        //check to see if they still exist in current session
-        chrome.tabs.query({}, function (tabs) {
-
-            //don't attempt recovery if there are less tabs in current session than there were
-            //unsuspended tabs in the last session
-            if (tabs.length < unsuspendedTabCount) return;
-
-            tabs.forEach(function (curTab) {
-                currentlyOpenTabs[curTab.id] = curTab;
-
-                //test if a suspended tab has crashed by sending a 'requestInfo' message
-                if (!isSpecialTab(curTab) && isSuspended(curTab)) {
-                    suspendedTabs.push(curTab);
-                    chrome.tabs.sendMessage(curTab.id, {action: 'requestInfo'}, function (response) {
-                        tabResponses[curTab.id] = true;
-                    });
-
-                    //don't attempt recovery if there are still suspended tabs open
-                    attemptRecovery = false;
-                }
-            });
-
-            unsuspendedSessionTabs.some(function (sessionTab) {
-                //if any of the tabIds from the session don't exist in the current session then abort recovery
-                if (typeof(currentlyOpenTabs[sessionTab.id]) === 'undefined') {
-                    attemptRecovery = false;
-                    return true;
-                }
-            });
-
-            if (attemptRecovery) {
-                chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+            if (!lastSession) {
+                return;
             }
 
-            //check for suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
-            setTimeout(function () {
-                suspendedTabs.forEach(function (curTab) {
-                    if (typeof(tabResponses[curTab.id]) === 'undefined') {
+            //collect all nonspecial, unsuspended tabs from the last session
+            lastSession.windows.forEach(function (sessionWindow) {
+                sessionWindow.tabs.forEach(function (sessionTab) {
 
-                        //automatically reload unresponsive suspended tabs
-                        chrome.tabs.reload(curTab.id);
+                    if (!isSpecialTab(sessionTab) && !isSuspended(sessionTab)) {
+                        unsuspendedSessionTabs.push(sessionTab);
+                        unsuspendedTabCount++;
+                    } else {
+                        suspendedTabCount++;
                     }
                 });
-            }, 5000);
+            });
+
+            //don't attempt recovery if last session had no suspended tabs
+            if (suspendedTabCount === 0) return;
+
+            //check to see if they still exist in current session
+            chrome.tabs.query({}, function (tabs) {
+
+                //don't attempt recovery if there are less tabs in current session than there were
+                //unsuspended tabs in the last session
+                if (tabs.length < unsuspendedTabCount) return;
+
+                tabs.forEach(function (curTab) {
+                    currentlyOpenTabs[curTab.id] = curTab;
+
+                    //test if a suspended tab has crashed by sending a 'requestInfo' message
+                    if (!isSpecialTab(curTab) && isSuspended(curTab)) {
+                        suspendedTabs.push(curTab);
+                        chrome.tabs.sendMessage(curTab.id, {action: 'requestInfo'}, function (response) {
+                            tabResponses[curTab.id] = true;
+                        });
+
+                        //don't attempt recovery if there are still suspended tabs open
+                        attemptRecovery = false;
+                    }
+                });
+
+                unsuspendedSessionTabs.some(function (sessionTab) {
+                    //if any of the tabIds from the session don't exist in the current session then abort recovery
+                    if (typeof(currentlyOpenTabs[sessionTab.id]) === 'undefined') {
+                        attemptRecovery = false;
+                        return true;
+                    }
+                });
+
+                if (attemptRecovery) {
+                    chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                }
+
+                //check for suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
+                setTimeout(function () {
+                    suspendedTabs.forEach(function (curTab) {
+                        if (typeof(tabResponses[curTab.id]) === 'undefined') {
+
+                            //automatically reload unresponsive suspended tabs
+                            chrome.tabs.reload(curTab.id);
+                        }
+                    });
+                }, 5000);
+            });
         });
     }
 
@@ -411,14 +429,10 @@ var tgs = (function () {
 
             //else if they are upgrading to a new version
             } else {
-                //if pre v5 then perform migration
-                if (parseFloat(lastVersion) < 5) {
-                    gsUtils.performV5Migration();
-                }
 
-                //if pre v6 then perform migration
-                if (parseFloat(lastVersion) < 7) {
-                    gsUtils.performV6Migration();
+                //perform migration
+                if (lastVersion < 6) {
+                    gsUtils.performMigration(lastVersion);
                 }
 
                 //show update screen
@@ -432,8 +446,13 @@ var tgs = (function () {
             checkForCrashRecovery();
         }
 
+        //generate new session
+
         //inject new content script into all open pages
         reinjectContentScripts();
+
+        //trim excess dbItems
+        gsUtils.trimDbItems();
     }
 
     //get info for a tab. defaults to currentTab if no id passed in
@@ -597,8 +616,12 @@ var tgs = (function () {
 
         case 'savePreviewData':
             saveSuspendData(sender.tab, request.previewUrl);
-            if (debug && sender.tab && request.errorMsg) {
-                console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
+            if (debug && sender.tab) {
+                if (request.errorMsg) {
+                    console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
+                } else if (request.timerMsg) {
+                    console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
+                }
             }
             break;
 
@@ -776,14 +799,14 @@ var tgs = (function () {
     s.parentNode.insertBefore(ga, s);
 
     return {
-        debug: debug,
         requestTabInfo: requestTabInfo,
         updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,
         reinject: reinjectContentScripts,
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,
-        runStartupChecks: runStartupChecks
+        runStartupChecks: runStartupChecks,
+        resetAllTabTimers: resetAllTabTimers
     };
 
 }());

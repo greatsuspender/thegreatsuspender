@@ -3,11 +3,11 @@
 (function () {
 
     'use strict';
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function render() {
 
-        var gsSessionHistory = gsUtils.fetchGsSessionHistory(),
-            currentDiv = document.getElementById('currentLinks'),
+        var currentDiv = document.getElementById('currentLinks'),
             sessionsDiv = document.getElementById('recoveryLinks'),
             historyDiv = document.getElementById('historyLinks'),
             clearHistoryEl = document.getElementById('clearHistory'),
@@ -18,20 +18,26 @@
         sessionsDiv.innerHTML = '';
         historyDiv.innerHTML = '';
 
-        gsSessionHistory.forEach(function (session, index) {
-            //saved sessions will all have a 'name' attribute
-            if (session.name) {
+        gsUtils.fetchCurrentSessions().then(function (currentSessions) {
+
+            currentSessions.forEach(function (session, index) {
+                if (firstSession) {
+                    currentDiv.appendChild(sessionUtils.createSessionHtml(session));
+                    firstSession = false;
+                } else {
+                    sessionsDiv.appendChild(sessionUtils.createSessionHtml(session));
+                }
+            });
+        });
+
+        gsUtils.fetchSavedSessions().then(function (savedSessions) {
+            savedSessions.forEach(function (session, index) {
                 historyDiv.appendChild(sessionUtils.createSessionHtml(session));
-            } else if (firstSession) {
-                currentDiv.appendChild(sessionUtils.createSessionHtml(session));
-                firstSession = false;
-            } else {
-                sessionsDiv.appendChild(sessionUtils.createSessionHtml(session));
-            }
+            });
         });
 
         clearHistoryEl.onclick = function (e) {
-            gsUtils.clearGsSessionHistory();
+            gsUtils.clearGsSessions();
             render();
         };
     }

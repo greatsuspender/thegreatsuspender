@@ -3,6 +3,7 @@
 var sessionUtils = (function () {
 
     'use strict';
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
 
     function hideModal() {
@@ -11,83 +12,92 @@ var sessionUtils = (function () {
     }
 
     function reloadTabs(element, suspendMode) {
+
         return function () {
             var tgs = chrome.extension.getBackgroundPage().tgs,
                 windowId = element.getAttribute('data-windowId'),
                 sessionId = element.getAttribute('data-sessionId'),
-                session = gsUtils.getSessionById(sessionId),
                 windows = [],
                 curUrl;
 
-            //if loading a specific window
-            if (windowId) {
-                windows.push(gsUtils.getWindowFromSession(windowId, session));
+            gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-            //else load all windows from session
-            } else {
-                windows = session.windows;
-            }
+                //if loading a specific window
+                if (windowId) {
+                    windows.push(gsUtils.getWindowFromSession(windowId, session));
 
-            windows.forEach(function(window) {
+                //else load all windows from session
+                } else {
+                    windows = session.windows;
+                }
 
-                chrome.windows.create(function (newWindow) {
-                    window.tabs.forEach(function (curTab) {
-                        curUrl = curTab.url;
+                windows.forEach(function(window) {
 
-                        if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !chrome.extension.getBackgroundPage().tgs.isSpecialTab(curTab)) {
-                            curUrl = gsUtils.generateSuspendedUrl(curUrl);
-                        } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
-                            curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
-                        }
-                        chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
-                    });
+                    chrome.windows.create(function (newWindow) {
+                        window.tabs.forEach(function (curTab) {
+                            curUrl = curTab.url;
 
-                    chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
-                        chrome.tabs.remove(tabs[0].id);
+                            if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !chrome.extension.getBackgroundPage().tgs.isSpecialTab(curTab)) {
+                                curUrl = gsUtils.generateSuspendedUrl(curUrl);
+                            } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
+                                curUrl = gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]);
+                            }
+                            chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
+                        });
+
+                        chrome.tabs.query({windowId: newWindow.id, index: 0}, function (tabs) {
+                            chrome.tabs.remove(tabs[0].id);
+                        });
                     });
                 });
+
             });
         };
     }
 
     function saveSession(sessionId) {
-        var session = gsUtils.getSessionById(sessionId);
 
-        document.getElementsByClassName('mainContent')[0].className += ' blocked';
-        document.getElementById('sessionNameModal').style.display = 'block';
-        document.getElementById('sessionNameText').focus();
+        gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-        document.getElementById('sessionNameCancel').onclick = hideModal;
-        document.getElementById('sessionNameSubmit').onclick = function () {
-            var text = document.getElementById('sessionNameText').value;
-            if (text) {
-                gsUtils.saveSession(text, session);
-                window.location.reload();
-            }
-        };
+            document.getElementsByClassName('mainContent')[0].className += ' blocked';
+            document.getElementById('sessionNameModal').style.display = 'block';
+            document.getElementById('sessionNameText').focus();
+
+            document.getElementById('sessionNameCancel').onclick = hideModal;
+            document.getElementById('sessionNameSubmit').onclick = function () {
+                var text = document.getElementById('sessionNameText').value;
+                if (text) {
+                    session.name = text;
+                    gsUtils.addToSavedSessions(session);
+                    window.location.reload();
+                }
+            };
+        });
     }
 
     function exportSession(sessionId) {
-        var session = gsUtils.getSessionById(sessionId),
-            csvContent = "data:text/csv;charset=utf-8,",
+        var csvContent = "data:text/csv;charset=utf-8,",
             dataString = '';
 
-        session.windows.forEach(function (curWindow, index) {
-            curWindow.tabs.forEach(function (curTab, tabIndex) {
-                if (curTab.url.indexOf("suspended.html") > 0) {
-                    dataString += gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]) + '\n';
-                } else {
-                    dataString += curTab.url + '\n';
-                }
-            });
-        });
-        csvContent += dataString;
+        gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-        var encodedUri = encodeURI(csvContent);
-        var link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "session.txt");
-        link.click();
+            session.windows.forEach(function (curWindow, index) {
+                curWindow.tabs.forEach(function (curTab, tabIndex) {
+                    if (curTab.url.indexOf("suspended.html") > 0) {
+                        dataString += gsUtils.getSuspendedUrl(curTab.url.split('suspended.html')[1]) + '\n';
+                    } else {
+                        dataString += curTab.url + '\n';
+                    }
+                });
+            });
+            csvContent += dataString;
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "session.txt");
+            link.click();
+        });
     }
 
     function removeTab(element) {
@@ -97,11 +107,11 @@ var sessionUtils = (function () {
             var tabId = element.getAttribute('data-tabId'),
                 windowId = element.getAttribute('data-windowId'),
                 sessionId = element.getAttribute('data-sessionId'),
-                session = gsUtils.getSessionById(sessionId),
                 sessionEl,
                 newSessionEl;
 
-            session = gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
+            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
+
             sessionEl = element.parentElement.parentElement;
             newSessionEl = createSessionHtml(session);
             sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
@@ -110,31 +120,35 @@ var sessionUtils = (function () {
     }
 
     function toggleSession(element) {
+
         return function () {
+
+            var sessionId = element.getAttribute('data-sessionId'),
+                windowProperties,
+                tabProperties;
+
             if (element.childElementCount > 0) {
                 element.innerHTML = '';
                 return;
             }
 
-            var sessionId = element.getAttribute('data-sessionId'),
-                session = gsUtils.getSessionById(sessionId),
-                windowProperties,
-                tabProperties;
+            gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-            if (!session) {
-                return;
-            }
+                if (!session) {
+                    return;
+                }
 
-            session.windows.forEach(function (window, index) {
-                windowProperties = window;
-                windowProperties.sessionId = session.id;
-                element.appendChild(createWindowHtml(windowProperties, index));
+                session.windows.forEach(function (window, index) {
+                    windowProperties = window;
+                    windowProperties.sessionId = session.sessionId;
+                    element.appendChild(createWindowHtml(windowProperties, index));
 
-                windowProperties.tabs.forEach(function (tab) {
-                    tabProperties = tab;
-                    tabProperties.windowId = windowProperties.id;
-                    tabProperties.sessionId = session.id;
-                    element.appendChild(createTabHtml(tabProperties));
+                    windowProperties.tabs.forEach(function (tab) {
+                        tabProperties = tab;
+                        tabProperties.windowId = windowProperties.id;
+                        tabProperties.sessionId = session.sessionId;
+                        element.appendChild(createTabHtml(tabProperties));
+                    });
                 });
             });
         };
@@ -162,7 +176,7 @@ var sessionUtils = (function () {
 
         sessionDiv = createEl('div', {
             'class': 'sessionDiv',
-            'data-sessionId': session.id
+            'data-sessionId': session.sessionId
         });
 
         sessionTitle = createEl('span', {
@@ -175,14 +189,18 @@ var sessionUtils = (function () {
                 'class': 'groupLink',
                 'href': '#'
             }, 'save');
-            sessionSave.onclick = function () { saveSession(session.id); };
+            sessionSave.onclick = function () {
+                saveSession(session.sessionId);
+            };
         }
 
         sessionExport = createEl('a', {
             'class': 'groupLink',
             'href': '#'
         }, 'export');
-        sessionExport.onclick = function () { exportSession(session.id); };
+        sessionExport.onclick = function () {
+            exportSession(session.sessionId);
+        };
 
         windowResuspend = createEl('a', {
             'class': 'groupLink',
