@@ -134,8 +134,10 @@
             var result = localStorage.getItem(this.APP_VERSION);
             if (result !== null) {
                 result = JSON.parse(result);
+                return result;
+            } else {
+                return 0;
             }
-            return result;
         },
 
         setVersion: function (newVersion) {
@@ -675,7 +677,7 @@
                         sessionHistory.forEach(function (curSession, curIndex) {
 
                             curSession.sessionId = curSession.id + "";
-                            curSession.id = null;
+                            delete curSession.id;
 
                             if (!curSession.name) {
                                 currentSessions.push(curSession);

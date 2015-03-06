@@ -424,6 +424,8 @@ var tgs = (function () {
             //if they are installing for the first time
             if (!lastVersion) {
 
+                gsUtils.initialiseIndexedDb();
+
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
