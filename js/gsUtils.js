@@ -1,5 +1,4 @@
 /*global chrome, localStorage */
-
 (function (window) {
 
     'use strict';
@@ -23,6 +22,18 @@
         HISTORY_OLD: 'gsHistory',
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
+
+        DB_SERVER: 'tgs',
+        DB_VERSION: '1',
+        DB_PREVIEWS: 'gsPreviews',
+        DB_SUSPENDED_TABINFO: 'gsSuspendedTabInfo',
+        DB_CURRENT_SESSIONS: 'gsCurrentSessions',
+        DB_SAVED_SESSIONS: 'gsSavedSessions',
+
+
+       /**
+        * LOCAL STORAGE FUNCTIONS
+        */
 
         initSettings: function () {
             var self = this,
@@ -52,15 +63,6 @@
                 }
             }
 
-            //if we had to populate any new fields then resave these to chrome.storage.sync
-            /*
-            if (migration) {
-                chrome.storage.sync.set(settings, function () {
-                    console.log('Settings migrated to chrome sync storage');
-                });
-            }
-            */
-
             //finally, store settings on local storage for synchronous access
             localStorage.setItem('gsSettings', JSON.stringify(settings));
 
@@ -89,15 +91,8 @@
         },
 
         saveSettings: function (settings) {
-            /*
-            chrome.storage.sync.set(settings, function () {
-                console.log('Settings saved to chrome sync storage');
-            });
-            */
             localStorage.setItem('gsSettings', JSON.stringify(settings));
         },
-
-
 
         removeFromWhitelist: function (newString) {
             var whitelist = this.getOption(this.WHITELIST),
@@ -147,229 +142,278 @@
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
         },
 
+
+
+       /**
+        * INDEXEDDB FUNCTIONS
+        */
+
+        getDb: function () {
+            var self = this;
+            return db.open({
+                server: self.DB_SERVER,
+                version: self.DB_VERSION
+            });
+        },
+
         fetchPreviewImage: function (tabUrl, callback) {
-            chrome.storage.local.get(null, function (items) {
-                if (typeof(items.gsPreviews) === 'undefined') {
-                    items.gsPreviews = {};
-                    chrome.storage.local.set(items);
-                    callback(null);
-                } else if (typeof(items.gsPreviews[tabUrl]) === 'undefined') {
-                    callback(null);
+            var self = this;
+            callback = typeof callback !== 'function' ? this.noop : callback;
+
+            this.getDb().then(function (s) {
+                return s.query(self.DB_PREVIEWS , 'url')
+                        .only(tabUrl)
+                        .execute();
+
+            }).then(function (results) {
+                if (results.length > 0) {
+                    callback(results[0]['img']);
                 } else {
-                    callback(items.gsPreviews[tabUrl]);
+                    callback(null);
                 }
             });
         },
 
-        setPreviewImage: function (tabUrl, previewUrl) {
-            chrome.storage.local.get(null, function (items) {
-                if (typeof(items.gsPreviews) === 'undefined') {
-                    items.gsPreviews = {};
-                }
-
-                items.gsPreviews[tabUrl] = previewUrl;
-                chrome.storage.local.set(items);
+        addPreviewImage: function (tabUrl, previewUrl) {
+            var self = this;
+            this.getDb().then(function (s) {
+                s.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl});
             });
         },
 
-        clearPreviews: function () {
-            chrome.storage.local.get(null, function (items) {
-                items.gsPreviews = {};
-                chrome.storage.local.set(items);
-            });
-        },
+        addSuspendedTabInfo: function (tabProperties) {
+            var self = this;
 
-        fetchGsHistory: function () {
-            var result = localStorage.getItem(this.HISTORY);
-
-            if (result === null) {
-                result = [];
-            } else {
-                result = JSON.parse(result);
+            if (!tabProperties.url) {
+                console.log('tabProperties.url not set.');
+                return;
             }
 
-            return result;
+            this.getDb().then(function (s) {
+                s.add(self.DB_SUSPENDED_TABINFO , tabProperties);
+            });
         },
 
-        setGsHistory: function (gsHistory) {
-            localStorage.setItem(this.HISTORY, JSON.stringify(gsHistory));
+        fetchTabInfo: function (tabUrl) {
+            var self = this;
+            return this.getDb().then(function (s) {
+                return s.query(self.DB_SUSPENDED_TABINFO , 'url' )
+                        .only(tabUrl)
+                        .distinct()
+                        .desc()
+                        .execute()
+                        .then(function(results) {
+                            return results.length > 0 ? results[0] : null;
+                        });
+            });
         },
 
-        clearGsHistory: function (gsHistory) {
-            this.setGsHistory([]);
-        },
+        updateSession: function (session) {
 
-        fetchTabFromHistory: function (tabUrl) {
-            var gsHistory = this.fetchGsHistory(),
-                tab = false;
+            //if it's a saved session (prefixed with an underscore)
+            var server,
+                tableName = session.sessionId.indexOf('_') === 0
+                    ? this.DB_SAVED_SESSIONS
+                    : this.DB_CURRENT_SESSIONS;
 
-            gsHistory.some(function (val) {
-                if (val.url === tabUrl) {
-                    tab = val;
-                    return true;
+            //first check to see if session id already exists
+            this.getDb().then(function (s) {
+                server = s;
+                return server.query(tableName).filter('sessionId', session.sessionId).execute();
+
+            }).then(function(result) {
+                if (result.length > 0) {
+                    result = result[0];
+                    session.id = result.id; //copy across id from matching session
+                    session.date = new Date();
+                    server.update(tableName , session); //then update based on that id
+                } else {
+                    server.add(tableName, session);
                 }
             });
-            return tab;
         },
 
-        removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
+        fetchCurrentSessions: function () {
+            var self = this;
+            return this.getDb().then(function (s) {
+                return s.query(self.DB_CURRENT_SESSIONS).all().execute();
+            });
+        },
 
-            var gsSession = this.getSessionById(sessionId);
+        fetchSessionById: function (sessionId) {
 
-            gsSession.windows.some(function (curWindow, windowIndex) {
-                curWindow.tabs.some(function (curTab, tabIndex) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                    if (curTab.id == tabId || curTab.url == tabId) {
-                        curWindow.tabs.splice(tabIndex, 1);
-                    }
+            //if it's a saved session (prefixed with an underscore)
+            var tableName = sessionId.indexOf('_') === 0
+                    ? this.DB_SAVED_SESSIONS
+                    : this.DB_CURRENT_SESSIONS;
+
+            return this.getDb().then(function (s) {
+                return s.query(tableName, 'sessionId' )
+                        .only(sessionId)
+                        .distinct()
+                        .desc()
+                        .execute()
+                        .then(function(results) {
+                    return results.length > 0 ? results[0] : null;
                 });
-                //remove window if it no longer contains any tabs
-                if (curWindow.tabs.length === 0) {
-                    gsSession.windows.splice(windowIndex, 1);
-                }
             });
-
-            this.saveWindowsToSessionHistory(sessionId, gsSession.windows);
-            return gsSession;
-        },
-
-        fetchGsSessionHistory: function () {
-            var result = localStorage.getItem(this.SESSION_HISTORY),
-                sessionHistory;
-
-            if (result) {
-                sessionHistory = JSON.parse(result);
-            } else {
-                sessionHistory = [];
-            }
-
-            return sessionHistory;
         },
 
         fetchLastSession: function () {
-            var gsSessionHistory = this.fetchGsSessionHistory(),
-                lastSession = false,
-                currentSessionId;
+            var self = this,
+                currentSessionId,
+                lastSession = null;
 
             currentSessionId = typeof(chrome.extension.getBackgroundPage) !== 'undefined'
                 ? chrome.extension.getBackgroundPage().tgs.sessionId
                 : '';
 
-            if (gsSessionHistory.length > 0) {
-                gsSessionHistory.some(function(curSession) {
+            return this.getDb().then(function (s) {
+                return s.query(self.DB_CURRENT_SESSIONS, 'id')
+                        .all()
+                        .desc()
+                        .execute()
+                        .then(function(results) {
 
-                    //saved sessions will all have a 'name' attribute. also don't want to match on current session
-                    if (!curSession.name && curSession.id !== currentSessionId) {
-                        lastSession = curSession;
-                        return true;
+                    if (results.length > 0) {
+                        results.some(function(curSession) {
+
+                            //don't want to match on current session
+                            if (curSession.sessionId !== currentSessionId) {
+                                lastSession = curSession;
+                                return true;
+                            }
+                        });
+                        return lastSession;
+
+                    } else {
+                        return null;
                     }
                 });
+            });
+        },
+
+        fetchSavedSessions: function () {
+            var self = this;
+            return this.getDb().then(function (s) {
+                return s.query(self.DB_SAVED_SESSIONS).all().execute();
+            });
+        },
+
+        addToSavedSessions: function (session) {
+            var self = this;
+            //prefix sessionId with an underscore to prevent
+            //duplicate keys across current and saved sessions
+            if (session.sessionId.indexOf('_') < 0) {
+                session.sessionId = '_' + session.sessionId;
             }
-            return lastSession;
-        },
-
-        setGsSessionHistory: function (sessionHistory) {
-            localStorage.setItem(this.SESSION_HISTORY, JSON.stringify(sessionHistory));
-        },
-
-        saveSession: function (sessionName, session) {
-            var sessions = this.fetchGsSessionHistory();
-            session.name = sessionName;
-            sessions.unshift(session);
-            this.setGsSessionHistory(sessions);
-        },
-
-
-
-        clearGsSessionHistory: function (gsHistory) {
-            this.setGsSessionHistory([]);
-        },
-
-        getSessionById: function (sessionId) {
-            var gsHistory = this.fetchGsSessionHistory(),
-                session = false;
-
-            gsHistory.some(function (entry) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (entry.id == sessionId) {
-                    session = entry;
-                    return true;
-                }
+            this.getDb().then(function (s) {
+                s.add(self.DB_SAVED_SESSIONS, session);
             });
-            return session;
         },
 
-        getWindowFromSession: function (windowId, session) {
-            var window = false;
-            session.windows.some(function (curWindow) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (curWindow.id == windowId) {
-                    window = curWindow;
-                    return true;
-                }
+        clearGsSessions: function () {
+            var self = this;
+
+            this.getDb().then(function (s) {
+                s.clear(self.DB_CURRENT_SESSIONS);
+                s.clear(self.DB_SAVED_SESSIONS);
             });
-            return window;
         },
 
-        getTabFromWindow: function (id, window) {
-            var tab = false;
-            window.tabs.some(function (curTab) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (curTab.id == id || tab.url == id) {
-                    tab = curTab;
-                    return true;
-                }
-            });
-            return tab;
-        },
+        removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
 
-        saveWindowsToSessionHistory: function (sessionId, windowsArray) {
-            var gsSessionHistory = this.fetchGsSessionHistory(),
-                match = false,
-                recentSessionsCount = 0,
-                maxHistories = this.getOption(this.MAX_HISTORIES);
+            var self = this;
 
-            //if matching session found, then set new windowsArray
-            gsSessionHistory.forEach(function (curSession) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (curSession.id == sessionId) {
-                    curSession.windows = windowsArray;
-                    curSession.date = new Date();
-                    match = true;
-                }
-            });
+            this.fetchSessionById(sessionId).then(function(gsSession) {
 
-            //if no matching session found. create a new entry
-            if (!match) {
-                gsSessionHistory.unshift({
-                    id: sessionId,
-                    windows: windowsArray,
-                    date: new Date()
+                gsSession.windows.some(function (curWindow, windowIndex) {
+                    curWindow.tabs.some(function (curTab, tabIndex) {
+                    //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                        if (curTab.id == tabId || curTab.url == tabId) {
+                            curWindow.tabs.splice(tabIndex, 1);
+                        }
+                    });
+                    //remove window if it no longer contains any tabs
+                    if (curWindow.tabs.length === 0) {
+                        gsSession.windows.splice(windowIndex, 1);
+                    }
                 });
-            }
 
-            //trim stored windows down to last x sessions (ignoring saved sessions)
-            gsSessionHistory.forEach(function (curSession, curIndex) {
-                if (!curSession.name) {
-                    recentSessionsCount++;
-                    if (recentSessionsCount > maxHistories) {
-                        gsSessionHistory.splice(curIndex, 1);
+                self.updateSession(gsSession);
+            });
+        },
+
+        trimDbItems: function () {
+            var self = this,
+                server,
+                maxTabItems = 500,
+                maxPreviewItems = 500,
+                maxHistories = this.getOption(this.MAX_HISTORIES),
+                itemsToRemove,
+                i;
+
+            this.getDb().then(function (s) {
+                server = s;
+                return server.query(self.DB_SUSPENDED_TABINFO, 'id')
+                    .all()
+                    .keys()
+                    .execute();
+
+            //trim suspendedTabInfo
+            }).then(function (results) {
+
+                //if there are more than maxTabItems items, then remove the oldest ones
+                if (results.length > maxTabItems) {
+                    itemsToRemove = results.length - maxTabItems;
+                    for (i = 0; i < itemsToRemove; i++) {
+                        server.remove(self.DB_SUSPENDED_TABINFO, results[i]);
+                    }
+                }
+
+                return server.query(self.DB_PREVIEWS, 'id')
+                    .all()
+                    .keys()
+                    .execute();
+
+            //trim imagePreviews
+            }).then(function (results) {
+
+                //if there are more than maxPreviewItems items, then remove the oldest ones
+                if (results.length > maxPreviewItems) {
+                    itemsToRemove = results.length - maxPreviewItems;
+                    for (i = 0; i < itemsToRemove; i++) {
+                        server.remove(self.DB_PREVIEWS, results[i]);
+                    }
+                }
+
+                return server.query(self.DB_CURRENT_SESSIONS, 'id')
+                    .all()
+                    .keys()
+                    .execute();
+
+            //trim currentSessions
+            }).then(function (results) {
+
+                //if there are more than maxHistories items, then remove the oldest ones
+                if (results.length > maxHistories) {
+                    itemsToRemove = results.length - maxHistories;
+                    for (i = 0; i < itemsToRemove; i++) {
+                        server.remove(self.DB_CURRENT_SESSIONS, results[i]);
                     }
                 }
             });
-
-            this.setGsSessionHistory(gsSessionHistory);
         },
 
+
+
+       /**
+        * HELPER FUNCTIONS
+        */
+
+        //turn this into a string to make comparisons easier further down the track
         generateSessionId: function () {
-            var sessionId = false;
-            while (!sessionId) {
-                sessionId = Math.floor(Math.random() * 1000000);
-                if (this.getSessionById(sessionId)) {
-                    sessionId = false;
-                }
-            }
-            return sessionId;
+            return Math.floor(Math.random() * 1000000) + "";
         },
 
         generateSuspendedUrl: function (tabUrl, useBlank) {
@@ -446,16 +490,6 @@
             return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
         },
 
-        compareDate: function (a, b) {
-            if (a.date < b.date) {
-                return -1;
-            }
-            if (a.date > b.date) {
-                return 1;
-            }
-            return 0;
-        },
-
         getRootUrl: function (url) {
             var rootUrlStr = url;
 
@@ -470,171 +504,323 @@
             return rootUrlStr;
         },
 
-        performMigration: function () {
+        recoverLostTabs: function (callback) {
 
-            //migrate gsHistory to sessionHistory
-            var gsHistory = this.fetchGsHistory(),
-                oldGsHistory = localStorage.getItem(this.HISTORY_OLD),
+            var self = this,
+                tabMap = {},
+                windowsMap = {};
+
+            callback = typeof callback !== 'function' ? this.noop : callback;
+
+            this.fetchLastSession().then(function (lastSession) {
+
+                if (!lastSession) {
+                    callback(null);
+                }
+
+                chrome.windows.getAll({ populate: true }, function (windows) {
+                    windows.forEach(function (curWindow) {
+                        curWindow.tabs.forEach(function (curTab) {
+                            tabMap[curTab.id] = curTab;
+                        });
+                        windowsMap[curWindow.id] = tabMap;
+                    });
+
+                    //attempt to automatically restore any lost tabs/windows in their proper positions
+                    lastSession.windows.forEach(function (sessionWindow) {
+                        self.recoverWindow(sessionWindow, windowsMap, tabMap);
+                    });
+
+                    callback();
+                });
+            });
+        },
+
+        recoverWindow: function (sessionWindow, windowsMap, tabMap) {
+
+            var tabIdMap = {},
+                tabUrlMap = {},
+                openTab;
+
+            //if crashed window exists in current session then restore suspended tabs in that window
+            if (windowsMap[sessionWindow.id]) {
+                tabIdMap = windowsMap[sessionWindow.id];
+
+                //get a list of unsuspended urls already in the window
+                for (var id in tabIdMap) {
+                    if (tabIdMap.hasOwnProperty(id)) {
+                        openTab = tabIdMap[id];
+                        tabUrlMap[openTab.url] = openTab;
+                    }
+                }
+
+                sessionWindow.tabs.forEach(function (sessionTab) {
+
+                    //if current tab does not exist then recreate it
+                    if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(sessionTab)
+                            && !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
+                        chrome.tabs.create({
+                            windowId: sessionWindow.id,
+                            url: sessionTab.url,
+                            index: sessionTab.index,
+                            pinned: sessionTab.pinned,
+                            active: false
+                        });
+                    }
+                });
+
+            //else restore entire window
+            } else if (sessionWindow.tabs.length > 0) {
+
+                //create list of urls to open
+                var tabUrls = [];
+                sessionWindow.tabs.forEach(function (sessionTab) {
+                    tabUrls.push(sessionTab.url);
+                });
+                chrome.windows.create({url: tabUrls}, function(newWindow) {});
+            }
+        },
+
+        getWindowFromSession: function (windowId, session) {
+            var window = false;
+            session.windows.some(function (curWindow) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curWindow.id == windowId) {
+                    window = curWindow;
+                    return true;
+                }
+            });
+            return window;
+        },
+
+        getTabFromWindow: function (id, window) {
+            var tab = false;
+            window.tabs.some(function (curTab) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curTab.id == id || tab.url == id) {
+                    tab = curTab;
+                    return true;
+                }
+            });
+            return tab;
+        },
+
+        saveWindowsToSessionHistory: function (sessionId, windowsArray) {
+            var session = {
+                sessionId: sessionId,
+                windows: windowsArray,
+                date: new Date()
+            };
+            this.updateSession(session);
+        },
+
+
+
+       /**
+        * MIGRATIONS
+        */
+
+        performMigration: function (oldVersion) {
+
+            var self = this,
+                gsHistory,
+                oldGsHistory,
+                sessionHistory,
+                currentSessions = [],
+                savedSessions = [],
+                previews = [],
+                key;
+
+            oldVersion = parseFloat(oldVersion);
+
+            //create indexedDb database
+            this.initialiseIndexedDb().then(function (server) {
+
+
+                //migrate gsHistory to indexedDb tabInfo
+                gsHistory = localStorage.getItem(self.HISTORY);
+                gsHistory = gsHistory ? JSON.parse(gsHistory) : [];
+
+                if (oldVersion < 5) {
+
+                    //check for very old history migration
+                    oldGsHistory = localStorage.getItem(self.HISTORY_OLD);
+                    if (oldGsHistory !== null) {
+                        oldGsHistory = JSON.parse(oldGsHistory);
+
+                        //merge old gsHistory with new one
+                        oldGsHistory.forEach(function (val, index, array) {
+                            gsHistory.push(array[index]);
+                        });
+                        localStorage.removeItem(self.HISTORY_OLD);
+                    }
+                }
+                if (gsHistory.length > 0) {
+                    server.add(self.DB_SUSPENDED_TABINFO, gsHistory);
+                }
+                localStorage.removeItem(self.HISTORY);
+
+
+                //migrate gsSessionHistory to indexedDb gsCurrentSessions and gsSavedSessions
+                if (oldVersion < 5) {
+                    sessionHistory = self.convertGsHistoryToSessionHistory(self, gsHistory);
+                    currentSessions = sessionHistory['currentSessions'];
+                    savedSessions = sessionHistory['savedSessions'];
+
+                } else {
+
+                    sessionHistory = localStorage.getItem(self.SESSION_HISTORY);
+                    if (sessionHistory) {
+                        sessionHistory = JSON.parse(sessionHistory);
+                        sessionHistory.forEach(function (curSession, curIndex) {
+
+                            curSession.sessionId = curSession.id + "";
+                            curSession.id = null;
+
+                            if (!curSession.name) {
+                                currentSessions.push(curSession);
+                            } else {
+                                savedSessions.push(curSession);
+                            }
+                        });
+                    }
+                }
+                if (currentSessions.length > 0) {
+                    server.add(self.DB_CURRENT_SESSIONS, currentSessions);
+                }
+                if (savedSessions.length > 0) {
+                    server.add(self.DB_SAVED_SESSIONS, savedSessions);
+                }
+                localStorage.removeItem(self.SESSION_HISTORY);
+
+
+                //migrate screen previews
+                chrome.storage.local.get(null, function (items) {
+                    if (typeof(items.gsPreviews) !== 'undefined') {
+
+                        for (key in items.gsPreviews) {
+                            if (items.gsPreviews.hasOwnProperty(key)) {
+
+                                previews.push({
+                                    url: key,
+                                    img: items.gsPreviews[key]
+                                });
+                            }
+                        }
+                        if (previews.length > 0) {
+                            server.add(self.DB_PREVIEWS , previews);
+                        }
+                        chrome.storage.local.clear();
+                    }
+                });
+            });
+        },
+
+        compareDate: function (a, b) {
+            if (a.date < b.date)  return -1;
+            if (a.date > b.date) return 1;
+            return 0;
+        },
+        convertGsHistoryToSessionHistory: function (self, gsHistory) {
+
+            var currentSessions = [],
+                savedSessions = [],
+                allTabsWindow,
                 curSession,
                 curWindow,
                 curTab,
                 groupKey,
-                lastGroupKey = false,
-                tabProperties,
-                sessionHistory,
-                allTabsWindow,
-                lastSession,
-                sortable = [],
-                url;
+                lastGroupKey = false;
 
-            //check for very old history migration
-            if (oldGsHistory !== null) {
-                oldGsHistory = JSON.parse(oldGsHistory);
-
-                //merge old gsHistory with new one
-                oldGsHistory.forEach(function (val, index, array) {
-                    gsHistory.push(array[index]);
-                });
-                gsUtils.setGsHistory(gsHistory);
-                localStorage.removeItem(this.HISTORY_OLD);
-            }
-
-            sessionHistory = [];
             allTabsWindow = {
                 id: 7777,
                 tabs: []
             };
 
-            gsHistory.sort(this.compareDate);
+            gsHistory.sort(self.compareDate);
 
-            gsHistory.forEach(function (entry) {
-                tabProperties = entry;
-                groupKey = this.getFormattedDate(tabProperties.date, false);
+            //approximate sessions from old suspended tab history data
+            gsHistory.forEach(function (tabProperties) {
+
+                groupKey = self.getFormattedDate(tabProperties.date, false);
 
                 //if we are on the first tab for a new date
                 if (lastGroupKey !== groupKey) {
-                    curSession = {id: groupKey, windows: [], date: tabProperties.date};
-                    sessionHistory.unshift(curSession);
+                    curSession = {sessionId: groupKey, windows: [], date: tabProperties.date};
+                    currentSessions.unshift(curSession);
                 }
                 lastGroupKey = groupKey;
 
-                curWindow = this.getWindowFromSession(tabProperties.windowId, curSession);
+                curWindow = self.getWindowFromSession(tabProperties.windowId, curSession);
                 if (!curWindow) {
                     curWindow = {id: tabProperties.windowId, tabs: []};
                     curSession.windows.unshift(curWindow);
                 }
 
-                curTab = this.getTabFromWindow(tabProperties.url, curWindow);
+                curTab = self.getTabFromWindow(tabProperties.url, curWindow);
                 if (!curTab) {
                     curWindow.tabs.unshift(tabProperties);
                 }
                 allTabsWindow.tabs.unshift(tabProperties);
-            }, this);
+            });
 
-            //approximate new session history from old suspended tab history data
-            this.setGsSessionHistory(sessionHistory);
+            savedSessions.push({id: 7777, windows: [allTabsWindow], date: new Date()});
 
-            //save all old suspended tab history data as a saved session
-            curSession = {id: 7777, windows: [allTabsWindow], date: new Date()};
-            this.saveSession('Old suspended tab history', curSession);
-
-            //if we have a valid last session
-            if (sessionHistory.length > 0) {
-                lastSession = sessionHistory[0];
-
-                lastSession.windows.forEach(function (curWindow) {
-                    //sort tabs by index
-                    curWindow.tabs.forEach(function (curTab) {
-                        sortable.push([curTab, curTab.index]);
-                        sortable.sort(function (a, b) {
-                            return a[1] - b[1];
-                        });
-                    });
-
-                    sortable.forEach(function (wrapperObj) {
-
-                        curTab = wrapperObj[0];
-                        if (curTab.state === 'suspended') {
-                            url = gsUtils.generateSuspendedUrl(curTab.url);
-                            chrome.tabs.create({
-                                url: url,
-                                index: curTab.index,
-                                pinned: curTab.pinned,
-                                active: false
-                            });
-                        }
-                    });
-                });
-            }
-
+            return {
+                'currentSessions': currentSessions,
+                'savedSessions': savedSessions
+            };
         },
 
-        recoverLostTabs: function (callback) {
+        initialiseIndexedDb: function () {
 
-            var tabIdMap = {},
-                tabUrlMap = {},
-                tabMap = {},
-                windowsMap = {},
-                openTab,
-                lastSession = this.fetchLastSession(),
-                cb;
+            var self = this;
 
-            if (!lastSession) {
-                callback();
-            }
-
-            chrome.windows.getAll({ populate: true }, function (windows) {
-                windows.forEach(function (curWindow) {
-                    curWindow.tabs.forEach(function (curTab) {
-                        tabMap[curTab.id] = curTab;
-                    });
-                    windowsMap[curWindow.id] = tabMap;
-                });
-
-                //attempt to automatically restore any lost tabs/windows in their proper positions
-                lastSession.windows.forEach(function (sessionWindow) {
-
-                    //if crashed window exists in current session then restore suspended tabs in that window
-                    if (windowsMap[sessionWindow.id]) {
-                        tabIdMap = windowsMap[sessionWindow.id];
-
-                        //get a list of unsuspended urls already in the window
-                        for (var id in tabIdMap) {
-                            if (tabIdMap.hasOwnProperty(id)) {
-                                openTab = tabIdMap[id];
-                                tabUrlMap[openTab.url] = openTab;
-                            }
+            return db.open({
+                server: self.DB_SERVER,
+                version: self.DB_VERSION,
+                schema: {
+                    gsPreviews: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            id: {},
+                            url: {}
                         }
-
-                        sessionWindow.tabs.forEach(function (sessionTab) {
-
-                            //if current tab does not exist then recreate it
-                            if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(sessionTab)
-                                    && !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
-                                chrome.tabs.create({
-                                    windowId: sessionWindow.id,
-                                    url: sessionTab.url,
-                                    index: sessionTab.index,
-                                    pinned: sessionTab.pinned,
-                                    active: false
-                                });
-                            }
-                        });
-
-                    //else restore entire window
-                    } else if (sessionWindow.tabs.length > 0) {
-
-                        //create list of urls to open
-                        var tabUrls = [];
-                        sessionWindow.tabs.forEach(function (sessionTab) {
-                            tabUrls.push(sessionTab.url);
-                        });
-                        chrome.windows.create({url: tabUrls}, function(newWindow) {});
-
+                    },
+                    gsSuspendedTabInfo: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            id: {},
+                            url: {}
+                        }
+                    },
+                    gsCurrentSessions: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            id: {},
+                            sessionId: {}
+                        }
+                    },
+                    gsSavedSessions: {
+                        key: {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        },
+                        indexes: {
+                            id: {},
+                            sessionId: {}
+                        }
                     }
-                });
-
-                callback();
+                }
             });
         }
     };

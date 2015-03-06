@@ -128,16 +128,15 @@
     function saveChange(element) {
 
         var pref = elementPrefMap[element.id],
-            interval;
-
-        //save option
-        gsUtils.setOption(elementPrefMap[element.id], getOptionValue(element));
+            value = getOptionValue(element);
 
         //if interval has changed then reset the tab timers
-        if (pref === gsUtils.SUSPEND_TIME) {
-            interval = getOptionValue(element);
-            resetTabTimers(interval);
+        if (pref === gsUtils.SUSPEND_TIME && gsUtils.getOption(pref) !== value) {
+            chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
         }
+
+        //save option
+        gsUtils.setOption(elementPrefMap[element.id], value);
     }
 
     readyStateCheckInterval = window.setInterval(function () {
@@ -169,27 +168,5 @@
             };
         }
     }, 50);
-
-    function resetTabTimers(timeout) {
-
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (currentTab) {
-                requestTabReset(currentTab.id, timeout)
-            });
-        });
-    }
-
-    function requestTabReset(tabId, timeout) {
-        //test if a content script is active by sending a 'requestInfo' message
-        chrome.tabs.sendMessage(tabId, {action: 'requestInfo'}, function (response) {
-            //if response, then request a timer reset
-            if (typeof(response) !== 'undefined') {
-                chrome.tabs.sendMessage(tabId, {
-                    action: 'resetTimer',
-                    suspendTime: timeout
-                });
-            }
-        });
-    }
 
 }());

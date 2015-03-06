@@ -60,31 +60,32 @@
         }
     }
 
-    function handlePreviewError(suspendedUrl) {
-        console.error('failed to render');
+    function handlePreviewError(suspendedUrl, err) {
         chrome.runtime.sendMessage({
             action: 'savePreviewData',
-            previewUrl: false
+            previewUrl: false,
+            errorMsg: err
         });
         suspendTab(suspendedUrl);
     }
 
     function generatePreviewImg(suspendedUrl, previewQuality) {
         var elementCount = document.getElementsByTagName('*').length,
-            processing = true;
+            processing = true,
+            timer = new Date();
 
         setScrollPos();
 
         //safety check here. don't try to use html2canvas if the page has more than 5000 elements
         if (elementCount < 5000) {
 
-            //allow max of 3 seconds to finish generating image (used to catch unexpected html2canvas failures)
+            //allow max of 30 seconds to finish generating image
             window.setTimeout(function () {
                 if (processing) {
                     processing = false;
-                    handlePreviewError(suspendedUrl);
+                    handlePreviewError(suspendedUrl, '30sec timeout reached');
                 }
-            }, 3000);
+            }, 30000);
 
             try {
                 html2canvas(document.body,{
@@ -93,23 +94,24 @@
                     imageTimeout: 500,
                     proxy: false
                     }).then(function(canvas) {
-
                     if (processing) {
                         processing = false;
+                        timer = (new Date() - timer) / 1000;
                         var quality =  previewQuality || 0.1;
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
-                            previewUrl: canvas.toDataURL('image/jpeg', quality)
+                            previewUrl: canvas.toDataURL('image/jpeg', quality),
+                            timerMsg: timer
                         });
                         suspendTab(suspendedUrl);
                     }
                 });
             } catch (ex) {
-                handlePreviewError(suspendedUrl);
+                handlePreviewError(suspendedUrl, ex.message);
             }
 
         } else {
-            handlePreviewError(suspendedUrl);
+            handlePreviewError(suspendedUrl, 'element count > 5000');
         }
     }
 

@@ -1,18 +1,19 @@
 {
   "name": "The Great Suspender",
   "description": "Automatically suspends unused tabs to free up system resources",
-  "version": "5.51",
+  "version": "6.10",
   "permissions": [
     "tabs",
     "storage",
     "unlimitedStorage",
+    "webRequest",
     "alarms",
     "http://*/*",
     "https://*/*",
     "chrome://favicon/*"
   ],
   "background": {
-    "scripts": ["js/gsUtils.js", "js/background.js"],
+    "scripts": ["js/db.js", "js/gsUtils.js", "js/background.js"],
     "persistent": true
   },
   "content_scripts": [

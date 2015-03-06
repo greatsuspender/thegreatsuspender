@@ -3,13 +3,13 @@
 (function () {
 
     'use strict';
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     var restoreAttempted = false;
 
     function removeTabFromList(tab) {
 
         var recoveryLinksEl = document.getElementById('recoveryLinks'),
-            recoverySectionEls = document.getElementsByClassName('recoverySection'),
             childLinks = recoveryLinksEl.children;
 
         for (var i = 0; i < childLinks.length; i++) {
@@ -29,20 +29,29 @@
 
             //otherwise we have no tabs to recover so just hide references to recovery
             } else {
-                for (i = 0; i < recoverySectionEls.length; i++) {
-                    recoverySectionEls[i].style.display = 'none';
-                }
+                hideRecoverySection();
             }
+        }
+    }
+
+    function hideRecoverySection() {
+        var recoverySectionEls = document.getElementsByClassName('recoverySection');
+        for (var i = 0; i < recoverySectionEls.length; i++) {
+            recoverySectionEls[i].style.display = 'none';
         }
     }
 
     function populateMissingTabs() {
 
-        var lastSession = gsUtils.fetchLastSession(),
-            recoveryEl = document.getElementById('recoveryLinks'),
+        var recoveryEl = document.getElementById('recoveryLinks'),
             tabEl;
 
-        if (lastSession) {
+        gsUtils.fetchLastSession().then(function (lastSession) {
+
+            if (!lastSession) {
+                hideRecoverySection();
+                return;
+            }
 
             lastSession.windows.forEach(function (window, index) {
 
@@ -50,19 +59,19 @@
 
                     if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
-                        tabProperties.sessionId = lastSession.id;
+                        tabProperties.sessionId = lastSession.sessionId;
                         tabEl = sessionUtils.createTabHtml(tabProperties, true);
                         tabEl.onclick = function(e) {
                             e.preventDefault();
                             chrome.tabs.create({url: tabProperties.url, active: false});
                             removeTabFromList(tabProperties);
-                        }
+                        };
                         recoveryEl.appendChild(tabEl);
                     }
                 });
             });
             checkForActiveTabs();
-        }
+        });
     }
 
     function checkForActiveTabs() {
