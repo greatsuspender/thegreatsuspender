@@ -28,8 +28,9 @@
             message = 'removeWhitelist';
 
         } else if (status === 'formInput') {
-            statusDetail = 'Tab is receiving form input.';
+            statusDetail = 'Tab is receiving form input. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-edit';
+            message = 'undoTempWhitelist';
 
         } else if (status === 'pinned') {
             statusDetail = 'Tab has been pinned.';
@@ -125,7 +126,7 @@
         });
 
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
-            
+
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true,
