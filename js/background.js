@@ -118,7 +118,7 @@ var tgs = (function () {
 
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
-                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.js' }, function () {
+                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
                     chrome.tabs.sendMessage(tab.id, {
                         action: 'generatePreview',
                         suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
