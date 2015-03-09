@@ -61,7 +61,7 @@
             //set favicon and preview image
             if (showPreview) {
                 gsUtils.fetchPreviewImage(url, function (previewUrl) {
-                    if (previewUrl !== null) {
+                    if (previewUrl && previewUrl !== null) {
                         document.getElementById('suspendedMsg').style.display = 'none';
                         document.getElementById('gsPreview').style.display = 'block';
                         document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);

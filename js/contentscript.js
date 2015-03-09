@@ -87,28 +87,29 @@
                 }
             }, 30000);
 
-            try {
-                html2canvas(document.body,{
-                    height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
-                    width: document.body.clientWidth - 6,
-                    imageTimeout: 500,
-                    proxy: false
-                    }).then(function(canvas) {
-                    if (processing) {
-                        processing = false;
-                        timer = (new Date() - timer) / 1000;
-                        var quality =  previewQuality || 0.1;
-                        chrome.runtime.sendMessage({
-                            action: 'savePreviewData',
-                            previewUrl: canvas.toDataURL('image/jpeg', quality),
-                            timerMsg: timer
-                        });
+            html2canvas(document.body,{
+                height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
+                width: document.body.clientWidth - 6,
+                imageTimeout: 500,
+                allowTaint: false,
+                proxy: false
+            }).then(function(canvas) {
+                if (processing) {
+                    processing = false;
+                    timer = (new Date() - timer) / 1000;
+                    var quality =  previewQuality || 0.1,
+                        dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    chrome.runtime.sendMessage({
+                        action: 'savePreviewData',
+                        previewUrl: dataUrl,
+                        timerMsg: timer
+                    }, function () {
                         suspendTab(suspendedUrl);
-                    }
-                });
-            } catch (ex) {
+                    });
+                }
+            }).catch(function(ex) {
                 handlePreviewError(suspendedUrl, ex.message);
-            }
+            });
 
         } else {
             handlePreviewError(suspendedUrl, 'element count > 5000');

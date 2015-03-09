@@ -183,7 +183,7 @@
             });
         },
 
-        addSuspendedTabInfo: function (tabProperties) {
+        addSuspendedTabInfo: function (tabProperties, callback) {
             var self = this;
 
             if (!tabProperties.url) {
@@ -192,7 +192,9 @@
             }
 
             this.getDb().then(function (s) {
-                s.add(self.DB_SUSPENDED_TABINFO , tabProperties);
+                s.add(self.DB_SUSPENDED_TABINFO , tabProperties).then(function() {
+                    if (typeof(callback) === "function") callback();
+                });
             });
         },
 
@@ -320,6 +322,15 @@
             this.getDb().then(function (s) {
                 s.clear(self.DB_CURRENT_SESSIONS);
                 s.clear(self.DB_SAVED_SESSIONS);
+            });
+        },
+
+        clearTabInfo: function () {
+            var self = this;
+
+            this.getDb().then(function (s) {
+                s.clear(self.DB_PREVIEWS);
+                s.clear(self.DB_SUSPENDED_TABINFO);
             });
         },
 
@@ -493,9 +504,13 @@
         },
 
         getRootUrl: function (url) {
-            var rootUrlStr = url;
+            var rootUrlStr;
 
-            // TODO make sure this works
+            if (url.indexOf('suspended.html') > 0) {
+                url = gsUtils.getSuspendedUrl(url.split('suspended.html')[1]);
+            }
+
+            rootUrlStr = url;
             if (rootUrlStr.indexOf('//') > 0) {
                 rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
             } else {

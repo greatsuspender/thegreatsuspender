@@ -38,14 +38,16 @@ var tgs = (function () {
         return whitelisted;
     }
 
-    function saveSuspendData(tab, previewUrl) {
-
-        var tabProperties,
-            favUrl;
-
+    function savePreview(tab, previewUrl) {
         if (previewUrl) {
             gsUtils.addPreviewImage(tab.url, previewUrl);
         }
+    }
+
+    function saveSuspendData(tab, callback) {
+
+        var tabProperties,
+            favUrl;
 
         if (tab.incognito) {
             favUrl = tab.favIconUrl;
@@ -64,7 +66,9 @@ var tgs = (function () {
         };
 
         //add suspend information to suspendedTabInfo
-        gsUtils.addSuspendedTabInfo(tabProperties);
+        gsUtils.addSuspendedTabInfo(tabProperties, function() {
+            if (typeof(callback) === "function") callback();
+        });
     }
 
     //tests for non-standard web pages. does not check for suspended pages!
@@ -109,24 +113,26 @@ var tgs = (function () {
 
     function confirmTabSuspension(tab) {
 
-        //if we need to save a preview image
-        if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
-            chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
-                chrome.tabs.sendMessage(tab.id, {
-                    action: 'generatePreview',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
-                    previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY)
-                });
-            });
+        //ask the tab to suspend itself
+        saveSuspendData(tab, function() {
 
-        //else ask the tab to suspend itself
-        } else {
-            saveSuspendData(tab);
-            chrome.tabs.sendMessage(tab.id, {
-                action: 'confirmTabSuspend',
-                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
-            });
-        }
+            //if we need to save a preview image
+            if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
+                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.js' }, function () {
+                    chrome.tabs.sendMessage(tab.id, {
+                        action: 'generatePreview',
+                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
+                        previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY)
+                    });
+                });
+
+            } else {
+                chrome.tabs.sendMessage(tab.id, {
+                    action: 'confirmTabSuspend',
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
+                });
+            }
+        });
     }
 
     function requestTabSuspension(tab, force) {
@@ -135,8 +141,8 @@ var tgs = (function () {
         //safety check
         if (typeof(tab) === 'undefined') return;
 
-        //make sure tab is not already suspended
-        if (isSuspended(tab)) return;
+        //make sure tab is not special or already suspended
+        if (isSuspended(tab) || isSpecialTab(tab)) return;
 
         //if forcing tab suspend then skip other checks
         if (force) {
@@ -332,11 +338,13 @@ var tgs = (function () {
             lastSession.windows.forEach(function (sessionWindow) {
                 sessionWindow.tabs.forEach(function (sessionTab) {
 
-                    if (!isSpecialTab(sessionTab) && !isSuspended(sessionTab)) {
-                        unsuspendedSessionTabs.push(sessionTab);
-                        unsuspendedTabCount++;
-                    } else {
-                        suspendedTabCount++;
+                    if (!isSpecialTab(sessionTab)) {
+                        if (!isSuspended(sessionTab)) {
+                            unsuspendedSessionTabs.push(sessionTab);
+                            unsuspendedTabCount++;
+                        } else {
+                            suspendedTabCount++;
+                        }
                     }
                 });
             });
@@ -350,6 +358,9 @@ var tgs = (function () {
                 //don't attempt recovery if there are less tabs in current session than there were
                 //unsuspended tabs in the last session
                 if (tabs.length < unsuspendedTabCount) return;
+
+                //if there is only one currently open tab and it is the 'new tab' page then abort recovery
+                if (tabs.length === 1 && tabs[0].url === "chrome://newtab/") return;
 
                 tabs.forEach(function (curTab) {
                     currentlyOpenTabs[curTab.id] = curTab;
@@ -617,7 +628,7 @@ var tgs = (function () {
             break;
 
         case 'savePreviewData':
-            saveSuspendData(sender.tab, request.previewUrl);
+            savePreview(sender.tab, request.previewUrl);
             if (debug && sender.tab) {
                 if (request.errorMsg) {
                     console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
@@ -625,6 +636,7 @@ var tgs = (function () {
                     console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
                 }
             }
+            sendResponse();
             break;
 
         case 'suspendOne':
@@ -741,25 +753,6 @@ var tgs = (function () {
     chrome.windows.onRemoved.addListener(function() {
         queueSessionTimer();
     });
-
-    /*chrome.webRequest.onBeforeRequest.addListener(function (details) {
-        if (details.tabId === currentTabId) {
-            blinkIcon(true);
-        }
-
-    }, {urls: ["<all_urls>"]});
-    chrome.webRequest.onCompleted.addListener(function (details) {
-        if (details.tabId === currentTabId) {
-            blinkIcon(false);
-        }
-
-    }, {urls: ["<all_urls>"]});
-    chrome.webRequest.onErrorOccurred.addListener(function (details) {
-        if (details.tabId === currentTabId) {
-            blinkIcon(false);
-        }
-
-    }, {urls: ["<all_urls>"]});*/
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === 'suspend-tab') {
