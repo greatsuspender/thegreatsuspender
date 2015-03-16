@@ -108,7 +108,7 @@ var tgs = (function () {
         if (isPinnedTab(tab)) {
             return true;
         }
-        return false; //TODO make sure this doesn't break anything
+        return false;
     }
 
     function confirmTabSuspension(tab) {

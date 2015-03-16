@@ -177,9 +177,21 @@
         },
 
         addPreviewImage: function (tabUrl, previewUrl) {
-            var self = this;
+            var self = this,
+                server;
             this.getDb().then(function (s) {
-                s.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl});
+                server = s;
+                return server.query(self.DB_PREVIEWS , 'url')
+                        .only(tabUrl)
+                        .execute();
+
+            }).then(function (results) {
+                if (results.length > 0) {
+                    server.update(self.DB_PREVIEWS , {id: results[0].id, url: tabUrl, img: previewUrl});
+
+                } else {
+                    server.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl});
+                }
             });
         },
 
@@ -240,7 +252,7 @@
         fetchCurrentSessions: function () {
             var self = this;
             return this.getDb().then(function (s) {
-                return s.query(self.DB_CURRENT_SESSIONS).all().execute();
+                return s.query(self.DB_CURRENT_SESSIONS).all().desc().execute();
             });
         },
 

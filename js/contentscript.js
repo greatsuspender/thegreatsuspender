@@ -76,8 +76,8 @@
 
         setScrollPos();
 
-        //safety check here. don't try to use html2canvas if the page has more than 5000 elements
-        if (elementCount < 5000) {
+        //safety check here. don't try to use html2canvas if the page has more than 10000 elements
+        if (elementCount < 10000) {
 
             //allow max of 30 seconds to finish generating image
             window.setTimeout(function () {
@@ -87,28 +87,26 @@
                 }
             }, 30000);
 
+
             html2canvas(document.body,{
-                height: Math.min(document.body.offsetHeight, window.innerHeight) - 125,
-                width: document.body.clientWidth - 6,
-                imageTimeout: 500,
-                allowTaint: false,
-                proxy: false
-            }).then(function(canvas) {
-                if (processing) {
-                    processing = false;
-                    timer = (new Date() - timer) / 1000;
-                    var quality =  previewQuality || 0.1,
-                        dataUrl = canvas.toDataURL('image/jpeg', quality);
-                    chrome.runtime.sendMessage({
-                        action: 'savePreviewData',
-                        previewUrl: dataUrl,
-                        timerMsg: timer
-                    }, function () {
-                        suspendTab(suspendedUrl);
-                    });
+                height: Math.min(document.body.offsetHeight, window.innerHeight),
+                width: document.body.clientWidth,
+                imageTimeout: 1000,
+                onrendered: function(canvas) {
+                    if (processing) {
+                        processing = false;
+                        timer = (new Date() - timer) / 1000;
+                        var quality =  previewQuality || 0.1,
+                            dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        chrome.runtime.sendMessage({
+                            action: 'savePreviewData',
+                            previewUrl: dataUrl,
+                            timerMsg: timer
+                        }, function () {
+                            suspendTab(suspendedUrl);
+                        });
+                    }
                 }
-            }).catch(function(ex) {
-                handlePreviewError(suspendedUrl, ex.message);
             });
 
         } else {

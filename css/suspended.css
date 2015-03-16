@@ -10,6 +10,7 @@ body {
     position: absolute;
     height: 100%;
     width: 100%;
+    overflow-x:hidden;
     overflow-y:hidden;
 }
 #gsTopBar  {
@@ -89,7 +90,7 @@ body {
     }
 }
 #dudePopup {
-    position: absolute;
+    position: fixed;
     left: 30px;
     bottom: -240px;
 }
@@ -99,7 +100,7 @@ body {
         bottom: -240px;
     }
     100% {
-        bottom: 20px;
+        bottom: 10px;
         z-index: 1000000;
     }
 }
@@ -136,7 +137,7 @@ body {
     color: #555;
     bottom: 50px;
     left: 133px;
-    position: absolute;
+    position: fixed;
     text-align: center;
     font-size: 15px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
