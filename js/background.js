@@ -314,7 +314,7 @@ var tgs = (function () {
         cancelTabTimer(tabId);
     }
 
-    function checkForCrashRecovery() {
+    function checkForCrashRecovery(forceRecovery) {
 
         //try to detect whether the extension has crashed as separate to chrome crashing
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
@@ -386,7 +386,11 @@ var tgs = (function () {
                 });
 
                 if (attemptRecovery) {
-                    chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                    if (forceRecovery) {
+                        gsUtils.recoverLostTabs(null);
+                    } else {
+                        chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                    }
                 }
 
                 //check for suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
@@ -443,20 +447,30 @@ var tgs = (function () {
             //else if they are upgrading to a new version
             } else {
 
-                //perform migration
-                if (lastVersion < 6) {
-                    gsUtils.performMigration(lastVersion);
+                //if upgrading from an old version
+                if (lastVersion < 6.12) {
+
+                    gsUtils.performOldMigration(lastVersion);
+
+                    //show update screen
+                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+
+                //for users already upgraded to 6.12 just recover tabs silently in background
+                } else {
+
+                    gsUtils.performNewMigration(lastVersion);
+
+                    //recover tabs silently
+                    checkForCrashRecovery(true);
                 }
 
-                //show update screen
-                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             }
 
         //else if restarting the same version
         } else {
 
             //check for possible crash
-            checkForCrashRecovery();
+            checkForCrashRecovery(false);
         }
 
         //generate new session

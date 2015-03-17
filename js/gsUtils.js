@@ -30,6 +30,8 @@
         DB_CURRENT_SESSIONS: 'gsCurrentSessions',
         DB_SAVED_SESSIONS: 'gsSavedSessions',
 
+        noop: function() {},
+
 
        /**
         * LOCAL STORAGE FUNCTIONS
@@ -224,13 +226,14 @@
             });
         },
 
-        updateSession: function (session) {
+        updateSession: function (session, callback) {
 
             //if it's a saved session (prefixed with an underscore)
             var server,
                 tableName = session.sessionId.indexOf('_') === 0
                     ? this.DB_SAVED_SESSIONS
                     : this.DB_CURRENT_SESSIONS;
+            callback = typeof callback !== 'function' ? this.noop : callback;
 
             //first check to see if session id already exists
             this.getDb().then(function (s) {
@@ -241,10 +244,14 @@
                 if (result.length > 0) {
                     result = result[0];
                     session.id = result.id; //copy across id from matching session
-                    session.date = new Date();
-                    server.update(tableName , session); //then update based on that id
+                    session.date = (new Date()).toISOString();
+                    return server.update(tableName , session); //then update based on that id
                 } else {
-                    server.add(tableName, session);
+                    return server.add(tableName, session);
+                }
+            }).then(function(result) {
+                if (result.length > 0) {
+                    callback(result[0]);
                 }
             });
         },
@@ -317,15 +324,16 @@
         },
 
         addToSavedSessions: function (session) {
-            var self = this;
-            //prefix sessionId with an underscore to prevent
-            //duplicate keys across current and saved sessions
+
+            //if sessionId does not already have an underscore prefix then generate a new unique sessionId for this saved session
             if (session.sessionId.indexOf('_') < 0) {
-                session.sessionId = '_' + session.sessionId;
+                session.sessionId = '_' + this.generateHashCode(session.name);
             }
-            this.getDb().then(function (s) {
-                s.add(self.DB_SAVED_SESSIONS, session);
-            });
+
+            //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
+            delete session.id;
+
+            this.updateSession(session);
         },
 
         clearGsSessions: function () {
@@ -346,9 +354,10 @@
             });
         },
 
-        removeTabFromSessionHistory: function (sessionId, windowId, tabId) {
+        removeTabFromSessionHistory: function (sessionId, windowId, tabId, callback) {
 
             var self = this;
+            callback = typeof callback !== 'function' ? this.noop : callback;
 
             this.fetchSessionById(sessionId).then(function(gsSession) {
 
@@ -365,7 +374,9 @@
                     }
                 });
 
-                self.updateSession(gsSession);
+                self.updateSession(gsSession, function(session) {
+                    callback(session);
+                });
             });
         },
 
@@ -479,19 +490,6 @@
             }
         },
 
-        getFormattedDate: function (date, includeTime) {
-            var d = new Date(date),
-                cur_date = ('0' + d.getDate()).slice(-2),
-                cur_month = ('0' + (d.getMonth() + 1)).slice(-2),
-                cur_year = d.getFullYear(),
-                cur_time = d.toTimeString().match(/^([0-9]{2}:[0-9]{2})/)[0];
-
-            if (includeTime) {
-                return cur_date + '-' + cur_month + '-' + cur_year + ': ' + cur_time;
-            }
-            return cur_date + '-' + cur_month + ' ' + cur_year;
-        },
-
         getHumanDate: function (date) {
             var m_names = ['January', 'February', 'March', 'April', 'May',
                 'June', 'July', 'August', 'September', 'October', 'November',
@@ -513,6 +511,17 @@
             }
 
             return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
+        },
+
+        generateHashCode: function (text) {
+            var hash = 0, i, chr, len;
+            if (text.length == 0) return hash;
+            for (i = 0, len = text.length; i < len; i++) {
+                chr   = text.charCodeAt(i);
+                hash  = ((hash << 5) - hash) + chr;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
         },
 
         getRootUrl: function (url) {
@@ -567,8 +576,11 @@
 
         recoverWindow: function (sessionWindow, windowsMap, tabMap) {
 
-            var tabIdMap = {},
+            var self = this,
+                tgs = chrome.extension.getBackgroundPage().tgs,
+                tabIdMap = {},
                 tabUrlMap = {},
+                suspendedUrl,
                 openTab;
 
             //if crashed window exists in current session then restore suspended tabs in that window
@@ -586,7 +598,7 @@
                 sessionWindow.tabs.forEach(function (sessionTab) {
 
                     //if current tab does not exist then recreate it
-                    if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(sessionTab)
+                    if (!tgs.isSpecialTab(sessionTab)
                             && !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
                         chrome.tabs.create({
                             windowId: sessionWindow.id,
@@ -606,7 +618,7 @@
                 sessionWindow.tabs.forEach(function (sessionTab) {
                     tabUrls.push(sessionTab.url);
                 });
-                chrome.windows.create({url: tabUrls}, function(newWindow) {});
+                chrome.windows.create({url: tabUrls, focused: false});
             }
         },
 
@@ -620,18 +632,6 @@
                 }
             });
             return window;
-        },
-
-        getTabFromWindow: function (id, window) {
-            var tab = false;
-            window.tabs.some(function (curTab) {
-                //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (curTab.id == id || tab.url == id) {
-                    tab = curTab;
-                    return true;
-                }
-            });
-            return tab;
         },
 
         saveWindowsToSessionHistory: function (sessionId, windowsArray) {
@@ -649,7 +649,38 @@
         * MIGRATIONS
         */
 
-        performMigration: function (oldVersion) {
+        performNewMigration: function (oldVersion) {
+
+            var self = this,
+                server;
+
+            oldVersion = parseFloat(oldVersion);
+
+            //perform migrated history fixup
+            if (oldVersion < 6.13) {
+
+                //fix up migrated saved session and newly saved session sessionIds
+                this.getDb().then(function (s) {
+                    server = s;
+                    return s.query(self.DB_SAVED_SESSIONS).all().execute();
+
+                }).then(function (savedSessions) {
+                    savedSessions.forEach(function (session, index) {
+                        if (session.id === 7777) {
+                            session.sessionId = "_7777";
+                            session.name = "Recovered tabs";
+                            session.date = (new Date(session.date)).toISOString();
+                        } else {
+                            session.sessionId = '_' + self.generateHashCode(session.name);
+                        }
+                        server.update(self.DB_SAVED_SESSIONS , session);
+                    });
+                });
+            }
+
+        },
+
+        performOldMigration: function (oldVersion) {
 
             var self = this,
                 gsHistory,
@@ -750,6 +781,30 @@
             if (a.date > b.date) return 1;
             return 0;
         },
+        formatDateForSessionTitle: function (date, includeTime) {
+            var d = new Date(date),
+                cur_date = ('0' + d.getDate()).slice(-2),
+                cur_month = ('0' + (d.getMonth() + 1)).slice(-2),
+                cur_year = d.getFullYear(),
+                cur_time = d.toTimeString().match(/^([0-9]{2}:[0-9]{2})/)[0];
+
+            if (includeTime) {
+                return cur_date + '-' + cur_month + '-' + cur_year + ': ' + cur_time;
+            }
+            return cur_date + '-' + cur_month + ' ' + cur_year;
+        },
+        getTabFromWindow: function (id, window) {
+            var tab = false;
+            window.tabs.some(function (curTab) {
+                //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                if (curTab.id == id || curTab.url == id) {
+                    tab = curTab;
+                    return true;
+                }
+            });
+            return tab;
+        },
+
         convertGsHistoryToSessionHistory: function (self, gsHistory) {
 
             var currentSessions = [],
@@ -771,35 +826,43 @@
             //approximate sessions from old suspended tab history data
             gsHistory.forEach(function (tabProperties) {
 
-                groupKey = self.getFormattedDate(tabProperties.date, false);
+                //convert all tab urls into suspended urls
+                tabProperties.url = self.generateSuspendedUrl(tabProperties.url);
+
+                groupKey = self.formatDateForSessionTitle(tabProperties.date, false);
 
                 //if we are on the first tab for a new date
                 if (lastGroupKey !== groupKey) {
                     curSession = {sessionId: groupKey, windows: [], date: tabProperties.date};
-                    currentSessions.unshift(curSession);
+                    currentSessions.push(curSession);
                 }
                 lastGroupKey = groupKey;
 
                 curWindow = self.getWindowFromSession(tabProperties.windowId, curSession);
                 if (!curWindow) {
                     curWindow = {id: tabProperties.windowId, tabs: []};
-                    curSession.windows.unshift(curWindow);
+                    curSession.windows.push(curWindow);
                 }
 
                 curTab = self.getTabFromWindow(tabProperties.url, curWindow);
                 if (!curTab) {
-                    curWindow.tabs.unshift(tabProperties);
+                    curWindow.tabs.push(tabProperties);
                 }
-                allTabsWindow.tabs.unshift(tabProperties);
+
+                curTab = self.getTabFromWindow(tabProperties.url, allTabsWindow);
+                if (!curTab) {
+                    allTabsWindow.tabs.push(tabProperties);
+                }
             });
 
-            savedSessions.push({id: 7777, windows: [allTabsWindow], date: new Date()});
+            savedSessions.push({sessionId: "_7777", name: "Recovered tabs", windows: [allTabsWindow], date: (new Date()).toISOString()});
 
             return {
                 'currentSessions': currentSessions,
                 'savedSessions': savedSessions
             };
         },
+
 
         initialiseIndexedDb: function () {
 

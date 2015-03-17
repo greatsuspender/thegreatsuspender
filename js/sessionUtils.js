@@ -110,12 +110,12 @@ var sessionUtils = (function () {
                 sessionEl,
                 newSessionEl;
 
-            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId);
-
-            sessionEl = element.parentElement.parentElement;
-            newSessionEl = createSessionHtml(session);
-            sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-            toggleSession(newSessionEl.getElementsByTagName('div')[0])();
+            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function(session) {
+                sessionEl = element.parentElement.parentElement;
+                newSessionEl = createSessionHtml(session);
+                sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
+                toggleSession(newSessionEl.getElementsByTagName('div')[0])();
+            });
         };
     }
 
