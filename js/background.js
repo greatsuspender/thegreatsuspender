@@ -769,13 +769,42 @@ var tgs = (function () {
     });
 
     chrome.commands.onCommand.addListener(function (command) {
-        if (command === 'suspend-tab') {
+        if (command === '1-suspend-tab') {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 requestTabSuspension(tabs[0], true);
             });
-        } else if (command === 'unsuspend-tab') {
+
+        } else if (command === '2-unsuspend-tab') {
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 if (isSuspended(tabs[0])) unsuspendTab(tabs[0]);
+            });
+
+        } else if (command === '3-suspend-active-window') {
+            chrome.windows.getLastFocused({populate: true}, function(window) {
+                window.tabs.forEach(function (tab) {
+                    requestTabSuspension(tab, true);
+                });
+            });
+
+        } else if (command === '4-unsuspend-active-window') {
+            chrome.windows.getLastFocused({populate: true},  function(window) {
+                window.tabs.forEach(function (tab) {
+                    if (isSuspended(tab)) unsuspendTab(tab);
+                });
+            });
+
+        } else if (command === '5-suspend-all-windows') {
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (currentTab) {
+                    requestTabSuspension(currentTab, true);
+                });
+            });
+
+        } else if (command === '6-unsuspend-all-windows') {
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (currentTab) {
+                    if (isSuspended(currentTab)) unsuspendTab(currentTab);
+                });
             });
         }
     });

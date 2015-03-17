@@ -10,14 +10,18 @@
             window.clearInterval(readyStateCheckInterval);
             var optionEls = document.getElementsByClassName('option'),
                 shortcutsEl = document.getElementById('keyboardShortcuts'),
-                configureShortcutsEl = document.getElementById('configureShortcuts');
+                configureShortcutsEl = document.getElementById('configureShortcuts'),
+                count = 0;
 
             //populate keyboard shortcuts
             chrome.commands.getAll(function (commands) {
+
                 commands.forEach(function (command) {
                     if (command.name !== '_execute_browser_action') {
-                        var shortcut = command.shortcut !== '' ? command.shortcut : '(not set)';
-                        shortcutsEl.innerHTML += '<span>' + command.description + ': ' + shortcut + '</span><br />';
+                        var shortcut = command.shortcut !== '' ? command.shortcut : '(not set)',
+                            style = count % 2 === 0 ? '"margin: 0 0 2px;"' : '';
+                        shortcutsEl.innerHTML += '<p style=' + style + '>' + command.description + ': ' + shortcut + '</p>';
+                        count++;
                     }
                 });
             });

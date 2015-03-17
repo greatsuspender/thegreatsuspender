@@ -38,13 +38,25 @@
   "minimum_chrome_version": "22",
 
   "commands": {
-    "suspend-tab": {
+    "1-suspend-tab": {
       "description": "Suspend active tab",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
-    "unsuspend-tab": {
+    "2-unsuspend-tab": {
       "description": "Unsuspend active tab",
       "suggested_key": { "default": "Ctrl+Shift+U" }
+    },
+    "3-suspend-active-window": {
+      "description": "Suspend all tabs in active window"
+    },
+    "4-unsuspend-active-window": {
+      "description": "Unsuspend all tabs in active window"
+    },
+    "5-suspend-all-windows": {
+      "description": "Suspend all tabs in all windows"
+    },
+    "6-unsuspend-all-windows": {
+      "description": "Unsuspend all tabs in all windows"
     }
   }
 }
