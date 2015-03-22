@@ -3,9 +3,8 @@
 (function () {
 
     'use strict';
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-
-    var restoreAttempted = false;
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
+        restoreAttempted = false;
 
     function removeTabFromList(tab) {
 

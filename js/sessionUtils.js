@@ -3,7 +3,8 @@
 var sessionUtils = (function () {
 
     'use strict';
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs,
+        gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
 
     function hideModal() {
@@ -14,8 +15,7 @@ var sessionUtils = (function () {
     function reloadTabs(element, suspendMode) {
 
         return function () {
-            var tgs = chrome.extension.getBackgroundPage().tgs,
-                windowId = element.getAttribute('data-windowId'),
+            var windowId = element.getAttribute('data-windowId'),
                 sessionId = element.getAttribute('data-sessionId'),
                 windows = [],
                 curUrl;
@@ -75,6 +75,13 @@ var sessionUtils = (function () {
         });
     }
 
+    function deleteSession(sessionId) {
+
+        gsUtils.removeSessionFromHistory(sessionId, function() {
+            window.location.reload();
+        });
+    }
+
     function exportSession(sessionId) {
         var csvContent = "data:text/csv;charset=utf-8,",
             dataString = '';
@@ -111,10 +118,17 @@ var sessionUtils = (function () {
                 newSessionEl;
 
             gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function(session) {
-                sessionEl = element.parentElement.parentElement;
-                newSessionEl = createSessionHtml(session);
-                sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-                toggleSession(newSessionEl.getElementsByTagName('div')[0])();
+                //if we have a valid session returned
+                if (session) {
+                    sessionEl = element.parentElement.parentElement;
+                    newSessionEl = createSessionHtml(session);
+                    sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
+                    toggleSession(newSessionEl.getElementsByTagName('div')[0])();
+
+                //otherwise assume it was the last tab in session and session has been removed
+                } else {
+                    window.location.reload();
+                }
             });
         };
     }
@@ -160,6 +174,7 @@ var sessionUtils = (function () {
             sessionContainer,
             sessionTitle,
             sessionSave,
+            sessionDelete,
             sessionExport,
             sessionDiv,
             windowResuspend,
@@ -194,6 +209,16 @@ var sessionUtils = (function () {
             };
         }
 
+        if (savedSession) {
+            sessionDelete = createEl('a', {
+                'class': 'groupLink',
+                'href': '#'
+            }, 'delete');
+            sessionDelete.onclick = function () {
+                deleteSession(session.sessionId);
+            };
+        }
+
         sessionExport = createEl('a', {
             'class': 'groupLink',
             'href': '#'
@@ -220,6 +245,7 @@ var sessionUtils = (function () {
         sessionContainer.appendChild(windowReload);
         sessionContainer.appendChild(sessionExport);
         if (!savedSession) sessionContainer.appendChild(sessionSave);
+        if (savedSession) sessionContainer.appendChild(sessionDelete);
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;

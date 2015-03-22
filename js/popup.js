@@ -129,7 +129,7 @@
 
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
-                suspendOneVisible = (status === 'suspended' || status === 'special') ? false : true,
+                suspendOneVisible = (status === 'suspended' || status === 'special' || status === 'unknown') ? false : true,
                 whitelistVisibe = (status !== 'whitelisted' && status !== 'special') ? true : false,
                 pauseVisibe = (status === 'normal') ? true : false;
 

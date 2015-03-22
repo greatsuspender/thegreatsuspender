@@ -6,7 +6,7 @@
     var gsUtils = {
 
         SHOW_PREVIEW: 'preview',
-        PREVIEW_QUALTIY: 'previewQuality',
+        PREVIEW_QUALITY: 'previewQuality',
         ONLINE_CHECK: 'onlineCheck',
         BATTERY_CHECK: 'onlineCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
@@ -32,50 +32,45 @@
 
         noop: function() {},
 
+        getSettingsDefaults: function () {
+
+            var defaults = {};
+            defaults[this.SHOW_PREVIEW] = false;
+            defaults[this.PREVIEW_QUALITY] = false;
+            defaults[this.ONLINE_CHECK] = false;
+            defaults[this.BATTERY_CHECK] = false;
+            defaults[this.UNSUSPEND_ON_FOCUS] = false;
+            defaults[this.IGNORE_PINNED] = true;
+            defaults[this.IGNORE_FORMS] = true;
+            defaults[this.IGNORE_CACHE] = false;
+            defaults[this.SUSPEND_TIME] = '60';
+            defaults[this.NO_NAG] = false;
+            defaults[this.MAX_HISTORIES] = 4;
+            defaults[this.WHITELIST] = '';
+
+            return defaults;
+        },
+
 
        /**
         * LOCAL STORAGE FUNCTIONS
         */
 
-        initSettings: function () {
-            var self = this,
-                key,
-                defaults = {},
-                settings = self.getSettings() || {};
-
-            //now populate from local store or defaults for any items not already populated (old way)
-            defaults[self.SHOW_PREVIEW] = false;
-            defaults[self.PREVIEW_QUALTIY] = false;
-            defaults[self.ONLINE_CHECK] = false;
-            defaults[self.BATTERY_CHECK] = false;
-            defaults[self.UNSUSPEND_ON_FOCUS] = false;
-            defaults[self.IGNORE_PINNED] = true;
-            defaults[self.IGNORE_FORMS] = true;
-            defaults[self.IGNORE_CACHE] = false;
-            defaults[self.SUSPEND_TIME] = '60';
-            defaults[self.NO_NAG] = false;
-            defaults[self.MAX_HISTORIES] = 4;
-            defaults[self.WHITELIST] = '';
-
-            for (key in defaults) {
-                if (defaults.hasOwnProperty(key) && (typeof(settings[key]) === 'undefined' || settings[key] === null)) {
-                    settings[key] = typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null
-                        ? localStorage.getItem(key)
-                        : defaults[key];
-                }
-            }
-
-            //finally, store settings on local storage for synchronous access
-            localStorage.setItem('gsSettings', JSON.stringify(settings));
-
-        },
-
+        //due to migration issues and new settings being added, i have built in some redundancy
+        //here so that getOption will always return a valid value.
         getOption: function (prop) {
-            var settings = this.getSettings();
-            if (typeof settings[prop] === 'boolean') {
+            var settings = this.getSettings(),
+                defaults;
+
+            //test that option exists in settings object
+            if (typeof(settings[prop]) === 'undefined' || settings[prop] === null) {
+                defaults = this.getSettingsDefaults();
+                this.setOption(prop, defaults[prop]);
+                return defaults[prop];
+
+            } else {
                 return settings[prop];
             }
-            return settings[prop];
         },
 
         setOption: function (prop, value) {
@@ -85,11 +80,15 @@
         },
 
         getSettings: function () {
-            var result = localStorage.getItem('gsSettings');
-            if (result !== null && result !== 'null') {
-                result = JSON.parse(result);
+            var settings = localStorage.getItem('gsSettings');
+            if (settings !== null && settings !== 'null') {
+                settings = JSON.parse(settings);
+
+            } else {
+                settings = this.getSettingsDefaults();
+                this.saveSettings(settings);
             }
-            return result;
+            return settings;
         },
 
         saveSettings: function (settings) {
@@ -341,7 +340,6 @@
 
             this.getDb().then(function (s) {
                 s.clear(self.DB_CURRENT_SESSIONS);
-                s.clear(self.DB_SAVED_SESSIONS);
             });
         },
 
@@ -374,10 +372,41 @@
                     }
                 });
 
-                self.updateSession(gsSession, function(session) {
-                    callback(session);
-                });
+                //update session
+                if (gsSession.windows.length > 0) {
+                    self.updateSession(gsSession, function(session) {
+                        callback(session);
+                    });
+
+                //or remove session if it no longer contains any windows
+                } else {
+                    self.removeSessionFromHistory(sessionId, function(session) {
+                        callback(false);
+                    });
+                }
             });
+        },
+
+        removeSessionFromHistory: function (sessionId, callback) {
+
+            var server,
+                session,
+                tableName = sessionId.indexOf('_') === 0
+                    ? this.DB_SAVED_SESSIONS
+                    : this.DB_CURRENT_SESSIONS;
+
+            callback = typeof callback !== 'function' ? this.noop : callback;
+
+            this.getDb().then(function (s) {
+                server = s;
+                return server.query(tableName).filter('sessionId', sessionId).execute();
+
+            }).then(function(result) {
+                if (result.length > 0) {
+                    session = result[0];
+                    server.remove(tableName , session.id);
+                }
+            }).then(callback);
         },
 
         trimDbItems: function () {
@@ -683,6 +712,7 @@
         performOldMigration: function (oldVersion) {
 
             var self = this,
+                settings,
                 gsHistory,
                 oldGsHistory,
                 sessionHistory,
@@ -692,6 +722,11 @@
                 key;
 
             oldVersion = parseFloat(oldVersion);
+
+            //migrate settings
+            if (oldVersion < 5) {
+                this.performSettingsMigration();
+            }
 
             //create indexedDb database
             this.initialiseIndexedDb().then(function (server) {
@@ -803,6 +838,28 @@
                 }
             });
             return tab;
+        },
+
+        performSettingsMigration: function () {
+
+            var key,
+                settings = {},
+                defaults = this.getSettingsDefaults();
+
+            for (key in defaults) {
+                if (defaults.hasOwnProperty(key)) {
+                    if (typeof(localStorage.getItem(key)) !== 'undefined' && localStorage.getItem(key) !== null) {
+                        settings[key] = localStorage.getItem(key);
+                        localStorage.removeItem(key);
+                    } else {
+                        settings[key] = defaults[key];
+                    }
+                }
+            }
+
+            //finally, store settings on local storage for synchronous access
+            localStorage.setItem('gsSettings', JSON.stringify(settings));
+
         },
 
         convertGsHistoryToSessionHistory: function (self, gsHistory) {

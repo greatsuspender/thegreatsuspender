@@ -506,6 +506,11 @@ var tgs = (function () {
         };
         tabId = tabId || currentTabId;
 
+        if (typeof(tabId) === 'undefined') {
+            callback(info);
+            return;
+        }
+
         chrome.tabs.get(tabId, function (tab) {
 
             if (chrome.runtime.lastError) {
@@ -819,11 +824,9 @@ var tgs = (function () {
         };
     });
 
-    gsUtils.initSettings();
-
     _gaq.push(['_setAccount', 'UA-52338347-1']);
     _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
-    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALTIY), 1]);
+    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALITY), 1]);
     _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
     _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
     //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);

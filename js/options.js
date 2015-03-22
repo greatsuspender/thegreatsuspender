@@ -4,7 +4,8 @@
 
     'use strict';
 
-    var elementPrefMap = {
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
+        elementPrefMap = {
             'preview': gsUtils.SHOW_PREVIEW,
             'previewQuality': gsUtils.PREVIEW_QUALITY,
             'onlineCheck': gsUtils.ONLINE_CHECK,
@@ -161,10 +162,10 @@
                 for (i = 0; i < optionEls.length; i++) {
                     saveChange(optionEls[i]);
                 }
-                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
+                window.close();
             };
             cancelEl.onclick = function (e) {
-                chrome.tabs.getCurrent(function(t) {chrome.tabs.remove(t.id);});
+                window.close();
             };
         }
     }, 50);
