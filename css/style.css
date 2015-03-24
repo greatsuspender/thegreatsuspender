@@ -217,7 +217,7 @@ ul.unorderedList li {
     padding: 20px 50px 40px;
 }
 .contentNav {
-    width: 210px;
+    width: 220px;
     padding: 35px 10px 50px 50px;
     margin: 15px 0 0;
 }
@@ -227,7 +227,7 @@ ul.unorderedList li {
 }
 .content {
     border-left: 1px solid #E7E7E7;
-    width: 590px;
+    width: 580px;
     min-height: 250px;
 }
 .contentFull {

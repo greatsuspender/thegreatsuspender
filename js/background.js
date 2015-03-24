@@ -20,7 +20,8 @@ var tgs = (function () {
         currentTabId,
         sessionSaveTimer,
         chargingMode = false,
-        lastStatus = 'normal';
+        lastStatus = 'normal',
+        notice = {};
 
 
     //set gloabl sessionId
@@ -429,12 +430,12 @@ var tgs = (function () {
 
     function runStartupChecks() {
 
-        var lastVersion = gsUtils.fetchVersion(),
+        var lastVersion = gsUtils.fetchLastVersion(),
             curVersion = chrome.runtime.getManifest().version;
 
         //if version has changed then assume initial install or upgrade
         if (lastVersion !== curVersion) {
-            gsUtils.setVersion(curVersion);
+            gsUtils.setLastVersion(curVersion);
 
             //if they are installing for the first time
             if (!lastVersion) {
@@ -450,10 +451,11 @@ var tgs = (function () {
                 //if upgrading from an old version
                 if (lastVersion < 6.12) {
 
-                    gsUtils.performOldMigration(lastVersion);
+                    gsUtils.performOldMigration(lastVersion, function() {
 
-                    //show update screen
-                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                        //show update screen
+                        chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                    });
 
                 //for users already upgraded to 6.12 just recover tabs silently in background
                 } else {
@@ -473,13 +475,48 @@ var tgs = (function () {
             checkForCrashRecovery(false);
         }
 
-        //generate new session
-
         //inject new content script into all open pages
         reinjectContentScripts();
 
         //trim excess dbItems
-        gsUtils.trimDbItems();
+        if (lastVersion > 6.12) {
+            gsUtils.trimDbItems();
+        }
+    }
+
+    function checkForNotices() {
+
+        var xhr = new XMLHttpRequest(),
+            resp,
+            lastNoticeVersion = gsUtils.fetchNoticeVersion();
+
+        xhr.open("GET", "http://greatsuspender.github.io/notice.json", true);
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4) {
+            var resp = JSON.parse(xhr.responseText);
+
+            //only show notice if it is intended for this version and it has not already been shown
+            if (resp.active && resp.text && resp.title
+                    && resp.target === chrome.runtime.getManifest().version
+                    && resp.version !== lastNoticeVersion) {
+
+                //set global notice field (so that notice page can access text)
+                notice = resp;
+
+                //update local notice version
+                gsUtils.setNoticeVersion(resp.version);
+
+                //show notice page
+                chrome.tabs.create({url: chrome.extension.getURL('notice.html')});
+            }
+          }
+        };
+        xhr.send();
+    }
+
+    function requestNotice() {
+        return notice;
     }
 
     //get info for a tab. defaults to currentTab if no id passed in
@@ -814,6 +851,22 @@ var tgs = (function () {
         }
     });
 
+    //tidy up history items as they are created
+    chrome.history.onVisited.addListener(function (historyItem) {
+
+        var url = historyItem.url,
+            realUrl;
+
+        if (url.indexOf('suspended.html') >= 0 && url.indexOf('uri=') > 0) {
+
+            realUrl = url.split('uri=')[1];
+
+            //remove suspended tab history item
+            chrome.history.deleteUrl({url: historyItem.url});
+            chrome.history.addUrl({url: realUrl});
+        }
+    });
+
     //add listener for battery state changes
     navigator.getBattery().then(function(battery) {
 
@@ -824,8 +877,11 @@ var tgs = (function () {
         };
     });
 
+    //start job to check for notices (once a day)
+    window.setInterval(checkForNotices, 1000 * 60 * 60 * 24);
+
     _gaq.push(['_setAccount', 'UA-52338347-1']);
-    _gaq.push(['_setCustomVar', 1, 'version', gsUtils.fetchVersion() + "", 1]);
+    _gaq.push(['_setCustomVar', 1, 'version', chrome.runtime.getManifest().version + "", 1]);
     _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALITY), 1]);
     _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
     _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
@@ -847,7 +903,8 @@ var tgs = (function () {
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,
         runStartupChecks: runStartupChecks,
-        resetAllTabTimers: resetAllTabTimers
+        resetAllTabTimers: resetAllTabTimers,
+        requestNotice: requestNotice
     };
 
 }());

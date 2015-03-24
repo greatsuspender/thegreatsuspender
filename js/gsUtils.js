@@ -11,7 +11,6 @@
         BATTERY_CHECK: 'onlineCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
         SUSPEND_TIME: 'gsTimeToSuspend',
-        MAX_HISTORIES: 'gsMaxHistories',
         IGNORE_PINNED: 'gsDontSuspendPinned',
         IGNORE_FORMS: 'gsDontSuspendForms',
         IGNORE_CACHE: 'gsIgnoreCache',
@@ -19,6 +18,7 @@
         WHITELIST: 'gsWhitelist',
 
         APP_VERSION: 'gsVersion',
+        LAST_NOTICE: 'gsNotice',
         HISTORY_OLD: 'gsHistory',
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
@@ -45,7 +45,6 @@
             defaults[this.IGNORE_CACHE] = false;
             defaults[this.SUSPEND_TIME] = '60';
             defaults[this.NO_NAG] = false;
-            defaults[this.MAX_HISTORIES] = 4;
             defaults[this.WHITELIST] = '';
 
             return defaults;
@@ -131,8 +130,22 @@
             return whitelistedWords.join('\n');
         },
 
-        fetchVersion: function () {
-            var result = localStorage.getItem(this.APP_VERSION);
+        fetchLastVersion: function () {
+            var version = localStorage.getItem(this.APP_VERSION);
+            if (version !== null) {
+                version = JSON.parse(version);
+                return version;
+            } else {
+                return 0;
+            }
+        },
+
+        setLastVersion: function (newVersion) {
+            localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
+        },
+
+        fetchNoticeVersion: function () {
+            var result = localStorage.getItem(this.LAST_NOTICE);
             if (result !== null) {
                 result = JSON.parse(result);
                 return result;
@@ -141,8 +154,8 @@
             }
         },
 
-        setVersion: function (newVersion) {
-            localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
+        setNoticeVersion: function (newVersion) {
+            localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
         },
 
 
@@ -412,9 +425,9 @@
         trimDbItems: function () {
             var self = this,
                 server,
-                maxTabItems = 500,
-                maxPreviewItems = 500,
-                maxHistories = this.getOption(this.MAX_HISTORIES),
+                maxTabItems = 1000,
+                maxPreviewItems = 200,
+                maxHistories = 5,
                 itemsToRemove,
                 i;
 
@@ -709,11 +722,12 @@
 
         },
 
-        performOldMigration: function (oldVersion) {
+        performOldMigration: function (oldVersion, callback) {
 
             var self = this,
                 settings,
                 gsHistory,
+                chromeHistory,
                 oldGsHistory,
                 sessionHistory,
                 currentSessions = [],
@@ -721,6 +735,7 @@
                 previews = [],
                 key;
 
+            callback = typeof callback !== 'function' ? this.noop : callback;
             oldVersion = parseFloat(oldVersion);
 
             //migrate settings
@@ -728,11 +743,10 @@
                 this.performSettingsMigration();
             }
 
-            //create indexedDb database
-            this.initialiseIndexedDb().then(function (server) {
+            //prepare sessionHistory and suspendedTabInfo for migration to indexedDb
+            this.fetchChromeHistory().then(function (chromeHistory) {
 
-
-                //migrate gsHistory to indexedDb tabInfo
+                //fetch gsHistory
                 gsHistory = localStorage.getItem(self.HISTORY);
                 gsHistory = gsHistory ? JSON.parse(gsHistory) : [];
 
@@ -750,18 +764,15 @@
                         localStorage.removeItem(self.HISTORY_OLD);
                     }
                 }
-                if (gsHistory.length > 0) {
-                    server.add(self.DB_SUSPENDED_TABINFO, gsHistory);
-                }
                 localStorage.removeItem(self.HISTORY);
 
-
-                //migrate gsSessionHistory to indexedDb gsCurrentSessions and gsSavedSessions
+                //if pre v5.0 then populate recentSessions and savedSessions from chrome history
                 if (oldVersion < 5) {
-                    sessionHistory = self.convertGsHistoryToSessionHistory(self, gsHistory);
+                    sessionHistory = self.convertChromeHistoryToSessionHistory(self, chromeHistory);
                     currentSessions = sessionHistory['currentSessions'];
                     savedSessions = sessionHistory['savedSessions'];
 
+                //otherwise separate more recent session history construct into recentSessions and savedSessions
                 } else {
 
                     sessionHistory = localStorage.getItem(self.SESSION_HISTORY);
@@ -780,13 +791,27 @@
                         });
                     }
                 }
+                localStorage.removeItem(self.SESSION_HISTORY);
+
+                //fetch new indexedDb server
+                return self.initialiseIndexedDb();
+
+
+            //migrate gsHistory and gsPreviews to indexedDb tabInfo
+            }).then(function (server) {
+
+                //migrate suspendedTabInfo
+                if (gsHistory.length > 0) {
+                    server.add(self.DB_SUSPENDED_TABINFO, gsHistory);
+                }
+
+                //migrate gsCurrentSessions and gsSavedSessions
                 if (currentSessions.length > 0) {
                     server.add(self.DB_CURRENT_SESSIONS, currentSessions);
                 }
                 if (savedSessions.length > 0) {
                     server.add(self.DB_SAVED_SESSIONS, savedSessions);
                 }
-                localStorage.removeItem(self.SESSION_HISTORY);
 
 
                 //migrate screen previews
@@ -808,6 +833,7 @@
                         chrome.storage.local.clear();
                     }
                 });
+                callback();
             });
         },
 
@@ -859,57 +885,105 @@
 
             //finally, store settings on local storage for synchronous access
             localStorage.setItem('gsSettings', JSON.stringify(settings));
-
         },
 
-        convertGsHistoryToSessionHistory: function (self, gsHistory) {
+        fetchChromeHistory: function () {
+            return new Promise(function(resolve, reject) {
 
-            var currentSessions = [],
+                var extId = chrome.runtime.id;
+                chrome.history.search({text: extId, maxResults: 1000}, function(results) {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(results);
+                    }
+                });
+            });
+        },
+
+        convertChromeHistoryToSessionHistory: function (self, chromeHistory) {
+
+            var tabId,
+                tabTitle,
+                tabSuspendedUrl,
+                tabOriginalUrl,
+                tabHistoryDate,
+                currentSessions = [],
                 savedSessions = [],
                 allTabsWindow,
                 curSession,
                 curWindow,
                 curTab,
                 groupKey,
-                lastGroupKey = false;
+                lastGroupKey = false,
+                tabProperties,
+                count = 1,
+                groupCount = 0;
 
             allTabsWindow = {
                 id: 7777,
                 tabs: []
             };
 
-            gsHistory.sort(self.compareDate);
+            chromeHistory.forEach(function (tab) {
 
-            //approximate sessions from old suspended tab history data
-            gsHistory.forEach(function (tabProperties) {
+                if (tab.url.indexOf('suspended.html') < 0) return;
 
-                //convert all tab urls into suspended urls
-                tabProperties.url = self.generateSuspendedUrl(tabProperties.url);
+                tabId = parseInt(tab.id);
+                tabSuspendedUrl = tab.url;
+                tabOriginalUrl = self.getSuspendedUrl(tab.url.split('suspended.html')[1]);
+                tabTitle = tabOriginalUrl.split('//')[1];
+                tabHistoryDate = new Date(tab.lastVisitTime);
 
-                groupKey = self.formatDateForSessionTitle(tabProperties.date, false);
+                tabProperties = {
+                    active: false,
+                    favIconUrl: 'chrome://favicon/' + tabOriginalUrl,
+                    height: 600,
+                    highlighted: false,
+                    id: tabId,
+                    incognito: false,
+                    index: count,
+                    pinned: false,
+                    selected: false,
+                    status: "complete",
+                    title: tabOriginalUrl,
+                    url: tabSuspendedUrl,
+                    width: 800,
+                    windowId: 7777
+                }
 
-                //if we are on the first tab for a new date
+                groupKey = self.formatDateForSessionTitle(tabHistoryDate, false);
                 if (lastGroupKey !== groupKey) {
-                    curSession = {sessionId: groupKey, windows: [], date: tabProperties.date};
-                    currentSessions.push(curSession);
-                }
-                lastGroupKey = groupKey;
-
-                curWindow = self.getWindowFromSession(tabProperties.windowId, curSession);
-                if (!curWindow) {
-                    curWindow = {id: tabProperties.windowId, tabs: []};
-                    curSession.windows.push(curWindow);
+                    groupCount++;
                 }
 
-                curTab = self.getTabFromWindow(tabProperties.url, curWindow);
-                if (!curTab) {
-                    curWindow.tabs.push(tabProperties);
+                //only save the last 5 sessions
+                if (groupCount <= 5) {
+
+                    //if we are on the first tab for a new date
+                    if (lastGroupKey !== groupKey) {
+                        curSession = {sessionId: groupKey, windows: [], date: tabHistoryDate};
+                        currentSessions.unshift(curSession);
+                    }
+                    lastGroupKey = groupKey;
+
+                    curWindow = self.getWindowFromSession(tabProperties.windowId, curSession);
+                    if (!curWindow) {
+                        curWindow = {id: tabProperties.windowId, tabs: []};
+                        curSession.windows.push(curWindow);
+                    }
+
+                    curTab = self.getTabFromWindow(tabProperties.url, curWindow);
+                    if (!curTab) {
+                        curWindow.tabs.push(tabProperties);
+                    }
                 }
 
                 curTab = self.getTabFromWindow(tabProperties.url, allTabsWindow);
                 if (!curTab) {
                     allTabsWindow.tabs.push(tabProperties);
                 }
+                count++;
             });
 
             savedSessions.push({sessionId: "_7777", name: "Recovered tabs", windows: [allTabsWindow], date: (new Date()).toISOString()});
@@ -919,7 +993,6 @@
                 'savedSessions': savedSessions
             };
         },
-
 
         initialiseIndexedDb: function () {
 

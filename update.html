@@ -2,10 +2,8 @@
 <html>
 <head>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:700,300,600,400' rel='stylesheet' type='text/css'>
-    <title id='gsTitle'>The Great Suspender</title>
+    <title id='gsTitle'>The Great Suspender - Update</title>
     <link type="text/css" href="css/style.css" rel="stylesheet">
-    <script type="text/javascript" src="js/sessionUtils.js"></script>
-    <script type="text/javascript" src="js/recovery.js"></script>
 
 </head>
 <body id="body">
@@ -16,31 +14,27 @@
         <img src="img/dude_large.png" />
     </div>
 
-    <h1>OMG! An update!</h1>
-    <h2>Welcome to an all new <strong>The Great Suspender</strong>.</h2>
-    <p>What's new? So much stuff. <br />
-    Session management, temporary whitelisting, form input detection... <br />
-    And of course, bug fixes :P<br />
-    You can check it all out in the <a href='/options.html' target='_blank'>settings</a> page.</p>
-    <p>Thanks for using <strong>The Great Suspender!</strong></p>
+    <h1>Important!</h1>
+    <h2>The Great Suspender has been updated</h2>
 
     <hr class="splashRule" />
-    <div class='recoverySection'>
-        <p>
-            One last thing. Unfortunately, due to the way chrome handles extension updates, you may have lost some suspended tabs during the update process. Sorry for this inconvenience - it really was unavoidable.<br />
-            <em>Future updates of this extension will not have this same issue.</em>
-        </p>
-        <p>
-            Tabs suspended in the last day can be automatically restored below.<br />
-            To see a list of older suspended tabs, go to the new session manager page.
-        </p>
-        <button id='restoreSession' class='btn'>Restore tabs automatically</button>
-        &nbsp;&nbsp;or&nbsp;&nbsp;
-        <button id='manageManuallyLink' class='btn secondary'>Try out the new session manager</button>
-        <br />
-        <br />
-        <div id='recoveryLinks'></div>
-    </div>
+
+    <h2><strong>The bad news:</strong></h2>
+    <p>In order to perform this update, all your suspended tabs have been removed from your browser. Due to the way The Great Suspender used to work, there was no way to prevent this from happening or from letting you know in advance.</p>
+
+    <p><strong>BUT</strong>, if you go to the new <a href='/history.html' target='_blank'>session management</a> page, you will find your recently suspended tabs in the 'Recent sessions' section. From here you should be able to recover any lost tabs. If this does not go back far enough in time, then under 'Saved sessions' you will find a session called 'Recovered tabs' which contains a more comprehensive list of suspended tabs.</p>
+
+    <p>Fortunately, this will never happen again. Future updates of this extension will not have this same issue - your tabs will be remembered and will be restored automagically.</p>
+
+    <p>If losing your tabs has made you extremely upset and you want to uninstall this extension: fair enough - but before you do, please go through the session recovery process first and make sure all your recovered tabs are unsuspended before you uninstall.</p>
+
+    <h2><strong>The good news:</strong></h2>
+    <p>This new version contains lots of bug fixes and new features such as session management, temporary whitelisting, form input detection and cross device history support. You can check it all out in the <a href='/options.html' target='_blank'>settings</a> page.</p>
+
+    <p>Thanks for using <strong>The Great Suspender!</strong></p>
+
+    <a href='/history.html' target='_blank'><button id='manageManuallyLink' class='btn secondary'>Try out the new session manager</button></a>
+
 </div>
 
 

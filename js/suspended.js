@@ -3,8 +3,7 @@
 (function () {
 
     'use strict';
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
-        verbs = ['happy', 'sad', 'excited', 'nervous', 'angry', 'hungry', 'emotional', 'strong', 'thoughtful', 'grateful'];
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function generateFaviconUri(url, callback) {
         var img = new Image(),
@@ -125,10 +124,9 @@
         //try to suspend tab
         attemptTabSuspend();
 
-        //show dude and donate link (randomly 1 of 10 times)
-        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.9) {
+        //show dude and donate link (randomly 1 of 20 times)
+        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.95) {
             window.addEventListener('focus', function () {
-                document.getElementById('popupVerb').innerHTML = verbs[Math.floor((Math.random() * 10))];
                 document.getElementById('dudePopup').setAttribute('class', 'poppedup');
                 document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
             });
