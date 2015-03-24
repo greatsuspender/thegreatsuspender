@@ -175,8 +175,8 @@ var tgs = (function () {
         chrome.tabs.update(tab.id, {url: url});
     }
 
-    function whitelistHighlightedTab(window) {
-        chrome.tabs.query({ windowId: window.id, highlighted: true }, function (tabs) {
+    function whitelistHighlightedTab() {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.saveToWhitelist(rootUrlStr);
@@ -187,8 +187,8 @@ var tgs = (function () {
         });
     }
 
-    function unwhitelistHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+    function unwhitelistHighlightedTab() {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
                 gsUtils.removeFromWhitelist(rootUrlStr);
@@ -196,42 +196,44 @@ var tgs = (function () {
         });
     }
 
-    function temporarilyWhitelistHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+    function temporarilyWhitelistHighlightedTab() {
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 chrome.tabs.sendMessage(tabs[0].id, {action: 'tempWhitelist'});
             }
         });
     }
 
-    function undoTemporarilyWhitelistHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+    function undoTemporarilyWhitelistHighlightedTab() {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 chrome.tabs.sendMessage(tabs[0].id, {action: 'undoTempWhitelist'});
             }
         });
     }
 
-    function suspendHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+    function suspendHighlightedTab() {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 requestTabSuspension(tabs[0], true);
             }
         });
     }
 
-    function unsuspendHighlightedTab(window) {
-        chrome.tabs.query({windowId: window.id, highlighted: true}, function (tabs) {
+    function unsuspendHighlightedTab() {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 unsuspendTab(tabs[0]);
             }
         });
     }
 
-    function suspendAllTabs(window) {
-
-        window.tabs.forEach(function (tab) {
-            requestTabSuspension(tab);
+    function suspendAllTabs() {
+        chrome.windows.getLastFocused({populate: true}, function(curWindow) {
+            curWindow.tabs.forEach(function (tab) {
+                requestTabSuspension(tab);
+            });
         });
     }
 
@@ -241,11 +243,13 @@ var tgs = (function () {
 
     function unsuspendAllTabs(curWindow) {
 
-        curWindow.tabs.forEach(function (currentTab) {
+        chrome.windows.getLastFocused({populate: true}, function(curWindow) {
+            curWindow.tabs.forEach(function (currentTab) {
 
-            if (isSuspended(currentTab)) {
-                requestTabUnsuspend(currentTab);
-            }
+                if (isSuspended(currentTab)) {
+                    requestTabUnsuspend(currentTab);
+                }
+            });
         });
     }
 
@@ -696,35 +700,35 @@ var tgs = (function () {
             break;
 
         case 'suspendOne':
-            chrome.windows.getLastFocused({populate: true}, suspendHighlightedTab);
+            suspendHighlightedTab();
             break;
 
         case 'unsuspendOne':
-            chrome.windows.getLastFocused({populate: true}, unsuspendHighlightedTab);
+            unsuspendHighlightedTab();
             break;
 
         case 'tempWhitelist':
-            chrome.windows.getLastFocused({populate: true}, temporarilyWhitelistHighlightedTab);
+            temporarilyWhitelistHighlightedTab();
             break;
 
         case 'undoTempWhitelist':
-            chrome.windows.getLastFocused({populate: true}, undoTemporarilyWhitelistHighlightedTab);
+            undoTemporarilyWhitelistHighlightedTab();
             break;
 
         case 'whitelist':
-            chrome.windows.getLastFocused({populate: true}, whitelistHighlightedTab);
+            whitelistHighlightedTab();
             break;
 
         case 'removeWhitelist':
-            chrome.windows.getLastFocused({populate: true}, unwhitelistHighlightedTab);
+            unwhitelistHighlightedTab();
             break;
 
         case 'suspendAll':
-            chrome.windows.getLastFocused({populate: true}, suspendAllTabs);
+            suspendAllTabs();
             break;
 
         case 'unsuspendAll':
-            chrome.windows.getLastFocused({populate: true}, unsuspendAllTabs);
+            unsuspendAllTabs();
             break;
 
         default:
