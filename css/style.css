@@ -180,7 +180,7 @@ ul.unorderedList li {
 }
 .btnDonate {
     font-family: 'Open Sans', sans-serif;
-    margin-right: 10px;
+    margin: 0 5px;
     float: left;
 }
 .btnDonate:hover {

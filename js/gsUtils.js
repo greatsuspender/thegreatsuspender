@@ -24,7 +24,7 @@
         SESSION_HISTORY: 'gsSessionHistory',
 
         DB_SERVER: 'tgs',
-        DB_VERSION: '1',
+        DB_VERSION: '2',
         DB_PREVIEWS: 'gsPreviews',
         DB_SUSPENDED_TABINFO: 'gsSuspendedTabInfo',
         DB_CURRENT_SESSIONS: 'gsCurrentSessions',
@@ -168,8 +168,54 @@
             var self = this;
             return db.open({
                 server: self.DB_SERVER,
-                version: self.DB_VERSION
+                version: self.DB_VERSION,
+                schema: self.getSchema
             });
+        },
+
+        getSchema: function () {
+            return {
+                gsPreviews: {
+                    key: {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    },
+                    indexes: {
+                        id: {},
+                        url: {}
+                    }
+                },
+                gsSuspendedTabInfo: {
+                    key: {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    },
+                    indexes: {
+                        id: {},
+                        url: {}
+                    }
+                },
+                gsCurrentSessions: {
+                    key: {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    },
+                    indexes: {
+                        id: {},
+                        sessionId: {}
+                    }
+                },
+                gsSavedSessions: {
+                    key: {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    },
+                    indexes: {
+                        id: {},
+                        sessionId: {}
+                    }
+                }
+            };
         },
 
         fetchPreviewImage: function (tabUrl, callback) {
@@ -768,7 +814,7 @@
 
                 //if pre v5.0 then populate recentSessions and savedSessions from chrome history
                 if (oldVersion < 5) {
-                    sessionHistory = self.convertChromeHistoryToSessionHistory(self, chromeHistory);
+                    sessionHistory = self.migrateSessionHistory(self, chromeHistory, gsHistory);
                     currentSessions = sessionHistory['currentSessions'];
                     savedSessions = sessionHistory['savedSessions'];
 
@@ -794,7 +840,7 @@
                 localStorage.removeItem(self.SESSION_HISTORY);
 
                 //fetch new indexedDb server
-                return self.initialiseIndexedDb();
+                return self.getDb();
 
 
             //migrate gsHistory and gsPreviews to indexedDb tabInfo
@@ -901,7 +947,7 @@
             });
         },
 
-        convertChromeHistoryToSessionHistory: function (self, chromeHistory) {
+        migrateSessionHistory: function (self, chromeHistory, gsHistory) {
 
             var tabId,
                 tabTitle,
@@ -910,7 +956,8 @@
                 tabHistoryDate,
                 currentSessions = [],
                 savedSessions = [],
-                allTabsWindow,
+                chromeTabsWindow,
+                tgsTabsWindow,
                 curSession,
                 curWindow,
                 curTab,
@@ -920,7 +967,9 @@
                 count = 1,
                 groupCount = 0;
 
-            allTabsWindow = {
+
+            //first recover from chrome://history
+             chromeTabsWindow = {
                 id: 7777,
                 tabs: []
             };
@@ -979,71 +1028,40 @@
                     }
                 }
 
-                curTab = self.getTabFromWindow(tabProperties.url, allTabsWindow);
+                curTab = self.getTabFromWindow(tabProperties.url, chromeTabsWindow);
                 if (!curTab) {
-                    allTabsWindow.tabs.push(tabProperties);
+                    chromeTabsWindow.tabs.push(tabProperties);
                 }
                 count++;
             });
 
-            savedSessions.push({sessionId: "_7777", name: "Recovered tabs", windows: [allTabsWindow], date: (new Date()).toISOString()});
+            savedSessions.push({sessionId: "_7777", name: "Chrome history", windows: [chromeTabsWindow], date: (new Date()).toISOString()});
+
+
+            //then recover from gsHistory
+            tgsTabsWindow = {
+                id: 7778,
+                tabs: []
+            };
+
+            gsHistory.sort(self.compareDate);
+            gsHistory.forEach(function (tabProperties) {
+
+                //convert all tab urls into suspended urls
+                tabProperties.url = self.generateSuspendedUrl(tabProperties.url);
+
+                curTab = self.getTabFromWindow(tabProperties.url, tgsTabsWindow);
+                if (!curTab) {
+                    tgsTabsWindow.tabs.push(tabProperties);
+                }
+            });
+
+            savedSessions.push({sessionId: "_7778", name: "Extension history", windows: [tgsTabsWindow], date: (new Date()).toISOString()});
 
             return {
                 'currentSessions': currentSessions,
                 'savedSessions': savedSessions
             };
-        },
-
-        initialiseIndexedDb: function () {
-
-            var self = this;
-
-            return db.open({
-                server: self.DB_SERVER,
-                version: self.DB_VERSION,
-                schema: {
-                    gsPreviews: {
-                        key: {
-                            keyPath: 'id',
-                            autoIncrement: true
-                        },
-                        indexes: {
-                            id: {},
-                            url: {}
-                        }
-                    },
-                    gsSuspendedTabInfo: {
-                        key: {
-                            keyPath: 'id',
-                            autoIncrement: true
-                        },
-                        indexes: {
-                            id: {},
-                            url: {}
-                        }
-                    },
-                    gsCurrentSessions: {
-                        key: {
-                            keyPath: 'id',
-                            autoIncrement: true
-                        },
-                        indexes: {
-                            id: {},
-                            sessionId: {}
-                        }
-                    },
-                    gsSavedSessions: {
-                        key: {
-                            keyPath: 'id',
-                            autoIncrement: true
-                        },
-                        indexes: {
-                            id: {},
-                            sessionId: {}
-                        }
-                    }
-                }
-            });
         }
     };
 

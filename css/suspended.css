@@ -1,4 +1,10 @@
-
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    background: #cfe0e4;
+    padding: 0;
+    margin: 0;
+}
 img {
     padding: 0;
     margin: 0;
@@ -12,6 +18,28 @@ body {
     width: 100%;
     overflow-x:hidden;
     overflow-y:hidden;
+}
+a {
+    color: #3889AB;
+    text-decoration: none;
+    font-weight: 400;
+}
+.btnDonate {
+  font-family: 'Open Sans', sans-serif;
+  margin: 0 5px;
+  float: left;
+}
+.btn {
+  background: #52a6c8;
+  color: #fff;
+  border-radius: 3px;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 20px;
+  display: inline-block;
+  border: 0;
+  font-size: 14px;
+  cursor: pointer;
 }
 #gsTopBar  {
    	position: fixed;
@@ -128,7 +156,7 @@ body {
 
 #donateBubble {
     position: relative;
-    width: 350px;
+    width: 356px;
     height: 80px;
     padding: 5px 10px;
     background: #E7F3F8;

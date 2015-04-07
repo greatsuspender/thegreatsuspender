@@ -26,10 +26,6 @@
 
     function setFavicon(favicon) {
         document.getElementById('gsFavicon').setAttribute('href', favicon);
-
-        setTimeout(function () {
-            document.getElementById('gsFavicon').setAttribute('href', favicon);
-        }, 1000);
     }
 
     function htmlEncode(html) {
@@ -39,16 +35,16 @@
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.hash),
             tabProperties,
-            rootUrlStr,
+            rootUrlStr = gsUtils.getRootUrl(url),
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
-            favicon;
-
-        //just incase the url is a suspension url (somehow??) then decode it
-        while (url.indexOf('suspended.html#') >= 0) {
-            url = gsUtils.getSuspendedUrl(url.substring(url.indexOf('suspended.html#') + 14));
-            window.location.hash = 'uri=' + url;
-        }
-        rootUrlStr = gsUtils.getRootUrl(url);
+            favicon,
+            title,
+            bodyEl = document.getElementsByTagName('body')[0],
+            messageEl = document.getElementById('suspendedMsg'),
+            titleEl = document.getElementById('gsTitle'),
+            topBarEl = document.getElementById('gsTopBarTitle'),
+            whitelistEl = document.getElementById('gsWhitelistLink'),
+            topBarImgEl = document.getElementById('gsTopBarImg');
 
         //try to fetch saved tab information for this url
         gsUtils.fetchTabInfo(url).then(function(tabProperties) {
@@ -62,17 +58,22 @@
             if (showPreview) {
                 gsUtils.fetchPreviewImage(url, function (previewUrl) {
                     if (previewUrl && previewUrl !== null) {
-                        document.getElementById('suspendedMsg').style.display = 'none';
-                        document.getElementById('gsPreview').style.display = 'block';
+
+                        var previewEl = document.createElement('div');
+
+                        previewEl.innerHTML = document.getElementById("previewTemplate").innerHTML;
+                        previewEl.onclick = unsuspendTab;
+                        bodyEl.appendChild(previewEl);
+
                         document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
-                    } else {
-                        document.getElementById('gsPreview').style.display = 'none';
-                        document.getElementById('suspendedMsg').style.display = 'table-cell';
+
+                        messageEl.style.display = 'none';
+                        previewEl.style.display = 'block';
                     }
                 });
+
             } else {
-                document.getElementById('gsPreview').style.display = 'none';
-                document.getElementById('suspendedMsg').style.display = 'table-cell';
+                messageEl.style.display = 'table-cell';
             }
 
             favicon = tabProperties.favicon || 'chrome://favicon/' + url;
@@ -82,14 +83,14 @@
             });
 
             //populate suspended tab bar
-            var title = tabProperties.title ? tabProperties.title : rootUrlStr;
-            document.getElementById('gsTitle').innerHTML = htmlEncode(title);
-            document.getElementById('gsTopBarTitle').innerHTML = htmlEncode(title);
-            document.getElementById('gsTopBarTitle').setAttribute('href', url);
-            document.getElementById('gsWhitelistLink').innerText = 'Add ' + rootUrlStr + ' to whitelist';
-            document.getElementById('gsWhitelistLink').setAttribute('data-text', rootUrlStr);
-
-            document.getElementById('gsTopBarImg').setAttribute('src', favicon);
+            title = tabProperties.title ? tabProperties.title : rootUrlStr;
+            title = title.indexOf('<') < 0 ? title : htmlEncode(title);
+            titleEl.innerHTML = title;
+            topBarEl.innerHTML = title;
+            topBarEl.setAttribute('href', url);
+            whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
+            whitelistEl.setAttribute('data-text', rootUrlStr);
+            topBarImgEl.setAttribute('src', favicon);
         });
     }
 
@@ -98,55 +99,56 @@
         window.location.replace(url);
     }
 
-    function hideNagForever() {
-        gsUtils.setOption(gsUtils.NO_NAG, true);
-        document.getElementById('dudePopup').style.display = 'none';
-        document.getElementById('donateBubble').style.display = 'none';
+    function saveToWhitelist(e) {
+        gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
+        unsuspendTab();
     }
 
+
     window.onload = function () {
-        //handler for unsuspend
+
         document.getElementById('suspendedMsg').onclick = unsuspendTab;
-        document.getElementById('gsPreview').onclick = unsuspendTab;
-
-        //handler for whitelist
-        document.getElementById('gsWhitelistLink').onclick = function (e) {
-            gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
-            unsuspendTab();
-        };
-
-        //handler for donate options
-        document.getElementById('donateBubble').onclick = hideNagForever;
-
-        //mark tab as suspended
-        //sendSuspendedMessage();
+        document.getElementById('gsWhitelistLink').onclick = saveToWhitelist;
 
         //try to suspend tab
         attemptTabSuspend();
 
         //show dude and donate link (randomly 1 of 20 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.95) {
-            window.addEventListener('focus', function () {
+
+            function hideNagForever() {
+                gsUtils.setOption(gsUtils.NO_NAG, true);
+                document.getElementById('dudePopup').style.display = 'none';
+                document.getElementById('donateBubble').style.display = 'none';
+            }
+
+            function loadDonateButtons() {
+                document.getElementById("donateButtons").innerHTML = this.responseText;
+                document.getElementById('donateBubble').onclick = hideNagForever;
+            }
+
+            function displayPopup(e) {
+
+                e.target.removeEventListener('focus', displayPopup);
+
+                //generate html for popupDude
+                var bodyEl = document.getElementsByTagName('body')[0],
+                    donateEl = document.createElement('div');
+
+                donateEl.innerHTML = document.getElementById("donateTemplate").innerHTML;
+
+                bodyEl.appendChild(donateEl);
+
+                var request = new XMLHttpRequest();
+                request.onload = loadDonateButtons;
+                request.open("GET", "support.html", true);
+                request.send();
+
                 document.getElementById('dudePopup').setAttribute('class', 'poppedup');
                 document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
-            });
+            }
+
+            window.addEventListener('focus', displayPopup);
         }
     };
-
-    window.addEventListener('keydown', function(event) {
-        if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 40 || event.keyCode === 116) {
-            event.preventDefault();
-            unsuspendTab();
-        }
-    });
-
-    /*
-    window.onbeforeunload = function () {
-        //update url with suspended url
-        var url = gsUtils.generateSuspendedUrl(window.location.href);
-        window.history.replaceState(null, null, url);
-        document.body.style.cursor = 'wait';
-    };
-    */
-
 }());
