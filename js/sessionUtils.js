@@ -196,7 +196,7 @@ var sessionUtils = (function () {
 
         sessionTitle = createEl('span', {
             'class': 'sessionLink'
-        }, titleText);
+        }, titleText, true);
         sessionTitle.onclick = toggleSession(sessionDiv);
 
         if (!savedSession) {
