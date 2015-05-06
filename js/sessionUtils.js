@@ -340,12 +340,16 @@ var sessionUtils = (function () {
         return linksSpan;
     }
 
-    function createEl(elType, attributes, text) {
+    function createEl(elType, attributes, text, textOnly) {
 
         var el = document.createElement(elType);
         attributes = attributes || {};
         el = setElAttributes(el, attributes);
-        el.innerHTML = text || '';
+		if (textOnly) {
+			el.innerText = text || '';
+		} else {
+			el.innerHTML = text || '';
+		}
         return el;
     }
     function setElAttributes(el, attributes) {
