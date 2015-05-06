@@ -446,8 +446,11 @@ var tgs = (function () {
 
                 gsUtils.initialiseIndexedDb();
 
-                //show welcome screen
-                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+				// prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
+				if (!chrome.extension.inIncognitoContext) {
+					//show welcome screen
+					chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+				}
 
             //else if they are upgrading to a new version
             } else {
