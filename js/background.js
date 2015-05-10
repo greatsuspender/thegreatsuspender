@@ -495,9 +495,10 @@ var tgs = (function () {
             lastNoticeVersion = gsUtils.fetchNoticeVersion();
 
         xhr.open("GET", "http://greatsuspender.github.io/notice.json", true);
+        xhr.timeout = 4000;
         xhr.setRequestHeader('Cache-Control', 'no-cache');
         xhr.onreadystatechange = function() {
-          if (xhr.readyState == 4) {
+          if (xhr.readyState == 4 && xhr.responseText) {
             var resp = JSON.parse(xhr.responseText);
 
             //only show notice if it is intended for this version and it has not already been shown

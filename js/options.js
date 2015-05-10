@@ -136,6 +136,11 @@
             chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
         }
 
+        //clean up whitelist before saving
+        if (pref === gsUtils.WHITELIST) {
+            value = gsUtils.cleanupWhitelist(value);
+        }
+
         //save option
         gsUtils.setOption(elementPrefMap[element.id], value);
     }

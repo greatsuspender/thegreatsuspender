@@ -101,7 +101,7 @@
 
             // .forEach() not desirable in this case AFAIK
             // TODO make sure of comment above this one
-            for (i = 0; i < whitelistedWords.length; i += 1) {
+            for (i = whitelistedWords.length - 1; i >= 0; i--) {
                 if (whitelistedWords[i] === newString) {
                     whitelistedWords.splice(i, 1);
                 }
@@ -110,7 +110,8 @@
         },
 
         saveToWhitelist: function (newString) {
-            var whitelist = this.getOption(this.WHITELIST) + '\n' + newString;
+            var whitelist = this.getOption(this.WHITELIST);
+            whitelist = whitelist ? whitelist + '\n' + newString : newString;
             whitelist = this.cleanupWhitelist(whitelist);
             this.setOption(this.WHITELIST, whitelist);
         },
@@ -120,14 +121,17 @@
                 i,
                 j;
 
-            for (i = 0; i < whitelistedWords.length; i += 1) {
+            for (i = whitelistedWords.length - 1; i >= 0; i--) {
                 j = whitelistedWords.lastIndexOf(whitelistedWords[i]);
                 if (j !== i) {
                     whitelistedWords.splice(i + 1, j - i);
                 }
             }
-
-            return whitelistedWords.join('\n');
+            if (whitelistedWords.length) {
+                return whitelistedWords.join('\n');
+            } else {
+                return whitelistedWords;
+            }
         },
 
         fetchLastVersion: function () {
@@ -413,21 +417,27 @@
 
         removeTabFromSessionHistory: function (sessionId, windowId, tabId, callback) {
 
-            var self = this;
+            var self = this,
+                matched;
+
             callback = typeof callback !== 'function' ? this.noop : callback;
 
             this.fetchSessionById(sessionId).then(function(gsSession) {
 
                 gsSession.windows.some(function (curWindow, windowIndex) {
-                    curWindow.tabs.some(function (curTab, tabIndex) {
+                    matched = curWindow.tabs.some(function (curTab, tabIndex) {
                     //leave this as a loose matching as sometimes it is comparing strings. other times ints
                         if (curTab.id == tabId || curTab.url == tabId) {
                             curWindow.tabs.splice(tabIndex, 1);
+                            return true;
                         }
                     });
-                    //remove window if it no longer contains any tabs
-                    if (curWindow.tabs.length === 0) {
-                        gsSession.windows.splice(windowIndex, 1);
+                    if (matched) {
+                        //remove window if it no longer contains any tabs
+                        if (curWindow.tabs.length === 0) {
+                            gsSession.windows.splice(windowIndex, 1);
+                        }
+                        return true;
                     }
                 });
 
