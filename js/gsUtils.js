@@ -8,7 +8,7 @@
         SHOW_PREVIEW: 'preview',
         PREVIEW_QUALITY: 'previewQuality',
         ONLINE_CHECK: 'onlineCheck',
-        BATTERY_CHECK: 'onlineCheck',
+        BATTERY_CHECK: 'batteryCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
         SUSPEND_TIME: 'gsTimeToSuspend',
         IGNORE_PINNED: 'gsDontSuspendPinned',
