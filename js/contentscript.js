@@ -56,7 +56,7 @@
             keyEnd = document.cookie.indexOf(';', keyStart) > 0 ? document.cookie.indexOf(';', keyStart) : document.cookie.length;
             return document.cookie.substring(keyStart + key.length, keyEnd);
         } else {
-            return 50;
+            return false;
         }
     }
 
