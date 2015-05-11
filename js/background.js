@@ -659,6 +659,56 @@ var tgs = (function () {
         chrome.browserAction.setIcon({path: icon});
     }
 
+    //make right click Context Menu for Chrome
+    chrome.contextMenus.create({
+       type: "separator"
+    });
+    
+    //Suspend present tab
+    chrome.contextMenus.create({
+       title: "Suspend Tab", 
+       contexts:["all"], 
+       onclick: suspendHighlightedTab
+    });
+    
+    //Add present tab to temporary whitelist
+    chrome.contextMenus.create({
+       title: "Don't suspend for now", 
+       contexts:["all"], 
+       onclick: temporarilyWhitelistHighlightedTab
+    });
+    
+    //Add present tab to permenant whitelist
+    chrome.contextMenus.create({
+       title: "Never suspend this site", 
+       contexts:["all"], 
+       onclick: whitelistHighlightedTab
+    });
+    
+    //Suspend all the tabs
+    chrome.contextMenus.create({
+       title: "Suspend All Tabs", 
+       contexts:["all"], 
+       onclick: suspendAllTabs
+    });
+    
+    //Unsuspend all the tabs
+    chrome.contextMenus.create({
+       title: "Unsuspend All Tabs", 
+       contexts:["all"], 
+       onclick: unsuspendAllTabs
+    });
+
+     //Open settings page
+   chrome.contextMenus.create({
+       title: "Settings", 
+       contexts:["all"], 
+       onclick: function(e) {
+           chrome.tabs.create({
+                url: chrome.extension.getURL('options.html')
+           });
+        }
+   });
     //handler for message requests
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (debug) {
@@ -918,3 +968,4 @@ var tgs = (function () {
 }());
 
 tgs.runStartupChecks();
+
