@@ -14,6 +14,7 @@
             'dontSuspendPinned': gsUtils.IGNORE_PINNED,
             'dontSuspendForms': gsUtils.IGNORE_FORMS,
             'ignoreCache': gsUtils.IGNORE_CACHE,
+            'addContextMenu': gsUtils.ADD_CONTEXT,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
             'whitelist': gsUtils.WHITELIST
         },
@@ -134,6 +135,15 @@
         //if interval has changed then reset the tab timers
         if (pref === gsUtils.SUSPEND_TIME && gsUtils.getOption(pref) !== value) {
             chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
+        }
+
+        //if context menu has been disabled then remove from chrome
+        if (pref === gsUtils.ADD_CONTEXT && gsUtils.getOption(pref) !== value) {
+            if (value === true) {
+                chrome.extension.getBackgroundPage().tgs.buildContextMenu();
+            } else {
+                chrome.extension.getBackgroundPage().tgs.removeContextMenu();
+            }
         }
 
         //clean up whitelist before saving

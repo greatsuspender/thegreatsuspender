@@ -21,7 +21,8 @@ var tgs = (function () {
         sessionSaveTimer,
         chargingMode = false,
         lastStatus = 'normal',
-        notice = {};
+        notice = {},
+        contextMenuItems = false;
 
 
     //set gloabl sessionId
@@ -430,7 +431,8 @@ var tgs = (function () {
     function runStartupChecks() {
 
         var lastVersion = gsUtils.fetchLastVersion(),
-            curVersion = chrome.runtime.getManifest().version;
+            curVersion = chrome.runtime.getManifest().version,
+            contextMenus = gsUtils.getOption(gsUtils.ADD_CONTEXT);
 
         //if version has changed then assume initial install or upgrade
         if (lastVersion !== curVersion) {
@@ -483,6 +485,11 @@ var tgs = (function () {
         //trim excess dbItems
         if (lastVersion > 6.12) {
             gsUtils.trimDbItems();
+        }
+
+        //add context menu items
+        if (contextMenus && !contextMenuItems) {
+            buildContextMenu();
         }
     }
 
@@ -658,57 +665,70 @@ var tgs = (function () {
 
     //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
 
-    //make right click Context Menu for Chrome
-    chrome.contextMenus.create({
-       type: "separator"
-    });
+    function buildContextMenu() {
 
-    //Suspend present tab
-    chrome.contextMenus.create({
-       title: "Suspend Tab",
-       contexts:["all"],
-       onclick: suspendHighlightedTab
-    });
+        contextMenuItems = [];
 
-    //Add present tab to temporary whitelist
-    chrome.contextMenus.create({
-       title: "Don't suspend for now",
-       contexts:["all"],
-       onclick: temporarilyWhitelistHighlightedTab
-    });
+        //make right click Context Menu for Chrome
+        contextMenuItems.push(chrome.contextMenus.create({
+           type: "separator"
+        }));
 
-    //Add present tab to permenant whitelist
-    chrome.contextMenus.create({
-       title: "Never suspend this site",
-       contexts:["all"],
-       onclick: whitelistHighlightedTab
-    });
+        //Suspend present tab
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Suspend Tab",
+           contexts:["all"],
+           onclick: suspendHighlightedTab
+        }));
 
-    //Suspend all the tabs
-    chrome.contextMenus.create({
-       title: "Suspend All Tabs",
-       contexts:["all"],
-       onclick: suspendAllTabs
-    });
+        //Add present tab to temporary whitelist
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Don't suspend for now",
+           contexts:["all"],
+           onclick: temporarilyWhitelistHighlightedTab
+        }));
 
-    //Unsuspend all the tabs
-    chrome.contextMenus.create({
-       title: "Unsuspend All Tabs",
-       contexts:["all"],
-       onclick: unsuspendAllTabs
-    });
+        //Add present tab to permenant whitelist
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Never suspend this site",
+           contexts:["all"],
+           onclick: whitelistHighlightedTab
+        }));
 
-     //Open settings page
-    chrome.contextMenus.create({
-       title: "Settings",
-       contexts:["all"],
-       onclick: function(e) {
-           chrome.tabs.create({
-                url: chrome.extension.getURL('options.html')
-           });
+        //Suspend all the tabs
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Suspend All Tabs",
+           contexts:["all"],
+           onclick: suspendAllTabs
+        }));
+
+        //Unsuspend all the tabs
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Unsuspend All Tabs",
+           contexts:["all"],
+           onclick: unsuspendAllTabs
+        }));
+
+         //Open settings page
+        contextMenuItems.push(chrome.contextMenus.create({
+           title: "Settings",
+           contexts:["all"],
+           onclick: function(e) {
+               chrome.tabs.create({
+                    url: chrome.extension.getURL('options.html')
+               });
+            }
+        }));
+    }
+    function removeContextMenu() {
+
+        if (contextMenuItems && contextMenuItems.length > 0) {
+            contextMenuItems.forEach(function (item) {
+                chrome.contextMenus.remove(item);
+            });
+            contextMenuItems = false;
         }
-    });
-
+    }
 
 
     //HANDLERS FOR KEYBOARD SHORTCUTS
@@ -960,7 +980,9 @@ var tgs = (function () {
         sessionId: sessionId,
         runStartupChecks: runStartupChecks,
         resetAllTabTimers: resetAllTabTimers,
-        requestNotice: requestNotice
+        requestNotice: requestNotice,
+        buildContextMenu: buildContextMenu,
+        removeContextMenu: removeContextMenu
     };
 
 }());

@@ -14,6 +14,7 @@
         IGNORE_PINNED: 'gsDontSuspendPinned',
         IGNORE_FORMS: 'gsDontSuspendForms',
         IGNORE_CACHE: 'gsIgnoreCache',
+        ADD_CONTEXT: 'gsAddContextMenu',
         NO_NAG: 'gsNoNag',
         WHITELIST: 'gsWhitelist',
 
@@ -43,6 +44,7 @@
             defaults[this.IGNORE_PINNED] = true;
             defaults[this.IGNORE_FORMS] = true;
             defaults[this.IGNORE_CACHE] = false;
+            defaults[this.ADD_CONTEXT] = true;
             defaults[this.SUSPEND_TIME] = '60';
             defaults[this.NO_NAG] = false;
             defaults[this.WHITELIST] = '';
