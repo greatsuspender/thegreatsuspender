@@ -10,7 +10,8 @@
     "http://*/*",
     "https://*/*",
     "chrome://favicon/*",
-    "http://greatsuspender.github.io/"
+    "http://greatsuspender.github.io/",
+    "contextMenus"
   ],
   "background": {
     "scripts": ["js/db.js", "js/gsUtils.js", "js/background.js"],

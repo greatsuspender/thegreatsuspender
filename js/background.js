@@ -170,11 +170,6 @@ var tgs = (function () {
         }
     }
 
-    function requestTabUnsuspend(tab) {
-        var url = gsUtils.getSuspendedUrl(tab.url.split('suspended.html')[1]);
-        chrome.tabs.update(tab.id, {url: url});
-    }
-
     function whitelistHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
@@ -223,7 +218,7 @@ var tgs = (function () {
 
     function unsuspendHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
+            if (tabs.length > 0 && isSuspended(tabs[0])) {
                 unsuspendTab(tabs[0]);
             }
         });
@@ -232,7 +227,7 @@ var tgs = (function () {
     function suspendAllTabs() {
         chrome.windows.getLastFocused({populate: true}, function(curWindow) {
             curWindow.tabs.forEach(function (tab) {
-                requestTabSuspension(tab);
+                requestTabSuspension(tab, true);
             });
         });
     }
@@ -241,13 +236,13 @@ var tgs = (function () {
         return tab.url.indexOf('suspended.html') >= 0;
     }
 
-    function unsuspendAllTabs(curWindow) {
+    function unsuspendAllTabs() {
 
         chrome.windows.getLastFocused({populate: true}, function(curWindow) {
             curWindow.tabs.forEach(function (currentTab) {
 
                 if (isSuspended(currentTab)) {
-                    requestTabUnsuspend(currentTab);
+                    unsuspendTab(currentTab);
                 }
             });
         });
@@ -659,7 +654,98 @@ var tgs = (function () {
         chrome.browserAction.setIcon({path: icon});
     }
 
-    //handler for message requests
+
+
+    //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
+
+    //make right click Context Menu for Chrome
+    chrome.contextMenus.create({
+       type: "separator"
+    });
+
+    //Suspend present tab
+    chrome.contextMenus.create({
+       title: "Suspend Tab",
+       contexts:["all"],
+       onclick: suspendHighlightedTab
+    });
+
+    //Add present tab to temporary whitelist
+    chrome.contextMenus.create({
+       title: "Don't suspend for now",
+       contexts:["all"],
+       onclick: temporarilyWhitelistHighlightedTab
+    });
+
+    //Add present tab to permenant whitelist
+    chrome.contextMenus.create({
+       title: "Never suspend this site",
+       contexts:["all"],
+       onclick: whitelistHighlightedTab
+    });
+
+    //Suspend all the tabs
+    chrome.contextMenus.create({
+       title: "Suspend All Tabs",
+       contexts:["all"],
+       onclick: suspendAllTabs
+    });
+
+    //Unsuspend all the tabs
+    chrome.contextMenus.create({
+       title: "Unsuspend All Tabs",
+       contexts:["all"],
+       onclick: unsuspendAllTabs
+    });
+
+     //Open settings page
+    chrome.contextMenus.create({
+       title: "Settings",
+       contexts:["all"],
+       onclick: function(e) {
+           chrome.tabs.create({
+                url: chrome.extension.getURL('options.html')
+           });
+        }
+    });
+
+
+
+    //HANDLERS FOR KEYBOARD SHORTCUTS
+
+    chrome.commands.onCommand.addListener(function (command) {
+        if (command === '1-suspend-tab') {
+            suspendHighlightedTab();
+
+        } else if (command === '2-unsuspend-tab') {
+            unsuspendHighlightedTab();
+
+        } else if (command === '3-suspend-active-window') {
+            suspendAllTabs();
+
+        } else if (command === '4-unsuspend-active-window') {
+            unsuspendAllTabs();
+
+        } else if (command === '5-suspend-all-windows') {
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (currentTab) {
+                    requestTabSuspension(currentTab, true);
+                });
+            });
+
+        } else if (command === '6-unsuspend-all-windows') {
+            chrome.tabs.query({}, function (tabs) {
+                tabs.forEach(function (currentTab) {
+                    if (isSuspended(currentTab)) unsuspendTab(currentTab);
+                });
+            });
+        }
+    });
+
+
+
+    //HANDLERS FOR MESSAGE REQUESTS
+
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (debug) {
             console.log('listener fired:', request.action);
@@ -818,46 +904,6 @@ var tgs = (function () {
         queueSessionTimer();
     });
 
-    chrome.commands.onCommand.addListener(function (command) {
-        if (command === '1-suspend-tab') {
-            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                requestTabSuspension(tabs[0], true);
-            });
-
-        } else if (command === '2-unsuspend-tab') {
-            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-                if (isSuspended(tabs[0])) unsuspendTab(tabs[0]);
-            });
-
-        } else if (command === '3-suspend-active-window') {
-            chrome.windows.getLastFocused({populate: true}, function(window) {
-                window.tabs.forEach(function (tab) {
-                    requestTabSuspension(tab, true);
-                });
-            });
-
-        } else if (command === '4-unsuspend-active-window') {
-            chrome.windows.getLastFocused({populate: true},  function(window) {
-                window.tabs.forEach(function (tab) {
-                    if (isSuspended(tab)) unsuspendTab(tab);
-                });
-            });
-
-        } else if (command === '5-suspend-all-windows') {
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (currentTab) {
-                    requestTabSuspension(currentTab, true);
-                });
-            });
-
-        } else if (command === '6-unsuspend-all-windows') {
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (currentTab) {
-                    if (isSuspended(currentTab)) unsuspendTab(currentTab);
-                });
-            });
-        }
-    });
 
     //tidy up history items as they are created
     chrome.history.onVisited.addListener(function (historyItem) {
@@ -920,3 +966,4 @@ var tgs = (function () {
 }());
 
 tgs.runStartupChecks();
+
