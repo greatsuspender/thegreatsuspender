@@ -2,7 +2,8 @@
 
 (function () {
 
-    'use strict';
+    //removed strict mode for compatibility with older versions of chrome
+    //'use strict';
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function generateFaviconUri(url, callback) {

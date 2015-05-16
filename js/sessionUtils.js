@@ -295,9 +295,14 @@ var sessionUtils = (function () {
 
         recoveryMode = recoveryMode || false;
 
-        favicon = favicon || tabProperties.favicon;
-        favicon = favicon || tabProperties.favIconUrl;
-        favicon = favicon || 'chrome://favicon/' + tabProperties.url;
+        //try to get best favicon url path
+        if (tabProperties.favicon) {
+            favicon = tabProperties.favicon;
+        } else if (tabProperties.favIconUrl && tabProperties.favIconUrl.indexOf('chrome://theme') < 0) {
+            favicon = tabProperties.favIconUrl;
+        } else {
+            favicon = 'chrome://favicon/' + tabProperties.url;
+        }
 
         if (tabProperties.sessionId) {
             linksSpan = createEl('div', {

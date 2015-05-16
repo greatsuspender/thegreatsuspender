@@ -876,14 +876,16 @@ var tgs = (function () {
     });
 
     //add listener for battery state changes
-    navigator.getBattery().then(function(battery) {
+    if (navigator.getBattery) {
+        navigator.getBattery().then(function(battery) {
 
-        chargingMode = battery.charging;
+            chargingMode = battery.charging;
 
-        battery.onchargingchange = function () {
-             chargingMode = battery.charging;
-        };
-    });
+            battery.onchargingchange = function () {
+                 chargingMode = battery.charging;
+            };
+        });
+    }
 
     //start job to check for notices (once a day)
     window.setInterval(checkForNotices, 1000 * 60 * 60 * 24);
