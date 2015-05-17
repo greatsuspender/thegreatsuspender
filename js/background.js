@@ -441,8 +441,6 @@ var tgs = (function () {
             //if they are installing for the first time
             if (!lastVersion) {
 
-                gsUtils.initialiseIndexedDb();
-
 				// prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
 				if (!chrome.extension.inIncognitoContext) {
 					//show welcome screen
