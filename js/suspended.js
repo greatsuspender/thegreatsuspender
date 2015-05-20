@@ -105,7 +105,6 @@
         unsuspendTab();
     }
 
-
     window.onload = function () {
 
         document.getElementById('suspendedMsg').onclick = unsuspendTab;
@@ -114,8 +113,16 @@
         //try to suspend tab
         attemptTabSuspend();
 
+        //add an unload listener to send an unsuspend request on page unload
+        //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
+        window.addEventListener('beforeunload', function(event) {
+            chrome.runtime.sendMessage({
+                action: 'unsuspendTab'
+            });
+        });
+
         //show dude and donate link (randomly 1 of 20 times)
-        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.95) {
+        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
 
             function hideNagForever() {
                 gsUtils.setOption(gsUtils.NO_NAG, true);

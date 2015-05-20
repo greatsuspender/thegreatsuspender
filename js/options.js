@@ -4,7 +4,14 @@
 
     'use strict';
 
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
+    var gsUtils,
+        elementPrefMap,
+        elementIdMap,
+        readyStateCheckInterval;
+
+    function initialise() {
+
+        gsUtils = chrome.extension.getBackgroundPage().gsUtils;
         elementPrefMap = {
             'preview': gsUtils.SHOW_PREVIEW,
             'previewQuality': gsUtils.PREVIEW_QUALITY,
@@ -17,9 +24,9 @@
             'addContextMenu': gsUtils.ADD_CONTEXT,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
             'whitelist': gsUtils.WHITELIST
-        },
-        elementIdMap = invert(elementPrefMap),
-        readyStateCheckInterval;
+        };
+        elementIdMap = invert(elementPrefMap);
+    }
 
     function invert(obj) {
 
@@ -48,7 +55,7 @@
     }
 
     //populate settings from synced storage
-    function init() {
+    function initSettings() {
 
         var optionEls = document.getElementsByClassName('option'),
             pref,
@@ -130,29 +137,31 @@
     function saveChange(element) {
 
         var pref = elementPrefMap[element.id],
-            value = getOptionValue(element);
+            oldValue = gsUtils.getOption(element.id),
+            newValue = getOptionValue(element);
+
+        //clean up whitelist before saving
+        if (pref === gsUtils.WHITELIST) {
+            newValue = gsUtils.cleanupWhitelist(newValue);
+        }
+
+        //save option
+        gsUtils.setOption(elementPrefMap[element.id], newValue);
+
 
         //if interval has changed then reset the tab timers
-        if (pref === gsUtils.SUSPEND_TIME && gsUtils.getOption(pref) !== value) {
+        if (pref === gsUtils.SUSPEND_TIME && oldValue !== newValue) {
             chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
         }
 
         //if context menu has been disabled then remove from chrome
-        if (pref === gsUtils.ADD_CONTEXT && gsUtils.getOption(pref) !== value) {
-            if (value === true) {
+        if (pref === gsUtils.ADD_CONTEXT && oldValue !== newValue) {
+            if (newValue === true) {
                 chrome.extension.getBackgroundPage().tgs.buildContextMenu();
             } else {
                 chrome.extension.getBackgroundPage().tgs.removeContextMenu();
             }
         }
-
-        //clean up whitelist before saving
-        if (pref === gsUtils.WHITELIST) {
-            value = gsUtils.cleanupWhitelist(value);
-        }
-
-        //save option
-        gsUtils.setOption(elementPrefMap[element.id], value);
     }
 
     readyStateCheckInterval = window.setInterval(function () {
@@ -160,7 +169,8 @@
 
             window.clearInterval(readyStateCheckInterval);
 
-            init();
+            initialise();
+            initSettings();
 
             var optionEls = document.getElementsByClassName('option'),
                 saveEl = document.getElementById('saveBtn'),

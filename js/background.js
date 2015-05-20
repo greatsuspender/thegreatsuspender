@@ -285,7 +285,11 @@ var tgs = (function () {
 
     function unsuspendTab(tab) {
         var url = gsUtils.getSuspendedUrl(tab.url.split('suspended.html')[1]);
-        chrome.tabs.update(tab.id, {url: url});
+        chrome.tabs.update(tab.id, {url: url}, function() {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError.message);
+            }
+        });
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
@@ -787,12 +791,14 @@ var tgs = (function () {
             }
             break;
 
-        case 'confirmTabUnsuspend':
-            unsuspendTab(sender.tab);
-            break;
-
         case 'suspendTab':
             requestTabSuspension(sender.tab);
+            break;
+
+        case 'unsuspendTab':
+            if (sender.tab && isSuspended(sender.tab)) {
+                unsuspendTab(sender.tab);
+            }
             break;
 
         case 'savePreviewData':
@@ -844,17 +850,33 @@ var tgs = (function () {
         }
     });
 
+    // listen for window switching
+    // for unsuspending on tab focus
+    chrome.windows.onFocusChanged.addListener(function (windowId) {
+
+        chrome.tabs.query({active: true, windowId: windowId}, function(tabs) {
+            if (tabs && tabs.length === 1) {
+               handleTabFocus(tabs[0].id, tabs[0].windowId);
+            }
+        });
+    });
+
     // listen for tab switching
     // for unsuspending on tab focus
     chrome.tabs.onActivated.addListener(function (activeInfo) {
+        handleTabFocus(activeInfo.tabId, activeInfo.windowId);
+    });
+
+    function handleTabFocus(tabId, windowId) {
+
         if (debug) {
-            console.log('tab changed: ' + activeInfo.tabId);
+            console.log('tab changed: ' + tabId);
         }
 
-        var lastSelectedTab = lastSelectedTabs[activeInfo.windowId];
+        var lastSelectedTab = lastSelectedTabs[windowId];
 
-        lastSelectedTabs[activeInfo.windowId] = activeInfo.tabId;
-        currentTabId = activeInfo.tabId;
+        lastSelectedTabs[windowId] = tabId;
+        currentTabId = tabId;
 
         //reset timer on tab that lost focus
         if (lastSelectedTab) {
@@ -862,7 +884,7 @@ var tgs = (function () {
         }
 
         //update icon
-        requestTabInfo(activeInfo.tabId, function (info) {
+        requestTabInfo(tabId, function (info) {
             updateIcon(info.status);
         });
 
@@ -870,14 +892,14 @@ var tgs = (function () {
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
         (function () {
-            var selectedTab = activeInfo.tabId;
+            var selectedTab = tabId;
             setTimeout(function () {
                 if (selectedTab === currentTabId) {
                     handleNewTabFocus(currentTabId);
                 }
             }, 500);
         }());
-    });
+    }
 
     //listen for tab updating
     //don't want to put a listener here as it's called too aggressively by chrome
@@ -973,7 +995,6 @@ var tgs = (function () {
         requestTabInfo: requestTabInfo,
         updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,
-        reinject: reinjectContentScripts,
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,
         runStartupChecks: runStartupChecks,

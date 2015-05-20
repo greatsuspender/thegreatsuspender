@@ -12,7 +12,7 @@
 
     var inputState = false,
         tempWhitelist = false,
-        timer,
+        timerJob,
         timerUp = false,
         suspendTime,
         suspendedEl = document.getElementById('gsTopBar');
@@ -114,13 +114,19 @@
         }
     }
 
-    function setTimerJob(interval) {
+    function setTimerJob(timeToSuspend) {
 
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
-        if (interval > 4) {
-            interval = interval + (Math.random() * 60 * 1000);
+        if (timeToSuspend > (1000*60)) {
+            timeToSuspend = timeToSuspend + parseInt((Math.random() * 1000*60), 10);
         }
-        timerUp = new Date((new Date()).getTime() + interval);
+
+        //safety check to make sure timeToSuspend is reasonable
+        if (timeToSuspend < (1000*10)) {
+            timeToSuspend = (1000*60*60);
+        }
+
+        timerUp = new Date((new Date()).getTime() + timeToSuspend);
 
         return setTimeout(function () {
             //request suspension
@@ -128,7 +134,7 @@
 
                 chrome.runtime.sendMessage({ action: 'suspendTab' });
             }
-        }, interval);
+        }, timeToSuspend);
     }
 
     function setFormInputJob() {
@@ -162,10 +168,10 @@
 
         switch (request.action) {
         case 'resetTimer':
-            clearTimeout(timer);
+            clearTimeout(timerJob);
             if (request.suspendTime > 0) {
-                suspendTime = request.suspendTime * 60 * 1000;
-                timer = setTimerJob(suspendTime);
+                suspendTime = request.suspendTime * (1000*60);
+                timerJob = setTimerJob(suspendTime);
             } else {
                 timerUp = false;
                 suspendTime = 0;
@@ -181,9 +187,9 @@
             sendResponse(response);
             break;
 
-        //cancel suspension timer
+        //cancel suspension timer job
         case 'cancelTimer':
-            clearTimeout(timer);
+            clearTimeout(timerJob);
             timerUp = false;
             break;
 
@@ -229,10 +235,10 @@
 
         if (response && response.suspendTime > 0) {
 
-            suspendTime = response.suspendTime * 60 * 1000;
+            suspendTime = response.suspendTime * (1000*60);
 
             //set timer job
-            timer = setTimerJob(suspendTime);
+            timerJob = setTimerJob(suspendTime);
 
             //add form input listener
             if (response.dontSuspendForms) {
