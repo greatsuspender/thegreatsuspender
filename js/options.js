@@ -137,7 +137,7 @@
     function saveChange(element) {
 
         var pref = elementPrefMap[element.id],
-            oldValue = gsUtils.getOption(element.id),
+            oldValue = gsUtils.getOption(pref),
             newValue = getOptionValue(element);
 
         //clean up whitelist before saving

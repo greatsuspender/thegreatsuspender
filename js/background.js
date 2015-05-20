@@ -490,7 +490,7 @@ var tgs = (function () {
         }
 
         //add context menu items
-        if (contextMenus && !contextMenuItems) {
+        if (contextMenus) {
             buildContextMenu();
         }
     }
@@ -668,6 +668,10 @@ var tgs = (function () {
     //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
 
     function buildContextMenu() {
+
+        if (contextMenuItems && contextMenuItems.length > 0) {
+            return;
+        }
 
         contextMenuItems = [];
 
