@@ -690,15 +690,6 @@ var tgs = (function () {
         }
         chrome.browserAction.setIcon({path: icon});
     }
-    function blinkIcon(showBlink) {
-        var icon;
-        if (lastStatus === 'normal') {
-            icon = showBlink ? '/img/icon19c.png' : '/img/icon19.png';
-        } else {
-            icon = showBlink ? '/img/icon19d.png' : '/img/icon19b.png';
-        }
-        chrome.browserAction.setIcon({path: icon});
-    }
 
 
 

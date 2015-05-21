@@ -22,7 +22,7 @@
 
             callback(canvas.toDataURL());
         };
-        img.src = url || chrome.extension.getURL('default.ico');
+        img.src = url || chrome.extension.getURL('img/default.ico');
     }
 
     function setFavicon(favicon) {
