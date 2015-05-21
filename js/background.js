@@ -17,12 +17,13 @@ var tgs = (function () {
         useClean = false,
         sessionId,
         lastSelectedTabs = [],
-        currentTabId,
+        globalCurrentTabId,
         sessionSaveTimer,
         chargingMode = false,
         lastStatus = 'normal',
         notice = {},
-        contextMenuItems = false;
+        contextMenuItems = false,
+        unsuspendRequestList = {};
 
 
     //set gloabl sessionId
@@ -301,8 +302,44 @@ var tgs = (function () {
         }*/
     }
 
+    function handleTabFocusChanged(tabId, windowId) {
+
+        if (debug) {
+            console.log('tab changed: ' + tabId);
+        }
+
+        var lastSelectedTab = lastSelectedTabs[windowId];
+
+        lastSelectedTabs[windowId] = tabId;
+        globalCurrentTabId = tabId;
+
+        //reset timer on tab that lost focus
+        //TODO: ideally we'd only reset timer on last tab viewed for more than 500ms (as per setTimeout below)
+        //but that's getting tricky to determine
+        if (lastSelectedTab) {
+            resetTabTimer(lastSelectedTab);
+        }
+
+
+        //pause for a bit before assuming we're on a new tab as some users
+        //will key through intermediate tabs to get to the one they want.
+        (function () {
+            var selectedTab = tabId;
+            setTimeout(function () {
+                if (selectedTab === globalCurrentTabId) {
+                    handleNewTabFocus(globalCurrentTabId);
+                }
+            }, 500);
+        }());
+    }
+
     function handleNewTabFocus(tabId) {
         var unsuspend = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
+
+        //update icon
+        requestTabInfo(tabId, function (info) {
+            updateIcon(info.status);
+        });
 
         //if pref is set, then unsuspend newly focused tab
         if (unsuspend) {
@@ -553,7 +590,7 @@ var tgs = (function () {
             status: 'unknown',
             timerUp: '-'
         };
-        tabId = tabId || currentTabId;
+        tabId = tabId || globalCurrentTabId;
 
         if (typeof(tabId) === 'undefined') {
             callback(info);
@@ -789,7 +826,7 @@ var tgs = (function () {
             break;
 
         case 'reportTabState':
-            if (sender.tab && sender.tab.id === currentTabId) {
+            if (sender.tab && sender.tab.id === globalCurrentTabId) {
                 var status = processActiveTabStatus(sender.tab, request.status);
                 updateIcon(status);
             }
@@ -799,9 +836,9 @@ var tgs = (function () {
             requestTabSuspension(sender.tab);
             break;
 
-        case 'unsuspendTab':
+        case 'requestUnsuspendTab':
             if (sender.tab && isSuspended(sender.tab)) {
-                unsuspendTab(sender.tab);
+                unsuspendRequestList[sender.tab.id] = true;
             }
             break;
 
@@ -854,91 +891,47 @@ var tgs = (function () {
         }
     });
 
-    // listen for window switching
-    // for unsuspending on tab focus
+    // listen for focus changes
     chrome.windows.onFocusChanged.addListener(function (windowId) {
 
         chrome.tabs.query({active: true, windowId: windowId}, function(tabs) {
             if (tabs && tabs.length === 1) {
-               handleTabFocus(tabs[0].id, tabs[0].windowId);
+               handleTabFocusChanged(tabs[0].id, tabs[0].windowId);
             }
         });
     });
-
-    // listen for tab switching
-    // for unsuspending on tab focus
     chrome.tabs.onActivated.addListener(function (activeInfo) {
-        handleTabFocus(activeInfo.tabId, activeInfo.windowId);
+        handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
     });
-
-    function handleTabFocus(tabId, windowId) {
-
-        if (debug) {
-            console.log('tab changed: ' + tabId);
-        }
-
-        var lastSelectedTab = lastSelectedTabs[windowId];
-
-        lastSelectedTabs[windowId] = tabId;
-        currentTabId = tabId;
-
-        //reset timer on tab that lost focus
-        if (lastSelectedTab) {
-            resetTabTimer(lastSelectedTab);
-        }
-
-        //update icon
-        requestTabInfo(tabId, function (info) {
-            updateIcon(info.status);
-        });
-
-
-        //pause for a bit before assuming we're on a new tab as some users
-        //will key through intermediate tabs to get to the one they want.
-        (function () {
-            var selectedTab = tabId;
-            setTimeout(function () {
-                if (selectedTab === currentTabId) {
-                    handleNewTabFocus(currentTabId);
-                }
-            }, 500);
-        }());
-    }
-
-    //listen for tab updating
-    //don't want to put a listener here as it's called too aggressively by chrome
-    /*
-    chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-        if (debug) {
-            console.log('tab updated: ' + tabId);
-        }
-
-        //if tab does not have focus, then set timer on newly created tab
-        if (!tab.active) {
-            resetTabTimer(tab.id);
-        }
-    });
-    */
 
     //add listeners for session monitoring
-    chrome.tabs.onCreated.addListener(function() {
+    chrome.tabs.onCreated.addListener(function(tab) {
         queueSessionTimer();
-        //check for a suspended tab from a different installation of TGS
-        //if found, convert to this installation of the extension
-        //UPDATE: not sure if this is a good idea. especially if there are two instances of the extension running on the same pc!
-        /*if (tab.url.indexOf('suspended.html') > 0
-                && gsUtils.getRootUrl(tab.url) !== gsUtils.getRootUrl(chrome.extension.getURL(''))) {
-            var urlTail = tab.url.substring(tab.url.indexOf('suspended.html'));
-            chrome.tabs.update(tab.id, {url: chrome.extension.getURL(urlTail)});
-        }*/
     });
-    chrome.tabs.onRemoved.addListener(function() {
+    chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
         queueSessionTimer();
+
+        if (unsuspendRequestList[tabId]) {
+            delete unsuspendRequestList[tabId];
+        }
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         //only save session if the tab url has changed
         if (changeInfo && changeInfo.url) {
             queueSessionTimer();
+        }
+
+        //check for tab having an unsuspend request
+        if (unsuspendRequestList[tab.id]) {
+
+            //only permit unsuspend if tab is being reloaded
+            if (changeInfo && changeInfo.status === 'loading' && isSuspended(tab)) {
+                unsuspendTab(tab);
+
+            //otherwise remove unsuspend request
+            } else {
+                delete unsuspendRequestList[tab.id];
+            }
         }
     });
     chrome.windows.onCreated.addListener(function() {

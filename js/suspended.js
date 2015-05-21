@@ -117,7 +117,7 @@
         //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
         window.addEventListener('beforeunload', function(event) {
             chrome.runtime.sendMessage({
-                action: 'unsuspendTab'
+                action: 'requestUnsuspendTab'
             });
         });
 
