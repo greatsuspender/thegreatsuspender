@@ -16,4 +16,8 @@ If you have completed the above steps, the "welcome" page will open indicating s
 
 This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 
-This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.
+### Shoutouts
+
+This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.  
+It also uses the indexedDb wrapper [db.js] (https://github.com/aaronpowell/db.js) written by Aaron Powell.  
+Thank you also to www.browserstack.com for providing free chrome testing tools.  
