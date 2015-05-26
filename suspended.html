@@ -35,6 +35,18 @@
 	    <div id="donateButtons" />
 	</div>
 </script>
-
+<script type="text/javascript">
+var background = function(){
+	var red = Math.floor(Math.random()*255);
+	var green = Math.floor(Math.random()*255);
+	var blue = Math.floor(Math.random()*255);
+	var rgb = "rgb(" + red + "," + green + "," + blue + ")";
+	if ((red + green + blue) > 150 && (red + green + blue) < 600)
+		document.getElementById("body").style.background = rgb;
+	else
+		setTimeout(function() { background(); }, 0);
+	
+};
+</script>
 </body>
 </html>
