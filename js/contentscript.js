@@ -10,7 +10,8 @@
 (function () {
     'use strict';
 
-    var inputState = false,
+    var readyStateCheckInterval,
+        inputState = false,
         tempWhitelist = false,
         timerJob,
         timerUp = false,
@@ -19,6 +20,38 @@
 
     //safety check here. don't load content script if we are on the suspended page
     if (suspendedEl) { return; }
+
+    function init() {
+
+        var scrollPos;
+
+        //do startup jobs
+        reportState(false);
+        requestPreferences(function(response) {
+
+            if (response && response.suspendTime > 0) {
+
+                suspendTime = response.suspendTime * (1000*60);
+
+                //set timer job
+                timerJob = setTimerJob(suspendTime);
+
+                //add form input listener
+                if (response.dontSuspendForms) {
+                    setFormInputJob();
+                }
+
+            } else {
+                suspendTime = 0;
+            }
+        });
+
+        scrollPos = getScrollPos();
+        if (scrollPos && scrollPos !== "") {
+            document.body.scrollTop = scrollPos;
+            setScrollPos(true);
+        }
+    }
 
     function calculateState() {
         var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
@@ -229,34 +262,11 @@
         }
     });
 
-    //do startup jobs
-    reportState(false);
-    requestPreferences(function(response) {
-
-        if (response && response.suspendTime > 0) {
-
-            suspendTime = response.suspendTime * (1000*60);
-
-            //set timer job
-            timerJob = setTimerJob(suspendTime);
-
-            //add form input listener
-            if (response.dontSuspendForms) {
-                setFormInputJob();
-            }
-
-        } else {
-            suspendTime = 0;
+    readyStateCheckInterval = window.setInterval(function () {
+        if (document.readyState === 'complete') {
+            window.clearInterval(readyStateCheckInterval);
+            init();
         }
-    });
-
-    window.onload = function() {
-        var scrollPos = getScrollPos();
-        if (scrollPos && scrollPos !== "") {
-            document.body.scrollTop = scrollPos;
-            setScrollPos(true);
-        }
-
-    };
+    }, 50);
 
 }());
