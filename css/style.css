@@ -1,3 +1,40 @@
+/*
+
+                - - /|_/|      .-------------------.
+  - _______________| @.@|     /      Styles by      )
+-- (______         >\_C/< ---/    Liam Johnston    /
+  -  -   / ______  _/____)  (   @liamjohnstonnz   /
+ -  -   / /\ \   \ \         `-------------------'
+   - (_/  \_) - \_)
+        
+*/
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/open-sans-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/open-sans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('../fonts/open-sans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: bold;
+  font-weight: 700;
+  src: url('../fonts/open-sans-700.woff2') format('woff2');
+}
+
+
 /* RESET */
 
 html, body, div, span, applet, object, iframe,
@@ -41,6 +78,7 @@ body {
     background: #cfe0e4;
     padding: 0;
     margin: 0;
+    color: #444;
 }
 p {
 	margin: 0 0 15px;
@@ -92,7 +130,7 @@ img.headerIcon {
 }
 
 select {
-    min-width: 50px;
+    min-width: 150px;
 }
 .formRow select {
     background: #FFF;
@@ -110,8 +148,12 @@ input, select, button {
     margin-bottom: 8px;
 }
 textarea {
+    font-family: 'Open Sans', sans-serif;
     width: 100%;
     border-color: #C3C3C3;
+    font-size: 16px;
+    font-weight: 300;
+    padding: 3px 5px;
 }
 .formRow {
     margin: 15px 0;
@@ -172,11 +214,11 @@ ul.unorderedList li {
     background: #DDD;
 }
 .btn.secondary {
-    background: #A6A6A6;
-    color: #fff;
+    background: #E3F7FC;
+    color: #666;
 }
 .btn.secondary:hover {
-    background: #8C8C8C;
+    background: #CBF1FA;
 }
 .btnDonate {
     font-family: 'Open Sans', sans-serif;
@@ -206,7 +248,7 @@ ul.unorderedList li {
 .mainContent {
     width: 900px;
     margin: 40px auto;
-    color: #010101;
+    color: #444;
     background: #fff;
     overflow: hidden;
 
@@ -234,11 +276,10 @@ ul.unorderedList li {
     width: 800px;
 }
 .content h2 {
-    padding: 0 0 15px 0;
-    margin: 30px 0 15px 0;
-    border-bottom: 1px solid #e7e7e7;
+    padding: 0 0 10px 0;
+    margin: 30px 0 0 0;
     font-size: 16px;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 #heading {

@@ -1,3 +1,29 @@
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/open-sans-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/open-sans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('../fonts/open-sans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: bold;
+  font-weight: 700;
+  src: url('../fonts/open-sans-700.woff2') format('woff2');
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
     font-size: 15px;
@@ -206,3 +232,13 @@ a {
 }
 
 
+/* dark theme for night lurkers */
+.dark #gsTopBar {
+    background: #CDCDCD;
+}
+.dark #suspendedMsg, .dark {
+    background: #134960;
+}
+.dark #suspendedMsg h1, .dark #suspendedMsg h2 {
+    color: #7AA4AE;
+}
