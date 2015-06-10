@@ -1,0 +1,31 @@
+{
+  "name": "thegreatsuspender",
+  "version": "0.0.0",
+  "description": "A chrome extension for suspending all tabs to free up memory",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/deanoemcke/thegreatsuspender.git"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+	"addon",
+	"memory",
+    "suspend",
+    "tab"
+  ],
+  "author": "deanoemcke",
+  "license": "GPLv2",
+  "bugs": {
+    "url": "https://github.com/deanoemcke/thegreatsuspender/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "time-grunt": "~1.2.1",
+    "grunt-crx": "~1.0.3"
+  }
+}

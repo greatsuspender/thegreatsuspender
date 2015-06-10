@@ -113,6 +113,11 @@
         //try to suspend tab
         attemptTabSuspend();
 
+        //set theme
+        if (gsUtils.getOption(gsUtils.THEME) === 'dark') {
+            document.querySelector('body').className = 'dark';
+        }
+
         //add an unload listener to send an unsuspend request on page unload
         //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
         window.addEventListener('beforeunload', function(event) {

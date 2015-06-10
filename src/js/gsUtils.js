@@ -16,6 +16,7 @@
         IGNORE_CACHE: 'gsIgnoreCache',
         ADD_CONTEXT: 'gsAddContextMenu',
         NO_NAG: 'gsNoNag',
+        THEME: 'gsTheme',
         WHITELIST: 'gsWhitelist',
 
         APP_VERSION: 'gsVersion',
@@ -48,6 +49,7 @@
             defaults[this.SUSPEND_TIME] = '60';
             defaults[this.NO_NAG] = false;
             defaults[this.WHITELIST] = '';
+            defaults[this.THEME] = 'light';
 
             return defaults;
         },

@@ -23,6 +23,7 @@
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'addContextMenu': gsUtils.ADD_CONTEXT,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
+            'theme': gsUtils.THEME,
             'whitelist': gsUtils.WHITELIST
         };
         elementIdMap = invert(elementPrefMap);
