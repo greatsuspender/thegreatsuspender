@@ -1,4 +1,4 @@
-# <img src="/img/icon48.png" align="absmiddle"> The Great Suspender
+# <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
 
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
