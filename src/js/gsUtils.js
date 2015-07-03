@@ -7,6 +7,7 @@
 
         SHOW_PREVIEW: 'preview',
         PREVIEW_QUALITY: 'previewQuality',
+        PREVIEW_THUMBNAIL: 'previewThumbnail',
         ONLINE_CHECK: 'onlineCheck',
         BATTERY_CHECK: 'batteryCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',

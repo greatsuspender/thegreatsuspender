@@ -38,6 +38,7 @@
             tabProperties,
             rootUrlStr = gsUtils.getRootUrl(url),
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
+            previewThubmnail = gsUtils.getOption(gsUtils.PREVIEW_THUMBNAIL),
             favicon,
             title,
             bodyEl = document.getElementsByTagName('body')[0],
@@ -67,6 +68,9 @@
                         bodyEl.appendChild(previewEl);
 
                         document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
+                        if (previewThubmnail) {
+                            document.getElementById('gsPreviewImg').setAttribute('class', 'thumbnail');
+                        }
 
                         messageEl.style.display = 'none';
                         previewEl.style.display = 'block';
