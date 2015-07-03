@@ -16,7 +16,11 @@
         timerJob,
         timerUp = false,
         suspendTime,
-        suspendedEl = document.getElementById('gsTopBar');
+        suspendedEl = document.getElementById('gsTopBar'),
+        thumbnailConfig = {
+          width: 400,
+          height: 300
+      };
 
     //safety check here. don't load content script if we are on the suspended page
     if (suspendedEl) { return; }
@@ -102,10 +106,13 @@
         suspendTab(suspendedUrl);
     }
 
-    function generatePreviewImg(suspendedUrl, previewQuality) {
+    function generatePreviewImg(suspendedUrl, previewQuality, previewThumbnail) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true,
-            timer = new Date();
+            timer = new Date(),
+            img_width = document.body.clientWidth,
+            img_height = Math.min(document.body.offsetHeight, window.innerHeight),
+            quality = previewQuality || 0.1;
 
         setScrollPos();
 
@@ -120,17 +127,25 @@
                 }
             }, 30000);
 
+            if (previewThumbnail) {
+                img_height = (img_width/thumbnailConfig.width) * thumbnailConfig.height;
+            }
 
             html2canvas(document.body,{
-                height: Math.min(document.body.offsetHeight, window.innerHeight),
-                width: document.body.clientWidth,
+                height: img_height,
+                width: img_width,
                 imageTimeout: 1000,
                 onrendered: function(canvas) {
                     if (processing) {
                         processing = false;
                         timer = (new Date() - timer) / 1000;
-                        var quality =  previewQuality || 0.1,
-                            dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+                        if (previewThumbnail) {
+                            var dataUrl = generatePreviewImgThumbnail(canvas).toDataURL('image/webp', quality);
+                        }else{
+                            var dataUrl = canvas.toDataURL('image/webp', quality);
+                        }
+
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
@@ -145,6 +160,17 @@
         } else {
             handlePreviewError(suspendedUrl, 'element count > 5000');
         }
+    }
+
+    function generatePreviewImgThumbnail(canvas){
+        var thumbnail_canvas = document.createElement('canvas');
+        thumbnail_canvas.setAttribute('width', thumbnailConfig.width);
+        thumbnail_canvas.setAttribute('height', thumbnailConfig.height);
+
+        var ctx = thumbnail_canvas.getContext('2d');
+        ctx.drawImage(canvas, 0, 0, thumbnailConfig.width, thumbnailConfig.height);
+
+        return thumbnail_canvas;
     }
 
     function setTimerJob(timeToSuspend) {
@@ -246,7 +272,7 @@
 
         //listen for preview request
         case 'generatePreview':
-            generatePreviewImg(request.suspendedUrl, request.previewQuality);
+            generatePreviewImg(request.suspendedUrl, request.previewQuality, request.previewThumbnail);
             break;
 
         //listen for suspend request

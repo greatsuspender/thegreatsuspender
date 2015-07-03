@@ -15,6 +15,7 @@
         elementPrefMap = {
             'preview': gsUtils.SHOW_PREVIEW,
             'previewQuality': gsUtils.PREVIEW_QUALITY,
+            'previewThumbnail': gsUtils.PREVIEW_THUMBNAIL,
             'onlineCheck': gsUtils.ONLINE_CHECK,
             'batteryCheck': gsUtils.BATTERY_CHECK,
             'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
@@ -102,9 +103,11 @@
     function setPreviewQualityVisibility(visible) {
         if (visible) {
             document.getElementById('previewQualitySection').style.display = 'block';
+            document.getElementById('previewThumbnailSection').style.display = 'block';
             document.getElementById('previewQualityNote').style.display = 'block';
         } else {
             document.getElementById('previewQualitySection').style.display = 'none';
+            document.getElementById('previewThumbnailSection').style.display = 'none';
             document.getElementById('previewQualityNote').style.display = 'none';
         }
     }
