@@ -242,9 +242,26 @@ var tgs = (function () {
 
         chrome.windows.getLastFocused({populate: true}, function(curWindow) {
             curWindow.tabs.forEach(function (currentTab) {
-
                 if (isSuspended(currentTab)) {
                     unsuspendTab(currentTab);
+                }
+            });
+        });
+    }
+
+    function suspendSelectedTabs() {
+        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (selectedTabs) {
+            selectedTabs.forEach(function (tab) {
+                requestTabSuspension(tab, true);
+            });
+        });
+    }
+
+    function unsuspendSelectedTabs() {
+        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (selectedTabs) {
+            selectedTabs.forEach(function (tab) {
+                if (isSuspended(tab)) {
+                    unsuspendTab(tab);
                 }
             });
         });
@@ -875,6 +892,14 @@ var tgs = (function () {
 
         case 'unsuspendAll':
             unsuspendAllTabs();
+            break;
+
+        case 'suspendSelected':
+            suspendSelectedTabs();
+            break;
+
+        case 'unsuspendSelected':
+            unsuspendSelectedTabs();
             break;
 
         default:

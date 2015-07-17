@@ -38,7 +38,7 @@ a {
 .group {
 	padding: 5px 0;
 }
-.optsCurrent, .optsAll {
+.optsCurrent, .optsAll .optsSelected{
 	border-bottom: 1px solid #ccc;
 }
 
