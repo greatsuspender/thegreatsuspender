@@ -130,12 +130,12 @@
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special' || status === 'unknown') ? false : true,
-                whitelistVisibe = (status !== 'whitelisted' && status !== 'special') ? true : false,
-                pauseVisibe = (status === 'normal') ? true : false;
+                whitelistVisible = (status !== 'whitelisted' && status !== 'special') ? true : false,
+                pauseVisible = (status === 'normal') ? true : false;
 
             setSuspendOneVisibility(suspendOneVisible);
-            setWhitelistVisibility(whitelistVisibe);
-            setPauseVisibility(pauseVisibe);
+            setWhitelistVisibility(whitelistVisible);
+            setPauseVisibility(pauseVisible);
             setStatus(status);
         });
     });
