@@ -36,7 +36,7 @@ var tgs = (function () {
             whitelisted;
 
         whitelisted = whitelistedWords.some(function (word) {
-            return word.length > 0 && url.indexOf(word) >= 0;
+            return word.length > 0 && new RegExp(word).test(url);
         });
         return whitelisted;
     }
