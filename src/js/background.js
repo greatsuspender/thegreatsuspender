@@ -800,7 +800,7 @@ var tgs = (function () {
 
     //HANDLERS FOR MESSAGE REQUESTS
 
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    var messageRequestListener = function (request, sender, sendResponse) {
         if (debug) {
             console.log('listener fired:', request.action);
             console.dir(sender);
@@ -880,7 +880,13 @@ var tgs = (function () {
         default:
             break;
         }
-    });
+    };
+
+    // attach listener to runtime
+    chrome.runtime.onMessage.addListener(messageRequestListener);
+    // attach listener to runtime for external messages, to allow 
+    // interoperability with other extensions in the manner of an API
+    chrome.runtime.onMessageExternal.addListener(messageRequestListener);
 
     // listen for focus changes
     chrome.windows.onFocusChanged.addListener(function (windowId) {
