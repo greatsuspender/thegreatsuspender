@@ -122,7 +122,7 @@ var tgs = (function () {
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
-                    chrome.tabs.sendMessage(tab.id, {
+                    sendMessageToTab(tab.id, {
                         action: 'generatePreview',
                         suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
                         previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
@@ -130,7 +130,7 @@ var tgs = (function () {
                 });
 
             } else {
-                chrome.tabs.sendMessage(tab.id, {
+                sendMessageToTab(tab.id, {
                     action: 'confirmTabSuspend',
                     suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
                 });
@@ -197,7 +197,7 @@ var tgs = (function () {
 
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
-                chrome.tabs.sendMessage(tabs[0].id, {action: 'tempWhitelist'});
+                sendMessageToTab(tabs[0].id, {action: 'tempWhitelist'});
             }
         });
     }
@@ -205,7 +205,7 @@ var tgs = (function () {
     function undoTemporarilyWhitelistHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
-                chrome.tabs.sendMessage(tabs[0].id, {action: 'undoTempWhitelist'});
+                sendMessageToTab(tabs[0].id, {action: 'undoTempWhitelist'});
             }
         });
     }
@@ -277,11 +277,11 @@ var tgs = (function () {
 
     function resetTabTimer(tabId) {
         var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME);
-        chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
+        sendMessageToTab(tabId, {action: 'resetTimer', suspendTime: timeout});
     }
 
     function cancelTabTimer(tabId) {
-        chrome.tabs.sendMessage(tabId, {action: 'cancelTimer'});
+        sendMessageToTab(tabId, {action: 'cancelTimer'});
     }
 
     function unsuspendTab(tab) {
@@ -410,7 +410,7 @@ var tgs = (function () {
                     //test if a suspended tab has crashed by sending a 'requestInfo' message
                     if (!isSpecialTab(curTab) && isSuspended(curTab)) {
                         suspendedTabs.push(curTab);
-                        chrome.tabs.sendMessage(curTab.id, {action: 'requestInfo'}, function (response) {
+                        sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
                             tabResponses[curTab.id] = true;
                         });
 
@@ -461,7 +461,7 @@ var tgs = (function () {
                         if (chrome.runtime.lastError) {
                             if (debug) console.log(chrome.runtime.lastError.message);
                         } else {
-                            chrome.tabs.sendMessage(tabId, {action: 'resetTimer', suspendTime: timeout});
+                            sendMessageToTab(tabId, {action: 'resetTimer', suspendTime: timeout});
                         }
                     });
                 }
@@ -636,7 +636,7 @@ var tgs = (function () {
 
     function requestTabInfoFromContentScript(tab, callback) {
 
-        chrome.tabs.sendMessage(tab.id, {action: 'requestInfo'}, function (response) {
+        sendMessageToTab(tab.id, {action: 'requestInfo'}, function (response) {
             if (response) {
                 var tabInfo = {};
                 tabInfo.status = response.status;
@@ -799,6 +799,15 @@ var tgs = (function () {
 
 
     //HANDLERS FOR MESSAGE REQUESTS
+
+    function sendMessageToTab(tabId, message) {
+        try {
+            chrome.tabs.sendMessage(tabId, message, {frameId: 0});
+        }
+        catch(e) {
+            chrome.tabs.sendMessage(tabId, message);
+        }
+    }
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (debug) {
