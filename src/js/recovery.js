@@ -73,13 +73,22 @@
         });
     }
 
+    function sendMessageToTab(tabId, message, callback) {
+        try {
+            chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
+        }
+        catch(e) {
+            chrome.tabs.sendMessage(tabId, message, callback);
+        }
+    }
+
     function checkForActiveTabs() {
 
         //hide tabs that respond to getInfo request
         chrome.windows.getAll({ populate: true }, function (windows) {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
-                    chrome.tabs.sendMessage(curTab.id, {action: 'requestInfo'}, function (response) {
+                    sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
                         removeTabFromList(curTab);
                     });
                 });

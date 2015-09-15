@@ -98,19 +98,36 @@
             localStorage.setItem('gsSettings', JSON.stringify(settings));
         },
 
-        removeFromWhitelist: function (newString) {
+        checkWhiteList: function (url) {
             var whitelist = this.getOption(this.WHITELIST),
-                whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+                whitelistItems = whitelist ? whitelist.split(/[\s\n]+/) : [],
+                whitelisted = false,
                 i;
 
-            // .forEach() not desirable in this case AFAIK
-            // TODO make sure of comment above this one
-            for (i = whitelistedWords.length - 1; i >= 0; i--) {
-                if (whitelistedWords[i] === newString) {
-                    whitelistedWords.splice(i, 1);
+            for (i = whitelistItems.length - 1; i >= 0; i--) {
+                whitelisted = whitelisted || url.match(this.globStringToRegex(whitelistItems[i]));
+            }
+            return whitelisted;
+        },
+
+        removeFromWhitelist: function (url) {
+            var whitelist = this.getOption(this.WHITELIST),
+                whitelistItems = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+                i;
+
+            for (i = whitelistItems.length - 1; i >= 0; i--) {
+                if (url.match(this.globStringToRegex(whitelistItems[i]))) {
+                    whitelistItems.splice(i, 1);
                 }
             }
-            this.setOption(this.WHITELIST, whitelistedWords.join('\n'));
+            this.setOption(this.WHITELIST, whitelistItems.join('\n'));
+        },
+
+        globStringToRegex: function (str) {
+            return new RegExp(this.preg_quote(str).replace(/\\\*/g, '.*').replace(/\\\?/g, '.'), 'g');
+        },
+        preg_quote: function (str, delimiter) {
+            return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
         },
 
         saveToWhitelist: function (newString) {
@@ -121,20 +138,20 @@
         },
 
         cleanupWhitelist: function (whitelist) {
-            var whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+            var whitelistItems = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
                 i,
                 j;
 
-            for (i = whitelistedWords.length - 1; i >= 0; i--) {
-                j = whitelistedWords.lastIndexOf(whitelistedWords[i]);
+            for (i = whitelistItems.length - 1; i >= 0; i--) {
+                j = whitelistItems.lastIndexOf(whitelistItems[i]);
                 if (j !== i) {
-                    whitelistedWords.splice(i + 1, j - i);
+                    whitelistItems.splice(i + 1, j - i);
                 }
             }
-            if (whitelistedWords.length) {
-                return whitelistedWords.join('\n');
+            if (whitelistItems.length) {
+                return whitelistItems.join('\n');
             } else {
-                return whitelistedWords;
+                return whitelistItems;
             }
         },
 

@@ -30,17 +30,6 @@ var tgs = (function () {
     sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
-    function checkWhiteList(url) {
-        var whitelist = gsUtils.getOption(gsUtils.WHITELIST),
-            whitelistedWords = whitelist ? whitelist.split(/[\s\n]+/) : [],
-            whitelisted;
-
-        whitelisted = whitelistedWords.some(function (word) {
-            return word.length > 0 && url.indexOf(word) >= 0;
-        });
-        return whitelisted;
-    }
-
     function savePreview(tab, previewUrl) {
         if (previewUrl) {
             gsUtils.addPreviewImage(tab.url, previewUrl);
@@ -104,7 +93,7 @@ var tgs = (function () {
         }
 
         //check whitelist
-        if (checkWhiteList(tab.url)) {
+        if (gsUtils.checkWhiteList(tab.url)) {
             return true;
         }
 
@@ -187,8 +176,7 @@ var tgs = (function () {
     function unwhitelistHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
-                var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
-                gsUtils.removeFromWhitelist(rootUrlStr);
+                gsUtils.removeFromWhitelist(tabs[0].url);
             }
         });
     }
@@ -655,7 +643,7 @@ var tgs = (function () {
             onlySuspendWithInternet = gsUtils.getOption(gsUtils.ONLINE_CHECK);
 
         //check whitelist
-        if (checkWhiteList(tab.url)) {
+        if (gsUtils.checkWhiteList(tab.url)) {
             status = 'whitelisted';
 
         //check pinned tab
@@ -800,12 +788,12 @@ var tgs = (function () {
 
     //HANDLERS FOR MESSAGE REQUESTS
 
-    function sendMessageToTab(tabId, message) {
+    function sendMessageToTab(tabId, message, callback) {
         try {
-            chrome.tabs.sendMessage(tabId, message, {frameId: 0});
+            chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
         }
         catch(e) {
-            chrome.tabs.sendMessage(tabId, message);
+            chrome.tabs.sendMessage(tabId, message, callback);
         }
     }
 
