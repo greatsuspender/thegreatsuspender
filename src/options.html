@@ -1,5 +1,6 @@
 <html>
 <head>
+	<link rel="stylesheet" href="css/font-awesome.min.css">
 	<link type="text/css" href="css/style.css" rel="stylesheet">
 	<script type="text/javascript" src="js/options.js"></script>
 	<title>The Great Suspender - Settings</title>
@@ -83,8 +84,23 @@
 		<label for="ignoreCache">Skip browser cache when reloading tab</label>
 		<br /> -->
 
-		<h2>Whitelist <span class="lesserText">(keywords of pages to ignore)</span></h2>
-		<!--<p class="lesserText">Use * wildcard to whitelist subdomains, e.g. *.example.com</p>-->
+		<h2>Whitelist&nbsp;
+			<i class="fa fa-question-circle" title="
+Add the URL of each page you want to whitelist on a new line. For example:
+
+https://play.google.com/music/listen
+https://mail.google.com
+
+You can specify part of the url instead to whitelist multiple sites in one go:
+
+google.com
+
+You can also specify regular expressions by enclosing the text in forward slashes:
+
+/^https:.*google\.com/
+">
+			</i>
+		</h2>
 		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
 
 		<h2>Screen capture settings</h2>

@@ -101,12 +101,11 @@
         checkWhiteList: function (url) {
             var whitelist = this.getOption(this.WHITELIST),
                 whitelistItems = whitelist ? whitelist.split(/[\s\n]+/) : [],
-                whitelisted = false,
-                i;
+                whitelisted;
 
-            for (i = whitelistItems.length - 1; i >= 0; i--) {
-                whitelisted = whitelisted || url.match(this.globStringToRegex(whitelistItems[i]));
-            }
+            whitelisted = whitelistItems.some(function (item) {
+                return this.testForMatch(item, url);
+            }, this);
             return whitelisted;
         },
 
@@ -116,11 +115,35 @@
                 i;
 
             for (i = whitelistItems.length - 1; i >= 0; i--) {
-                if (url.match(this.globStringToRegex(whitelistItems[i]))) {
+                if (this.testForMatch(whitelistItems[i], url)) {
                     whitelistItems.splice(i, 1);
                 }
             }
             this.setOption(this.WHITELIST, whitelistItems.join('\n'));
+        },
+
+        testForMatch: function (whitelistItem, word) {
+
+            if (whitelistItem.length < 1) {
+                return false;
+
+            //test for regex ( must be of the form /foobar/ )
+            } else if (whitelistItem.length > 2 &&
+                    whitelistItem.indexOf('/') === 0 &&
+                    whitelistItem.indexOf('/', whitelistItem.length - 1) !== -1) {
+
+                whitelistItem = whitelistItem.substring(1, whitelistItem.length - 1);
+                try {
+                    new RegExp(whitelistItem);
+                } catch(e) {
+                    return false;
+                }
+                return new RegExp(whitelistItem).test(word);
+
+            // test as substring
+            } else {
+                return word.indexOf(whitelistItem) >= 0;
+            }
         },
 
         globStringToRegex: function (str) {
