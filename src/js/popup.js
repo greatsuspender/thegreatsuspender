@@ -95,6 +95,18 @@
         }
     }
 
+    function setSuspendSelectedVisibility() {
+        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
+            if (tabs && tabs.length > 1) {
+                document.getElementById('suspendSelected').style.display = 'block';
+                document.getElementById('unsuspendSelected').style.display = 'block';
+            } else {
+                document.getElementById('suspendSelected').style.display = 'none';
+                document.getElementById('unsuspendSelected').style.display = 'none';
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('suspendOne').addEventListener('click', function (e) {
             chrome.runtime.sendMessage({ action: 'suspendOne' });
@@ -106,6 +118,14 @@
         });
         document.getElementById('unsuspendAll').addEventListener('click', function (e) {
             chrome.runtime.sendMessage({ action: 'unsuspendAll' });
+            window.close();
+        });
+        document.getElementById('suspendSelected').addEventListener('click', function (e) {
+            chrome.runtime.sendMessage({ action: 'suspendSelected' });
+            window.close();
+        });
+        document.getElementById('unsuspendSelected').addEventListener('click', function (e) {
+            chrome.runtime.sendMessage({ action: 'unsuspendSelected' });
             window.close();
         });
         document.getElementById('whitelist').addEventListener('click', function (e) {
@@ -130,12 +150,13 @@
             var status = info.status,
                 //timeLeft = info.timerUp, // unused
                 suspendOneVisible = (status === 'suspended' || status === 'special' || status === 'unknown') ? false : true,
-                whitelistVisibe = (status !== 'whitelisted' && status !== 'special') ? true : false,
-                pauseVisibe = (status === 'normal') ? true : false;
+                whitelistVisible = (status !== 'whitelisted' && status !== 'special') ? true : false,
+                pauseVisible = (status === 'normal') ? true : false;
 
+            setSuspendSelectedVisibility();
             setSuspendOneVisibility(suspendOneVisible);
-            setWhitelistVisibility(whitelistVisibe);
-            setPauseVisibility(pauseVisibe);
+            setWhitelistVisibility(whitelistVisible);
+            setPauseVisibility(pauseVisible);
             setStatus(status);
         });
     });
