@@ -130,7 +130,7 @@
                         processing = false;
                         timer = (new Date() - timer) / 1000;
                         var quality =  previewQuality || 0.1,
-                            dataUrl = canvas.toDataURL('image/jpeg', quality);
+                            dataUrl = canvas.toDataURL('image/webp', quality);
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
