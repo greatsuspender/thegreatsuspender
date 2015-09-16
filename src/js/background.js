@@ -217,7 +217,9 @@ var tgs = (function () {
     function suspendAllTabs() {
         chrome.windows.getLastFocused({populate: true}, function(curWindow) {
             curWindow.tabs.forEach(function (tab) {
-                requestTabSuspension(tab, true);
+                if (!tab.active) {
+                    requestTabSuspension(tab, true);
+                }
             });
         });
     }
