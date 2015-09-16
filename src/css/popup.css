@@ -63,7 +63,7 @@ a {
 .group {
 	padding: 5px 0;
 }
-.optsCurrent, .optsAll .optsSelected{
+.optsCurrent, .optsAll, .optsSelected {
 	border-bottom: 1px solid #ccc;
 }
 

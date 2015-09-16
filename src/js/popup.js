@@ -98,11 +98,9 @@
     function setSuspendSelectedVisibility() {
         chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
             if (tabs && tabs.length > 1) {
-                document.getElementById('suspendSelected').style.display = 'block';
-                document.getElementById('unsuspendSelected').style.display = 'block';
+                document.getElementById('suspendSelectedGroup').style.display = 'block';
             } else {
-                document.getElementById('suspendSelected').style.display = 'none';
-                document.getElementById('unsuspendSelected').style.display = 'none';
+                document.getElementById('suspendSelectedGroup').style.display = 'none';
             }
         });
     }
