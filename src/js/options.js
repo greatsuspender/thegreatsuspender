@@ -164,6 +164,17 @@
             }
         }
     }
+    
+    function CloseSettings() {
+        // Only close the window if we were opened in a new tab.
+        // Else, go back to the page we were on.
+        // This is to fix closing tabs if they were opened from the context menu.
+        if (document.referrer == "") {
+            window.close()
+        } else {
+            history.back()
+        }
+    }
 
     readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
@@ -188,12 +199,11 @@
                 for (i = 0; i < optionEls.length; i++) {
                     saveChange(optionEls[i]);
                 }
-                window.close();
+                CloseSettings();
             };
             cancelEl.onclick = function (e) {
-                window.close();
+                CloseSettings();
             };
         }
     }, 50);
-
 }());
