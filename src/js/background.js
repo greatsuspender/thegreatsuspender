@@ -514,6 +514,9 @@ var tgs = (function () {
 
                     //recover tabs silently
                     checkForCrashRecovery(true);
+
+                    //show update screen
+                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
                 }
 
             }

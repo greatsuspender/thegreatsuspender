@@ -18,8 +18,8 @@
                 document.getElementById('donatedSection').style.display = 'block';
             }
 
-            function hideNagForever() {
-                gsUtils.setOption(gsUtils.NO_NAG, true);
+            function toggleNag(hideNag) {
+                gsUtils.setOption(gsUtils.NO_NAG, hideNag);
             }
 
             function loadDonateButtons() {
@@ -29,8 +29,18 @@
                     i;
 
                 for (i = 0; i < donateBtns.length; i++) {
-                  donateBtns[i].onclick = hideNagForever;
+                  donateBtns[i].onclick = function() {
+                    toggleNag(true);
+                  };
                 }
+                document.getElementById('alreadyDonatedToggle').onclick = function() {
+                    toggleNag(true);
+                    window.location.reload();
+                };
+                document.getElementById('donateAgainToggle').onclick = function() {
+                    toggleNag(false);
+                    window.location.reload();
+                };
             }
 
             var request = new XMLHttpRequest();
