@@ -828,7 +828,8 @@ var tgs = (function () {
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 showPreview: gsUtils.getOption(gsUtils.SHOW_PREVIEW),
                 suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
-                previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
+                previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1,
+                tabId: sender.tab.id
             });
             break;
 
