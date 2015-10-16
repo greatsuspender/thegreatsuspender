@@ -215,11 +215,15 @@ var tgs = (function () {
     }
 
     function suspendAllTabs() {
-        chrome.windows.getLastFocused({populate: true}, function(curWindow) {
-            curWindow.tabs.forEach(function (tab) {
-                if (!tab.active) {
-                    requestTabSuspension(tab, true);
-                }
+        chrome.tabs.query({ active: true, currentWindow: true }, function(a)
+        {
+            var windowID = a[0].windowId;
+            chrome.windows.get(windowID, {populate: true}, function(curWindow) {
+                curWindow.tabs.forEach(function (tab) {
+                    if (!tab.active) {
+                        requestTabSuspension(tab, true);
+                    }
+                });
             });
         });
     }
@@ -229,12 +233,15 @@ var tgs = (function () {
     }
 
     function unsuspendAllTabs() {
-
-        chrome.windows.getLastFocused({populate: true}, function(curWindow) {
-            curWindow.tabs.forEach(function (currentTab) {
-                if (isSuspended(currentTab)) {
-                    unsuspendTab(currentTab);
-                }
+        chrome.tabs.query({ active: true, currentWindow: true }, function(a)
+        {
+            var windowID = a[0].windowId;
+            chrome.windows.get(windowID, {populate: true}, function(curWindow) {
+                curWindow.tabs.forEach(function (currentTab) {
+                    if (isSuspended(currentTab)) {
+                        unsuspendTab(currentTab);
+                    }
+                });
             });
         });
     }
