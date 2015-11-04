@@ -215,10 +215,9 @@ var tgs = (function () {
     }
 
     function suspendAllTabs() {
-        chrome.tabs.query({ active: true, currentWindow: true }, function(a)
-        {
-            var windowID = a[0].windowId;
-            chrome.windows.get(windowID, {populate: true}, function(curWindow) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            var curWindowId = tabs[0].windowId;
+            chrome.windows.get(curWindowId, {populate: true}, function(curWindow) {
                 curWindow.tabs.forEach(function (tab) {
                     if (!tab.active) {
                         requestTabSuspension(tab, true);
@@ -233,10 +232,9 @@ var tgs = (function () {
     }
 
     function unsuspendAllTabs() {
-        chrome.tabs.query({ active: true, currentWindow: true }, function(a)
-        {
-            var windowID = a[0].windowId;
-            chrome.windows.get(windowID, {populate: true}, function(curWindow) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            var curWindowId = tabs[0].windowId;
+            chrome.windows.get(curWindowId, {populate: true}, function(curWindow) {
                 curWindow.tabs.forEach(function (currentTab) {
                     if (isSuspended(currentTab)) {
                         unsuspendTab(currentTab);
