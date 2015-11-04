@@ -304,17 +304,33 @@
         },
 
         addSuspendedTabInfo: function (tabProperties, callback) {
-            var self = this;
+            var self = this,
+                server;
 
             if (!tabProperties.url) {
                 console.log('tabProperties.url not set.');
                 return;
             }
 
+            //first check to see if tabProperties already exists
             this.getDb().then(function (s) {
-                s.add(self.DB_SUSPENDED_TABINFO , tabProperties).then(function() {
-                    if (typeof(callback) === "function") callback();
-                });
+                server = s;
+                return server.query(self.DB_SUSPENDED_TABINFO).filter('url', tabProperties.url).execute();
+
+            }).then(function(result) {
+                if (result.length > 0) {
+                    result = result[0];
+                    //copy across id
+                    tabProperties.id = result.id;
+                    //then update based on that id
+                    server.update(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
+                        if (typeof(callback) === "function") callback();
+                    });
+                } else {
+                    server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
+                        if (typeof(callback) === "function") callback();
+                    });
+                }
             });
         },
 
@@ -594,15 +610,9 @@
             return Math.floor(Math.random() * 1000000) + "";
         },
 
-        generateSuspendedUrl: function (tabUrl, useBlank) {
+        generateSuspendedUrl: function (tabUrl) {
             var args = '#uri=' + tabUrl;//encodeURIComponent(tabUrl);
-            useBlank = useBlank || false;
-
-            if (useBlank) {
-                return chrome.extension.getURL('clean.html');
-            } else {
-                return chrome.extension.getURL('suspended.html' + args);
-            }
+            return chrome.extension.getURL('suspended.html' + args);
         },
 
         getSuspendedUrl: function (hash) {

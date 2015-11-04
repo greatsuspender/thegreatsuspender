@@ -14,7 +14,6 @@ var tgs = (function () {
     'use strict';
 
     var debug = false,
-        useClean = false,
         sessionId,
         lastSelectedTabs = [],
         globalCurrentTabId,
@@ -36,7 +35,7 @@ var tgs = (function () {
         }
     }
 
-    function saveSuspendData(tab, callback) {
+    function saveSuspendData(tab, tabPropertyOverrides, callback) {
 
         var tabProperties,
             favUrl;
@@ -56,6 +55,10 @@ var tgs = (function () {
             index: tab.index,
             windowId: tab.windowId
         };
+
+        Object.keys(tabPropertyOverrides).forEach(function (prop) {
+            tabProperties[prop] = tabPropertyOverrides[prop];
+        });
 
         //add suspend information to suspendedTabInfo
         gsUtils.addSuspendedTabInfo(tabProperties, function() {
@@ -106,14 +109,14 @@ var tgs = (function () {
     function confirmTabSuspension(tab) {
 
         //ask the tab to suspend itself
-        saveSuspendData(tab, function() {
+        saveSuspendData(tab, {}, function() {
 
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
-                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean),
+                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url),
                         previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
                     });
                 });
@@ -121,7 +124,7 @@ var tgs = (function () {
             } else {
                 sendMessageToTab(tab.id, {
                     action: 'confirmTabSuspend',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, useClean)
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url)
                 });
             }
         });
@@ -195,6 +198,35 @@ var tgs = (function () {
             if (tabs.length > 0) {
                 sendMessageToTab(tabs[0].id, {action: 'undoTempWhitelist'});
             }
+        });
+    }
+
+    function openLinkInSuspendedTab(parentTab, linkedUrl) {
+
+        var googleParams = linkedUrl.match(/^https:\/\/www.google.[^\/]+.\/url\?(.*)/);
+
+        //test if the linkedUrl is a google search result
+        if (googleParams && googleParams.length === 2) {
+            googleParams = googleParams[1].split('&');
+
+            googleParams.forEach(function (param) {
+                if (param.indexOf('url=') === 0) {
+                    linkedUrl = decodeURIComponent(param.substring(4));
+                }
+            });
+        }
+
+        var suspendedUrl = gsUtils.generateSuspendedUrl(linkedUrl),
+            index = parentTab.index + 1,
+            tabPropertyOverrides = {
+                url: linkedUrl,
+                fakeTab: true,
+                pinned: false,
+                index: index
+            };
+
+        saveSuspendData(parentTab, tabPropertyOverrides, function() {
+            chrome.tabs.create({ url: suspendedUrl, index: index, active: false });
         });
     }
 
@@ -537,9 +569,7 @@ var tgs = (function () {
         }
 
         //add context menu items
-        if (contextMenus) {
-            buildContextMenu();
-        }
+        buildContextMenu(contextMenus);
     }
 
     function checkForNotices() {
@@ -705,72 +735,77 @@ var tgs = (function () {
 
     //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
 
-    function buildContextMenu() {
+    function buildContextMenu(showContextMenu) {
 
-        if (contextMenuItems && contextMenuItems.length > 0) {
-            return;
-        }
+        var currentDisplayLevel = contextMenuItems ? contextMenuItems.length : 0,
+            allContexts = ["page", "frame", "selection", "editable", "image",
+                "video", "audio", "browser_action", "page_action"
+            ];
 
+        chrome.contextMenus.removeAll();
         contextMenuItems = [];
 
-        //make right click Context Menu for Chrome
+        //Open tab suspended
         contextMenuItems.push(chrome.contextMenus.create({
-           type: "separator"
-        }));
-
-        //Suspend present tab
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Suspend Tab",
-           contexts:["all"],
-           onclick: suspendHighlightedTab
-        }));
-
-        //Add present tab to temporary whitelist
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Don't suspend for now",
-           contexts:["all"],
-           onclick: temporarilyWhitelistHighlightedTab
-        }));
-
-        //Add present tab to permenant whitelist
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Never suspend this site",
-           contexts:["all"],
-           onclick: whitelistHighlightedTab
-        }));
-
-        //Suspend all the tabs
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Suspend All Tabs",
-           contexts:["all"],
-           onclick: suspendAllTabs
-        }));
-
-        //Unsuspend all the tabs
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Unsuspend All Tabs",
-           contexts:["all"],
-           onclick: unsuspendAllTabs
-        }));
-
-         //Open settings page
-        contextMenuItems.push(chrome.contextMenus.create({
-           title: "Settings",
-           contexts:["all"],
-           onclick: function(e) {
-               chrome.tabs.create({
-                    url: chrome.extension.getURL('options.html')
-               });
+            title: "Open link in new suspended tab",
+            contexts:["link"],
+            onclick: function (info, tab) {
+                openLinkInSuspendedTab(tab, info.linkUrl);
             }
         }));
-    }
-    function removeContextMenu() {
 
-        if (contextMenuItems && contextMenuItems.length > 0) {
-            contextMenuItems.forEach(function (item) {
-                chrome.contextMenus.remove(item);
-            });
-            contextMenuItems = false;
+        if (showContextMenu) {
+
+            //make right click Context Menu for Chrome
+            contextMenuItems.push(chrome.contextMenus.create({
+                type: "separator"
+            }));
+
+            //Suspend present tab
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Suspend Tab",
+                contexts: allContexts,
+                onclick: suspendHighlightedTab
+            }));
+
+            //Add present tab to temporary whitelist
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Don't suspend for now",
+                contexts: allContexts,
+                onclick: temporarilyWhitelistHighlightedTab
+            }));
+
+            //Add present tab to permenant whitelist
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Never suspend this site",
+                contexts: allContexts,
+                onclick: whitelistHighlightedTab
+            }));
+
+            //Suspend all the tabs
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Suspend All Tabs",
+                contexts: allContexts,
+                onclick: suspendAllTabs
+            }));
+
+            //Unsuspend all the tabs
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Unsuspend All Tabs",
+                contexts: allContexts,
+                onclick: unsuspendAllTabs
+            }));
+
+             //Open settings page
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Settings",
+                contexts: allContexts,
+                onclick: function(e) {
+                    chrome.tabs.create({
+                        url: chrome.extension.getURL('options.html')
+                    });
+                }
+            }));
         }
     }
 
@@ -1023,8 +1058,7 @@ var tgs = (function () {
         runStartupChecks: runStartupChecks,
         resetAllTabTimers: resetAllTabTimers,
         requestNotice: requestNotice,
-        buildContextMenu: buildContextMenu,
-        removeContextMenu: removeContextMenu
+        buildContextMenu: buildContextMenu
     };
 
 }());
