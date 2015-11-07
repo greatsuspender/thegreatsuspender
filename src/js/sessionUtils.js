@@ -350,7 +350,7 @@ var sessionUtils = (function () {
         var el = document.createElement(elType);
         attributes = attributes || {};
         el = setElAttributes(el, attributes);
-        el.innerHTML = text || '';
+        el.innerHTML = escapeHTML(text || '');
         return el;
     }
     function setElAttributes(el, attributes) {
@@ -360,6 +360,12 @@ var sessionUtils = (function () {
             }
         }
         return el;
+    }
+    function escapeHTML(text) {
+        var preEl = document.createElement('pre'),
+            textEl = document.createTextNode(text);
+        preEl.appendChild(textEl);
+        return preEl.innerHTML;
     }
 
     function pluralise(text, count) {
