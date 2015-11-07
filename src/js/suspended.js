@@ -45,6 +45,7 @@
             titleEl = document.getElementById('gsTitle'),
             topBarEl = document.getElementById('gsTopBarTitle'),
             whitelistEl = document.getElementById('gsWhitelistLink'),
+            linkedUrlEl = document.getElementById('gsLinkedUrl'),
             topBarImgEl = document.getElementById('gsTopBarImg');
 
         //try to fetch saved tab information for this url
@@ -52,10 +53,13 @@
 
             //if we are missing some suspend information for this tab
             if (!tabProperties) {
-                tabProperties = {url: url};
+                tabProperties = {
+                    url: url,
+                    favicon: 'chrome://favicon/' + url
+                };
             }
 
-            //set favicon and preview image
+            //set preview image
             if (showPreview) {
                 gsUtils.fetchPreviewImage(url, function (previewUrl) {
                     if (previewUrl && previewUrl !== null) {
@@ -77,7 +81,8 @@
                 messageEl.style.display = 'table-cell';
             }
 
-            favicon = tabProperties.favicon || 'chrome://favicon/' + url;
+            //set favicon
+            favicon = tabProperties.favicon;
 
             generateFaviconUri(favicon, function (faviconUrl) {
                 setFavicon(faviconUrl);
@@ -89,9 +94,18 @@
             titleEl.innerHTML = title;
             topBarEl.innerHTML = title;
             topBarEl.setAttribute('href', url);
-            whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
-            whitelistEl.setAttribute('data-text', rootUrlStr);
             topBarImgEl.setAttribute('src', favicon);
+
+            if (tabProperties.fakeTab && tabProperties.url) {
+                linkedUrlEl.style.display = 'block';
+                linkedUrlEl.setAttribute('href', tabProperties.url);
+                linkedUrlEl.innerHTML = tabProperties.url;
+                whitelistEl.style.display = 'none';
+
+            } else {
+                whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
+                whitelistEl.setAttribute('data-text', rootUrlStr);
+            }
         });
     }
 

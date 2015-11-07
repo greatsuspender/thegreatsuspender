@@ -157,11 +157,7 @@
 
         //if context menu has been disabled then remove from chrome
         if (pref === gsUtils.ADD_CONTEXT && oldValue !== newValue) {
-            if (newValue === true) {
-                chrome.extension.getBackgroundPage().tgs.buildContextMenu();
-            } else {
-                chrome.extension.getBackgroundPage().tgs.removeContextMenu();
-            }
+            chrome.extension.getBackgroundPage().tgs.buildContextMenu(newValue);
         }
     }
 
