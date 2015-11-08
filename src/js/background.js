@@ -60,6 +60,9 @@ var tgs = (function () {
             tabProperties[prop] = tabPropertyOverrides[prop];
         });
 
+        //save to quickaccess cache
+        gsUtils.addTabToTabInfoCache(tabProperties);
+
         //add suspend information to suspendedTabInfo
         gsUtils.addSuspendedTabInfo(tabProperties, function() {
             if (typeof(callback) === "function") callback();
@@ -116,7 +119,7 @@ var tgs = (function () {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
-                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url),
+                        suspendedUrl: gsUtils.generateSuspendedUrl(tab),
                         previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
                     });
                 });
@@ -124,7 +127,7 @@ var tgs = (function () {
             } else {
                 sendMessageToTab(tab.id, {
                     action: 'confirmTabSuspend',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url)
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab)
                 });
             }
         });
@@ -329,7 +332,7 @@ var tgs = (function () {
     }
 
     function unsuspendTab(tab) {
-        var url = gsUtils.getSuspendedUrl(tab.url.split('suspended.html')[1]);
+        var url = gsUtils.getSuspendedUrl(tab.url);
         chrome.tabs.update(tab.id, {url: url}, function() {
             if (chrome.runtime.lastError) {
                 console.log(chrome.runtime.lastError.message);
@@ -1007,20 +1010,22 @@ var tgs = (function () {
         queueSessionTimer();
     });
 
-
     //tidy up history items as they are created
     chrome.history.onVisited.addListener(function (historyItem) {
 
-        var url = historyItem.url,
-            realUrl;
+        var url = historyItem.url;
 
-        if (url.indexOf('suspended.html') >= 0 && url.indexOf('uri=') > 0) {
-
-            realUrl = url.split('uri=')[1];
+        if (url.indexOf('suspended.html') >= 0) {
+            url = gsUtils.getSuspendedUrl(url);
 
             //remove suspended tab history item
-            chrome.history.deleteUrl({url: historyItem.url});
-            chrome.history.addUrl({url: realUrl});
+            try{
+                chrome.history.deleteUrl({url: historyItem.url});
+                chrome.history.addUrl({url: url});
+            } catch(ex){
+                console.log('Failed to adjust hsitory item for:' + historyItem.url);
+                console.log(ex);
+            }
         }
     });
 

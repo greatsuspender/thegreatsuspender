@@ -24,6 +24,7 @@
         HISTORY_OLD: 'gsHistory',
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
+        TAB_INFO_CACHE: 'gsTabInfoCache',
 
         DB_SERVER: 'tgs',
         DB_VERSION: '2',
@@ -206,6 +207,29 @@
             localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
         },
 
+        fetchTabInfoCache: function() {
+            var cachedTabs = localStorage.getItem(this.TAB_INFO_CACHE);
+            cachedTabs = cachedTabs ? JSON.parse(cachedTabs) : [];
+            cachedTabs = Object.prototype.toString.call(cachedTabs) === '[object Array]' ? cachedTabs : [];
+            return cachedTabs;
+        },
+
+        addTabToTabInfoCache: function (tab) {
+            var cachedTabs = this.fetchTabInfoCache();
+            cachedTabs.unshift({url: tab.url, title: tab.title});
+            localStorage.setItem(this.TAB_INFO_CACHE, JSON.stringify(cachedTabs.slice(0, 10)));
+        },
+
+        fetchTitleFromTabInfoCache: function (url) {
+            var cachedTabs = this.fetchTabInfoCache(),
+                tabTitle = '';
+            cachedTabs.forEach(function (tabInfo) {
+                if (tabInfo.url === url) {
+                    tabTitle = tabInfo.title;
+                }
+            });
+            return tabTitle;
+        },
 
 
        /**
@@ -610,35 +634,59 @@
             return Math.floor(Math.random() * 1000000) + "";
         },
 
-        generateSuspendedUrl: function (tabUrl) {
-            var args = '#uri=' + tabUrl;//encodeURIComponent(tabUrl);
+        generateSuspendedUrl: function (tab) {
+            var args = '#' +
+                // 'ttl=' + encodeURIComponent(tab.title) + '&' +
+                // 'fav=' + encodeURIComponent(tab.favIconUrl) + '&' +
+                'uri=' + (tab.url);
+
             return chrome.extension.getURL('suspended.html' + args);
         },
 
-        getSuspendedUrl: function (hash) {
+        getHashVariable: function(key, urlStr) {
+
+            var valuesByKey = {},
+                keyPairRegEx = /^(.+)=(.+)/,
+                hashStr;
+
+            //extract hash component from url
+            hashStr = urlStr.replace(/^[^#]+#(.*)/, '$1');
+
+            if (hashStr.length === 0) {
+                return false;
+            }
+
+            //remove possible # prefix
+            hashStr = hashStr.replace(/^#(.*)/, '$1');
+
+            //handle possible unencoded final var called 'uri'
+            if (hashStr.indexOf('uri=') >= 0) {
+                valuesByKey.uri = hashStr.split('uri=')[1];
+                hashStr = hashStr.split('uri=')[0];
+            }
+
+            hashStr.split('&').forEach(function (keyPair) {
+                if (keyPair && keyPair.match(keyPairRegEx)) {
+                    valuesByKey[keyPair.replace(keyPairRegEx, '$1')] = keyPair.replace(keyPairRegEx, '$2');
+                }
+            });
+            return valuesByKey[key] || false;
+        },
+        getSuspendedUrl: function (urlStr) {
             var url,
                 re = /%[0-9a-f]{2}/i;
 
-            //remove possible # prefix
-            if (hash && hash.substring(0,1) === '#') {
-                hash = hash.substring(1,hash.length);
-            }
-
-            //if it is an old style url encoded hash
-            if (hash.length > 0 && hash.indexOf('url=') === 0) {
-                url = hash.substring(4,hash.length);
+            //special case: test if it is an old style url encoded hash
+            if (urlStr.match(/url=([^&])+/)) {
+                url = this.getHashVariable('url', urlStr);
                 if (re.exec(url) !== null) {
                     return decodeURIComponent(url);
                 } else {
                     return url;
                 }
 
-            //if it is a new unencoded hash
-            } else if (hash.length > 0 && hash.indexOf('uri=') === 0) {
-                return hash.substring(4,hash.length);
-
             } else {
-                return false;
+                return this.getHashVariable('uri', urlStr);
             }
         },
 
@@ -679,8 +727,9 @@
         getRootUrl: function (url) {
             var rootUrlStr;
 
+            url = url || '';
             if (url.indexOf('suspended.html') > 0) {
-                url = gsUtils.getSuspendedUrl(url.split('suspended.html')[1]);
+                url = gsUtils.getSuspendedUrl(url);
             }
 
             rootUrlStr = url;
@@ -1044,7 +1093,7 @@
 
                 tabId = parseInt(tab.id);
                 tabSuspendedUrl = tab.url;
-                tabOriginalUrl = self.getSuspendedUrl(tab.url.split('suspended.html')[1]);
+                tabOriginalUrl = self.getSuspendedUrl(tab.url);
                 tabTitle = tabOriginalUrl.split('//')[1];
                 tabHistoryDate = new Date(tab.lastVisitTime);
 
@@ -1112,7 +1161,7 @@
             gsHistory.forEach(function (tabProperties) {
 
                 //convert all tab urls into suspended urls
-                tabProperties.url = self.generateSuspendedUrl(tabProperties.url);
+                tabProperties.url = self.generateSuspendedUrl(tabProperties);
 
                 curTab = self.getTabFromWindow(tabProperties.url, tgsTabsWindow);
                 if (!curTab) {

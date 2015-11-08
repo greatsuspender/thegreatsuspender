@@ -1,7 +1,10 @@
-/*global window, document, chrome, console, Image, gsUtils */
+/*global window, document, chrome, console */
+
+var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
+    realUrl = gsUtils.getSuspendedUrl(window.location.href);
+document.getElementById('gsTitle').innerHTML = 'aaa'+gsUtils.fetchTitleFromTabInfoCache(realUrl);
 
 (function () {
-
     //removed strict mode for compatibility with older versions of chrome
     //'use strict';
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
@@ -34,7 +37,7 @@
     }
 
     function attemptTabSuspend() {
-        var url = gsUtils.getSuspendedUrl(window.location.hash),
+        var url = gsUtils.getSuspendedUrl(window.location.href),
             tabProperties,
             rootUrlStr = gsUtils.getRootUrl(url),
             showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
@@ -110,7 +113,7 @@
     }
 
     function unsuspendTab() {
-        var url = gsUtils.getSuspendedUrl(window.location.hash);
+        var url = gsUtils.getSuspendedUrl(window.location.href);
         window.location.replace(url);
     }
 
