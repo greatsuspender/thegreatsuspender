@@ -24,7 +24,6 @@
         HISTORY_OLD: 'gsHistory',
         HISTORY: 'gsHistory2',
         SESSION_HISTORY: 'gsSessionHistory',
-        TAB_INFO_CACHE: 'gsTabInfoCache',
 
         DB_SERVER: 'tgs',
         DB_VERSION: '2',
@@ -205,30 +204,6 @@
 
         setNoticeVersion: function (newVersion) {
             localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
-        },
-
-        fetchTabInfoCache: function() {
-            var cachedTabs = localStorage.getItem(this.TAB_INFO_CACHE);
-            cachedTabs = cachedTabs ? JSON.parse(cachedTabs) : [];
-            cachedTabs = Object.prototype.toString.call(cachedTabs) === '[object Array]' ? cachedTabs : [];
-            return cachedTabs;
-        },
-
-        addTabToTabInfoCache: function (tab) {
-            var cachedTabs = this.fetchTabInfoCache();
-            cachedTabs.unshift({url: tab.url, title: tab.title});
-            localStorage.setItem(this.TAB_INFO_CACHE, JSON.stringify(cachedTabs.slice(0, 10)));
-        },
-
-        fetchTitleFromTabInfoCache: function (url) {
-            var cachedTabs = this.fetchTabInfoCache(),
-                tabTitle = '';
-            cachedTabs.forEach(function (tabInfo) {
-                if (tabInfo.url === url) {
-                    tabTitle = tabInfo.title;
-                }
-            });
-            return tabTitle;
         },
 
 
@@ -636,7 +611,7 @@
 
         generateSuspendedUrl: function (tab) {
             var args = '#' +
-                // 'ttl=' + encodeURIComponent(tab.title) + '&' +
+                'ttl=' + encodeURIComponent(tab.title) + '&' +
                 // 'fav=' + encodeURIComponent(tab.favIconUrl) + '&' +
                 'uri=' + (tab.url);
 
@@ -672,22 +647,11 @@
             });
             return valuesByKey[key] || false;
         },
+        getSuspendedTitle: function(urlStr) {
+            return decodeURIComponent(this.getHashVariable('ttl', urlStr) || '');
+        },
         getSuspendedUrl: function (urlStr) {
-            var url,
-                re = /%[0-9a-f]{2}/i;
-
-            //special case: test if it is an old style url encoded hash
-            if (urlStr.match(/url=([^&])+/)) {
-                url = this.getHashVariable('url', urlStr);
-                if (re.exec(url) !== null) {
-                    return decodeURIComponent(url);
-                } else {
-                    return url;
-                }
-
-            } else {
-                return this.getHashVariable('uri', urlStr);
-            }
+            return this.getHashVariable('uri', urlStr);
         },
 
         htmlEncode: function (text) {

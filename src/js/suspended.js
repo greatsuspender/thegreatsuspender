@@ -1,8 +1,7 @@
 /*global window, document, chrome, console */
 
-var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
-    realUrl = gsUtils.getSuspendedUrl(window.location.href);
-document.getElementById('gsTitle').innerHTML = gsUtils.fetchTitleFromTabInfoCache(realUrl);
+var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
 
 (function () {
     //removed strict mode for compatibility with older versions of chrome

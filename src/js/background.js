@@ -60,9 +60,6 @@ var tgs = (function () {
             tabProperties[prop] = tabPropertyOverrides[prop];
         });
 
-        //save to quickaccess cache
-        gsUtils.addTabToTabInfoCache(tabProperties);
-
         //add suspend information to suspendedTabInfo
         gsUtils.addSuspendedTabInfo(tabProperties, function() {
             if (typeof(callback) === "function") callback();
