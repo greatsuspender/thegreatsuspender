@@ -690,6 +690,10 @@
             }
         },
 
+        htmlEncode: function (text) {
+            return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;
+        },
+
         getHumanDate: function (date) {
             var m_names = ['January', 'February', 'March', 'April', 'May',
                 'June', 'July', 'August', 'September', 'October', 'November',

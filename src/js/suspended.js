@@ -32,10 +32,6 @@ document.getElementById('gsTitle').innerHTML = 'aaa'+gsUtils.fetchTitleFromTabIn
         document.getElementById('gsFavicon').setAttribute('href', favicon);
     }
 
-    function htmlEncode(html) {
-        return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML;
-    }
-
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.href),
             tabProperties,
@@ -93,7 +89,7 @@ document.getElementById('gsTitle').innerHTML = 'aaa'+gsUtils.fetchTitleFromTabIn
 
             //populate suspended tab bar
             title = tabProperties.title ? tabProperties.title : rootUrlStr;
-            title = title.indexOf('<') < 0 ? title : htmlEncode(title);
+            title = title.indexOf('<') < 0 ? title : gsUtils.htmlEncode(title);
             titleEl.innerHTML = title;
             topBarEl.innerHTML = title;
             topBarEl.setAttribute('href', url);
