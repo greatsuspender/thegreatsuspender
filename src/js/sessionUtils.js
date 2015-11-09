@@ -264,7 +264,7 @@ var sessionUtils = (function () {
             'data-sessionId': window.sessionId
         });
 
-        windowHeading = createEl('span', {}, 'Window ' + (count + 1) + ':&nbsp;');
+        windowHeading = createEl('span', {}, 'Window ' + (count + 1) + ':\u00A0');
 
         groupUnsuspendCurrent = createEl('a', {
             'class': 'groupLink',
@@ -350,7 +350,7 @@ var sessionUtils = (function () {
         var el = document.createElement(elType);
         attributes = attributes || {};
         el = setElAttributes(el, attributes);
-        el.innerHTML = escapeHTML(text || '');
+        el.innerHTML = gsUtils.htmlEncode(text || '');
         return el;
     }
     function setElAttributes(el, attributes) {
@@ -360,12 +360,6 @@ var sessionUtils = (function () {
             }
         }
         return el;
-    }
-    function escapeHTML(text) {
-        var preEl = document.createElement('pre'),
-            textEl = document.createTextNode(text);
-        preEl.appendChild(textEl);
-        return preEl.innerHTML;
     }
 
     function pluralise(text, count) {
