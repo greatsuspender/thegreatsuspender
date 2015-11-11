@@ -156,11 +156,11 @@
         }
 
         //if context menu has been disabled then remove from chrome
-        if (pref === gsUtils.ADD_CONTEXT && oldValue !== newValue) {
+        if (pref === gsUtils.ADD_CONTEXT) {
             chrome.extension.getBackgroundPage().tgs.buildContextMenu(newValue);
         }
     }
-    
+
     function CloseSettings() {
         // Only close the window if we were opened in a new tab.
         // Else, go back to the page we were on.

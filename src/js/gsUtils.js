@@ -609,11 +609,11 @@
             return Math.floor(Math.random() * 1000000) + "";
         },
 
-        generateSuspendedUrl: function (tab) {
+        generateSuspendedUrl: function (tabProperties) {
             var args = '#' +
-                'ttl=' + encodeURIComponent(tab.title) + '&' +
+                'ttl=' + encodeURIComponent(tabProperties.title) + '&' +
                 // 'fav=' + encodeURIComponent(tab.favIconUrl) + '&' +
-                'uri=' + (tab.url);
+                'uri=' + (tabProperties.url);
 
             return chrome.extension.getURL('suspended.html' + args);
         },

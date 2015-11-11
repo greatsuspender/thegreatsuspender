@@ -216,7 +216,11 @@ var tgs = (function () {
             });
         }
 
-        var suspendedUrl = gsUtils.generateSuspendedUrl(linkedUrl),
+        var fakeTabProperties = {
+                url: linkedUrl,
+                title: linkedUrl
+            },
+            suspendedUrl = gsUtils.generateSuspendedUrl(fakeTabProperties),
             index = parentTab.index + 1,
             tabPropertyOverrides = {
                 url: linkedUrl,
