@@ -350,6 +350,26 @@ var tgs = (function () {
         }*/
     }
 
+    function handleWindowFocusChanged(windowId) {
+
+        if (debug) {
+            console.log('window changed: ' + windowId);
+        }
+
+        chrome.tabs.query({active: true, windowId: windowId}, function(tabs) {
+            if (tabs && tabs.length === 1) {
+
+                lastSelectedTabs[windowId] = tabs[0].id;
+                globalCurrentTabId = tabs[0].id;
+
+                //update icon
+                requestTabInfo(tabs[0].id, function (info) {
+                    updateIcon(info.status);
+                });
+            }
+        });
+    }
+
     function handleTabFocusChanged(tabId, windowId) {
 
         if (debug) {
@@ -368,6 +388,10 @@ var tgs = (function () {
             resetTabTimer(lastSelectedTab);
         }
 
+        //update icon
+        requestTabInfo(tabId, function (info) {
+            updateIcon(info.status);
+        });
 
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
@@ -383,11 +407,6 @@ var tgs = (function () {
 
     function handleNewTabFocus(tabId) {
         var unsuspend = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
-
-        //update icon
-        requestTabInfo(tabId, function (info) {
-            updateIcon(info.status);
-        });
 
         //if pref is set, then unsuspend newly focused tab
         if (unsuspend) {
@@ -963,12 +982,7 @@ var tgs = (function () {
 
     // listen for focus changes
     chrome.windows.onFocusChanged.addListener(function (windowId) {
-
-        chrome.tabs.query({active: true, windowId: windowId}, function(tabs) {
-            if (tabs && tabs.length === 1) {
-               handleTabFocusChanged(tabs[0].id, tabs[0].windowId);
-            }
-        });
+        handleWindowFocusChanged(windowId);
     });
     chrome.tabs.onActivated.addListener(function (activeInfo) {
         handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
