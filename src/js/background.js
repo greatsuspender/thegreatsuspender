@@ -333,21 +333,28 @@ var tgs = (function () {
     }
 
     function unsuspendTab(tab) {
-        var url = gsUtils.getSuspendedUrl(tab.url);
-        chrome.tabs.update(tab.id, {url: url}, function() {
-            if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError.message);
-            }
-        });
+        var url = gsUtils.getSuspendedUrl(tab.url),
+            views,
+            result;
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
-        /*tabs = chrome.extension.getViews({type: 'tab'});
-        for (i = 0; i < tabs.length; i++) {
-            if (tabs[i].location.href === tab.url) {
-                tabs[i].location.replace(url);
+        views = chrome.extension.getViews({type: 'tab', "windowId": tab.windowId});
+        result = views.some(function (view) {
+            if (view.tabId === tab.id) {
+                view.location.replace(url);
+                return true;
             }
-        }*/
+        });
+
+        //if we failed to find the tab with the above method then try to update it directly
+        if (!result) {
+            chrome.tabs.update(tab.id, {url: url}, function() {
+                if (chrome.runtime.lastError) {
+                    console.log(chrome.runtime.lastError.message);
+                }
+            });
+        }
     }
 
     function handleWindowFocusChanged(windowId) {

@@ -1,11 +1,13 @@
 /*global window, document, chrome, console */
+var tabId;
 
-var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
+document.getElementById('gsTitle').innerHTML = chrome.extension.getBackgroundPage().gsUtils.getSuspendedTitle(window.location.href);
+chrome.tabs.getCurrent(function(tab) {
+  tabId = tab.id;
+});
 
 (function () {
-    //removed strict mode for compatibility with older versions of chrome
-    //'use strict';
+
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function generateFaviconUri(url, callback) {
