@@ -275,6 +275,15 @@ var tgs = (function () {
         });
     }
 
+
+    function suspendAllTabsInAllWindows() {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                requestTabSuspension(currentTab, true);
+            });
+        });
+    }
+
     function isSuspended(tab) {
         return tab.url.indexOf('suspended.html') >= 0;
     }
@@ -288,6 +297,14 @@ var tgs = (function () {
                         unsuspendTab(currentTab);
                     }
                 });
+            });
+        });
+    }
+
+    function unsuspendAllTabsInAllWindows() {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if (isSuspended(currentTab)) unsuspendTab(currentTab);
             });
         });
     }
@@ -878,18 +895,10 @@ var tgs = (function () {
             unsuspendAllTabs();
 
         } else if (command === '5-suspend-all-windows') {
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (currentTab) {
-                    requestTabSuspension(currentTab, true);
-                });
-            });
+            suspendAllTabsInAllWindows();
 
         } else if (command === '6-unsuspend-all-windows') {
-            chrome.tabs.query({}, function (tabs) {
-                tabs.forEach(function (currentTab) {
-                    if (isSuspended(currentTab)) unsuspendTab(currentTab);
-                });
-            });
+            unsuspendAllTabsInAllWindows();
         }
     });
 
@@ -998,13 +1007,21 @@ var tgs = (function () {
     }
 
 
-    // attach listener to runtime
+    //attach listener to runtime
     chrome.runtime.onMessage.addListener(messageRequestListener);
-    // attach listener to runtime for external messages, to allow
-    // interoperability with other extensions in the manner of an API
+    //attach listener to runtime for external messages, to allow
+    //interoperability with other extensions in the manner of an API
     chrome.runtime.onMessageExternal.addListener(messageRequestListener);
 
-    // listen for focus changes
+    //wishful thinking here that a synchronus iteration through tab views will enable them
+    //to unsuspend before the application closes
+    chrome.runtime.onSuspend.addListener(function () {
+        chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
+            view.location.reload();
+        });
+    });
+
+    //listen for focus changes
     chrome.windows.onFocusChanged.addListener(function (windowId) {
         handleWindowFocusChanged(windowId);
     });
