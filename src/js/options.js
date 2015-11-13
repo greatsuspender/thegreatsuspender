@@ -1,4 +1,4 @@
-/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setOnlineCheckVisibility, resetTabTimers */
+/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility, resetTabTimers */
 
 (function () {
 
@@ -20,6 +20,7 @@
             'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
             'dontSuspendPinned': gsUtils.IGNORE_PINNED,
             'dontSuspendForms': gsUtils.IGNORE_FORMS,
+            'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'addContextMenu': gsUtils.ADD_CONTEXT,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
@@ -71,6 +72,7 @@
         }
 
         setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
+        setAudibleNoteVisibility(gsUtils.getChromeVersion() < 45 && gsUtils.getOption(gsUtils.IGNORE_AUDIO));
         setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
     }
 
@@ -99,6 +101,14 @@
         }
     }
 
+    function setAudibleNoteVisibility(visible) {
+        if (visible) {
+            document.getElementById('audibleOptionNote').style.display = 'block';
+        } else {
+            document.getElementById('audibleOptionNote').style.display = 'none';
+        }
+    }
+
     function setPreviewQualityVisibility(visible) {
         if (visible) {
             document.getElementById('previewQualitySection').style.display = 'block';
@@ -122,11 +132,16 @@
     function handleChange(element) {
         return function () {
             var pref = elementPrefMap[element.id],
-                interval;
+                interval,
+                chromeVersion;
 
             //add specific screen element listeners
             if (pref === gsUtils.SHOW_PREVIEW) {
                 setPreviewQualityVisibility(getOptionValue(element));
+
+            } else if (pref === gsUtils.IGNORE_AUDIO) {
+                chromeVersion = gsUtils.getChromeVersion();
+                setAudibleNoteVisibility(chromeVersion < 45 && getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
@@ -161,14 +176,14 @@
         }
     }
 
-    function CloseSettings() {
-        // Only close the window if we were opened in a new tab.
-        // Else, go back to the page we were on.
-        // This is to fix closing tabs if they were opened from the context menu.
-        if (document.referrer == "") {
-            window.close()
+    function closeSettings() {
+        //only close the window if we were opened in a new tab.
+        //else, go back to the page we were on.
+        //this is to fix closing tabs if they were opened from the context menu.
+        if (document.referrer === "") {
+            window.close();
         } else {
-            history.back()
+            history.back();
         }
     }
 
@@ -195,10 +210,10 @@
                 for (i = 0; i < optionEls.length; i++) {
                     saveChange(optionEls[i]);
                 }
-                CloseSettings();
+                closeSettings();
             };
             cancelEl.onclick = function (e) {
-                CloseSettings();
+                closeSettings();
             };
         }
     }, 50);

@@ -27,6 +27,10 @@
             statusIconClass = 'fa fa-check';
             message = 'removeWhitelist';
 
+        } else if (status === 'audible') {
+            statusDetail = 'Tab is playing audio.';
+            statusIconClass = 'fa fa-volume-up';
+
         } else if (status === 'formInput') {
             statusDetail = 'Tab is receiving form input. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-edit';

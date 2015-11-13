@@ -54,6 +54,11 @@
 			<label for="dontSuspendForms" class="cbLabel">Do not suspend tabs that contain unsaved form inputs</label>
 		</div>
 		<div class="formRow autoSuspendOption">
+			<input type="checkbox" id="dontSuspendAudio" class='option' />
+			<label for="dontSuspendAudio" class="cbLabel">Do not suspend tabs that are playing audio</label>
+		</div>
+		<div id="audibleOptionNote" class="gsNote">You must have chrome version 45 or higher to use this feature.</div>
+		<div class="formRow autoSuspendOption">
 			<input type="checkbox" id="onlineCheck" class='option' />
 			<label for="onlineCheck" class="cbLabel">Only auto-suspend if connected to the internet</label>
 		</div>
@@ -63,7 +68,7 @@
 		</div>
 		<div class="formRow">
 			<input type="checkbox" id="unsuspendOnFocus" class='option' />
-			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend when tab gains focus</label>
+			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend tab when it is viewed</label>
 		</div>
 		<div class="formRow">
 			<input type="checkbox" id="addContextMenu" class='option' />

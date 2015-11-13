@@ -13,6 +13,7 @@
         SUSPEND_TIME: 'gsTimeToSuspend',
         IGNORE_PINNED: 'gsDontSuspendPinned',
         IGNORE_FORMS: 'gsDontSuspendForms',
+        IGNORE_AUDIO: 'gsDontSuspendAudio',
         IGNORE_CACHE: 'gsIgnoreCache',
         ADD_CONTEXT: 'gsAddContextMenu',
         NO_NAG: 'gsNoNag',
@@ -44,6 +45,7 @@
             defaults[this.UNSUSPEND_ON_FOCUS] = false;
             defaults[this.IGNORE_PINNED] = true;
             defaults[this.IGNORE_FORMS] = true;
+            defaults[this.IGNORE_AUDIO] = true;
             defaults[this.IGNORE_CACHE] = false;
             defaults[this.ADD_CONTEXT] = true;
             defaults[this.SUSPEND_TIME] = '60';
@@ -679,6 +681,11 @@
             }
 
             return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
+        },
+
+        getChromeVersion: function () {
+            var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+            return raw ? parseInt(raw[2], 10) : false;
         },
 
         generateHashCode: function (text) {

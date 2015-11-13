@@ -23,7 +23,9 @@ var tgs = (function () {
         notice = {},
         contextMenuItems = false,
         unsuspendRequestList = {},
-        lastTabCloseTimestamp = new Date();
+        lastTabCloseTimestamp = new Date(),
+        suspensionActiveIcon = '/img/icon19.png',
+        suspensionPausedIcon = '/img/icon19b.png';
 
 
     //set gloabl sessionId
@@ -86,6 +88,11 @@ var tgs = (function () {
         return dontSuspendPinned && tab.pinned;
     }
 
+    function isAudibleTab(tab) {
+        var dontSuspendAudible = gsUtils.getOption(gsUtils.IGNORE_AUDIO);
+        return dontSuspendAudible && tab.audible;
+    }
+
     function isExcluded(tab) {
         if (tab.active) {
             return true;
@@ -102,6 +109,10 @@ var tgs = (function () {
         }
 
         if (isPinnedTab(tab)) {
+            return true;
+        }
+
+        if (isAudibleTab(tab)) {
             return true;
         }
         return false;
@@ -659,6 +670,7 @@ var tgs = (function () {
     //suspended: a tab that is suspended
     //never: suspension timer set to 'never suspend'
     //formInput: a tab that has a partially completed form (and IGNORE_FORMS is true)
+    //audible: a tab that is playing audio (and IGNORE_AUDIO is true)
     //tempWhitelist: a tab that has been manually paused
     //pinned: a pinned tab (and IGNORE_PINNED is true)
     //whitelisted: a tab that has been whitelisted
@@ -668,11 +680,11 @@ var tgs = (function () {
     function requestTabInfo(tabId, callback) {
 
         var info = {
-            windowId: '',
-            tabId: '',
-            status: 'unknown',
-            timerUp: '-'
-        };
+                windowId: '',
+                tabId: '',
+                status: 'unknown',
+                timerUp: '-'
+            };
         tabId = tabId || globalCurrentTabId;
 
         if (typeof(tabId) === 'undefined') {
@@ -697,7 +709,7 @@ var tgs = (function () {
                     callback(info);
 
                 //check if it has already been suspended
-                } else  if (isSuspended(tab)) {
+                } else if (isSuspended(tab)) {
                     info.status = 'suspended';
                     callback(info);
 
@@ -745,6 +757,10 @@ var tgs = (function () {
         } else if (status === 'normal' && isPinnedTab(tab)) {
             status = 'pinned';
 
+        //check audible tab
+        } else if (status === 'normal' && isAudibleTab(tab)) {
+            status = 'audible';
+
         //check never suspend
         } else if (status === 'normal' && suspendTime === "0") {
             status = 'never';
@@ -762,15 +778,8 @@ var tgs = (function () {
 
     //change the icon to either active or inactive
     function updateIcon(status) {
-        var icon = '/img/icon19.png',
-            dontSuspendForms = gsUtils.getOption(gsUtils.IGNORE_FORMS),
-            dontSuspendPinned = gsUtils.getOption(gsUtils.IGNORE_PINNED);
-
+        var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
         lastStatus = status;
-
-        if (status !== 'normal') {
-            icon = '/img/icon19b.png';
-        }
         chrome.browserAction.setIcon({path: icon});
     }
 
