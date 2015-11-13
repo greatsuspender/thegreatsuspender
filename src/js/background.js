@@ -22,7 +22,8 @@ var tgs = (function () {
         lastStatus = 'normal',
         notice = {},
         contextMenuItems = false,
-        unsuspendRequestList = {};
+        unsuspendRequestList = {},
+        lastTabCloseTimestamp = new Date();
 
 
     //set gloabl sessionId
@@ -399,6 +400,13 @@ var tgs = (function () {
         requestTabInfo(tabId, function (info) {
             updateIcon(info.status);
         });
+
+        //check to see if we have just recently removed a tab
+        //if so, assume this is an 'accidental' tab focus and do not unsuspend
+        if (lastTabCloseTimestamp > (new Date()) - 500) {
+            if (debug) console.log('ignoring tab focus');
+            return;
+        }
 
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
@@ -1005,6 +1013,7 @@ var tgs = (function () {
         if (unsuspendRequestList[tabId]) {
             delete unsuspendRequestList[tabId];
         }
+        lastTabCloseTimestamp = new Date();
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         //only save session if the tab url has changed
