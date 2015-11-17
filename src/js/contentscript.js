@@ -124,9 +124,14 @@
                 }
             }, 30000);
 
+            var body = document.body,
+                html = document.documentElement;
+
+            var height = Math.max( body.scrollHeight, body.offsetHeight,
+                                   html.clientHeight, html.scrollHeight, html.offsetHeight );
 
             html2canvas(document.body,{
-                height: Math.min(document.body.offsetHeight, window.innerHeight),
+                height: height,
                 width: document.body.clientWidth,
                 imageTimeout: 1000,
                 onrendered: function(canvas) {

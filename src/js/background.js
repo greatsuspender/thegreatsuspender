@@ -951,6 +951,7 @@ var tgs = (function () {
 
         case 'savePreviewData':
             savePreview(sender.tab, request.previewUrl);
+            console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
             if (debug && sender.tab) {
                 if (request.errorMsg) {
                     console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
@@ -1060,10 +1061,10 @@ var tgs = (function () {
             }
         }
     });
-    chrome.windows.onCreated.addListener(function() {
+    chrome.windows.onCreated.addListener(function () {
         queueSessionTimer();
     });
-    chrome.windows.onRemoved.addListener(function() {
+    chrome.windows.onRemoved.addListener(function () {
         queueSessionTimer();
     });
 
@@ -1076,13 +1077,12 @@ var tgs = (function () {
             url = gsUtils.getSuspendedUrl(url);
 
             //remove suspended tab history item
-            try{
-                chrome.history.deleteUrl({url: historyItem.url});
-                chrome.history.addUrl({url: url});
-            } catch(ex){
-                console.log('Failed to adjust hsitory item for:' + historyItem.url);
-                console.log(ex);
-            }
+            chrome.history.deleteUrl({url: historyItem.url});
+            chrome.history.addUrl({url: url}, function() {
+                if (chrome.runtime.lastError) {
+                    console.log(chrome.runtime.lastError.message);
+                }
+            });
         }
     });
 
