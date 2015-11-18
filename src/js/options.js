@@ -1,4 +1,4 @@
-/*global gsUtils, chrome, invert, populateOption, setPreviewQualityVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility, resetTabTimers */
+/*global gsUtils, chrome, invert, populateOption, setScreenCaptureNoteVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility, resetTabTimers */
 
 (function () {
 
@@ -13,8 +13,7 @@
 
         gsUtils = chrome.extension.getBackgroundPage().gsUtils;
         elementPrefMap = {
-            'preview': gsUtils.SHOW_PREVIEW,
-            'previewQuality': gsUtils.PREVIEW_QUALITY,
+            'preview': gsUtils.SCREEN_CAPTURE,
             'onlineCheck': gsUtils.ONLINE_CHECK,
             'batteryCheck': gsUtils.BATTERY_CHECK,
             'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
@@ -71,7 +70,7 @@
             populateOption(element, gsUtils.getOption(pref));
         }
 
-        setPreviewQualityVisibility(gsUtils.getOption(gsUtils.SHOW_PREVIEW));
+        setScreenCaptureNoteVisibility(gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0');
         setAudibleNoteVisibility(gsUtils.getChromeVersion() < 45 && gsUtils.getOption(gsUtils.IGNORE_AUDIO));
         setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
     }
@@ -109,13 +108,11 @@
         }
     }
 
-    function setPreviewQualityVisibility(visible) {
+    function setScreenCaptureNoteVisibility(visible) {
         if (visible) {
-            document.getElementById('previewQualitySection').style.display = 'block';
-            document.getElementById('previewQualityNote').style.display = 'block';
+            document.getElementById('previewNote').style.display = 'block';
         } else {
-            document.getElementById('previewQualitySection').style.display = 'none';
-            document.getElementById('previewQualityNote').style.display = 'none';
+            document.getElementById('previewNote').style.display = 'none';
         }
     }
 
@@ -136,8 +133,8 @@
                 chromeVersion;
 
             //add specific screen element listeners
-            if (pref === gsUtils.SHOW_PREVIEW) {
-                setPreviewQualityVisibility(getOptionValue(element));
+            if (pref === gsUtils.SCREEN_CAPTURE) {
+                setScreenCaptureNoteVisibility(getOptionValue(element) !== '0');
 
             } else if (pref === gsUtils.IGNORE_AUDIO) {
                 chromeVersion = gsUtils.getChromeVersion();

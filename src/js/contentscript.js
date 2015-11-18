@@ -106,10 +106,11 @@
         suspendTab(suspendedUrl);
     }
 
-    function generatePreviewImg(suspendedUrl, previewQuality) {
+    function generatePreviewImg(suspendedUrl, screenCapture) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true,
-            timer = new Date();
+            timer = new Date(),
+            height = 0;
 
         setCookieValue('gsScrollPos-' + tabId, document.body.scrollTop);
 
@@ -124,11 +125,16 @@
                 }
             }, 30000);
 
-            var body = document.body,
-                html = document.documentElement;
-
-            var height = Math.max( body.scrollHeight, body.offsetHeight,
-                                   html.clientHeight, html.scrollHeight, html.offsetHeight );
+            //if preview quality is high then capture the whole screen
+            if (screenCapture === '2') {
+                height = Math.max(document.body.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.clientHeight,
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight);
+            } else {
+                height = Math.min(document.body.offsetHeight, window.innerHeight);
+            }
 
             html2canvas(document.body,{
                 height: height,
@@ -138,8 +144,7 @@
                     if (processing) {
                         processing = false;
                         timer = (new Date() - timer) / 1000;
-                        var quality =  previewQuality || 0.1,
-                            dataUrl = canvas.toDataURL('image/webp', quality);
+                        var dataUrl = canvas.toDataURL('image/webp', 0.8);
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
@@ -255,7 +260,7 @@
 
         //listen for preview request
         case 'generatePreview':
-            generatePreviewImg(request.suspendedUrl, request.previewQuality);
+            generatePreviewImg(request.suspendedUrl, request.screenCapture);
             break;
 
         //listen for suspend request

@@ -124,12 +124,12 @@ var tgs = (function () {
         saveSuspendData(tab, {}, function() {
 
             //if we need to save a preview image
-            if (gsUtils.getOption(gsUtils.SHOW_PREVIEW)) {
+            if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
                         suspendedUrl: gsUtils.generateSuspendedUrl(tab),
-                        previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1
+                        screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE)
                     });
                 });
 
@@ -925,9 +925,8 @@ var tgs = (function () {
         case 'prefs':
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
-                showPreview: gsUtils.getOption(gsUtils.SHOW_PREVIEW),
                 suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
-                previewQuality: gsUtils.getOption(gsUtils.PREVIEW_QUALITY) ? 0.8 : 0.1,
+                screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
                 tabId: sender.tab.id
             });
             break;
@@ -1103,7 +1102,7 @@ var tgs = (function () {
 
     _gaq.push(['_setAccount', 'UA-52338347-1']);
     _gaq.push(['_setCustomVar', 1, 'version', chrome.runtime.getManifest().version + "", 1]);
-    _gaq.push(['_setCustomVar', 2, 'image_preview', gsUtils.getOption(gsUtils.SHOW_PREVIEW) + ": " + gsUtils.getOption(gsUtils.PREVIEW_QUALITY), 1]);
+    _gaq.push(['_setCustomVar', 2, 'screen_capture', gsUtils.getOption(gsUtils.SCREEN_CAPTURE) + "", 1]);
     _gaq.push(['_setCustomVar', 3, 'suspend_time', gsUtils.getOption(gsUtils.SUSPEND_TIME) + "", 1]);
     _gaq.push(['_setCustomVar', 4, 'no_nag', gsUtils.getOption(gsUtils.NO_NAG) + "", 1]);
     //_gaq.push(['_setCustomVar', 5, 'migration', gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS) + "", 3]);

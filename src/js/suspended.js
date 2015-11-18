@@ -37,7 +37,7 @@ chrome.tabs.getCurrent(function(tab) {
         var url = gsUtils.getSuspendedUrl(window.location.href),
             tabProperties,
             rootUrlStr = gsUtils.getRootUrl(url),
-            showPreview = gsUtils.getOption(gsUtils.SHOW_PREVIEW),
+            showPreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0',
             favicon,
             title,
             bodyEl = document.getElementsByTagName('body')[0],
@@ -76,6 +76,11 @@ chrome.tabs.getCurrent(function(tab) {
                         previewEl.style.display = 'block';
                     }
                 });
+
+                //allow vertical scrollbar if we are using high quality previews
+                if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2') {
+                    document.body.style['overflow-x'] = 'auto';
+                }
 
             } else {
                 messageEl.style.display = 'table-cell';

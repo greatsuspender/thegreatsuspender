@@ -5,8 +5,7 @@
 
     var gsUtils = {
 
-        SHOW_PREVIEW: 'preview',
-        PREVIEW_QUALITY: 'previewQuality',
+        SCREEN_CAPTURE: 'screenCapture',
         ONLINE_CHECK: 'onlineCheck',
         BATTERY_CHECK: 'batteryCheck',
         UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
@@ -38,8 +37,7 @@
         getSettingsDefaults: function () {
 
             var defaults = {};
-            defaults[this.SHOW_PREVIEW] = false;
-            defaults[this.PREVIEW_QUALITY] = false;
+            defaults[this.SCREEN_CAPTURE] = '0';
             defaults[this.ONLINE_CHECK] = false;
             defaults[this.BATTERY_CHECK] = false;
             defaults[this.UNSUSPEND_ON_FOCUS] = false;
@@ -853,7 +851,18 @@
                     });
                 });
             }
+            if (oldVersion < 6.30) {
 
+                if (this.getOption('preview')) {
+                    if (this.getOption('previewQuality') === '0.1') {
+                        this.setOption(this.SCREEN_CAPTURE, '1');
+                    } else {
+                        this.setOption(this.SCREEN_CAPTURE, '2');
+                    }
+                } else {
+                    this.setOption(this.SCREEN_CAPTURE, '0');
+                }
+            }
         },
 
         performOldMigration: function (oldVersion, callback) {
