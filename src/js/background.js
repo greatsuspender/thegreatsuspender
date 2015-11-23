@@ -23,6 +23,7 @@ var tgs = (function () {
         notice = {},
         contextMenuItems = false,
         unsuspendRequestList = {},
+        audibleTabsList = {},
         lastTabCloseTimestamp = new Date(),
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png';
@@ -950,7 +951,6 @@ var tgs = (function () {
 
         case 'savePreviewData':
             savePreview(sender.tab, request.previewUrl);
-            console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
             if (debug && sender.tab) {
                 if (request.errorMsg) {
                     console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
@@ -1042,9 +1042,21 @@ var tgs = (function () {
         lastTabCloseTimestamp = new Date();
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+
         //only save session if the tab url has changed
         if (changeInfo && changeInfo.url) {
             queueSessionTimer();
+        }
+
+        //check for tab playing audio
+        if (tab.audible) {
+            audibleTabsList[tab.id] = true;
+
+        //else check if tab WAS playing audio (and now isnt)
+        } else if (audibleTabsList[tab.id]) {
+            delete audibleTabsList[tab.id];
+            resetTabTimer(tab.id);
+            if (debug) console.log('tab finished playing audio. restarting timer: ' + tab.id);
         }
 
         //check for tab having an unsuspend request
