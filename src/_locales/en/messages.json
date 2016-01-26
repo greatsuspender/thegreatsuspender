@@ -10,6 +10,16 @@
     "ext_cmd_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
+    // Session management page
+    "html_history_title": { "message": "The Great Suspender - Session management" },
+    "html_history_current_session": { "message": "Current session" },
+    "html_history_recent_sessions": { "message": "Recent sessions" },
+    "html_history_saved_sessions": { "message": "Saved sessions" },
+    "html_history_clear_tab_history": { "message": "Clear tab history" },
+    "html_history_enter_name_for_session": { "message": "Enter a name for this session" },
+    "html_history_cancel": { "message": "Cancel" },
+    "html_history_ok": { "message": "OK" },
+
     // Important notice page
     "html_notice_title": { "message": "The Great Suspender - Notice" },
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
@@ -151,6 +161,13 @@
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection." },
     "js_popup_charging": { "message": "Connected to power source." },
+
+    // Session management page (Javascript code)
+    "js_sessionUtils_delete": { "message": "resuspend" },
+    "js_sessionUtils_export": { "message": "export" },
+    "js_sessionUtils_reload": { "message": "reload" },
+    "js_sessionUtils_resuspend": { "message": "resuspend" },
+    "js_sessionUtils_save": { "message": "save" },
 
     // Suspended page (Javascript code)
     "js_suspended_add_URL_to": { "message": "Add $url$ to whitelist", "placeholders": { "url": { "content": "$1" } }

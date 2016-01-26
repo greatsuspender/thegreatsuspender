@@ -203,7 +203,7 @@ var sessionUtils = (function () {
             sessionSave = createEl('a', {
                 'class': 'groupLink',
                 'href': '#'
-            }, 'save');
+            }, chrome.i18n.getMessage('js_sessionUtils_save'));
             sessionSave.onclick = function () {
                 saveSession(session.sessionId);
             };
@@ -213,7 +213,7 @@ var sessionUtils = (function () {
             sessionDelete = createEl('a', {
                 'class': 'groupLink',
                 'href': '#'
-            }, 'delete');
+            }, chrome.i18n.getMessage('js_sessionUtils_delete'));
             sessionDelete.onclick = function () {
                 deleteSession(session.sessionId);
             };
@@ -222,7 +222,7 @@ var sessionUtils = (function () {
         sessionExport = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'export');
+        }, chrome.i18n.getMessage('js_sessionUtils_export'));
         sessionExport.onclick = function () {
             exportSession(session.sessionId);
         };
@@ -230,13 +230,13 @@ var sessionUtils = (function () {
         windowResuspend = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'resuspend');
+        }, chrome.i18n.getMessage('js_sessionUtils_resuspend'));
         windowResuspend.onclick = reloadTabs(sessionDiv, true);
 
         windowReload = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'reload');
+        }, chrome.i18n.getMessage('js_sessionUtils_reload'));
         windowReload.onclick = reloadTabs(sessionDiv, false);
 
         sessionContainer = createEl('div');
@@ -269,13 +269,13 @@ var sessionUtils = (function () {
         groupUnsuspendCurrent = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'resuspend');
+        }, chrome.i18n.getMessage('js_sessionUtils_resuspend'));
         groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, true);
 
         groupUnsuspendNew = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'reload');
+        }, chrome.i18n.getMessage('js_sessionUtils_reload'));
         groupUnsuspendNew.onclick = reloadTabs(groupHeading, false);
 
         groupHeading.appendChild(windowHeading);
