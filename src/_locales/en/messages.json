@@ -11,7 +11,7 @@
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
     // About page
-    "html_about_title": { "message": "The Great Suspender - Support" },
+    "html_about_title": { "message": "Support" },
     "html_about_email_feedback_to": { "message": "Email your feedback to" },
     "html_about_report_issues_to": { "message": "Please report issues to" },
     "html_about_the_github_project": { "message": "the github project" },
@@ -27,7 +27,7 @@
     "html_about_want_to_donate_again": { "message": "Want to donate again?" },
 
     // Session management page
-    "html_history_title": { "message": "The Great Suspender - Session management" },
+    "html_history_title": { "message": "Session management" },
     "html_history_current_session": { "message": "Current session" },
     "html_history_recent_sessions": { "message": "Recent sessions" },
     "html_history_saved_sessions": { "message": "Saved sessions" },
@@ -37,11 +37,11 @@
     "html_history_ok": { "message": "OK" },
 
     // Important notice page
-    "html_notice_title": { "message": "The Great Suspender - Notice" },
+    "html_notice_title": { "message": "Notice" },
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
 
     // General settings page
-    "html_options_title": { "message": "The Great Suspender - Settings" },
+    "html_options_title": { "message": "Settings" },
     "html_options_suspend_title": { "message": "Suspend tab settings" },
     "html_options_suspend_automatically_after": { "message": "Automatically suspend tabs after" },
     "html_options_suspend_never": { "message": "Never" },
@@ -87,14 +87,14 @@
     "html_popup_settings": { "message": "Settings" },
 
     // Profiler page
-    "html_profiler_title": { "message": "The Great Suspender :: Profiler" },
+    "html_profiler_title": { "message": "Profiler" },
     "html_profiler_reload": { "message": "reload" },
     "html_profiler_table_title": { "message": "Title" },
     "html_profiler_table_time_to_suspend": { "message": "Time to suspend" },
     "html_profiler_table_status": { "message": "Status" },
 
     // Recovery page (to recover from a crashed session)
-    "html_recovery_title": { "message": "The Great Suspender - Recovery" },
+    "html_recovery_title": { "message": "Recovery" },
     "html_recovery_ruh_roh": { "message": "Ruh roh!" },
     "html_recovery_description_line1": { "message": "Looks like you're recovering from an extension crash." },
     "html_recovery_description_line2": { "message": "Your suspended tabs may have crashed or disappeared." },
@@ -106,7 +106,7 @@
     "html_recovery_tabs_to_restore": { "message": "Tabs to restore" },
 
     // Keyboard shortcuts page
-    "html_shortcuts_title": { "message": "The Great Suspender - Keyboard shortcuts" },
+    "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
     "html_shortcuts_remap_keys": { "message": "Remap keys" },
 
@@ -117,7 +117,7 @@
     "html_sidebar_support": { "message": "Support" },
 
     // Success page (after recovering from a crashed session)
-    "html_success_title": { "message": "The Great Suspender - Recovery" },
+    "html_success_title": { "message": "Recovery" },
     "html_success_great_success": { "message": "Great success!" },
     "html_success_all_tabs_restored": { "message": "All your tabs have been restored." },
     "html_success_goto_advanced_prefix": { "message": "For advanced session management, visit the" },
@@ -131,7 +131,7 @@
     "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
 
     // Updated page
-    "html_update_title": { "message": "The Great Suspender - Update" },
+    "html_update_title": { "message": "Update" },
     "html_update_great_suspender_updated": { "message": "The Great Suspender has been updated" },
     "html_update_bugs_squashed_title": { "message": "Bugs squashed" },
     "html_update_bugs_squashed_line1": { "message": "This new version fixes the bug caused by the new chrome release that caused tabs to change the the wrong url when they were suspended. Sorry for such a terrible bug and that the fix was a long time coming." },
@@ -150,7 +150,7 @@
     "html_update_problems_line3": { "message": "Thanks for using" },
 
     // Welcome page
-    "html_welcome_title": { "message": "The Great Suspender - Welcome" },
+    "html_welcome_title": { "message": "Welcome" },
     "html_welcome_text_line1": { "message": "Thanks for trying" },
     "html_welcome_text_line2": { "message": "Hopefully it will make you a happier and more productive human." },
     "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
