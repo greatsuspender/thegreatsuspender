@@ -53,6 +53,14 @@
     "html_suspended_click_to_reload": { "message": "Click to reload" },
     "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
 
+    // Welcome page
+    "html_welcome_title": { "message": "The Great Suspender - Welcome" },
+    "html_welcome_text_line1": { "message": "Thanks for trying" },
+    "html_welcome_text_line2": { "message": "Hopefully it will make you a happier and more productive human." },
+    "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
+    "html_welcome_get_started_linkname": { "message": "settings" },
+    "html_welcome_get_started_suffix": { "message": "page." },
+
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "Open link in new suspended tab" },
     "js_background_suspend_tab": { "message": "Suspend Tab" },
