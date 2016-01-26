@@ -1,7 +1,8 @@
 {
-  "name": "The Great Suspender",
-  "description": "Automatically suspends unused tabs to free up system resources",
+  "name": "__MSG_ext_extension_name__",
+  "description": "__MSG_ext_extension_description__",
   "version": "6.30",
+  "default_locale": "en",
   "permissions": [
     "tabs",
     "storage",
@@ -24,7 +25,7 @@
     }
   ],
   "browser_action": {
-    "default_title": "The Great Suspender",
+    "default_title": "__MSG_ext_default_title__",
     "default_icon": "img/icon19.png",
     "default_popup": "popup.html"
   },
@@ -42,24 +43,24 @@
 
   "commands": {
     "1-suspend-tab": {
-      "description": "Suspend active tab",
+      "description": "__MSG_ext_cmd_suspend_tab_description__",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
     "2-unsuspend-tab": {
-      "description": "Unsuspend active tab",
+      "description": "__MSG_ext_cmd_unsuspend_tab_description__",
       "suggested_key": { "default": "Ctrl+Shift+U" }
     },
     "3-suspend-active-window": {
-      "description": "Suspend all tabs in active window"
+      "description": "__MSG_ext_cmd_suspend_active_window_description__"
     },
     "4-unsuspend-active-window": {
-      "description": "Unsuspend all tabs in active window"
+      "description": "__MSG_ext_cmd_unsuspend_active_window_description__"
     },
     "5-suspend-all-windows": {
-      "description": "Suspend all tabs in all windows"
+      "description": "__MSG_ext_cmd_suspend_all_windows_description__"
     },
     "6-unsuspend-all-windows": {
-      "description": "Unsuspend all tabs in all windows"
+      "description": "__MSG_ext_cmd_unsuspend_all_windows_description__"
     }
   }
 }
