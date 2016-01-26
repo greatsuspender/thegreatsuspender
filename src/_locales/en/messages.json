@@ -10,6 +10,10 @@
     "ext_cmd_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
+    // Important notice page
+    "html_notice_title": { "message": "The Great Suspender - Notice" },
+    "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
+
     // Dropdown menu from button in the address bar
     "html_popup_normal": { "message": "Tab will be suspended" },
     "html_popup_suspend_tab": { "message": "Suspend this tab" },
