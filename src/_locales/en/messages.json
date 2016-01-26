@@ -89,6 +89,11 @@
     "html_recovery_disable_screen_capturing": { "message": "Turn off screen capturing" },
     "html_recovery_tabs_to_restore": { "message": "Tabs to restore" },
 
+    // Keyboard shortcuts page
+    "html_shortcuts_title": { "message": "The Great Suspender - Keyboard shortcuts" },
+    "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
+    "html_shortcuts_remap_keys": { "message": "Remap keys" },
+
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "General settings" },
     "html_sidebar_session_management": { "message": "Session management" },
