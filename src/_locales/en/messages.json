@@ -27,6 +27,12 @@
     "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
     "html_sidebar_support": { "message": "Support" },
 
+    // Suspended page
+    "html_suspended_title": { "message": "Suspended Tab" },
+    "html_suspended_tab_suspended": { "message": "Tab suspended" },
+    "html_suspended_click_to_reload": { "message": "Click to reload" },
+    "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
+
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "Open link in new suspended tab" },
     "js_background_suspend_tab": { "message": "Suspend Tab" },
@@ -51,5 +57,9 @@
     "js_popup_temp_whitelist_unpause": { "message": "Unpause" },
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection." },
-    "js_popup_charging": { "message": "Connected to power source." }
+    "js_popup_charging": { "message": "Connected to power source." },
+
+    // Suspended page (Javascript code)
+    "js_suspended_add_URL_to": { "message": "Add $url$ to whitelist", "placeholders": { "url": { "content": "$1" } }
+    }
 }

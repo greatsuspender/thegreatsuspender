@@ -108,7 +108,7 @@ chrome.tabs.getCurrent(function(tab) {
                 whitelistEl.style.display = 'none';
 
             } else {
-                whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
+                whitelistEl.innerText = chrome.i18n.getMessage('js_suspended_add_URL_to', rootUrlStr);
                 whitelistEl.setAttribute('data-text', rootUrlStr);
             }
         });
