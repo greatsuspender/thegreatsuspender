@@ -8,7 +8,12 @@
     "ext_cmd_suspend_active_window_description": { "message": "Suspend all tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },
     "ext_cmd_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
-    "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" }
+    "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
 
+    // Sidebar from the configuration section (common to all settings)
+    "html_sidebar_general_settings": { "message": "General settings" },
+    "html_sidebar_session_management": { "message": "Session management" },
+    "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
+    "html_sidebar_support": { "message": "Support" }
 }
