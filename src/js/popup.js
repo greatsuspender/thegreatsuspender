@@ -10,51 +10,55 @@
             message;
 
         if (status === 'normal') {
-            statusDetail = 'Tab will be suspended automatically.';
+            statusDetail = chrome.i18n.getMessage('js_popup_normal');
             statusIconClass = 'fa fa-clock-o';
 
         } else if (status === 'special') {
-            statusDetail = 'Tab cannot be suspended.';
+            statusDetail = chrome.i18n.getMessage('js_popup_special');
             statusIconClass = 'fa fa-remove';
 
         } else if (status === 'suspended') {
-            statusDetail = 'Tab suspended. <a href="#">Unsuspend</a>';
+            statusDetail = chrome.i18n.getMessage('js_popup_suspended')
+                + " <a href='#'>" + chrome.i18n.getMessage('js_popup_suspended_unsuspend') + "</a>";
             statusIconClass = 'fa fa-pause';
             message = 'unsuspendOne';
 
         } else if (status === 'whitelisted') {
-            statusDetail = 'Site whitelisted. <a href="#">Remove from whitelist</a>';
+            statusDetail = chrome.i18n.getMessage('js_popup_whitelisted')
+                + " <a href='#'>" + chrome.i18n.getMessage('js_popup_whitelisted_remove') + "</a>";
             statusIconClass = 'fa fa-check';
             message = 'removeWhitelist';
 
         } else if (status === 'audible') {
-            statusDetail = 'Tab is playing audio.';
+            statusDetail = chrome.i18n.getMessage('js_popup_audible');
             statusIconClass = 'fa fa-volume-up';
 
         } else if (status === 'formInput') {
-            statusDetail = 'Tab is receiving form input. <a href="#">Unpause</a>';
+            statusDetail = chrome.i18n.getMessage('js_popup_form_input')
+                + " <a href='#'>" + chrome.i18n.getMessage('js_popup_form_input_unpause') + "</a>";
             statusIconClass = 'fa fa-edit';
             message = 'undoTempWhitelist';
 
         } else if (status === 'pinned') {
-            statusDetail = 'Tab has been pinned.';
+            statusDetail = chrome.i18n.getMessage('js_popup_pinned');
             statusIconClass = 'fa fa-thumb-tack';
 
         } else if (status === 'tempWhitelist') {
-            statusDetail = 'Tab suspension paused. <a href="#">Unpause</a>';
+            statusDetail = chrome.i18n.getMessage('js_popup_temp_whitelist')
+                + " <a href='#'>" + chrome.i18n.getMessage('js_popup_temp_whitelist_unpause') + "</a>";
             statusIconClass = 'fa fa-pause';
             message = 'undoTempWhitelist';
 
         } else if (status === 'never') {
-            statusDetail = 'Automatic tab suspension disabled.';
+            statusDetail = chrome.i18n.getMessage('js_popup_never');
             statusIconClass = 'fa fa-ban';
 
         } else if (status === 'noConnectivity') {
-            statusDetail = 'No network connection.';
+            statusDetail = chrome.i18n.getMessage('js_popup_no_connectivity');
             statusIconClass = 'fa fa-pause';
 
         } else if (status === 'charging') {
-            statusDetail = 'Connected to power source.';
+            statusDetail = chrome.i18n.getMessage('js_popup_charging');
             statusIconClass = 'fa fa-pause';
         }
 

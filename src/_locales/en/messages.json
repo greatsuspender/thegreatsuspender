@@ -10,10 +10,37 @@
     "ext_cmd_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
+    // Dropdown menu from button in the address bar
+    "html_popup_normal": { "message": "Tab will be suspended" },
+    "html_popup_suspend_tab": { "message": "Suspend this tab" },
+    "html_popup_dont_suspend_now": { "message": "Don't suspend for now" },
+    "html_popup_never_suspend_site": { "message": "Never suspend this site" },
+    "html_popup_suspend_other_tabs": { "message": "Suspend other tabs" },
+    "html_popup_unsuspend_all_tabs": { "message": "Unsuspend all tabs" },
+    "html_popup_suspend_selected_tabs": { "message": "Suspend selected tabs" },
+    "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
+    "html_popup_settings": { "message": "Settings" },
 
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "General settings" },
     "html_sidebar_session_management": { "message": "Session management" },
     "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_sidebar_support": { "message": "Support" }
+    "html_sidebar_support": { "message": "Support" },
+
+    // Dropdown menu from button in the address bar (Javascript code)
+    "js_popup_normal": { "message": "Tab will be suspended automatically." },
+    "js_popup_special": { "message": "Tab cannot be suspended." },
+    "js_popup_suspended": { "message": "Tab suspended." },
+    "js_popup_suspended_unsuspended": { "message": "Unsuspend" },
+    "js_popup_whitelisted": { "message": "Site whitelisted." },
+    "js_popup_whitelisted_remove": { "message": "Remove from whitelist" },
+    "js_popup_audible": { "message": "Tab is playing audio." },
+    "js_popup_form_input": { "message": "Tab is receiving form input." },
+    "js_popup_form_input_unpause": { "message": "Unpause" },
+    "js_popup_pinned": { "message": "Tab has been pinned." },
+    "js_popup_temp_whitelist": { "message": "Tab suspension paused.Unpause" },
+    "js_popup_temp_whitelist_unpause": { "message": "Unpause" },
+    "js_popup_never": { "message": "Automatic tab suspension disabled." },
+    "js_popup_no_connectivity": { "message": "No network connection." },
+    "js_popup_charging": { "message": "Connected to power source." }
 }
