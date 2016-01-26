@@ -21,6 +21,18 @@
     "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
     "html_popup_settings": { "message": "Settings" },
 
+    // Recovery page (to recover from a crashed session)
+    "html_recovery_title": { "message": "The Great Suspender - Recovery" },
+    "html_recovery_ruh_roh": { "message": "Ruh roh!" },
+    "html_recovery_description_line1": { "message": "Looks like you're recovering from an extension crash." },
+    "html_recovery_description_line2": { "message": "Your suspended tabs may have crashed or disappeared." },
+    "html_recovery_restore_tabs_automatically": { "message": "Restore tabs automatically" },
+    "html_recovery_go_to_session_manager": { "message": "Go to session manager" },
+    "html_recovery_important": { "message": "Important!" },
+    "html_recovery_important_message": { "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option." },
+    "html_recovery_disable_screen_capturing": { "message": "Turn off screen capturing" },
+    "html_recovery_tabs_to_restore": { "message": "Tabs to restore" },
+
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "General settings" },
     "html_sidebar_session_management": { "message": "Session management" },
