@@ -27,6 +27,15 @@
     "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
     "html_sidebar_support": { "message": "Support" },
 
+    // Contextual menu (Javascript code)
+    "js_background_open_link_in_suspended_tab": { "message": "Open link in new suspended tab" },
+    "js_background_suspend_tab": { "message": "Suspend Tab" },
+    "js_background_dont_suspend_now": { "message": "Don't suspend for now" },
+    "js_background_never_suspend_site": { "message": "Never suspend this site" },
+    "js_background_suspend_all_tabs": { "message": "Suspend All Tabs" },
+    "js_background_unsuspend_all_tabs": { "message": "Unsuspend All Tabs" },
+    "js_background_settings": { "message": "Settings" },
+
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Tab will be suspended automatically." },
     "js_popup_special": { "message": "Tab cannot be suspended." },
