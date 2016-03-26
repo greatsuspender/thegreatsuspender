@@ -328,6 +328,17 @@ var tgs = (function () {
         });
     }
 
+    function resuspendAllSuspendedTabs() {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if (isSuspended(currentTab)) {
+                    unsuspendRequestList[currentTab.id] = 'ignore';
+                    chrome.tabs.reload(currentTab.id);
+                }
+            });
+        });
+    }
+
     function queueSessionTimer() {
         clearTimeout(sessionSaveTimer);
         sessionSaveTimer = setTimeout(function() {
@@ -833,7 +844,7 @@ var tgs = (function () {
 
             //Suspend present tab
             contextMenuItems.push(chrome.contextMenus.create({
-                title: "Suspend Tab",
+                title: "Suspend tab",
                 contexts: allContexts,
                 onclick: suspendHighlightedTab
             }));
@@ -854,14 +865,14 @@ var tgs = (function () {
 
             //Suspend all the tabs
             contextMenuItems.push(chrome.contextMenus.create({
-                title: "Suspend All Tabs",
+                title: "Suspend other tabs",
                 contexts: allContexts,
                 onclick: suspendAllTabs
             }));
 
             //Unsuspend all the tabs
             contextMenuItems.push(chrome.contextMenus.create({
-                title: "Unsuspend All Tabs",
+                title: "Unsuspend all tabs",
                 contexts: allContexts,
                 onclick: unsuspendAllTabs
             }));
@@ -945,7 +956,11 @@ var tgs = (function () {
 
         case 'requestUnsuspendTab':
             if (sender.tab && isSuspended(sender.tab)) {
-                unsuspendRequestList[sender.tab.id] = true;
+                if (unsuspendRequestList[sender.tab.id] === 'ignore') {
+                    delete unsuspendRequestList[sender.tab.id];
+                } else {
+                    unsuspendRequestList[sender.tab.id] = true;
+                }
             }
             break;
 
@@ -1136,7 +1151,8 @@ var tgs = (function () {
         runStartupChecks: runStartupChecks,
         resetAllTabTimers: resetAllTabTimers,
         requestNotice: requestNotice,
-        buildContextMenu: buildContextMenu
+        buildContextMenu: buildContextMenu,
+        resuspendAllSuspendedTabs: resuspendAllSuspendedTabs
     };
 
 }());
