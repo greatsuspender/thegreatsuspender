@@ -38,6 +38,12 @@ var tgs = (function () {
             gsUtils.addPreviewImage(tab.url, previewUrl);
         }
     }
+    
+    function notifyUpdateToOptionPages()
+    {
+        // Send message to notify option change
+        chrome.runtime.sendMessage({command:"updateOptions"}, null);
+    }
 
     function saveSuspendData(tab, tabPropertyOverrides, callback) {
 
@@ -1136,7 +1142,8 @@ var tgs = (function () {
         runStartupChecks: runStartupChecks,
         resetAllTabTimers: resetAllTabTimers,
         requestNotice: requestNotice,
-        buildContextMenu: buildContextMenu
+        buildContextMenu: buildContextMenu,
+        notifyUpdateToOptionPages: notifyUpdateToOptionPages
     };
 
 }());
