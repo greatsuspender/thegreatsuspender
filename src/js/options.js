@@ -22,6 +22,7 @@
             'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'addContextMenu': gsUtils.ADD_CONTEXT,
+            'syncSettings': gsUtils.SYNC_SETTINGS,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
             'theme': gsUtils.THEME,
             'whitelist': gsUtils.WHITELIST
@@ -183,6 +184,9 @@
                 contains(updatedPreferences, gsUtils.SCREEN_CAPTURE)) {
             chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
         }
+
+        // Push out all our saved settings to sync storage.
+        gsUtils.syncSettings();
     }
 
     function contains(array, value) {
