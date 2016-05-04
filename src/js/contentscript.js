@@ -177,9 +177,11 @@
 
         return setTimeout(function () {
             //request suspension
-            if (!inputState && !tempWhitelist) {
+            if(!document.querySelector('.playControl.playing')){
+                if (!inputState && !tempWhitelist) {
 
-                chrome.runtime.sendMessage({ action: 'suspendTab' });
+                    chrome.runtime.sendMessage({ action: 'suspendTab' });
+                }
             }
         }, timeToSuspend);
     }
