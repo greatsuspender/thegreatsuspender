@@ -13,12 +13,29 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
+### Build from github
+
+Dependencies: openssl, npm.
+
+1. Clone the tree.
+2. npm install grunt-crx time-grunt grunt grunt-cli
+3. Add ./node_modules/grunt-cli/bin to PATH. (path+= in zsh).
+4. openssl genrsa -out key.pem
+5. grunt
+
+It should say:
+```
+Done, without errors.
+```
+
+The extension in crx format will be inside the build/crx/ directory. You can drag it into [extensions] (chrome://extensions) to install locally.
+
 ### License
 
 This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 
 ### Shoutouts
 
-This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.  
-It also uses the indexedDb wrapper [db.js] (https://github.com/aaronpowell/db.js) written by Aaron Powell.  
-Thank you also to www.browserstack.com for providing free chrome testing tools.  
+This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.
+It also uses the indexedDb wrapper [db.js] (https://github.com/aaronpowell/db.js) written by Aaron Powell.
+Thank you also to www.browserstack.com for providing free chrome testing tools.
