@@ -328,6 +328,16 @@ var tgs = (function () {
         });
     }
 
+    function closeSuspendedTabs() {
+        chrome.tabs.getAllInWindow(null, function (tabs) {
+            tabs.forEach( function (tab) {
+                if (isSuspended(tab)) {
+                    chrome.tabs.remove(tab.id);
+                }
+            });
+        });
+    }
+
     function queueSessionTimer() {
         clearTimeout(sessionSaveTimer);
         sessionSaveTimer = setTimeout(function() {
@@ -593,11 +603,11 @@ var tgs = (function () {
             //if they are installing for the first time
             if (!lastVersion) {
 
-				// prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
-				if (!chrome.extension.inIncognitoContext) {
-					//show welcome screen
-					chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-				}
+                // prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
+                if (!chrome.extension.inIncognitoContext) {
+                    //show welcome screen
+                    chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+                }
 
             //else if they are upgrading to a new version
             } else {
@@ -866,6 +876,13 @@ var tgs = (function () {
                 onclick: unsuspendAllTabs
             }));
 
+            //Close suspended tabs
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Close Suspended Tabs",
+                contexts: allContexts,
+                onclick: closeSuspendedTabs
+            }));
+
              //Open settings page
             contextMenuItems.push(chrome.contextMenus.create({
                 title: "Settings",
@@ -900,6 +917,9 @@ var tgs = (function () {
 
         } else if (command === '6-unsuspend-all-windows') {
             unsuspendAllTabsInAllWindows();
+        
+        } else if (command === '7-close-all-tabs') {
+            closeSuspendedTabs();
         }
     });
 
