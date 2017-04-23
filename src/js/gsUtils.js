@@ -276,14 +276,14 @@
 
             }).then(function (results) {
                 if (results.length > 0) {
-                    callback(results[0]['img']);
+                    callback(results[0]['img'], results[0]['pos']);
                 } else {
-                    callback(null);
+                    callback(null, null);
                 }
             });
         },
 
-        addPreviewImage: function (tabUrl, previewUrl) {
+        addPreviewImage: function (tabUrl, previewUrl, position) {
             var self = this,
                 server;
             this.getDb().then(function (s) {
@@ -294,10 +294,10 @@
 
             }).then(function (results) {
                 if (results.length > 0) {
-                    server.update(self.DB_PREVIEWS , {id: results[0].id, url: tabUrl, img: previewUrl});
+                    server.update(self.DB_PREVIEWS , {id: results[0].id, url: tabUrl, img: previewUrl, pos: position});
 
                 } else {
-                    server.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl});
+                    server.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl, pos: position});
                 }
             });
         },

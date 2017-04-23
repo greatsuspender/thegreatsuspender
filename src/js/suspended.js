@@ -61,7 +61,7 @@ chrome.tabs.getCurrent(function(tab) {
 
             //set preview image
             if (showPreview) {
-                gsUtils.fetchPreviewImage(url, function (previewUrl) {
+                gsUtils.fetchPreviewImage(url, function (previewUrl, position) {
                     if (previewUrl && previewUrl !== null) {
 
                         var previewEl = document.createElement('div');
@@ -71,6 +71,9 @@ chrome.tabs.getCurrent(function(tab) {
                         bodyEl.appendChild(previewEl);
 
                         document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
+                        document.getElementById('gsPreviewImg').addEventListener('load', function() {
+                          document.body.scrollTop = position;
+                        }, { once: true });
 
                         messageEl.style.display = 'none';
                         previewEl.style.display = 'block';
