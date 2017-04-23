@@ -33,9 +33,9 @@ var tgs = (function () {
     sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
-    function savePreview(tab, previewUrl) {
+    function savePreview(tab, previewUrl, position) {
         if (previewUrl) {
-            gsUtils.addPreviewImage(tab.url, previewUrl);
+            gsUtils.addPreviewImage(tab.url, previewUrl, position);
         }
     }
 
@@ -965,7 +965,7 @@ var tgs = (function () {
             break;
 
         case 'savePreviewData':
-            savePreview(sender.tab, request.previewUrl);
+            savePreview(sender.tab, request.previewUrl, request.position);
             if (debug && sender.tab) {
                 if (request.errorMsg) {
                     console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);

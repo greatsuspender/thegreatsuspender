@@ -113,6 +113,7 @@
             height = 0;
 
         setCookieValue('gsScrollPos-' + tabId, document.body.scrollTop);
+        var position = document.body.scrollTop;
 
         //safety check here. don't try to use html2canvas if the page has more than 10000 elements
         if (elementCount < 10000) {
@@ -152,6 +153,7 @@
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
+                            position: position,
                             timerMsg: timer
                         }, function () {
                             suspendTab(suspendedUrl);
