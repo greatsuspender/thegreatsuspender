@@ -60,6 +60,12 @@
     },
     "6-unsuspend-all-windows": {
       "description": "Unsuspend all tabs in all windows"
+    },
+    "7-close-all-suspended-tabs": {
+      "description": "Close all suspended tabs in active window"
+    },
+    "8-close-all-suspended-windows": {
+      "description": "Close all suspended tabs in all windows"
     }
   }
 }
