@@ -125,13 +125,15 @@
                 }
             }, 30000);
 
-            //if preview quality is high then capture the whole screen
+            //check where we need to capture the whole screen
             if (screenCapture === '2') {
                 height = Math.max(document.body.scrollHeight,
                     document.body.offsetHeight,
                     document.documentElement.clientHeight,
                     document.documentElement.scrollHeight,
                     document.documentElement.offsetHeight);
+                // cap the max height otherwise it fails to convert to a data url
+                height = Math.min(height, 10000);
             } else {
                 height = Math.min(document.body.offsetHeight, window.innerHeight);
             }
@@ -144,7 +146,9 @@
                     if (processing) {
                         processing = false;
                         timer = (new Date() - timer) / 1000;
+                        console.log('canvas: ' + canvas);
                         var dataUrl = canvas.toDataURL('image/webp', 0.8);
+                        console.log('dataUrl: ' + dataUrl);
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
