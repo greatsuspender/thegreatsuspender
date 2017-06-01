@@ -650,7 +650,7 @@ var tgs = (function () {
             resp,
             lastNoticeVersion = gsUtils.fetchNoticeVersion();
 
-        xhr.open("GET", "http://greatsuspender.github.io/notice.json", true);
+        xhr.open("GET", "https://greatsuspender.github.io/notice.json", true);
         xhr.timeout = 4000;
         xhr.setRequestHeader('Cache-Control', 'no-cache');
         xhr.onreadystatechange = function() {
