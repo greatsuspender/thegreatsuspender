@@ -15,7 +15,7 @@ If you have completed the above steps, the "welcome" page will open indicating s
 
 ### Chrome webstore
 
-Please note that the version on the Chrome webstore may be some versions behind. Also, the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on why this is the situation please read this issue thread: https://github.com/deanoemcke/thegreatsuspender/issues/322
+Please note that the version on the Chrome webstore may be some versions behind. Also, the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on why this is the situation please read [this issue thread](https://github.com/deanoemcke/thegreatsuspender/issues/322).
 
 ### License
 
@@ -25,4 +25,4 @@ This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 
 This package uses the [html2canvas] (https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.  
 It also uses the indexedDb wrapper [db.js] (https://github.com/aaronpowell/db.js) written by Aaron Powell.  
-Thank you also to www.browserstack.com for providing free chrome testing tools.  
+Thank you also to www.browserstack.com for providing free chrome testing tools.
