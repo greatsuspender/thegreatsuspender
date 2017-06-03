@@ -13,9 +13,11 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
-### Chrome webstore
+### Chrome Web Store
 
-Please note that the version on the Chrome webstore may be some versions behind. Also, the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on why this is the situation please read this issue thread: https://github.com/deanoemcke/thegreatsuspender/issues/322
+The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
+
+Please note that the version on the Chrome Web store may be some versions behind. Also, the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on why this is unfortunately the situation please read this issue thread: https://github.com/deanoemcke/thegreatsuspender/issues/322
 
 ### License
 
