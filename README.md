@@ -1,5 +1,18 @@
 # <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
 
+### Currently down on the webstore!!! Please read if you have lost tabs ###
+
+The webstore version of this extension was compromised yesterday. It has since been returned to my ownership but Google have removed it from the webstore until they can review the situation.
+
+While the extension was out of my control, an update was forced upon all users. I have inspected the source code of this unsolicited update, and it was not modified in any way except for a change in version number (it has a version 6.22 but in all other respects it is the same as v6.21). This version of the extension is safe to use and can be re-enabled manually from chrome://extensions.
+
+Unfortunately, due to the way the extension works, when it is disabled, all suspended tabs are removed from the chrome browser. The only way to recover these tabs is to re-enable the extension. As mentioned above, this is safe to do.
+
+If you were asked recently to accept new permissions, this is purely because you were upgrading from an older version of the extension to a newer one (v6.22). The extension has required these permissions to operate for quite some time now and is not related at all to the extension being compromised.
+
+For more information on the compromise, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/512)
+For more information on the permissions required for the extension, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/213)
+
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/).
