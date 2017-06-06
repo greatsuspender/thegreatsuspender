@@ -11,7 +11,10 @@ Unfortunately, due to the way the extension works, when it is disabled, all susp
 If you were asked recently to accept new permissions, this is purely because you were upgrading from an older version of the extension to a newer one (v6.22). The extension has required these permissions to operate for quite some time now and is not related at all to the extension being compromised.
 
 For more information on the compromise, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/512)
+
 For more information on the permissions required for the extension, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/213)
+
+### Welcome
 
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
