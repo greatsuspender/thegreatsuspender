@@ -651,7 +651,13 @@
             return decodeURIComponent(this.getHashVariable('ttl', urlStr) || '');
         },
         getSuspendedUrl: function (urlStr) {
-            return this.getHashVariable('uri', urlStr);
+            var url = this.getHashVariable('uri', urlStr);
+            if (url) {
+                return url;
+            } else {
+                url = decodeURIComponent(this.getHashVariable('url', urlStr));
+                return url;
+            }
         },
 
         htmlEncode: function (text) {
