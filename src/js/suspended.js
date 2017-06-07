@@ -74,6 +74,13 @@ chrome.tabs.getCurrent(function(tab) {
 
                         messageEl.style.display = 'none';
                         previewEl.style.display = 'block';
+
+                        // Hide the top bar when tabs are unsuspended on focus
+                        var unsuspendOnFocus = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
+                        if (unsuspendOnFocus) {
+                          document.getElementById('gsTopBar').style.display = 'none';
+                          document.getElementById('gsPreviewImg').style['margin-top'] = 0;
+                        }
                     }
                 });
 
