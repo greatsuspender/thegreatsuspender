@@ -147,7 +147,7 @@
         };
     }
 
-    function saveChange(element) {
+    function saveChange(element, updatedPreferences) {
 
         var pref = elementPrefMap[element.id],
             oldValue = gsUtils.getOption(pref),
@@ -161,26 +161,45 @@
         //save option
         gsUtils.setOption(elementPrefMap[element.id], newValue);
 
+        if (oldValue !== newValue) {
+            updatedPreferences.push(pref);
+        }
+    }
+
+    function performPostSaveUpdates(updatedPreferences) {
 
         //if interval has changed then reset the tab timers
-        if (pref === gsUtils.SUSPEND_TIME && oldValue !== newValue) {
+        if (contains(updatedPreferences, gsUtils.SUSPEND_TIME)) {
             chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
         }
 
         //if context menu has been disabled then remove from chrome
-        if (pref === gsUtils.ADD_CONTEXT) {
+        if (contains(updatedPreferences, gsUtils.ADD_CONTEXT)) {
             chrome.extension.getBackgroundPage().tgs.buildContextMenu(newValue);
         }
+
+        //if theme or preview settings have changed then refresh all suspended pages
+        if (contains(updatedPreferences, gsUtils.THEME) ||
+                contains(updatedPreferences, gsUtils.SCREEN_CAPTURE)) {
+            chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
+        }
+    }
+
+    function contains(array, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] == value) return true;
+        }
+        return false;
     }
 
     function closeSettings() {
         //only close the window if we were opened in a new tab.
         //else, go back to the page we were on.
         //this is to fix closing tabs if they were opened from the context menu.
-        if (document.referrer === "") {
-            window.close();
-        } else {
+        if (window.history.length > 1) {
             history.back();
+        } else {
+            window.close();
         }
     }
 
@@ -204,9 +223,11 @@
                 element.onchange = handleChange(element);
             }
             saveEl.onclick = function (e) {
+                var updatedPreferences = [];
                 for (i = 0; i < optionEls.length; i++) {
-                    saveChange(optionEls[i]);
+                    saveChange(optionEls[i], updatedPreferences);
                 }
+                performPostSaveUpdates(updatedPreferences);
                 closeSettings();
             };
             cancelEl.onclick = function (e) {
