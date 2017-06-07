@@ -145,6 +145,28 @@ chrome.tabs.getCurrent(function(tab) {
             });
         });
 
+        //add hotkey listener for next/previous tab
+        //responds to Shift+J and Shift+K to match Vimium
+        window.addEventListener('keypress', function(event) {
+            var nextPrevTab = function(dir) {
+                chrome.tabs.query({currentWindow: true}, function(tabs) {
+                    var i = 0; while(!tabs[i].active) { i++; };
+                    chrome.tabs.update(tabs[(i+tabs.length+dir) % tabs.length].id, {active: true});
+                });
+            };
+
+            if ( event.shiftKey === true ) {
+                switch ( event.key ) {
+                    case 'J':
+                        nextPrevTab(-1);
+                        break;
+                    case 'K':
+                        nextPrevTab(1);
+                        break;
+                }
+            }
+        });
+
         //show dude and donate link (randomly 1 of 20 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
 
