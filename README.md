@@ -2,7 +2,7 @@
 
 ### Webstore is live again with an official release!!! Please read if you have lost tabs ###
 
-The webstore version of this extension was compromised yesterday. It has since been returned to my ownership and I have published a new version of the extension. This is version 6.30 and it is an official update including some more recent gitHub contributions and bug fixes. This version is was built off the dev branch. I will tag and push to master soon.
+The webstore version of this extension was compromised yesterday. It has since been returned to my ownership and I have published a new version of the extension. This is version 6.30 and it is an official update including some more recent gitHub contributions and bug fixes. This version was built from the develop branch. I will tag and push to master soon.
 
 While the extension was out of my control, an update was forced upon all users. I have inspected the source code of this unsolicited update, and it was not modified in any way except for a change in version number (it has a version 6.22 but in all other respects it is the same as v6.21).
 
