@@ -22,6 +22,7 @@
             'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
             'ignoreCache': gsUtils.IGNORE_CACHE,
             'addContextMenu': gsUtils.ADD_CONTEXT,
+            'autoSaveOptions': gsUtils.AUTO_SAVE,
             'timeToSuspend': gsUtils.SUSPEND_TIME,
             'theme': gsUtils.THEME,
             'whitelist': gsUtils.WHITELIST
@@ -73,6 +74,7 @@
         setScreenCaptureNoteVisibility(gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0');
         setAudibleNoteVisibility(gsUtils.getChromeVersion() < 45 && gsUtils.getOption(gsUtils.IGNORE_AUDIO));
         setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
+        setSaveButtonVisibility(!gsUtils.getOption(gsUtils.AUTO_SAVE));
     }
 
     function populateOption(element, value) {
@@ -97,6 +99,14 @@
         }
         if (element.tagName === 'TEXTAREA') {
             return element.value;
+        }
+    }
+    
+    function setSaveButtonVisibility(visible) {
+        if (visible) {
+            document.getElementById('saveBtn').style.display = 'block';
+        } else {
+            document.getElementById('saveBtn').style.display = 'none';
         }
     }
 
@@ -144,6 +154,13 @@
                 interval = getOptionValue(element);
                 setAutoSuspendOptionsVisibility(interval > 0);
             }
+            
+            // Save option change if auto save is enabled        
+            if (gsUtils.getOption(gsUtils.AUTO_SAVE) == true) {
+                saveChange(element);
+                // notify all option page instances of settings change
+                chrome.extension.getBackgroundPage().tgs.notifyUpdateToOptionPages();
+            }
         };
     }
 
@@ -161,7 +178,6 @@
         //save option
         gsUtils.setOption(elementPrefMap[element.id], newValue);
 
-
         //if interval has changed then reset the tab timers
         if (pref === gsUtils.SUSPEND_TIME && oldValue !== newValue) {
             chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
@@ -170,6 +186,10 @@
         //if context menu has been disabled then remove from chrome
         if (pref === gsUtils.ADD_CONTEXT) {
             chrome.extension.getBackgroundPage().tgs.buildContextMenu(newValue);
+        }
+        
+        if (pref === gsUtils.AUTO_SAVE) {
+            setSaveButtonVisibility(!gsUtils.getOption(gsUtils.AUTO_SAVE));
         }
     }
 
@@ -183,6 +203,14 @@
             history.back();
         }
     }
+    
+    function saveOptions(optionEls) {
+        for (var i = 0; i < optionEls.length; i++) {
+            saveChange(optionEls[i]);
+        }
+        // Notify all option page instances of settings change
+        chrome.extension.getBackgroundPage().tgs.notifyUpdateToOptionPages();
+    }
 
     readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
@@ -191,6 +219,15 @@
 
             initialise();
             initSettings();
+            
+            // Add listener for option changes when multiple
+            // instance of options page is open
+            chrome.runtime.onMessage.addListener(
+            function(request, sender, sendResponse) {
+                if (request.command == "updateOptions") {
+                    initSettings();
+                }
+            });
 
             var optionEls = document.getElementsByClassName('option'),
                 saveEl = document.getElementById('saveBtn'),
@@ -204,14 +241,29 @@
                 element.onchange = handleChange(element);
             }
             saveEl.onclick = function (e) {
-                for (i = 0; i < optionEls.length; i++) {
-                    saveChange(optionEls[i]);
-                }
+                saveOptions(optionEls);
                 closeSettings();
             };
             cancelEl.onclick = function (e) {
                 closeSettings();
             };
+            window.onbeforeunload = function(e) { 
+                if (!gsUtils.getOption(gsUtils.AUTO_SAVE)) {
+                    var newVal, 
+                        oldVal,
+                        i;
+                    
+                    // Check if any options have changed and raise
+                    // a dialog to notify user to click on save button
+                    for (i = 0; i < optionEls.length; i++) {
+                        newVal = getOptionValue(optionEls[i]);
+                        oldVal = gsUtils.getOption(elementPrefMap[optionEls[i].id]);
+                        if (newVal != oldVal) {
+                            return "Settings have been modified. Press save button to retain the changes or enable auto save option.";
+                        }
+                    }
+                }
+            }
         }
     }, 50);
 }());
