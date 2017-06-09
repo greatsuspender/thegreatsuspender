@@ -144,7 +144,11 @@
                     if (processing) {
                         processing = false;
                         timer = (new Date() - timer) / 1000;
-                        var dataUrl = canvas.toDataURL('image/webp', 0.8);
+                        try {
+                            var dataUrl = canvas.toDataURL('image/webp', 0.8);
+                        } catch(err) {
+                            var dataUrl = false;
+                        }
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
