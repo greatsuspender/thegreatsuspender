@@ -1,8 +1,9 @@
 # <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
 
-### Read this if you have lost tabs due to this extension
+### Read this if you have lost tabs from your browser
 
 I have written a guide for how to recover your lost tabs here: https://github.com/deanoemcke/thegreatsuspender/issues/526
+
 Please contribute if you have any extra insight on alternative methods for tab recovery.
 
 ### Important information on the recent compromise on the chrome webstore
