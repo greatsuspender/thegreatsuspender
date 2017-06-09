@@ -1,8 +1,13 @@
 # <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
 
-### Webstore is live again with an official release!!! Please read if you have lost tabs ###
+### Read this if you have lost tabs due to this extension
 
-The webstore version of this extension was compromised yesterday. It has since been returned to my ownership and I have published a new version of the extension. This is version 6.30 and it is an official update including some more recent gitHub contributions and bug fixes. This version was built from the develop branch. I will tag and push to master soon.
+I have written a guide for how to recover your lost tabs here: https://github.com/deanoemcke/thegreatsuspender/issues/526
+Please contribute if you have any extra insight on alternative methods for tab recovery.
+
+### Important information on the recent compromise on the chrome webstore
+
+The webstore version of this extension was compromised this week. It has since been returned to my ownership and I have published a new version of the extension. This is version 6.30 and it is an official update including some more recent gitHub contributions and bug fixes. This version was built from the develop branch. I will tag and push to master soon.
 
 While the extension was out of my control, an update was forced upon all users. I have inspected the source code of this unsolicited update, and it was not modified in any way except for a change in version number (it has a version 6.22 but in all other respects it is the same as v6.21).
 
