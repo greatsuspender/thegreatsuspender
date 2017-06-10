@@ -4,6 +4,8 @@
   "description": "A chrome extension for suspending all tabs to free up memory",
   "main": "",
   "scripts": {
+    "build": "grunt",
+    "generate-key": "openssl genrsa -out key.pem",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -13,8 +15,8 @@
   "keywords": [
     "chrome",
     "extension",
-	"addon",
-	"memory",
+    "addon",
+    "memory",
     "suspend",
     "tab"
   ],
@@ -25,7 +27,8 @@
   },
   "devDependencies": {
     "grunt": "~0.4.5",
-    "time-grunt": "~1.2.1",
-    "grunt-crx": "~1.0.3"
+    "grunt-cli": "^1.2.0",
+    "grunt-crx": "~1.0.3",
+    "time-grunt": "~1.2.1"
   }
 }
