@@ -8,7 +8,7 @@ Please contribute if you have any extra insight on alternative methods for tab r
 
 ### Important information on the recent compromise on the chrome webstore
 
-The webstore version of this extension was compromised this week. It has since been returned to my ownership and I have published a new version of the extension. This is version 6.30 and it is an official update including some more recent gitHub contributions and bug fixes. This version was built from the develop branch. I will tag and push to master soon.
+The webstore version of this extension was compromised this week. It has since been returned to my ownership and I have published a new version of the extension. This is version [6.30](https://github.com/deanoemcke/thegreatsuspender/releases/tag/v6.30) and it is an official update including some more recent gitHub contributions and bug fixes. 
 
 While the extension was out of my control, an update was forced upon all users. I have inspected the source code of this unsolicited update, and it was not modified in any way except for a change in version number (it has a version 6.22 but in all other respects it is the same as v6.21).
 
@@ -28,7 +28,7 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 ### Installation
 
-1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/releases/tag/v6.21)** and unarchive to your preferred location (whichever suits you).
+1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/releases/tag/v6.30)** and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
 3. Click on the <kbd>Load unpacked extension...</kbd> button.
 4. Browse to the src directory of the downloaded, unarchived release and confirm.
@@ -37,7 +37,9 @@ If you have completed the above steps, the "welcome" page will open indicating s
 
 ### Chrome webstore
 
-Please note that the version on the Chrome webstore may be some versions behind. Also, the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on why this is the situation please read this issue thread: https://github.com/deanoemcke/thegreatsuspender/issues/322
+Please note that the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on the safe way to update see this guide: https://github.com/deanoemcke/thegreatsuspender/issues/526
+
+For information on why this is the situation please read this issue thread: https://github.com/deanoemcke/thegreatsuspender/issues/322
 
 ### License
 
