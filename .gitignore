@@ -1,5 +1,6 @@
 **/Thumbs.db
 **/*.pem
 /node_modules
-/build/crx/*.crx
-/build/zip/*.zip
+/build/*
+/.idea/*
+build/zip/thegreatsuspender-6.30-dev/welcome.html

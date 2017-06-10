@@ -150,6 +150,7 @@ chrome.tabs.getCurrent(function(tab) {
 
             function hideNagForever() {
                 gsUtils.setOption(gsUtils.NO_NAG, true);
+                chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
                 document.getElementById('dudePopup').style.display = 'none';
                 document.getElementById('donateBubble').style.display = 'none';
             }
