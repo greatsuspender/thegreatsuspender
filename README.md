@@ -35,7 +35,9 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
-### Chrome webstore
+### Chrome Web Store
+
+The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
 
 Please note that the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on the safe way to update see this guide: https://github.com/deanoemcke/thegreatsuspender/issues/526
 
