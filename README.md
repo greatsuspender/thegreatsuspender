@@ -26,7 +26,15 @@ For more information on the permissions required for the extension, please refer
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/).
 
-### Installation
+### Chrome Web Store
+
+The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
+
+Please note that the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on the safe way to update see [this guide](https://github.com/deanoemcke/thegreatsuspender/issues/526).
+
+For information on why this is the situation please read [this issue thread](https://github.com/deanoemcke/thegreatsuspender/issues/322).
+
+### Install as an extension from source
 
 1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/releases/tag/v6.30)** and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
@@ -35,13 +43,23 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
-### Chrome Web Store
+### Build from github
 
-The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
+Dependencies: openssl, npm.
 
-Please note that the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on the safe way to update see [this guide](https://github.com/deanoemcke/thegreatsuspender/issues/526).
+Clone the repository and run these commands:
+```
+npm install
+npm run generate-key
+npm run build
+```
 
-For information on why this is the situation please read [this issue thread](https://github.com/deanoemcke/thegreatsuspender/issues/322).
+It should say:
+```
+Done, without errors.
+```
+
+The extension in crx format will be inside the build/crx/ directory. You can drag it into [extensions] (chrome://extensions) to install locally.
 
 ### License
 
@@ -51,4 +69,4 @@ This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 
 This package uses the [html2canvas](https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.  
 It also uses the indexedDb wrapper [db.js](https://github.com/aaronpowell/db.js) written by Aaron Powell.  
-Thank you also to [BrowserStack](https://www.browserstack.com) for providing free chrome testing tools.  
+Thank you also to [BrowserStack](https://www.browserstack.com) for providing free chrome testing tools.
