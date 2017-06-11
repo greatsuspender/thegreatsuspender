@@ -64,15 +64,18 @@
         //due to migration issues and new settings being added, i have built in some redundancy
         //here so that getOption will always return a valid value.
         getOption: function (prop) {
-            var settings = this.getSettings(),
+            var that = this,
+                settings = this.getSettings(),
                 defaults;
 
             if (prop != this.SYNC_SETTINGS && settings[this.SYNC_SETTINGS]) {
                 // Overlay sync updates in the local data store.  Like sync
                 // itself, we just guarantee eventual consistency.
-                chrome.storage.sync.get([prop], (syncSettings) => {
-                    if (syncSettings[prop] !== undefined)
-                        this.setOption(prop, syncSettings[prop]);
+                chrome.storage.sync.get([prop], function(syncSettings) {
+                    if (syncSettings[prop] !== undefined && syncSettings[prop] !== settings[prop]) {
+                        // console.log('updating local setting with synced one. ' + prop + ' = ' + syncSettings[prop]);
+                        that.setOption(prop, syncSettings[prop]);
+                    }
                 });
             }
 
@@ -90,6 +93,7 @@
         setOption: function (prop, value) {
             var settings = this.getSettings();
             settings[prop] = value;
+            // console.log('setting prop: ' + prop + ' to value ' + value);
             this.saveSettings(settings);
         },
 
@@ -114,6 +118,7 @@
             if (settings[this.SYNC_SETTINGS]) {
                 // Since sync is a local setting, delete it to simplify things.
                 delete settings[this.SYNC_SETTINGS];
+                // console.log('Pushing local settings to sync');
                 chrome.storage.sync.set(settings, this.noop);
             }
         },
