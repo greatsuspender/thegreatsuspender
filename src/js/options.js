@@ -196,9 +196,6 @@
                 contains(updatedPreferences, gsUtils.SCREEN_CAPTURE)) {
             chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
         }
-
-        // Push out all our saved settings to sync storage.
-        gsUtils.syncSettings();
     }
 
     function contains(array, value) {
@@ -243,6 +240,10 @@
                 for (i = 0; i < optionEls.length; i++) {
                     saveChange(optionEls[i], updatedPreferences);
                 }
+
+                // Push out all our saved settings to sync storage.
+                gsUtils.syncSettings();
+
                 performPostSaveUpdates(updatedPreferences);
                 closeSettings();
             };
