@@ -188,7 +188,8 @@
 
         //if context menu has been disabled then remove from chrome
         if (contains(updatedPreferences, gsUtils.ADD_CONTEXT)) {
-            chrome.extension.getBackgroundPage().tgs.buildContextMenu(newValue);
+            var addContextMenu = gsUtils.getOption(gsUtils.ADD_CONTEXT);
+            chrome.extension.getBackgroundPage().tgs.buildContextMenu(addContextMenu);
         }
 
         //if theme or preview settings have changed then refresh all suspended pages
