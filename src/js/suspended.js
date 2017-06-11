@@ -38,6 +38,7 @@ chrome.tabs.getCurrent(function(tab) {
             tabProperties,
             rootUrlStr = gsUtils.getRootUrl(url),
             showPreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0',
+            scrollImagePreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2',
             favicon,
             title,
             bodyEl = document.getElementsByTagName('body')[0],
@@ -61,8 +62,8 @@ chrome.tabs.getCurrent(function(tab) {
 
             //set preview image
             if (showPreview) {
-                gsUtils.fetchPreviewImage(url, function (previewUrl, position) {
-                    if (previewUrl && previewUrl !== null) {
+                gsUtils.fetchPreviewImage(url, function (preview) {
+                    if (preview.img && preview.img !== null) {
 
                         var previewEl = document.createElement('div');
 
@@ -70,11 +71,12 @@ chrome.tabs.getCurrent(function(tab) {
                         previewEl.onclick = unsuspendTab;
                         bodyEl.appendChild(previewEl);
 
-                        document.getElementById('gsPreviewImg').setAttribute('src', previewUrl);
-                        document.getElementById('gsPreviewImg').addEventListener('load', function() {
-                          document.body.scrollTop = position;
-                        }, { once: true });
-
+                        document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
+                        if (scrollImagePreview) {
+                          document.getElementById('gsPreviewImg').addEventListener('load', function() {
+                            document.body.scrollTop = preview.pos ? preview.pos + 60 : 0;
+                          }, { once: true });
+                        }
                         messageEl.style.display = 'none';
                         previewEl.style.display = 'block';
                     }

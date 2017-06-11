@@ -68,7 +68,8 @@ a {
   cursor: pointer;
 }
 #gsTopBar  {
-   	position: absolute;
+   	position: fixed;
+    height: 60px;
     background: #efefef;
     top: 0;
     padding: 15px 0;

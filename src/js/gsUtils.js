@@ -296,7 +296,7 @@
 
             }).then(function (results) {
                 if (results.length > 0) {
-                    callback(results[0]['img'], results[0]['pos']);
+                    callback(results[0]);
                 } else {
                     callback(null, null);
                 }
