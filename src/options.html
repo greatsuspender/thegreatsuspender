@@ -70,15 +70,6 @@
 			<input type="checkbox" id="unsuspendOnFocus" class='option' />
 			<label for="unsuspendOnFocus" class="cbLabel">Automatically unsuspend tab when it is viewed</label>
 		</div>
-		<div class="formRow">
-			<input type="checkbox" id="addContextMenu" class='option' />
-			<label for="addContextMenu" class="cbLabel">Add The Great Suspender to right-click context menu</label>
-		</div>
-		<div class="formRow">
-			<input type="checkbox" id="syncSettings" class='option' />
-			<label for="syncSettings" class="cbLabel">Sync settings between different systems
-			<br />Note: Turning this on the first time will overwrite all synced settings</label>
-		</div>
 
 		<div class="formRow">
 			<label id="themeLbl" for="theme">Theme:</label>
@@ -97,9 +88,12 @@
 				<option value="1">Capture visible screen only</option>
 				<option value="2">Capture entire page</option>
 			</select>
+			<div id="previewNote" class="gsNote">
+				The screen capturing feature is experimental and can cause significant CPU usage.
+				<br />
+				If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, try turning this feature off.
+			</div>
 		</div>
-		<div id="previewNote" class="gsNote">The screen capturing feature is experimental and can cause significant CPU usage.
-		<br />If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, try turning this feature off.</div>
 
 
 		<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
@@ -124,6 +118,19 @@ You can also specify regular expressions by enclosing the text in forward slashe
 			</i>
 		</h2>
 		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
+
+		<h2>Other</h2>
+		<div class="formRow">
+			<input type="checkbox" id="addContextMenu" class='option' />
+			<label for="addContextMenu" class="cbLabel">Add The Great Suspender to right-click context menu</label>
+		</div>
+		<div class="formRow">
+			<input type="checkbox" id="syncSettings" class='option' />
+			<label for="syncSettings" class="cbLabel">Sync settings between different systems</label>
+ 			<div id="syncNote" class="gsNote">
+				Turning this on the first time will overwrite all synced settings
+			</div>
+		</div>
 
 		<hr />
 

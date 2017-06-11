@@ -74,6 +74,7 @@
         setScreenCaptureNoteVisibility(gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0');
         setAudibleNoteVisibility(gsUtils.getChromeVersion() < 45 && gsUtils.getOption(gsUtils.IGNORE_AUDIO));
         setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
+        setSyncNoteVisibility(!gsUtils.getOption(gsUtils.SYNC_SETTINGS));
     }
 
     function populateOption(element, value) {
@@ -109,13 +110,21 @@
         }
     }
 
-    function setScreenCaptureNoteVisibility(visible) {
-        if (visible) {
-            document.getElementById('previewNote').style.display = 'block';
-        } else {
-            document.getElementById('previewNote').style.display = 'none';
-        }
+  function setScreenCaptureNoteVisibility(visible) {
+    if (visible) {
+      document.getElementById('previewNote').style.display = 'block';
+    } else {
+      document.getElementById('previewNote').style.display = 'none';
     }
+  }
+
+  function setSyncNoteVisibility(visible) {
+    if (visible) {
+      document.getElementById('syncNote').style.display = 'block';
+    } else {
+      document.getElementById('syncNote').style.display = 'none';
+    }
+  }
 
     function setAutoSuspendOptionsVisibility(visible) {
         Array.prototype.forEach.call(document.getElementsByClassName('autoSuspendOption'), function(el) {
@@ -144,6 +153,9 @@
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
                 setAutoSuspendOptionsVisibility(interval > 0);
+
+            } else if (pref === gsUtils.SYNC_SETTINGS) {
+                setSyncNoteVisibility(!getOptionValue(element));
             }
         };
     }

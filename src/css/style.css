@@ -6,7 +6,7 @@
   -  -   / ______  _/____)  (   @liamjohnstonnz   /
  -  -   / /\ \   \ \         `-------------------'
    - (_/  \_) - \_)
-        
+
 */
 
 @font-face {
@@ -294,6 +294,7 @@ ul.unorderedList li {
     font-size: 12;
     background: rgb(255, 247, 202);
     padding: 5;
+    margin-top: 5px;
 }
 #gsHistory a, #gsHistory a:visited {
 	color: #444;
