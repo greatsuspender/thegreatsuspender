@@ -63,7 +63,7 @@ chrome.tabs.getCurrent(function(tab) {
             //set preview image
             if (showPreview) {
                 gsUtils.fetchPreviewImage(url, function (preview) {
-                    if (preview.img && preview.img !== null) {
+                    if (preview && preview.img && preview.img !== null) {
 
                         var previewEl = document.createElement('div');
 

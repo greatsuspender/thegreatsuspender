@@ -15,6 +15,7 @@
         IGNORE_AUDIO: 'gsDontSuspendAudio',
         IGNORE_CACHE: 'gsIgnoreCache',
         ADD_CONTEXT: 'gsAddContextMenu',
+        ADD_OPEN_SUSPENDED: 'gsAddOpenSuspended',
         SYNC_SETTINGS: 'gsSyncSettings',
         NO_NAG: 'gsNoNag',
         THEME: 'gsTheme',
@@ -303,7 +304,7 @@
                 if (results.length > 0) {
                     callback(results[0]);
                 } else {
-                    callback(null, null);
+                    callback(null);
                 }
             });
         },
