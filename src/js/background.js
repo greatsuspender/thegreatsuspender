@@ -21,7 +21,6 @@ var tgs = (function () {
         chargingMode = false,
         lastStatus = 'normal',
         notice = {},
-        contextMenuItems = false,
         unsuspendRequestList = {},
         audibleTabsList = {},
         lastTabCloseTimestamp = new Date(),
@@ -818,67 +817,63 @@ var tgs = (function () {
 
     function buildContextMenu(showContextMenu) {
 
-        var currentDisplayLevel = contextMenuItems ? contextMenuItems.length : 0,
-            allContexts = ["page", "frame", "selection", "editable", "image",
-                "video", "audio", "browser_action", "page_action"
-            ];
+        var allContexts = ["page", "frame", "editable", "image", "video", "audio"];
 
         chrome.contextMenus.removeAll();
-        contextMenuItems = [];
-
-        //Open tab suspended
-        contextMenuItems.push(chrome.contextMenus.create({
-            title: "Open link in new suspended tab",
-            contexts:["link"],
-            onclick: function (info, tab) {
-                openLinkInSuspendedTab(tab, info.linkUrl);
-            }
-        }));
 
         if (showContextMenu) {
 
-            //make right click Context Menu for Chrome
-            contextMenuItems.push(chrome.contextMenus.create({
-                type: "separator"
-            }));
+            //Open tab suspended
+            chrome.contextMenus.create({
+                title: "Open link in new suspended tab",
+                contexts:["link"],
+                onclick: function (info, tab) {
+                  openLinkInSuspendedTab(tab, info.linkUrl);
+                }
+            });
 
             //Suspend present tab
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Suspend tab",
                 contexts: allContexts,
                 onclick: suspendHighlightedTab
-            }));
+            });
 
             //Add present tab to temporary whitelist
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Don't suspend for now",
                 contexts: allContexts,
                 onclick: temporarilyWhitelistHighlightedTab
-            }));
+            });
 
             //Add present tab to permenant whitelist
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Never suspend this site",
                 contexts: allContexts,
                 onclick: whitelistHighlightedTab
-            }));
+            });
+
+            chrome.contextMenus.create({
+                contexts: allContexts,
+               type: "separator"
+            });
 
             //Suspend all the tabs
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Suspend other tabs",
                 contexts: allContexts,
                 onclick: suspendAllTabs
-            }));
+            });
 
             //Unsuspend all the tabs
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Unsuspend all tabs",
                 contexts: allContexts,
                 onclick: unsuspendAllTabs
-            }));
+            });
 
              //Open settings page
-            contextMenuItems.push(chrome.contextMenus.create({
+            chrome.contextMenus.create({
                 title: "Settings",
                 contexts: allContexts,
                 onclick: function(e) {
@@ -886,7 +881,7 @@ var tgs = (function () {
                         url: chrome.extension.getURL('options.html')
                     });
                 }
-            }));
+            });
         }
     }
 
