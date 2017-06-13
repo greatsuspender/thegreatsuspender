@@ -291,9 +291,9 @@ ul.unorderedList li {
 }
 .gsNote {
 	font-style: italic;
-    font-size: 12;
+    font-size: 12px;
     background: rgb(255, 247, 202);
-    padding: 5;
+    padding: 5px;
     margin-top: 5px;
 }
 #gsHistory a, #gsHistory a:visited {
