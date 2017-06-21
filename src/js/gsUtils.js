@@ -1083,7 +1083,7 @@
 
                 tabProperties = {
                     active: false,
-                    favIconUrl: 'chrome://favicon/' + tabOriginalUrl,
+                    favIconUrl: 'chrome://favicon/size/16@2x/' + tabOriginalUrl,
                     height: 600,
                     highlighted: false,
                     id: tabId,
