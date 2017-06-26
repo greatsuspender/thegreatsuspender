@@ -47,7 +47,7 @@ var tgs = (function () {
         if (tab.incognito) {
             favUrl = tab.favIconUrl;
         } else {
-            favUrl = 'chrome://favicon/' + tab.url;
+            favUrl = 'chrome://favicon/size/16@2x/' + tab.url;
         }
 
         tabProperties = {
