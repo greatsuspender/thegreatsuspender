@@ -1,8 +1,8 @@
 /*global chrome */
 
-(function () {
+'use strict';
 
-    'use strict';
+(function () {
 
     function setStatus(status) {
         var statusDetail = '',
@@ -62,7 +62,6 @@
             document.getElementsByTagName('a')[0].removeEventListener('click');
         }
 
-        document.getElementById('header').style.display = 'block';
         document.getElementById('statusDetail').innerHTML = statusDetail;
         document.getElementById('statusIcon').className = statusIconClass;
 
@@ -75,41 +74,58 @@
         }
     }
 
-    function setWhitelistVisibility(visible) {
-        if (visible) {
-            document.getElementById('whitelist').style.display = 'block';
+    function setSuspendAllVisibility(tabStatus) {
+
+      var suspendOneVisible = (tabStatus === 'suspended' || tabStatus === 'special' || tabStatus === 'unknown') ? false : true,
+        whitelistVisible = (tabStatus !== 'whitelisted' && tabStatus !== 'special') ? true : false,
+        pauseVisible = (tabStatus === 'normal') ? true : false;
+
+      if (suspendOneVisible) {
+        document.getElementById('suspendOne').style.display = 'block';
+      } else {
+        document.getElementById('suspendOne').style.display = 'none';
+      }
+
+      if (whitelistVisible) {
+        document.getElementById('whitelist').style.display = 'block';
+      } else {
+        document.getElementById('whitelist').style.display = 'none';
+      }
+
+      if (pauseVisible) {
+        document.getElementById('tempWhitelist').style.display = 'block';
+      } else {
+        document.getElementById('tempWhitelist').style.display = 'none';
+      }
+
+      if (suspendOneVisible || whitelistVisible || pauseVisible) {
+        document.getElementById('optsCurrent').style.display = 'block';
+      } else {
+        document.getElementById('optsCurrent').style.display = 'none';
+      }
+    }
+
+    function setSuspendSelectedVisibility(selectedTabs) {
+        if (selectedTabs && selectedTabs.length > 1) {
+            document.getElementById('optsSelected').style.display = 'block';
         } else {
-            document.getElementById('whitelist').style.display = 'none';
+            document.getElementById('optsSelected').style.display = 'none';
         }
     }
 
-    function setPauseVisibility(visible) {
-        if (visible) {
-            document.getElementById('tempWhitelist').style.display = 'block';
-        } else {
-            document.getElementById('tempWhitelist').style.display = 'none';
-        }
+    function showPopupContents() {
+        setTimeout(function () {
+          document.getElementById('loadBar').style.display = 'none';
+          document.getElementById('header').style.display = 'block';
+          document.getElementById('popupContent').style.display = 'block';
+
+          setTimeout(function () {
+              document.getElementById('popupContent').style.opacity = 1;
+          }, 50);
+        }, 200);
     }
 
-    function setSuspendOneVisibility(visible) {
-        if (visible) {
-            document.getElementById('suspendOne').style.display = 'block';
-        } else {
-            document.getElementById('suspendOne').style.display = 'none';
-        }
-    }
-
-    function setSuspendSelectedVisibility() {
-        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
-            if (tabs && tabs.length > 1) {
-                document.getElementById('suspendSelectedGroup').style.display = 'block';
-            } else {
-                document.getElementById('suspendSelectedGroup').style.display = 'none';
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
+    function addClickHandlers() {
         document.getElementById('suspendOne').addEventListener('click', function (e) {
             chrome.runtime.sendMessage({ action: 'suspendOne' });
             window.close();
@@ -142,24 +158,45 @@
         });
         document.getElementById('settingsLink').addEventListener('click', function (e) {
             chrome.tabs.create({
-                url: chrome.extension.getURL('options.html')
+              url: chrome.extension.getURL('options.html')
             });
             window.close();
         });
+    }
 
-        chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
 
-            var status = info.status,
-                //timeLeft = info.timerUp, // unused
-                suspendOneVisible = (status === 'suspended' || status === 'special' || status === 'unknown') ? false : true,
-                whitelistVisible = (status !== 'whitelisted' && status !== 'special') ? true : false,
-                pauseVisible = (status === 'normal') ? true : false;
-
-            setSuspendSelectedVisibility();
-            setSuspendOneVisibility(suspendOneVisible);
-            setWhitelistVisibility(whitelistVisible);
-            setPauseVisibility(pauseVisible);
-            setStatus(status);
-        });
+    var domContentLoadedAsPromsied = new Promise(function (resolve, reject) {
+        document.addEventListener('DOMContentLoaded', resolve);
     });
+    var getTabStatus = function (callback) {
+        chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
+            if (info && info.status !== 'unknown') {
+                callback(info.status);
+            } else {
+                document.getElementById('loadBar').style.display = 'block';
+                setTimeout(function() {
+                    getTabStatus(callback);
+                }, 200);
+            }
+        });
+    };
+    var tabStatusAsPromised = new Promise(function (resolve, reject) {
+        getTabStatus(resolve)
+    });
+    var selectedTabsAsPromised = new Promise(function (resolve, reject) {
+      chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
+        resolve(tabs);
+      });
+    });
+
+    Promise.all([domContentLoadedAsPromsied, tabStatusAsPromised, selectedTabsAsPromised])
+      .then(function ([domLoadedEvent, tabStatus, selectedTabs]) {
+
+        setSuspendAllVisibility(tabStatus);
+        setSuspendSelectedVisibility(selectedTabs);
+
+        setStatus(tabStatus);
+        showPopupContents();
+        addClickHandlers();
+      });
 }());

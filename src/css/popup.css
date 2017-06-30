@@ -38,6 +38,10 @@ a {
 	outline : none;
 	color: #3889AB;
 }
+#popupContent {
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
 #statusDetail a {
 	color: #FFFFFF;
 }
@@ -51,7 +55,7 @@ a {
 	height: 20px;
 	width: 100%;
 	line-height: 19px;
-	background: #134960;
+	background: #01579B;
 	color: #fff;
 }
 #header img {
@@ -63,7 +67,7 @@ a {
 .group {
 	padding: 5px 0;
 }
-.optsCurrent, .optsAll, .optsSelected {
+#optsCurrent, #optsAll, #optsSelected {
 	border-bottom: 1px solid #ccc;
 }
 
@@ -84,4 +88,35 @@ a {
 	margin-right: 5px;
 	opacity: 0.8;
 }
-
+#loadBar {
+	position: fixed	;
+	width: 100%;
+	height: 6px;
+	background-color: #0D47A1;
+}
+.bar {
+	content: "";
+	display: inline;
+	position: absolute;
+	width: 0;
+	height: 100%;
+	left: 50%;
+	text-align: center;
+}
+.bar:nth-child(1) {
+	background-color: #2196F3;
+	animation: loading 3s linear infinite;
+}
+.bar:nth-child(2) {
+	background-color: #1976D2;
+	animation: loading 3s linear 1s infinite;
+}
+.bar:nth-child(3) {
+	background-color: #0D47A1;
+	animation: loading 3s linear 2s infinite;
+}
+@keyframes loading {
+	from {left: 50%; width: 0;z-index:100;}
+	33.3333% {left: 0; width: 100%;z-index: 10;}
+	to {left: 0; width: 100%;}
+}

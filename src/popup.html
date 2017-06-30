@@ -7,44 +7,50 @@
 
 </head>
 <body>
-	<div id="header">
-		<i id="statusIcon" class="fa fa-clock-o"></i>
-		<span id="statusDetail">Tab will be suspended</span>
+	<div id="loadBar" class="hidden">
+		<div class="bar"></div>
+		<div class="bar"></div>
+		<div class="bar"></div>
 	</div>
-
-	<div class="group optsCurrent">
-		<div class="menuOption" id="suspendOne">
-			<i class="fa fa-stop"></i> <span class="optionText">Suspend this tab</span>
-		</div>
-		<div class="menuOption" id="tempWhitelist">
-			<i class="fa fa-pause"></i> <span class="optionText">Don't suspend for now</span>
-		</div>
-		<div class="menuOption" id="whitelist">
-			<i class="fa fa-ban"></i> <span class="optionText">Never suspend this site</span>
-		</div>
+	<div id="header" class="hidden">
+		<i id="statusIcon" class="fa"></i>
+		<span id="statusDetail"></span>
 	</div>
+	<div id="popupContent" class="hidden">
+		<div class="group" id="optsCurrent">
+			<div class="menuOption" id="suspendOne">
+				<i class="fa fa-stop"></i> <span class="optionText">Suspend this tab</span>
+			</div>
+			<div class="menuOption" id="tempWhitelist">
+				<i class="fa fa-pause"></i> <span class="optionText">Don't suspend for now</span>
+			</div>
+			<div class="menuOption" id="whitelist">
+				<i class="fa fa-ban"></i> <span class="optionText">Never suspend this site</span>
+			</div>
+		</div>
 
-	<div class="group optsAll">
-		<div class="menuOption" id="suspendAll">
-			<i class="fa fa-stop"></i> <span class="optionText">Suspend other tabs</span>
+		<div class="group" id="optsAll">
+			<div class="menuOption" id="suspendAll">
+				<i class="fa fa-stop"></i> <span class="optionText">Suspend other tabs</span>
+			</div>
+			<div class="menuOption" href="#" id="unsuspendAll">
+				<i class="fa fa-play"></i> <span class="optionText">Unsuspend all tabs</span>
+			</div>
 		</div>
-		<div class="menuOption" href="#" id="unsuspendAll">
-			<i class="fa fa-play"></i> <span class="optionText">Unsuspend all tabs</span>
-		</div>
-	</div>
 
-	<div class="group optsSelected" id="suspendSelectedGroup">
-		<div class="menuOption" id="suspendSelected">
-			<i class="fa fa-stop"></i> <span class="optionText">Suspend selected tabs</span>
+		<div class="group" id="optsSelected">
+			<div class="menuOption" id="suspendSelected">
+				<i class="fa fa-stop"></i> <span class="optionText">Suspend selected tabs</span>
+			</div>
+			<div class="menuOption" href="#" id="unsuspendSelected">
+				<i class="fa fa-play"></i> <span class="optionText">Unsuspend selected tabs</span>
+			</div>
 		</div>
-		<div class="menuOption" href="#" id="unsuspendSelected">
-			<i class="fa fa-play"></i> <span class="optionText">Unsuspend selected tabs</span>
-		</div>
-	</div>
 
-	<div class="group optsSettings">
-		<div class="menuOption" id="settingsLink">
-			<i class="fa fa-wrench"></i> <span class="optionText">Settings</span>
+		<div class="group" id="optsSettings">
+			<div class="menuOption" id="settingsLink">
+				<i class="fa fa-wrench"></i> <span class="optionText">Settings</span>
+			</div>
 		</div>
 	</div>
 </body>
