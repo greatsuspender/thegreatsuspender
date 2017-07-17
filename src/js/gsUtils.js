@@ -320,11 +320,12 @@
 
             }).then(function (results) {
                 if (results.length > 0) {
-                    server.update(self.DB_PREVIEWS , {id: results[0].id, url: tabUrl, img: previewUrl, pos: position});
-
+                  return server.remove(self.DB_PREVIEWS, results[0].id);
                 } else {
-                    server.add(self.DB_PREVIEWS , {url: tabUrl, img: previewUrl, pos: position});
+                  return Promise.resolve();
                 }
+            }).then(function() {
+              server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl, pos: position});
             });
         },
 
@@ -342,20 +343,16 @@
                 server = s;
                 return server.query(self.DB_SUSPENDED_TABINFO).filter('url', tabProperties.url).execute();
 
-            }).then(function(result) {
-                if (result.length > 0) {
-                    result = result[0];
-                    //copy across id
-                    tabProperties.id = result.id;
-                    //then update based on that id
-                    server.update(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
-                        if (typeof(callback) === "function") callback();
-                    });
+            }).then(function(results) {
+                if (results.length > 0) {
+                    return server.remove(self.DB_SUSPENDED_TABINFO, results[0].id);
                 } else {
-                    server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
-                        if (typeof(callback) === "function") callback();
-                    });
+                    return Promise.resolve();
                 }
+            }).then(function() {
+              server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
+                  if (typeof(callback) === "function") callback();
+              });
             });
         },
 
@@ -567,7 +564,6 @@
             var self = this,
                 server,
                 maxTabItems = 1000,
-                maxPreviewItems = 200,
                 maxHistories = 5,
                 itemsToRemove,
                 i;
@@ -598,9 +594,9 @@
             //trim imagePreviews
             }).then(function (results) {
 
-                //if there are more than maxPreviewItems items, then remove the oldest ones
-                if (results.length > maxPreviewItems) {
-                    itemsToRemove = results.length - maxPreviewItems;
+                //if there are more than maxTabItems items, then remove the oldest ones
+                if (results.length > maxTabItems) {
+                    itemsToRemove = results.length - maxTabItems;
                     for (i = 0; i < itemsToRemove; i++) {
                         server.remove(self.DB_PREVIEWS, results[i]);
                     }
