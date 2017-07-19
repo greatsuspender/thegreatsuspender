@@ -1068,10 +1068,17 @@ var tgs = (function () {
             queueSessionTimer();
         }
 
-        //reset tab timer if tab has just finished playing audio
-        if (changeInfo.hasOwnProperty('audible') && !changeInfo.audible) {
-            if (gsUtils.getOption(gsUtils.IGNORE_AUDIO)) {
+        //check for change in tabs audible status
+        if (changeInfo.hasOwnProperty('audible')) {
+
+            //reset tab timer if tab has just finished playing audio
+            if (!changeInfo.audible && gsUtils.getOption(gsUtils.IGNORE_AUDIO)) {
                 resetTabTimer(tab.id);
+            }
+            //if tab is currently visible then update popup icon
+            if (tabId === globalCurrentTabId) {
+                var status = processActiveTabStatus(tab, 'normal');
+                updateIcon(status);
             }
         }
 

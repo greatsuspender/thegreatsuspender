@@ -184,6 +184,7 @@
                             || event.target.tagName.toUpperCase() === 'TEXTAREA'
                             || event.target.tagName.toUpperCase() === 'FORM') {
                         inputState = true;
+                        reportState(false);
                     }
                 }
             }
