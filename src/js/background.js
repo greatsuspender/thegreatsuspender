@@ -22,7 +22,7 @@ var tgs = (function () {
         lastStatus = 'normal',
         notice = {},
         unsuspendRequestList = {},
-        audibleTabsList = {},
+        scrollPosByTabId = {},
         lastTabCloseTimestamp = new Date(),
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png';
@@ -929,19 +929,27 @@ var tgs = (function () {
         }
 
         switch (request.action) {
-        case 'prefs':
+        case 'initTab':
+            var tabScrollPos = scrollPosByTabId[sender.tab.id];
+            delete scrollPosByTabId[sender.tab.id];
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
                 screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
-                tabId: sender.tab.id
+                tabId: sender.tab.id,
+                scrollPos: tabScrollPos
             });
             break;
 
         case 'reportTabState':
+            // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
                 var status = processActiveTabStatus(sender.tab, request.status);
                 updateIcon(status);
+            }
+            // If tab is reported being suspended, save the tab's reported scroll position
+            if (request.status === 'suspended' && request.scrollPos) {
+                scrollPosByTabId[sender.tab.id] = request.scrollPos;
             }
             break;
 
@@ -1025,7 +1033,7 @@ var tgs = (function () {
 
     //wishful thinking here that a synchronus iteration through tab views will enable them
     //to unsuspend before the application closes
-    chrome.runtime.onSuspend.addListener(function () {
+    chrome.runtime.setUninstallURL('', function () {
         chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
             view.location.reload();
         });
@@ -1053,27 +1061,25 @@ var tgs = (function () {
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
+        if (!changeInfo) return;
+
         //only save session if the tab url has changed
-        if (changeInfo && changeInfo.url) {
+        if (changeInfo.url) {
             queueSessionTimer();
         }
 
-        //check for tab playing audio
-        if (tab.audible) {
-            audibleTabsList[tab.id] = true;
-
-        //else check if tab WAS playing audio (and now isnt)
-        } else if (audibleTabsList[tab.id]) {
-            delete audibleTabsList[tab.id];
-            resetTabTimer(tab.id);
-            if (debug) console.log('tab finished playing audio. restarting timer: ' + tab.id);
+        //reset tab timer if tab has just finished playing audio
+        if (changeInfo.hasOwnProperty('audible') && !changeInfo.audible) {
+            if (gsUtils.getOption(gsUtils.IGNORE_AUDIO)) {
+                resetTabTimer(tab.id);
+            }
         }
 
         //check for tab having an unsuspend request
         if (unsuspendRequestList[tab.id]) {
 
             //only permit unsuspend if tab is being reloaded
-            if (changeInfo && changeInfo.status === 'loading' && isSuspended(tab)) {
+            if (changeInfo.status === 'loading' && isSuspended(tab)) {
                 unsuspendTab(tab);
 
             //otherwise remove unsuspend request
@@ -1143,6 +1149,7 @@ var tgs = (function () {
         isSpecialTab: isSpecialTab,
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,
+        scrollPosByTabId: scrollPosByTabId,
         runStartupChecks: runStartupChecks,
         resetAllTabTimers: resetAllTabTimers,
         requestNotice: requestNotice,

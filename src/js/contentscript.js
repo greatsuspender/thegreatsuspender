@@ -49,10 +49,8 @@
                 tabId = response.tabId;
 
                 //handle auto-scrolling
-                var scrollPos = getCookieValue('gsScrollPos-' + tabId);
-                if (scrollPos && scrollPos !== "") {
-                    document.body.scrollTop = scrollPos;
-                    setCookieValue('gsScrollPos-' + tabId, '');
+                if (response.scrollPos && response.scrollPos !== "") {
+                    document.body.scrollTop = response.scrollPos;
                 }
             }
         });
@@ -63,38 +61,27 @@
         return status;
     }
 
-    function reportState(state) {
-        state = state || calculateState();
-        chrome.runtime.sendMessage({ action: 'reportTabState', status: state });
+    function reportState(state, scrollPos) {
+        var message = {
+            action: 'reportTabState',
+            status: state || calculateState()
+        };
+        if (scrollPos) {
+           message.scrollPos = scrollPos;
+        }
+        chrome.runtime.sendMessage(message);
     }
 
-    function suspendTab(suspendedUrl) {
+    function suspendTab(suspendedUrl, scrollPosition) {
 
-        reportState('suspended');
+        scrollPosition = scrollPosition || document.body.scrollTop;
+        reportState('suspended', scrollPosition);
 
         if (suspendedUrl.indexOf('suspended.html') > 0) {
             window.location.replace(suspendedUrl);
         } else {
             window.location.href = suspendedUrl;
         }
-    }
-
-    function setCookieValue(key, value) {
-        document.cookie = key + '=' + value;
-    }
-
-    function getCookieValue(key) {
-
-        var keyStart = document.cookie.indexOf(key + '='),
-            keyEnd,
-            value = false;
-
-        if (keyStart >= 0) {
-            keyEnd = document.cookie.indexOf(';', keyStart) > 0 ? document.cookie.indexOf(';', keyStart) : document.cookie.length;
-            value = document.cookie.substring(keyStart + key.length + 1, keyEnd);
-            value = value.length > 0 ? value : false;
-        }
-        return value;
     }
 
     function handlePreviewError(suspendedUrl, err) {
@@ -112,7 +99,6 @@
             timer = new Date(),
             height = 0;
 
-        setCookieValue('gsScrollPos-' + tabId, document.body.scrollTop);
         var position = document.body.scrollTop;
 
         //safety check here. don't try to use html2canvas if the page has more than 10000 elements
@@ -156,7 +142,7 @@
                             position: position,
                             timerMsg: timer
                         }, function () {
-                            suspendTab(suspendedUrl);
+                            suspendTab(suspendedUrl, position);
                         });
                     }
                 }
@@ -205,11 +191,10 @@
     }
 
     function requestPreferences(callback) {
-        chrome.runtime.sendMessage({ action: 'prefs' }, function (response) {
+        chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
             callback(response);
         });
     }
-
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -272,12 +257,8 @@
         //listen for suspend request
         case 'confirmTabSuspend':
             if (request.suspendedUrl) {
-                setCookieValue('gsScrollPos-' + tabId, document.body.scrollTop);
                 suspendTab(request.suspendedUrl);
             }
-            break;
-
-        default:
             break;
         }
     });

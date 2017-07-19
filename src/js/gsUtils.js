@@ -885,11 +885,29 @@
                     this.setOption(this.SCREEN_CAPTURE, '0');
                 }
             }
-
-            // When migrating old settings, disable sync by default.
-            // For new installs, we want this to default to on.
             if (oldVersion < 6.31) {
+                // When migrating old settings, disable sync by default.
+                // For new installs, we want this to default to on.
                 this.setOption(this.SYNC_SETTINGS, false);
+
+                chrome.cookies.getAll({}, function (cookies) {
+                    var scrollPosByTabId = {};
+                    cookies.forEach(function(cookie)  {
+                        if (cookie.name.indexOf('gsScrollPos') === 0) {
+                            if (cookie.value && cookie.value !== '0') {
+                                var tabId = cookie.name.substr(12);
+                                scrollPosByTabId[tabId] = cookie.value;
+                            }
+                            var prefix = cookie.secure ? "https://" : "http://";
+                            if (cookie.domain.charAt(0) === ".") {
+                                prefix += "www";
+                            }
+                            var url = prefix + cookie.domain + cookie.path;
+                            chrome.cookies.remove({ 'url': url, 'name': cookie.name });
+                        }
+                    });
+                    chrome.extension.getBackgroundPage().tgs.scrollPosByTabId = scrollPosByTabId;
+                });
             }
 
         },
