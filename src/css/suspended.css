@@ -121,7 +121,7 @@ a {
     background: #fff;
 }
 #gsPreviewImg {
-    display: block
+    display: block;
     max-width: 100%;
     margin: 86px auto 0;
 }
