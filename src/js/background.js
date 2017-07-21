@@ -93,31 +93,6 @@ var tgs = (function () {
         return dontSuspendAudible && tab.audible;
     }
 
-    function isExcluded(tab) {
-        if (tab.active) {
-            return true;
-        }
-
-        //don't allow suspending of special tabs
-        if (isSpecialTab(tab)) {
-            return true;
-        }
-
-        //check whitelist
-        if (gsUtils.checkWhiteList(tab.url)) {
-            return true;
-        }
-
-        if (isPinnedTab(tab)) {
-            return true;
-        }
-
-        if (isAudibleTab(tab)) {
-            return true;
-        }
-        return false;
-    }
-
     function confirmTabSuspension(tab) {
 
         //ask the tab to suspend itself
@@ -142,37 +117,43 @@ var tgs = (function () {
         });
     }
 
-    function requestTabSuspension(tab, force) {
-        force = force || false;
+    // forceLevel indicates which users preferences to respect when attempting to suspend the tab
+    // 1: Suspend if at all possible
+    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude active tabs
+    // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
+    function requestTabSuspension(tab, forceLevel) {
 
         //safety check
         if (typeof(tab) === 'undefined') return;
 
-        //make sure tab is not special or already suspended
-        if (isSuspended(tab) || isSpecialTab(tab)) return;
-
-        //if forcing tab suspend then skip other checks
-        if (force) {
-            confirmTabSuspension(tab);
-
-        //otherwise perform soft checks before suspending
-        } else {
-
-            //check whitelist
-            if (isExcluded(tab)) {
+        if (forceLevel >= 1) {
+            if (isSuspended(tab) || isSpecialTab(tab)) {
                 return;
             }
-            //check internet connectivity
+        }
+        if (forceLevel >= 2) {
+            if (tab.active || gsUtils.checkWhiteList(tab.url) || isPinnedTab(tab) || isAudibleTab(tab)) {
+                return;
+            }
+        }
+        if (forceLevel >= 3) {
             if (gsUtils.getOption(gsUtils.ONLINE_CHECK) && !navigator.onLine) {
                 return;
             }
-            //check if computer is running on battery
             if (gsUtils.getOption(gsUtils.BATTERY_CHECK) && chargingMode) {
                 return;
-
-            } else {
-                confirmTabSuspension(tab);
             }
+        }
+
+        //finally, if forceLevel is 2 or greater, do an async call to ask tab for some additional internal information
+        if (forceLevel >= 2) {
+            requestTabInfoFromContentScript(tab, function(tabInfo) {
+                if (tabInfo && tabInfo.status !== 'formInput' && tabInfo.status !== 'tempWhitelist') {
+                    confirmTabSuspension(tab);
+                }
+            });
+        } else {
+            confirmTabSuspension(tab);
         }
     }
 
@@ -249,7 +230,7 @@ var tgs = (function () {
     function suspendHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
-                requestTabSuspension(tabs[0], true);
+                requestTabSuspension(tabs[0], 1);
             }
         });
     }
@@ -268,7 +249,7 @@ var tgs = (function () {
             chrome.windows.get(curWindowId, {populate: true}, function(curWindow) {
                 curWindow.tabs.forEach(function (tab) {
                     if (!tab.active) {
-                        requestTabSuspension(tab, true);
+                        requestTabSuspension(tab, 2);
                     }
                 });
             });
@@ -279,7 +260,7 @@ var tgs = (function () {
     function suspendAllTabsInAllWindows() {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                requestTabSuspension(currentTab, true);
+                requestTabSuspension(currentTab, 2);
             });
         });
     }
@@ -312,7 +293,7 @@ var tgs = (function () {
     function suspendSelectedTabs() {
         chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (selectedTabs) {
             selectedTabs.forEach(function (tab) {
-                requestTabSuspension(tab, true);
+                requestTabSuspension(tab, 1);
             });
         });
     }
@@ -954,7 +935,7 @@ var tgs = (function () {
             break;
 
         case 'suspendTab':
-            requestTabSuspension(sender.tab);
+            requestTabSuspension(sender.tab, 3);
             break;
 
         case 'requestUnsuspendTab':
