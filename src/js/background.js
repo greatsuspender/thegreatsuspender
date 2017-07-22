@@ -336,17 +336,23 @@ var tgs = (function () {
         });
     }
 
-    function resetAllTabTimers() {
+    function resetContentScripts(preferencesToUpdate) {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                resetTabTimer(currentTab.id);
+                resetContentScript(currentTab.id, preferencesToUpdate);
             });
         });
     }
 
-    function resetTabTimer(tabId) {
-        var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME);
-        sendMessageToTab(tabId, {action: 'resetTimer', suspendTime: timeout});
+    function resetContentScript(tabId, preferencesToUpdate) {
+        var messageParams = {action: 'resetPreferences'};
+        if (preferencesToUpdate.indexOf(gsUtils.SUSPEND_TIME) > -1) {
+            messageParams.suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME);
+        }
+        if (preferencesToUpdate.indexOf(gsUtils.IGNORE_FORMS) > -1) {
+            messageParams.ignoreForms = gsUtils.getOption(gsUtils.IGNORE_FORMS);
+        }
+        sendMessageToTab(tabId, messageParams);
     }
 
     function cancelTabTimer(tabId) {
@@ -413,7 +419,7 @@ var tgs = (function () {
         //TODO: ideally we'd only reset timer on last tab viewed for more than 500ms (as per setTimeout below)
         //but that's getting tricky to determine
         if (lastSelectedTab) {
-            resetTabTimer(lastSelectedTab);
+            resetContentScript(lastSelectedTab, [gsUtils.SUSPEND_TIME]);
         }
 
         //update icon
@@ -563,7 +569,7 @@ var tgs = (function () {
                         if (chrome.runtime.lastError) {
                             if (debug) console.log(chrome.runtime.lastError.message);
                         } else {
-                            sendMessageToTab(tabId, {action: 'resetTimer', suspendTime: timeout});
+                            sendMessageToTab(tabId, {action: 'resetPreferences', suspendTime: timeout});
                         }
                     });
                 }
@@ -1054,7 +1060,7 @@ var tgs = (function () {
 
             //reset tab timer if tab has just finished playing audio
             if (!changeInfo.audible && gsUtils.getOption(gsUtils.IGNORE_AUDIO)) {
-                resetTabTimer(tab.id);
+                resetContentScript(tab.id, [gsUtils.SUSPEND_TIME]);
             }
             //if tab is currently visible then update popup icon
             if (tabId === globalCurrentTabId) {
@@ -1139,7 +1145,7 @@ var tgs = (function () {
         sessionId: sessionId,
         scrollPosByTabId: scrollPosByTabId,
         runStartupChecks: runStartupChecks,
-        resetAllTabTimers: resetAllTabTimers,
+        resetContentScripts: resetContentScripts,
         requestNotice: requestNotice,
         buildContextMenu: buildContextMenu,
         resuspendAllSuspendedTabs: resuspendAllSuspendedTabs

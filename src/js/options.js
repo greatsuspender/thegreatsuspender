@@ -1,4 +1,4 @@
-/*global gsUtils, chrome, invert, populateOption, setScreenCaptureNoteVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility, resetTabTimers */
+/*global gsUtils, chrome, invert, populateOption, setScreenCaptureNoteVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility */
 
 (function () {
 
@@ -181,9 +181,16 @@
 
     function performPostSaveUpdates(updatedPreferences) {
 
-        //if interval has changed then reset the tab timers
+        //if interval, or form input preferences have changed then reset the content scripts
+        var preferencesToUpdate = [];
         if (contains(updatedPreferences, gsUtils.SUSPEND_TIME)) {
-            chrome.extension.getBackgroundPage().tgs.resetAllTabTimers();
+            preferencesToUpdate.push(gsUtils.SUSPEND_TIME);
+        }
+        if (contains(updatedPreferences, gsUtils.IGNORE_FORMS)) {
+            preferencesToUpdate.push(gsUtils.IGNORE_FORMS);
+        }
+        if (preferencesToUpdate.length > 0) {
+            chrome.extension.getBackgroundPage().tgs.resetContentScripts(preferencesToUpdate);
         }
 
         //if context menu has been disabled then remove from chrome

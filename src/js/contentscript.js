@@ -15,8 +15,7 @@
         inputState = false,
         tempWhitelist = false,
         timerJob,
-        timerUp = false,
-        suspendTime,
+        suspendDateTime = false,
         suspendedEl = document.getElementById('gsTopBar');
 
     //safety check here. don't load content script if we are on the suspended page
@@ -31,16 +30,14 @@
             //set timer job
             if (response && response.suspendTime > 0) {
 
-                suspendTime = response.suspendTime * (1000*60);
+                var suspendTime = response.suspendTime * (1000*60);
                 timerJob = setTimerJob(suspendTime);
 
-            } else {
-                suspendTime = 0;
             }
 
             //add form input listener
             if (response && response.dontSuspendForms) {
-                setFormInputJob();
+                window.addEventListener('keydown', formInputListener);
             }
 
             if (response && response.tabId) {
@@ -165,7 +162,7 @@
             timeToSuspend = (1000*60*60);
         }
 
-        timerUp = new Date((new Date()).getTime() + timeToSuspend);
+        suspendDateTime = new Date((new Date()).getTime() + timeToSuspend);
 
         return setTimeout(function () {
             //request suspension
@@ -176,19 +173,18 @@
         }, timeToSuspend);
     }
 
-    function setFormInputJob() {
-        window.addEventListener('keydown', function (event) {
-            if (!inputState && !tempWhitelist) {
-                if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
-                    if (event.target.tagName.toUpperCase() === 'INPUT'
-                            || event.target.tagName.toUpperCase() === 'TEXTAREA'
-                            || event.target.tagName.toUpperCase() === 'FORM') {
-                        inputState = true;
-                        reportState(false);
-                    }
+    function formInputListener(event) {
+        console.log('input!');
+        if (!inputState && !tempWhitelist) {
+            if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
+                if (event.target.tagName.toUpperCase() === 'INPUT'
+                  || event.target.tagName.toUpperCase() === 'TEXTAREA'
+                  || event.target.tagName.toUpperCase() === 'FORM') {
+                    inputState = true;
+                    reportState(false);
                 }
             }
-        });
+        }
     }
 
     function requestPreferences(callback) {
@@ -206,30 +202,39 @@
         //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         switch (request.action) {
-        case 'resetTimer':
-            clearTimeout(timerJob);
-            if (request.suspendTime > 0) {
-                suspendTime = request.suspendTime * (1000*60);
-                timerJob = setTimerJob(suspendTime);
-            } else {
-                timerUp = false;
-                suspendTime = 0;
+
+        //listen for request to reset preferences if options have changed
+        case 'resetPreferences':
+            if (request.hasOwnProperty('suspendTime')) {
+                clearTimeout(timerJob);
+                if (request.suspendTime > 0) {
+                    timerJob = setTimerJob(request.suspendTime * (1000*60));
+                } else {
+                    suspendDateTime = false;
+                }
+            }
+            if (request.hasOwnProperty('ignoreForms')) {
+                window.removeEventListener('keydown', formInputListener);
+                if (request.ignoreForms) {
+                    window.addEventListener('keydown', formInputListener);
+                }
+                inputState = inputState && request.ignoreForms;
             }
             break;
 
         //listen for status request
         case 'requestInfo':
             status = calculateState();
-            suspendDate = timerUp ? timerUp + '' : '-';
-            //console.log(suspendDate);
-            response = { status: status, timerUp: suspendDate };
+            var suspendDateString = suspendDateTime ? suspendDateTime + '' : '-';
+            //console.log(suspendDateString);
+            response = { status: status, timerUp: suspendDateString };
             sendResponse(response);
             break;
 
         //cancel suspension timer job
         case 'cancelTimer':
             clearTimeout(timerJob);
-            timerUp = false;
+            suspendDateTime = false;
             break;
 
         //listen for request to temporarily whitelist the tab
