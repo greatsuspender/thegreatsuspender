@@ -301,7 +301,7 @@ var sessionUtils = (function () {
         } else if (tabProperties.favIconUrl && tabProperties.favIconUrl.indexOf('chrome://theme') < 0) {
             favicon = tabProperties.favIconUrl;
         } else {
-            favicon = 'chrome://favicon/' + tabProperties.url;
+            favicon = 'chrome://favicon/size/16@2x/' + tabProperties.url;
         }
 
         if (tabProperties.sessionId) {

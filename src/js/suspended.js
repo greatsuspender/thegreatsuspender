@@ -55,7 +55,7 @@ chrome.tabs.getCurrent(function(tab) {
             if (!tabProperties) {
                 tabProperties = {
                     url: url,
-                    favicon: 'chrome://favicon/' + url
+                    favicon: 'chrome://favicon/size/16@2x/' + url
                 };
             }
 
