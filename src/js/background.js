@@ -590,36 +590,22 @@ var tgs = (function () {
             //if they are installing for the first time
             if (!lastVersion) {
 
-				// prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
-				if (!chrome.extension.inIncognitoContext) {
-					//show welcome screen
-					chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-				}
+                // prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
+                if (!chrome.extension.inIncognitoContext) {
+                    //show welcome screen
+                    chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+                }
 
             //else if they are upgrading to a new version
             } else {
 
-                //if upgrading from an old version
-                if (lastVersion < 6.12) {
+                gsUtils.performMigration(lastVersion);
 
-                    gsUtils.performOldMigration(lastVersion, function() {
+                //recover tabs silently
+                checkForCrashRecovery(true);
 
-                        //show update screen
-                        chrome.tabs.create({url: chrome.extension.getURL('update.html')});
-                    });
-
-                //for users already upgraded to 6.12 just recover tabs silently in background
-                } else {
-
-                    gsUtils.performNewMigration(lastVersion);
-
-                    //recover tabs silently
-                    checkForCrashRecovery(true);
-
-                    //show update screen
-                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
-                }
-
+                //show update screen
+                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
             }
 
         //else if restarting the same version
