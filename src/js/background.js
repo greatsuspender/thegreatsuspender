@@ -15,7 +15,7 @@ var tgs = (function () {
 
     var debug = false,
         sessionId,
-        lastSelectedTabs = [],
+        lastSelectedTabByWindowId = {},
         globalCurrentTabId,
         sessionSaveTimer,
         chargingMode = false,
@@ -393,7 +393,7 @@ var tgs = (function () {
         chrome.tabs.query({active: true, windowId: windowId}, function(tabs) {
             if (tabs && tabs.length === 1) {
 
-                lastSelectedTabs[windowId] = tabs[0].id;
+                lastSelectedTabByWindowId[windowId] = tabs[0].id;
                 globalCurrentTabId = tabs[0].id;
 
                 //update icon
@@ -410,9 +410,9 @@ var tgs = (function () {
             console.log('tab changed: ' + tabId);
         }
 
-        var lastSelectedTab = lastSelectedTabs[windowId];
+        var lastSelectedTab = lastSelectedTabByWindowId[windowId];
 
-        lastSelectedTabs[windowId] = tabId;
+        lastSelectedTabByWindowId[windowId] = tabId;
         globalCurrentTabId = tabId;
 
         //reset timer on tab that lost focus
