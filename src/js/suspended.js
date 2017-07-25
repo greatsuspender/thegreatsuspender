@@ -44,6 +44,7 @@ chrome.tabs.getCurrent(function(tab) {
             messageEl = document.getElementById('suspendedMsg'),
             titleEl = document.getElementById('gsTitle'),
             topBarEl = document.getElementById('gsTopBarTitle'),
+            topBarURLEl = document.getElementById('gsTopBarURL'),
             whitelistEl = document.getElementById('gsWhitelistLink'),
             linkedUrlEl = document.getElementById('gsLinkedUrl'),
             topBarImgEl = document.getElementById('gsTopBarImg');
@@ -99,6 +100,8 @@ chrome.tabs.getCurrent(function(tab) {
             titleEl.innerHTML = title;
             topBarEl.innerHTML = title;
             topBarEl.setAttribute('href', url);
+            topBarURLEl.innerHTML = url;
+            topBarURLEl.setAttribute('href', url);
             topBarImgEl.setAttribute('src', favicon);
 
             if (tabProperties.fakeTab && tabProperties.url) {
