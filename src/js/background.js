@@ -285,6 +285,28 @@ var tgs = (function () {
         });
     }
 
+    function closeAllSuspendedTabs() {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            var curWindowId = tabs[0].windowId;
+            chrome.windows.get(curWindowId, {populate: true}, function(curWindow) {
+                curWindow.tabs.forEach(function (tab) {
+                    if (isSuspended(tab)) {
+                        chrome.tabs.remove(tab.id);
+                    }
+                });
+            });
+        });
+    }
+
+    function closeSuspendedTabsInAllWindows() {
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if (isSuspended(tab))
+                    chrome.tabs.remove(tab.id);
+            });
+        });
+    }
+
     function isSuspended(tab) {
         return tab.url.indexOf('suspended.html') >= 0;
     }
@@ -877,6 +899,13 @@ var tgs = (function () {
                 onclick: unsuspendAllTabs
             }));
 
+            //Close all suspended tabs
+            contextMenuItems.push(chrome.contextMenus.create({
+                title: "Close All Suspended Tabs",
+                contexts: allContexts,
+                onclick: closeAllSuspendedTabs()
+            }));
+
              //Open settings page
             contextMenuItems.push(chrome.contextMenus.create({
                 title: "Settings",
@@ -911,6 +940,10 @@ var tgs = (function () {
 
         } else if (command === '6-unsuspend-all-windows') {
             unsuspendAllTabsInAllWindows();
+        } else if (command === '7-close-all-suspended-tabs') {
+	    closeAllSuspendedTabs();
+        } else if (command === '8-close-all-suspended-windows') {
+	    closeSuspendedTabsInAllWindows();
         }
     });
 
@@ -1014,6 +1047,10 @@ var tgs = (function () {
 
         case 'unsuspendSelected':
             unsuspendSelectedTabs();
+            break;
+
+        case 'closeAllSuspended':
+            closeAllSuspendedTabs();
             break;
 
         default:

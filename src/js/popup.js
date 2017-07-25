@@ -146,6 +146,10 @@
             });
             window.close();
         });
+        document.getElementById('closeAllSuspended').addEventListener('click', function (e) {
+            chrome.runtime.sendMessage({ action: 'closeAllSuspended' });
+            window.close();
+        });
 
         chrome.extension.getBackgroundPage().tgs.requestTabInfo(false, function (info) {
 
