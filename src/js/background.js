@@ -158,6 +158,10 @@ var tgs = (function () {
 
         //otherwise perform soft checks before suspending
         } else {
+	    // check if we want to ignore pinned tabs
+	    if (!force && gsUtils.getOption(gsUtils.IGNORE_PINNED && isPinnedTab(tab)) {
+		return;
+	    }
 
             //check whitelist
             if (isExcluded(tab)) {
@@ -269,7 +273,7 @@ var tgs = (function () {
             chrome.windows.get(curWindowId, {populate: true}, function(curWindow) {
                 curWindow.tabs.forEach(function (tab) {
                     if (!tab.active) {
-                        requestTabSuspension(tab, true);
+                        requestTabSuspension(tab, false);
                     }
                 });
             });
