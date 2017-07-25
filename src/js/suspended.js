@@ -35,8 +35,8 @@ chrome.tabs.getCurrent(function(tab) {
 
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.href),
-            tabProperties,
             rootUrlStr = gsUtils.getRootUrl(url),
+            scrollPos = gsUtils.getSuspendedScrollPosition(window.location.href),
             showPreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0',
             scrollImagePreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2',
             favicon,
@@ -74,7 +74,7 @@ chrome.tabs.getCurrent(function(tab) {
                         document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
                         if (scrollImagePreview) {
                           document.getElementById('gsPreviewImg').addEventListener('load', function() {
-                            document.body.scrollTop = preview.pos ? preview.pos + 60 : 0;
+                            document.body.scrollTop = scrollPos || 0;
                           }, { once: true });
                         }
                         messageEl.style.display = 'none';
@@ -121,6 +121,7 @@ chrome.tabs.getCurrent(function(tab) {
 
     function unsuspendTab() {
         var url = gsUtils.getSuspendedUrl(window.location.href);
+        chrome.extension.getBackgroundPage().tgs.scrollPosByTabId[tabId] = gsUtils.getSuspendedScrollPosition(window.location.href);
         window.location.replace(url);
     }
 

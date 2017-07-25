@@ -38,7 +38,7 @@ var sessionUtils = (function () {
                             curUrl = curTab.url;
 
                             if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !chrome.extension.getBackgroundPage().tgs.isSpecialTab(curTab)) {
-                                curUrl = gsUtils.generateSuspendedUrl(curTab);
+                                curUrl = gsUtils.generateSuspendedUrl(curTab.url, curTab.title);
                             } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
                                 curUrl = gsUtils.getSuspendedUrl(curTab.url);
                             }

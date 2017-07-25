@@ -32,9 +32,9 @@ var tgs = (function () {
     sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
-    function savePreview(tab, previewUrl, position) {
+    function savePreview(tab, previewUrl) {
         if (previewUrl) {
-            gsUtils.addPreviewImage(tab.url, previewUrl, position);
+            gsUtils.addPreviewImage(tab.url, previewUrl);
         }
     }
 
@@ -97,17 +97,19 @@ var tgs = (function () {
         return dontSuspendAudible && tab.audible;
     }
 
-    function confirmTabSuspension(tab) {
+    //ask the tab to suspend itself
+    function confirmTabSuspension(tab, tabInfo) {
 
-        //ask the tab to suspend itself
+        var scrollPos = tabInfo.scrollPos || '0';
         saveSuspendData(tab, {}, function() {
 
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
-                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function () {
+                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
+                    // console.log(result);
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
-                        suspendedUrl: gsUtils.generateSuspendedUrl(tab),
+                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
                         screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE)
                     });
                 });
@@ -115,7 +117,7 @@ var tgs = (function () {
             } else {
                 sendMessageToTab(tab.id, {
                     action: 'confirmTabSuspend',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab)
+                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos)
                 });
             }
         });
@@ -149,16 +151,14 @@ var tgs = (function () {
             }
         }
 
-        //finally, if forceLevel is 2 or greater, do an async call to ask tab for some additional internal information
-        if (forceLevel >= 2) {
-            requestTabInfoFromContentScript(tab, function(tabInfo) {
-                if (tabInfo && tabInfo.status !== 'formInput' && tabInfo.status !== 'tempWhitelist') {
-                    confirmTabSuspension(tab);
-                }
-            });
-        } else {
-            confirmTabSuspension(tab);
-        }
+        requestTabInfoFromContentScript(tab, function(tabInfo) {
+            tabInfo = tabInfo || {};
+            if (forceLevel >= 2 &&
+                    (tabInfo.status === 'formInput' || tabInfo.status === 'tempWhitelist')) {
+                return;
+            }
+            confirmTabSuspension(tab, tabInfo);
+        });
     }
 
     function whitelistHighlightedTab() {
@@ -213,11 +213,7 @@ var tgs = (function () {
             });
         }
 
-        var fakeTabProperties = {
-                url: linkedUrl,
-                title: linkedUrl
-            },
-            suspendedUrl = gsUtils.generateSuspendedUrl(fakeTabProperties),
+        var suspendedUrl = gsUtils.generateSuspendedUrl(linkedUrl, linkedUrl),
             index = parentTab.index + 1,
             tabPropertyOverrides = {
                 url: linkedUrl,
@@ -365,8 +361,11 @@ var tgs = (function () {
 
     function unsuspendTab(tab) {
         var url = gsUtils.getSuspendedUrl(tab.url),
+            scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url),
             views,
             result;
+
+        scrollPosByTabId[tab.id] = scrollPosition || scrollPosByTabId[tab.id];
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
@@ -741,17 +740,7 @@ var tgs = (function () {
 
 
     function requestTabInfoFromContentScript(tab, callback) {
-
-        sendMessageToTab(tab.id, {action: 'requestInfo'}, function (response) {
-            if (response) {
-                var tabInfo = {};
-                tabInfo.status = response.status;
-                tabInfo.timerUp = response.timerUp;
-                callback(tabInfo);
-            } else {
-                callback(false);
-            }
-        });
+        sendMessageToTab(tab.id, {action: 'requestInfo'}, callback);
     }
 
     function processActiveTabStatus(tab, status) {
@@ -913,15 +902,13 @@ var tgs = (function () {
 
         switch (request.action) {
         case 'initTab':
-            var tabScrollPos = scrollPosByTabId[sender.tab.id];
-            delete scrollPosByTabId[sender.tab.id];
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
                 screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
-                tabId: sender.tab.id,
-                scrollPos: tabScrollPos
+                scrollPos: scrollPosByTabId[sender.tab.id] || '0'
             });
+            delete scrollPosByTabId[sender.tab.id];
             break;
 
         case 'reportTabState':
@@ -929,10 +916,6 @@ var tgs = (function () {
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
                 var status = processActiveTabStatus(sender.tab, request.status);
                 updateIcon(status);
-            }
-            // If tab is reported being suspended, save the tab's reported scroll position
-            if (request.status === 'suspended' && request.scrollPos) {
-                scrollPosByTabId[sender.tab.id] = request.scrollPos;
             }
             break;
 
@@ -951,7 +934,7 @@ var tgs = (function () {
             break;
 
         case 'savePreviewData':
-            savePreview(sender.tab, request.previewUrl, request.position);
+            savePreview(sender.tab, request.previewUrl);
             if (debug && sender.tab) {
                 if (request.errorMsg) {
                     console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
@@ -1139,12 +1122,12 @@ var tgs = (function () {
         isSpecialTab: isSpecialTab,
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,
-        scrollPosByTabId: scrollPosByTabId,
         runStartupChecks: runStartupChecks,
         resetContentScripts: resetContentScripts,
         requestNotice: requestNotice,
         buildContextMenu: buildContextMenu,
-        resuspendAllSuspendedTabs: resuspendAllSuspendedTabs
+        resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
+        scrollPosByTabId: scrollPosByTabId
     };
 
 }());

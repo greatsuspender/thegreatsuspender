@@ -10,8 +10,7 @@
 (function () {
     'use strict';
 
-    var tabId,
-        readyStateCheckInterval,
+    var readyStateCheckInterval,
         inputState = false,
         tempWhitelist = false,
         timerJob,
@@ -24,15 +23,14 @@
     function init() {
 
         //do startup jobs
-        reportState(false);
-        requestPreferences(function(response) {
+        var tabState = buildTabStateObject();
+        chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
             //set timer job
             if (response && response.suspendTime > 0) {
 
                 var suspendTime = response.suspendTime * (1000*60);
                 timerJob = setTimerJob(suspendTime);
-
             }
 
             //add form input listener
@@ -40,17 +38,12 @@
                 window.addEventListener('keydown', formInputListener);
             }
 
-            if (response && response.tabId) {
-
-                //set tabId
-                tabId = response.tabId;
-
-                //handle auto-scrolling
-                if (response.scrollPos && response.scrollPos !== "") {
-                    document.body.scrollTop = response.scrollPos;
-                }
+            //handle auto-scrolling
+            if (response && response.scrollPos && response.scrollPos !== "" && response.scrollPos !== "0") {
+                document.body.scrollTop = response.scrollPos;
             }
         });
+        chrome.runtime.sendMessage(tabState);
     }
 
     function calculateState() {
@@ -58,21 +51,19 @@
         return status;
     }
 
-    function reportState(state, scrollPos) {
-        var message = {
+    function buildTabStateObject(state) {
+        return {
             action: 'reportTabState',
-            status: state || calculateState()
+            status: state || calculateState(),
+            scrollPos: document.body.scrollTop,
+            timerUp: suspendDateTime ? suspendDateTime + '' : '-'
         };
-        if (scrollPos) {
-           message.scrollPos = scrollPos;
-        }
-        chrome.runtime.sendMessage(message);
     }
 
-    function suspendTab(suspendedUrl, scrollPosition) {
+    function suspendTab(suspendedUrl) {
 
-        scrollPosition = scrollPosition || document.body.scrollTop;
-        reportState('suspended', scrollPosition);
+        var tabState = buildTabStateObject('suspended');
+        chrome.runtime.sendMessage(tabState);
 
         if (suspendedUrl.indexOf('suspended.html') > 0) {
             window.location.replace(suspendedUrl);
@@ -95,8 +86,6 @@
             processing = true,
             timer = new Date(),
             height = 0;
-
-        var position = document.body.scrollTop;
 
         //safety check here. don't try to use html2canvas if the page has more than 10000 elements
         if (elementCount < 10000) {
@@ -136,10 +125,9 @@
                         chrome.runtime.sendMessage({
                             action: 'savePreviewData',
                             previewUrl: dataUrl,
-                            position: position,
                             timerMsg: timer
                         }, function () {
-                            suspendTab(suspendedUrl, position);
+                            suspendTab(suspendedUrl);
                         });
                     }
                 }
@@ -174,30 +162,23 @@
     }
 
     function formInputListener(event) {
-        console.log('input!');
         if (!inputState && !tempWhitelist) {
             if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
                 if (event.target.tagName.toUpperCase() === 'INPUT'
                   || event.target.tagName.toUpperCase() === 'TEXTAREA'
                   || event.target.tagName.toUpperCase() === 'FORM') {
                     inputState = true;
-                    reportState(false);
+                    var tabState = buildTabStateObject();
+                    chrome.runtime.sendMessage(tabState);
                 }
             }
         }
     }
 
-    function requestPreferences(callback) {
-        chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
-            callback(response);
-        });
-    }
-
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         var response = {},
-            status,
-            suspendDate;
+            status;
 
         //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
@@ -224,11 +205,8 @@
 
         //listen for status request
         case 'requestInfo':
-            status = calculateState();
-            var suspendDateString = suspendDateTime ? suspendDateTime + '' : '-';
             //console.log(suspendDateString);
-            response = { status: status, timerUp: suspendDateString };
-            sendResponse(response);
+            sendResponse(buildTabStateObject());
             break;
 
         //cancel suspension timer job
@@ -242,8 +220,6 @@
             status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
             response = {status: status};
             tempWhitelist = true;
-            reportState(false);
-            sendResponse(response);
             break;
 
         //listen for request to undo temporary whitelisting
@@ -251,8 +227,6 @@
             inputState = false;
             tempWhitelist = false;
             response = {status: 'normal'};
-            reportState(false);
-            sendResponse(response);
             break;
 
         //listen for preview request

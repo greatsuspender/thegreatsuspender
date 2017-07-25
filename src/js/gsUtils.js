@@ -309,7 +309,7 @@
             });
         },
 
-        addPreviewImage: function (tabUrl, previewUrl, position) {
+        addPreviewImage: function (tabUrl, previewUrl) {
             var self = this,
                 server;
             this.getDb().then(function (s) {
@@ -325,7 +325,7 @@
                   return Promise.resolve();
                 }
             }).then(function() {
-              server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl, pos: position});
+              server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
             });
         },
 
@@ -631,11 +631,11 @@
             return Math.floor(Math.random() * 1000000) + "";
         },
 
-        generateSuspendedUrl: function (tabProperties) {
+        generateSuspendedUrl: function (url, title, scrollPos) {
             var args = '#' +
-                'ttl=' + encodeURIComponent(tabProperties.title) + '&' +
-                // 'fav=' + encodeURIComponent(tab.favIconUrl) + '&' +
-                'uri=' + (tabProperties.url);
+                'ttl=' + encodeURIComponent(title) + '&' +
+                'pos=' + (scrollPos || '0') + '&' +
+                'uri=' + (url);
 
             return chrome.extension.getURL('suspended.html' + args);
         },
@@ -671,6 +671,9 @@
         },
         getSuspendedTitle: function(urlStr) {
             return decodeURIComponent(this.getHashVariable('ttl', urlStr) || '');
+        },
+        getSuspendedScrollPosition: function(urlStr) {
+            return decodeURIComponent(this.getHashVariable('pos', urlStr) || '');
         },
         getSuspendedUrl: function (urlStr) {
             return this.getHashVariable('uri', urlStr);
