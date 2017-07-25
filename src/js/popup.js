@@ -56,6 +56,8 @@
         } else if (status === 'charging') {
             statusDetail = 'Connected to power source.';
             statusIconClass = 'fa fa-pause';
+        } else {
+            console.log('Could not process tab status of: ' + status);
         }
 
         if (document.getElementsByTagName('a')[0]) {

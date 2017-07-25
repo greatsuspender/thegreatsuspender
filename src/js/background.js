@@ -69,6 +69,10 @@ var tgs = (function () {
         });
     }
 
+    function isDiscardedTab(tab) {
+        return tab.discarded;
+    }
+
     //tests for non-standard web pages. does not check for suspended pages!
     function isSpecialTab(tab) {
         var url = tab.url;
@@ -127,7 +131,7 @@ var tgs = (function () {
         if (typeof(tab) === 'undefined') return;
 
         if (forceLevel >= 1) {
-            if (isSuspended(tab) || isSpecialTab(tab)) {
+            if (isSuspended(tab) || isSpecialTab(tab) || isDiscardedTab(tab)) {
                 return;
             }
         }
@@ -562,7 +566,7 @@ var tgs = (function () {
             var timeout = gsUtils.getOption(gsUtils.SUSPEND_TIME);
 
             tabs.forEach(function (currentTab) {
-                if (!isSpecialTab(currentTab) && !isSuspended(currentTab)) {
+                if (!isSpecialTab(currentTab) && !isSuspended(currentTab) && !isDiscardedTab(currentTab)) {
                     var tabId = currentTab.id;
 
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
@@ -669,6 +673,7 @@ var tgs = (function () {
     //normal: a tab that will be suspended
     //special: a tab that cannot be suspended
     //suspended: a tab that is suspended
+    //discarded: a tab that has been discarded
     //never: suspension timer set to 'never suspend'
     //formInput: a tab that has a partially completed form (and IGNORE_FORMS is true)
     //audible: a tab that is playing audio (and IGNORE_AUDIO is true)
@@ -707,6 +712,11 @@ var tgs = (function () {
                 //check if it is a special tab
                 if (isSpecialTab(tab)) {
                     info.status = 'special';
+                    callback(info);
+
+                //check if tab has been discarded
+                } else if (isDiscardedTab(tab)) {
+                    info.status = 'discarded';
                     callback(info);
 
                 //check if it has already been suspended
