@@ -15,6 +15,7 @@
         IGNORE_AUDIO: 'gsDontSuspendAudio',
         IGNORE_CACHE: 'gsIgnoreCache',
         ADD_CONTEXT: 'gsAddContextMenu',
+        SYNC_SETTINGS: 'gsSyncSettings',
         NO_NAG: 'gsNoNag',
         THEME: 'gsTheme',
         WHITELIST: 'gsWhitelist',
@@ -46,6 +47,7 @@
             defaults[this.IGNORE_AUDIO] = true;
             defaults[this.IGNORE_CACHE] = false;
             defaults[this.ADD_CONTEXT] = true;
+            defaults[this.SYNC_SETTINGS] = true;
             defaults[this.SUSPEND_TIME] = '60';
             defaults[this.NO_NAG] = false;
             defaults[this.WHITELIST] = '';
@@ -64,6 +66,15 @@
         getOption: function (prop) {
             var settings = this.getSettings(),
                 defaults;
+
+            if (prop != this.SYNC_SETTINGS && settings[this.SYNC_SETTINGS]) {
+                // Overlay sync updates in the local data store.  Like sync
+                // itself, we just guarantee eventual consistency.
+                chrome.storage.sync.get([prop], (syncSettings) => {
+                    if (syncSettings[prop] !== undefined)
+                        this.setOption(prop, syncSettings[prop]);
+                });
+            }
 
             //test that option exists in settings object
             if (typeof(settings[prop]) === 'undefined' || settings[prop] === null) {
@@ -96,6 +107,15 @@
 
         saveSettings: function (settings) {
             localStorage.setItem('gsSettings', JSON.stringify(settings));
+        },
+
+        syncSettings: function () {
+            var settings = this.getSettings();
+            if (settings[this.SYNC_SETTINGS]) {
+                // Since sync is a local setting, delete it to simplify things.
+                delete settings[this.SYNC_SETTINGS];
+                chrome.storage.sync.set(settings, this.noop);
+            }
         },
 
         checkWhiteList: function (url) {
@@ -863,6 +883,13 @@
                     this.setOption(this.SCREEN_CAPTURE, '0');
                 }
             }
+
+            // When migrating old settings, disable sync by default.
+            // For new installs, we want this to default to on.
+            if (oldVersion < 6.31) {
+                this.setOption(this.SYNC_SETTINGS, false);
+            }
+
         },
 
         performOldMigration: function (oldVersion, callback) {
