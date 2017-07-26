@@ -152,13 +152,31 @@ a {
 #suspendedMsg h2 {
     font-size: 50px;
 }
-@media all and (max-width: 600px) {
+    @media all and (max-width: 600px) {
     #suspendedMsg h1 {
         font-size: 45px;
     }
     #suspendedMsg h2 {
         font-size: 55px;
     }
+}
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+.spinner:before {
+    content: '';
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    margin-top: -40px;
+    margin-left: -40px;
+    border-radius: 50%;
+    border: 8px solid #7aa4ae;
+    border-top-color: #134960;
+    animation: spinner .6s linear infinite;
 }
 #dudePopup {
     position: fixed;

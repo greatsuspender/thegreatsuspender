@@ -371,8 +371,8 @@ var tgs = (function () {
         //me to 'replace' the url - leaving a suspended tab in the history
         views = chrome.extension.getViews({type: 'tab', "windowId": tab.windowId});
         result = views.some(function (view) {
-            if (view.tabId === tab.id) {
-                view.location.replace(url);
+            if (view.getTabId && view.getTabId() === tab.id) {
+                view.requestUnsuspendTab();
                 return true;
             }
         });

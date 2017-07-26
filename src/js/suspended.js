@@ -1,18 +1,19 @@
 /*global window, document, chrome, console */
-var tabId;
 
-document.getElementById('gsTitle').innerHTML = chrome.extension.getBackgroundPage().gsUtils.getSuspendedTitle(window.location.href);
-chrome.tabs.getCurrent(function(tab) {
-  tabId = tab.id;
-});
+(function (window) {
 
-(function () {
+    'use strict';
 
+    var tabId;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
+    document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
+    chrome.tabs.getCurrent(function(tab) {
+        tabId = tab.id;
+    });
+
     function generateFaviconUri(url, callback) {
-        var img = new Image(),
-            boxSize = 9;
+        var img = new Image();
 
         img.onload = function () {
             var canvas,
@@ -122,6 +123,8 @@ chrome.tabs.getCurrent(function(tab) {
     function unsuspendTab() {
         var url = gsUtils.getSuspendedUrl(window.location.href);
         chrome.extension.getBackgroundPage().tgs.scrollPosByTabId[tabId] = gsUtils.getSuspendedScrollPosition(window.location.href);
+        document.getElementById('suspendedMsg').innerHTML = "";
+        document.getElementById('refreshSpinner').classList.add('spinner')
         window.location.replace(url);
     }
 
@@ -190,4 +193,11 @@ chrome.tabs.getCurrent(function(tab) {
             window.addEventListener('focus', displayPopup);
         }
     };
-}());
+
+    //tabId is accessed directly from the background script when unsuspending tabs
+    window.getTabId = function() {
+        return tabId;
+    };
+    window.requestUnsuspendTab = unsuspendTab;
+
+}(window));
