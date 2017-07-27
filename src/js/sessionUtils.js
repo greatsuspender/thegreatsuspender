@@ -22,6 +22,10 @@ var sessionUtils = (function () {
 
             gsUtils.fetchSessionById(sessionId).then(function (session) {
 
+                if (!session || !session.windows) {
+                    return;
+                }
+
                 //if loading a specific window
                 if (windowId) {
                     windows.push(gsUtils.getWindowFromSession(windowId, session));
@@ -88,6 +92,10 @@ var sessionUtils = (function () {
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
 
+            if (!session || !session.windows) {
+                return;
+            }
+
             session.windows.forEach(function (curWindow, index) {
                 curWindow.tabs.forEach(function (curTab, tabIndex) {
                     if (curTab.url.indexOf("suspended.html") > 0) {
@@ -148,7 +156,7 @@ var sessionUtils = (function () {
 
             gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-                if (!session) {
+                if (!session || !session.windows) {
                     return;
                 }
 
@@ -170,6 +178,7 @@ var sessionUtils = (function () {
 
 
     function createSessionHtml(session) {
+        session.windows = session.windows || [];
         var savedSession = session.name ? true : false,
             sessionContainer,
             sessionTitle,
