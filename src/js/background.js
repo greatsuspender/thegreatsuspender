@@ -108,7 +108,7 @@ var tgs = (function () {
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
-                    // console.log(result);
+
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
                         suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
@@ -952,6 +952,7 @@ var tgs = (function () {
                     }
                 }
                 if (chrome.runtime.lastError) {
+                    if (debug) console.log(chrome.runtime.lastError.message);
                 }
                 sendResponse();
             });
@@ -1008,6 +1009,7 @@ var tgs = (function () {
             var tabId = request.tabId || globalCurrentTabId;
             requestTabInfo(tabId, function (info) {
                 if (chrome.runtime.lastError) {
+                    if (debug) console.log(chrome.runtime.lastError.message);
                 }
                 sendResponse(info);
             });
