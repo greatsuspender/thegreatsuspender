@@ -262,7 +262,7 @@ var tgs = (function () {
     function suspendAllTabsInAllWindows() {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                requestTabSuspension(currentTab, 2);
+                requestTabSuspension(currentTab, 1);
             });
         });
     }
@@ -803,7 +803,6 @@ var tgs = (function () {
 
         if (showContextMenu) {
 
-            //Open tab suspended
             chrome.contextMenus.create({
                 title: "Open link in new suspended tab",
                 contexts:["link"],
@@ -811,22 +810,16 @@ var tgs = (function () {
                   openLinkInSuspendedTab(tab, info.linkUrl);
                 }
             });
-
-            //Suspend present tab
             chrome.contextMenus.create({
                 title: "Suspend tab",
                 contexts: allContexts,
                 onclick: suspendHighlightedTab
             });
-
-            //Add present tab to temporary whitelist
             chrome.contextMenus.create({
                 title: "Don't suspend for now",
                 contexts: allContexts,
                 onclick: temporarilyWhitelistHighlightedTab
             });
-
-            //Add present tab to permenant whitelist
             chrome.contextMenus.create({
                 title: "Never suspend this site",
                 contexts: allContexts,
@@ -838,29 +831,31 @@ var tgs = (function () {
                type: "separator"
             });
 
-            //Suspend all the tabs
             chrome.contextMenus.create({
-                title: "Suspend other tabs",
+                title: "Suspend other tabs in this window",
                 contexts: allContexts,
                 onclick: suspendAllTabs
             });
-
-            //Unsuspend all the tabs
             chrome.contextMenus.create({
-                title: "Unsuspend all tabs",
+                title: "Unsuspend all tabs in this window",
                 contexts: allContexts,
                 onclick: unsuspendAllTabs
             });
 
-             //Open settings page
             chrome.contextMenus.create({
-                title: "Settings",
                 contexts: allContexts,
-                onclick: function(e) {
-                    chrome.tabs.create({
-                        url: chrome.extension.getURL('options.html')
-                    });
-                }
+                type: "separator"
+            });
+
+            chrome.contextMenus.create({
+                title: "Force suspend all tabs in all windows",
+                contexts: allContexts,
+                onclick: suspendAllTabsInAllWindows
+            });
+            chrome.contextMenus.create({
+                title: "Unsuspend all tabs in all windows",
+                contexts: allContexts,
+                onclick: unsuspendAllTabsInAllWindows
             });
         }
     }

@@ -57,7 +57,7 @@
       "description": "Unsuspend all tabs in active window"
     },
     "5-suspend-all-windows": {
-      "description": "Suspend all tabs in all windows"
+      "description": "Force suspend all tabs in all windows"
     },
     "6-unsuspend-all-windows": {
       "description": "Unsuspend all tabs in all windows"
