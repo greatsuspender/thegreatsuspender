@@ -77,8 +77,9 @@
             action: 'savePreviewData',
             previewUrl: false,
             errorMsg: err
+        }, function () {
+            suspendTab(suspendedUrl);
         });
-        suspendTab(suspendedUrl);
     }
 
     function generatePreviewImg(suspendedUrl, screenCapture) {

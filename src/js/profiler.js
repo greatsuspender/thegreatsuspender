@@ -30,7 +30,7 @@
             tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                chrome.extension.getBackgroundPage().tgs.requestTabInfo(curTab.id, function (suspendInfo) {
+                chrome.runtime.sendMessage({ action: 'requestTabInfo', tabId: curTab.id }, function (suspendInfo) {
                     var html = '',
                         tableEl = document.getElementById('gsProfilerBody');
 

@@ -32,9 +32,11 @@ var tgs = (function () {
     sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
-    function savePreview(tab, previewUrl) {
+    function savePreview(tab, previewUrl, callback) {
         if (previewUrl) {
-            gsUtils.addPreviewImage(tab.url, previewUrl);
+            gsUtils.addPreviewImage(tab.url, previewUrl, callback);
+        } else {
+            callback();
         }
     }
 
@@ -628,6 +630,13 @@ var tgs = (function () {
 
         //add context menu items
         buildContextMenu(contextMenus);
+
+        //initialise globalCurrentTabId
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            if (tabs.length > 0) {
+                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
+            }
+        });
     }
 
     function checkForNotices() {
@@ -666,7 +675,7 @@ var tgs = (function () {
         return notice;
     }
 
-    //get info for a tab. defaults to currentTab if no id passed in
+    //get info for a tab
     //returns the current tab suspension and timer states. possible suspension states are:
 
     //normal: a tab that will be suspended
@@ -690,7 +699,6 @@ var tgs = (function () {
                 status: 'unknown',
                 timerUp: '-'
             };
-        tabId = tabId || globalCurrentTabId;
 
         if (typeof(tabId) === 'undefined') {
             callback(info);
@@ -909,6 +917,7 @@ var tgs = (function () {
                 scrollPos: scrollPosByTabId[sender.tab.id] || '0'
             });
             delete scrollPosByTabId[sender.tab.id];
+            return false;
             break;
 
         case 'reportTabState':
@@ -934,15 +943,19 @@ var tgs = (function () {
             break;
 
         case 'savePreviewData':
-            savePreview(sender.tab, request.previewUrl);
-            if (debug && sender.tab) {
-                if (request.errorMsg) {
-                    console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
-                } else if (request.timerMsg) {
-                    console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
+            savePreview(sender.tab, request.previewUrl, function() {
+                if (debug && sender.tab) {
+                    if (request.errorMsg) {
+                        console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
+                    } else if (request.timerMsg) {
+                        console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
+                    }
                 }
-            }
-            sendResponse();
+                if (chrome.runtime.lastError) {
+                }
+                sendResponse();
+            });
+            return true;
             break;
 
         case 'suspendOne':
@@ -983,6 +996,26 @@ var tgs = (function () {
 
         case 'unsuspendSelected':
             unsuspendSelectedTabs();
+            break;
+
+        case 'updateIcon':
+            if (request.status) {
+                updateIcon(request.status);
+            }
+            break;
+
+        case 'requestTabInfo':
+            var tabId = request.tabId || globalCurrentTabId;
+            requestTabInfo(tabId, function (info) {
+                if (chrome.runtime.lastError) {
+                }
+                sendResponse(info);
+            });
+            return true;
+            break;
+
+        case 'log':
+            console.log(request.message);
             break;
 
         default:
@@ -1117,8 +1150,6 @@ var tgs = (function () {
     s.parentNode.insertBefore(ga, s);
 
     return {
-        requestTabInfo: requestTabInfo,
-        updateIcon: updateIcon,
         isSpecialTab: isSpecialTab,
         saveSuspendData: saveSuspendData,
         sessionId: sessionId,

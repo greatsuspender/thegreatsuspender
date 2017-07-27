@@ -309,7 +309,7 @@
             });
         },
 
-        addPreviewImage: function (tabUrl, previewUrl) {
+        addPreviewImage: function (tabUrl, previewUrl, callback) {
             var self = this,
                 server;
             this.getDb().then(function (s) {
@@ -325,7 +325,8 @@
                   return Promise.resolve();
                 }
             }).then(function() {
-              server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
+                server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
+                if (typeof(callback) === "function") callback();
             });
         },
 
