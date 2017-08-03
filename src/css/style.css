@@ -449,3 +449,54 @@ input[type=checkbox] {
 input[type=checkbox]:before { content:""; display:inline-block; width:20px; height:20px;}
 input[type=checkbox]:before { background: url(/img/checkOff.png) #fff;}
 input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
+
+
+/**
+ * Tooltip Styles (https://chrisbracco.com/a-simple-css-tooltip/)
+ */
+
+[data-tooltip] {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hide the tooltip content by default */
+[data-tooltip]:before,
+[data-tooltip]:after {
+    visibility: hidden;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Position tooltip above the element */
+[data-tooltip]:before {
+    position: absolute;
+    bottom: 150%;
+    left: 50%;
+    margin-bottom: 5px;
+    margin-left: -80px;
+    padding: 20px 10px;
+    width: 460px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #eee;
+    color: #000;
+    content: attr(data-tooltip);
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: pre;
+    font-weight: 400;
+    box-shadow: 0px 1px 2px #bbb;
+}
+
+/* Show tooltip content on hover */
+[data-tooltip]:hover:before,
+[data-tooltip]:hover:after {
+    visibility: visible;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
+    opacity: 1;
+}

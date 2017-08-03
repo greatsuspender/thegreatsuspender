@@ -103,21 +103,21 @@
 		<br /> -->
 
 		<h2>Whitelist&nbsp;
-			<i class="fa fa-question-circle" title="
-Add the URL of each page you want to whitelist on a new line. For example:
+			<span data-tooltip="Add the URL of each page you want to whitelist on a new line. For example:
 
 https://play.google.com/music/listen
 https://mail.google.com
 
-You can specify part of the url instead to whitelist multiple sites in one go:
+To whitelist multiple sites in one line you can specify part of the url instead:
 
 google.com
 
 You can also specify regular expressions by enclosing the text in forward slashes:
 
-/^https:.*google\.com/
-">
-			</i>
+/^https:.*google\.com/">
+
+				<i class="fa fa-question-circle"></i>
+			</span>
 		</h2>
 		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
 
@@ -128,7 +128,12 @@ You can also specify regular expressions by enclosing the text in forward slashe
 		</div>
 		<div class="formRow">
 			<input type="checkbox" id="syncSettings" class='option' />
-			<label for="syncSettings" class="cbLabel">Sync settings between different systems</label>
+			<label for="syncSettings" class="cbLabel" data-tooltip="Extension settings will be synchronised across all chrome browsers which are logged in
+with the same profile.
+
+This will also synchronise settings in incognito mode.">
+				Sync settings between different systems&nbsp;&nbsp;<i class="fa fa-question-circle"></i>
+			</label>
  			<div id="syncNote" class="gsNote">
 				Turning this on will overwrite settings on all synced systems
 			</div>
