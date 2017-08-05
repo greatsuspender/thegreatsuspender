@@ -109,6 +109,11 @@ var tgs = (function () {
             if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
 
+                    if (chrome.runtime.lastError) {
+                        console.log(chrome.runtime.lastError.message);
+                        return;
+                    }
+
                     sendMessageToTab(tab.id, {
                         action: 'generatePreview',
                         suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
