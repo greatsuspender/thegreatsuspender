@@ -680,6 +680,16 @@
             return this.getHashVariable('uri', urlStr);
         },
 
+        getSuspendedTabCount: function () {
+            var suspendedTabCount = 0;
+            chrome.extension.getViews({type: 'tab'}).forEach(function (window) {
+                if (window.location.href.indexOf('suspended.html') > 0) {
+                    suspendedTabCount++;
+                }
+            });
+            return suspendedTabCount;
+        },
+
         htmlEncode: function (text) {
             return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;
         },

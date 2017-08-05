@@ -505,7 +505,10 @@ var tgs = (function () {
             });
 
             //don't attempt recovery if last session had no suspended tabs
-            if (suspendedTabCount === 0) return;
+            if (suspendedTabCount === 0) {
+                console.log('Aborting tab recovery. Last session has no suspended tabs.');
+                return;
+            };
 
             //check to see if they still exist in current session
             chrome.tabs.query({}, function (tabs) {
@@ -609,8 +612,8 @@ var tgs = (function () {
                 //recover tabs silently
                 checkForCrashRecovery(true);
 
-                //show update screen
-                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                //show updated screen
+                chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
             }
 
         //else if restarting the same version
@@ -986,6 +989,10 @@ var tgs = (function () {
             unsuspendAllTabs();
             break;
 
+        case 'unsuspendAllInAllWindows':
+            unsuspendAllTabsInAllWindows();
+            break;
+
         case 'suspendSelected':
             suspendSelectedTabs();
             break;
@@ -1032,6 +1039,36 @@ var tgs = (function () {
     chrome.runtime.setUninstallURL('', function () {
         chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
             view.location.reload();
+        });
+    });
+
+    //handle special event where an extension update is available
+    chrome.runtime.onUpdateAvailable.addListener(function (details) {
+        var currentVersion = chrome.runtime.getManifest().version;
+        var newVersion = details.version;
+        console.log('A new tgut version is available: ' + newVersion);
+        console.log('Upgrading from: ' + currentVersion)
+
+        var currentSession;
+        gsUtils.fetchSessionById(sessionId).then(function (session) {
+            currentSession = session;
+            return gsUtils.fetchCurrentSessions();
+        }).then(function (sessions) {
+            if (!currentSession && sessions && sessions.length > 0) {
+                currentSession = sessions[0];
+            }
+            if (currentSession) {
+                currentSession.name = 'Automatic save point for v' + currentVersion;
+                gsUtils.addToSavedSessions(currentSession);
+            }
+        }).then(function () {
+            if (gsUtils.getSuspendedTabCount() > 0) {
+                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+
+                // if there are no suspended tabs then simply install the update immediately
+            } else {
+                chrome.runtime.reload();
+            }
         });
     });
 

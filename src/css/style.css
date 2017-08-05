@@ -106,9 +106,11 @@ hr {
 
 .fl {
     float: left;
+    margin-right: 10px;
 }
 .fr {
     float: right;
+    margin-left: 10px;
 }
 h1 {
     font-size: 24px;
@@ -187,7 +189,6 @@ ul.unorderedList li {
 }
 .dude-left {
     float: left;
-    padding-left: 30px;
     padding-right: 25px;
 }
 
