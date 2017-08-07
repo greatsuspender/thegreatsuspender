@@ -82,22 +82,14 @@
         });
     }
 
-    function generatePreviewImg(suspendedUrl, screenCapture) {
+    function generatePreviewImg(suspendedUrl, screenCapture, forceScreenCapture) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true,
             timer = new Date(),
             height = 0;
 
         //safety check here. don't try to use html2canvas if the page has more than 10000 elements
-        if (elementCount < 10000) {
-
-            //allow max of 30 seconds to finish generating image
-            window.setTimeout(function () {
-                if (processing) {
-                    processing = false;
-                    handlePreviewError(suspendedUrl, '30sec timeout reached');
-                }
-            }, 30000);
+        if (forceScreenCapture || elementCount < 10000) {
 
             //check where we need to capture the whole screen
             if (screenCapture === '2') {
@@ -135,7 +127,7 @@
             });
 
         } else {
-            handlePreviewError(suspendedUrl, 'element count > 5000');
+            handlePreviewError(suspendedUrl, 'element count > 10000');
         }
     }
 
@@ -227,7 +219,7 @@
 
         //listen for preview request
         case 'generatePreview':
-            generatePreviewImg(request.suspendedUrl, request.screenCapture);
+            generatePreviewImg(request.suspendedUrl, request.screenCapture, request.forceScreenCapture);
             break;
 
         //listen for suspend request

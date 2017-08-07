@@ -80,6 +80,9 @@ body {
     margin: 0;
     color: #444;
 }
+select {
+    color: #444;
+}
 p {
 	margin: 0 0 15px;
 }
@@ -455,6 +458,9 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 /**
  * Tooltip Styles (https://chrisbracco.com/a-simple-css-tooltip/)
  */
+.tooltipIcon {
+    color: #444;
+}
 
 [data-tooltip] {
     position: relative;
@@ -477,7 +483,7 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
     bottom: 150%;
     left: 50%;
     margin-bottom: 5px;
-    margin-left: -80px;
+    margin-left: -85px;
     padding: 20px 10px;
     width: 460px;
     -webkit-border-radius: 3px;

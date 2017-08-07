@@ -103,7 +103,8 @@ var tgs = (function () {
         saveSuspendData(tab, function() {
 
             //if we need to save a preview image
-            if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
+            var screenCaptureMode = gsUtils.getOption(gsUtils.SCREEN_CAPTURE);
+            if (screenCaptureMode !== '0') {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
 
                     if (chrome.runtime.lastError) {
@@ -111,10 +112,22 @@ var tgs = (function () {
                         return;
                     }
 
-                    sendMessageToTab(tab.id, {
-                        action: 'generatePreview',
-                        suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
-                        screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE)
+                    var forceScreenCapture = gsUtils.getOption(gsUtils.SCREEN_CAPTURE_FORCE);
+                    chrome.tabs.getZoom(tab.id, function (zoomFactor) {
+                        if (!forceScreenCapture && zoomFactor !== 1) {
+                            sendMessageToTab(tab.id, {
+                                action: 'confirmTabSuspend',
+                                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos)
+                            });
+
+                        } else {
+                            sendMessageToTab(tab.id, {
+                                action: 'generatePreview',
+                                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
+                                screenCapture: screenCaptureMode,
+                                forceScreenCapture: forceScreenCapture
+                            });
+                        }
                     });
                 });
 

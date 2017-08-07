@@ -87,18 +87,31 @@
 		</div>
 
 		<div class="formRow">
-			<label id="previewLbl" for="preview">Screen capturing:</label>
+			<label id="previewLbl" for="preview" data-tooltip="On a suspended tab, the extension can display an image preview of the what the tab
+looked like just before it was suspended.
+
+The screen capturing feature is experimental and can cause significant CPU usage as well
+as slightly increased memory usage.
+
+If you notice strange behaviour such as tabs taking a long time to suspend, or chrome
+crashing unexpectedly, try turning this feature off.">
+				Screen capturing:&nbsp;&nbsp;<i class="tooltipIcon fa fa-question-circle"></i>
+			</label>
 			<br />
 			<select id="preview" class='option' style="margin-top: 8px;">
 				<option value="0">Disabled</option>
 				<option value="1">Capture top of screen only</option>
 				<option value="2">Capture entire page</option>
 			</select>
-			<div id="previewNote" class="gsNote">
-				The screen capturing feature is experimental and can cause significant CPU usage.
-				<br />
-				If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, try turning this feature off.
-			</div>
+		</div>
+		<div class="formRow" id="forceScreenCaptureContainer">
+			<input type="checkbox" id="forceScreenCapture" class='option' />
+			<label for="forceScreenCapture" class="cbLabel" data-tooltip="Suspending tabs that have been zoomed (anything other than 100%) can cause
+significant CPU load.
+
+By default, zoomed tabs will not generate screen capture previews.">
+				Enable screen capture on zoomed tabs&nbsp;&nbsp;<i class="tooltipIcon fa fa-question-circle"></i>
+			</label>
 		</div>
 
 
@@ -120,7 +133,7 @@ You can also specify regular expressions by enclosing the text in forward slashe
 
 /^https:.*google\.com/">
 
-				<i class="fa fa-question-circle"></i>
+				<i class="tooltipIcon fa fa-question-circle"></i>
 			</span>
 		</h2>
 		<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
@@ -136,7 +149,7 @@ You can also specify regular expressions by enclosing the text in forward slashe
 with the same profile.
 
 This will also synchronise settings in incognito mode.">
-				Sync settings between different systems&nbsp;&nbsp;<i class="fa fa-question-circle"></i>
+				Sync settings between different systems&nbsp;&nbsp;<i class="tooltipIcon fa fa-question-circle"></i>
 			</label>
  			<div id="syncNote" class="gsNote">
 				Turning this on will overwrite settings on all synced systems
