@@ -47,7 +47,6 @@
             titleEl = document.getElementById('gsTitle'),
             topBarEl = document.getElementById('gsTopBarTitle'),
             whitelistEl = document.getElementById('gsWhitelistLink'),
-            linkedUrlEl = document.getElementById('gsLinkedUrl'),
             topBarImgEl = document.getElementById('gsTopBarImg');
 
         //try to fetch saved tab information for this url
@@ -107,16 +106,8 @@
             topBarEl.setAttribute('href', url);
             topBarImgEl.setAttribute('src', favicon);
 
-            if (tabProperties.fakeTab && tabProperties.url) {
-                linkedUrlEl.style.display = 'block';
-                linkedUrlEl.setAttribute('href', tabProperties.url);
-                linkedUrlEl.innerHTML = tabProperties.url;
-                whitelistEl.style.display = 'none';
-
-            } else {
-                whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
-                whitelistEl.setAttribute('data-text', rootUrlStr);
-            }
+            whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
+            whitelistEl.setAttribute('data-text', rootUrlStr);
         });
     }
 

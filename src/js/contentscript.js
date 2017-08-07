@@ -27,7 +27,7 @@
         chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
             //set timer job
-            if (response && response.suspendTime > 0) {
+            if (response && !isNaN(Number(response.suspendTime))) {
 
                 var suspendTime = response.suspendTime * (1000*60);
                 timerJob = setTimerJob(suspendTime);
@@ -144,11 +144,6 @@
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
         if (timeToSuspend > (1000*60)) {
             timeToSuspend = timeToSuspend + parseInt((Math.random() * 1000*60), 10);
-        }
-
-        //safety check to make sure timeToSuspend is reasonable
-        if (timeToSuspend < (1000*10)) {
-            timeToSuspend = (1000*60*60);
         }
 
         suspendDateTime = new Date((new Date()).getTime() + timeToSuspend);

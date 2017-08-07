@@ -16,6 +16,7 @@ var tgs = (function () {
     var debug = false,
         sessionId,
         lastSelectedTabByWindowId = {},
+        isNewBackgroundTabByTabId = {},
         globalCurrentTabId,
         sessionSaveTimer,
         chargingMode = false,
@@ -40,7 +41,7 @@ var tgs = (function () {
         }
     }
 
-    function saveSuspendData(tab, tabPropertyOverrides, callback) {
+    function saveSuspendData(tab, callback) {
 
         var tabProperties,
             favUrl;
@@ -60,10 +61,6 @@ var tgs = (function () {
             index: tab.index,
             windowId: tab.windowId
         };
-
-        Object.keys(tabPropertyOverrides).forEach(function (prop) {
-            tabProperties[prop] = tabPropertyOverrides[prop];
-        });
 
         //add suspend information to suspendedTabInfo
         gsUtils.addSuspendedTabInfo(tabProperties, function() {
@@ -103,7 +100,7 @@ var tgs = (function () {
     function confirmTabSuspension(tab, tabInfo) {
 
         var scrollPos = tabInfo.scrollPos || '0';
-        saveSuspendData(tab, {}, function() {
+        saveSuspendData(tab, function() {
 
             //if we need to save a preview image
             if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
@@ -205,35 +202,6 @@ var tgs = (function () {
         });
     }
 
-    function openLinkInSuspendedTab(parentTab, linkedUrl) {
-
-        var googleParams = linkedUrl.match(/^https:\/\/www.google.[^\/]+.\/url\?(.*)/);
-
-        //test if the linkedUrl is a google search result
-        if (googleParams && googleParams.length === 2) {
-            googleParams = googleParams[1].split('&');
-
-            googleParams.forEach(function (param) {
-                if (param.indexOf('url=') === 0) {
-                    linkedUrl = decodeURIComponent(param.substring(4));
-                }
-            });
-        }
-
-        var suspendedUrl = gsUtils.generateSuspendedUrl(linkedUrl, linkedUrl),
-            index = parentTab.index + 1,
-            tabPropertyOverrides = {
-                url: linkedUrl,
-                fakeTab: true,
-                pinned: false,
-                index: index
-            };
-
-        saveSuspendData(parentTab, tabPropertyOverrides, function() {
-            chrome.tabs.create({ url: suspendedUrl, index: index, active: false });
-        });
-    }
-
     function suspendHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
@@ -262,7 +230,6 @@ var tgs = (function () {
             });
         });
     }
-
 
     function suspendAllTabsInAllWindows() {
         chrome.tabs.query({}, function (tabs) {
@@ -819,19 +786,12 @@ var tgs = (function () {
 
     function buildContextMenu(showContextMenu) {
 
-        var allContexts = ["page", "frame", "editable", "image", "video", "audio"];
+        var allContexts = ["page", "frame", "selection", "link", "editable", "image", "video", "audio"];
 
         chrome.contextMenus.removeAll();
 
         if (showContextMenu) {
 
-            chrome.contextMenus.create({
-                title: "Open link in new suspended tab",
-                contexts:["link"],
-                onclick: function (info, tab) {
-                  openLinkInSuspendedTab(tab, info.linkUrl);
-                }
-            });
             chrome.contextMenus.create({
                 title: "Suspend tab",
                 contexts: allContexts,
@@ -927,9 +887,16 @@ var tgs = (function () {
 
         switch (request.action) {
         case 'initTab':
+
+            var suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME);
+            var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
+            if (sender.tab && instantlySuspend && isNewBackgroundTabByTabId[sender.tab.id]) {
+                delete isNewBackgroundTabByTabId[sender.tab.id];
+                suspendTime = 0;
+            }
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
-                suspendTime: gsUtils.getOption(gsUtils.SUSPEND_TIME),
+                suspendTime: suspendTime,
                 screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
                 scrollPos: scrollPosByTabId[sender.tab.id] || '0'
             });
@@ -1093,15 +1060,12 @@ var tgs = (function () {
         });
     });
 
-    //listen for focus changes
     chrome.windows.onFocusChanged.addListener(function (windowId) {
         handleWindowFocusChanged(windowId);
     });
     chrome.tabs.onActivated.addListener(function (activeInfo) {
         handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
     });
-
-    //add listeners for session monitoring
     chrome.tabs.onCreated.addListener(function(tab) {
         queueSessionTimer();
     });
@@ -1112,6 +1076,12 @@ var tgs = (function () {
             delete unsuspendRequestList[tabId];
         }
         lastTabCloseTimestamp = new Date();
+    });
+    chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {
+        var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
+        if (instantlySuspend) {
+            isNewBackgroundTabByTabId[details.tabId] = true;
+        }
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
