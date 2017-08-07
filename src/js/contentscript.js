@@ -93,7 +93,8 @@
 
             //check where we need to capture the whole screen
             if (screenCapture === '2') {
-                height = Math.max(document.body.scrollHeight,
+                height = Math.max(window.innerHeight,
+                    document.body.scrollHeight,
                     document.body.offsetHeight,
                     document.documentElement.clientHeight,
                     document.documentElement.scrollHeight,
@@ -101,7 +102,7 @@
                 // cap the max height otherwise it fails to convert to a data url
                 height = Math.min(height, 10000);
             } else {
-                height = Math.min(document.body.offsetHeight, window.innerHeight);
+                height = window.innerHeight;
             }
 
             html2canvas(document.body,{
