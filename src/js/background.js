@@ -290,9 +290,23 @@ var tgs = (function () {
     }
 
     function unsuspendAllTabsInAllWindows() {
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (currentTab) {
-                if (isSuspended(currentTab)) unsuspendTab(currentTab);
+        chrome.windows.getCurrent({}, function (currentWindow) {
+            chrome.tabs.query({}, function (tabs) {
+                // Because of the way that unsuspending steals window focus, we defer the suspending of tabs in the
+                // current window until last
+                var deferredTabs = [];
+                tabs.forEach(function (tab) {
+                    if (isSuspended(tab)) {
+                        if (tab.windowId === currentWindow.id) {
+                            deferredTabs.push(tab);
+                        } else {
+                            unsuspendTab(tab);
+                        }
+                    }
+                });
+                deferredTabs.forEach(function (tab) {
+                    unsuspendTab(tab);
+                });
             });
         });
     }
