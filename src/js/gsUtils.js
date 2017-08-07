@@ -689,6 +689,12 @@
             });
             return suspendedTabCount;
         },
+        isExtensionTabOpen: function (tabName) {
+            var tabFound = chrome.extension.getViews({type: 'tab'}).some(function (window) {
+                return (window.location.href.indexOf(tabName + '.html') > 0);
+            });
+            return tabFound;
+        },
 
         htmlEncode: function (text) {
             return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;

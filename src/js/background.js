@@ -640,15 +640,15 @@ var tgs = (function () {
 
             //check for possible crash
             checkForCrashRecovery(false);
+
+            //trim excess dbItems
+            if (lastVersion > 6.12) {
+                gsUtils.trimDbItems();
+            }
         }
 
         //inject new content script into all open pages
         reinjectContentScripts();
-
-        //trim excess dbItems
-        if (lastVersion > 6.12) {
-            gsUtils.trimDbItems();
-        }
 
         //add context menu items
         buildContextMenu(contextMenus);
@@ -1065,8 +1065,8 @@ var tgs = (function () {
     chrome.runtime.onUpdateAvailable.addListener(function (details) {
         var currentVersion = chrome.runtime.getManifest().version;
         var newVersion = details.version;
-        console.log('A new tgut version is available: ' + newVersion);
-        console.log('Upgrading from: ' + currentVersion)
+
+        console.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
 
         var currentSession;
         gsUtils.fetchSessionById(sessionId).then(function (session) {
@@ -1082,7 +1082,9 @@ var tgs = (function () {
             }
         }).then(function () {
             if (gsUtils.getSuspendedTabCount() > 0) {
-                chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                if (!gsUtils.isExtensionTabOpen('update')) {
+                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                }
 
                 // if there are no suspended tabs then simply install the update immediately
             } else {
