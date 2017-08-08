@@ -159,7 +159,10 @@
                 setAutoSuspendOptionsVisibility(interval > 0);
 
             } else if (pref === gsUtils.SYNC_SETTINGS) {
-                setSyncNoteVisibility(!getOptionValue(element));
+                // we only really want to show this on load. not on toggle
+                if (getOptionValue(element)) {
+                    setSyncNoteVisibility(false);
+                }
             }
         };
     }
@@ -181,40 +184,6 @@
         if (oldValue !== newValue) {
             updatedPreferences.push(pref);
         }
-    }
-
-    function performPostSaveUpdates(updatedPreferences) {
-
-        //if interval, or form input preferences have changed then reset the content scripts
-        var preferencesToUpdate = [];
-        if (contains(updatedPreferences, gsUtils.SUSPEND_TIME)) {
-            preferencesToUpdate.push(gsUtils.SUSPEND_TIME);
-        }
-        if (contains(updatedPreferences, gsUtils.IGNORE_FORMS)) {
-            preferencesToUpdate.push(gsUtils.IGNORE_FORMS);
-        }
-        if (preferencesToUpdate.length > 0) {
-            chrome.extension.getBackgroundPage().tgs.resetContentScripts(preferencesToUpdate);
-        }
-
-        //if context menu has been disabled then remove from chrome
-        if (contains(updatedPreferences, gsUtils.ADD_CONTEXT)) {
-            var addContextMenu = gsUtils.getOption(gsUtils.ADD_CONTEXT);
-            chrome.extension.getBackgroundPage().tgs.buildContextMenu(addContextMenu);
-        }
-
-        //if theme or preview settings have changed then refresh all suspended pages
-        if (contains(updatedPreferences, gsUtils.THEME) ||
-                contains(updatedPreferences, gsUtils.SCREEN_CAPTURE)) {
-            chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
-        }
-    }
-
-    function contains(array, value) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i] == value) return true;
-        }
-        return false;
     }
 
     function closeSettings() {
@@ -255,8 +224,8 @@
 
                 // Push out all our saved settings to sync storage.
                 gsUtils.syncSettings();
+                gsUtils.performPostSaveUpdates(updatedPreferences);
 
-                performPostSaveUpdates(updatedPreferences);
                 closeSettings();
             };
             cancelEl.onclick = function (e) {

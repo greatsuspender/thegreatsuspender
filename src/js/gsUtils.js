@@ -65,23 +65,71 @@
         * LOCAL STORAGE FUNCTIONS
         */
 
+        //populate localstorage settings with sync settings where undefined
+        initSettings: function () {
+            var that = this;
+            var rawLocalSettings = localStorage.getItem('gsSettings') || {};
+            var defaultSettings = gsUtils.getSettingsDefaults();
+            var shouldSyncSettings = rawLocalSettings[that.SYNC_SETTINGS] || defaultSettings[that.SYNC_SETTINGS];
+            var allSettingKeys = Object.keys(defaultSettings);
+            chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
+
+                // if synced setting exists and local setting does not exist or syncing is turned on
+                // then overwrite with synced value
+                var newSettings = {};
+                allSettingKeys.forEach(function (key) {
+                    if (key !== that.SYNC_SETTINGS && syncedSettings[key] && (!rawLocalSettings[key] || shouldSyncSettings)) {
+                        newSettings[key] = syncedSettings[key];
+                    }
+                    //make sure we have a value for this key
+                    newSettings[key] = newSettings[key] || rawLocalSettings[key] || defaultSettings[key];
+                });
+                that.saveSettings(newSettings);
+
+                // if any of the new settings are different to those in sync, then trigger a resync
+                var triggerResync = false;
+                allSettingKeys.forEach(function (key) {
+                    if (key !== that.SYNC_SETTINGS && syncedSettings[key] !== newSettings[key]) {
+                        triggerResync = true;
+                    }
+                });
+                if (triggerResync) {
+                    this.syncSettings(newSettings);
+                }
+            });
+
+            // Listen for changes to synced settings
+            chrome.storage.onChanged.addListener(function(remoteSettings, namespace) {
+                if (namespace !== 'sync' || !remoteSettings) {
+                    return;
+                }
+                var shouldSync = that.getOption(that.SYNC_SETTINGS);
+                if (shouldSync) {
+                    var localSettings = that.getSettings();
+                    var changedSettingKeys = [];
+                    Object.keys(remoteSettings).forEach(function (key) {
+                        var remoteSetting = remoteSettings[key];
+                        if (localSettings[key] !== remoteSetting.newValue) {
+                            console.log('Changed value from sync', key, remoteSetting.newValue);
+                            changedSettingKeys.push(key);
+                            localSettings[key] = remoteSetting.newValue;
+                        }
+                    });
+
+                    if (changedSettingKeys.length > 0) {
+                        that.saveSettings(localSettings);
+                        that.performPostSaveUpdates(changedSettingKeys);
+                    }
+                }
+            });
+        },
+
+
         //due to migration issues and new settings being added, i have built in some redundancy
         //here so that getOption will always return a valid value.
         getOption: function (prop) {
-            var that = this,
-                settings = this.getSettings(),
-                defaults;
-
-            if (prop != this.SYNC_SETTINGS && settings[this.SYNC_SETTINGS]) {
-                // Overlay sync updates in the local data store.  Like sync
-                // itself, we just guarantee eventual consistency.
-                chrome.storage.sync.get([prop], function(syncSettings) {
-                    if (syncSettings[prop] !== undefined && syncSettings[prop] !== settings[prop]) {
-                        // console.log('updating local setting with synced one. ' + prop + ' = ' + syncSettings[prop]);
-                        that.setOption(prop, syncSettings[prop]);
-                    }
-                });
-            }
+            var settings = this.getSettings(),
+              defaults;
 
             //test that option exists in settings object
             if (typeof(settings[prop]) === 'undefined' || settings[prop] === null) {
@@ -117,13 +165,41 @@
             localStorage.setItem('gsSettings', JSON.stringify(settings));
         },
 
+        // Push settings to sync
         syncSettings: function () {
             var settings = this.getSettings();
             if (settings[this.SYNC_SETTINGS]) {
                 // Since sync is a local setting, delete it to simplify things.
                 delete settings[this.SYNC_SETTINGS];
-                // console.log('Pushing local settings to sync');
+                console.log('Pushing local settings to sync', settings);
                 chrome.storage.sync.set(settings, this.noop);
+            }
+        },
+
+        performPostSaveUpdates: function (changedSettingKeys) {
+
+            //if interval, or form input preferences have changed then reset the content scripts
+            var preferencesToUpdate = [];
+            if (this.contains(changedSettingKeys, gsUtils.SUSPEND_TIME)) {
+                preferencesToUpdate.push(gsUtils.SUSPEND_TIME);
+            }
+            if (this.contains(changedSettingKeys, gsUtils.IGNORE_FORMS)) {
+                preferencesToUpdate.push(gsUtils.IGNORE_FORMS);
+            }
+            if (preferencesToUpdate.length > 0) {
+                chrome.extension.getBackgroundPage().tgs.resetContentScripts(preferencesToUpdate);
+            }
+
+            //if context menu has been disabled then remove from chrome
+            if (this.contains(changedSettingKeys, gsUtils.ADD_CONTEXT)) {
+                var addContextMenu = gsUtils.getOption(gsUtils.ADD_CONTEXT);
+                chrome.extension.getBackgroundPage().tgs.buildContextMenu(addContextMenu);
+            }
+
+            //if theme or preview settings have changed then refresh all suspended pages
+            if (this.contains(changedSettingKeys, gsUtils.THEME) ||
+              this.contains(changedSettingKeys, gsUtils.SCREEN_CAPTURE)) {
+                chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
             }
         },
 
@@ -148,7 +224,9 @@
                     whitelistItems.splice(i, 1);
                 }
             }
-            this.setOption(this.WHITELIST, whitelistItems.join('\n'));
+            var whitelistString = whitelistItems.join('\n');
+            this.setOption(this.WHITELIST, whitelistString);
+            this.syncSettings({ [this.WHITELIST]: whitelistString });
         },
 
         testForMatch: function (whitelistItem, word) {
@@ -187,6 +265,7 @@
             whitelist = whitelist ? whitelist + '\n' + newString : newString;
             whitelist = this.cleanupWhitelist(whitelist);
             this.setOption(this.WHITELIST, whitelist);
+            this.syncSettings({ [this.WHITELIST]: whitelist });
         },
 
         cleanupWhitelist: function (whitelist) {
@@ -697,6 +776,13 @@
                 return (window.location.href.indexOf(tabName + '.html') > 0);
             });
             return tabFound;
+        },
+
+        contains: function (array, value) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i] == value) return true;
+            }
+            return false;
         },
 
         htmlEncode: function (text) {
