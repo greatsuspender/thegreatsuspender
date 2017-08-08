@@ -46,21 +46,21 @@
 		</div>
 	  	<div class="modal-body">
 	    	<div class="radio">
-		    	<input type="radio" name="whitelistOption" id="whitelist_site" checked />
-		    	<label for="whitelist_site">All of <span id="fullUrl">this domain</span></label>	
+		    	<input type="radio" name="whitelistOption" id="whitelistSite" checked />
+		    	<label for="whitelistSite">All of <span id="fullUrl">this domain</span></label>
 		    </div>
 		    <div class="radio">
-		    	<input type="radio" name="whitelistOption" id="whitelist_page" />
-		    	<label for="whitelist_page">Just this page</label>
+		    	<input type="radio" name="whitelistOption" id="whitelistPage" />
+		    	<label for="whitelistPage">Just this page</label>
 		    </div>
 		    <div class="radio">
-			    <input type="radio" name="whitelistOption" id="whitelist_temporary" />
-		    	<label for="whitelist_temporary">Just this tab, this session only</label>
+			    <input type="radio" name="whitelistOption" id="whitelistTemporary" />
+		    	<label for="whitelistTemporary">Just this tab, this session only</label>
 		    </div>
 		    <p>Whitelisted sites won't be automatically suspended.</p>
 	  	</div>
 		<div class="modal-footer">
-			<div class="btn">OK</div>
+			<div id="confirmWhitelistBtn" class="btn">OK</div>
 			<div class="btn close" style="background: #bbb;">Cancel</div>
 		</div>
 	</div>
