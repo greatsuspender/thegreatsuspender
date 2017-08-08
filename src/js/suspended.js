@@ -118,7 +118,7 @@
         var url = gsUtils.getSuspendedUrl(window.location.href);
         chrome.extension.getBackgroundPage().tgs.scrollPosByTabId[tabId] = gsUtils.getSuspendedScrollPosition(window.location.href);
         document.getElementById('suspendedMsg').innerHTML = "";
-        document.getElementById('refreshSpinner').classList.add('spinner')
+        document.getElementById('refreshSpinner').classList.add('spinner');
         window.location.replace(url);
     }
 
@@ -127,11 +127,14 @@
         var rootUrl = e.target.getAttribute('data-root-url');
         console.log(rootUrl);
         console.log(fullUrl);
-        var whitelistText = window.prompt('Enter string to add to whitelist:', fullUrl);
-        if (whitelistText) {
-            gsUtils.saveToWhitelist(whitelistText);
-            unsuspendTab();
-        }
+        // var whitelistText = window.prompt('Enter string to add to whitelist:', fullUrl);
+        // if (whitelistText) {
+        //     gsUtils.saveToWhitelist(whitelistText);
+        //     unsuspendTab();
+        // }
+
+        document.getElementById('fullUrl').innerHTML = rootUrl;
+
     }
 
     window.onload = function () {
@@ -154,6 +157,26 @@
                 action: 'requestUnsuspendTab'
             });
         });
+
+        //modal listners
+        var modal = document.getElementById('whitelistOptionsModal');
+        var btn = document.getElementById('gsWhitelistLink');
+        var closeLinks = document.querySelectorAll('.close');
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+        Array.from(closeLinks).forEach(link => {
+            link.addEventListener('click', function(event) {
+                modal.style.display = "none";
+            });
+        });
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
 
         //show dude and donate link (randomly 1 of 20 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
