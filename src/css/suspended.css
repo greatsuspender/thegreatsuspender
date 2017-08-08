@@ -45,7 +45,7 @@ body {
     overflow-x:hidden;
     overflow-y:hidden;
 }
-a {
+a, span {
     color: #3889AB;
     text-decoration: none;
     font-weight: 400;
@@ -101,8 +101,13 @@ a {
 #gsTopBarTitle:hover {
     text-decoration: underline;
 }
-#gsWhitelistLink {
+#gsReloadLink {
+    cursor: pointer;
+}
+#gsReloadLink:hover {
     text-decoration: underline;
+}
+#gsWhitelistLink {
     cursor: pointer;
 }
 #gsPreview {

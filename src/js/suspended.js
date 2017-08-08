@@ -37,6 +37,7 @@
     function attemptTabSuspend() {
         var url = gsUtils.getSuspendedUrl(window.location.href),
             rootUrlStr = gsUtils.getRootUrl(url),
+            fullUrlStr = gsUtils.getRootUrl(url, true),
             scrollPos = gsUtils.getSuspendedScrollPosition(window.location.href),
             showPreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0',
             scrollImagePreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2',
@@ -46,6 +47,7 @@
             messageEl = document.getElementById('suspendedMsg'),
             titleEl = document.getElementById('gsTitle'),
             topBarEl = document.getElementById('gsTopBarTitle'),
+            reloadEl = document.getElementById('gsReloadLink'),
             whitelistEl = document.getElementById('gsWhitelistLink'),
             topBarImgEl = document.getElementById('gsTopBarImg');
 
@@ -106,8 +108,9 @@
             topBarEl.setAttribute('href', url);
             topBarImgEl.setAttribute('src', favicon);
 
-            whitelistEl.innerText = 'Add ' + rootUrlStr + ' to whitelist';
-            whitelistEl.setAttribute('data-text', rootUrlStr);
+            whitelistEl.setAttribute('data-root-url', rootUrlStr);
+            whitelistEl.setAttribute('data-full-url', fullUrlStr);
+            reloadEl.setAttribute('href', url);
         });
     }
 
@@ -120,8 +123,15 @@
     }
 
     function saveToWhitelist(e) {
-        gsUtils.saveToWhitelist(e.target.getAttribute('data-text'));
-        unsuspendTab();
+        var fullUrl = e.target.getAttribute('data-full-url');
+        var rootUrl = e.target.getAttribute('data-root-url');
+        console.log(rootUrl);
+        console.log(fullUrl);
+        var whitelistText = window.prompt('Enter string to add to whitelist:', fullUrl);
+        if (whitelistText) {
+            gsUtils.saveToWhitelist(whitelistText);
+            unsuspendTab();
+        }
     }
 
     window.onload = function () {

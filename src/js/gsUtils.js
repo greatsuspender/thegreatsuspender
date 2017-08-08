@@ -742,7 +742,7 @@
             return Math.abs(hash);
         },
 
-        getRootUrl: function (url) {
+        getRootUrl: function (url, includePath) {
             var rootUrlStr;
 
             url = url || '';
@@ -750,13 +750,30 @@
                 url = gsUtils.getSuspendedUrl(url);
             }
 
+            // remove scheme
             rootUrlStr = url;
             if (rootUrlStr.indexOf('//') > 0) {
                 rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
             } else {
                 rootUrlStr = url;
             }
-            rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+
+            // remove path
+            if (!includePath) {
+                rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+
+            } else {
+                // remove query string
+                var match = rootUrlStr.match(/\/?[\?\#]+/);
+                if (match) {
+                    rootUrlStr = rootUrlStr.substring(0, match.index);
+                }
+                // remove trailing slash
+                match = rootUrlStr.match(/\/$/);
+                if (match) {
+                    rootUrlStr = rootUrlStr.substring(0, match.index);
+                }
+            }
 
             return rootUrlStr;
         },
