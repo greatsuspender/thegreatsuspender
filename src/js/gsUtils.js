@@ -94,7 +94,7 @@
                     }
                 });
                 if (triggerResync) {
-                    this.syncSettings(newSettings);
+                    that.syncSettings(newSettings);
                 }
             });
 
