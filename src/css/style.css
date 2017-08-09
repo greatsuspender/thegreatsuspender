@@ -27,19 +27,11 @@
   font-weight: 600;
   src: url('../fonts/open-sans-600.woff2') format('woff2');
 }
-@font-face {
-  font-family: 'Open Sans';
-  font-style: bold;
-  font-weight: 700;
-  src: url('../fonts/open-sans-700.woff2') format('woff2');
-}
-
 
 /* RESET */
 
 html, body, div, span, applet, object, iframe,
-
-, h2, h3, h4, h5, h6, p, blockquote, pre,
+h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
@@ -58,7 +50,7 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
-
+* { box-sizing: border-box; }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
@@ -67,21 +59,26 @@ footer, header, hgroup, menu, nav, section {
 ol, ul {
 	list-style: none;
 }
-
 /* END RESET */
-
 
 body {
 	font-family: 'Open Sans', sans-serif;
-    font-weight: 300;
 	font-size: 15px;
     background: #cfe0e4;
-    padding: 0;
-    margin: 0;
     color: #444;
 }
-select {
-    color: #444;
+body.suspended-page {
+    background: #cfe0e4;
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow-x:hidden;
+    overflow-y:hidden;
+}
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 p {
 	margin: 0 0 15px;
@@ -89,16 +86,15 @@ p {
 a {
     color: #3889AB;
     text-decoration: none;
-    font-weight: 400;
+    cursor: pointer;
 }
 a:hover {
     text-decoration: underline;
 }
 a.active{
-    color: #444;
+    //color: #444;
     cursor: default;
-    font-weight: 600;
-    text-decoration: none;
+    //text-decoration: none;
 }
 hr {
     border-width: 0;
@@ -106,7 +102,6 @@ hr {
     height: 1px;
     margin: 23px 0;
 }
-
 .fl {
     float: left;
     margin-right: 10px;
@@ -115,14 +110,9 @@ hr {
     float: right;
     margin-left: 10px;
 }
-h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
 .pageHeader {
     background: #134960;
     color: #fff;
-    font-weight: normal;
     height: 63px;
     line-height: 63px;
     margin: 0;
@@ -133,7 +123,6 @@ img.headerIcon {
     margin: 19px 5px 0 0;
     float: right;
 }
-
 select {
     min-width: 150px;
 }
@@ -144,7 +133,6 @@ select {
     padding: 10px 30px 10px 10px;
     font-size: 14px;
     border-color: #ccc;
-    /* TODO: make this better / more scalable */
     background-image: url(/img/ddArrow.png);
     background-repeat: no-repeat;
     background-position: 90% 16px;
@@ -157,7 +145,6 @@ textarea {
     width: 100%;
     border-color: #C3C3C3;
     font-size: 16px;
-    font-weight: 300;
     padding: 3px 5px;
     white-space: nowrap;
 }
@@ -172,7 +159,6 @@ ul.unorderedList li {
     margin: 0 0 3 10px;
     list-style: disc;
 }
-
 .splash {
     font-size: 16px;
     width: 900px;
@@ -195,7 +181,6 @@ ul.unorderedList li {
     float: left;
     padding-right: 25px;
 }
-
 .btn {
     background: #52a6c8;
     color: #fff;
@@ -216,15 +201,15 @@ ul.unorderedList li {
     color: #333;
 }
 .btn.btnNeg:hover {
-    background: #DDD;
+    background: #ccc;
 }
-.btn.secondary {
+/*.btn.secondary {
     background: #E3F7FC;
     color: #666;
 }
 .btn.secondary:hover {
     background: #CBF1FA;
-}
+}*/
 .btnDonate {
     font-family: 'Open Sans', sans-serif;
     margin: 0 5px;
@@ -245,7 +230,6 @@ ul.unorderedList li {
 .lesserText {
     color: #929292;
     font-size: 0.8em;
-    font-weight: 300;
 }
 .hidden {
 	visibility: hidden;
@@ -253,13 +237,10 @@ ul.unorderedList li {
 .mainContent {
     width: 900px;
     margin: 40px auto;
-    color: #444;
     background: #fff;
     overflow: hidden;
-
 }
 .contentNav, .content {
-    box-sizing: border-box;
     float: left;
     padding: 20px 50px 40px;
 }
@@ -286,14 +267,6 @@ ul.unorderedList li {
     font-size: 16px;
     font-weight: 600;
 }
-
-#heading {
-	white-space: nowrap;
-	text-align: center;
-	font-size: 17px;
-	text-shadow: 0 1px 0 white;
-	margin: 0 0 8px;
-}
 .gsNote {
 	font-style: italic;
     font-size: 12px;
@@ -301,7 +274,7 @@ ul.unorderedList li {
     padding: 5px;
     margin-top: 5px;
 }
-#gsHistory a, #gsHistory a:visited {
+/*#gsHistory a, #gsHistory a:visited {
 	color: #444;
 	font-size: 13px;
 	text-decoration: none;
@@ -311,8 +284,9 @@ ul.unorderedList li {
 }
 #gsHistory h2 {
 	clear: both;
-}
-.historyRow {
+}*/
+
+/*.historyRow {
 	clear: both;
 }
 .historyRow a, .historyRow img, .historyRow span {
@@ -326,7 +300,7 @@ ul.unorderedList li {
 }
 .historyRow img, .historyRow span {
 	white-space: nowrap;
-}
+}*/
 .sessionLink {
     cursor: pointer;
 }
@@ -346,7 +320,7 @@ div.recoveryLink > * {
     vertical-align: middle;
 }
 a.historyLink {
-    font-weight: normal;
+    padding-left: 5px;
     color: #333;
     font-size: 13px;
     text-decoration: none;
@@ -363,6 +337,8 @@ a.historyLink:hover {
     color: black;
     opacity: .7;
 }
+
+/*TODO find places this is used. use new style instead (look for modal-wrapper)*/
 .modal {
     position: absolute;
     top: 0;
@@ -379,12 +355,6 @@ a.historyLink:hover {
     z-index: 2000;
     display: none;
 }
-#gsHistory span {
-    font-style: italic;
-    font-size: 11px;
-    color: #aaa;
-    padding-left: 10px;
-}
 .windowHeading {
     font-size: 13px;
     font-weight: bold;
@@ -398,7 +368,6 @@ a.historyLink:hover {
 .groupLink {
     margin: 0 0 0 10px;
     font-size: 11px;
-    font-weight: normal;
 }
 .recoveryLink .itemHover {
     visibility: hidden;
@@ -409,19 +378,19 @@ a.historyLink:hover {
 .recoveryLink:hover .itemHover {
     visibility: visible;
 }
-img {
+/*img {
     padding-right: 10px;
-}
+}*/
 
-ul, li {
+/*ul, li {
     list-style-type: none;
     margin: 0;
     padding: 0;
-}
-table, tr, td {
+}*/
+/*table, tr, td {
 	padding: 0 20px 0 5px;
 	white-space: nowrap;
-}
+}*/
 #screenCaptureNotice {
     display: none;
     clear: left;
@@ -429,12 +398,287 @@ table, tr, td {
     background: rgb(255, 247, 202);
     padding: 10px 0 10px 10px;
 }
-#screenCaptureNotice p {
+/*#screenCaptureNotice p {
     font-size: 15px;
+}*/
+/*#previewsOffBtn:hover {
+    cursor: pointer;
+}*/
+
+/* suspended tab styles */
+
+.gsTopBar  {
+    position: fixed;
+    background: #efefef;
+    top: 0;
+    padding: 15px 0;
+    line-height: 30px;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    color: #444;
+    border-bottom: 1px solid #aaa;
+    box-shadow: 0 0 4px -2px rgba(0, 0, 0, 0.5);
 }
-#previewsOffBtn:hover {
+.gsTitleWrap {
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.gsTopBarTitle {
+    font-size: 19px;
+    line-height: 26px;
+    color: rgb(68, 68, 68);
+    font-weight: 300;
     cursor: pointer;
 }
+.gsReloadLink {
+    cursor: pointer;
+}
+.gsPreview {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    text-align: center;
+}
+.gsPreviewImg {
+    display: block;
+    max-width: 100%;
+    margin: 86px auto 0;
+}
+.centerBoxContainer {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+.centerBox {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+}
+.suspendedMsg {
+    width: 100%;
+    height: 100%;
+}
+.suspendedMsg, .gsPreview {
+    cursor: pointer;
+}
+.suspendedMsg h1, .suspendedMsg h2 {
+    font-size: 60px;
+    color: #134960;
+    margin: 30px 0 0;
+    font-weight: 600;
+}
+.suspendedMsg h2 {
+    font-size: 50px;
+}
+@media all and (max-width: 600px) {
+    .suspendedMsg h1 {
+        font-size: 45px;
+    }
+    .suspendedMsg h2 {
+        font-size: 55px;
+    }
+}
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+.spinner:before {
+    content: '';
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    margin-top: -40px;
+    margin-left: -40px;
+    border-radius: 50%;
+    border: 8px solid #7aa4ae;
+    border-top-color: #134960;
+    animation: spinner .6s linear infinite;
+}
+#dudePopup {
+    position: fixed;
+    left: 30px;
+    bottom: -240px;
+}
+
+@-webkit-keyframes silde_to_top {
+    0% {
+        bottom: -240px;
+    }
+    100% {
+        bottom: 10px;
+        z-index: 1000000;
+    }
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+#dudePopup.poppedup {
+    -webkit-animation-name: silde_to_top;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: ease;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-direction: normal;
+    -webkit-animation-delay: 0.5s;
+    -webkit-animation-play-state: running;
+    -webkit-animation-fill-mode: forwards;
+
+    animation-name: silde_to_top;
+    animation-duration: 1s;
+    animation-timing-function: ease;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-delay: 0.5s;
+    animation-play-state: running;
+    animation-fill-mode: forwards;
+}
+
+#donateBubble {
+    position: relative;
+    width: 365px;
+    height: 120px;
+    padding: 5px 10px;
+    background: #E7F3F8;
+    border: #87BACE solid 1px;
+    border-radius: 4px;
+    color: #555;
+    bottom: 50px;
+    left: 133px;
+    position: fixed;
+    text-align: center;
+    font-size: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+}
+
+#donateBubble:after {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: -15px;
+    border-style: solid;
+    border-width: 15px 15px 15px 0;
+    border-color: transparent #E7F3F8;
+    display: block;
+    width: 0;
+    z-index: 1;
+}
+
+#donateBubble:before {
+    content: "";
+    position: absolute;
+    top: 19px;
+    left: -16px;
+    border-style: solid;
+    border-width: 15px 15px 15px 0;
+    border-color: transparent #87BACE;
+    display: block;
+    width: 0;
+    z-index: 0;
+}
+
+#donateBubble .btn {
+    margin: 10px 5px;
+    padding: 0 15px;
+}
+#donateBubble.fadeIn {
+    -webkit-animation: fadein 0.7s;
+    animation: fadein 0.7s;
+    -webkit-animation-fill-mode:forwards;
+    -webkit-animation-delay: 1.5s;
+}
+
+/* dark theme for night lurkers */
+.dark .gsTopBar {
+    background: #CDCDCD;
+}
+.dark .suspendedMsg, .dark {
+    background: #134960;
+}
+.dark .suspendedMsg h1, .dark .suspendedMsg h2 {
+    color: #7AA4AE;
+}
+/* end suspended tab styles */
+
+/* Modal Content */
+.modal-wrapper {
+    display: none; 
+    position: fixed;
+    z-index: 9999999;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 400px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.3s;
+    animation-name: animatetop;
+    animation-duration: 0.3s
+}
+@-webkit-keyframes animatetop {
+    from {top:-100px; opacity:0} 
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-100px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.close-x {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: -5px;
+}
+.close-x:hover,
+.close-x:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+.modal-header {
+    padding: 10px 15px;
+    background-color: #01579B;
+    color: white;
+}
+.modal-header h2 {
+    font-weight: normal;
+    margin: 0;
+    font-size: 18px;
+}
+.modal-body {
+    padding: 2px 16px;
+}
+.modal-footer {
+    padding: 10px 15px;
+    background-color: #eee;
+}
+
 
 /* custom checkboxes */
 .cbLabel {
@@ -455,6 +699,59 @@ input[type=checkbox]:before { content:""; display:inline-block; width:20px; heig
 input[type=checkbox]:before { background: url(/img/checkOff.png) #fff;}
 input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 
+/* custom radio btns */
+.radio {
+    position: relative;
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.radio input[type="radio"] {
+    opacity: 0;
+    z-index: 1;
+}
+.radio input[type="radio"]:checked+label::before {
+    border-color: #52a6c8;
+}
+.radio input[type="radio"]:checked+label::after {
+    transform: scale(1, 1);
+}
+.radio input[type="radio"]:checked+label::after {
+    background-color: #52a6c8;
+}
+.radio label {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    padding-left: 5px;
+}
+.radio label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    top: 2px;
+    margin-left: -20px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: #fff;
+}
+.radio label::after {
+    display: inline-block;
+    position: absolute;
+    content: " ";
+    width: 13px;
+    height: 13px;
+    left: 3px;
+    top: 5px;
+    margin-left: -20px;
+    border-radius: 50%;
+    background-color: #555;
+    -webkit-transform: scale(0, 0);
+    transform: scale(0, 0);
+}
 
 /**
  * Tooltip Styles (https://chrisbracco.com/a-simple-css-tooltip/)
@@ -462,12 +759,10 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 .tooltipIcon {
     color: #444;
 }
-
 [data-tooltip] {
     position: relative;
     z-index: 2;
 }
-
 /* Hide the tooltip content by default */
 [data-tooltip]:before,
 [data-tooltip]:after {
@@ -508,3 +803,4 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
     filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
     opacity: 1;
 }
+

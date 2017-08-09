@@ -16,12 +16,6 @@
   font-weight: 600;
   src: url('../fonts/open-sans-600.woff2') format('woff2');
 }
-@font-face {
-  font-family: 'Open Sans';
-  font-style: bold;
-  font-weight: 700;
-  src: url('../fonts/open-sans-700.woff2') format('woff2');
-}
 
 body {
 	font-family: 'Open Sans', sans-serif;

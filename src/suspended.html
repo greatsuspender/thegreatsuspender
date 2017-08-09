@@ -4,19 +4,19 @@
 	<title id="gsTitle">Suspended Tab</title>
 	<link id="gsFavicon" rel="icon" href="img/icon16.png" />
 	<script type="text/javascript" src="js/suspended.js"></script>
-	<link type="text/css" href="css/suspended.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
-<body>
+<body class="suspended-page">
 
-<div id="gsTopBar">
-	<div id="gsTitleWrap">
-		<img id='gsTopBarImg' /> <a id='gsTopBarTitle'></a>
+<div id="gsTopBar" class="gsTopBar">
+	<div id="gsTitleWrap" class="gsTitleWrap">
+		<img id="gsTopBarImg" class="gsTopBarImg" /> <a id="gsTopBarTitle" class="gsTopBarTitle"></a>
 	</div>
-	<a id='gsReloadLink'>Reload tab</a>
+	<a id="gsReloadLink" class="gsReloadLink">Reload tab</a>
 	<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-	<a id='gsWhitelistLink'>Whitelist tab</a>
+	<a id="gsWhitelistLink" class="gsWhitelistLink">Whitelist tab</a>
 </div>
-<div id="suspendedMsg" class="centerBoxContainer">
+<div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
     <div class="centerBox">
 		<h1>Tab suspended</h1>
 		<h2>Click to reload</h2>
@@ -25,20 +25,20 @@
 <div id="refreshSpinner"></div>
 
 <script type="text/html" id="previewTemplate">
-	<div id="gsPreview">
-	    <img id='gsPreviewImg' />
+	<div id="gsPreview" class="gsPreview">
+	    <img id="gsPreviewImg" class="gsPreviewImg" />
 	</div>
 </script>
 
 <script type="text/html" id="donateTemplate">
 	<img id="dudePopup" src="img/dude.png" style="float: left;">
 	<div id="donateBubble">
-		<div style="font-size: 15px; margin-bottom: 10px;">Does this extension make you happy?</div>
+		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;">Does this extension make you happy?</div>
 	    <div id="donateButtons" />
 	</div>
 </script>
 
-<div id="whitelistOptionsModal" class="modal">
+<div id="whitelistOptionsModal" class="modal-wrapper">
 	<div class="modal-content">
 		<div class="modal-header">
 			<span class="close close-x">&times;</span>
@@ -57,7 +57,7 @@
 			    <input type="radio" name="whitelistOption" id="whitelistTemporary" />
 		    	<label for="whitelistTemporary">Just this tab, this session only</label>
 		    </div>
-		    <p>Whitelisted sites won't be automatically suspended.</p>
+		    <p class="lesserText">Whitelisted sites won't be automatically suspended.</p>
 	  	</div>
 		<div class="modal-footer">
 			<div id="confirmWhitelistBtn" class="btn">OK</div>

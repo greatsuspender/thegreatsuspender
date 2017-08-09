@@ -168,7 +168,8 @@
 
         //set theme
         if (gsUtils.getOption(gsUtils.THEME) === 'dark') {
-            document.querySelector('body').className = 'dark';
+            var body = document.querySelector('body');
+            body.className += ' dark';
         }
 
         //add an unload listener to send an unsuspend request on page unload
