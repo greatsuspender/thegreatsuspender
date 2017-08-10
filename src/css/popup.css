@@ -1,24 +1,5 @@
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 300;
-  src: url('../fonts/open-sans-300.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: url('../fonts/open-sans-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 600;
-  src: url('../fonts/open-sans-600.woff2') format('woff2');
-}
-
 body {
-	font-family: 'Open Sans', sans-serif;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	font-weight: 200;
 	color: #444;
 	padding: 0;

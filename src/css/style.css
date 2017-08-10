@@ -9,25 +9,6 @@
 
 */
 
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 300;
-  src: url('../fonts/open-sans-300.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: url('../fonts/open-sans-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 600;
-  src: url('../fonts/open-sans-600.woff2') format('woff2');
-}
-
 /* RESET */
 
 html, body, div, span, applet, object, iframe,
@@ -60,9 +41,9 @@ ol, ul {
 	list-style: none;
 }
 /* END RESET */
-
+* {box-sizing: border-box;}
 body {
-	font-family: 'Open Sans', sans-serif;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	font-size: 15px;
     background: #cfe0e4;
     color: #444;
@@ -92,9 +73,9 @@ a:hover {
     text-decoration: underline;
 }
 a.active{
-    //color: #444;
     cursor: default;
-    //text-decoration: none;
+    color: #444;
+    pointer-events: none;
 }
 hr {
     border-width: 0;
@@ -141,7 +122,6 @@ input, select, button {
     margin-bottom: 8px;
 }
 textarea {
-    font-family: 'Open Sans', sans-serif;
     width: 100%;
     border-color: #C3C3C3;
     font-size: 16px;
@@ -203,15 +183,8 @@ ul.unorderedList li {
 .btn.btnNeg:hover {
     background: #ccc;
 }
-/*.btn.secondary {
-    background: #E3F7FC;
-    color: #666;
-}
-.btn.secondary:hover {
-    background: #CBF1FA;
-}*/
 .btnDonate {
-    font-family: 'Open Sans', sans-serif;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
     margin: 0 5px;
     float: left;
 }
@@ -274,33 +247,6 @@ ul.unorderedList li {
     padding: 5px;
     margin-top: 5px;
 }
-/*#gsHistory a, #gsHistory a:visited {
-	color: #444;
-	font-size: 13px;
-	text-decoration: none;
-}
-#gsHistory a:hover {
-	text-decoration: underline;
-}
-#gsHistory h2 {
-	clear: both;
-}*/
-
-/*.historyRow {
-	clear: both;
-}
-.historyRow a, .historyRow img, .historyRow span {
-	float: left;
-}
-.historyRow a {
-	max-width: 380px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-.historyRow img, .historyRow span {
-	white-space: nowrap;
-}*/
 .sessionLink {
     cursor: pointer;
 }
@@ -378,19 +324,6 @@ a.historyLink:hover {
 .recoveryLink:hover .itemHover {
     visibility: visible;
 }
-/*img {
-    padding-right: 10px;
-}*/
-
-/*ul, li {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}*/
-/*table, tr, td {
-	padding: 0 20px 0 5px;
-	white-space: nowrap;
-}*/
 #screenCaptureNotice {
     display: none;
     clear: left;
@@ -398,15 +331,8 @@ a.historyLink:hover {
     background: rgb(255, 247, 202);
     padding: 10px 0 10px 10px;
 }
-/*#screenCaptureNotice p {
-    font-size: 15px;
-}*/
-/*#previewsOffBtn:hover {
-    cursor: pointer;
-}*/
 
 /* suspended tab styles */
-
 .gsTopBar  {
     position: fixed;
     background: #efefef;
@@ -468,7 +394,7 @@ a.historyLink:hover {
     font-size: 60px;
     color: #134960;
     margin: 30px 0 0;
-    font-weight: 600;
+    font-weight: normal;
 }
 .suspendedMsg h2 {
     font-size: 50px;
@@ -514,12 +440,10 @@ a.historyLink:hover {
         z-index: 1000000;
     }
 }
-
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
-
 @-webkit-keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
@@ -684,7 +608,7 @@ a.historyLink:hover {
 .cbLabel {
     line-height: 20px;
     display: inline-block;
-    padding-left: 10px;
+    padding-left: 5px;
     vertical-align: top;
 }
 input[type=checkbox] {
