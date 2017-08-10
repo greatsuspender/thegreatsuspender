@@ -1,4 +1,4 @@
-/*global chrome */
+/*global chrome, sessionUtils */
 
 (function () {
 
@@ -13,14 +13,14 @@
 
         for (var i = 0; i < childLinks.length; i++) {
             var element = childLinks[i];
-            if (element.getAttribute('data-url') === tab.url
-                    || element.getAttribute('data-tabId') == tab.id) { //do a loose match on id here
+            if (element.getAttribute('data-url') === tab.url ||
+                    element.getAttribute('data-tabId') == tab.id) { // eslint-disable-line eqeqeq
                 recoveryLinksEl.removeChild(element);
             }
         }
 
         //if removing the last element
-        if (recoveryLinks.children.length === 0) {
+        if (recoveryLinksEl.children.length === 0) {
 
             //if we have already clicked the restore button then redirect to success page
             if (restoreAttempted) {
@@ -60,7 +60,7 @@
                         tabProperties.windowId = window.id;
                         tabProperties.sessionId = lastSession.sessionId;
                         tabEl = sessionUtils.createTabHtml(tabProperties, true);
-                        tabEl.onclick = function(e) {
+                        tabEl.onclick = function (e) {
                             e.preventDefault();
                             chrome.tabs.create({url: tabProperties.url, active: false});
                             removeTabFromList(tabProperties);
@@ -76,8 +76,7 @@
     function sendMessageToTab(tabId, message, callback) {
         try {
             chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
-        }
-        catch(e) {
+        } catch (e) {
             chrome.tabs.sendMessage(tabId, message, callback);
         }
     }
@@ -108,7 +107,7 @@
 
             var handleAutoRestore = function () {
                 restoreAttempted = true;
-                restoreEl.className += " btnDisabled";
+                restoreEl.className += ' btnDisabled';
                 gsUtils.recoverLostTabs(checkForActiveTabs);
                 restoreEl.removeEventListener('click', handleAutoRestore);
             };

@@ -1,4 +1,4 @@
-/*global chrome, localStorage */
+/*global chrome, localStorage, db */
 (function (window) {
 
     'use strict';
@@ -35,7 +35,7 @@
         DB_CURRENT_SESSIONS: 'gsCurrentSessions',
         DB_SAVED_SESSIONS: 'gsSavedSessions',
 
-        noop: function() {},
+        noop: function () {},
 
         getSettingsDefaults: function () {
 
@@ -60,8 +60,7 @@
             return defaults;
         },
 
-
-       /**
+        /**
         * LOCAL STORAGE FUNCTIONS
         */
 
@@ -99,7 +98,7 @@
             });
 
             // Listen for changes to synced settings
-            chrome.storage.onChanged.addListener(function(remoteSettings, namespace) {
+            chrome.storage.onChanged.addListener(function (remoteSettings, namespace) {
                 if (namespace !== 'sync' || !remoteSettings) {
                     return;
                 }
@@ -124,15 +123,14 @@
             });
         },
 
-
         //due to migration issues and new settings being added, i have built in some redundancy
         //here so that getOption will always return a valid value.
         getOption: function (prop) {
             var settings = this.getSettings(),
-              defaults;
+                defaults;
 
             //test that option exists in settings object
-            if (typeof(settings[prop]) === 'undefined' || settings[prop] === null) {
+            if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
                 defaults = this.getSettingsDefaults();
                 this.setOption(prop, defaults[prop]);
                 return defaults[prop];
@@ -241,8 +239,8 @@
 
                 whitelistItem = whitelistItem.substring(1, whitelistItem.length - 1);
                 try {
-                    new RegExp(whitelistItem);
-                } catch(e) {
+                    new RegExp(whitelistItem); // eslint-disable-line no-new
+                } catch (e) {
                     return false;
                 }
                 return new RegExp(whitelistItem).test(word);
@@ -251,13 +249,6 @@
             } else {
                 return word.indexOf(whitelistItem) >= 0;
             }
-        },
-
-        globStringToRegex: function (str) {
-            return new RegExp(this.preg_quote(str).replace(/\\\*/g, '.*').replace(/\\\?/g, '.'), 'g');
-        },
-        preg_quote: function (str, delimiter) {
-            return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
         },
 
         saveToWhitelist: function (newString) {
@@ -314,8 +305,7 @@
             localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
         },
 
-
-       /**
+        /**
         * INDEXEDDB FUNCTIONS
         */
 
@@ -378,9 +368,9 @@
             callback = typeof callback !== 'function' ? this.noop : callback;
 
             this.getDb().then(function (s) {
-                return s.query(self.DB_PREVIEWS , 'url')
-                        .only(tabUrl)
-                        .execute();
+                return s.query(self.DB_PREVIEWS, 'url')
+                    .only(tabUrl)
+                    .execute();
 
             }).then(function (results) {
                 if (results.length > 0) {
@@ -396,19 +386,19 @@
                 server;
             this.getDb().then(function (s) {
                 server = s;
-                return server.query(self.DB_PREVIEWS , 'url')
-                        .only(tabUrl)
-                        .execute();
+                return server.query(self.DB_PREVIEWS, 'url')
+                    .only(tabUrl)
+                    .execute();
 
             }).then(function (results) {
                 if (results.length > 0) {
-                  return server.remove(self.DB_PREVIEWS, results[0].id);
+                    return server.remove(self.DB_PREVIEWS, results[0].id);
                 } else {
-                  return Promise.resolve();
+                    return Promise.resolve();
                 }
-            }).then(function() {
+            }).then(function () {
                 server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
-                if (typeof(callback) === "function") callback();
+                if (typeof callback === 'function') callback();
             });
         },
 
@@ -426,30 +416,30 @@
                 server = s;
                 return server.query(self.DB_SUSPENDED_TABINFO).filter('url', tabProperties.url).execute();
 
-            }).then(function(results) {
+            }).then(function (results) {
                 if (results.length > 0) {
                     return server.remove(self.DB_SUSPENDED_TABINFO, results[0].id);
                 } else {
                     return Promise.resolve();
                 }
-            }).then(function() {
-              server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
-                  if (typeof(callback) === "function") callback();
-              });
+            }).then(function () {
+                server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function () {
+                    if (typeof callback === 'function') callback();
+                });
             });
         },
 
         fetchTabInfo: function (tabUrl) {
             var self = this;
             return this.getDb().then(function (s) {
-                return s.query(self.DB_SUSPENDED_TABINFO , 'url' )
-                        .only(tabUrl)
-                        .distinct()
-                        .desc()
-                        .execute()
-                        .then(function(results) {
-                            return results.length > 0 ? results[0] : null;
-                        });
+                return s.query(self.DB_SUSPENDED_TABINFO, 'url')
+                    .only(tabUrl)
+                    .distinct()
+                    .desc()
+                    .execute()
+                    .then(function (results) {
+                        return results.length > 0 ? results[0] : null;
+                    });
             });
         },
 
@@ -467,16 +457,16 @@
                 server = s;
                 return server.query(tableName).filter('sessionId', session.sessionId).execute();
 
-            }).then(function(result) {
+            }).then(function (result) {
                 if (result.length > 0) {
                     result = result[0];
                     session.id = result.id; //copy across id from matching session
                     session.date = (new Date()).toISOString();
-                    return server.update(tableName , session); //then update based on that id
+                    return server.update(tableName, session); //then update based on that id
                 } else {
                     return server.add(tableName, session);
                 }
-            }).then(function(result) {
+            }).then(function (result) {
                 if (result.length > 0) {
                     callback(result[0]);
                 }
@@ -494,18 +484,18 @@
 
             //if it's a saved session (prefixed with an underscore)
             var tableName = sessionId.indexOf('_') === 0
-                    ? this.DB_SAVED_SESSIONS
-                    : this.DB_CURRENT_SESSIONS;
+                ? this.DB_SAVED_SESSIONS
+                : this.DB_CURRENT_SESSIONS;
 
             return this.getDb().then(function (s) {
-                return s.query(tableName, 'sessionId' )
-                        .only(sessionId)
-                        .distinct()
-                        .desc()
-                        .execute()
-                        .then(function(results) {
-                    return results.length > 0 ? results[0] : null;
-                });
+                return s.query(tableName, 'sessionId')
+                    .only(sessionId)
+                    .distinct()
+                    .desc()
+                    .execute()
+                    .then(function (results) {
+                        return results.length > 0 ? results[0] : null;
+                    });
             });
         },
 
@@ -514,32 +504,32 @@
                 currentSessionId,
                 lastSession = null;
 
-            currentSessionId = typeof(chrome.extension.getBackgroundPage) !== 'undefined'
+            currentSessionId = typeof chrome.extension.getBackgroundPage !== 'undefined'
                 ? chrome.extension.getBackgroundPage().tgs.sessionId
                 : '';
 
             return this.getDb().then(function (s) {
                 return s.query(self.DB_CURRENT_SESSIONS, 'id')
-                        .all()
-                        .desc()
-                        .execute()
-                        .then(function(results) {
+                    .all()
+                    .desc()
+                    .execute()
+                    .then(function (results) {
 
-                    if (results.length > 0) {
-                        results.some(function(curSession) {
+                        if (results.length > 0) {
+                            results.some(function (curSession) {
 
-                            //don't want to match on current session
-                            if (curSession.sessionId !== currentSessionId) {
-                                lastSession = curSession;
-                                return true;
-                            }
-                        });
-                        return lastSession;
+                                //don't want to match on current session
+                                if (curSession.sessionId !== currentSessionId) {
+                                    lastSession = curSession;
+                                    return true;
+                                }
+                            });
+                            return lastSession;
 
-                    } else {
-                        return null;
-                    }
-                });
+                        } else {
+                            return null;
+                        }
+                    });
             });
         },
 
@@ -571,15 +561,6 @@
             });
         },
 
-        clearTabInfo: function () {
-            var self = this;
-
-            this.getDb().then(function (s) {
-                s.clear(self.DB_PREVIEWS);
-                s.clear(self.DB_SUSPENDED_TABINFO);
-            });
-        },
-
         removeTabFromSessionHistory: function (sessionId, windowId, tabId, callback) {
 
             var self = this,
@@ -587,12 +568,12 @@
 
             callback = typeof callback !== 'function' ? this.noop : callback;
 
-            this.fetchSessionById(sessionId).then(function(gsSession) {
+            this.fetchSessionById(sessionId).then(function (gsSession) {
 
                 gsSession.windows.some(function (curWindow, windowIndex) {
                     matched = curWindow.tabs.some(function (curTab, tabIndex) {
-                    //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                        if (curTab.id == tabId || curTab.url == tabId) {
+                        //leave this as a loose matching as sometimes it is comparing strings. other times ints
+                        if (curTab.id == tabId || curTab.url == tabId) { // eslint-disable-line eqeqeq
                             curWindow.tabs.splice(tabIndex, 1);
                             return true;
                         }
@@ -608,14 +589,14 @@
 
                 //update session
                 if (gsSession.windows.length > 0) {
-                    self.updateSession(gsSession, function(session) {
+                    self.updateSession(gsSession, function (session) {
                         callback(session);
                     });
 
                 //or remove session if it no longer contains any windows
                 } else {
-                    self.removeSessionFromHistory(sessionId, function(session) {
-                        callback(false);
+                    self.removeSessionFromHistory(sessionId, function (session) {
+                        callback();
                     });
                 }
             });
@@ -635,10 +616,10 @@
                 server = s;
                 return server.query(tableName).filter('sessionId', sessionId).execute();
 
-            }).then(function(result) {
+            }).then(function (result) {
                 if (result.length > 0) {
                     session = result[0];
-                    server.remove(tableName , session.id);
+                    server.remove(tableName, session.id);
                 }
             }).then(callback);
         },
@@ -703,15 +684,13 @@
             });
         },
 
-
-
-       /**
+        /**
         * HELPER FUNCTIONS
         */
 
         //turn this into a string to make comparisons easier further down the track
         generateSessionId: function () {
-            return Math.floor(Math.random() * 1000000) + "";
+            return Math.floor(Math.random() * 1000000) + '';
         },
 
         generateSuspendedUrl: function (url, title, scrollPos) {
@@ -723,7 +702,7 @@
             return chrome.extension.getURL('suspended.html' + args);
         },
 
-        getHashVariable: function(key, urlStr) {
+        getHashVariable: function (key, urlStr) {
 
             var valuesByKey = {},
                 keyPairRegEx = /^(.+)=(.+)/,
@@ -752,10 +731,10 @@
             });
             return valuesByKey[key] || false;
         },
-        getSuspendedTitle: function(urlStr) {
+        getSuspendedTitle: function (urlStr) {
             return decodeURIComponent(this.getHashVariable('ttl', urlStr) || '');
         },
-        getSuspendedScrollPosition: function(urlStr) {
+        getSuspendedScrollPosition: function (urlStr) {
             return decodeURIComponent(this.getHashVariable('pos', urlStr) || '');
         },
         getSuspendedUrl: function (urlStr) {
@@ -780,7 +759,7 @@
 
         contains: function (array, value) {
             for (var i = 0; i < array.length; i++) {
-                if (array[i] == value) return true;
+                if (array[i] === value) return true;
             }
             return false;
         },
@@ -790,26 +769,26 @@
         },
 
         getHumanDate: function (date) {
-            var m_names = ['January', 'February', 'March', 'April', 'May',
-                'June', 'July', 'August', 'September', 'October', 'November',
-                'December'],
+            var monthNames = ['January', 'February', 'March', 'April', 'May',
+                    'June', 'July', 'August', 'September', 'October', 'November',
+                    'December'],
                 d = new Date(date),
-                curr_date = d.getDate(),
-                sup,
-                curr_month = d.getMonth(),
-                curr_year = d.getFullYear();
+                currentDate = d.getDate(),
+                suffix,
+                currentMonth = d.getMonth(),
+                currentYear = d.getFullYear();
 
-            if (curr_date === 1 || curr_date === 21 || curr_date === 31) {
-                sup = 'st';
-            } else if (curr_date === 2 || curr_date === 22) {
-                sup = 'nd';
-            } else if (curr_date === 3 || curr_date === 23) {
-                sup = 'rd';
+            if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
+                suffix = 'st';
+            } else if (currentDate === 2 || currentDate === 22) {
+                suffix = 'nd';
+            } else if (currentDate === 3 || currentDate === 23) {
+                suffix = 'rd';
             } else {
-                sup = 'th';
+                suffix = 'th';
             }
 
-            return curr_date + sup + ' ' + m_names[curr_month] + ' ' + curr_year;
+            return currentDate + suffix + ' ' + monthNames[currentMonth] + ' ' + currentYear;
         },
 
         getChromeVersion: function () {
@@ -819,10 +798,10 @@
 
         generateHashCode: function (text) {
             var hash = 0, i, chr, len;
-            if (text.length == 0) return hash;
+            if (!text) return hash;
             for (i = 0, len = text.length; i < len; i++) {
-                chr   = text.charCodeAt(i);
-                hash  = ((hash << 5) - hash) + chr;
+                chr = text.charCodeAt(i);
+                hash = ((hash << 5) - hash) + chr;
                 hash |= 0; // Convert to 32bit integer
             }
             return Math.abs(hash);
@@ -850,7 +829,7 @@
 
             } else {
                 // remove query string
-                var match = rootUrlStr.match(/\/?[\?\#]+/);
+                var match = rootUrlStr.match(/\/?[?#]+/);
                 if (match) {
                     rootUrlStr = rootUrlStr.substring(0, match.index);
                 }
@@ -898,11 +877,9 @@
 
         recoverWindow: function (sessionWindow, windowsMap, tabMap) {
 
-            var self = this,
-                tgs = chrome.extension.getBackgroundPage().tgs,
+            var tgs = chrome.extension.getBackgroundPage().tgs,
                 tabIdMap = {},
                 tabUrlMap = {},
-                suspendedUrl,
                 openTab;
 
             //if crashed window exists in current session then restore suspended tabs in that window
@@ -920,8 +897,8 @@
                 sessionWindow.tabs.forEach(function (sessionTab) {
 
                     //if current tab does not exist then recreate it
-                    if (!tgs.isSpecialTab(sessionTab)
-                            && !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
+                    if (!tgs.isSpecialTab(sessionTab) &&
+                            !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
                         chrome.tabs.create({
                             windowId: sessionWindow.id,
                             url: sessionTab.url,
@@ -948,7 +925,7 @@
             var window = false;
             session.windows.some(function (curWindow) {
                 //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                if (curWindow.id == windowId) {
+                if (curWindow.id == windowId) { // eslint-disable-line eqeqeq
                     window = curWindow;
                     return true;
                 }
@@ -965,9 +942,7 @@
             this.updateSession(session);
         },
 
-
-
-       /**
+        /**
         * MIGRATIONS
         */
 
@@ -989,13 +964,13 @@
                 }).then(function (savedSessions) {
                     savedSessions.forEach(function (session, index) {
                         if (session.id === 7777) {
-                            session.sessionId = "_7777";
-                            session.name = "Recovered tabs";
+                            session.sessionId = '_7777';
+                            session.name = 'Recovered tabs';
                             session.date = (new Date(session.date)).toISOString();
                         } else {
                             session.sessionId = '_' + self.generateHashCode(session.name);
                         }
-                        server.update(self.DB_SAVED_SESSIONS , session);
+                        server.update(self.DB_SAVED_SESSIONS, session);
                     });
                 });
             }
@@ -1018,15 +993,15 @@
 
                 chrome.cookies.getAll({}, function (cookies) {
                     var scrollPosByTabId = {};
-                    cookies.forEach(function(cookie)  {
+                    cookies.forEach(function (cookie) {
                         if (cookie.name.indexOf('gsScrollPos') === 0) {
                             if (cookie.value && cookie.value !== '0') {
                                 var tabId = cookie.name.substr(12);
                                 scrollPosByTabId[tabId] = cookie.value;
                             }
-                            var prefix = cookie.secure ? "https://" : "http://";
-                            if (cookie.domain.charAt(0) === ".") {
-                                prefix += "www";
+                            var prefix = cookie.secure ? 'https://' : 'http://';
+                            if (cookie.domain.charAt(0) === '.') {
+                                prefix += 'www';
                             }
                             var url = prefix + cookie.domain + cookie.path;
                             chrome.cookies.remove({ 'url': url, 'name': cookie.name });

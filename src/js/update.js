@@ -26,10 +26,10 @@
                     }
                 } else {
                     suspendedTabCountEl.innerHTML = 'You have no suspended tabs. It is now safe to update the extension :)';
-                    unsuspendedAllBtnEl.style = "display: none";
+                    unsuspendedAllBtnEl.style = 'display: none';
                 }
                 return suspendedTabCount;
-            }
+            };
 
             unsuspendedAllBtnEl.onclick = function (e) {
 

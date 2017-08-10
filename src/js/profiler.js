@@ -31,7 +31,7 @@
                 currentTabs[tabs[i].id] = tabs[i];
 
                 chrome.runtime.sendMessage({ action: 'requestTabInfo', tabId: curTab.id }, function (suspendInfo) {
-                    var html = '',
+                    var html,
                         tableEl = document.getElementById('gsProfilerBody');
 
                     suspendInfo.tab = curTab;

@@ -1,9 +1,34 @@
-/*global chrome */
+/* global chrome, XMLHttpRequest */
 
 (function () {
 
     'use strict';
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+
+    function toggleNag(hideNag) {
+        gsUtils.setOption(gsUtils.NO_NAG, hideNag);
+    }
+
+    function loadDonateButtons() {
+        document.getElementById('donateButtons').innerHTML = this.responseText;
+
+        var donateBtns = document.getElementsByClassName('btnDonate'),
+            i;
+
+        for (i = 0; i < donateBtns.length; i++) {
+            donateBtns[i].onclick = function () {
+                toggleNag(true);
+            };
+        }
+        document.getElementById('alreadyDonatedToggle').onclick = function () {
+            toggleNag(true);
+            window.location.reload();
+        };
+        document.getElementById('donateAgainToggle').onclick = function () {
+            toggleNag(false);
+            window.location.reload();
+        };
+    }
 
     var readyStateCheckInterval = window.setInterval(function () {
         if (document.readyState === 'complete') {
@@ -18,34 +43,9 @@
                 document.getElementById('donatedSection').style.display = 'block';
             }
 
-            function toggleNag(hideNag) {
-                gsUtils.setOption(gsUtils.NO_NAG, hideNag);
-            }
-
-            function loadDonateButtons() {
-                document.getElementById("donateButtons").innerHTML = this.responseText;
-
-                var donateBtns = document.getElementsByClassName('btnDonate'),
-                    i;
-
-                for (i = 0; i < donateBtns.length; i++) {
-                  donateBtns[i].onclick = function() {
-                    toggleNag(true);
-                  };
-                }
-                document.getElementById('alreadyDonatedToggle').onclick = function() {
-                    toggleNag(true);
-                    window.location.reload();
-                };
-                document.getElementById('donateAgainToggle').onclick = function() {
-                    toggleNag(false);
-                    window.location.reload();
-                };
-            }
-
             var request = new XMLHttpRequest();
             request.onload = loadDonateButtons;
-            request.open("GET", "support.html", true);
+            request.open('GET', 'support.html', true);
             request.send();
         }
     }, 50);

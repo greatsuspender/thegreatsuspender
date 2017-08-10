@@ -1,7 +1,7 @@
 /*global chrome, html2canvas */
 /*
  * The Great Suspender
- * Copyright (C) 2015 Dean Oemcke
+ * Copyright (C) 2017 Dean Oemcke
  * Available under GNU GENERAL PUBLIC LICENSE v2
  * http://github.com/deanoemcke/thegreatsuspender
  * ლ(ಠ益ಠლ)
@@ -29,7 +29,7 @@
             //set timer job
             if (response && !isNaN(Number(response.suspendTime))) {
 
-                var suspendTime = response.suspendTime * (1000*60);
+                var suspendTime = response.suspendTime * (1000 * 60);
                 timerJob = setTimerJob(suspendTime);
             }
 
@@ -39,7 +39,7 @@
             }
 
             //handle auto-scrolling
-            if (response && response.scrollPos && response.scrollPos !== "" && response.scrollPos !== "0") {
+            if (response && response.scrollPos && response.scrollPos !== '' && response.scrollPos !== '0') {
                 document.body.scrollTop = response.scrollPos;
             }
         });
@@ -47,8 +47,7 @@
     }
 
     function calculateState() {
-        var status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
-        return status;
+        return inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
     }
 
     function buildTabStateObject(state) {
@@ -105,11 +104,11 @@
                 height = window.innerHeight;
             }
 
-            html2canvas(document.body,{
+            html2canvas(document.body, {
                 height: height,
                 width: document.body.clientWidth,
                 imageTimeout: 1000,
-                onrendered: function(canvas) {
+                onrendered: function (canvas) {
                     if (processing) {
                         processing = false;
                         timer = (new Date() - timer) / 1000;
@@ -135,8 +134,8 @@
     function setTimerJob(timeToSuspend) {
 
         //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
-        if (timeToSuspend > (1000*60)) {
-            timeToSuspend = timeToSuspend + parseInt((Math.random() * 1000*60), 10);
+        if (timeToSuspend > (1000 * 60)) {
+            timeToSuspend = timeToSuspend + parseInt((Math.random() * 1000 * 60), 10);
         }
 
         suspendDateTime = new Date((new Date()).getTime() + timeToSuspend);
@@ -153,9 +152,9 @@
     function formInputListener(event) {
         if (!inputState && !tempWhitelist) {
             if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
-                if (event.target.tagName.toUpperCase() === 'INPUT'
-                  || event.target.tagName.toUpperCase() === 'TEXTAREA'
-                  || event.target.tagName.toUpperCase() === 'FORM') {
+                if (event.target.tagName.toUpperCase() === 'INPUT' ||
+                        event.target.tagName.toUpperCase() === 'TEXTAREA' ||
+                        event.target.tagName.toUpperCase() === 'FORM') {
                     inputState = true;
                     var tabState = buildTabStateObject();
                     chrome.runtime.sendMessage(tabState);
@@ -166,9 +165,6 @@
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        var response = {},
-            status;
-
         //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
 
         switch (request.action) {
@@ -178,7 +174,7 @@
             if (request.hasOwnProperty('suspendTime')) {
                 clearTimeout(timerJob);
                 if (request.suspendTime > 0) {
-                    timerJob = setTimerJob(request.suspendTime * (1000*60));
+                    timerJob = setTimerJob(request.suspendTime * (1000 * 60));
                 } else {
                     suspendDateTime = false;
                 }
@@ -190,45 +186,41 @@
                 }
                 inputState = inputState && request.ignoreForms;
             }
-            break;
+            return false;
 
         //listen for status request
         case 'requestInfo':
-            //console.log(suspendDateString);
             sendResponse(buildTabStateObject());
-            break;
+            return false;
 
         //cancel suspension timer job
         case 'cancelTimer':
             clearTimeout(timerJob);
             suspendDateTime = false;
-            break;
+            return false;
 
         //listen for request to temporarily whitelist the tab
         case 'tempWhitelist':
-            status = inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
-            response = {status: status};
             tempWhitelist = true;
-            break;
+            return false;
 
         //listen for request to undo temporary whitelisting
         case 'undoTempWhitelist':
             inputState = false;
             tempWhitelist = false;
-            response = {status: 'normal'};
-            break;
+            return false;
 
         //listen for preview request
         case 'generatePreview':
             generatePreviewImg(request.suspendedUrl, request.screenCapture, request.forceScreenCapture);
-            break;
+            return false;
 
         //listen for suspend request
         case 'confirmTabSuspend':
             if (request.suspendedUrl) {
                 suspendTab(request.suspendedUrl);
             }
-            break;
+            return false;
         }
     });
 

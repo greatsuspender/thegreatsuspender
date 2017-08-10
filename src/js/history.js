@@ -1,4 +1,4 @@
-/*global chrome, gsUtils, render, createWindowHtml, createTabHtml */
+/*global chrome, sessionUtils */
 
 (function () {
 

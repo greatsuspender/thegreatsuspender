@@ -1,11 +1,10 @@
-/*global chrome, gsUtils, createWindowHtml, createTabHtml */
+/*global chrome */
 
-var sessionUtils = (function () {
+//sessionUtils is put into global scope for use by recovery.js
+var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
     'use strict';
-    var tgs = chrome.extension.getBackgroundPage().tgs,
-        gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function hideModal() {
         document.getElementById('sessionNameModal').style.display = 'none';
@@ -35,7 +34,7 @@ var sessionUtils = (function () {
                     windows = session.windows;
                 }
 
-                windows.forEach(function(window) {
+                windows.forEach(function (window) {
 
                     chrome.windows.create(function (newWindow) {
                         window.tabs.forEach(function (curTab) {
@@ -81,13 +80,13 @@ var sessionUtils = (function () {
 
     function deleteSession(sessionId) {
 
-        gsUtils.removeSessionFromHistory(sessionId, function() {
+        gsUtils.removeSessionFromHistory(sessionId, function () {
             window.location.reload();
         });
     }
 
     function exportSession(sessionId) {
-        var csvContent = "data:text/csv;charset=utf-8,",
+        var csvContent = 'data:text/csv;charset=utf-8,',
             dataString = '';
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
@@ -98,7 +97,7 @@ var sessionUtils = (function () {
 
             session.windows.forEach(function (curWindow, index) {
                 curWindow.tabs.forEach(function (curTab, tabIndex) {
-                    if (curTab.url.indexOf("suspended.html") > 0) {
+                    if (curTab.url.indexOf('suspended.html') > 0) {
                         dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
                     } else {
                         dataString += curTab.url + '\n';
@@ -108,9 +107,9 @@ var sessionUtils = (function () {
             csvContent += dataString;
 
             var encodedUri = encodeURI(csvContent);
-            var link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "session.txt");
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'session.txt');
             link.click();
         });
     }
@@ -125,7 +124,7 @@ var sessionUtils = (function () {
                 sessionEl,
                 newSessionEl;
 
-            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function(session) {
+            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function (session) {
                 //if we have a valid session returned
                 if (session) {
                     sessionEl = element.parentElement.parentElement;
@@ -176,10 +175,9 @@ var sessionUtils = (function () {
         };
     }
 
-
     function createSessionHtml(session) {
         session.windows = session.windows || [];
-        var savedSession = session.name ? true : false,
+        var savedSession = (session.name && true) || false,
             sessionContainer,
             sessionTitle,
             sessionSave,
@@ -190,7 +188,7 @@ var sessionUtils = (function () {
             windowReload,
             titleText,
             winCnt = session.windows.length,
-            tabCnt = session.windows.reduce(function(a, b) {return a + b.tabs.length;}, 0);
+            tabCnt = session.windows.reduce(function (a, b) { return a + b.tabs.length; }, 0);
 
         if (savedSession) {
             titleText = session.name + ' (' + winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ')';

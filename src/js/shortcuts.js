@@ -8,8 +8,7 @@
         if (document.readyState === 'complete') {
 
             window.clearInterval(readyStateCheckInterval);
-            var optionEls = document.getElementsByClassName('option'),
-                shortcutsEl = document.getElementById('keyboardShortcuts'),
+            var shortcutsEl = document.getElementById('keyboardShortcuts'),
                 configureShortcutsEl = document.getElementById('configureShortcuts'),
                 count = 0;
 

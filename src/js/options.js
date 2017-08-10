@@ -1,4 +1,4 @@
-/*global gsUtils, chrome, invert, populateOption, setForceScreenCaptureVisibility, setOnlineCheckVisibility, setAudibleNoteVisibility */
+/*global chrome */
 
 (function () {
 
@@ -6,7 +6,6 @@
 
     var gsUtils,
         elementPrefMap,
-        elementIdMap,
         readyStateCheckInterval;
 
     function initialise() {
@@ -29,20 +28,6 @@
             'theme': gsUtils.THEME,
             'whitelist': gsUtils.WHITELIST
         };
-        elementIdMap = invert(elementPrefMap);
-    }
-
-    function invert(obj) {
-
-        var new_obj = {},
-            prop;
-
-        for (prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
-                new_obj[obj[prop]] = prop;
-            }
-        }
-        return new_obj;
     }
 
     function selectComboBox(element, key) {
@@ -64,7 +49,6 @@
         var optionEls = document.getElementsByClassName('option'),
             pref,
             element,
-            command,
             i;
 
         for (i = 0; i < optionEls.length; i++) {
@@ -131,7 +115,7 @@
     }
 
     function setAutoSuspendOptionsVisibility(visible) {
-        Array.prototype.forEach.call(document.getElementsByClassName('autoSuspendOption'), function(el) {
+        Array.prototype.forEach.call(document.getElementsByClassName('autoSuspendOption'), function (el) {
             if (visible) {
                 el.style.display = 'block';
             } else {
@@ -191,7 +175,7 @@
         //else, go back to the page we were on.
         //this is to fix closing tabs if they were opened from the context menu.
         if (window.history.length > 1) {
-            history.back();
+            window.history.back();
         } else {
             window.close();
         }

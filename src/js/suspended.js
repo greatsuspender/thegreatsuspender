@@ -1,4 +1,4 @@
-/*global window, document, chrome, console */
+/*global window, document, chrome, console, Image, XMLHttpRequest */
 
 (function (window) {
 
@@ -8,7 +8,7 @@
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
-    chrome.tabs.getCurrent(function(tab) {
+    chrome.tabs.getCurrent(function (tab) {
         tabId = tab.id;
     });
 
@@ -54,7 +54,7 @@
             confirmWhitelistBtnEl = document.getElementById('confirmWhitelistBtn');
 
         //try to fetch saved tab information for this url
-        gsUtils.fetchTabInfo(url).then(function(tabProperties) {
+        gsUtils.fetchTabInfo(url).then(function (tabProperties) {
 
             //if we are missing some suspend information for this tab
             if (!tabProperties) {
@@ -71,15 +71,15 @@
 
                         var previewEl = document.createElement('div');
 
-                        previewEl.innerHTML = document.getElementById("previewTemplate").innerHTML;
+                        previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
                         previewEl.onclick = unsuspendTab;
                         bodyEl.appendChild(previewEl);
 
                         document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
                         if (scrollImagePreview) {
-                          document.getElementById('gsPreviewImg').addEventListener('load', function() {
-                            document.body.scrollTop = scrollPos || 0;
-                          }, { once: true });
+                            document.getElementById('gsPreviewImg').addEventListener('load', function () {
+                                document.body.scrollTop = scrollPos || 0;
+                            }, { once: true });
                         }
                         messageEl.style.display = 'none';
                         previewEl.style.display = 'block';
@@ -123,7 +123,7 @@
     function unsuspendTab() {
         var url = gsUtils.getSuspendedUrl(window.location.href);
         chrome.extension.getBackgroundPage().tgs.scrollPosByTabId[tabId] = gsUtils.getSuspendedScrollPosition(window.location.href);
-        document.getElementById('suspendedMsg').innerHTML = "";
+        document.getElementById('suspendedMsg').innerHTML = '';
         document.getElementById('refreshSpinner').classList.add('spinner');
         window.location.replace(url);
     }
@@ -151,7 +151,40 @@
 
     function toggleModal(visible) {
         var modalEl = document.getElementById('whitelistOptionsModal');
-        modalEl.style.display = visible ? "block" : "none";
+        modalEl.style.display = visible ? 'block' : 'none';
+    }
+
+    function hideNagForever() {
+        gsUtils.setOption(gsUtils.NO_NAG, true);
+        chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
+        document.getElementById('dudePopup').style.display = 'none';
+        document.getElementById('donateBubble').style.display = 'none';
+    }
+
+    function loadDonateButtons() {
+        document.getElementById('donateButtons').innerHTML = this.responseText;
+        document.getElementById('donateBubble').onclick = hideNagForever;
+    }
+
+    function displayPopup(e) {
+
+        e.target.removeEventListener('focus', displayPopup);
+
+        //generate html for popupDude
+        var bodyEl = document.getElementsByTagName('body')[0],
+            donateEl = document.createElement('div');
+
+        donateEl.innerHTML = document.getElementById('donateTemplate').innerHTML;
+
+        bodyEl.appendChild(donateEl);
+
+        var request = new XMLHttpRequest();
+        request.onload = loadDonateButtons;
+        request.open('GET', 'support.html', true);
+        request.send();
+
+        document.getElementById('dudePopup').setAttribute('class', 'poppedup');
+        document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
     }
 
     window.onload = function () {
@@ -174,7 +207,7 @@
 
         //add an unload listener to send an unsuspend request on page unload
         //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
-        window.addEventListener('beforeunload', function(event) {
+        window.addEventListener('beforeunload', function (event) {
             chrome.runtime.sendMessage({
                 action: 'requestUnsuspendTab'
             });
@@ -185,65 +218,31 @@
         reloadLinkEl.onclick = unsuspendTab;
         confirmWhitelistBtnEl.onclick = whitelistTab;
 
-        showWhitelistModalEl.onclick = function() {
+        showWhitelistModalEl.onclick = function () {
             toggleModal(true);
-        }
+        };
 
-        Array.from(closeLinkEls).forEach(function(link) {
-            link.addEventListener('click', function(event) {
+        Array.from(closeLinkEls).forEach(function (link) {
+            link.addEventListener('click', function (event) {
                 toggleModal(false);
             });
         });
 
         // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modalEl) {
+        window.onclick = function (event) {
+            if (event.target === modalEl) {
                 toggleModal(false);
             }
-        }
+        };
 
         //show dude and donate link (randomly 1 of 20 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
-
-            function hideNagForever() {
-                gsUtils.setOption(gsUtils.NO_NAG, true);
-                chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
-                document.getElementById('dudePopup').style.display = 'none';
-                document.getElementById('donateBubble').style.display = 'none';
-            }
-
-            function loadDonateButtons() {
-                document.getElementById("donateButtons").innerHTML = this.responseText;
-                document.getElementById('donateBubble').onclick = hideNagForever;
-            }
-
-            function displayPopup(e) {
-
-                e.target.removeEventListener('focus', displayPopup);
-
-                //generate html for popupDude
-                var bodyEl = document.getElementsByTagName('body')[0],
-                    donateEl = document.createElement('div');
-
-                donateEl.innerHTML = document.getElementById("donateTemplate").innerHTML;
-
-                bodyEl.appendChild(donateEl);
-
-                var request = new XMLHttpRequest();
-                request.onload = loadDonateButtons;
-                request.open("GET", "support.html", true);
-                request.send();
-
-                document.getElementById('dudePopup').setAttribute('class', 'poppedup');
-                document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
-            }
-
             window.addEventListener('focus', displayPopup);
         }
     };
 
     //tabId is accessed directly from the background script when unsuspending tabs
-    window.getTabId = function() {
+    window.getTabId = function () {
         return tabId;
     };
     window.requestUnsuspendTab = unsuspendTab;

@@ -1,0 +1,16 @@
+{
+    "extends": "standard",
+    "rules": {
+        "semi": ["error", "always"],
+        "padded-blocks": ["off", { "blocks": "never" }],
+        "indent": ["error", 4],
+        "one-var": ["off", "never"],
+        "spaced-comment": ["off", "always"],
+        "space-before-function-paren": ["error", {
+            "anonymous": "always",
+            "named": "never",
+            "asyncArrow": "always"
+        }],
+        "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }]
+    }
+}
