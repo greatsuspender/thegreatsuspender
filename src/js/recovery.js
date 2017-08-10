@@ -1,8 +1,7 @@
 /*global chrome, sessionUtils */
-
 (function () {
-
     'use strict';
+
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
         restoreAttempted = false;
 
@@ -95,44 +94,38 @@
         });
     }
 
-    var readyStateCheckInterval = window.setInterval(function () {
-        if (document.readyState === 'complete') {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
 
-            window.clearInterval(readyStateCheckInterval);
+        var restoreEl = document.getElementById('restoreSession'),
+            manageEl = document.getElementById('manageManuallyLink'),
+            previewsEl = document.getElementById('previewsOffBtn'),
+            warningEl = document.getElementById('screenCaptureNotice');
 
-            var restoreEl = document.getElementById('restoreSession'),
-                manageEl = document.getElementById('manageManuallyLink'),
-                previewsEl = document.getElementById('previewsOffBtn'),
-                warningEl = document.getElementById('screenCaptureNotice');
+        var handleAutoRestore = function () {
+            restoreAttempted = true;
+            restoreEl.className += ' btnDisabled';
+            gsUtils.recoverLostTabs(checkForActiveTabs);
+            restoreEl.removeEventListener('click', handleAutoRestore);
+        };
 
-            var handleAutoRestore = function () {
-                restoreAttempted = true;
-                restoreEl.className += ' btnDisabled';
-                gsUtils.recoverLostTabs(checkForActiveTabs);
-                restoreEl.removeEventListener('click', handleAutoRestore);
+        restoreEl.addEventListener('click', handleAutoRestore);
+
+        manageEl.onclick = function (e) {
+            window.location.href = chrome.extension.getURL('history.html');
+        };
+
+        if (previewsEl) {
+            previewsEl.onclick = function (e) {
+                gsUtils.setOption(gsUtils.SCREEN_CAPTURE, '0');
+                window.location.reload();
             };
 
-            restoreEl.addEventListener('click', handleAutoRestore);
-
-            manageEl.onclick = function (e) {
-                window.location.href = chrome.extension.getURL('history.html');
-            };
-
-            if (previewsEl) {
-                previewsEl.onclick = function (e) {
-                    gsUtils.setOption(gsUtils.SCREEN_CAPTURE, '0');
-                    window.location.reload();
-                };
-
-                //show warning if screen capturing turned on
-                if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
-                    warningEl.style.display = 'block';
-                }
+            //show warning if screen capturing turned on
+            if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
+                warningEl.style.display = 'block';
             }
-
-            populateMissingTabs();
-
         }
-    }, 50);
 
+        populateMissingTabs();
+    });
 }());

@@ -1,26 +1,21 @@
 /*global chrome */
-
 (function () {
-
     'use strict';
+
     var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    var readyStateCheckInterval = window.setInterval(function () {
-        if (document.readyState === 'complete') {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
 
-            window.clearInterval(readyStateCheckInterval);
+        var noticeTextEl = document.getElementById('noticeText'),
+            noticeTitleEl = document.getElementById('noticeTitle'),
+            noticeObj = tgs.requestNotice();
 
-            var noticeTextEl = document.getElementById('noticeText'),
-                noticeTitleEl = document.getElementById('noticeTitle'),
-                noticeObj = tgs.requestNotice();
-
-            if (noticeObj.title) {
-                noticeTitleEl.innerHTML = noticeObj.title;
-            }
-            if (noticeObj.text) {
-                noticeTextEl.innerHTML = noticeObj.text;
-            }
+        if (noticeObj.title) {
+            noticeTitleEl.innerHTML = noticeObj.title;
         }
-    }, 50);
-
+        if (noticeObj.text) {
+            noticeTextEl.innerHTML = noticeObj.text;
+        }
+    });
 }());

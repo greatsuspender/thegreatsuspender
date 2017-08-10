@@ -1,8 +1,7 @@
 /* global chrome, XMLHttpRequest */
-
 (function () {
-
     'use strict';
+
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function toggleNag(hideNag) {
@@ -30,24 +29,19 @@
         };
     }
 
-    var readyStateCheckInterval = window.setInterval(function () {
-        if (document.readyState === 'complete') {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
 
-            window.clearInterval(readyStateCheckInterval);
+        var versionEl = document.getElementById('aboutVersion');
+        versionEl.innerHTML = 'The Great Suspender v' + chrome.runtime.getManifest().version;
 
-            var versionEl = document.getElementById('aboutVersion');
-            versionEl.innerHTML = 'The Great Suspender v' + chrome.runtime.getManifest().version;
-
-            if (gsUtils.getOption(gsUtils.NO_NAG)) {
-                document.getElementById('donateSection').style.display = 'none';
-                document.getElementById('donatedSection').style.display = 'block';
-            }
-
-            var request = new XMLHttpRequest();
-            request.onload = loadDonateButtons;
-            request.open('GET', 'support.html', true);
-            request.send();
+        if (gsUtils.getOption(gsUtils.NO_NAG)) {
+            document.getElementById('donateSection').style.display = 'none';
+            document.getElementById('donatedSection').style.display = 'block';
         }
-    }, 50);
 
+        var request = new XMLHttpRequest();
+        request.onload = loadDonateButtons;
+        request.open('GET', 'support.html', true);
+        request.send();
+    });
 }());

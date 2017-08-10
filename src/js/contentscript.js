@@ -6,12 +6,10 @@
  * http://github.com/deanoemcke/thegreatsuspender
  * ლ(ಠ益ಠლ)
 */
-
 (function () {
     'use strict';
 
-    var readyStateCheckInterval,
-        inputState = false,
+    var inputState = false,
         tempWhitelist = false,
         timerJob,
         suspendDateTime = false,
@@ -224,11 +222,11 @@
         }
     });
 
-    readyStateCheckInterval = window.setInterval(function () {
-        if (document.readyState === 'complete') {
-            window.clearInterval(readyStateCheckInterval);
+    if (document.readyState === 'complete') {
+        init();
+    } else {
+        document.addEventListener('DOMContentLoaded', function () {
             init();
-        }
-    }, 50);
-
+        });
+    }
 }());

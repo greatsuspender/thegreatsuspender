@@ -1,9 +1,7 @@
 /*global chrome */
-
-//sessionUtils is put into global scope for use by recovery.js
 var sessionUtils = (function () { // eslint-disable-line no-unused-vars
-
     'use strict';
+
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function hideModal() {
@@ -378,5 +376,4 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
         createTabHtml: createTabHtml,
         hideModal: hideModal
     };
-
 }());

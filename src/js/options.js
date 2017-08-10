@@ -1,34 +1,25 @@
 /*global chrome */
-
 (function () {
-
     'use strict';
 
-    var gsUtils,
-        elementPrefMap,
-        readyStateCheckInterval;
-
-    function initialise() {
-
-        gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-        elementPrefMap = {
-            'preview': gsUtils.SCREEN_CAPTURE,
-            'forceScreenCapture': gsUtils.SCREEN_CAPTURE_FORCE,
-            'onlineCheck': gsUtils.ONLINE_CHECK,
-            'batteryCheck': gsUtils.BATTERY_CHECK,
-            'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
-            'dontSuspendPinned': gsUtils.IGNORE_PINNED,
-            'dontSuspendForms': gsUtils.IGNORE_FORMS,
-            'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
-            'ignoreCache': gsUtils.IGNORE_CACHE,
-            'addContextMenu': gsUtils.ADD_CONTEXT,
-            'instantSuspend': gsUtils.INSTANT_SUSPEND,
-            'syncSettings': gsUtils.SYNC_SETTINGS,
-            'timeToSuspend': gsUtils.SUSPEND_TIME,
-            'theme': gsUtils.THEME,
-            'whitelist': gsUtils.WHITELIST
-        };
-    }
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var elementPrefMap = {
+        'preview': gsUtils.SCREEN_CAPTURE,
+        'forceScreenCapture': gsUtils.SCREEN_CAPTURE_FORCE,
+        'onlineCheck': gsUtils.ONLINE_CHECK,
+        'batteryCheck': gsUtils.BATTERY_CHECK,
+        'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
+        'dontSuspendPinned': gsUtils.IGNORE_PINNED,
+        'dontSuspendForms': gsUtils.IGNORE_FORMS,
+        'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
+        'ignoreCache': gsUtils.IGNORE_CACHE,
+        'addContextMenu': gsUtils.ADD_CONTEXT,
+        'instantSuspend': gsUtils.INSTANT_SUSPEND,
+        'syncSettings': gsUtils.SYNC_SETTINGS,
+        'timeToSuspend': gsUtils.SUSPEND_TIME,
+        'theme': gsUtils.THEME,
+        'whitelist': gsUtils.WHITELIST
+    };
 
     function selectComboBox(element, key) {
         var i,
@@ -181,40 +172,35 @@
         }
     }
 
-    readyStateCheckInterval = window.setInterval(function () {
-        if (document.readyState === 'complete') {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
 
-            window.clearInterval(readyStateCheckInterval);
+        initSettings();
 
-            initialise();
-            initSettings();
+        var optionEls = document.getElementsByClassName('option'),
+            saveEl = document.getElementById('saveBtn'),
+            cancelEl = document.getElementById('cancelBtn'),
+            element,
+            i;
 
-            var optionEls = document.getElementsByClassName('option'),
-                saveEl = document.getElementById('saveBtn'),
-                cancelEl = document.getElementById('cancelBtn'),
-                element,
-                i;
-
-            //add change listeners for all 'option' elements
-            for (i = 0; i < optionEls.length; i++) {
-                element = optionEls[i];
-                element.onchange = handleChange(element);
-            }
-            saveEl.onclick = function (e) {
-                var updatedPreferences = [];
-                for (i = 0; i < optionEls.length; i++) {
-                    saveChange(optionEls[i], updatedPreferences);
-                }
-
-                // Push out all our saved settings to sync storage.
-                gsUtils.syncSettings();
-                gsUtils.performPostSaveUpdates(updatedPreferences);
-
-                closeSettings();
-            };
-            cancelEl.onclick = function (e) {
-                closeSettings();
-            };
+        //add change listeners for all 'option' elements
+        for (i = 0; i < optionEls.length; i++) {
+            element = optionEls[i];
+            element.onchange = handleChange(element);
         }
-    }, 50);
+        saveEl.onclick = function (e) {
+            var updatedPreferences = [];
+            for (i = 0; i < optionEls.length; i++) {
+                saveChange(optionEls[i], updatedPreferences);
+            }
+
+            // Push out all our saved settings to sync storage.
+            gsUtils.syncSettings();
+            gsUtils.performPostSaveUpdates(updatedPreferences);
+
+            closeSettings();
+        };
+        cancelEl.onclick = function (e) {
+            closeSettings();
+        };
+    });
 }());

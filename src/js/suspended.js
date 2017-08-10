@@ -1,7 +1,5 @@
 /*global window, document, chrome, console, Image, XMLHttpRequest */
-
 (function (window) {
-
     'use strict';
 
     var tabId;
@@ -187,7 +185,7 @@
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
     }
 
-    window.onload = function () {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
 
         var suspendedMsgEl = document.getElementById('suspendedMsg');
         var reloadLinkEl = document.getElementById('gsReloadLink');
@@ -239,12 +237,11 @@
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
             window.addEventListener('focus', displayPopup);
         }
-    };
 
-    //tabId is accessed directly from the background script when unsuspending tabs
-    window.getTabId = function () {
-        return tabId;
-    };
-    window.requestUnsuspendTab = unsuspendTab;
-
+        //tabId is accessed directly from the background script when unsuspending tabs
+        window.getTabId = function () {
+            return tabId;
+        };
+        window.requestUnsuspendTab = unsuspendTab;
+    });
 }(window));

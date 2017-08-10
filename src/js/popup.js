@@ -1,9 +1,8 @@
 /*global chrome */
-
-'use strict';
-
 (function () {
+    'use strict';
 
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     function setStatus(status) {
         var statusDetail = '',
             statusIconClass = '',
@@ -169,11 +168,6 @@
         });
     }
 
-    var domContentLoadedAsPromsied = new Promise(function (resolve, reject) {
-        document.addEventListener('DOMContentLoaded', function () {
-            resolve();
-        });
-    });
     var retries = 0;
     var getTabStatus = function (callback) {
         chrome.runtime.sendMessage({ action: 'requestTabInfo' }, function (info) {
@@ -199,7 +193,7 @@
         });
     });
 
-    Promise.all([domContentLoadedAsPromsied, tabStatusAsPromised, selectedTabsAsPromised])
+    Promise.all([gsUtils.documentReadyAsPromsied(document), tabStatusAsPromised, selectedTabsAsPromised])
         .then(function ([domLoadedEvent, tabStatus, selectedTabs]) {
 
             setSuspendAllVisibility(tabStatus);

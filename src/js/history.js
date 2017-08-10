@@ -1,8 +1,7 @@
 /*global chrome, sessionUtils */
-
 (function () {
-
     'use strict';
+
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function render() {
@@ -42,8 +41,7 @@
         };
     }
 
-    window.onload = function () {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
         render();
-    };
-
+    });
 }());

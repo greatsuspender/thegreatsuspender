@@ -1,9 +1,8 @@
 /*global chrome */
-
 (function () {
-
     'use strict';
 
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var currentTabs = {};
 
     function generateTabInfo(info) {
@@ -43,7 +42,7 @@
         });
     }
 
-    window.onload = function () {
+    gsUtils.documentReadyAsPromsied(document).then(function () {
         fetchInfo();
 
         //handler for refresh
@@ -63,5 +62,5 @@
             });
         });
         */
-    };
+    });
 }());

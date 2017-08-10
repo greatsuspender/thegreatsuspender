@@ -6,7 +6,6 @@
  * http://github.com/deanoemcke/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
-
 var _gaq = _gaq || []; // eslint-disable-line no-use-before-define
 
 var tgs = (function () {
@@ -1172,7 +1171,6 @@ var tgs = (function () {
 
     return {
         isSpecialTab: isSpecialTab,
-        saveSuspendData: saveSuspendData,
         sessionId: sessionId,
         runStartupChecks: runStartupChecks,
         resetContentScripts: resetContentScripts,
