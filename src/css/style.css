@@ -46,6 +46,7 @@ body {
 	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	font-size: 15px;
     background: #cfe0e4;
+    font-weight: 300;
     color: #444;
 }
 body.suspended-page {
@@ -106,6 +107,7 @@ img.headerIcon {
 }
 select {
     min-width: 150px;
+    color: #444;
 }
 .formRow select {
     background: #FFF;
@@ -122,9 +124,10 @@ input, select, button {
     margin-bottom: 8px;
 }
 textarea {
+    color: #444;
     width: 100%;
     border-color: #C3C3C3;
-    font-size: 16px;
+    font-size: 15px;
     padding: 3px 5px;
     white-space: nowrap;
 }
@@ -172,6 +175,9 @@ ul.unorderedList li {
     border: 0;
     font-size: 14px;
     cursor: pointer;
+
+    min-width: 80px;
+    text-align: center;
 }
 .btn:hover {
     background: #4994B3;
@@ -249,6 +255,8 @@ ul.unorderedList li {
 }
 .sessionLink {
     cursor: pointer;
+    padding: 5px 0;
+    display: inline-block;
 }
 .sessionLink:hover {
 	text-decoration: underline;
@@ -577,7 +585,7 @@ a.historyLink:hover {
     float: right;
     font-size: 28px;
     font-weight: bold;
-    margin-top: -5px;
+    margin-top: -8px;
 }
 .close-x:hover,
 .close-x:focus {
@@ -706,8 +714,6 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
     margin-left: -85px;
     padding: 20px 10px;
     width: 460px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
     border-radius: 3px;
     background-color: #eee;
     color: #000;
