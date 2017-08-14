@@ -688,7 +688,7 @@ var gsUtils = {
 
     documentReadyAsPromsied: function (doc) {
         return new Promise(function (resolve, reject) {
-            if (doc.readyState === 'complete') {
+            if (doc.readyState !== 'loading') {
                 resolve();
             } else {
                 doc.addEventListener('DOMContentLoaded', function () {
