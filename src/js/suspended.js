@@ -199,14 +199,14 @@
         var modalEl = document.getElementById('whitelistOptionsModal');
         var closeLinkEls = document.querySelectorAll('.close');
 
-        //try to suspend tab
-        attemptTabSuspend();
-
         //set theme
         if (gsUtils.getOption(gsUtils.THEME) === 'dark') {
             var body = document.querySelector('body');
             body.className += ' dark';
         }
+
+        //try to suspend tab
+        attemptTabSuspend();
 
         //click listeners
         suspendedMsgEl.onclick = requestUnsuspendTab;
