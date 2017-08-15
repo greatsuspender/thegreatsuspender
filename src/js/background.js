@@ -19,7 +19,7 @@ var tgs = (function () {
         sessionSaveTimer,
         chargingMode = false,
         notice = {},
-        unsuspendRequestList = {},
+        unsuspendOnReloadByTabId = {},
         scrollPosByTabId = {},
         lastTabCloseTimestamp = new Date(),
         suspensionActiveIcon = '/img/icon19.png',
@@ -309,10 +309,18 @@ var tgs = (function () {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
                 if (isSuspended(currentTab)) {
-                    unsuspendRequestList[currentTab.id] = 'ignore';
-                    chrome.tabs.reload(currentTab.id);
+                    resuspendSuspendedTab(currentTab);
                 }
             });
+        });
+    }
+
+    function resuspendSuspendedTab(tab) {
+        sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: false }, function (response) {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError);
+            }
+            chrome.tabs.reload(tab.id);
         });
     }
 
@@ -357,31 +365,27 @@ var tgs = (function () {
     }
 
     function unsuspendTab(tab) {
+        if (!isSuspended(tab)) return;
+
         var url = gsUtils.getSuspendedUrl(tab.url),
-            scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url),
-            views,
-            result;
+            scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
 
         scrollPosByTabId[tab.id] = scrollPosition || scrollPosByTabId[tab.id];
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
-        views = chrome.extension.getViews({type: 'tab', 'windowId': tab.windowId});
-        result = views.some(function (view) {
-            if (view.getTabId && view.getTabId() === tab.id) {
-                view.requestUnsuspendTab();
-                return true;
+        sendMessageToTab(tab.id, { action: 'unsuspendTab' }, function (response) {
+
+            //if we failed to find the tab with the above method then try to reload the tab directly
+            if (chrome.runtime.lastError) {
+                console.log('Error requesting unsuspendTab. Will reload directly.', chrome.runtime.lastError);
+                chrome.tabs.update(tab.id, {url: url}, function () {
+                    if (chrome.runtime.lastError) {
+                        console.log(chrome.runtime.lastError.message);
+                    }
+                });
             }
         });
-
-        //if we failed to find the tab with the above method then try to update it directly
-        if (!result) {
-            chrome.tabs.update(tab.id, {url: url}, function () {
-                if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError.message);
-                }
-            });
-        }
     }
 
     function handleWindowFocusChanged(windowId) {
@@ -920,11 +924,14 @@ var tgs = (function () {
 
         case 'requestUnsuspendTab':
             if (sender.tab && isSuspended(sender.tab)) {
-                if (unsuspendRequestList[sender.tab.id] === 'ignore') {
-                    delete unsuspendRequestList[sender.tab.id];
-                } else {
-                    unsuspendRequestList[sender.tab.id] = true;
-                }
+                unsuspendTab(sender.tab);
+            }
+            return true;
+
+        case 'requestUnsuspendOnReload':
+            if (sender.tab && isSuspended(sender.tab)) {
+                console.log('received requestUnsuspendOnReload request from tab', sender.tab.id);
+                unsuspendOnReloadByTabId[sender.tab.id] = true;
             }
             return false;
 
@@ -1066,10 +1073,7 @@ var tgs = (function () {
     });
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         queueSessionTimer();
-
-        if (unsuspendRequestList[tabId]) {
-            delete unsuspendRequestList[tabId];
-        }
+        delete unsuspendOnReloadByTabId[tabId];
         lastTabCloseTimestamp = new Date();
     });
     chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {
@@ -1101,16 +1105,17 @@ var tgs = (function () {
             }
         }
 
-        //check for tab having an unsuspend request
-        if (unsuspendRequestList[tab.id]) {
+        if (isSuspended(tab)) {
+            //reload if tab does not have an unsuspend request. only permit unsuspend if tab is being reloaded
+            if (changeInfo.status === 'loading') {
+                if (unsuspendOnReloadByTabId[tab.id]) {
+                    unsuspendTab(tab);
+                }
+                delete unsuspendOnReloadByTabId[tab.id];
 
-            //only permit unsuspend if tab is being reloaded
-            if (changeInfo.status === 'loading' && isSuspended(tab)) {
-                unsuspendTab(tab);
-
-            //otherwise remove unsuspend request
-            } else {
-                delete unsuspendRequestList[tab.id];
+            //once the suspended tab has completed loading, then set the setUnsuspendOnReload to true
+            } else if (changeInfo.status === 'complete') {
+                sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: true });
             }
         }
     });
@@ -1177,7 +1182,7 @@ var tgs = (function () {
         requestNotice: requestNotice,
         buildContextMenu: buildContextMenu,
         resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
-        scrollPosByTabId: scrollPosByTabId
+        resuspendSuspendedTab: resuspendSuspendedTab
     };
 
 }());

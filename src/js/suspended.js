@@ -1,14 +1,11 @@
 /*global window, document, chrome, console, Image, XMLHttpRequest */
-(function (window) {
+(function () {
     'use strict';
 
-    var tabId;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var requestUnsuspendOnReload = false;
 
     document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
-    chrome.tabs.getCurrent(function (tab) {
-        tabId = tab.id;
-    });
 
     function generateFaviconUri(url, callback) {
         var img = new Image();
@@ -70,7 +67,7 @@
                         var previewEl = document.createElement('div');
 
                         previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
-                        previewEl.onclick = unsuspendTab;
+                        previewEl.onclick = requestUnsuspendTab;
                         bodyEl.appendChild(previewEl);
 
                         document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
@@ -118,9 +115,17 @@
         });
     }
 
+    function requestUnsuspendTab() {
+        chrome.runtime.sendMessage({ action: 'requestUnsuspendTab' }, function (response) {
+            if (chrome.runtime.lastError) {
+                console.log('Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
+                unsuspendTab();
+            }
+        });
+    }
+
     function unsuspendTab() {
         var url = gsUtils.getSuspendedUrl(window.location.href);
-        chrome.extension.getBackgroundPage().tgs.scrollPosByTabId[tabId] = gsUtils.getSuspendedScrollPosition(window.location.href);
         document.getElementById('suspendedMsg').innerHTML = '';
         document.getElementById('refreshSpinner').classList.add('spinner');
         window.location.replace(url);
@@ -144,7 +149,7 @@
         }
 
         toggleModal(false);
-        unsuspendTab();
+        requestUnsuspendTab();
     }
 
     function toggleModal(visible) {
@@ -203,17 +208,9 @@
             body.className += ' dark';
         }
 
-        //add an unload listener to send an unsuspend request on page unload
-        //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
-        window.addEventListener('beforeunload', function (event) {
-            chrome.runtime.sendMessage({
-                action: 'requestUnsuspendTab'
-            });
-        });
-
         //click listeners
-        suspendedMsgEl.onclick = unsuspendTab;
-        reloadLinkEl.onclick = unsuspendTab;
+        suspendedMsgEl.onclick = requestUnsuspendTab;
+        reloadLinkEl.onclick = requestUnsuspendTab;
         confirmWhitelistBtnEl.onclick = whitelistTab;
 
         showWhitelistModalEl.onclick = function () {
@@ -238,10 +235,30 @@
             window.addEventListener('focus', displayPopup);
         }
 
-        //tabId is accessed directly from the background script when unsuspending tabs
-        window.getTabId = function () {
-            return tabId;
-        };
-        window.requestUnsuspendTab = unsuspendTab;
+        //add an unload listener to tell the page to unsuspend on refresh
+        //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
+        window.addEventListener('beforeunload', function (event) {
+            if (requestUnsuspendOnReload) {
+                chrome.runtime.sendMessage({
+                    action: 'requestUnsuspendOnReload'
+                });
+            }
+        });
+
+        //listen for background events
+        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+            switch (request.action) {
+
+            case 'unsuspendTab':
+                unsuspendTab();
+                sendResponse({ result: 'done' });
+                return false;
+
+            case 'setUnsuspendOnReload':
+                requestUnsuspendOnReload = request.value || false;
+                sendResponse({ result: 'done' });
+                return false;
+            }
+        });
     });
-}(window));
+}());
