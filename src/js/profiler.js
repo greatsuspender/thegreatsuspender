@@ -3,6 +3,7 @@
     'use strict';
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs;
     var currentTabs = {};
 
     function generateTabInfo(info) {
@@ -29,7 +30,11 @@
             tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                chrome.runtime.sendMessage({ action: 'requestTabInfo', tabId: curTab.id }, function (suspendInfo) {
+                tgs.requestTabInfo(curTab.id, function (suspendInfo) {
+                    if (chrome.runtime.lastError) {
+                        console.log(chrome.runtime.lastError.message);
+                    }
+
                     var html,
                         tableEl = document.getElementById('gsProfilerBody');
 

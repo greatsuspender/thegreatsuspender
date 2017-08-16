@@ -3,11 +3,14 @@
     'use strict';
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs;
+    var globalActionElListener;
+
     function setStatus(status) {
         var statusDetail = '',
-            statusIconClass = '',
-            action;
+            statusIconClass = '';
 
+        // Update status icon and text
         if (status === 'normal') {
             statusDetail = 'Tab will be suspended automatically.';
             statusIconClass = 'fa fa-clock-o';
@@ -19,12 +22,10 @@
         } else if (status === 'suspended') {
             statusDetail = 'Tab suspended. <a href="#">Unsuspend</a>';
             statusIconClass = 'fa fa-pause';
-            action = 'unsuspendOne';
 
         } else if (status === 'whitelisted') {
             statusDetail = 'Site whitelisted. <a href="#">Remove from whitelist</a>';
             statusIconClass = 'fa fa-check';
-            action = 'removeWhitelist';
 
         } else if (status === 'audible') {
             statusDetail = 'Tab is playing audio.';
@@ -33,7 +34,6 @@
         } else if (status === 'formInput') {
             statusDetail = 'Tab is receiving form input. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-edit';
-            action = 'undoTempWhitelist';
 
         } else if (status === 'pinned') {
             statusDetail = 'Tab has been pinned.';
@@ -42,7 +42,6 @@
         } else if (status === 'tempWhitelist') {
             statusDetail = 'Tab suspension paused. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-pause';
-            action = 'undoTempWhitelist';
 
         } else if (status === 'never') {
             statusDetail = 'Automatic tab suspension disabled.';
@@ -58,20 +57,35 @@
         } else {
             console.log('Could not process tab status of: ' + status);
         }
-
-        if (document.getElementsByTagName('a')[0]) {
-            document.getElementsByTagName('a')[0].removeEventListener('click');
-        }
-
         document.getElementById('statusDetail').innerHTML = statusDetail;
         document.getElementById('statusIcon').className = statusIconClass;
 
-        if (action) {
-            document.getElementsByTagName('a')[0].addEventListener('click', function (e) {
-                chrome.runtime.sendMessage({ action: action });
-                updateIcon('normal');
-                window.close();
-            });
+        // Update action handler
+        var actionEl = document.getElementsByTagName('a')[0];
+        if (actionEl) {
+
+            var tgsHanderFunc;
+            if (status === 'suspended') {
+                tgsHanderFunc = tgs.unsuspendHighlightedTab;
+
+            } else if (status === 'whitelisted') {
+                tgsHanderFunc = tgs.unwhitelistHighlightedTab;
+
+            } else if (status === 'formInput' || status === 'tempWhitelist') {
+                tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
+            }
+
+            if (globalActionElListener) {
+                actionEl.removeEventListener('click', globalActionElListener);
+            }
+            if (tgsHanderFunc) {
+                globalActionElListener = function (e) {
+                    tgsHanderFunc();
+                    tgs.updateIcon('normal');
+                    window.close();
+                };
+                actionEl.addEventListener('click', globalActionElListener);
+            }
         }
     }
 
@@ -125,39 +139,35 @@
         }, 200);
     }
 
-    function updateIcon(status) {
-        chrome.runtime.sendMessage({ action: 'updateIcon', status: status });
-    }
-
     function addClickHandlers() {
         document.getElementById('suspendOne').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'suspendOne' });
+            tgs.suspendHighlightedTab();
             window.close();
         });
         document.getElementById('suspendAll').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'suspendAll' });
+            tgs.suspendAllTabs();
             window.close();
         });
         document.getElementById('unsuspendAll').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'unsuspendAll' });
+            tgs.unsuspendAllTabs();
             window.close();
         });
         document.getElementById('suspendSelected').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'suspendSelected' });
+            tgs.suspendSelectedTabs();
             window.close();
         });
         document.getElementById('unsuspendSelected').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'unsuspendSelected' });
+            tgs.unsuspendSelectedTabs();
             window.close();
         });
         document.getElementById('whitelist').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'whitelist' });
-            updateIcon(false);
+            tgs.whitelistHighlightedTab();
+            tgs.updateIcon();
             window.close();
         });
         document.getElementById('tempWhitelist').addEventListener('click', function (e) {
-            chrome.runtime.sendMessage({ action: 'tempWhitelist' });
-            updateIcon(false);
+            tgs.temporarilyWhitelistHighlightedTab();
+            tgs.updateIcon();
             window.close();
         });
         document.getElementById('settingsLink').addEventListener('click', function (e) {
@@ -170,7 +180,10 @@
 
     var retries = 0;
     var getTabStatus = function (callback) {
-        chrome.runtime.sendMessage({ action: 'requestTabInfo' }, function (info) {
+        tgs.requestTabInfo(false, function (info) {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError.message);
+            }
             if (info && info.status !== 'unknown') {
                 callback(info.status);
             } else if (retries < 20) {

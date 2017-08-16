@@ -3,6 +3,7 @@
     'use strict';
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs;
 
     gsUtils.documentReadyAsPromsied(document).then(function () {
 
@@ -37,7 +38,7 @@
             unsuspendedAllBtnEl.innerHTML = "<i class='fa fa-spinner fa-spin '></i> Unsuspending tabs";
             updateSuspendedTabCount();
 
-            chrome.runtime.sendMessage({ action: 'unsuspendAllInAllWindows' });
+            tgs.unsuspendAllTabsInAllWindows();
 
             var unsuspendedTabsCheckInterval = window.setInterval(function () {
                 var newSuspendedTabCount = updateSuspendedTabCount();

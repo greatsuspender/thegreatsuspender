@@ -697,6 +697,8 @@ var tgs = (function () {
     //unknown: an error detecting tab status
     function requestTabInfo(tabId, callback) {
 
+        tabId = tabId || globalCurrentTabId;
+
         var info = {
             windowId: '',
             tabId: '',
@@ -930,7 +932,6 @@ var tgs = (function () {
 
         case 'requestUnsuspendOnReload':
             if (sender.tab && isSuspended(sender.tab)) {
-                console.log('received requestUnsuspendOnReload request from tab', sender.tab.id);
                 unsuspendOnReloadByTabId[sender.tab.id] = true;
             }
             return false;
@@ -948,66 +949,6 @@ var tgs = (function () {
                     if (debug) console.log(chrome.runtime.lastError.message);
                 }
                 sendResponse();
-            });
-            return true;
-
-        case 'suspendOne':
-            suspendHighlightedTab();
-            return false;
-
-        case 'unsuspendOne':
-            unsuspendHighlightedTab();
-            return false;
-
-        case 'tempWhitelist':
-            temporarilyWhitelistHighlightedTab();
-            return false;
-
-        case 'undoTempWhitelist':
-            undoTemporarilyWhitelistHighlightedTab();
-            return false;
-
-        case 'whitelist':
-            whitelistHighlightedTab();
-            return false;
-
-        case 'removeWhitelist':
-            unwhitelistHighlightedTab();
-            return false;
-
-        case 'suspendAll':
-            suspendAllTabs();
-            return false;
-
-        case 'unsuspendAll':
-            unsuspendAllTabs();
-            return false;
-
-        case 'unsuspendAllInAllWindows':
-            unsuspendAllTabsInAllWindows();
-            return false;
-
-        case 'suspendSelected':
-            suspendSelectedTabs();
-            return false;
-
-        case 'unsuspendSelected':
-            unsuspendSelectedTabs();
-            return false;
-
-        case 'updateIcon':
-            if (request.status) {
-                updateIcon(request.status);
-            }
-            return false;
-
-        case 'requestTabInfo':
-            var tabId = request.tabId || globalCurrentTabId;
-            requestTabInfo(tabId, function (info) {
-                if (chrome.runtime.lastError) {
-                    if (debug) console.log(chrome.runtime.lastError.message);
-                }
-                sendResponse(info);
             });
             return true;
 
@@ -1182,7 +1123,23 @@ var tgs = (function () {
         requestNotice: requestNotice,
         buildContextMenu: buildContextMenu,
         resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
-        resuspendSuspendedTab: resuspendSuspendedTab
+        resuspendSuspendedTab: resuspendSuspendedTab,
+
+        updateIcon: updateIcon,
+        requestTabInfo: requestTabInfo,
+
+        //external action handlers
+        unsuspendHighlightedTab: unsuspendHighlightedTab,
+        unwhitelistHighlightedTab: unwhitelistHighlightedTab,
+        undoTemporarilyWhitelistHighlightedTab: undoTemporarilyWhitelistHighlightedTab,
+        suspendHighlightedTab: suspendHighlightedTab,
+        suspendAllTabs: suspendAllTabs,
+        unsuspendAllTabs: unsuspendAllTabs,
+        suspendSelectedTabs: suspendSelectedTabs,
+        unsuspendSelectedTabs: unsuspendSelectedTabs,
+        whitelistHighlightedTab: whitelistHighlightedTab,
+        temporarilyWhitelistHighlightedTab: temporarilyWhitelistHighlightedTab,
+        unsuspendAllTabsInAllWindows: unsuspendAllTabsInAllWindows
     };
 
 }());
