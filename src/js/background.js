@@ -98,6 +98,9 @@ var tgs = (function () {
         var scrollPos = tabInfo.scrollPos || '0';
         saveSuspendData(tab, function () {
 
+            //clear any outstanding unsuspendOnReload request
+            delete unsuspendOnReloadByTabId[tab.id];
+
             //if we need to save a preview image
             var screenCaptureMode = gsUtils.getOption(gsUtils.SCREEN_CAPTURE);
             if (screenCaptureMode !== '0') {
