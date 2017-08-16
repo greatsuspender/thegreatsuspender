@@ -6,6 +6,88 @@
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var globalActionElListener;
 
+    var retries = 0;
+    var getTabStatus = function (callback) {
+        tgs.requestTabInfo(false, function (info) {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError.message);
+            }
+            if (info && info.status !== 'unknown') {
+                callback(info.status);
+            } else if (retries < (5 * 10)) { //10 seconds
+                if (retries === 0 && document.getElementById('loadBar')) {
+                    document.getElementById('loadBar').style.display = 'block';
+                }
+                retries++;
+                setTimeout(function () {
+                    getTabStatus(callback);
+                }, 200);
+            } else {
+                window.close();
+            }
+        });
+    };
+    var tabStatusAsPromised = new Promise(function (resolve, reject) {
+        getTabStatus(resolve);
+    });
+    var selectedTabsAsPromised = new Promise(function (resolve, reject) {
+        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
+            resolve(tabs);
+        });
+    });
+
+
+
+    Promise.all([gsUtils.documentReadyAsPromsied(document), tabStatusAsPromised, selectedTabsAsPromised])
+        .then(function ([domLoadedEvent, tabStatus, selectedTabs]) {
+
+            setSuspendAllVisibility(tabStatus);
+            setSuspendSelectedVisibility(selectedTabs);
+
+            setStatus(tabStatus);
+            showPopupContents();
+            addClickHandlers();
+        });
+
+    function setSuspendAllVisibility(tabStatus) {
+
+        var suspendOneVisible = (tabStatus !== 'suspended' && tabStatus !== 'special' && tabStatus !== 'unknown'),
+            whitelistVisible = (tabStatus !== 'whitelisted' && tabStatus !== 'special'),
+            pauseVisible = (tabStatus === 'normal');
+
+        if (suspendOneVisible) {
+            document.getElementById('suspendOne').style.display = 'block';
+        } else {
+            document.getElementById('suspendOne').style.display = 'none';
+        }
+
+        if (whitelistVisible) {
+            document.getElementById('whitelist').style.display = 'block';
+        } else {
+            document.getElementById('whitelist').style.display = 'none';
+        }
+
+        if (pauseVisible) {
+            document.getElementById('tempWhitelist').style.display = 'block';
+        } else {
+            document.getElementById('tempWhitelist').style.display = 'none';
+        }
+
+        if (suspendOneVisible || whitelistVisible || pauseVisible) {
+            document.getElementById('optsCurrent').style.display = 'block';
+        } else {
+            document.getElementById('optsCurrent').style.display = 'none';
+        }
+    }
+
+    function setSuspendSelectedVisibility(selectedTabs) {
+        if (selectedTabs && selectedTabs.length > 1) {
+            document.getElementById('optsSelected').style.display = 'block';
+        } else {
+            document.getElementById('optsSelected').style.display = 'none';
+        }
+    }
+
     function setStatus(status) {
         var statusDetail = '',
             statusIconClass = '';
@@ -89,45 +171,6 @@
         }
     }
 
-    function setSuspendAllVisibility(tabStatus) {
-
-        var suspendOneVisible = (tabStatus !== 'suspended' && tabStatus !== 'special' && tabStatus !== 'unknown'),
-            whitelistVisible = (tabStatus !== 'whitelisted' && tabStatus !== 'special'),
-            pauseVisible = (tabStatus === 'normal');
-
-        if (suspendOneVisible) {
-            document.getElementById('suspendOne').style.display = 'block';
-        } else {
-            document.getElementById('suspendOne').style.display = 'none';
-        }
-
-        if (whitelistVisible) {
-            document.getElementById('whitelist').style.display = 'block';
-        } else {
-            document.getElementById('whitelist').style.display = 'none';
-        }
-
-        if (pauseVisible) {
-            document.getElementById('tempWhitelist').style.display = 'block';
-        } else {
-            document.getElementById('tempWhitelist').style.display = 'none';
-        }
-
-        if (suspendOneVisible || whitelistVisible || pauseVisible) {
-            document.getElementById('optsCurrent').style.display = 'block';
-        } else {
-            document.getElementById('optsCurrent').style.display = 'none';
-        }
-    }
-
-    function setSuspendSelectedVisibility(selectedTabs) {
-        if (selectedTabs && selectedTabs.length > 1) {
-            document.getElementById('optsSelected').style.display = 'block';
-        } else {
-            document.getElementById('optsSelected').style.display = 'none';
-        }
-    }
-
     function showPopupContents() {
         setTimeout(function () {
             document.getElementById('loadBar').style.display = 'none';
@@ -177,43 +220,4 @@
             window.close();
         });
     }
-
-    var retries = 0;
-    var getTabStatus = function (callback) {
-        tgs.requestTabInfo(false, function (info) {
-            if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError.message);
-            }
-            if (info && info.status !== 'unknown') {
-                callback(info.status);
-            } else if (retries < 20) {
-                if (retries === 0 && document.getElementById('loadBar')) {
-                    document.getElementById('loadBar').style.display = 'block';
-                }
-                retries++;
-                setTimeout(function () {
-                    getTabStatus(callback);
-                }, 200);
-            }
-        });
-    };
-    var tabStatusAsPromised = new Promise(function (resolve, reject) {
-        getTabStatus(resolve);
-    });
-    var selectedTabsAsPromised = new Promise(function (resolve, reject) {
-        chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
-            resolve(tabs);
-        });
-    });
-
-    Promise.all([gsUtils.documentReadyAsPromsied(document), tabStatusAsPromised, selectedTabsAsPromised])
-        .then(function ([domLoadedEvent, tabStatus, selectedTabs]) {
-
-            setSuspendAllVisibility(tabStatus);
-            setSuspendSelectedVisibility(selectedTabs);
-
-            setStatus(tabStatus);
-            showPopupContents();
-            addClickHandlers();
-        });
 }());
