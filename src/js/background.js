@@ -759,35 +759,38 @@ var tgs = (function () {
         sendMessageToTab(tab.id, {action: 'requestInfo'}, callback);
     }
 
-    function processActiveTabStatus(tab, status) {
+    function processActiveTabStatus(tab, contentScriptStatus) {
 
         var suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME),
             onlySuspendOnBattery = gsUtils.getOption(gsUtils.BATTERY_CHECK),
             onlySuspendWithInternet = gsUtils.getOption(gsUtils.ONLINE_CHECK);
 
-        //check whitelist
+        var status = contentScriptStatus;
+
+        //check whitelist (ignore contentScriptStatus)
         if (gsUtils.checkWhiteList(tab.url)) {
             status = 'whitelisted';
 
-        //check pinned tab
-        } else if (status === 'normal' && isPinnedTab(tab)) {
-            status = 'pinned';
-
-        //check audible tab
-        } else if (status === 'normal' && isAudibleTab(tab)) {
-            status = 'audible';
-
-        //check never suspend
-        } else if (status === 'normal' && suspendTime === '0') {
+        //check never suspend (ignore contentScriptStatus)
+        //should come after whitelist check as it causes popup to show the whitelisting option
+        } else if (suspendTime === '0') {
             status = 'never';
 
         //check running on battery
-        } else if (status === 'normal' && onlySuspendOnBattery && chargingMode) {
+        } else if (contentScriptStatus === 'normal' && onlySuspendOnBattery && chargingMode) {
             status = 'charging';
 
         //check internet connectivity
-        } else if (status === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
+        } else if (contentScriptStatus === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
             status = 'noConnectivity';
+
+        //check pinned tab
+        } else if (contentScriptStatus === 'normal' && isPinnedTab(tab)) {
+            status = 'pinned';
+
+        //check audible tab
+        } else if (contentScriptStatus === 'normal' && isAudibleTab(tab)) {
+            status = 'audible';
         }
         return status;
     }

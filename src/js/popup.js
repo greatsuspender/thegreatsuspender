@@ -97,13 +97,17 @@
             statusDetail = 'Tab will be suspended automatically.';
             statusIconClass = 'fa fa-clock-o';
 
-        } else if (status === 'special') {
-            statusDetail = 'Tab cannot be suspended.';
-            statusIconClass = 'fa fa-remove';
-
         } else if (status === 'suspended') {
             statusDetail = 'Tab suspended. <a href="#">Unsuspend</a>';
             statusIconClass = 'fa fa-pause';
+
+        } else if (status === 'never') {
+            statusDetail = 'Automatic tab suspension disabled.';
+            statusIconClass = 'fa fa-ban';
+
+        } else if (status === 'special') {
+            statusDetail = 'Tab cannot be suspended.';
+            statusIconClass = 'fa fa-remove';
 
         } else if (status === 'whitelisted') {
             statusDetail = 'Site whitelisted. <a href="#">Remove from whitelist</a>';
@@ -124,10 +128,6 @@
         } else if (status === 'tempWhitelist') {
             statusDetail = 'Tab suspension paused. <a href="#">Unpause</a>';
             statusIconClass = 'fa fa-pause';
-
-        } else if (status === 'never') {
-            statusDetail = 'Automatic tab suspension disabled.';
-            statusIconClass = 'fa fa-ban';
 
         } else if (status === 'noConnectivity') {
             statusDetail = 'No network connection.';
