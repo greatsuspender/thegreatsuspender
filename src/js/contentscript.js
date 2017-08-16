@@ -149,7 +149,7 @@
 
     function formInputListener(event) {
         if (!inputState && !tempWhitelist) {
-            if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
+            if (event.keyCode >= 32 && event.keyCode <= 126 && event.target.tagName) {
                 if (event.target.tagName.toUpperCase() === 'INPUT' ||
                         event.target.tagName.toUpperCase() === 'TEXTAREA' ||
                         event.target.tagName.toUpperCase() === 'FORM') {
