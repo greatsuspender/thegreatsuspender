@@ -20,6 +20,7 @@ var tgs = (function () {
         chargingMode = false,
         notice = {},
         unsuspendOnReloadByTabId = {},
+        temporaryWhitelistOnReloadByTabId = {},
         scrollPosByTabId = {},
         lastTabCloseTimestamp = new Date(),
         suspensionActiveIcon = '/img/icon19.png',
@@ -98,8 +99,9 @@ var tgs = (function () {
         var scrollPos = tabInfo.scrollPos || '0';
         saveSuspendData(tab, function () {
 
-            //clear any outstanding unsuspendOnReload request
+            //clear any outstanding tab requests
             delete unsuspendOnReloadByTabId[tab.id];
+            delete temporaryWhitelistOnReloadByTabId[tab.id];
 
             //if we need to save a preview image
             var screenCaptureMode = gsUtils.getOption(gsUtils.SCREEN_CAPTURE);
@@ -913,8 +915,10 @@ var tgs = (function () {
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 suspendTime: suspendTime,
                 screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
-                scrollPos: scrollPosByTabId[sender.tab.id] || '0'
+                scrollPos: scrollPosByTabId[sender.tab.id] || '0',
+                temporaryWhitelist: temporaryWhitelistOnReloadByTabId[sender.tab.id]
             });
+            delete temporaryWhitelistOnReloadByTabId[sender.tab.id];
             delete scrollPosByTabId[sender.tab.id];
             return false;
 
@@ -932,6 +936,9 @@ var tgs = (function () {
 
         case 'requestUnsuspendTab':
             if (sender.tab && isSuspended(sender.tab)) {
+                if (request.addToTemporaryWhitelist) {
+                    temporaryWhitelistOnReloadByTabId[sender.tab.id] = true;
+                }
                 unsuspendTab(sender.tab);
             }
             return true;
@@ -1021,6 +1028,7 @@ var tgs = (function () {
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         queueSessionTimer();
         delete unsuspendOnReloadByTabId[tabId];
+        delete temporaryWhitelistOnReloadByTabId[tabId];
         lastTabCloseTimestamp = new Date();
     });
     chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {

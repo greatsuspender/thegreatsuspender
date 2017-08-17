@@ -40,6 +40,11 @@
             if (response && response.scrollPos && response.scrollPos !== '' && response.scrollPos !== '0') {
                 document.body.scrollTop = response.scrollPos;
             }
+
+            //handle auto temporary whitelisting
+            if (response && response.temporaryWhitelist) {
+                tempWhitelist = true;
+            }
         });
         chrome.runtime.sendMessage(tabState);
     }

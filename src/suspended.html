@@ -3,6 +3,7 @@
 <head>
 	<title id="gsTitle">Suspended Tab</title>
 	<link id="gsFavicon" rel="icon" href="img/icon16.png" />
+	<link rel="stylesheet" href="css/font-awesome.min.css">
 	<script type="text/javascript" src="js/suspended.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
@@ -14,7 +15,7 @@
 	</div>
 	<a id="gsReloadLink" class="gsReloadLink">Reload tab</a>
 	<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-	<a id="gsWhitelistLink" class="gsWhitelistLink">Whitelist tab</a>
+	<a id="gsWhitelistLink" class="gsWhitelistLink">Whitelist site</a>
 </div>
 <div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
     <div class="centerBox">
@@ -47,15 +48,15 @@
 	  	<div class="modal-body">
 	    	<div class="radio">
 		    	<input type="radio" name="whitelistOption" id="whitelistSite" checked />
-		    	<label for="whitelistSite">All of <span id="fullUrl">this domain</span></label>
+		    	<label for="whitelistSite"><span id="rootUrl">this domain</span></label>
 		    </div>
 		    <div class="radio">
 		    	<input type="radio" name="whitelistOption" id="whitelistPage" />
-		    	<label for="whitelistPage">Just this page</label>
+		    	<label for="whitelistPage"><span id="fullUrl"></span></label>
 		    </div>
 		    <div class="radio">
 			    <input type="radio" name="whitelistOption" id="whitelistTemporary" />
-		    	<label for="whitelistTemporary">Just this tab, this session only</label>
+		    	<label for="whitelistTemporary">Just this tab, for this session only</label>
 		    </div>
 		    <p class="lesserText">Whitelisted sites won't be automatically suspended.</p>
 	  	</div>

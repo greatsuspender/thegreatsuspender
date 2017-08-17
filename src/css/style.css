@@ -546,7 +546,8 @@ a.historyLink:hover {
 
 /* Modal Content */
 .modal-wrapper {
-    display: none; 
+    display: none;
+    text-align: center;
     position: fixed;
     z-index: 9999999;
     padding-top: 50px;
@@ -558,12 +559,16 @@ a.historyLink:hover {
     background-color: rgba(0,0,0,0.4);
 }
 .modal-content {
+    display: inline-block;
+    text-align: left;
     position: relative;
+    max-width: 800px;
+    min-width: 400px;
+    white-space: nowrap;
     background-color: #fefefe;
     margin: auto;
     padding: 0;
     border: 1px solid #888;
-    width: 400px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
     -webkit-animation-name: animatetop;
     -webkit-animation-duration: 0.3s;
@@ -571,7 +576,7 @@ a.historyLink:hover {
     animation-duration: 0.3s
 }
 @-webkit-keyframes animatetop {
-    from {top:-100px; opacity:0} 
+    from {top:-100px; opacity:0}
     to {top:0; opacity:1}
 }
 
