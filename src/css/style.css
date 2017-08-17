@@ -360,6 +360,10 @@ a.historyLink:hover {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+.gsTopBarImg {
+    margin-right: 10px;
+    margin-bottom: -1px;
+}
 .gsTopBarTitle {
     font-size: 19px;
     line-height: 26px;
