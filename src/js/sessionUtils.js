@@ -4,11 +4,6 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    function hideModal() {
-        document.getElementById('sessionNameModal').style.display = 'none';
-        document.getElementsByClassName('mainContent')[0].className = 'mainContent';
-    }
-
     function reloadTabs(element, suspendMode) {
 
         return function () {
@@ -60,19 +55,12 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-            document.getElementsByClassName('mainContent')[0].className += ' blocked';
-            document.getElementById('sessionNameModal').style.display = 'block';
-            document.getElementById('sessionNameText').focus();
-
-            document.getElementById('sessionNameCancel').onclick = hideModal;
-            document.getElementById('sessionNameSubmit').onclick = function () {
-                var text = document.getElementById('sessionNameText').value;
-                if (text) {
-                    session.name = text;
-                    gsUtils.addToSavedSessions(session);
-                    window.location.reload();
-                }
-            };
+            var sessionName = window.prompt('Enter a name for this session:');
+            if (sessionName) {
+                session.name = sessionName;
+                gsUtils.addToSavedSessions(session);
+                window.location.reload();
+            }
         });
     }
 
@@ -373,7 +361,6 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
     return {
         createSessionHtml: createSessionHtml,
-        createTabHtml: createTabHtml,
-        hideModal: hideModal
+        createTabHtml: createTabHtml
     };
 }());

@@ -12,7 +12,6 @@
             clearHistoryEl = document.getElementById('clearHistory'),
             firstSession = true;
 
-        sessionUtils.hideModal();
         currentDiv.innerHTML = '';
         sessionsDiv.innerHTML = '';
         historyDiv.innerHTML = '';
