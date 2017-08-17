@@ -21,7 +21,6 @@
     function init() {
 
         //do startup jobs
-        var tabState = buildTabStateObject();
         chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
             //set timer job
@@ -45,8 +44,10 @@
             if (response && response.temporaryWhitelist) {
                 tempWhitelist = true;
             }
+
+            var tabState = buildTabStateObject();
+            chrome.runtime.sendMessage(tabState);
         });
-        chrome.runtime.sendMessage(tabState);
     }
 
     function calculateState() {

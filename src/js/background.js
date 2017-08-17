@@ -1040,6 +1040,9 @@ var tgs = (function () {
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
+        if (debug) console.log('tab updated', changeInfo);
+
+        var updateStatus = false;
 
         //only save session if the tab url has changed
         if (changeInfo.url) {
@@ -1055,9 +1058,13 @@ var tgs = (function () {
             }
             //if tab is currently visible then update popup icon
             if (tabId === globalCurrentTabId) {
-                var status = processActiveTabStatus(tab, 'normal');
-                updateIcon(status);
+                updateStatus = true;
             }
+        }
+
+        //check for change in tabs pinned status
+        if (changeInfo.hasOwnProperty('pinned') && tabId === globalCurrentTabId) {
+            updateStatus = true;
         }
 
         if (isSuspended(tab)) {
@@ -1072,6 +1079,12 @@ var tgs = (function () {
             } else if (changeInfo.status === 'complete') {
                 sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: true });
             }
+        }
+
+        //update popup icon
+        if (updateStatus) {
+            var status = processActiveTabStatus(tab, 'normal');
+            updateIcon(status);
         }
     });
     chrome.windows.onCreated.addListener(function () {
@@ -1107,9 +1120,24 @@ var tgs = (function () {
 
             battery.onchargingchange = function () {
                 chargingMode = battery.charging;
+                requestTabInfo(false, function (info) {
+                    updateIcon(info.status);
+                });
             };
         });
     }
+
+    //add listeners for online/offline state changes
+    window.addEventListener('online', function () {
+        requestTabInfo(false, function (info) {
+            updateIcon(info.status);
+        });
+    });
+    window.addEventListener('offline', function () {
+        requestTabInfo(false, function (info) {
+            updateIcon(info.status);
+        });
+    });
 
     //start job to check for notices (once a day)
     window.setInterval(checkForNotices, 1000 * 60 * 60 * 24);
