@@ -127,7 +127,8 @@ textarea {
     color: #444;
     width: 100%;
     border-color: #C3C3C3;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 300;
     padding: 3px 5px;
     white-space: nowrap;
 }
