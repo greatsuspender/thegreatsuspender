@@ -6,29 +6,28 @@
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var globalActionElListener;
 
-    var retries = 0;
-    var getTabStatus = function (callback) {
+    var getTabStatus = function (retriesRemaining, callback) {
         tgs.requestTabInfo(false, function (info) {
             if (chrome.runtime.lastError) {
                 console.log(chrome.runtime.lastError.message);
             }
-            if (info && info.status !== 'unknown') {
-                callback(info.status);
-            } else if (retries < (5 * 10)) { //10 seconds
-                if (retries === 0 && document.getElementById('loadBar')) {
-                    document.getElementById('loadBar').style.display = 'block';
-                }
-                retries++;
-                setTimeout(function () {
-                    getTabStatus(callback);
-                }, 200);
+            if (retriesRemaining === 0 || (info && info.status !== 'unknown')) {
+                var status = info ? info.status : 'unknown';
+                callback(status);
             } else {
-                window.close();
+                retriesRemaining--;
+                setTimeout(function () {
+                    getTabStatus(retriesRemaining, callback);
+                }, 200);
             }
         });
     };
+    var initialTabStatusAsPromised = new Promise(function (resolve, reject) {
+        getTabStatus(0, resolve);
+    });
     var tabStatusAsPromised = new Promise(function (resolve, reject) {
-        getTabStatus(resolve);
+        var retries = 50; //each retry is 200ms which makes 10 seconds
+        getTabStatus(retries, resolve);
     });
     var selectedTabsAsPromised = new Promise(function (resolve, reject) {
         chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
@@ -38,21 +37,28 @@
 
 
 
-    Promise.all([gsUtils.documentReadyAsPromsied(document), tabStatusAsPromised, selectedTabsAsPromised])
-        .then(function ([domLoadedEvent, tabStatus, selectedTabs]) {
+    Promise.all([gsUtils.documentReadyAsPromsied(document), initialTabStatusAsPromised, selectedTabsAsPromised])
+        .then(function ([domLoadedEvent, initialTabStatus, selectedTabs]) {
 
-            setSuspendAllVisibility(tabStatus);
+            setSuspendCurrentVisibility(initialTabStatus);
             setSuspendSelectedVisibility(selectedTabs);
-
-            setStatus(tabStatus);
+            setStatus(initialTabStatus);
             showPopupContents();
             addClickHandlers();
+
+            if (initialTabStatus === 'unknown') {
+                tabStatusAsPromised.then(function (tabStatus) {
+                    tabStatus = (tabStatus === 'unknown' ? 'error' : tabStatus);
+                    setSuspendCurrentVisibility(tabStatus);
+                    setStatus(tabStatus);
+                });
+            }
         });
 
-    function setSuspendAllVisibility(tabStatus) {
+    function setSuspendCurrentVisibility(tabStatus) {
 
-        var suspendOneVisible = (tabStatus !== 'suspended' && tabStatus !== 'special' && tabStatus !== 'unknown'),
-            whitelistVisible = (tabStatus !== 'whitelisted' && tabStatus !== 'special'),
+        var suspendOneVisible = !['suspended', 'special', 'unknown', 'error'].includes(tabStatus),
+            whitelistVisible = !['whitelisted', 'special', 'unknown', 'error'].includes(tabStatus),
             pauseVisible = (tabStatus === 'normal');
 
         if (suspendOneVisible) {
@@ -131,16 +137,30 @@
 
         } else if (status === 'noConnectivity') {
             statusDetail = 'No network connection.';
-            statusIconClass = 'fa fa-pause';
+            statusIconClass = 'fa fa-plane';
 
         } else if (status === 'charging') {
             statusDetail = 'Connected to power source.';
-            statusIconClass = 'fa fa-pause';
+            statusIconClass = 'fa fa-plug';
+
+        } else if (status === 'unknown') {
+            statusDetail = 'Loading tab information..';
+            statusIconClass = 'fa fa-circle-o-notch';
+
+        } else if (status === 'error') {
+            statusDetail = 'Failed to load tab information.';
+            statusIconClass = 'fa fa-exclamation-triangle';
+
         } else {
             console.log('Could not process tab status of: ' + status);
         }
         document.getElementById('statusDetail').innerHTML = statusDetail;
         document.getElementById('statusIcon').className = statusIconClass;
+        if (status === 'unknown') {
+            document.getElementById('statusIcon').classList.add('fa-spin');
+        } else if (status === 'normal') {
+            document.getElementById('header').style['background-color'] = '#039BE5';
+        }
 
         // Update action handler
         var actionEl = document.getElementsByTagName('a')[0];
@@ -173,9 +193,6 @@
 
     function showPopupContents() {
         setTimeout(function () {
-            document.getElementById('loadBar').style.display = 'none';
-            document.getElementById('header').style.display = 'block';
-            document.getElementById('popupContent').style.display = 'block';
             setTimeout(function () {
                 document.getElementById('popupContent').style.opacity = 1;
             }, 50);
