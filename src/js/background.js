@@ -365,10 +365,6 @@ var tgs = (function () {
         sendMessageToTab(tabId, messageParams);
     }
 
-    function cancelTabTimer(tabId) {
-        sendMessageToTab(tabId, {action: 'cancelTimer'});
-    }
-
     function unsuspendTab(tab) {
         if (!isSuspended(tab)) return;
 
@@ -446,10 +442,10 @@ var tgs = (function () {
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
         (function () {
-            var selectedTab = tabId;
+            var selectedTabId = tabId;
             setTimeout(function () {
-                if (selectedTab === globalCurrentTabId) {
-                    handleNewTabFocus(globalCurrentTabId);
+                if (selectedTabId === globalCurrentTabId) {
+                    handleNewTabFocus(selectedTabId);
                 }
             }, 500);
         }());
@@ -458,19 +454,25 @@ var tgs = (function () {
     function handleNewTabFocus(tabId) {
         var unsuspend = gsUtils.getOption(gsUtils.UNSUSPEND_ON_FOCUS);
 
-        //if pref is set, then unsuspend newly focused tab
+        //optimisation to prevent a chrome.tabs.get call
         if (unsuspend) {
-            //get tab object so we can check if it is a special or suspended tab
+
+            //get tab object so we can check if it is a suspended tab
             chrome.tabs.get(tabId, function (tab) {
-                if (!isSpecialTab(tab) && isSuspended(tab)) {
-                    unsuspendTab(tab);
+                if (isSuspended(tab)) {
+
+                    if (navigator.onLine) {
+                        unsuspendTab(tab);
+                    } else {
+                        sendMessageToTab(tab.id, { action: 'showNoConnectivityMessage' });
+                    }
                 }
             });
         }
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
-        cancelTabTimer(tabId);
+        sendMessageToTab(tabId, {action: 'cancelTimer'});
     }
 
     function checkForCrashRecovery(forceRecovery) {

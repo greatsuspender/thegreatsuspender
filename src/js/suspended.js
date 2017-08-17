@@ -137,22 +137,6 @@
                 chrome.runtime.sendMessage({ action: 'requestUnsuspendOnReload' });
             }
         });
-
-        //listen for background events
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-            switch (request.action) {
-
-            case 'unsuspendTab':
-                unsuspendTab();
-                sendResponse({ result: 'done' });
-                return false;
-
-            case 'setUnsuspendOnReload':
-                requestUnsuspendOnReload = request.value || false;
-                sendResponse({ result: 'done' });
-                return false;
-            }
-        });
     }
 
     function generateFaviconUri(url, callback) {
@@ -215,6 +199,13 @@
         requestUnsuspendTab(true);
     }
 
+    function showNoConnectivityMessage() {
+        document.getElementById('disconnectedNotice').style.display = 'none';
+        setTimeout(function () {
+            document.getElementById('disconnectedNotice').style.display = 'block';
+        }, 50);
+    }
+
     function toggleModal(visible) {
         document.getElementById('whitelistOptionsModal').style.display = visible ? 'block' : 'none';
     }
@@ -248,4 +239,25 @@
         document.getElementById('dudePopup').setAttribute('class', 'poppedup');
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
     }
+
+    //listen for background events
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        switch (request.action) {
+
+        case 'unsuspendTab':
+            unsuspendTab();
+            sendResponse({ result: 'done' });
+            return false;
+
+        case 'setUnsuspendOnReload':
+            requestUnsuspendOnReload = request.value || false;
+            sendResponse({ result: 'done' });
+            return false;
+
+        case 'showNoConnectivityMessage':
+            showNoConnectivityMessage();
+            sendResponse({ result: 'done' });
+            return false;
+        }
+    });
 }());

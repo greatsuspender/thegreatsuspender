@@ -528,6 +528,45 @@ a.historyLink:hover {
 /* end suspended tab styles */
 
 /* Modal Content */
+.toast-wrapper {
+    display: none;
+    text-align: center;
+    position: fixed;
+    z-index: 9999999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+.toast-content {
+    display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fefefe;
+    margin: auto;
+    padding: 10px 20px 20px 20px;
+    border: 1px solid #888;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    opacity: 0;
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
+}
+
+.toast-content p {
+    font-size: 16px;
+}
+
+@-webkit-keyframes fadeinout {
+    0%,100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeinout {
+    0%,100% { opacity: 0; }
+    5%, 90% { opacity: 1; }
+}
+
 .modal-wrapper {
     display: none;
     text-align: center;
