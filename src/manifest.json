@@ -52,7 +52,7 @@
       "suggested_key": { "default": "Ctrl+Shift+U" }
     },
     "3-suspend-active-window": {
-      "description": "Suspend all tabs in active window"
+      "description": "Suspend all other tabs in active window"
     },
     "4-unsuspend-active-window": {
       "description": "Unsuspend all tabs in active window"
