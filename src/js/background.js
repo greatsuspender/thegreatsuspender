@@ -620,6 +620,11 @@ var tgs = (function () {
                 //recover tabs silently
                 checkForCrashRecovery(true);
 
+                //close any 'update' tabs that may be open
+                chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
+                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                });
+
                 //show updated screen
                 chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
             }
