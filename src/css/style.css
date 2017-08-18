@@ -342,6 +342,8 @@ a.historyLink:hover {
 .gsTopBarImg {
     margin-right: 10px;
     margin-bottom: -1px;
+    height: 16px;
+    width: 16px;
 }
 .gsTopBarTitle {
     font-size: 19px;
