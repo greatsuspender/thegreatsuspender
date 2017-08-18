@@ -22,7 +22,6 @@ var tgs = (function () {
         unsuspendOnReloadByTabId = {},
         temporaryWhitelistOnReloadByTabId = {},
         scrollPosByTabId = {},
-        lastTabCloseTimestamp = new Date(),
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png';
 
@@ -431,13 +430,6 @@ var tgs = (function () {
         requestTabInfo(tabId, function (info) {
             updateIcon(info.status);
         });
-
-        //check to see if we have just recently removed a tab
-        //if so, assume this is an 'accidental' tab focus and do not unsuspend
-        if (lastTabCloseTimestamp > (new Date()) - 500) {
-            if (debug) console.log('ignoring tab focus');
-            return;
-        }
 
         //pause for a bit before assuming we're on a new tab as some users
         //will key through intermediate tabs to get to the one they want.
@@ -1031,7 +1023,6 @@ var tgs = (function () {
         queueSessionTimer();
         delete unsuspendOnReloadByTabId[tabId];
         delete temporaryWhitelistOnReloadByTabId[tabId];
-        lastTabCloseTimestamp = new Date();
     });
     chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {
         var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
