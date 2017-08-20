@@ -462,6 +462,9 @@ var tgs = (function () {
             });
         }
 
+        //remove request to instantly suspend this tab id
+        delete backgroundTabCreateTimestampByTabId[tabId];
+
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
         sendMessageToTab(tabId, {action: 'cancelTimer'});
