@@ -1084,8 +1084,8 @@ var tgs = (function () {
             if (changeInfo.status === 'complete') {
                 var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
                 var backgroundTabCreateTimestamp = backgroundTabCreateTimestampByTabId[tab.id];
-                //safety check that only allows tab to auto suspend if it has been less than 60 seconds since background tab created
-                if (tab && instantlySuspend && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 60)) {
+                //safety check that only allows tab to auto suspend if it has been less than 300 seconds since background tab created
+                if (tab && instantlySuspend && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 300)) {
                     requestTabSuspension(tab, 1);
                 }
             }
