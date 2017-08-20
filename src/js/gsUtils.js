@@ -279,9 +279,9 @@ var gsUtils = {
         var version = localStorage.getItem(this.APP_VERSION);
         if (version !== null) {
             version = JSON.parse(version);
-            return version;
+            return version + '';
         } else {
-            return 0;
+            return '0.0.0';
         }
     },
 
@@ -293,9 +293,9 @@ var gsUtils = {
         var result = localStorage.getItem(this.LAST_NOTICE);
         if (result !== null) {
             result = JSON.parse(result);
-            return result;
+            return result + '';
         } else {
-            return 0;
+            return '0.0.0';
         }
     },
 
@@ -960,10 +960,12 @@ var gsUtils = {
         var self = this,
             server;
 
-        oldVersion = parseFloat(oldVersion);
+        var major = parseInt(oldVersion.split('.')[0] || 0),
+            minor = parseInt(oldVersion.split('.')[1] || 0),
+            patch = parseInt(oldVersion.split('.')[2] || 0);
 
         //perform migrated history fixup
-        if (oldVersion < 6.13) {
+        if (major < 6 || (major === 6 && minor < 13)) { // if (oldVersion < 6.13)
 
             //fix up migrated saved session and newly saved session sessionIds
             this.getDb().then(function (s) {
@@ -983,7 +985,7 @@ var gsUtils = {
                 });
             });
         }
-        if (oldVersion < 6.30) {
+        if (major < 6 || (major === 6 && minor < 30)) { // if (oldVersion < 6.30)
 
             if (this.getOption('preview')) {
                 if (this.getOption('previewQuality') === '0.1') {
@@ -995,7 +997,7 @@ var gsUtils = {
                 this.setOption(this.SCREEN_CAPTURE, '0');
             }
         }
-        if (oldVersion < 6.31) {
+        if (major < 6 || (major === 6 && minor < 31)) { // if (oldVersion < 6.31)
             // When migrating old settings, disable sync by default.
             // For new installs, we want this to default to on.
             this.setOption(this.SYNC_SETTINGS, false);

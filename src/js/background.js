@@ -636,9 +636,7 @@ var tgs = (function () {
             checkForCrashRecovery(false);
 
             //trim excess dbItems
-            if (lastVersion > 6.12) {
-                gsUtils.trimDbItems();
-            }
+            gsUtils.trimDbItems();
         }
 
         //inject new content script into all open pages
@@ -661,7 +659,7 @@ var tgs = (function () {
                 var resp = JSON.parse(xhr.responseText);
 
                 //only show notice if it is intended for this version and it has not already been shown
-                if (resp.active && resp.text && resp.title &&
+                if (resp && resp.active && resp.text && resp.title &&
                     resp.target === chrome.runtime.getManifest().version &&
                     resp.version !== lastNoticeVersion) {
 
