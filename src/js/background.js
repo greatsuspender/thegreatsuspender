@@ -14,7 +14,7 @@ var tgs = (function () {
     var debug = false,
         sessionId,
         lastSelectedTabByWindowId = {},
-        isNewBackgroundTabByTabId = {},
+        backgroundTabCreateTimestampByTabId = {},
         globalCurrentTabId,
         sessionSaveTimer,
         chargingMode = false,
@@ -903,11 +903,6 @@ var tgs = (function () {
         case 'initTab':
 
             var suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME);
-            var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
-            if (sender.tab && instantlySuspend && isNewBackgroundTabByTabId[sender.tab.id]) {
-                delete isNewBackgroundTabByTabId[sender.tab.id];
-                suspendTime = 0;
-            }
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 suspendTime: suspendTime,
@@ -1026,11 +1021,13 @@ var tgs = (function () {
         queueSessionTimer();
         delete unsuspendOnReloadByTabId[tabId];
         delete temporaryWhitelistOnReloadByTabId[tabId];
+        delete backgroundTabCreateTimestampByTabId[tabId];
     });
     chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {
+        if (debug) console.log('onCreatedNavigationTarget', details);
         var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
         if (instantlySuspend) {
-            isNewBackgroundTabByTabId[details.tabId] = true;
+            backgroundTabCreateTimestampByTabId[details.tabId] = details.timeStamp;
         }
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -1071,9 +1068,23 @@ var tgs = (function () {
                 }
                 delete unsuspendOnReloadByTabId[tab.id];
 
-            //once the suspended tab has completed loading, then set the setUnsuspendOnReload to true
+
             } else if (changeInfo.status === 'complete') {
+                //set the setUnsuspendOnReload to true
                 sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: true });
+
+                //remove request to instantly suspend this tab id
+                delete backgroundTabCreateTimestampByTabId[tab.id];
+            }
+
+        } else {
+            if (changeInfo.status === 'complete') {
+                var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
+                var backgroundTabCreateTimestamp = backgroundTabCreateTimestampByTabId[tab.id];
+                //safety check that only allows tab to auto suspend if it has been less than 60 seconds since background tab created
+                if (tab && instantlySuspend && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 60)) {
+                    requestTabSuspension(tab, 1);
+                }
             }
         }
 
