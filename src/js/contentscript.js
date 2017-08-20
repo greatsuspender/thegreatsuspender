@@ -24,9 +24,10 @@
         chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
             //set timer job
-            if (response && !isNaN(Number(response.suspendTime))) {
+            var suspendTime = Number(response.suspendTime);
+            if (response && !isNaN(suspendTime) && suspendTime > 0) {
 
-                var suspendTime = response.suspendTime * (1000 * 60);
+                suspendTime = suspendTime * (1000 * 60);
                 timerJob = setTimerJob(suspendTime);
             }
 
@@ -177,7 +178,8 @@
         case 'resetPreferences':
             if (request.hasOwnProperty('suspendTime')) {
                 clearTimeout(timerJob);
-                if (request.suspendTime > 0) {
+                var suspendTime = Number(request.suspendTime);
+                if (!isNaN(suspendTime) && suspendTime > 0) {
                     timerJob = setTimerJob(request.suspendTime * (1000 * 60));
                 } else {
                     suspendDateTime = false;
