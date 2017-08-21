@@ -800,7 +800,7 @@ var tgs = (function () {
     //change the icon to either active or inactive
     function updateIcon(status) {
         var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
-        chrome.browserAction.setIcon({path: icon});
+        chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId });
     }
 
     //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
