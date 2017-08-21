@@ -593,17 +593,14 @@ var tgs = (function () {
             contextMenus = gsUtils.getOption(gsUtils.ADD_CONTEXT);
 
         //if version has changed then assume initial install or upgrade
-        if (lastVersion !== curVersion) {
+        if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
             gsUtils.setLastVersion(curVersion);
 
             //if they are installing for the first time
             if (!lastVersion) {
 
-                // prevent welcome screen to opening every time we use incognito mode (due to localstorage not saved)
-                if (!chrome.extension.inIncognitoContext) {
-                    //show welcome screen
-                    chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-                }
+                //show welcome screen
+                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
             //else if they are upgrading to a new version
             } else {
@@ -1070,7 +1067,6 @@ var tgs = (function () {
                     unsuspendTab(tab);
                 }
                 delete unsuspendOnReloadByTabId[tab.id];
-
 
             } else if (changeInfo.status === 'complete') {
                 //set the setUnsuspendOnReload to true
