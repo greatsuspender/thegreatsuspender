@@ -49,7 +49,7 @@
 
                     var previewEl = document.createElement('div');
                     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
-                    previewEl.onclick = requestUnsuspendTab;
+                    previewEl.onclick = handleUnsuspendTab;
                     document.getElementsByTagName('body')[0].appendChild(previewEl);
 
                     document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
@@ -93,8 +93,8 @@
         }
 
         //click listeners
-        document.getElementById('suspendedMsg').onclick = requestUnsuspendTab;
-        document.getElementById('gsReloadLink').onclick = requestUnsuspendTab;
+        document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
+        document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
         document.getElementById('gsWhitelistLink').onclick = function () {
             if (isWhitelisted) {
                 unwhitelistTab(rootUrlStr, fullUrlStr);
@@ -159,6 +159,11 @@
 
     function setFavicon(favicon) {
         document.getElementById('gsFavicon').setAttribute('href', favicon);
+    }
+
+    function handleUnsuspendTab(e) {
+        // dont want to pass the event arg along to the requestUnsuspendTab function!!
+        requestUnsuspendTab();
     }
 
     function requestUnsuspendTab(addToTemporaryWhitelist) {
