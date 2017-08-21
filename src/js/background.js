@@ -1035,8 +1035,6 @@ var tgs = (function () {
         if (!changeInfo) return;
         if (debug) console.log('tab updated', changeInfo);
 
-        var updateStatus = false;
-
         //only save session if the tab url has changed
         if (changeInfo.url) {
             queueSessionTimer();
@@ -1051,29 +1049,33 @@ var tgs = (function () {
             }
             //if tab is currently visible then update popup icon
             if (tabId === globalCurrentTabId) {
-                updateStatus = true;
+                updateIcon(processActiveTabStatus(tab, 'normal'));
             }
         }
 
         //check for change in tabs pinned status
         if (changeInfo.hasOwnProperty('pinned') && tabId === globalCurrentTabId) {
-            updateStatus = true;
+            updateIcon(processActiveTabStatus(tab, 'normal'));
         }
 
         if (isSuspended(tab)) {
             //reload if tab does not have an unsuspend request. only permit unsuspend if tab is being reloaded
             if (changeInfo.status === 'loading') {
-                if (unsuspendOnReloadByTabId[tab.id]) {
+                if (unsuspendOnReloadByTabId[tabId]) {
                     unsuspendTab(tab);
                 }
-                delete unsuspendOnReloadByTabId[tab.id];
+                delete unsuspendOnReloadByTabId[tabId];
 
             } else if (changeInfo.status === 'complete') {
                 //set the setUnsuspendOnReload to true
-                sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: true });
+                sendMessageToTab(tabId, { action: 'setUnsuspendOnReload', value: true });
 
                 //remove request to instantly suspend this tab id
-                delete backgroundTabCreateTimestampByTabId[tab.id];
+                delete backgroundTabCreateTimestampByTabId[tabId];
+
+                if (tabId === globalCurrentTabId) {
+                    updateIcon('suspended');
+                }
             }
 
         } else {
@@ -1085,12 +1087,6 @@ var tgs = (function () {
                     requestTabSuspension(tab, 1);
                 }
             }
-        }
-
-        //update popup icon
-        if (updateStatus) {
-            var status = processActiveTabStatus(tab, 'normal');
-            updateIcon(status);
         }
     });
     chrome.windows.onCreated.addListener(function () {
