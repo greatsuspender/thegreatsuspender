@@ -588,16 +588,6 @@ var tgs = (function () {
 
     function runStartupChecks() {
 
-        //initialise globalCurrentTabId
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
-            }
-        });
-
-        //initialise settings
-        gsUtils.initSettings();
-
         var lastVersion = gsUtils.fetchLastVersion(),
             curVersion = chrome.runtime.getManifest().version,
             contextMenus = gsUtils.getOption(gsUtils.ADD_CONTEXT);
@@ -647,6 +637,16 @@ var tgs = (function () {
 
         //add context menu items
         buildContextMenu(contextMenus);
+
+        //initialise globalCurrentTabId
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            if (tabs.length > 0) {
+                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
+            }
+        });
+
+        //initialise settings
+        gsUtils.initSettings();
     }
 
     function checkForNotices() {

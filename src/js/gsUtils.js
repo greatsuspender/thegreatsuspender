@@ -65,9 +65,10 @@ var gsUtils = {
     //populate localstorage settings with sync settings where undefined
     initSettings: function () {
         var that = this;
-        var rawLocalSettings = localStorage.getItem('gsSettings') || {};
+        var rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings')) || {};
         var defaultSettings = gsUtils.getSettingsDefaults();
-        var shouldSyncSettings = rawLocalSettings[that.SYNC_SETTINGS] || defaultSettings[that.SYNC_SETTINGS];
+        var shouldSyncSettings = rawLocalSettings.hasOwnProperty(that.SYNC_SETTINGS)
+            ? rawLocalSettings[that.SYNC_SETTINGS] : defaultSettings[that.SYNC_SETTINGS];
         var allSettingKeys = Object.keys(defaultSettings);
         chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
 
@@ -75,11 +76,14 @@ var gsUtils = {
             // then overwrite with synced value
             var newSettings = {};
             allSettingKeys.forEach(function (key) {
-                if (key !== that.SYNC_SETTINGS && syncedSettings[key] && (!rawLocalSettings[key] || shouldSyncSettings)) {
+                if (key !== that.SYNC_SETTINGS && syncedSettings.hasOwnProperty(key) &&
+                    (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)) {
                     newSettings[key] = syncedSettings[key];
                 }
                 //make sure we have a value for this key
-                newSettings[key] = newSettings[key] || rawLocalSettings[key] || defaultSettings[key];
+                if (!newSettings.hasOwnProperty(key)) {
+                    newSettings[key] = rawLocalSettings.hasOwnProperty(key) ? rawLocalSettings[key] : defaultSettings[key];
+                }
             });
             that.saveSettings(newSettings);
 
