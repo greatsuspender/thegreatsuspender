@@ -27,7 +27,7 @@ module.exports = function(grunt) {
             }
         },
         crx: {
-            public: {
+            tgsPublic: {
                 src: [
                     "src/**/*",
                     "!**/html2canvas.js",
@@ -35,7 +35,7 @@ module.exports = function(grunt) {
                 ],
                 dest: "build/<%= pkg.name %>-<%= manifest.version %>-dev.zip",
             },
-            private: {
+            tgsPrivate: {
                 src: [
                     "src/**/*",
                     "!**/html2canvas.js",
@@ -46,13 +46,24 @@ module.exports = function(grunt) {
                     "privateKey": "key.pem"
                 }
             },
-            tgut: {
+            tgutPublic: {
                 src: [
                     "build/tgut-temp/src/**/*",
                     "!**/html2canvas.js",
                     "!**/Thumbs.db"
                 ],
                 dest: "build/tgut-<%= manifest.version %>-dev.zip"
+            },
+            tgutPrivate: {
+                src: [
+                    "build/tgut-temp/src/**/*",
+                    "!**/html2canvas.js",
+                    "!**/Thumbs.db"
+                ],
+                dest: "build/tgut-<%= manifest.version %>-dev.crx",
+                options: {
+                    "privateKey": "key.pem"
+                }
             }
         },
         clean: ['build/tgut-temp/']
@@ -62,7 +73,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-string-replace');
     grunt.loadNpmTasks('grunt-crx');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.registerTask('default', ['crx:public', 'crx:private']);
-    grunt.registerTask('tgut', ['copy', 'string-replace', 'crx:tgut', 'clean']);
+    grunt.registerTask('default', ['crx:tgsPublic', 'crx:tgsPrivate']);
+    grunt.registerTask('tgut', ['copy', 'string-replace', 'crx:tgutPublic', 'crx:tgutPrivate', 'clean']);
 };
 
