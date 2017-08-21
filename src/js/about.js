@@ -43,5 +43,12 @@
         request.onload = loadDonateButtons;
         request.open('GET', 'support.html', true);
         request.send();
+
+        //hide incompatible sidebar items if in incognito mode
+        if (chrome.extension.inIncognitoContext) {
+            Array.prototype.forEach.call(document.getElementsByClassName('noIncognito'), function (el) {
+                el.style.display = 'none';
+            });
+        }
     });
 }());

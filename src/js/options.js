@@ -202,5 +202,14 @@
         cancelEl.onclick = function (e) {
             closeSettings();
         };
+
+        //hide incompatible sidebar items if in incognito mode
+        if (chrome.extension.inIncognitoContext) {
+            Array.prototype.forEach.call(document.getElementsByClassName('noIncognito'), function (el) {
+                el.style.display = 'none';
+            });
+            window.alert('You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed.');
+        }
+
     });
 }());

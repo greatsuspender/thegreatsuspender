@@ -38,6 +38,14 @@
             gsUtils.clearGsSessions();
             render();
         };
+
+        //hide incompatible sidebar items if in incognito mode
+        if (chrome.extension.inIncognitoContext) {
+            Array.prototype.forEach.call(document.getElementsByClassName('noIncognito'), function (el) {
+                el.style.display = 'none';
+            });
+        }
+
     }
 
     gsUtils.documentReadyAsPromsied(document).then(function () {
