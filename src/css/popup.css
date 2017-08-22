@@ -30,8 +30,14 @@ a {
 	height: 20px;
 	width: 100%;
 	line-height: 19px;
-	background: #01579B;
+	background: #01579B; /*lightblue 900*/
 	color: #fff;
+}
+#header.willSuspend {
+	background: #2196F3; /*blue 500*/
+}
+#header.wontSuspend {
+	background: #C62828; /*red 800*/
 }
 #header img {
 	z-index: 2;

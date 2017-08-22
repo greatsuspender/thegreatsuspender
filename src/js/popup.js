@@ -158,8 +158,11 @@
         document.getElementById('statusIcon').className = statusIconClass;
         if (status === 'unknown') {
             document.getElementById('statusIcon').classList.add('fa-spin');
-        } else if (status === 'normal') {
-            document.getElementById('header').style['background-color'] = '#039BE5';
+        }
+
+        document.getElementById('header').classList.remove('willSuspend');
+        if (status === 'normal') {
+            document.getElementById('header').classList.add('willSuspend');
         }
 
         // Update action handler
