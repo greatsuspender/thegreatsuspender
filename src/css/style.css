@@ -522,7 +522,7 @@ a.historyLink:hover {
     background: #134960;
     border-bottom: 1px solid #666;
 }
-.dark .gsTopBar a {
+.dark .gsTopBar, .dark .gsTopBar a {
     color: #7493a0;
 }
 .dark a.gsTopBarTitle {
