@@ -138,10 +138,17 @@
                     setSyncNoteVisibility(false);
                 }
             }
+
+            var valueChanged = saveChange(element);
+            if (valueChanged) {
+                gsUtils.syncSettings();
+                var prefKey = elementPrefMap[element.id];
+                gsUtils.performPostSaveUpdates([prefKey]);
+            }
         };
     }
 
-    function saveChange(element, updatedPreferences) {
+    function saveChange(element) {
 
         var pref = elementPrefMap[element.id],
             oldValue = gsUtils.getOption(pref),
@@ -155,20 +162,7 @@
         //save option
         gsUtils.setOption(elementPrefMap[element.id], newValue);
 
-        if (oldValue !== newValue) {
-            updatedPreferences.push(pref);
-        }
-    }
-
-    function closeSettings() {
-        //only close the window if we were opened in a new tab.
-        //else, go back to the page we were on.
-        //this is to fix closing tabs if they were opened from the context menu.
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.close();
-        }
+        return (oldValue !== newValue);
     }
 
     gsUtils.documentReadyAsPromsied(document).then(function () {
@@ -176,30 +170,17 @@
         initSettings();
 
         var optionEls = document.getElementsByClassName('option'),
-            saveEl = document.getElementById('saveBtn'),
-            cancelEl = document.getElementById('cancelBtn'),
             element,
             i;
 
         //add change listeners for all 'option' elements
         for (i = 0; i < optionEls.length; i++) {
             element = optionEls[i];
-            element.onchange = handleChange(element);
-        }
-        saveEl.onclick = function (e) {
-            var updatedPreferences = [];
-            for (i = 0; i < optionEls.length; i++) {
-                saveChange(optionEls[i], updatedPreferences);
+            if (element.tagName === 'TEXTAREA') {
+                element.addEventListener('input', handleChange(element), false);
+            } else {
+                element.onchange = handleChange(element);
             }
-
-            // Push out all our saved settings to sync storage.
-            gsUtils.syncSettings();
-            gsUtils.performPostSaveUpdates(updatedPreferences);
-
-            closeSettings();
-        };
-        cancelEl.onclick = function (e) {
-            closeSettings();
         };
 
         //hide incompatible sidebar items if in incognito mode
@@ -209,6 +190,15 @@
             });
             window.alert('You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed.');
         }
+    });
 
+    //listen for background events
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        switch (request.action) {
+
+        case 'reloadOptions':
+            initSettings();
+            return false;
+        }
     });
 }());

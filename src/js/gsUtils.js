@@ -225,6 +225,7 @@ var gsUtils = {
         var whitelistString = whitelistItems.join('\n');
         this.setOption(this.WHITELIST, whitelistString);
         this.syncSettings({ [this.WHITELIST]: whitelistString });
+        this.updateOptionsView();
     },
 
     testForMatch: function (whitelistItem, word) {
@@ -257,6 +258,7 @@ var gsUtils = {
         whitelist = this.cleanupWhitelist(whitelist);
         this.setOption(this.WHITELIST, whitelist);
         this.syncSettings({ [this.WHITELIST]: whitelist });
+        this.updateOptionsView();
     },
 
     cleanupWhitelist: function (whitelist) {
@@ -275,6 +277,14 @@ var gsUtils = {
         } else {
             return whitelistItems;
         }
+    },
+
+    updateOptionsView: function () {
+        chrome.tabs.query({ url: chrome.extension.getURL('options.html') }, function (tabs) {
+            for (var i = 0; i < tabs.length; i++) {
+                chrome.tabs.sendMessage(tabs[i].id, { action: 'reloadOptions' });
+            }
+        })
     },
 
     fetchLastVersion: function () {
