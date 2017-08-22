@@ -14,7 +14,6 @@
         'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
         'ignoreCache': gsUtils.IGNORE_CACHE,
         'addContextMenu': gsUtils.ADD_CONTEXT,
-        'instantSuspend': gsUtils.INSTANT_SUSPEND,
         'syncSettings': gsUtils.SYNC_SETTINGS,
         'timeToSuspend': gsUtils.SUSPEND_TIME,
         'theme': gsUtils.THEME,

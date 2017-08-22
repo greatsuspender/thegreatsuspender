@@ -1,7 +1,7 @@
 {
   "name": "The Great Suspender",
   "description": "Automatically suspends unused tabs to free up system resources",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "permissions": [
     "tabs",
     "storage",
@@ -12,8 +12,7 @@
     "chrome://favicon/*",
     "https://greatsuspender.github.io/",
     "contextMenus",
-    "cookies",
-    "webNavigation"
+    "cookies"
   ],
   "background": {
     "scripts": ["js/db.js", "js/gsUtils.js", "js/background.js"],

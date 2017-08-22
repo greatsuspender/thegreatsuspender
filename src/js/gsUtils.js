@@ -14,7 +14,6 @@ var gsUtils = {
     IGNORE_AUDIO: 'gsDontSuspendAudio',
     IGNORE_CACHE: 'gsIgnoreCache',
     ADD_CONTEXT: 'gsAddContextMenu',
-    INSTANT_SUSPEND: 'gsInstantSuspend',
     SYNC_SETTINGS: 'gsSyncSettings',
     NO_NAG: 'gsNoNag',
     THEME: 'gsTheme',
@@ -48,7 +47,6 @@ var gsUtils = {
         defaults[this.IGNORE_AUDIO] = true;
         defaults[this.IGNORE_CACHE] = false;
         defaults[this.ADD_CONTEXT] = true;
-        defaults[this.INSTANT_SUSPEND] = false;
         defaults[this.SYNC_SETTINGS] = true;
         defaults[this.SUSPEND_TIME] = '60';
         defaults[this.NO_NAG] = false;
@@ -171,7 +169,7 @@ var gsUtils = {
         if (settings[this.SYNC_SETTINGS]) {
             // Since sync is a local setting, delete it to simplify things.
             delete settings[this.SYNC_SETTINGS];
-            console.log('Pushing local settings to sync', settings);
+            // console.log('Pushing local settings to sync', settings);
             chrome.storage.sync.set(settings, this.noop);
         }
     },

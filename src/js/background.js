@@ -215,6 +215,28 @@ var tgs = (function () {
         });
     }
 
+    function openLinkInSuspendedTab(parentTab, linkedUrl) {
+
+        //imitate chromes 'open link in new tab' behaviour in how it selects the correct index
+        chrome.tabs.query({ windowId: chrome.windows.WINDOW_ID_CURRENT }, function (tabs) {
+            var newTabIndex = parentTab.index + 1;
+            var nextTab = tabs[newTabIndex];
+            while (nextTab && nextTab.openerTabId === parentTab.id) {
+                newTabIndex++;
+                nextTab = tabs[newTabIndex];
+            }
+            var newTabProperties = {
+                url: linkedUrl,
+                index: newTabIndex,
+                openerTabId: parentTab.id,
+                active: false
+            };
+            chrome.tabs.create(newTabProperties, function (tab) {
+                backgroundTabCreateTimestampByTabId[tab.id] = Date.now();
+            });
+        });
+    }
+
     function suspendHighlightedTab() {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
@@ -451,6 +473,10 @@ var tgs = (function () {
 
             //get tab object so we can check if it is a suspended tab
             chrome.tabs.get(tabId, function (tab) {
+                if (chrome.runtime.lastError) {
+                    console.log(chrome.runtime.lastError.message);
+                    return;
+                }
                 if (isSuspended(tab)) {
 
                     if (navigator.onLine) {
@@ -576,7 +602,7 @@ var tgs = (function () {
 
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
                         if (chrome.runtime.lastError) {
-                            if (debug) console.log(chrome.runtime.lastError.message);
+                            console.log(chrome.runtime.lastError.message);
                         } else {
                             sendMessageToTab(tabId, {action: 'resetPreferences', suspendTime: timeout});
                         }
@@ -804,7 +830,7 @@ var tgs = (function () {
 
     function buildContextMenu(showContextMenu) {
 
-        var allContexts = ['page', 'frame', 'selection', 'link', 'editable', 'image', 'video', 'audio'];
+        var allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',
 
         chrome.contextMenus.removeAll();
 
@@ -858,6 +884,14 @@ var tgs = (function () {
                 onclick: unsuspendAllTabsInAllWindows
             });
         }
+
+        chrome.contextMenus.create({
+            title: 'Open Link in New Suspended Tab',
+            contexts: ['link'],
+            onclick: function (info, tab) {
+                openLinkInSuspendedTab(tab, info.linkUrl);
+            }
+        });
     }
 
     //HANDLERS FOR KEYBOARD SHORTCUTS
@@ -1023,13 +1057,6 @@ var tgs = (function () {
         delete temporaryWhitelistOnReloadByTabId[tabId];
         delete backgroundTabCreateTimestampByTabId[tabId];
     });
-    chrome.webNavigation.onCreatedNavigationTarget.addListener(function (details) {
-        if (debug) console.log('onCreatedNavigationTarget', details);
-        var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
-        if (instantlySuspend) {
-            backgroundTabCreateTimestampByTabId[details.tabId] = details.timeStamp;
-        }
-    });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
@@ -1080,10 +1107,9 @@ var tgs = (function () {
 
         } else {
             if (changeInfo.status === 'complete') {
-                var instantlySuspend = gsUtils.getOption(gsUtils.INSTANT_SUSPEND);
                 var backgroundTabCreateTimestamp = backgroundTabCreateTimestampByTabId[tab.id];
                 //safety check that only allows tab to auto suspend if it has been less than 300 seconds since background tab created
-                if (tab && instantlySuspend && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 300)) {
+                if (tab && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 300)) {
                     requestTabSuspension(tab, 1);
                 }
             }
