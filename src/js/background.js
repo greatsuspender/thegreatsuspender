@@ -419,11 +419,12 @@ var tgs = (function () {
         chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
             if (tabs && tabs.length === 1) {
 
-                lastSelectedTabByWindowId[windowId] = tabs[0].id;
-                globalCurrentTabId = tabs[0].id;
+                var currentTab = tabs[0];
+                lastSelectedTabByWindowId[windowId] = currentTab.id;
+                globalCurrentTabId = currentTab.id;
 
                 //update icon
-                requestTabInfo(tabs[0].id, function (info) {
+                requestTabInfo(currentTab.id, function (info) {
                     updateIcon(info.status);
                 });
             }
