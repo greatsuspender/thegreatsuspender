@@ -519,13 +519,20 @@ a.historyLink:hover {
 
 /* dark theme for night lurkers */
 .dark .gsTopBar {
-    background: #CDCDCD;
+    background: #134960;
+    border-bottom: 1px solid #666;
+}
+.dark .gsTopBar a {
+    color: #7493a0;
+}
+.dark a.gsTopBarTitle {
+    color: #ccc;
 }
 .dark .suspendedMsg, .dark {
-    background: #134960;
+    background: #141a1d;
 }
 .dark .suspendedMsg h1, .dark .suspendedMsg h2 {
-    color: #7AA4AE;
+    color: #666;
 }
 /* end suspended tab styles */
 
