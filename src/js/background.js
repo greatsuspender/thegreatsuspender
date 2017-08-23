@@ -838,17 +838,17 @@ var tgs = (function () {
         if (showContextMenu) {
 
             chrome.contextMenus.create({
-                title: 'Suspend tab',
+                title: chrome.i18n.getMessage('js_background_suspend_tab'),
                 contexts: allContexts,
                 onclick: suspendHighlightedTab
             });
             chrome.contextMenus.create({
-                title: 'Don\'t suspend for now',
+                title: chrome.i18n.getMessage('js_background_dont_suspend_now'),
                 contexts: allContexts,
                 onclick: temporarilyWhitelistHighlightedTab
             });
             chrome.contextMenus.create({
-                title: 'Never suspend this site',
+                title: chrome.i18n.getMessage('js_background_never_suspend_site'),
                 contexts: allContexts,
                 onclick: whitelistHighlightedTab
             });
@@ -859,12 +859,12 @@ var tgs = (function () {
             });
 
             chrome.contextMenus.create({
-                title: 'Suspend other tabs in this window',
+                title: chrome.i18n.getMessage('js_background_suspend_other_tabs_in_window'),
                 contexts: allContexts,
                 onclick: suspendAllTabs
             });
             chrome.contextMenus.create({
-                title: 'Unsuspend all tabs in this window',
+                title: chrome.i18n.getMessage('js_background_unsuspend_all_tabs_in_window'),
                 contexts: allContexts,
                 onclick: unsuspendAllTabs
             });
@@ -875,19 +875,19 @@ var tgs = (function () {
             });
 
             chrome.contextMenus.create({
-                title: 'Force suspend all tabs in all windows',
+                title: chrome.i18n.getMessage('js_background_force_suspend_all_tabs'),
                 contexts: allContexts,
                 onclick: suspendAllTabsInAllWindows
             });
             chrome.contextMenus.create({
-                title: 'Unsuspend all tabs in all windows',
+                title: chrome.i18n.getMessage('js_background_unsuspend_all_tabs'),
                 contexts: allContexts,
                 onclick: unsuspendAllTabsInAllWindows
             });
         }
 
         chrome.contextMenus.create({
-            title: 'Open Link in New Suspended Tab',
+            title: chrome.i18n.getMessage('js_background_open_link_in_suspended_tab'),
             contexts: ['link'],
             onclick: function (info, tab) {
                 openLinkInSuspendedTab(tab, info.linkUrl);

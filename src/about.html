@@ -2,7 +2,7 @@
 <head>
 	<link type="text/css" href="css/style.css" rel="stylesheet">
 	<script type="text/javascript" src="js/about.js"></script>
-	<title>The Great Suspender - About</title>
+	<title>__MSG_ext_extension_name__ - __MSG_html_about_title__</title>
 </head>
 
 
@@ -10,45 +10,45 @@
 
 <div class="mainContent">
 
-	<h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" />The Great Suspender</h1>
+	<h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" />__MSG_ext_extension_name__</h1>
 
     <div class="contentNav">
         <ul>
-            <li><a href="options.html">Options</a></li>
-            <li class="noIncognito"><a href="history.html">Session Management</a></li>
-            <li class="noIncognito"><a href="shortcuts.html">Keyboard Shortcuts</a></li>
-			<li><a href="about.html" class="active">About</a></li>
+            <li><a href='options.html'>__MSG_html_sidebar_general_settings__</a></li>
+            <li class="noIncognito"><a href="history.html">__MSG_html_sidebar_session_management__</a></li>
+            <li class="noIncognito"><a href='shortcuts.html'>__MSG_html_sidebar_shortcuts__</a></li>
+    	    <li><a class="active">__MSG_html_sidebar_support__</a></li>
         </ul>
     </div>
 
 	<div class="content">
 
-		<h2 id="aboutVersion">The Great Suspender</h2>
+		<h2 id="aboutVersion">__MSG_ext_extension_name__</h2>
 
         <br />
-        <p>Github: <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github.com/deanoemcke/thegreatsuspender</a><br />
-            Twitter: <a href="https://twitter.com/greatsuspender" target="_blank">@greatsuspender</a><br />
+        <p>__MSG_html_about_github_title__ <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github.com/deanoemcke/thegreatsuspender</a><br />
+            __MSG_html_about_twitter_title__ <a href="https://twitter.com/greatsuspender" target="_blank">@greatsuspender</a><br />
         </p>
 
-        <p>If you have feedback or would like to report an issue, you can do so on the <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github issues page</a>. Please check to see if your idea or issue already exists before creating a new one. Thanks!
+        <p>__MSG_html_about_report_issues_prefix__ <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">__MSG_html_about_the_github_issues_page__</a>__MSG_html_about_report_issues_suffix__
         </p>
 
         <hr />
         <div id='thankyous'>
-            <p>This extension uses the <a href="https://github.com/niklasvh/html2canvas" target="_blank">html2canvas</a> library written by Niklas von Hertzen.<br />
-            It also uses the indexedDb wrapper <a href="https://github.com/aaronpowell/db.js" target="_blank">db.js</a> written by Aaron Powell.<br />
-            Thank you also to <a href="https://www.browserstack.com" target="_blank">browserstack</a> for providing free chrome testing tools.</p>
+            <p>__MSG_html_about_html2canvas_prefix__ <a href="https://github.com/niklasvh/html2canvas" target="_blank">html2canvas</a> __MSG_html_about_html2canvas_suffix__<br />
+            __MSG_html_about_indexedDb_prefix__ <a href="https://github.com/aaronpowell/db.js" target="_blank">db.js</a> __MSG_html_about_indexedDb_suffix__<br />
+            __MSG_html_about_browserstack_prefix__ <a href="https://www.browserstack.com" target="_blank">browserstack</a> __MSG_html_about_browserstack_suffix__</p>
         </div>
         <hr />
 
 
         <div id='donateSection'>
-            <p>If you like The Great Suspender &amp; you're feeling generous...</p>
+            <p>__MSG_html_about_feeling_generous__</p>
             <div id='donateButtons'></div>
-            <a id='alreadyDonatedToggle' href='#' style="clear: left; float: left; margin-top: 15px;">Already donated?</a>
+            <a id='alreadyDonatedToggle' href='#' style="clear: left; float: left; margin-top: 15px;">__MSG_html_about_already_donated__</a>
         </div>
         <div id='donatedSection' style='display:none;'>
-            <p>Thanks a lot for your donation. You've made thank you cat happy.</p>
+            <p>__MSG_html_about_thanks_for_your_donation__</p>
             <br />
             <pre style="font-family: monospace;">
   |\      _,,,--,,_
@@ -56,7 +56,7 @@
  |,4-  ) )_   .;.(  `'-'
 '---''(_/._)-'(_\_)
             </pre>
-            <a id='donateAgainToggle' href='#'>Want to donate again?</a>
+            <a id='donateAgainToggle' href='#'>__MSG_html_about_want_to_donate_again__</a>
 
         </div>
 
@@ -65,4 +65,5 @@
 </div>
 
 </body>
+<script src="js/chrome-i18n.js"></script>
 </html>

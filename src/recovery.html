@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-	<title id='gsTitle'>The Great Suspender - Recovery</title>
+	<title id='gsTitle'>__MSG_ext_extension_name__ - __MSG_html_recovery_title__</title>
 	<link type="text/css" href="css/style.css" rel="stylesheet">
     <script type="text/javascript" src="js/sessionUtils.js"></script>
     <script type="text/javascript" src="js/recovery.js"></script>
@@ -15,28 +15,28 @@
 		<img src="img/ruhroh.png" />
 	</div>
 
-	<h1>Ruh roh!</h1>
-	<p>Looks like you're recovering from an extension crash.<br />
-	Your suspended tabs may have crashed or disappeared.</p>
+	<h1>__MSG_html_recovery_ruh_roh__</h1>
+	<p>__MSG_html_recovery_description_line1__<br />
+	__MSG_html_recovery_description_line2__</p>
 
-	<button id='restoreSession' class='btn'>Restore tabs automatically</button>
+	<button id='restoreSession' class='btn'>__MSG_html_recovery_restore_tabs_automatically__</button>
 	&nbsp;&nbsp;
-	<button id='manageManuallyLink' class='btn secondary'>Go to session manager</button>
+	<button id='manageManuallyLink' class='btn secondary'>__MSG_html_recovery_go_to_session_manager__</button>
 
 	<div id='screenCaptureNotice'>
-		<span><em>Important!</em></span>
-		<p>You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option.</p>
-		 <a id='previewsOffBtn'>Turn off screen capturing</a>
+		<span><em>__MSG_html_recovery_important__</em></span>
+		<p>__MSG_html_recovery_important_message__</p>
+		 <a id='previewsOffBtn'>__MSG_html_recovery_disable_screen_capturing__</a>
 	</div>
 
     <hr class="splashRule" />
 	<div class='recoverySection'>
-		<p>Tabs to restore:</p>
+		<p>__MSG_html_recovery_tabs_to_restore__:</p>
 		<div id='recoveryLinks'></div>
 	</div>
 
 </div>
 
-
 </body>
+<script src="js/chrome-i18n.js"></script>
 </html>
