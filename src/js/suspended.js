@@ -225,6 +225,9 @@
     function loadDonateButtons() {
         document.getElementById('donateButtons').innerHTML = this.responseText;
         document.getElementById('donateBubble').onclick = hideNagForever;
+
+        document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
+        document.getElementById('paypalBtn').setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
     }
 
     function displayPopup(e) {

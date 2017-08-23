@@ -11,14 +11,19 @@
     function loadDonateButtons() {
         document.getElementById('donateButtons').innerHTML = this.responseText;
 
-        var donateBtns = document.getElementsByClassName('btnDonate'),
-            i;
+        var bitcoinBtn = document.getElementById('bitcoinBtn');
+        var paypalBtn = document.getElementById('paypalBtn');
 
-        for (i = 0; i < donateBtns.length; i++) {
-            donateBtns[i].onclick = function () {
-                toggleNag(true);
-            };
-        }
+        bitcoinBtn.innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
+        paypalBtn.setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
+
+        bitcoinBtn.onclick = function () {
+            toggleNag(true);
+        };
+        paypalBtn.onclick = function () {
+            toggleNag(true);
+        };
+
         document.getElementById('alreadyDonatedToggle').onclick = function () {
             toggleNag(true);
             window.location.reload();

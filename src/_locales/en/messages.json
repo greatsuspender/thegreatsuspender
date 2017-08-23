@@ -17,10 +17,13 @@
     "html_about_report_issues_prefix": { "message": "If you have feedback or would like to report an issue, you can do so on the" },
     "html_about_report_issues_suffix": { "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!" },
     "html_about_the_github_issues_page": { "message": "github issues page" },
+    "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "This extension uses the" },
     "html_about_html2canvas_suffix": { "message": "library written by Niklas von Hertzen." },
+    "html_about_indexedDb": { "message": "db.js" },
     "html_about_indexedDb_prefix": { "message": "It also uses the indexedDb wrapper" },
     "html_about_indexedDb_suffix": { "message": "written by Aaron Powell." },
+    "html_about_browserstack": { "message": "browserstack" },
     "html_about_browserstack_prefix": { "message": "Thank you also to" },
     "html_about_browserstack_suffix": { "message": "for providing free chrome testing tools." },
     "html_about_feeling_generous": { "message": "If you like The Great Suspender &amp; you're feeling generous..." },
@@ -160,8 +163,9 @@
     "html_update_info_line2": { "message": "If you have any tabs suspended when The Great Suspender updates, those tabs will be closed." },
     "html_update_info_line3_prefix": { "message": "To prevent tab loss" },
     "html_update_info_line3_suffix": { "message": ", unsuspend all tabs before updating." },
-    "html_update_info_line4_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
-    "html_update_info_line4_suffix": { "message": "Session Buddy" },
+    "html_update_info_session_buddy_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
+    "html_update_info_session_buddy_suffix": { "message": "" },
+    "html_update_info_session_buddy": { "message": "Session Buddy" },
     "html_update_button_unsuspend": { "message": "Unsuspend all tabs" },
     "html_update_button_reload": { "message": "Update extension now" },
 
@@ -177,6 +181,10 @@
     "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
     "html_welcome_get_started_linkname": { "message": "options" },
     "html_welcome_get_started_suffix": { "message": "page." },
+
+    // Donate sub-view for suspended.js and about.js (Javascript code)
+    "js_donate_paypal": { "message": "Donate with Paypal" },
+    "js_donate_bitcoin": { "message": "Donate with Bitcoin" },
 
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
@@ -208,7 +216,7 @@
     "js_popup_error": { "message": "Failed to load tab information." },
 
     // Session management page (Javascript code)
-    "js_sessionUtils_delete": { "message": "resuspend" },
+    "js_sessionUtils_delete": { "message": "delete" },
     "js_sessionUtils_export": { "message": "export" },
     "js_sessionUtils_reload": { "message": "reload" },
     "js_sessionUtils_resuspend": { "message": "resuspend" },
