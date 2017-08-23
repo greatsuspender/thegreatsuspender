@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title id='gsTitle'>The Great Suspender - Session management</title>
+    <title id='gsTitle'>__MSG_ext_extension_name__ - __MSG_html_history_title__</title>
     <link type="text/css" href="css/style.css" rel="stylesheet"></link>
     <script type="text/javascript" src="js/sessionUtils.js"></script>
     <script type="text/javascript" src="js/history.js"></script>
@@ -11,33 +11,33 @@
 
 <div class="mainContent">
 
-    <h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" />The Great Suspender</h1>
+    <h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" />__MSG_ext_extension_name__</h1>
 
     <div class="contentNav">
         <ul>
-            <li><a href="options.html">Options</a></li>
-            <li class="noIncognito"><a href="history.html" class="active">Session Management</a></li>
-            <li class="noIncognito"><a href="shortcuts.html">Keyboard Shortcuts</a></li>
-            <li><a href="about.html">About</a></li>
+            <li><a href='options.html'>__MSG_html_sidebar_general_settings__</a></li>
+            <li class="noIncognito active"><a href="history.html">__MSG_html_sidebar_session_management__</a></li>
+            <li class="noIncognito"><a href='shortcuts.html'>__MSG_html_sidebar_shortcuts__</a></li>
+            <li><a href="about.html">__MSG_html_sidebar_support__</a></li>
         </ul>
     </div>
 
     <div class="content">
-        <h2>Current session:</h2>
+        <h2>__MSG_html_history_current_session__:</h2>
         <div id='currentLinks'></div>
 
-        <h2>Recent sessions:</h2>
+        <h2>__MSG_html_history_recent_sessions__:</h2>
         <div id='recoveryLinks'></div>
 
-    	<h2>Saved sessions:</h2>
+    	<h2>__MSG_html_history_saved_sessions__:</h2>
     	<div id='historyLinks'></div>
 
         <br />
         <br />
-        <a href="#" id="clearHistory" class="btn">Clear tab history</a>
+        <a href="#" id="clearHistory" class="btn">__MSG_html_history_clear_tab_history__</a>
     </div>
 
 </div>
-
 </body>
+<script src="js/chrome-i18n.js"></script>
 </html>

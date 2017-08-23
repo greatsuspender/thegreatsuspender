@@ -21,7 +21,7 @@
                     suspendedTabCountEl.innerHTML = 'Unsuspending all tabs. You still have <strong>' + suspendedTabCount + '</strong> tabs currently suspended.';
                 }
             } else {
-                suspendedTabCountEl.innerHTML = 'You have no suspended tabs. It is now safe to update the extension :)';
+                suspendedTabCountEl.innerHTML = chrome.i18n.getMessage('js_update_ready');
                 unsuspendedAllBtnEl.style = 'display: none';
             }
             return suspendedTabCount;
@@ -50,7 +50,7 @@
         reloadExtensionBtnEl.onclick = function (e) {
             var newSuspendedTabCount = gsUtils.getSuspendedTabCount();
             if (newSuspendedTabCount > 0) {
-                var result = window.confirm('Are you sure you want to update the extension now? To prevent tab loss, unsuspend all tabs before updating.');
+                var result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
                 if (result) {
                     chrome.runtime.reload();
                 }

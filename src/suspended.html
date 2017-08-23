@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-	<title id="gsTitle">Suspended Tab</title>
+	<title id="gsTitle">__MSG_html_suspended_title__</title>
 	<link id="gsFavicon" rel="icon" href="img/icon16.png" />
 	<link rel="stylesheet" href="css/font-awesome.min.css">
 	<script type="text/javascript" src="js/suspended.js"></script>
@@ -13,21 +13,21 @@
 	<div id="gsTitleWrap" class="gsTitleWrap">
 		<img id="gsTopBarImg" class="gsTopBarImg" /> <a id="gsTopBarTitle" class="gsTopBarTitle"></a>
 	</div>
-	<a id="gsReloadLink" class="gsReloadLink">Reload tab</a>
+	<a id="gsReloadLink" class="gsReloadLink">__MSG_html_suspended_tab_reload__</a>
 	<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-	<a id="gsWhitelistLink" class="gsWhitelistLink">Whitelist site</a>
+	<a id="gsWhitelistLink" class="gsWhitelistLink">__MSG_html_suspended_tab_whitelist__</a>
 </div>
 <div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
     <div class="centerBox">
-		<h1>Tab suspended</h1>
-		<h2>Refresh or click to reload</h2>
+		<h1>__MSG_html_suspended_tab_suspended__</h1>
+		<h2>__MSG_html_suspended_click_to_reload__</h2>
     </div>
 </div>
 <div id="refreshSpinner"></div>
 <div id="disconnectedNotice" class="toast-wrapper">
 	<div class="toast-content">
-		<h1>You are not connected to the internet</h1>
-		<p>Automatic tab reloading is temporarily disabled.</p>
+		<h1>__MSG_html_suspended_toast_not_connected__</h1>
+		<p>__MSG_html_suspended_toast_reload_disabled__</p>
 	</div>
 </div>
 
@@ -40,7 +40,7 @@
 <script type="text/html" id="donateTemplate">
 	<img id="dudePopup" src="img/dude.png" style="float: left;">
 	<div id="donateBubble">
-		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;">Does this extension make you happy?</div>
+		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;">__MSG_html_suspended_donation_question__</div>
 	    <div id="donateButtons" />
 	</div>
 </script>
@@ -49,29 +49,30 @@
 	<div class="modal-content">
 		<div class="modal-header">
 			<span class="close close-x">&times;</span>
-			<h2>What would you like to whitelist?</h2>
+			<h2>__MSG_html_suspended_modal_header__</h2>
 		</div>
 	  	<div class="modal-body">
 	    	<div class="radio">
 		    	<input type="radio" name="whitelistOption" id="whitelistSite" checked />
-		    	<label for="whitelistSite"><span id="rootUrl">this domain</span></label>
+		    	<label for="whitelistSite"><span id="rootUrl">__MSG_html_suspended_modal_this_domain__</span></label>
 		    </div>
 		    <div class="radio">
 		    	<input type="radio" name="whitelistOption" id="whitelistPage" />
-		    	<label for="whitelistPage"><span id="fullUrl"></span></label>
+		    	<label for="whitelistPage"><span id="fullUrl">__MSG_html_suspended_modal_this_page__</span></label>
 		    </div>
 		    <div class="radio">
 			    <input type="radio" name="whitelistOption" id="whitelistTemporary" />
-		    	<label for="whitelistTemporary">Just this tab, for this session only</label>
+		    	<label for="whitelistTemporary">__MSG_html_suspended_modal_temp_whitelist__</label>
 		    </div>
-		    <p class="lesserText">Whitelisted sites won't be automatically suspended.</p>
+		    <p class="lesserText">__MSG_html_suspended_modal_temp_whitelist_notice__</p>
 	  	</div>
 		<div class="modal-footer">
-			<div id="confirmWhitelistBtn" class="btn">OK</div>
-			<div class="btn close" style="background: #bbb;">Cancel</div>
+			<div id="confirmWhitelistBtn" class="btn">__MSG_html_suspended_modal_ok__</div>
+			<div class="btn close" style="background: #bbb;">__MSG_html_suspended_modal_cancel__</div>
 		</div>
 	</div>
 </div>
 
 </body>
+<script src="js/chrome-i18n.js"></script>
 </html>
