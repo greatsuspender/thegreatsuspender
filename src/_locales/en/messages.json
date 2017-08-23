@@ -5,16 +5,18 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_suspend_tab_description": { "message": "Suspend active tab" },
     "ext_cmd_unsuspend_tab_description": { "message": "Unsuspend active tab" },
-    "ext_cmd_suspend_active_window_description": { "message": "Suspend all tabs in active window" },
+    "ext_cmd_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },
-    "ext_cmd_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
+    "ext_cmd_suspend_all_windows_description": { "message": "Force suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
 
     // About page
-    "html_about_title": { "message": "Support" },
-    "html_about_email_feedback_to": { "message": "Email your feedback to" },
-    "html_about_report_issues_to": { "message": "Please report issues to" },
-    "html_about_the_github_project": { "message": "the github project" },
+    "html_about_title": { "message": "About" },
+    "html_about_github_title": { "message": "Github" },
+    "html_about_twitter_title": { "message": "Twitter" },
+    "html_about_report_issues_prefix": { "message": "If you have feedback or would like to report an issue, you can do so on the" },
+    "html_about_report_issues_suffix": { "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!" },
+    "html_about_the_github_issues_page": { "message": "github issues page" },
     "html_about_html2canvas_prefix": { "message": "This extension uses the" },
     "html_about_html2canvas_suffix": { "message": "library written by Niklas von Hertzen." },
     "html_about_indexedDb_prefix": { "message": "It also uses the indexedDb wrapper" },
@@ -32,16 +34,13 @@
     "html_history_recent_sessions": { "message": "Recent sessions" },
     "html_history_saved_sessions": { "message": "Saved sessions" },
     "html_history_clear_tab_history": { "message": "Clear tab history" },
-    "html_history_enter_name_for_session": { "message": "Enter a name for this session" },
-    "html_history_cancel": { "message": "Cancel" },
-    "html_history_ok": { "message": "OK" },
 
     // Important notice page
     "html_notice_title": { "message": "Notice" },
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
 
-    // General settings page
-    "html_options_title": { "message": "Settings" },
+    // Options page
+    "html_options_title": { "message": "Options" },
     "html_options_suspend_title": { "message": "Suspend tab settings" },
     "html_options_suspend_automatically_after": { "message": "Automatically suspend tabs after" },
     "html_options_suspend_never": { "message": "Never" },
@@ -52,31 +51,44 @@
     "html_options_suspend_hours": { "message": "hours" },
     "html_options_suspend_day": { "message": "day" },
     "html_options_suspend_days": { "message": "days" },
+    "html_options_suspend_week": { "message": "week" },
+    "html_options_suspend_weeks": { "message": "weeks" },
     "html_options_suspend_no_pinned": { "message": "Do not suspend pinned tabs" },
     "html_options_suspend_no_forms": { "message": "Do not suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Do not suspend tabs that are playing audio" },
+    "html_options_suspend_warning_chrome_45": { "message": "You must have chrome version 45 or higher to use this feature." },
     "html_options_suspend_only_connected": { "message": "Only auto-suspend if connected to the internet" },
     "html_options_suspend_only_on_battery": { "message": "Only auto-suspend if running on battery" },
     "html_options_suspend_automatically_unsuspend": { "message": "Automatically unsuspend tab when it is viewed" },
-    "html_options_suspend_enable_context_menu": { "message": "Add The Great Suspender to right-click context menu" },
     "html_options_suspend_theme": { "message": "Theme" },
     "html_options_suspend_theme_light": { "message": "Light" },
     "html_options_suspend_theme_dark": { "message": "Dark" },
     "html_options_suspend_screen_capturing": { "message": "Screen capturing" },
     "html_options_suspend_screen_capturing_disabled": { "message": "Disabled" },
-    "html_options_suspend_screen_capturing_screen_only": { "message": "Capture visible screen only" },
+    "html_options_suspend_screen_capturing_screen_only": { "message": "Capture top of screen only" },
     "html_options_suspend_screen_capturing_entire_page": { "message": "Capture entire page" },
-    "html_options_suspend_preview_note_line1": { "message": "The screen capturing feature is experimental and can cause significant CPU usage." },
-    "html_options_suspend_preview_note_line2": { "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome crashing unexpectedly, try turning this feature off." },
+    "html_options_suspend_screen_capturing_tooltip_line1a": { "message": "On a suspended tab, the extension can display an image preview of the what the tab" },
+    "html_options_suspend_screen_capturing_tooltip_line1b": { "message": "looked like just before it was suspended." },
+    "html_options_suspend_screen_capturing_tooltip_line2a": { "message": "The screen capturing feature is experimental and can cause significant CPU usage as" },
+    "html_options_suspend_screen_capturing_tooltip_line2b": { "message": "well as slightly increased memory usage." },
+    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome" },
+    "html_options_suspend_screen_capturing_tooltip_line3b": { "message": "crashing unexpectedly, try turning this feature off." },
+    "html_options_suspend_force_screen_capture": { "message": "Enable screen capture on zoomed tabs" },
+    "html_options_suspend_force_screen_capture_tooltip_line1a": { "message": "Suspending tabs that have been zoomed (anything other than 100%) can cause" },
+    "html_options_suspend_force_screen_capture_tooltip_line1b": { "message": "significant CPU load." },
+    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "By default, zoomed tabs will not generate screen capture previews." },
     "html_options_whitelist_title": { "message": "Whitelist" },
-    "html_options_whitelist_helptext1": { "message": "Add the URL of each page you want to whitelist on a new line. For example:" },
-    "html_options_whitelist_helptext2": { "message": "You can specify part of the url instead to whitelist multiple sites in one go" },
-    "html_options_whitelist_helptext3": { "message": "You can also specify regular expressions by enclosing the text in forward slashes" },
-    "html_options_cancel": { "message": "Cancel" },
-    "html_options_save_settings": { "message": "Save settings" },
+    "html_options_whitelist_tooltip_line1": { "message": "Add the URL of each page you want to whitelist on a new line. For example:" },
+    "html_options_whitelist_tooltip_line2": { "message": "To whitelist multiple sites in one line you can specify part of the url instead:" },
+    "html_options_whitelist_tooltip_line3": { "message": "You can also specify regular expressions by enclosing the text in forward slashes:" },
+    "html_options_other_enable_context_menu": { "message": "Add The Great Suspender to right-click context menu" },
+    "html_options_other_enable_sync": { "message": "Sync settings between different systems" },
+    "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are logged in" },
+    "html_options_other_enable_sync_tooltip_line1b": { "message": "with the same profile." },
+    "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
+    "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all synced systems" },
 
     // Dropdown menu from button in the address bar
-    "html_popup_normal": { "message": "Tab will be suspended" },
     "html_popup_suspend_tab": { "message": "Suspend this tab" },
     "html_popup_dont_suspend_now": { "message": "Don't suspend for now" },
     "html_popup_never_suspend_site": { "message": "Never suspend this site" },
@@ -84,7 +96,7 @@
     "html_popup_unsuspend_all_tabs": { "message": "Unsuspend all tabs" },
     "html_popup_suspend_selected_tabs": { "message": "Suspend selected tabs" },
     "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
-    "html_popup_settings": { "message": "Settings" },
+    "html_popup_settings": { "message": "Options" },
 
     // Profiler page
     "html_profiler_title": { "message": "Profiler" },
@@ -100,7 +112,6 @@
     "html_recovery_description_line2": { "message": "Your suspended tabs may have crashed or disappeared." },
     "html_recovery_restore_tabs_automatically": { "message": "Restore tabs automatically" },
     "html_recovery_go_to_session_manager": { "message": "Go to session manager" },
-    "html_recovery_important": { "message": "Important!" },
     "html_recovery_important_message": { "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option." },
     "html_recovery_disable_screen_capturing": { "message": "Turn off screen capturing" },
     "html_recovery_tabs_to_restore": { "message": "Tabs to restore" },
@@ -111,10 +122,10 @@
     "html_shortcuts_remap_keys": { "message": "Remap keys" },
 
     // Sidebar from the configuration section (common to all settings)
-    "html_sidebar_general_settings": { "message": "General settings" },
+    "html_sidebar_general_settings": { "message": "Options" },
     "html_sidebar_session_management": { "message": "Session management" },
     "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_sidebar_support": { "message": "Support" },
+    "html_sidebar_support": { "message": "About" },
 
     // Success page (after recovering from a crashed session)
     "html_success_title": { "message": "Recovery" },
@@ -127,44 +138,55 @@
     // Suspended page
     "html_suspended_title": { "message": "Suspended Tab" },
     "html_suspended_tab_suspended": { "message": "Tab suspended" },
-    "html_suspended_click_to_reload": { "message": "Click to reload" },
+    "html_suspended_tab_reload": { "message": "Reload tab" },
+    "html_suspended_tab_whitelist": { "message": "Whitelist site" },
+    "html_suspended_click_to_reload": { "message": "Refresh or click to reload" },
+    "html_suspended_toast_not_connected": { "message": "You are not connected to the internet" },
+    "html_suspended_toast_reload_disabled": { "message": "Automatic tab reloading is temporarily disabled." },
+    "html_suspended_modal_header": { "message": "What would you like to whitelist?" },
+    "html_suspended_modal_this_domain": { "message": "this domain" },
+    "html_suspended_modal_this_page": { "message": "this page" },
+    "html_suspended_modal_temp_whitelist": { "message": "Just this tab, for this session only" },
+    "html_suspended_modal_temp_whitelist_notice": { "message": "Whitelisted sites won't be automatically suspended." },
+    "html_suspended_modal_ok": { "message": "OK" },
+    "html_suspended_modal_cancel": { "message": "Cancel" },
     "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
 
-    // Updated page
+    // Update page
     "html_update_title": { "message": "Update" },
-    "html_update_great_suspender_updated": { "message": "The Great Suspender has been updated" },
-    "html_update_bugs_squashed_title": { "message": "Bugs squashed" },
-    "html_update_bugs_squashed_line1": { "message": "This new version fixes the bug caused by the new chrome release that caused tabs to change the the wrong url when they were suspended. Sorry for such a terrible bug and that the fix was a long time coming." },
-    "html_update_bugs_squashed_line2": { "message": "The 'suspend other tabs' option will now NOT suspend the currently active tab." },
-    "html_update_bugs_squashed_line3": { "message": "Browsing in incognito mode will no longer bring up the welcome tab every time." },
-    "html_update_whats_new_title": { "message": "What's new?" },
-    "html_update_whats_new_line1": { "message": "This version includes light and dark themes. Try switching to the dark theme when using chrome at night to go easy on your eyes." },
-    "html_update_whats_new_line2": { "message": "The extension now supports actions on multiple selected tabs. If you select multiple tabs in chrome, you will have some new options appear in the pop-up menu to allow you to suspend / unsuspend all selected tabs" },
-    "html_update_whats_new_line3": { "message": "The new improved whitelist now supports regular expressions. For the programming-minded only!" },
-    "html_update_whats_new_line4_prefix": { "message": "You can check it all out in the" },
-    "html_update_whats_new_line4_linkname": { "message": "settings" },
-    "html_update_whats_new_line4_suffix": { "message": "page." },
-    "html_update_problems_title": { "message": "Problems with the update?" },
-    "html_update_problems_line1": { "message": "If you are experiencing a loss of tabs due to this update, try going to the <a href='/history.html' target='_blank'>session management</a> page. You will find a list of all your recently suspended tabs and should be able to recover them from here." },
-    "html_update_problems_line2": { "message": "If losing your tabs has made you extremely upset and you want to uninstall this extension: fair enough - but before you do, please go through the session recovery process first and make sure all your tabs are recovered and unsuspended before you uninstall." },
-    "html_update_problems_line3": { "message": "Thanks for using" },
+    "html_update_heading1_prefix": { "message": "Action required for" },
+    "html_update_heading2": { "message": "Please read the important information below." },
+    "html_update_info_line1": { "message": "A new version of The Great Suspender is ready to be installed." },
+    "html_update_info_line2": { "message": "If you have any tabs suspended when The Great Suspender updates, those tabs will be closed." },
+    "html_update_info_line3_prefix": { "message": "To prevent tab loss" },
+    "html_update_info_line3_suffix": { "message": ", unsuspend all tabs before updating." },
+    "html_update_info_line4_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
+    "html_update_info_line4_suffix": { "message": "Session Buddy" },
+    "html_update_button_unsuspend": { "message": "Unsuspend all tabs" },
+    "html_update_button_reload": { "message": "Update extension now" },
+
+    // Updated page
+    "html_updated_title": { "message": "Updated" },
+    "html_updated_great_suspender_updated": { "message": " has been updated" },
+    "html_updated_welcome": { "message": "Welcome to" },
 
     // Welcome page
     "html_welcome_title": { "message": "Welcome" },
     "html_welcome_text_line1": { "message": "Thanks for trying" },
     "html_welcome_text_line2": { "message": "Hopefully it will make you a happier and more productive human." },
     "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
-    "html_welcome_get_started_linkname": { "message": "settings" },
+    "html_welcome_get_started_linkname": { "message": "options" },
     "html_welcome_get_started_suffix": { "message": "page." },
 
     // Contextual menu (Javascript code)
-    "js_background_open_link_in_suspended_tab": { "message": "Open link in new suspended tab" },
-    "js_background_suspend_tab": { "message": "Suspend Tab" },
+    "js_background_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
+    "js_background_suspend_tab": { "message": "Suspend tab" },
     "js_background_dont_suspend_now": { "message": "Don't suspend for now" },
     "js_background_never_suspend_site": { "message": "Never suspend this site" },
-    "js_background_suspend_all_tabs": { "message": "Suspend All Tabs" },
-    "js_background_unsuspend_all_tabs": { "message": "Unsuspend All Tabs" },
-    "js_background_settings": { "message": "Settings" },
+    "js_background_suspend_other_tabs_in_window": { "message": "Suspend other tabs in this window" },
+    "js_background_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
+    "js_background_force_suspend_all_tabs": { "message": "Force suspend all tabs in all windows" },
+    "js_background_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Tab will be suspended automatically." },
@@ -177,11 +199,13 @@
     "js_popup_form_input": { "message": "Tab is receiving form input." },
     "js_popup_form_input_unpause": { "message": "Unpause" },
     "js_popup_pinned": { "message": "Tab has been pinned." },
-    "js_popup_temp_whitelist": { "message": "Tab suspension paused.Unpause" },
+    "js_popup_temp_whitelist": { "message": "Tab suspension paused." },
     "js_popup_temp_whitelist_unpause": { "message": "Unpause" },
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection." },
     "js_popup_charging": { "message": "Connected to power source." },
+    "js_popup_unknown": { "message": "Loading tab information..." },
+    "js_popup_error": { "message": "Failed to load tab information." },
 
     // Session management page (Javascript code)
     "js_sessionUtils_delete": { "message": "resuspend" },
@@ -189,8 +213,15 @@
     "js_sessionUtils_reload": { "message": "reload" },
     "js_sessionUtils_resuspend": { "message": "resuspend" },
     "js_sessionUtils_save": { "message": "save" },
+    "js_sessionUtils_enter_name_for_session": { "message": "Enter a name for this session" },
 
     // Suspended page (Javascript code)
-    "js_suspended_add_URL_to": { "message": "Add $url$ to whitelist", "placeholders": { "url": { "content": "$1" } }
-    }
+    "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
+
+    // Options page (Javascript code)
+    "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },
+
+    // Update page (Javascript code)
+    "js_update_ready": { "message": "You have no suspended tabs. It is now safe to update the extension :)" },
+    "js_update_confirm": { "message": "Are you sure you want to update the extension now? To prevent tab loss, unsuspend all tabs before updating." }
 }

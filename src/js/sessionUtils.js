@@ -55,7 +55,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-            var sessionName = window.prompt('Enter a name for this session:');
+            var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionUtils_enter_name_for_session'));
             if (sessionName) {
                 session.name = sessionName;
                 gsUtils.addToSavedSessions(session);

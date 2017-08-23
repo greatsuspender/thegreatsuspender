@@ -36,7 +36,7 @@
     "48": "img/icon48.png",
     "128": "img/icon128.png"
   },
-  "web_accessible_resources": ["suspended.html", "history.html", "clean.html", "css/style.css"],
+  "web_accessible_resources": ["suspended.html", "history.html", "css/style.css"],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
