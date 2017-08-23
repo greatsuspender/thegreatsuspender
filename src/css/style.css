@@ -49,6 +49,9 @@ body {
     font-weight: 300;
     color: #444;
 }
+strong {
+    font-weight: 600;
+}
 body.suspended-page {
     background: #cfe0e4;
     display: table;
