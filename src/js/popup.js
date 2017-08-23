@@ -196,9 +196,7 @@
 
     function showPopupContents() {
         setTimeout(function () {
-            setTimeout(function () {
-                document.getElementById('popupContent').style.opacity = 1;
-            }, 50);
+            document.getElementById('popupContent').style.opacity = 1;
         }, 200);
     }
 
