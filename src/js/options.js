@@ -188,7 +188,7 @@
             Array.prototype.forEach.call(document.getElementsByClassName('noIncognito'), function (el) {
                 el.style.display = 'none';
             });
-            window.alert('You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed.');
+            window.alert(chrome.i18n.getMessage('js_options_incognito_warning'));
         }
     });
 

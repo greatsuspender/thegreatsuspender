@@ -83,7 +83,7 @@
         //update whitelist text
         var isWhitelisted = gsUtils.checkWhiteList(url);
         if (isWhitelisted) {
-            document.getElementById('gsWhitelistLink').innerHTML = 'Remove site from whitelist';
+            document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
 
         //populate modal
         } else {

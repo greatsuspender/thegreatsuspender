@@ -55,7 +55,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
 
-            var sessionName = window.prompt('Enter a name for this session:');
+            var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionUtils_enter_name_for_session'));
             if (sessionName) {
                 session.name = sessionName;
                 gsUtils.addToSavedSessions(session);
@@ -196,7 +196,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
             sessionSave = createEl('a', {
                 'class': 'groupLink',
                 'href': '#'
-            }, 'save');
+            }, chrome.i18n.getMessage('js_sessionUtils_save'));
             sessionSave.onclick = function () {
                 saveSession(session.sessionId);
             };
@@ -206,7 +206,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
             sessionDelete = createEl('a', {
                 'class': 'groupLink',
                 'href': '#'
-            }, 'delete');
+            }, chrome.i18n.getMessage('js_sessionUtils_delete'));
             sessionDelete.onclick = function () {
                 deleteSession(session.sessionId);
             };
@@ -215,7 +215,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
         sessionExport = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'export');
+        }, chrome.i18n.getMessage('js_sessionUtils_export'));
         sessionExport.onclick = function () {
             exportSession(session.sessionId);
         };
@@ -223,13 +223,13 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
         windowResuspend = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'resuspend');
+        }, chrome.i18n.getMessage('js_sessionUtils_resuspend'));
         windowResuspend.onclick = reloadTabs(sessionDiv, true);
 
         windowReload = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'reload');
+        }, chrome.i18n.getMessage('js_sessionUtils_reload'));
         windowReload.onclick = reloadTabs(sessionDiv, false);
 
         sessionContainer = createEl('div');
@@ -262,13 +262,13 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
         groupUnsuspendCurrent = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'resuspend');
+        }, chrome.i18n.getMessage('js_sessionUtils_resuspend'));
         groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, true);
 
         groupUnsuspendNew = createEl('a', {
             'class': 'groupLink',
             'href': '#'
-        }, 'reload');
+        }, chrome.i18n.getMessage('js_sessionUtils_reload'));
         groupUnsuspendNew.onclick = reloadTabs(groupHeading, false);
 
         groupHeading.appendChild(windowHeading);
