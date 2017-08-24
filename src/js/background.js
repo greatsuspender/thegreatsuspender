@@ -508,14 +508,16 @@ var tgs = (function () {
             suspendedTabs = [],
             tabResponses = [],
             unsuspendedSessionTabs = [],
-            currentlyOpenTabs = [],
-            attemptRecovery = true;
+            currentlyOpenTabs = [];
+
+        if (debug) console.log('Checking for crash recovery');
 
         gsUtils.fetchLastSession().then(function (lastSession) {
 
             if (!lastSession) {
                 return;
             }
+            if (debug) console.log('lastSession: ', lastSession);
 
             //collect all nonspecial, unsuspended tabs from the last session
             lastSession.windows.forEach(function (sessionWindow) {
@@ -534,20 +536,37 @@ var tgs = (function () {
 
             //don't attempt recovery if last session had no suspended tabs
             if (suspendedTabCount === 0) {
-                console.log('Aborting tab recovery. Last session has no suspended tabs.');
+                if (debug) console.log('Aborting tab recovery. Last session has no suspended tabs.');
                 return;
             }
 
             //check to see if they still exist in current session
             chrome.tabs.query({}, function (tabs) {
 
+                if (debug) {
+                    console.log('Tabs in current session: ', tabs);
+                    console.log('Unsuspended session tabs: ', unsuspendedSessionTabs);
+                }
+
                 //don't attempt recovery if there are less tabs in current session than there were
                 //unsuspended tabs in the last session
-                if (tabs.length < unsuspendedTabCount) return;
+                if (tabs.length < unsuspendedTabCount) {
+                    if (debug) {
+                        console.log('Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
+                            'tabs. Current session only contains ' + tabs.length);
+                    }
+                    return;
+                }
 
                 //if there is only one currently open tab and it is the 'new tab' page then abort recovery
-                if (tabs.length === 1 && tabs[0].url === 'chrome://newtab/') return;
+                if (tabs.length === 1 && tabs[0].url === 'chrome://newtab/') {
+                    if (debug) {
+                        console.log('Aborting tab recovery. Current session only contains a single newtab page.');
+                    }
+                    return;
+                }
 
+                //check for suspended tabs and try to contact them
                 tabs.forEach(function (curTab) {
                     currentlyOpenTabs[curTab.id] = curTab;
 
@@ -557,38 +576,44 @@ var tgs = (function () {
                         sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
                             tabResponses[curTab.id] = true;
                         });
-
-                        //don't attempt recovery if there are still suspended tabs open
-                        attemptRecovery = false;
                     }
                 });
 
-                unsuspendedSessionTabs.some(function (sessionTab) {
+                //after 5 seconds, try to reload any suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
+                if (suspendedTabs.length > 0) {
+                    setTimeout(function () {
+                        suspendedTabs.forEach(function (curTab) {
+                            if (typeof tabResponses[curTab.id] === 'undefined') {
+
+                                //automatically reload unresponsive suspended tabs
+                                chrome.tabs.reload(curTab.id);
+                            }
+                        });
+                    }, 5000);
+
+                    //don't attempt recovery if there are still suspended tabs open
+                    if (debug) console.log('Will not attempt recovery as there are still suspended tabs open.');
+                    return;
+                }
+
+                if (!forceRecovery) {
                     //if any of the tabIds from the session don't exist in the current session then abort recovery
-                    if (typeof currentlyOpenTabs[sessionTab.id] === 'undefined') {
-                        attemptRecovery = false;
-                        return true;
-                    }
-                });
-
-                if (attemptRecovery) {
-                    if (forceRecovery) {
-                        gsUtils.recoverLostTabs(null);
-                    } else {
-                        chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                    var tabIdMismatch = unsuspendedSessionTabs.some(function (sessionTab) {
+                        if (typeof currentlyOpenTabs[sessionTab.id] === 'undefined') {
+                            return true;
+                        }
+                    });
+                    if (tabIdMismatch) {
+                        if (debug) console.log('Will not attempt recovery as tab ids from last session do not match current session.');
+                        return;
                     }
                 }
 
-                //check for suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
-                setTimeout(function () {
-                    suspendedTabs.forEach(function (curTab) {
-                        if (typeof tabResponses[curTab.id] === 'undefined') {
-
-                            //automatically reload unresponsive suspended tabs
-                            chrome.tabs.reload(curTab.id);
-                        }
-                    });
-                }, 5000);
+                if (forceRecovery) {
+                    gsUtils.recoverLostTabs(null);
+                } else {
+                    chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+                }
             });
         });
     }

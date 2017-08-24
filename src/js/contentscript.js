@@ -45,9 +45,6 @@
             if (response && response.temporaryWhitelist) {
                 tempWhitelist = true;
             }
-
-            var tabState = buildTabStateObject();
-            chrome.runtime.sendMessage(tabState);
         });
     }
 
