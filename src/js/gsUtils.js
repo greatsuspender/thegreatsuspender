@@ -790,16 +790,22 @@ var gsUtils = {
         return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;
     },
 
+    getSimpleDate: function (date) {
+        var d = new Date(date);
+        return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+            d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    },
+
     getHumanDate: function (date) {
-        var monthNames = ['January', 'February', 'March', 'April', 'May',
-                'June', 'July', 'August', 'September', 'October', 'November',
-                'December'],
+        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             d = new Date(date),
             currentDate = d.getDate(),
-            suffix,
             currentMonth = d.getMonth(),
-            currentYear = d.getFullYear();
+            currentYear = d.getFullYear(),
+            currentHours = d.getHours(),
+            currentMinutes = d.getMinutes();
 
+        var suffix;
         if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
             suffix = 'st';
         } else if (currentDate === 2 || currentDate === 22) {
@@ -810,7 +816,11 @@ var gsUtils = {
             suffix = 'th';
         }
 
-        return currentDate + suffix + ' ' + monthNames[currentMonth] + ' ' + currentYear;
+        var ampm = currentHours >= 12 ? 'pm' : 'am';
+        var hoursString = (currentHours % 12) || 12;
+        var minutesString = ('0' + currentMinutes).slice(-2);
+
+        return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
     },
 
     getChromeVersion: function () {
