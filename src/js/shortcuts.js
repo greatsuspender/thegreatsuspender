@@ -4,7 +4,7 @@
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
         var shortcutsEl = document.getElementById('keyboardShortcuts'),
             configureShortcutsEl = document.getElementById('configureShortcuts'),
             count = 0;

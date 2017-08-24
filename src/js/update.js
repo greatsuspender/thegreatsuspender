@@ -5,7 +5,7 @@
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var tgs = chrome.extension.getBackgroundPage().tgs;
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var suspendedTabCountEl = document.getElementById('suspendedTabCount');
         var unsuspendedAllBtnEl = document.getElementById('unsuspendAllBtn');

@@ -171,7 +171,7 @@
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
-    "html_updated_great_suspender_updated": { "message": " has been updated" },
+    "html_updated_great_suspender_updated": { "message": "The Great Suspender has been updated" },
     "html_updated_welcome": { "message": "Welcome to" },
 
     // Welcome page

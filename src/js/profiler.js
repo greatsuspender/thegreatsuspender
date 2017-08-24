@@ -47,7 +47,7 @@
         });
     }
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
         fetchInfo();
 
         //handler for refresh

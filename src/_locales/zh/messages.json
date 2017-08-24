@@ -171,7 +171,7 @@
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //TODO: Used google translate
-    "html_updated_great_suspender_updated": { "message": " 已更新" }, //TODO: Used google translate
+    "html_updated_great_suspender_updated": { "message": "The Great Suspender 已更新" }, //TODO: Used google translate
     "html_updated_welcome": { "message": "歡迎來到" }, //TODO: Used google translate
 
     // Welcome page

@@ -710,6 +710,27 @@ var gsUtils = {
         });
     },
 
+    localiseHtml: function (doc) {
+        var replaceFunc = function (match, p1) {
+            return p1 ? chrome.i18n.getMessage(p1) : '';
+        };
+        Array.prototype.forEach.call(doc.getElementsByTagName('*'), function (el) {
+            if (el.hasAttribute('data-i18n')) {
+                el.innerHTML = el.getAttribute('data-i18n').replace(/__MSG_(\w+)__/g, replaceFunc);
+            }
+            if (el.hasAttribute('data-i18n-tooltip')) {
+                el.setAttribute('data-i18n-tooltip', el.getAttribute('data-i18n-tooltip').replace(/__MSG_(\w+)__/g, replaceFunc));
+            }
+        });
+    },
+
+    documentReadyAndLocalisedAsPromsied: function (doc) {
+        var that = this;
+        return that.documentReadyAsPromsied(doc).then(function () {
+            return that.localiseHtml(doc);
+        });
+    },
+
     //turn this into a string to make comparisons easier further down the track
     generateSessionId: function () {
         return Math.floor(Math.random() * 1000000) + '';

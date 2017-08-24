@@ -2,7 +2,7 @@
 <head>
 	<link type="text/css" href="css/style.css" rel="stylesheet">
 	<script type="text/javascript" src="js/about.js"></script>
-	<title>__MSG_ext_extension_name__ - __MSG_html_about_title__</title>
+	<title data-i18n="__MSG_ext_extension_name__ - __MSG_html_about_title__"></title>
 </head>
 
 
@@ -10,45 +10,63 @@
 
 <div class="mainContent">
 
-	<h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" />__MSG_ext_extension_name__</h1>
+    <h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" /><span data-i18n="__MSG_ext_extension_name__"></span></h1>
 
     <div class="contentNav">
         <ul>
-            <li><a href='options.html'>__MSG_html_sidebar_general_settings__</a></li>
-            <li class="noIncognito"><a href="history.html">__MSG_html_sidebar_session_management__</a></li>
-            <li class="noIncognito"><a href='shortcuts.html'>__MSG_html_sidebar_shortcuts__</a></li>
-    	    <li><a class="active" href="about.html">__MSG_html_sidebar_support__</a></li>
+            <li><a href='options.html' data-i18n="__MSG_html_sidebar_general_settings__"></a></li>
+            <li class="noIncognito"><a href="history.html" data-i18n="__MSG_html_sidebar_session_management__"></a></li>
+            <li class="noIncognito"><a href='shortcuts.html' data-i18n="__MSG_html_sidebar_shortcuts__"></a></li>
+    	    <li><a class="active" href="about.html" data-i18n="__MSG_html_sidebar_support__"></a></li>
         </ul>
     </div>
 
 	<div class="content">
 
-		<h2 id="aboutVersion">__MSG_ext_extension_name__</h2>
+		<h2 id="aboutVersion" data-i18n="__MSG_ext_extension_name__"></h2>
 
         <br />
-        <p>__MSG_html_about_github_title__: <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github.com/deanoemcke/thegreatsuspender</a><br />
-            __MSG_html_about_twitter_title__: <a href="https://twitter.com/greatsuspender" target="_blank">@greatsuspender</a><br />
+        <p>
+            <span data-i18n="__MSG_html_about_github_title__: "></span>
+            <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github.com/deanoemcke/thegreatsuspender</a>
+            <br />
+            <span data-i18n="__MSG_html_about_twitter_title__: "></span>
+            <a href="https://twitter.com/greatsuspender" target="_blank">@greatsuspender</a>
+            <br />
         </p>
 
-        <p>__MSG_html_about_report_issues_prefix__ <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">__MSG_html_about_the_github_issues_page__</a>__MSG_html_about_report_issues_suffix__
+        <p>
+            <span data-i18n="__MSG_html_about_report_issues_prefix__ "></span>
+            <a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank" data-i18n="__MSG_html_about_the_github_issues_page__"></a>
+            <span data-i18n="__MSG_html_about_report_issues_suffix__"></span>
         </p>
 
         <hr />
         <div id='thankyous'>
-            <p>__MSG_html_about_html2canvas_prefix__ <a href="https://github.com/niklasvh/html2canvas" target="_blank">__MSG_html_about_html2canvas__</a> __MSG_html_about_html2canvas_suffix__<br />
-            __MSG_html_about_indexedDb_prefix__ <a href="https://github.com/aaronpowell/db.js" target="_blank">__MSG_html_about_indexedDb__</a> __MSG_html_about_indexedDb_suffix__<br />
-            __MSG_html_about_browserstack_prefix__ <a href="https://www.browserstack.com" target="_blank">__MSG_html_about_browserstack__</a> __MSG_html_about_browserstack_suffix__</p>
+            <p>
+                <span data-i18n="__MSG_html_about_html2canvas_prefix__ "></span>
+                <a href="https://github.com/niklasvh/html2canvas" target="_blank" data-i18n="__MSG_html_about_html2canvas__"></a>
+                <span data-i18n="__MSG_html_about_html2canvas_suffix__"></span>
+                <br />
+                <span data-i18n="__MSG_html_about_indexedDb_prefix__ "></span>
+                <a href="https://github.com/aaronpowell/db.js" target="_blank" data-i18n="__MSG_html_about_indexedDb__"></a>
+                <span data-i18n="__MSG_html_about_indexedDb_suffix__"></span>
+                <br />
+                <span data-i18n="__MSG_html_about_browserstack_prefix__ "></span>
+                <a href="https://www.browserstack.com" target="_blank" data-i18n="__MSG_html_about_browserstack__"></a>
+                <span data-i18n="__MSG_html_about_browserstack_suffix__"></span>
+            </p>
         </div>
         <hr />
 
 
         <div id='donateSection'>
-            <p>__MSG_html_about_feeling_generous__</p>
+            <p data-i18n="__MSG_html_about_feeling_generous__"></p>
             <div id='donateButtons'></div>
-            <a id='alreadyDonatedToggle' href='#' style="clear: left; float: left; margin-top: 15px;">__MSG_html_about_already_donated__</a>
+            <a id='alreadyDonatedToggle' href='#' style="clear: left; float: left; margin-top: 15px;" data-i18n="__MSG_html_about_already_donated__"></a>
         </div>
         <div id='donatedSection' style='display:none;'>
-            <p>__MSG_html_about_thanks_for_your_donation__</p>
+            <p data-i18n="__MSG_html_about_thanks_for_your_donation__"></p>
             <br />
             <pre style="font-family: monospace;">
   |\      _,,,--,,_
@@ -56,7 +74,7 @@
  |,4-  ) )_   .;.(  `'-'
 '---''(_/._)-'(_\_)
             </pre>
-            <a id='donateAgainToggle' href='#'>__MSG_html_about_want_to_donate_again__</a>
+            <a id='donateAgainToggle' href='#' data-i18n="__MSG_html_about_want_to_donate_again__"></a>
 
         </div>
 
@@ -65,5 +83,4 @@
 </div>
 
 </body>
-<script src="js/chrome-i18n.js"></script>
 </html>

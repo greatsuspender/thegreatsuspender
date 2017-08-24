@@ -34,7 +34,7 @@
         };
     }
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var versionEl = document.getElementById('aboutVersion');
         versionEl.innerHTML = 'The Great Suspender v' + chrome.runtime.getManifest().version;

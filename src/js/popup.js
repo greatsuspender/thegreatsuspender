@@ -37,7 +37,7 @@
 
 
 
-    Promise.all([gsUtils.documentReadyAsPromsied(document), initialTabStatusAsPromised, selectedTabsAsPromised])
+    Promise.all([gsUtils.documentReadyAndLocalisedAsPromsied(document), initialTabStatusAsPromised, selectedTabsAsPromised])
         .then(function ([domLoadedEvent, initialTabStatus, selectedTabs]) {
 
             setSuspendCurrentVisibility(initialTabStatus);

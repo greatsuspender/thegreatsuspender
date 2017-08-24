@@ -734,13 +734,13 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 .tooltipIcon {
     color: #444;
 }
-[data-tooltip] {
+[data-i18n-tooltip] {
     position: relative;
     z-index: 2;
 }
 /* Hide the tooltip content by default */
-[data-tooltip]:before,
-[data-tooltip]:after {
+[data-i18n-tooltip]:before,
+[data-i18n-tooltip]:after {
     visibility: hidden;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
     filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
@@ -749,7 +749,7 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 }
 
 /* Position tooltip above the element */
-[data-tooltip]:before {
+[data-i18n-tooltip]:before {
     position: absolute;
     bottom: 150%;
     left: 50%;
@@ -760,7 +760,7 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
     border-radius: 3px;
     background-color: #eee;
     color: #000;
-    content: attr(data-tooltip);
+    content: attr(data-i18n-tooltip);
     font-size: 11px;
     line-height: 1.2;
     white-space: pre;
@@ -769,8 +769,8 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 }
 
 /* Show tooltip content on hover */
-[data-tooltip]:hover:before,
-[data-tooltip]:hover:after {
+[data-i18n-tooltip]:hover:before,
+[data-i18n-tooltip]:hover:after {
     visibility: visible;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
     filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);

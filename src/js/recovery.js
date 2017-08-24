@@ -94,7 +94,7 @@
         });
     }
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var restoreEl = document.getElementById('restoreSession'),
             manageEl = document.getElementById('manageManuallyLink'),

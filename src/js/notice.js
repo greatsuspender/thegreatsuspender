@@ -5,7 +5,7 @@
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    gsUtils.documentReadyAsPromsied(document).then(function () {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var noticeTextEl = document.getElementById('noticeText'),
             noticeTitleEl = document.getElementById('noticeTitle'),

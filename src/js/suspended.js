@@ -6,7 +6,7 @@
     var url = gsUtils.getSuspendedUrl(window.location.href);
     var requestUnsuspendOnReload = false;
 
-    Promise.all([gsUtils.documentReadyAsPromsied(document), gsUtils.fetchTabInfo(url)])
+    Promise.all([gsUtils.documentReadyAndLocalisedAsPromsied(document), gsUtils.fetchTabInfo(url)])
         .then(function ([domLoadedEvent, tabProperties]) {
             init(tabProperties);
         });
