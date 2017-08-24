@@ -826,16 +826,16 @@ var gsUtils = {
             currentHours = d.getHours(),
             currentMinutes = d.getMinutes();
 
-        var suffix;
-        if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
-            suffix = 'st';
-        } else if (currentDate === 2 || currentDate === 22) {
-            suffix = 'nd';
-        } else if (currentDate === 3 || currentDate === 23) {
-            suffix = 'rd';
-        } else {
-            suffix = 'th';
-        }
+        // var suffix;
+        // if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
+        //     suffix = 'st';
+        // } else if (currentDate === 2 || currentDate === 22) {
+        //     suffix = 'nd';
+        // } else if (currentDate === 3 || currentDate === 23) {
+        //     suffix = 'rd';
+        // } else {
+        //     suffix = 'th';
+        // }
 
         var ampm = currentHours >= 12 ? 'pm' : 'am';
         var hoursString = (currentHours % 12) || 12;
