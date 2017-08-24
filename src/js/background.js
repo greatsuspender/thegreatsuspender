@@ -963,22 +963,28 @@ var tgs = (function () {
         case 'initTab':
 
             var suspendTime = gsUtils.getOption(gsUtils.SUSPEND_TIME);
+            var isTempWhitelist = temporaryWhitelistOnReloadByTabId[sender.tab.id];
             sendResponse({
                 dontSuspendForms: gsUtils.getOption(gsUtils.IGNORE_FORMS),
                 suspendTime: suspendTime,
                 screenCapture: gsUtils.getOption(gsUtils.SCREEN_CAPTURE),
                 scrollPos: scrollPosByTabId[sender.tab.id] || '0',
-                temporaryWhitelist: temporaryWhitelistOnReloadByTabId[sender.tab.id]
+                temporaryWhitelist: isTempWhitelist
             });
             delete temporaryWhitelistOnReloadByTabId[sender.tab.id];
             delete scrollPosByTabId[sender.tab.id];
+
+            // If tab is currently visible then update popup icon
+            if (sender.tab && sender.tab.id === globalCurrentTabId) {
+                var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
+                updateIcon(processActiveTabStatus(sender.tab, contentScriptState));
+            }
             return false;
 
         case 'reportTabState':
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
-                var status = processActiveTabStatus(sender.tab, request.status);
-                updateIcon(status);
+                updateIcon(processActiveTabStatus(sender.tab, request.status));
             }
             return false;
 
