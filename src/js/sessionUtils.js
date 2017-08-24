@@ -299,8 +299,14 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
             favicon = tabProperties.favicon;
         } else if (tabProperties.favIconUrl && tabProperties.favIconUrl.indexOf('chrome://theme') < 0) {
             favicon = tabProperties.favIconUrl;
-        } else {
-            favicon = 'chrome://favicon/size/16@2x/' + tabProperties.url;
+        }
+        if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
+            favicon = 'chrome://favicon/size/16@2x/';
+            if (tabProperties.url.indexOf('suspended.html') >= 0) {
+                favicon += gsUtils.getSuspendedUrl(tabProperties.url);
+            } else {
+                favicon += tabProperties.url;
+            }
         }
 
         if (tabProperties.sessionId) {
