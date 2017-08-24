@@ -687,14 +687,14 @@ var tgs = (function () {
         //add context menu items
         buildContextMenu(contextMenus);
 
-        //initialise globalCurrentTabId
+        //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 globalCurrentTabId = globalCurrentTabId || tabs[0].id;
             }
         });
 
-        //initialise settings
+        //initialise settings (important that this comes last. cant remember why?!?!)
         gsUtils.initSettings();
     }
 
@@ -1086,7 +1086,7 @@ var tgs = (function () {
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
-        if (debug) console.log('tab updated', changeInfo);
+        if (debug) console.log('tab updated. tabId: ', tabId, changeInfo);
 
         //only save session if the tab url has changed
         if (changeInfo.url) {
