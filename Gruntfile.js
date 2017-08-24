@@ -15,8 +15,7 @@ module.exports = function(grunt) {
         'string-replace': {
             dist: {
                 files: {
-                    'build/tgut-temp/src/': 'build/tgut-temp/src/*',
-                    'build/tgut-temp/src/js/': 'build/tgut-temp/src/js/*',
+                    'build/tgut-temp/src/_locales/': 'build/tgut-temp/src/_locales/**',
                 },
                 options: {
                     replacements: [{
