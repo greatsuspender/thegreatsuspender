@@ -989,7 +989,7 @@ var gsUtils = {
         var session = {
             sessionId: sessionId,
             windows: windowsArray,
-            date: new Date()
+            date: (new Date()).toISOString()
         };
         this.updateSession(session);
     },
