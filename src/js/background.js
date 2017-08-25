@@ -521,13 +521,16 @@ var tgs = (function () {
                 //recover tabs silently
                 checkForCrashRecovery(true);
 
-                //close any 'update' tabs that may be open
+                //close any 'update' and 'updated' tabs that may be open
                 chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
                     chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
                 });
+                chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
+                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
 
-                //show updated screen
-                chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                    //show updated screen
+                    chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                });
             }
 
             //else if restarting the same version
