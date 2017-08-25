@@ -1,8 +1,8 @@
 /*
-  html2canvas 0.4.1 <http://html2canvas.hertzen.com>
-  Copyright (c) 2013 Niklas von Hertzen
+  <%= pkg.title || pkg.name %> <%= pkg.version %><%= pkg.homepage ? " <" + pkg.homepage + ">" : "" %>
+  Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>
 
-  Released under MIT License
+  Released under <%= _.pluck(pkg.licenses, "type").join(", ") %> License
 */
 
 (function(window, document, undefined){
@@ -56,7 +56,6 @@ _html2canvas.Util.asFloat = function(v) {
     return results;
   };
 })();
-
 
 _html2canvas.Util.parseBackgroundImage = function (value) {
     var whitespace = ' \r\n\t',
@@ -231,13 +230,16 @@ function asInt(val) {
     return parseInt(val, 10);
 }
 
+function isPercentage(value) {
+  return value.toString().indexOf("%") !== -1;
+}
+
 function parseBackgroundSizePosition(value, element, attribute, index) {
     value = (value || '').split(',');
     value = value[index || 0] || value[0] || 'auto';
     value = _html2canvas.Util.trimText(value).split(' ');
-
-    if(attribute === 'backgroundSize' && (!value[0] || value[0].match(/cover|contain|auto/))) {
-        //these values will be handled in the parent function
+    if(attribute === 'backgroundSize' && (value[0] && value[0].match(/^(cover|contain|auto)$/))) {
+        return value;
     } else {
         value[0] = (value[0].indexOf( "%" ) === -1) ? toPX(element, attribute + "X", value[0]) : value[0];
         if(value[1] === undefined) {
@@ -296,71 +298,70 @@ _html2canvas.Util.resizeBounds = function( current_width, current_height, target
   };
 };
 
-function backgroundBoundsFactory( prop, el, bounds, image, imageIndex, backgroundSize ) {
-    var bgposition =  _html2canvas.Util.getCSS( el, prop, imageIndex ) ,
-    topPos,
-    left,
-    percentage,
-    val;
-
-    if (bgposition.length === 1){
-      val = bgposition[0];
-
-      bgposition = [];
-
-      bgposition[0] = val;
-      bgposition[1] = val;
+_html2canvas.Util.BackgroundPosition = function(element, bounds, image, imageIndex, backgroundSize ) {
+    var backgroundPosition =  _html2canvas.Util.getCSS(element, 'backgroundPosition', imageIndex),
+        leftPosition,
+        topPosition;
+    if (backgroundPosition.length === 1){
+        backgroundPosition = [backgroundPosition[0], backgroundPosition[0]];
     }
 
-    if (bgposition[0].toString().indexOf("%") !== -1){
-      percentage = (parseFloat(bgposition[0])/100);
-      left = bounds.width * percentage;
-      if(prop !== 'backgroundSize') {
-        left -= (backgroundSize || image).width*percentage;
-      }
+    if (isPercentage(backgroundPosition[0])){
+        leftPosition = (bounds.width - (backgroundSize || image).width) * (parseFloat(backgroundPosition[0]) / 100);
     } else {
-      if(prop === 'backgroundSize') {
-        if(bgposition[0] === 'auto') {
-          left = image.width;
-        } else {
-          if (/contain|cover/.test(bgposition[0])) {
-            var resized = _html2canvas.Util.resizeBounds(image.width, image.height, bounds.width, bounds.height, bgposition[0]);
-            left = resized.width;
-            topPos = resized.height;
-          } else {
-            left = parseInt(bgposition[0], 10);
-          }
-        }
-      } else {
-        left = parseInt( bgposition[0], 10);
-      }
+        leftPosition = parseInt(backgroundPosition[0], 10);
     }
 
-
-    if(bgposition[1] === 'auto') {
-      topPos = left / image.width * image.height;
-    } else if (bgposition[1].toString().indexOf("%") !== -1){
-      percentage = (parseFloat(bgposition[1])/100);
-      topPos =  bounds.height * percentage;
-      if(prop !== 'backgroundSize') {
-        topPos -= (backgroundSize || image).height * percentage;
-      }
-
+    if (backgroundPosition[1] === 'auto') {
+        topPosition = leftPosition / image.width * image.height;
+    } else if (isPercentage(backgroundPosition[1])){
+        topPosition =  (bounds.height - (backgroundSize || image).height) * parseFloat(backgroundPosition[1]) / 100;
     } else {
-      topPos = parseInt(bgposition[1],10);
+        topPosition = parseInt(backgroundPosition[1], 10);
     }
 
-    return [left, topPos];
-}
+    if (backgroundPosition[0] === 'auto') {
+        leftPosition = topPosition / image.height * image.width;
+    }
 
-_html2canvas.Util.BackgroundPosition = function( el, bounds, image, imageIndex, backgroundSize ) {
-    var result = backgroundBoundsFactory( 'backgroundPosition', el, bounds, image, imageIndex, backgroundSize );
-    return { left: result[0], top: result[1] };
+    return {left: leftPosition, top: topPosition};
 };
 
-_html2canvas.Util.BackgroundSize = function( el, bounds, image, imageIndex ) {
-    var result = backgroundBoundsFactory( 'backgroundSize', el, bounds, image, imageIndex );
-    return { width: result[0], height: result[1] };
+_html2canvas.Util.BackgroundSize = function(element, bounds, image, imageIndex) {
+  var backgroundSize =  _html2canvas.Util.getCSS(element, 'backgroundSize', imageIndex), width, height;
+
+  if (backgroundSize.length === 1) {
+    backgroundSize = [backgroundSize[0], backgroundSize[0]];
+  }
+
+  if (isPercentage(backgroundSize[0])) {
+    width = bounds.width * parseFloat(backgroundSize[0]) / 100;
+  } else if (/contain|cover/.test(backgroundSize[0])) {
+    return _html2canvas.Util.resizeBounds(image.width, image.height, bounds.width, bounds.height, backgroundSize[0]);
+  } else {
+    width = parseInt(backgroundSize[0], 10);
+  }
+
+  if (backgroundSize[0] === 'auto' && backgroundSize[1] === 'auto') {
+    height = image.height;
+  } else if (backgroundSize[1] === 'auto') {
+    height = width / image.width * image.height;
+  } else if (isPercentage(backgroundSize[1])) {
+    height =  bounds.height * parseFloat(backgroundSize[1]) / 100;
+  } else {
+    height = parseInt(backgroundSize[1], 10);
+  }
+
+  if (backgroundSize[0] === 'auto') {
+    width = height / image.height * image.width;
+  }
+
+  return {width: width, height: height};
+};
+
+_html2canvas.Util.BackgroundRepeat = function(element, imageIndex) {
+  var backgroundRepeat = _html2canvas.Util.getCSS(element, "backgroundRepeat").split(",").map(_html2canvas.Util.trimText);
+  return backgroundRepeat[imageIndex] || backgroundRepeat[0];
 };
 
 _html2canvas.Util.Extend = function (options, defaults) {
@@ -415,8 +416,9 @@ _html2canvas.Util.Children = function( elem ) {
 };
 
 _html2canvas.Util.isTransparent = function(backgroundColor) {
-  return (backgroundColor === "transparent" || backgroundColor === "rgba(0, 0, 0, 0)");
+  return (!backgroundColor || backgroundColor === "transparent" || backgroundColor === "rgba(0, 0, 0, 0)");
 };
+
 _html2canvas.Util.Font = (function () {
 
   var fontData = {};
@@ -1029,7 +1031,7 @@ function h2cRenderContext(width, height) {
     }
   };
 }
-_html2canvas.Parse = function (images, options) {
+_html2canvas.Parse = function (images, options, cb) {
   window.scroll(0,0);
 
   var element = (( options.elements === undefined ) ? document.body : options.elements[0]), // select body by default
@@ -1041,14 +1043,162 @@ _html2canvas.Parse = function (images, options) {
   body = doc.body,
   getCSS = Util.getCSS,
   pseudoHide = "___html2canvas___pseudoelement",
-  hidePseudoElements = doc.createElement('style');
+  hidePseudoElementsStyles = doc.createElement('style');
 
-  hidePseudoElements.innerHTML = '.' + pseudoHide + '-before:before { content: "" !important; display: none !important; }' +
-  '.' + pseudoHide + '-after:after { content: "" !important; display: none !important; }';
+  hidePseudoElementsStyles.innerHTML = '.' + pseudoHide +
+  '-parent:before { content: "" !important; display: none !important; }' +
+  '.' + pseudoHide + '-parent:after { content: "" !important; display: none !important; }';
 
-  body.appendChild(hidePseudoElements);
+  body.appendChild(hidePseudoElementsStyles);
 
   images = images || {};
+
+  init();
+
+  function init() {
+    var background = getCSS(document.documentElement, "backgroundColor"),
+      transparentBackground = (Util.isTransparent(background) && element === document.body),
+      stack = renderElement(element, null, false, transparentBackground);
+
+    // create pseudo elements in a single pass to prevent synchronous layouts
+    addPseudoElements(element);
+
+    parseChildren(element, stack, function() {
+      if (transparentBackground) {
+        background = stack.backgroundColor;
+      }
+
+      removePseudoElements();
+
+      Util.log('Done parsing, moving to Render.');
+
+      cb({
+        backgroundColor: background,
+        stack: stack
+      });
+    });
+  }
+
+  // Given a root element, find all pseudo elements below, create elements mocking pseudo element styles
+  // so we can process them as normal elements, and hide the original pseudo elements so they don't interfere
+  // with layout.
+  function addPseudoElements(el) {
+    // These are done in discrete steps to prevent a relayout loop caused by addClass() invalidating
+    // layouts & getPseudoElement calling getComputedStyle.
+    var jobs = [], classes = [];
+    getPseudoElementClasses();
+    findPseudoElements(el);
+    runJobs();
+
+    function getPseudoElementClasses(){
+      var findPsuedoEls = /:before|:after/;
+      var sheets = document.styleSheets;
+      for (var i = 0, j = sheets.length; i < j; i++) {
+        try {
+          var rules = sheets[i].cssRules;
+          for (var k = 0, l = rules.length; k < l; k++) {
+            if(findPsuedoEls.test(rules[k].selectorText)) {
+              classes.push(rules[k].selectorText);
+            }
+          }
+        }
+        catch(e) { // will throw security exception for style sheets loaded from external domains
+        }
+      }
+
+      // Trim off the :after and :before (or ::after and ::before)
+      for (i = 0, j = classes.length; i < j; i++) {
+        classes[i] = classes[i].match(/(^[^:]*)/)[1];
+      }
+    }
+
+    // Using the list of elements we know how pseudo el styles, create fake pseudo elements.
+    function findPseudoElements(el) {
+      var els = document.querySelectorAll(classes.join(','));
+      for(var i = 0, j = els.length; i < j; i++) {
+        createPseudoElements(els[i]);
+      }
+    }
+
+    // Create pseudo elements & add them to a job queue.
+    function createPseudoElements(el) {
+      var before = getPseudoElement(el, ':before'),
+      after = getPseudoElement(el, ':after');
+
+      if(before) {
+        jobs.push({type: 'before', pseudo: before, el: el});
+      }
+
+      if (after) {
+        jobs.push({type: 'after', pseudo: after, el: el});
+      }
+    }
+
+    // Adds a class to the pseudo's parent to prevent the original before/after from messing
+    // with layouts.
+    // Execute the inserts & addClass() calls in a batch to prevent relayouts.
+    function runJobs() {
+      // Add Class
+      jobs.forEach(function(job){
+        addClass(job.el, pseudoHide + "-parent");
+      });
+
+      // Insert el
+      jobs.forEach(function(job){
+        if(job.type === 'before'){
+          job.el.insertBefore(job.pseudo, job.el.firstChild);
+        } else {
+          job.el.appendChild(job.pseudo);
+        }
+      });
+    }
+  }
+
+
+
+  // Delete our fake pseudo elements from the DOM. This will remove those actual elements
+  // and the classes on their parents that hide the actual pseudo elements.
+  // Note that NodeLists are 'live' collections so you can't use a for loop here. They are
+  // actually deleted from the NodeList after each iteration.
+  function removePseudoElements(){
+    // delete pseudo elements
+    body.removeChild(hidePseudoElementsStyles);
+    var pseudos = document.getElementsByClassName(pseudoHide + "-element");
+    while (pseudos.length) {
+      pseudos[0].parentNode.removeChild(pseudos[0]);
+    }
+
+    // Remove pseudo hiding classes
+    var parents = document.getElementsByClassName(pseudoHide + "-parent");
+    while(parents.length) {
+      removeClass(parents[0], pseudoHide + "-parent");
+    }
+  }
+
+  function addClass (el, className) {
+    if (el.classList) {
+      el.classList.add(className);
+    } else {
+      el.className = el.className + " " + className;
+    }
+  }
+
+  function removeClass (el, className) {
+    if (el.classList) {
+      el.classList.remove(className);
+    } else {
+      el.className = el.className.replace(className, "").trim();
+    }
+  }
+
+  function hasClass (el, className) {
+    return el.className.indexOf(className) > -1;
+  }
+
+  // Note that this doesn't work in < IE8, but we don't support that anyhow
+  function nodeListToArray (nodeList) {
+    return Array.prototype.slice.call(nodeList);
+  }
 
   function documentWidth () {
     return Math.max(
@@ -1361,10 +1511,19 @@ _html2canvas.Parse = function (images, options) {
     newContext.isFloated = isFloated;
     newContext.opacity = opacity;
     newContext.ownStacking = (zIndex !== 'auto' || opacity < 1);
+    newContext.depth = parentStack ? (parentStack.zIndex.depth + 1) : 0;
 
     if (parentStack) {
       parentStack.zIndex.children.push(stack);
     }
+  }
+
+  function h2czContext(zindex) {
+    return {
+      depth: 0,
+      zindex: zindex,
+      children: []
+    };
   }
 
   function renderImage(ctx, element, image, bounds, borders) {
@@ -1403,69 +1562,67 @@ _html2canvas.Parse = function (images, options) {
     });
   }
 
-  var getCurvePoints = (function(kappa) {
-
-    return function(x, y, r1, r2) {
-      var ox = (r1) * kappa, // control point offset horizontal
-      oy = (r2) * kappa, // control point offset vertical
-      xm = x + r1, // x-middle
-      ym = y + r2; // y-middle
-      return {
-        topLeft: bezierCurve({
-          x:x,
-          y:ym
-        }, {
-          x:x,
-          y:ym - oy
-        }, {
-          x:xm - ox,
-          y:y
-        }, {
-          x:xm,
-          y:y
-        }),
-        topRight: bezierCurve({
-          x:x,
-          y:y
-        }, {
-          x:x + ox,
-          y:y
-        }, {
-          x:xm,
-          y:ym - oy
-        }, {
-          x:xm,
-          y:ym
-        }),
-        bottomRight: bezierCurve({
-          x:xm,
-          y:y
-        }, {
-          x:xm,
-          y:y + oy
-        }, {
-          x:x + ox,
-          y:ym
-        }, {
-          x:x,
-          y:ym
-        }),
-        bottomLeft: bezierCurve({
-          x:xm,
-          y:ym
-        }, {
-          x:xm - ox,
-          y:ym
-        }, {
-          x:x,
-          y:y + oy
-        }, {
-          x:x,
-          y:y
-        })
-      };
+  function getCurvePoints(x, y, r1, r2) {
+    var kappa = 4 * ((Math.sqrt(2) - 1) / 3);
+    var ox = (r1) * kappa, // control point offset horizontal
+    oy = (r2) * kappa, // control point offset vertical
+    xm = x + r1, // x-middle
+    ym = y + r2; // y-middle
+    return {
+      topLeft: bezierCurve({
+        x:x,
+        y:ym
+      }, {
+        x:x,
+        y:ym - oy
+      }, {
+        x:xm - ox,
+        y:y
+      }, {
+        x:xm,
+        y:y
+      }),
+      topRight: bezierCurve({
+        x:x,
+        y:y
+      }, {
+        x:x + ox,
+        y:y
+      }, {
+        x:xm,
+        y:ym - oy
+      }, {
+        x:xm,
+        y:ym
+      }),
+      bottomRight: bezierCurve({
+        x:xm,
+        y:y
+      }, {
+        x:xm,
+        y:y + oy
+      }, {
+        x:x + ox,
+        y:ym
+      }, {
+        x:x,
+        y:ym
+      }),
+      bottomLeft: bezierCurve({
+        x:xm,
+        y:ym
+      }, {
+        x:xm - ox,
+        y:ym
+      }, {
+        x:x,
+        y:y + oy
+      }, {
+        x:x,
+        y:y
+      })
     };
-  })(4 * ((Math.sqrt(2) - 1) / 3));
+  }
 
   function bezierCurve(start, startControl, endControl, end) {
 
@@ -1557,9 +1714,19 @@ _html2canvas.Parse = function (images, options) {
     brh = borderRadius[2][0],
     brv = borderRadius[2][1],
     blh = borderRadius[3][0],
-    blv = borderRadius[3][1],
+    blv = borderRadius[3][1];
 
-    topWidth = width - trh,
+    var halfHeight = Math.floor(height / 2);
+    tlh = tlh > halfHeight ? halfHeight : tlh;
+    tlv = tlv > halfHeight ? halfHeight : tlv;
+    trh = trh > halfHeight ? halfHeight : trh;
+    trv = trv > halfHeight ? halfHeight : trv;
+    brh = brh > halfHeight ? halfHeight : brh;
+    brv = brv > halfHeight ? halfHeight : brv;
+    blh = blh > halfHeight ? halfHeight : blh;
+    blv = blv > halfHeight ? halfHeight : blv;
+
+    var topWidth = width - trh,
     rightHeight = height - brv,
     bottomWidth = width - brh,
     leftHeight = height - blv;
@@ -1804,20 +1971,25 @@ _html2canvas.Parse = function (images, options) {
 
   function getPseudoElement(el, which) {
     var elStyle = window.getComputedStyle(el, which);
-    if(!elStyle || !elStyle.content || elStyle.content === "none" || elStyle.content === "-moz-alt-content" || elStyle.display === "none") {
+    var parentStyle = window.getComputedStyle(el);
+    // If no content attribute is present, the pseudo element is hidden,
+    // or the parent has a content property equal to the content on the pseudo element,
+    // move along.
+    if(!elStyle || !elStyle.content || elStyle.content === "none" || elStyle.content === "-moz-alt-content" ||
+       elStyle.display === "none" || parentStyle.content === elStyle.content) {
       return;
     }
-    var content = elStyle.content + '',
-    first = content.substr( 0, 1 );
-    //strips quotes
-    if(first === content.substr( content.length - 1 ) && first.match(/'|"/)) {
-      content = content.substr( 1, content.length - 2 );
+    var content = elStyle.content + '';
+
+    // Strip inner quotes
+    if(content[0] === "'" || content[0] === "\"") {
+      content = content.replace(/(^['"])|(['"]$)/g, '');
     }
 
     var isImage = content.substr( 0, 3 ) === 'url',
     elps = document.createElement( isImage ? 'img' : 'span' );
 
-    elps.className = pseudoHide + "-before " + pseudoHide + "-after";
+    elps.className = pseudoHide + "-element ";
 
     Object.keys(elStyle).filter(indexedProperty).forEach(function(prop) {
       // Prevent assigning of read only CSS Rules, ex. length, parentRule
@@ -1838,31 +2010,6 @@ _html2canvas.Parse = function (images, options) {
 
   function indexedProperty(property) {
     return (isNaN(window.parseInt(property, 10)));
-  }
-
-  function injectPseudoElements(el, stack) {
-    var before = getPseudoElement(el, ':before'),
-    after = getPseudoElement(el, ':after');
-    if(!before && !after) {
-      return;
-    }
-
-    if(before) {
-      el.className += " " + pseudoHide + "-before";
-      el.parentNode.insertBefore(before, el);
-      parseElement(before, stack, true);
-      el.parentNode.removeChild(before);
-      el.className = el.className.replace(pseudoHide + "-before", "").trim();
-    }
-
-    if (after) {
-      el.className += " " + pseudoHide + "-after";
-      el.appendChild(after);
-      parseElement(after, stack, true);
-      el.removeChild(after);
-      el.className = el.className.replace(pseudoHide + "-after", "").trim();
-    }
-
   }
 
   function renderBackgroundRepeat(ctx, image, backgroundPosition, bounds) {
@@ -1902,28 +2049,25 @@ _html2canvas.Parse = function (images, options) {
   function renderBackgroundRepeating(el, bounds, ctx, image, imageIndex) {
     var backgroundSize = Util.BackgroundSize(el, bounds, image, imageIndex),
     backgroundPosition = Util.BackgroundPosition(el, bounds, image, imageIndex, backgroundSize),
-    backgroundRepeat = getCSS(el, "backgroundRepeat").split(",").map(Util.trimText);
+    backgroundRepeat = Util.BackgroundRepeat(el, imageIndex);
 
     image = resizeImage(image, backgroundSize);
 
-    backgroundRepeat = backgroundRepeat[imageIndex] || backgroundRepeat[0];
-
     switch (backgroundRepeat) {
       case "repeat-x":
+      case "repeat no-repeat":
         backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
           bounds.left, bounds.top + backgroundPosition.top, 99999, image.height);
         break;
-
       case "repeat-y":
+      case "no-repeat repeat":
         backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
           bounds.left + backgroundPosition.left, bounds.top, image.width, 99999);
         break;
-
       case "no-repeat":
         backgroundRepeatShape(ctx, image, backgroundPosition, bounds,
           bounds.left + backgroundPosition.left, bounds.top + backgroundPosition.top, image.width, image.height);
         break;
-
       default:
         renderBackgroundRepeat(ctx, image, backgroundPosition, {
           top: bounds.top,
@@ -1984,9 +2128,8 @@ _html2canvas.Parse = function (images, options) {
     return str.replace("px", "");
   }
 
-  var transformRegExp = /(matrix)\((.+)\)/;
-
   function getTransform(element, parentStack) {
+    var transformRegExp = /(matrix)\((.+)\)/;
     var transform = getCSS(element, "transform") || getCSS(element, "-webkit-transform") || getCSS(element, "-moz-transform") || getCSS(element, "-ms-transform") || getCSS(element, "-o-transform");
     var transformOrigin = getCSS(element, "transform-origin") || getCSS(element, "-webkit-transform-origin") || getCSS(element, "-moz-transform-origin") || getCSS(element, "-ms-transform-origin") || getCSS(element, "-o-transform-origin") || "0px 0px";
 
@@ -2053,7 +2196,7 @@ _html2canvas.Parse = function (images, options) {
     return bounds;
   }
 
-  function renderElement(element, parentStack, pseudoElement, ignoreBackground) {
+  function renderElement(element, parentStack, ignoreBackground) {
     var transform = getTransform(element, parentStack),
     bounds = getBounds(element, transform),
     image,
@@ -2082,10 +2225,6 @@ _html2canvas.Parse = function (images, options) {
     borderData.borders.forEach(function(border) {
       renderBorders(ctx, border.args, border.color);
     });
-
-    if (!pseudoElement) {
-      injectPseudoElements(element, stack);
-    }
 
     switch(element.nodeName){
       case "IMG":
@@ -2127,52 +2266,54 @@ _html2canvas.Parse = function (images, options) {
     return (getCSS(element, 'display') !== "none" && getCSS(element, 'visibility') !== "hidden" && !element.hasAttribute("data-html2canvas-ignore"));
   }
 
-  function parseElement (element, stack, pseudoElement) {
+  function parseElement (element, stack, cb) {
+    if (!cb) {
+      cb = function(){};
+    }
     if (isElementVisible(element)) {
-      stack = renderElement(element, stack, pseudoElement, false) || stack;
+      stack = renderElement(element, stack, false) || stack;
       if (!ignoreElementsRegExp.test(element.nodeName)) {
-        parseChildren(element, stack, pseudoElement);
+        return parseChildren(element, stack, cb);
       }
     }
+    cb();
   }
 
-  function parseChildren(element, stack, pseudoElement) {
-    Util.Children(element).forEach(function(node) {
+  function parseChildren(element, stack, cb) {
+    var children = Util.Children(element);
+    // After all nodes have processed, finished() will call the cb.
+    // We add one and kick it off so this will still work when children.length === 0.
+    // Note that unless async is true, this will happen synchronously, just will callbacks.
+    var jobs = children.length + 1;
+    finished();
+
+    if (options.async) {
+      children.forEach(function(node) {
+        // Don't block the page from rendering
+        setTimeout(function(){ parseNode(node); }, 0);
+      });
+    } else {
+      children.forEach(parseNode);
+    }
+
+    function parseNode(node) {
       if (node.nodeType === node.ELEMENT_NODE) {
-        parseElement(node, stack, pseudoElement);
+        parseElement(node, stack, finished);
       } else if (node.nodeType === node.TEXT_NODE) {
         renderText(element, node, stack);
+        finished();
+      } else {
+        finished();
       }
-    });
-  }
-
-  function init() {
-    var background = getCSS(document.documentElement, "backgroundColor"),
-      transparentBackground = (Util.isTransparent(background) && element === document.body),
-      stack = renderElement(element, null, false, transparentBackground);
-    parseChildren(element, stack);
-
-    if (transparentBackground) {
-      background = stack.backgroundColor;
     }
-
-    body.removeChild(hidePseudoElements);
-    return {
-      backgroundColor: background,
-      stack: stack
-    };
+    function finished(el) {
+      if (--jobs <= 0){
+        Util.log("finished rendering " + children.length + " children.");
+        cb();
+      }
+    }
   }
-
-  return init();
 };
-
-function h2czContext(zindex) {
-  return {
-    zindex: zindex,
-    children: []
-  };
-}
-
 _html2canvas.Preload = function( options ) {
 
   var images = {
@@ -2492,6 +2633,15 @@ _html2canvas.Preload = function( options ) {
 };
 
 _html2canvas.Renderer = function(parseQueue, options){
+  function sortZindex(a, b) {
+    if (a === 'children') {
+      return -1;
+    } else if (b === 'children') {
+      return 1;
+    } else {
+      return a - b;
+    }
+  }
 
   // http://www.w3.org/TR/CSS21/zindex.html
   function createRenderQueue(parseQueue) {
@@ -2509,8 +2659,9 @@ _html2canvas.Renderer = function(parseQueue, options){
         childrenDest = specialParent; // where children without z-index should be pushed into
 
         if (node.zIndex.ownStacking) {
-          // '!' comes before numbers in sorted array
-          contextForChildren = stub.context = { '!': [{node:node, children: []}]};
+          contextForChildren = stub.context = {
+              children: [{node:node, children: []}]
+          };
           childrenDest = undefined;
         } else if (isPositioned || isFloated) {
           childrenDest = stub.children = [];
@@ -2532,7 +2683,7 @@ _html2canvas.Renderer = function(parseQueue, options){
     })(parseQueue);
 
     function sortZ(context) {
-      Object.keys(context).sort().forEach(function(zi) {
+      Object.keys(context).sort(sortZindex).forEach(function(zi) {
         var nonPositioned = [],
         floated = [],
         positioned = [],
@@ -2678,11 +2829,13 @@ window.html2canvas = function(elements, opts) {
     useOverflow: true,
     letterRendering: false,
     chinese: false,
+    async: false, // If true, parsing will not block, but if the user scrolls during parse the image can get weird
 
     // render options
-
     width: null,
     height: null,
+    scale: 1,
+    dpi: null, // dpi overrides scaling factor (scale = dpi / css-inch)
     taintTest: true, // do a taint test with all images before applying to canvas
     renderer: "Canvas"
   };
@@ -2697,21 +2850,19 @@ window.html2canvas = function(elements, opts) {
         return;
       }
     }
-    queue = _html2canvas.Parse( images, options );
-
-    if (typeof options.onparsed === "function") {
-      if ( options.onparsed( queue ) === false ) {
-        return;
+    _html2canvas.Parse( images, options, function(queue) {
+      if (typeof options.onparsed === "function") {
+        if ( options.onparsed( queue ) === false ) {
+          return;
+        }
       }
-    }
 
-    canvas = _html2canvas.Renderer( queue, options );
+      canvas = _html2canvas.Renderer( queue, options );
 
-    if (typeof options.onrendered === "function") {
-      options.onrendered( canvas );
-    }
-
-
+      if (typeof options.onrendered === "function") {
+        options.onrendered( canvas );
+      }
+    });
   };
 
   // for pages without images, we still want this to be async, i.e. return methods before executing
@@ -2737,6 +2888,7 @@ window.html2canvas.log = _html2canvas.Util.log; // for renderers
 window.html2canvas.Renderer = {
   Canvas: undefined // We are assuming this will be used
 };
+
 _html2canvas.Renderer.Canvas = function(options) {
   options = options || {};
 
@@ -2756,7 +2908,7 @@ _html2canvas.Renderer.Canvas = function(options) {
   }
 
   function safeImage(item) {
-    if (safeImages.indexOf(item['arguments'][0].src ) === -1) {
+    if (safeImages.indexOf(item['arguments'][0].src) === -1) {
       testctx.drawImage(item['arguments'][0], 0, 0);
       try {
         testctx.getImageData(0, 0, 1, 1);
@@ -2781,8 +2933,7 @@ _html2canvas.Renderer.Canvas = function(options) {
             if (item['arguments'][0].width > 0 && item['arguments'][0].height > 0) {
               try {
                 ctx.fillStyle = ctx.createPattern(item['arguments'][0], "repeat");
-              }
-              catch(e) {
+              } catch(e) {
                 Util.log("html2canvas: Renderer: Error creating pattern", e.message);
               }
             }
@@ -2811,14 +2962,30 @@ _html2canvas.Renderer.Canvas = function(options) {
     fstyle,
     zStack = parsedData.stack;
 
-    canvas.width = canvas.style.width =  options.width || zStack.ctx.width;
-    canvas.height = canvas.style.height = options.height || zStack.ctx.height;
+    var width = options.width || zStack.ctx.width;
+    var height = options.height || zStack.ctx.height;
+
+    var scale;
+    var CSS_INCH = 96; // pixels per inch
+    if( options.dpi ) {
+      scale = options.dpi / CSS_INCH;
+    } else {
+      scale = options.scale;
+    }
+    var scaledWidth = Math.floor(width * scale);
+    var scaledHeight = Math.floor(height * scale);
+
+    // set dimensions
+    canvas.style.width = width;
+    canvas.style.height = height;
+    canvas.width = scaledWidth;
+    canvas.height = scaledHeight;
+    ctx.scale(scale, scale);
 
     fstyle = ctx.fillStyle;
-    ctx.fillStyle = (Util.isTransparent(zStack.backgroundColor) && options.background !== undefined) ? options.background : parsedData.backgroundColor;
+    ctx.fillStyle = (Util.isTransparent(parsedData.backgroundColor) && options.background !== undefined) ? options.background : parsedData.backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = fstyle;
-
     queue.forEach(function(storageContext) {
       // set common settings for canvas
       ctx.textBaseline = "bottom";
@@ -2856,7 +3023,9 @@ _html2canvas.Renderer.Canvas = function(options) {
         newCanvas.height = Math.ceil(bounds.height);
         ctx = newCanvas.getContext("2d");
 
-        ctx.drawImage(canvas, bounds.left, bounds.top, bounds.width, bounds.height, 0, 0, bounds.width, bounds.height);
+		var imgData = canvas.getContext("2d").getImageData(bounds.left, bounds.top, bounds.width, bounds.height);
+		ctx.putImageData(imgData, 0, 0);
+
         canvas = null;
         return newCanvas;
       }
@@ -2865,4 +3034,5 @@ _html2canvas.Renderer.Canvas = function(options) {
     return canvas;
   };
 };
+
 })(window,document);
