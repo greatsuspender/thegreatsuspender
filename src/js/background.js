@@ -497,7 +497,67 @@ var tgs = (function () {
         sendMessageToTab(tabId, {action: 'cancelTimer'});
     }
 
-    function checkForCrashRecovery(forceRecovery) {
+    function runStartupChecks() {
+
+        var lastVersion = gsUtils.fetchLastVersion(),
+            curVersion = chrome.runtime.getManifest().version,
+            contextMenus = gsUtils.getOption(gsUtils.ADD_CONTEXT);
+
+        //if version has changed then assume initial install or upgrade
+        if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
+            gsUtils.setLastVersion(curVersion);
+
+            //if they are installing for the first time
+            if (!lastVersion) {
+
+                //show welcome screen
+                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+
+                //else if they are upgrading to a new version
+            } else {
+
+                gsUtils.performMigration(lastVersion);
+
+                //recover tabs silently
+                checkForCrashRecovery(true);
+
+                //close any 'update' tabs that may be open
+                chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
+                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                });
+
+                //show updated screen
+                chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+            }
+
+            //else if restarting the same version
+        } else {
+
+            //check for possible crash
+            checkForCrashRecovery(false);
+
+            //trim excess dbItems
+            gsUtils.trimDbItems();
+        }
+
+        //inject new content script into all open pages
+        reinjectContentScripts();
+
+        //add context menu items
+        buildContextMenu(contextMenus);
+
+        //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            if (tabs.length > 0) {
+                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
+            }
+        });
+
+        //initialise settings (important that this comes last. cant remember why?!?!)
+        gsUtils.initSettings();
+    }
+
+    function checkForCrashRecovery(isUpdating) {
 
         //try to detect whether the extension has crashed as separate to chrome crashing
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
@@ -596,21 +656,10 @@ var tgs = (function () {
                     return;
                 }
 
-                if (!forceRecovery) {
-                    //if any of the tabIds from the session don't exist in the current session then abort recovery
-                    var tabIdMismatch = unsuspendedSessionTabs.some(function (sessionTab) {
-                        if (typeof currentlyOpenTabs[sessionTab.id] === 'undefined') {
-                            return true;
-                        }
-                    });
-                    if (tabIdMismatch) {
-                        if (debug) console.log('Will not attempt recovery as tab ids from last session do not match current session.');
-                        return;
-                    }
-                }
-
-                if (forceRecovery) {
+                //if we are doing an update, then automatically recover lost tabs
+                if (isUpdating) {
                     gsUtils.recoverLostTabs(null);
+                //otherwise show the recovery page
                 } else {
                     chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
                 }
@@ -636,66 +685,6 @@ var tgs = (function () {
                 }
             });
         });
-    }
-
-    function runStartupChecks() {
-
-        var lastVersion = gsUtils.fetchLastVersion(),
-            curVersion = chrome.runtime.getManifest().version,
-            contextMenus = gsUtils.getOption(gsUtils.ADD_CONTEXT);
-
-        //if version has changed then assume initial install or upgrade
-        if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
-            gsUtils.setLastVersion(curVersion);
-
-            //if they are installing for the first time
-            if (!lastVersion) {
-
-                //show welcome screen
-                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
-
-            //else if they are upgrading to a new version
-            } else {
-
-                gsUtils.performMigration(lastVersion);
-
-                //recover tabs silently
-                checkForCrashRecovery(true);
-
-                //close any 'update' tabs that may be open
-                chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
-                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
-                });
-
-                //show updated screen
-                chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
-            }
-
-        //else if restarting the same version
-        } else {
-
-            //check for possible crash
-            checkForCrashRecovery(false);
-
-            //trim excess dbItems
-            gsUtils.trimDbItems();
-        }
-
-        //inject new content script into all open pages
-        reinjectContentScripts();
-
-        //add context menu items
-        buildContextMenu(contextMenus);
-
-        //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
-            }
-        });
-
-        //initialise settings (important that this comes last. cant remember why?!?!)
-        gsUtils.initSettings();
     }
 
     function checkForNotices() {

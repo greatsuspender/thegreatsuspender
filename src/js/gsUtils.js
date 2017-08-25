@@ -62,11 +62,11 @@ var gsUtils = {
 
     //populate localstorage settings with sync settings where undefined
     initSettings: function () {
-        var that = this;
+        var self = this;
         var rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings')) || {};
         var defaultSettings = gsUtils.getSettingsDefaults();
-        var shouldSyncSettings = rawLocalSettings.hasOwnProperty(that.SYNC_SETTINGS)
-            ? rawLocalSettings[that.SYNC_SETTINGS] : defaultSettings[that.SYNC_SETTINGS];
+        var shouldSyncSettings = rawLocalSettings.hasOwnProperty(self.SYNC_SETTINGS)
+            ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
         var allSettingKeys = Object.keys(defaultSettings);
         chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
 
@@ -74,7 +74,7 @@ var gsUtils = {
             // then overwrite with synced value
             var newSettings = {};
             allSettingKeys.forEach(function (key) {
-                if (key !== that.SYNC_SETTINGS && syncedSettings.hasOwnProperty(key) &&
+                if (key !== self.SYNC_SETTINGS && syncedSettings.hasOwnProperty(key) &&
                     (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)) {
                     newSettings[key] = syncedSettings[key];
                 }
@@ -83,17 +83,17 @@ var gsUtils = {
                     newSettings[key] = rawLocalSettings.hasOwnProperty(key) ? rawLocalSettings[key] : defaultSettings[key];
                 }
             });
-            that.saveSettings(newSettings);
+            self.saveSettings(newSettings);
 
             // if any of the new settings are different to those in sync, then trigger a resync
             var triggerResync = false;
             allSettingKeys.forEach(function (key) {
-                if (key !== that.SYNC_SETTINGS && syncedSettings[key] !== newSettings[key]) {
+                if (key !== self.SYNC_SETTINGS && syncedSettings[key] !== newSettings[key]) {
                     triggerResync = true;
                 }
             });
             if (triggerResync) {
-                that.syncSettings(newSettings);
+                self.syncSettings(newSettings);
             }
         });
 
@@ -102,9 +102,9 @@ var gsUtils = {
             if (namespace !== 'sync' || !remoteSettings) {
                 return;
             }
-            var shouldSync = that.getOption(that.SYNC_SETTINGS);
+            var shouldSync = self.getOption(self.SYNC_SETTINGS);
             if (shouldSync) {
-                var localSettings = that.getSettings();
+                var localSettings = self.getSettings();
                 var changedSettingKeys = [];
                 Object.keys(remoteSettings).forEach(function (key) {
                     var remoteSetting = remoteSettings[key];
@@ -116,8 +116,8 @@ var gsUtils = {
                 });
 
                 if (changedSettingKeys.length > 0) {
-                    that.saveSettings(localSettings);
-                    that.performPostSaveUpdates(changedSettingKeys);
+                    self.saveSettings(localSettings);
+                    self.performPostSaveUpdates(changedSettingKeys);
                 }
             }
         });
@@ -725,9 +725,9 @@ var gsUtils = {
     },
 
     documentReadyAndLocalisedAsPromsied: function (doc) {
-        var that = this;
-        return that.documentReadyAsPromsied(doc).then(function () {
-            return that.localiseHtml(doc);
+        var self = this;
+        return self.documentReadyAsPromsied(doc).then(function () {
+            return self.localiseHtml(doc);
         });
     },
 
@@ -898,29 +898,26 @@ var gsUtils = {
 
     recoverLostTabs: function (callback) {
 
-        var self = this,
-            tabMap = {},
-            windowsMap = {};
+        var self = this;
 
         callback = typeof callback !== 'function' ? this.noop : callback;
 
         this.fetchLastSession().then(function (lastSession) {
-
             if (!lastSession) {
                 callback(null);
             }
+            chrome.windows.getAll({ populate: true }, function (currentWindows) {
 
-            chrome.windows.getAll({ populate: true }, function (windows) {
-                windows.forEach(function (curWindow) {
-                    curWindow.tabs.forEach(function (curTab) {
-                        tabMap[curTab.id] = curTab;
-                    });
-                    windowsMap[curWindow.id] = tabMap;
-                });
+                var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
 
                 //attempt to automatically restore any lost tabs/windows in their proper positions
                 lastSession.windows.forEach(function (sessionWindow) {
-                    self.recoverWindow(sessionWindow, windowsMap, tabMap);
+                    if (!matchedCurrentWindowBySessionWindowId[sessionWindow.id]) {
+                        console.log('Could not find match for sessionWindow: ', sessionWindow);
+                        self.recoverWindow(sessionWindow);
+                    } else {
+                        self.recoverWindow(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
+                    }
                 });
 
                 callback();
@@ -928,31 +925,113 @@ var gsUtils = {
         });
     },
 
-    recoverWindow: function (sessionWindow, windowsMap, tabMap) {
+    //try to match session windows with currently open windows
+    matchCurrentWindowsWithLastSessionWindows: function (unmatchedSessionWindows, unmatchedCurrentWindows) {
 
-        var tabIdMap = {},
-            tabUrlMap = {},
-            openTab;
+        var self = this;
+        var matchedCurrentWindowBySessionWindowId = {};
 
-        //if crashed window exists in current session then restore suspended tabs in that window
-        if (windowsMap[sessionWindow.id]) {
-            tabIdMap = windowsMap[sessionWindow.id];
-
-            //get a list of unsuspended urls already in the window
-            for (var id in tabIdMap) {
-                if (tabIdMap.hasOwnProperty(id)) {
-                    openTab = tabIdMap[id];
-                    tabUrlMap[openTab.url] = openTab;
-                }
+        //if there is a current window open that matches the id of the session window id then match it
+        unmatchedSessionWindows.slice().forEach(function (sessionWindow) {
+            var matchingCurrentWindow = unmatchedCurrentWindows.find(function (window) { return window.id === sessionWindow.id; });
+            if (matchingCurrentWindow) {
+                matchedCurrentWindowBySessionWindowId[sessionWindow.id] = matchingCurrentWindow;
+                //remove from unmatchedSessionWindows and unmatchedCurrentWindows
+                unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
+                unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
+                console.log('Matched with ids: ', sessionWindow, matchingCurrentWindow);
             }
+        });
+
+        if (unmatchedSessionWindows.length === 0 || unmatchedCurrentWindows.length === 0) {
+            return matchedCurrentWindowBySessionWindowId;
+        }
+
+        //if we still have session windows that haven't been matched to a current window then attempt matching based on tab urls
+        var tabMatchingObjects = self.generateTabMatchingObjects(unmatchedSessionWindows, unmatchedCurrentWindows);
+
+        //find the tab matching objects with the highest tabMatchCounts
+        while (unmatchedSessionWindows.length > 0 && unmatchedCurrentWindows.length > 0) {
+            var maxTabMatchCount = Math.max(...tabMatchingObjects.map(function (o) { return o.tabMatchCount; }));
+            var bestTabMatchingObject = tabMatchingObjects.find(function (o) { return o.tabMatchCount === maxTabMatchCount; });
+
+            matchedCurrentWindowBySessionWindowId[bestTabMatchingObject.sessionWindow.id] = bestTabMatchingObject.currentWindow;
+
+            //remove from unmatchedSessionWindows and unmatchedCurrentWindows
+            var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
+            unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
+            unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
+            console.log('Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
+
+            //remove from tabMatchingObjects
+            tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });
+
+            //safety check to make sure we dont get stuck in infinite loop. should never happen though.
+            if (unmatchedSessionWindows.length >= unmatchedSessionWindowsLengthBefore) {
+                break;
+            }
+        }
+
+        return matchedCurrentWindowBySessionWindowId;
+    },
+
+    generateTabMatchingObjects: function (sessionWindows, currentWindows) {
+
+        var unsuspendedSessionUrlsByWindowId = {};
+        sessionWindows.forEach(function (sessionWindow) {
+            unsuspendedSessionUrlsByWindowId[sessionWindow.id] = [];
+            sessionWindow.tabs.forEach(function (curTab) {
+                if (!tgs.isSpecialTab(curTab) && !tgs.isSuspended(curTab)) {
+                    unsuspendedSessionUrlsByWindowId[sessionWindow.id].push(curTab.url);
+                }
+            });
+        });
+        var unsuspendedCurrentUrlsByWindowId = {};
+        currentWindows.forEach(function (currentWindow) {
+            unsuspendedCurrentUrlsByWindowId[currentWindow.id] = [];
+            currentWindow.tabs.forEach(function (curTab) {
+                if (!tgs.isSpecialTab(curTab) && !tgs.isSuspended(curTab)) {
+                    unsuspendedCurrentUrlsByWindowId[currentWindow.id].push(curTab.url);
+                }
+            });
+        });
+
+        var tabMatchingObjects = [];
+        sessionWindows.forEach(function (sessionWindow) {
+            currentWindows.forEach(function (currentWindow) {
+                var unsuspendedSessionUrls = unsuspendedSessionUrlsByWindowId[sessionWindow.id];
+                var unsuspendedCurrentUrls = unsuspendedCurrentUrlsByWindowId[currentWindow.id];
+                var matchCount = unsuspendedCurrentUrls.filter(function (url) { return unsuspendedSessionUrls.includes(url); }).length;
+                tabMatchingObjects.push({
+                    tabMatchCount: matchCount,
+                    sessionWindow: sessionWindow,
+                    currentWindow: currentWindow
+                });
+            });
+        });
+
+        return tabMatchingObjects;
+    },
+
+    recoverWindow: function (sessionWindow, currentWindow) {
+
+        var currentTabIds = [],
+            currentTabUrls = [];
+
+        //if we have been provided with a current window to recover into
+        if (currentWindow) {
+            currentWindow.tabs.forEach(function (currentTab) {
+                currentTabIds.push(currentTab.id);
+                currentTabUrls.push(currentTab.url);
+            });
 
             sessionWindow.tabs.forEach(function (sessionTab) {
 
                 //if current tab does not exist then recreate it
                 if (!tgs.isSpecialTab(sessionTab) &&
-                        !tabUrlMap[sessionTab.url] && !tabIdMap[sessionTab.id]) {
+                        !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
                     chrome.tabs.create({
-                        windowId: sessionWindow.id,
+                        windowId: currentWindow.id,
                         url: sessionTab.url,
                         index: sessionTab.index,
                         pinned: sessionTab.pinned,
