@@ -275,7 +275,7 @@ var tgs = (function () {
     }
 
     function isSuspended(tab) {
-        return tab.url.indexOf('suspended.html') >= 0;
+        return tab.url.indexOf('suspended.html') > 0;
     }
 
     function unsuspendAllTabs() {
@@ -1219,6 +1219,7 @@ var tgs = (function () {
 
     return {
         isSpecialTab: isSpecialTab,
+        isSuspended: isSuspended,
         sessionId: sessionId,
         runStartupChecks: runStartupChecks,
         resetContentScripts: resetContentScripts,

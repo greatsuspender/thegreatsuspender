@@ -2,6 +2,7 @@
 var sessionUtils = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
+    var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function reloadTabs(element, suspendMode) {
@@ -36,9 +37,9 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
                             window.tabs.forEach(function (curTab) {
                                 curUrl = curTab.url;
 
-                                if (suspendMode && curUrl.indexOf('suspended.html') < 0 && !chrome.extension.getBackgroundPage().tgs.isSpecialTab(curTab)) {
+                                if (suspendMode && !tgs.isSuspended(curTab) && !tgs.isSpecialTab(curTab)) {
                                     curUrl = gsUtils.generateSuspendedUrl(curTab.url, curTab.title);
-                                } else if (!suspendMode && curUrl.indexOf('suspended.html') > 0) {
+                                } else if (!suspendMode && tgs.isSuspended(curTab)) {
                                     curUrl = gsUtils.getSuspendedUrl(curTab.url);
                                 }
                                 chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
@@ -88,7 +89,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
 
             session.windows.forEach(function (curWindow, index) {
                 curWindow.tabs.forEach(function (curTab, tabIndex) {
-                    if (curTab.url.indexOf('suspended.html') > 0) {
+                    if (tgs.isSuspended(curTab)) {
                         dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
                     } else {
                         dataString += curTab.url + '\n';
@@ -302,7 +303,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
         }
         if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
             favicon = 'chrome://favicon/size/16@2x/';
-            if (tabProperties.url.indexOf('suspended.html') >= 0) {
+            if (tgs.isSuspended(tabProperties)) {
                 favicon += gsUtils.getSuspendedUrl(tabProperties.url);
             } else {
                 favicon += tabProperties.url;

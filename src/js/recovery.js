@@ -2,7 +2,8 @@
 (function () {
     'use strict';
 
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils,
+    var tgs = chrome.extension.getBackgroundPage().tgs,
+        gsUtils = chrome.extension.getBackgroundPage().gsUtils,
         restoreAttempted = false;
 
     function removeTabFromList(tab) {
@@ -55,7 +56,7 @@
 
                 window.tabs.forEach(function (tabProperties) {
 
-                    if (!chrome.extension.getBackgroundPage().tgs.isSpecialTab(tabProperties)) {
+                    if (!tgs.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
                         tabProperties.sessionId = lastSession.sessionId;
                         tabEl = sessionUtils.createTabHtml(tabProperties, true);

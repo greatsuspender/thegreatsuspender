@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var url = gsUtils.getSuspendedUrl(window.location.href);
     var requestUnsuspendOnReload = false;
@@ -217,7 +218,7 @@
 
     function hideNagForever() {
         gsUtils.setOption(gsUtils.NO_NAG, true);
-        chrome.extension.getBackgroundPage().tgs.resuspendAllSuspendedTabs();
+        tgs.resuspendAllSuspendedTabs();
         document.getElementById('dudePopup').style.display = 'none';
         document.getElementById('donateBubble').style.display = 'none';
     }
