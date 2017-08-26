@@ -46,7 +46,7 @@
         //set preview image
         if (showPreview) {
             gsUtils.fetchPreviewImage(url, function (preview) {
-                if (preview && preview.img && preview.img !== null) {
+                if (preview && preview.img && preview.img !== null && preview.img !== 'data:,') {
 
                     var previewEl = document.createElement('div');
                     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
@@ -61,13 +61,15 @@
                     }
                     document.getElementById('suspendedMsg').style.display = 'none';
                     previewEl.style.display = 'block';
+
+                    //allow vertical scrollbar if we are using high quality previews
+                    if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2') {
+                        document.body.style['overflow-x'] = 'auto';
+                    }
+                } else {
+                    document.getElementById('suspendedMsg').style.display = 'table-cell';
                 }
             });
-
-            //allow vertical scrollbar if we are using high quality previews
-            if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2') {
-                document.body.style['overflow-x'] = 'auto';
-            }
 
         } else {
             document.getElementById('suspendedMsg').style.display = 'table-cell';

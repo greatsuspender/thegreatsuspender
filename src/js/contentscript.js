@@ -69,6 +69,16 @@
         }
     }
 
+    function handlePreviewSuccess(suspendedUrl, dataUrl, timer) {
+        chrome.runtime.sendMessage({
+            action: 'savePreviewData',
+            previewUrl: dataUrl,
+            timerMsg: timer
+        }, function () {
+            suspendTab(suspendedUrl);
+        });
+    }
+
     function handlePreviewError(suspendedUrl, err) {
         chrome.runtime.sendMessage({
             action: 'savePreviewData',
@@ -105,21 +115,23 @@
             html2canvas(document.body, {
                 height: height,
                 width: document.body.clientWidth,
+                scale: window.devicePixelRatio,
                 imageTimeout: 1000,
                 onrendered: function (canvas) {
                     if (processing) {
                         processing = false;
-                        timer = (new Date() - timer) / 1000;
-                        console.log('canvas: ' + canvas);
+                        // console.log('canvas: ' + canvas);
                         var dataUrl = canvas.toDataURL('image/webp', 0.8);
-                        console.log('dataUrl: ' + dataUrl);
-                        chrome.runtime.sendMessage({
-                            action: 'savePreviewData',
-                            previewUrl: dataUrl,
-                            timerMsg: timer
-                        }, function () {
-                            suspendTab(suspendedUrl);
-                        });
+                        if (!dataUrl || dataUrl === 'data:,') {
+                            dataUrl = canvas.toDataURL();
+                        }
+                        // console.log('dataUrl: ' + dataUrl);
+                        if (!dataUrl || dataUrl === 'data:,') {
+                            handlePreviewError(suspendedUrl, 'Failed to generate dataUrl');
+                        } else {
+                            timer = (new Date() - timer) / 1000;
+                            handlePreviewSuccess(suspendedUrl, dataUrl, timer);
+                        }
                     }
                 }
             });
