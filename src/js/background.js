@@ -29,14 +29,6 @@ var tgs = (function () {
     sessionId = gsUtils.generateSessionId();
     if (debug) console.log('sessionId: ' + sessionId);
 
-    function savePreview(tab, previewUrl, callback) {
-        if (previewUrl) {
-            gsUtils.addPreviewImage(tab.url, previewUrl, callback);
-        } else {
-            callback();
-        }
-    }
-
     function saveSuspendData(tab, callback) {
 
         var tabProperties,
@@ -1000,19 +992,21 @@ var tgs = (function () {
             return false;
 
         case 'savePreviewData':
-            savePreview(sender.tab, request.previewUrl, function () {
-                if (debug && sender.tab) {
-                    if (request.errorMsg) {
-                        console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
-                    } else if (request.timerMsg) {
-                        console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
-                    }
+            if (debug && sender.tab) {
+                if (request.errorMsg) {
+                    console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
                 }
-                if (chrome.runtime.lastError) {
-                    if (debug) console.log(chrome.runtime.lastError.message);
+                if (request.timerMsg) {
+                    console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
                 }
+            }
+            if (request.previewUrl) {
+                gsUtils.addPreviewImage(sender.tab.url, request.previewUrl, function () {
+                    sendResponse();
+                });
+            } else {
                 sendResponse();
-            });
+            }
             return true;
 
         default:
