@@ -284,7 +284,7 @@ var gsUtils = {
             for (var i = 0; i < tabs.length; i++) {
                 chrome.tabs.sendMessage(tabs[i].id, { action: 'reloadOptions' });
             }
-        })
+        });
     },
 
     fetchLastVersion: function () {
