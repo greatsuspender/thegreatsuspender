@@ -500,7 +500,7 @@ var tgs = (function () {
             gsUtils.setLastVersion(curVersion);
 
             //if they are installing for the first time
-            if (!lastVersion) {
+            if (!lastVersion || lastVersion === '0.0.0') {
 
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
