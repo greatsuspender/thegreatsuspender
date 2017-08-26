@@ -710,11 +710,11 @@ var gsUtils = {
         });
     },
 
-    localiseHtml: function (doc) {
+    localiseHtml: function (parentEl) {
         var replaceFunc = function (match, p1) {
             return p1 ? chrome.i18n.getMessage(p1) : '';
         };
-        Array.prototype.forEach.call(doc.getElementsByTagName('*'), function (el) {
+        Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), function (el) {
             if (el.hasAttribute('data-i18n')) {
                 el.innerHTML = el.getAttribute('data-i18n').replace(/__MSG_(\w+)__/g, replaceFunc);
             }

@@ -50,6 +50,7 @@
 
                     var previewEl = document.createElement('div');
                     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
+                    gsUtils.localiseHtml(previewEl);
                     previewEl.onclick = handleUnsuspendTab;
                     document.getElementsByTagName('body')[0].appendChild(previewEl);
 
@@ -247,6 +248,7 @@
         //generate html for popupDude
         var popupEl = document.createElement('div');
         popupEl.innerHTML = document.getElementById('donateTemplate').innerHTML;
+        gsUtils.localiseHtml(popupEl);
         document.getElementsByTagName('body')[0].appendChild(popupEl);
 
         var request = new XMLHttpRequest();
