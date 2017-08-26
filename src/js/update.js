@@ -35,6 +35,7 @@
                 return;
             }
             unsuspending = true;
+            updateSuspendedTabCount();
             tgs.unsuspendAllTabsInAllWindows();
         };
         document.getElementById('restartExtensionBtn').onclick = function (e) {
