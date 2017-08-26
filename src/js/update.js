@@ -10,11 +10,9 @@
     var updateSuspendedTabCount = function () {
         var suspendedTabCount = gsUtils.getSuspendedTabCount();
         if (suspendedTabCount > 0) {
-            if (!unsuspending) {
-                document.getElementById('suspendedTabCount').innerHTML = 'You have <strong>' + suspendedTabCount + '</strong> tabs currently suspended.';
-            } else {
-                document.getElementById('suspendedTabCount').innerHTML = 'Unsuspending all tabs. You still have <strong>' + suspendedTabCount + '</strong> tabs currently suspended.';
-            }
+            document.getElementById('suspendedTabCount').innerHTML =
+                chrome.i18n.getMessage('js_update_suspended_count_prefix') + ' <strong>' + suspendedTabCount + '</strong> ' +
+                chrome.i18n.getMessage('js_update_suspended_count_suffix');
             document.getElementById('unsuspendAllBtn').style = 'display: block';
         } else {
             document.getElementById('suspendedTabCount').innerHTML = chrome.i18n.getMessage('js_update_ready');
@@ -22,10 +20,10 @@
         }
         if (unsuspending) {
             document.getElementById('unsuspendAllBtn').classList.add('btnDisabled');
-            document.getElementById('unsuspendAllBtn').innerHTML = "<i class='fa fa-spinner fa-spin '></i> Unsuspending tabs";
+            document.getElementById('unsuspendAllBtn').innerHTML = "<i class='fa fa-spinner fa-spin '></i> " + chrome.i18n.getMessage('js_update_button_unsuspending_tabs');
         } else {
             document.getElementById('unsuspendAllBtn').classList.remove('btnDisabled');
-            document.getElementById('unsuspendAllBtn').innerHTML = chrome.i18n.getMessage('html_update_button_unsuspend');
+            document.getElementById('unsuspendAllBtn').innerHTML = chrome.i18n.getMessage('js_update_button_unsuspend');
         }
         return suspendedTabCount;
     };

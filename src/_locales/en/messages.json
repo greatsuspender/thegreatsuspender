@@ -166,8 +166,6 @@
     "html_update_info_session_buddy_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
     "html_update_info_session_buddy_suffix": { "message": "" },
     "html_update_info_session_buddy": { "message": "Session Buddy" },
-    "html_update_button_unsuspend": { "message": "Unsuspend all tabs" },
-    "html_update_button_reload": { "message": "Update extension now" },
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
@@ -221,6 +219,9 @@
     "js_sessionUtils_reload": { "message": "reload" },
     "js_sessionUtils_resuspend": { "message": "resuspend" },
     "js_sessionUtils_save": { "message": "save" },
+    "js_sessionUtils_window": { "message": "window" },
+    "js_sessionUtils_tab": { "message": "tab" },
+    "js_sessionUtils_plural": { "message": "s" },
     "js_sessionUtils_enter_name_for_session": { "message": "Enter a name for this session" },
 
     // Suspended page (Javascript code)
@@ -231,5 +232,13 @@
 
     // Update page (Javascript code)
     "js_update_ready": { "message": "You have no suspended tabs. It is now safe to update the extension :)" },
-    "js_update_confirm": { "message": "Are you sure you want to update the extension now? To prevent tab loss, unsuspend all tabs before updating." }
+    "js_update_confirm": { "message": "Are you sure you want to update the extension now? To prevent tab loss, unsuspend all tabs before updating." },
+    "js_update_button_unsuspend": { "message": "Unsuspend all tabs" },
+    "js_update_button_unsuspending_tabs": { "message": "Unsuspending tabs" },
+    "js_update_button_reload": { "message": "Update extension now" },
+    "js_update_suspended_count_prefix": { "message": "You have" },
+    "js_update_suspended_count_suffix": { "message": "tabs currently suspended." },
+
+    // Keyboard shortcuts page (Javascript code)
+    "js_shortcuts_not_set": { "message": "(not set)" }
 }

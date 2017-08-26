@@ -183,10 +183,13 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
             tabCnt = session.windows.reduce(function (a, b) { return a + b.tabs.length; }, 0);
 
         if (savedSession) {
-            titleText = session.name + '&nbsp;&nbsp;<small>(' + winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ')</small>';
+            titleText = session.name;
         } else {
-            titleText = gsUtils.getHumanDate(session.date) + '&nbsp;&nbsp;<small>(' + winCnt + pluralise(' window', winCnt) + ', ' + tabCnt + pluralise(' tab', tabCnt) + ')</small>';
+            titleText = gsUtils.getHumanDate(session.date);
         }
+        titleText += '&nbsp;&nbsp;<small>(' +
+            winCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionUtils_window'), winCnt) + ', ' +
+            tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionUtils_tab'), tabCnt) + ')</small>';
 
         sessionDiv = createEl('div', {
             'class': 'sessionDiv',
@@ -369,7 +372,7 @@ var sessionUtils = (function () { // eslint-disable-line no-unused-vars
     }
 
     function pluralise(text, count) {
-        return text + (count > 1 ? 's' : '');
+        return text + (count > 1 ? chrome.i18n.getMessage('js_sessionUtils_plural') : '');
     }
 
     return {

@@ -166,8 +166,6 @@
     "html_update_info_session_buddy_prefix": { "message": "您可能還想使用擴展程序（如" }, //TODO: Used google translate
     "html_update_info_session_buddy_suffix": { "message": "）備份您的選項卡會話" }, //TODO: Used google translate
     "html_update_info_session_buddy": { "message": "Session Buddy" },
-    "html_update_button_unsuspend": { "message": "恢復所有分頁" },
-    "html_update_button_reload": { "message": "現在更新擴展" }, //TODO: Used google translate
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //TODO: Used google translate
@@ -221,6 +219,9 @@
     "js_sessionUtils_reload": { "message": "重新載入" },
     "js_sessionUtils_resuspend": { "message": "重新凍結" },
     "js_sessionUtils_save": { "message": "儲存" },
+    "js_sessionUtils_window": { "message": "個視窗" },
+    "js_sessionUtils_tab": { "message": "個分頁" },
+    "js_sessionUtils_plural": { "message": "" },
     "js_sessionUtils_enter_name_for_session": { "message": "對這個記錄命名" },
 
     // Suspended page (Javascript code)
@@ -231,5 +232,13 @@
 
     // Update page (Javascript code)
     "js_update_ready": { "message": "你沒有暫停的頁面。現在可以安全地更新擴展 :)" }, //TODO: Used google translate. Probably wrong!!!
-    "js_update_confirm": { "message": "您確定要立即更新擴充功能嗎？為了防止頁面丟失，請在更新之前重新掛起所有頁面" } //TODO: Used google translate. Probably wrong!!!
+    "js_update_confirm": { "message": "您確定要立即更新擴充功能嗎？為了防止頁面丟失，請在更新之前重新掛起所有頁面" }, //TODO: Used google translate. Probably wrong!!!
+    "js_update_button_unsuspend": { "message": "恢復所有分頁" },
+    "js_update_button_unsuspending_tabs": { "message": "恢復所有分頁" },
+    "js_update_button_reload": { "message": "現在更新擴展" }, //TODO: Used google translate
+    "js_update_suspended_count_prefix": { "message": "您目前有" }, //TODO: Used google translate
+    "js_update_suspended_count_suffix": { "message": "頁凍結。" }, //TODO: Used google translate
+
+    // Keyboard shortcuts page (Javascript code)
+    "js_shortcuts_not_set": { "message": "沒有設置" } //TODO: Used google translate
 }
