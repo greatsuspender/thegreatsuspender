@@ -112,11 +112,21 @@
                 height = window.innerHeight;
             }
 
+            //allow max of 30 seconds to finish generating image (or 5 mins if forceScreenCapture is true)
+            var timeout = forceScreenCapture ? (5 * 60 * 1000) : (30 * 1000);
+            window.setTimeout(function () {
+                if (processing) {
+                    processing = false;
+                    handlePreviewError(suspendedUrl, timeout + 'ms timeout reached');
+                }
+            }, timeout);
+
             html2canvas(document.body, {
                 height: height,
                 width: document.body.clientWidth,
                 scale: window.devicePixelRatio,
                 imageTimeout: 1000,
+                async: true,
                 onrendered: function (canvas) {
                     if (processing) {
                         processing = false;
