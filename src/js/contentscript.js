@@ -105,6 +105,7 @@
             html2canvas(document.body, {
                 height: height,
                 width: document.body.clientWidth,
+                scale: window.devicePixelRatio,
                 imageTimeout: 1000,
                 onrendered: function (canvas) {
                     if (processing) {
