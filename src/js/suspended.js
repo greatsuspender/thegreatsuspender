@@ -130,7 +130,7 @@
             }
         };
 
-        //show dude and donate link (randomly 1 of 20 times)
+        //show dude and donate link (randomly 1 of 33 times)
         if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
             window.addEventListener('focus', displayPopup);
         }
