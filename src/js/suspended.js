@@ -138,6 +138,12 @@
                 chrome.runtime.sendMessage({ action: 'requestUnsuspendOnReload' });
             }
         });
+
+        var payload = {
+            action: 'reportTabState',
+            status: 'suspended'
+        };
+        chrome.runtime.sendMessage(payload);
     }
 
     function generateFaviconUri(url, callback) {

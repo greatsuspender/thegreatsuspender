@@ -62,10 +62,6 @@
     }
 
     function suspendTab(suspendedUrl) {
-
-        var tabState = buildTabStateObject('suspended');
-        chrome.runtime.sendMessage(tabState);
-
         if (suspendedUrl.indexOf('suspended.html') > 0) {
             window.location.replace(suspendedUrl);
         } else {
