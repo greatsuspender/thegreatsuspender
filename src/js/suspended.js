@@ -80,6 +80,7 @@
         title = title.indexOf('<') < 0 ? title : gsUtils.htmlEncode(title);
         document.getElementById('gsTitle').innerHTML = title;
         document.getElementById('gsTopBarTitle').innerHTML = title;
+        document.getElementById('gsTopBarTitle').setAttribute('title', url);
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
         document.getElementById('gsTopBarImg').setAttribute('src', favicon);
 
