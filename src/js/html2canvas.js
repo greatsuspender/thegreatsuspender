@@ -1,8 +1,11 @@
 /*
-  <%= pkg.title || pkg.name %> <%= pkg.version %><%= pkg.homepage ? " <" + pkg.homepage + ">" : "" %>
-  Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>
+  html2canvas 0.4.1 <http://html2canvas.hertzen.com>
+  Copyright (c) 2013 Niklas von Hertzen
 
-  Released under <%= _.pluck(pkg.licenses, "type").join(", ") %> License
+  Released under MIT License
+
+  Patched by @mikeiz404: https://github.com/deanoemcke/thegreatsuspender/pull/562
+  Patched by @deanoemcke based on: https://github.com/niklasvh/html2canvas/issues/385
 */
 
 (function(window, document, undefined){
@@ -1114,7 +1117,16 @@ _html2canvas.Parse = function (images, options, cb) {
 
     // Using the list of elements we know how pseudo el styles, create fake pseudo elements.
     function findPseudoElements(el) {
-      var els = document.querySelectorAll(classes.join(','));
+
+      // Patch here from @herringtown (https://github.com/niklasvh/html2canvas/issues/385)
+      var re = /^\s*$/;
+      var newClasses = classes.filter(function(element) {
+        return (!re.test(element) && element.indexOf(',') == -1);
+      });
+
+      if (newClasses.length === 0) return;
+
+      var els = document.querySelectorAll(newClasses.join(','));
       for(var i = 0, j = els.length; i < j; i++) {
         createPseudoElements(els[i]);
       }
