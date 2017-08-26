@@ -192,9 +192,11 @@
 
     function unsuspendTab() {
         var url = gsUtils.getSuspendedUrl(window.location.href);
-        document.getElementById('suspendedMsg').innerHTML = '';
-        document.getElementById('refreshSpinner').classList.add('spinner');
-        window.location.replace(url);
+        if (url) {
+            document.getElementById('suspendedMsg').innerHTML = '';
+            document.getElementById('refreshSpinner').classList.add('spinner');
+            window.location.replace(url);
+        }
     }
 
     function whitelistTab(whitelistString) {

@@ -781,7 +781,7 @@ var gsUtils = {
         return decodeURIComponent(this.getHashVariable('pos', urlStr) || '');
     },
     getSuspendedUrl: function (urlStr) {
-        return this.getHashVariable('uri', urlStr);
+        return this.getHashVariable('uri', urlStr) || decodeURIComponent(this.getHashVariable('url', urlStr) || '');
     },
 
     getSuspendedTabCount: function () {
