@@ -15,9 +15,17 @@
             } else {
                 document.getElementById('suspendedTabCount').innerHTML = 'Unsuspending all tabs. You still have <strong>' + suspendedTabCount + '</strong> tabs currently suspended.';
             }
+            document.getElementById('unsuspendAllBtn').style = 'display: block';
         } else {
             document.getElementById('suspendedTabCount').innerHTML = chrome.i18n.getMessage('js_update_ready');
             document.getElementById('unsuspendAllBtn').style = 'display: none';
+        }
+        if (unsuspending) {
+            document.getElementById('unsuspendAllBtn').classList.add('btnDisabled');
+            document.getElementById('unsuspendAllBtn').innerHTML = "<i class='fa fa-spinner fa-spin '></i> Unsuspending tabs";
+        } else {
+            document.getElementById('unsuspendAllBtn').classList.remove('btnDisabled');
+            document.getElementById('unsuspendAllBtn').innerHTML = chrome.i18n.getMessage('html_update_button_unsuspend');
         }
         return suspendedTabCount;
     };
@@ -29,10 +37,6 @@
                 return;
             }
             unsuspending = true;
-            document.getElementById('unsuspendAllBtn').classList.add('btnDisabled');
-            document.getElementById('unsuspendAllBtn').innerHTML = "<i class='fa fa-spinner fa-spin '></i> Unsuspending tabs";
-            updateSuspendedTabCount();
-
             tgs.unsuspendAllTabsInAllWindows();
         };
         document.getElementById('restartExtensionBtn').onclick = function (e) {
@@ -54,7 +58,10 @@
         switch (request.action) {
 
         case 'reportTabState':
-            updateSuspendedTabCount();
+            if (request.status === 'suspended') {
+                unsuspending = false;
+                updateSuspendedTabCount();
+            }
             return false;
 
         case 'initTab':
