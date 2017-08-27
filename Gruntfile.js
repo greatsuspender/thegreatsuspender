@@ -13,7 +13,7 @@ module.exports = function(grunt) {
             },
         },
         'string-replace': {
-            dist: {
+            locales: {
                 files: {
                     'build/tgut-temp/src/_locales/': 'build/tgut-temp/src/_locales/**',
                 },
@@ -21,6 +21,17 @@ module.exports = function(grunt) {
                     replacements: [{
                         pattern: /The Great Suspender/ig,
                         replacement: 'The Great Update Tester'
+                    }]
+                }
+            },
+            notice: {
+                files: {
+                    'build/tgut-temp/src/js/': 'build/tgut-temp/src/js/background.js',
+                },
+                options: {
+                    replacements: [{
+                        pattern: /greatsuspender\.github\.io\/notice\.json/,
+                        replacement: 'greatsuspender.github.io/notice-tgut.json'
                     }]
                 }
             }
@@ -73,6 +84,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-crx');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.registerTask('default', ['crx:tgsPublic', 'crx:tgsPrivate']);
-    grunt.registerTask('tgut', ['copy', 'string-replace', 'crx:tgutPublic', 'crx:tgutPrivate', 'clean']);
+    grunt.registerTask('tgut', ['copy', 'string-replace:locales', 'string-replace:notice', 'crx:tgutPublic', 'crx:tgutPrivate', 'clean']);
 };
 
