@@ -104,6 +104,10 @@
             if (isWhitelisted) {
                 unwhitelistTab(rootUrlStr, fullUrlStr);
             } else {
+                // hide second option (whitelist page) if the url is the same as the root url
+                if (rootUrlStr === fullUrlStr) {
+                    document.getElementById('whitelistPage').parentElement.style.display = 'none';
+                }
                 toggleModal(true);
             }
         };
