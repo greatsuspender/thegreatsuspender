@@ -540,6 +540,13 @@ a.historyLink:hover {
 .dark .suspendedMsg h1, .dark .suspendedMsg h2 {
     color: #666;
 }
+
+#whitelistOptionsModal .radio span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 600px;
+    display: inline-block;
+}
 /* end suspended tab styles */
 
 /* Modal Content */
