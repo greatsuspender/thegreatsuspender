@@ -1,21 +1,36 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     require('time-grunt')(grunt);
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         manifest: grunt.file.readJSON('src/manifest.json'),
+        config: {
+            tempDir: (grunt.task.current.name === 'tgut') ? 'build/tgut-temp/' : 'build/tgs-temp/',
+            buildName: (grunt.task.current.name === 'tgut') ? 'tgut-<%= manifest.version %>' : 'tgs-<%= manifest.version %>'
+        },
         copy: {
             main: {
                 expand: true,
                 src: 'src/**',
-                dest: 'build/tgut-temp/',
-            },
+                dest: '<%= config.tempDir %>'
+            }
         },
         'string-replace': {
-            locales: {
+            debug: {
                 files: {
-                    'build/tgut-temp/src/_locales/': 'build/tgut-temp/src/_locales/**',
+                    '<%= config.tempDir %>src/js/': '<%= config.tempDir %>src/js/background.js'
+                },
+                options: {
+                    replacements: [{
+                        pattern: /debug\s*=\s*true/,
+                        replacement: 'debug = false'
+                    }]
+                }
+            },
+            localesTgut: {
+                files: {
+                    '<%= config.tempDir %>src/_locales/': '<%= config.tempDir %>src/_locales/**'
                 },
                 options: {
                     replacements: [{
@@ -24,9 +39,9 @@ module.exports = function(grunt) {
                     }]
                 }
             },
-            notice: {
+            noticeTgut: {
                 files: {
-                    'build/tgut-temp/src/js/': 'build/tgut-temp/src/js/background.js',
+                    '<%= config.tempDir %>src/js/': '<%= config.tempDir %>src/js/background.js'
                 },
                 options: {
                     replacements: [{
@@ -37,53 +52,33 @@ module.exports = function(grunt) {
             }
         },
         crx: {
-            tgsPublic: {
+            public: {
                 src: [
-                    "src/**/*",
-                    "!**/html2canvas.js",
-                    "!**/Thumbs.db"
+                    '<%= config.tempDir %>src/**/*',
+                    '!**/html2canvas.js',
+                    '!**/Thumbs.db'
                 ],
-                dest: "build/<%= pkg.name %>-<%= manifest.version %>-dev.zip",
+                dest: 'build/<%= config.buildName %>.zip'
             },
-            tgsPrivate: {
+            private: {
                 src: [
-                    "src/**/*",
-                    "!**/html2canvas.js",
-                    "!**/Thumbs.db"
+                    '<%= config.tempDir %>src/**/*',
+                    '!**/html2canvas.js',
+                    '!**/Thumbs.db'
                 ],
-                dest: "build/<%= pkg.name %>-<%= manifest.version %>-dev.crx",
+                dest: 'build/<%= config.buildName %>.crx',
                 options: {
-                    "privateKey": "key.pem"
-                }
-            },
-            tgutPublic: {
-                src: [
-                    "build/tgut-temp/src/**/*",
-                    "!**/html2canvas.js",
-                    "!**/Thumbs.db"
-                ],
-                dest: "build/tgut-<%= manifest.version %>-dev.zip"
-            },
-            tgutPrivate: {
-                src: [
-                    "build/tgut-temp/src/**/*",
-                    "!**/html2canvas.js",
-                    "!**/Thumbs.db"
-                ],
-                dest: "build/tgut-<%= manifest.version %>-dev.crx",
-                options: {
-                    "privateKey": "key.pem"
+                    'privateKey': 'key.pem'
                 }
             }
         },
-        clean: ['build/tgut-temp/']
+        clean: ['<%= config.tempDir %>', 'build/crx/', 'build/zip/']
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-string-replace');
     grunt.loadNpmTasks('grunt-crx');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.registerTask('default', ['crx:tgsPublic', 'crx:tgsPrivate']);
-    grunt.registerTask('tgut', ['copy', 'string-replace:locales', 'string-replace:notice', 'crx:tgutPublic', 'crx:tgutPrivate', 'clean']);
+    grunt.registerTask('default', ['copy', 'string-replace:debug', 'crx:public', 'crx:private', 'clean']);
+    grunt.registerTask('tgut', ['copy', 'string-replace:debug', 'string-replace:localesTgut', 'string-replace:noticeTgut', 'crx:public', 'crx:private', 'clean']);
 };
-
