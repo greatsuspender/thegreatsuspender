@@ -40,7 +40,7 @@
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
-  "minimum_chrome_version": "24",
+  "minimum_chrome_version": "49",
 
   "commands": {
     "1-suspend-tab": {

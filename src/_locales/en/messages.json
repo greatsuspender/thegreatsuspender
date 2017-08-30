@@ -59,7 +59,6 @@
     "html_options_suspend_no_pinned": { "message": "Do not suspend pinned tabs" },
     "html_options_suspend_no_forms": { "message": "Do not suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Do not suspend tabs that are playing audio" },
-    "html_options_suspend_warning_chrome_45": { "message": "You must have chrome version 45 or higher to use this feature." },
     "html_options_suspend_only_connected": { "message": "Only auto-suspend if connected to the internet" },
     "html_options_suspend_only_on_battery": { "message": "Only auto-suspend if running on battery" },
     "html_options_suspend_automatically_unsuspend": { "message": "Automatically unsuspend tab when it is viewed" },

@@ -50,7 +50,6 @@
         }
 
         setForceScreenCaptureVisibility(gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0');
-        setAudibleNoteVisibility(gsUtils.getChromeVersion() < 45 && gsUtils.getOption(gsUtils.IGNORE_AUDIO));
         setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
         setSyncNoteVisibility(!gsUtils.getOption(gsUtils.SYNC_SETTINGS));
     }
@@ -77,14 +76,6 @@
         }
         if (element.tagName === 'TEXTAREA') {
             return element.value;
-        }
-    }
-
-    function setAudibleNoteVisibility(visible) {
-        if (visible) {
-            document.getElementById('audibleOptionNote').style.display = 'block';
-        } else {
-            document.getElementById('audibleOptionNote').style.display = 'none';
         }
     }
 
@@ -117,16 +108,11 @@
     function handleChange(element) {
         return function () {
             var pref = elementPrefMap[element.id],
-                interval,
-                chromeVersion;
+                interval;
 
             //add specific screen element listeners
             if (pref === gsUtils.SCREEN_CAPTURE) {
                 setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
-
-            } else if (pref === gsUtils.IGNORE_AUDIO) {
-                chromeVersion = gsUtils.getChromeVersion();
-                setAudibleNoteVisibility(chromeVersion < 45 && getOptionValue(element));
 
             } else if (pref === gsUtils.SUSPEND_TIME) {
                 interval = getOptionValue(element);
