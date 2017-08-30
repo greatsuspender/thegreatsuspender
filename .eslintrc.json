@@ -14,7 +14,7 @@
     "rules": {
         "no-console": 0,
         "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
-        "no-undef": ["warn"],
+        "no-undef": ["error"],
         "no-proto": ["error"],
 //        "prefer-arrow-callback": ["warn"],  TODO: refactor to use arrow functions
 //        "no-var": ["error"],  TODO: refactor to use let and const

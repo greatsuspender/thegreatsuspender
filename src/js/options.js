@@ -167,7 +167,7 @@
             } else {
                 element.onchange = handleChange(element);
             }
-        };
+        }
 
         //hide incompatible sidebar items if in incognito mode
         if (chrome.extension.inIncognitoContext) {

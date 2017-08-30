@@ -1110,8 +1110,8 @@ var gsUtils = {
             server;
 
         var major = parseInt(oldVersion.split('.')[0] || 0),
-            minor = parseInt(oldVersion.split('.')[1] || 0),
-            patch = parseInt(oldVersion.split('.')[2] || 0);
+            minor = parseInt(oldVersion.split('.')[1] || 0);
+            // patch = parseInt(oldVersion.split('.')[2] || 0);
 
         //perform migrated history fixup
         if (major < 6 || (major === 6 && minor < 13)) { // if (oldVersion < 6.13)
