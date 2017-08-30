@@ -1,4 +1,4 @@
-/*global window, document, chrome, console, Image, XMLHttpRequest */
+/*global window, document, chrome, Image, XMLHttpRequest */
 (function () {
     'use strict';
 
@@ -188,7 +188,7 @@
         };
         chrome.runtime.sendMessage(payload, function (response) {
             if (chrome.runtime.lastError) {
-                console.log('Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
+                tgs.error('-> Suspended tab: Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
                 unsuspendTab();
             }
         });

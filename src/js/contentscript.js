@@ -130,12 +130,10 @@
                 onrendered: function (canvas) {
                     if (processing) {
                         processing = false;
-                        // console.log('canvas: ' + canvas);
                         var dataUrl = canvas.toDataURL('image/webp', 0.8);
                         if (!dataUrl || dataUrl === 'data:,') {
                             dataUrl = canvas.toDataURL();
                         }
-                        // console.log('dataUrl: ' + dataUrl);
                         if (!dataUrl || dataUrl === 'data:,') {
                             handlePreviewError(suspendedUrl, 'Failed to generate dataUrl');
                         } else {
@@ -185,8 +183,6 @@
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        //console.dir('received contentscript.js message:' + request.action + ' [' + Date.now() + ']');
-
         switch (request.action) {
 
         //listen for request to reset preferences if options have changed

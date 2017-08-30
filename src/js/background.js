@@ -27,7 +27,25 @@ var tgs = (function () {
 
     //set gloabl sessionId
     sessionId = gsUtils.generateSessionId();
-    if (debug) console.log('sessionId: ' + sessionId);
+    log('sessionId: ', sessionId);
+
+    function log(text, ...args) {
+        if (debug) {
+            args = args || [];
+            console.log(text, ...args);
+        }
+    }
+    function error(text, args) {
+        if (debug) {
+            args = args || [];
+            console.error(text, ...args);
+        }
+    }
+    function dir(object) {
+        if (debug) {
+            console.dir(object);
+        }
+    }
 
     function saveSuspendData(tab, callback) {
 
@@ -100,7 +118,7 @@ var tgs = (function () {
                 chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
 
                     if (chrome.runtime.lastError) {
-                        console.log(chrome.runtime.lastError.message);
+                        error(chrome.runtime.lastError.message);
                         return;
                     }
 
@@ -336,18 +354,17 @@ var tgs = (function () {
     function resuspendSuspendedTab(tab) {
         sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: false }, function (response) {
             if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError);
+                error(chrome.runtime.lastError.message);
+            } else {
+                chrome.tabs.reload(tab.id);
             }
-            chrome.tabs.reload(tab.id);
         });
     }
 
     function queueSessionTimer() {
         clearTimeout(sessionSaveTimer);
         sessionSaveTimer = setTimeout(function () {
-            if (debug) {
-                console.log('savingWindowHistory');
-            }
+            log('savingWindowHistory');
             saveWindowHistory();
         }, 1000);
     }
@@ -392,10 +409,10 @@ var tgs = (function () {
 
             //if we failed to find the tab with the above method then try to reload the tab directly
             if (chrome.runtime.lastError) {
-                console.log('Error requesting unsuspendTab. Will reload directly.', chrome.runtime.lastError);
+                error('Error requesting unsuspendTab. Will reload directly.', chrome.runtime.lastError.message);
                 chrome.tabs.update(tab.id, {url: url}, function () {
                     if (chrome.runtime.lastError) {
-                        console.log(chrome.runtime.lastError.message);
+                        error(chrome.runtime.lastError.message);
                     }
                 });
             }
@@ -404,10 +421,7 @@ var tgs = (function () {
 
     function handleWindowFocusChanged(windowId) {
 
-        if (debug) {
-            console.log('window changed: ' + windowId);
-        }
-
+        log('window changed:', windowId);
         chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
             if (tabs && tabs.length === 1) {
 
@@ -425,10 +439,7 @@ var tgs = (function () {
 
     function handleTabFocusChanged(tabId, windowId) {
 
-        if (debug) {
-            console.log('tab changed: ' + tabId);
-        }
-
+        log('tab changed:', tabId);
         var lastSelectedTab = lastSelectedTabByWindowId[windowId];
 
         lastSelectedTabByWindowId[windowId] = tabId;
@@ -467,7 +478,7 @@ var tgs = (function () {
             //get tab object so we can check if it is a suspended tab
             chrome.tabs.get(tabId, function (tab) {
                 if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError.message);
+                    error(chrome.runtime.lastError.message);
                     return;
                 }
                 if (isSuspended(tab)) {
@@ -565,14 +576,14 @@ var tgs = (function () {
             unsuspendedSessionTabs = [],
             currentlyOpenTabs = [];
 
-        if (debug) console.log('Checking for crash recovery');
+        log('Checking for crash recovery');
 
         gsUtils.fetchLastSession().then(function (lastSession) {
 
             if (!lastSession) {
                 return;
             }
-            if (debug) console.log('lastSession: ', lastSession);
+            log('lastSession: ', lastSession);
 
             //collect all nonspecial, unsuspended tabs from the last session
             lastSession.windows.forEach(function (sessionWindow) {
@@ -591,33 +602,27 @@ var tgs = (function () {
 
             //don't attempt recovery if last session had no suspended tabs
             if (suspendedTabCount === 0) {
-                if (debug) console.log('Aborting tab recovery. Last session has no suspended tabs.');
+                log('Aborting tab recovery. Last session has no suspended tabs.');
                 return;
             }
 
             //check to see if they still exist in current session
             chrome.tabs.query({}, function (tabs) {
 
-                if (debug) {
-                    console.log('Tabs in current session: ', tabs);
-                    console.log('Unsuspended session tabs: ', unsuspendedSessionTabs);
-                }
+                log('Tabs in current session: ', tabs);
+                log('Unsuspended session tabs: ', unsuspendedSessionTabs);
 
                 //don't attempt recovery if there are less tabs in current session than there were
                 //unsuspended tabs in the last session
                 if (tabs.length < unsuspendedTabCount) {
-                    if (debug) {
-                        console.log('Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
+                    log('Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
                             'tabs. Current session only contains ' + tabs.length);
-                    }
                     return;
                 }
 
                 //if there is only one currently open tab and it is the 'new tab' page then abort recovery
                 if (tabs.length === 1 && tabs[0].url === 'chrome://newtab/') {
-                    if (debug) {
-                        console.log('Aborting tab recovery. Current session only contains a single newtab page.');
-                    }
+                    log('Aborting tab recovery. Current session only contains a single newtab page.');
                     return;
                 }
 
@@ -647,7 +652,7 @@ var tgs = (function () {
                     }, 5000);
 
                     //don't attempt recovery if there are still suspended tabs open
-                    if (debug) console.log('Will not attempt recovery as there are still suspended tabs open.');
+                    log('Will not attempt recovery as there are still suspended tabs open.');
                     return;
                 }
 
@@ -672,7 +677,7 @@ var tgs = (function () {
 
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
                         if (chrome.runtime.lastError) {
-                            console.log(chrome.runtime.lastError.message);
+                            error(chrome.runtime.lastError.message);
                         } else {
                             sendMessageToTab(tabId, {action: 'resetPreferences', suspendTime: timeout});
                         }
@@ -692,7 +697,13 @@ var tgs = (function () {
         xhr.setRequestHeader('Cache-Control', 'no-cache');
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.responseText) {
-                var resp = JSON.parse(xhr.responseText);
+                var resp;
+                try {
+                    resp = JSON.parse(xhr.responseText);
+                } catch(e) {
+                    error('Failed to parse notice response', xhr.responseText);
+                    return;
+                }
 
                 //only show notice if it is intended for this version and it has not already been shown
                 if (resp && resp.active && resp.text && resp.title &&
@@ -752,7 +763,7 @@ var tgs = (function () {
         chrome.tabs.get(tabId, function (tab) {
 
             if (chrome.runtime.lastError) {
-                if (debug) console.log(chrome.runtime.lastError.message);
+                error(chrome.runtime.lastError.message);
                 callback(info);
 
             } else {
@@ -938,10 +949,8 @@ var tgs = (function () {
     }
 
     function messageRequestListener(request, sender, sendResponse) {
-        if (debug) {
-            console.log('listener fired:', request.action);
-            console.dir(sender);
-        }
+        log('listener fired:', request.action);
+        dir(sender);
 
         switch (request.action) {
         case 'initTab':
@@ -992,12 +1001,12 @@ var tgs = (function () {
             return false;
 
         case 'savePreviewData':
-            if (debug && sender.tab) {
+            if (sender.tab) {
                 if (request.errorMsg) {
-                    console.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
+                    log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
                 }
                 if (request.timerMsg) {
-                    console.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
+                    log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
                 }
             }
             if (request.previewUrl) {
@@ -1033,7 +1042,7 @@ var tgs = (function () {
         var currentVersion = chrome.runtime.getManifest().version;
         var newVersion = details.version;
 
-        console.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
+        log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
 
         var currentSession;
         gsUtils.fetchSessionById(sessionId).then(function (session) {
@@ -1078,7 +1087,7 @@ var tgs = (function () {
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
-        if (debug) console.log('tab updated. tabId: ', tabId, changeInfo);
+        log('tab updated. tabId: ', tabId, changeInfo);
 
         //only save session if the tab url has changed
         if (changeInfo.url) {
@@ -1152,7 +1161,7 @@ var tgs = (function () {
             chrome.history.deleteUrl({url: historyItem.url});
             chrome.history.addUrl({url: url}, function () {
                 if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError.message);
+                    error(chrome.runtime.lastError.message);
                 }
             });
         }
@@ -1228,7 +1237,11 @@ var tgs = (function () {
         unsuspendSelectedTabs: unsuspendSelectedTabs,
         whitelistHighlightedTab: whitelistHighlightedTab,
         temporarilyWhitelistHighlightedTab: temporarilyWhitelistHighlightedTab,
-        unsuspendAllTabsInAllWindows: unsuspendAllTabsInAllWindows
+        unsuspendAllTabsInAllWindows: unsuspendAllTabsInAllWindows,
+
+        log: log,
+        error: error,
+        dir: dir
     };
 
 }());

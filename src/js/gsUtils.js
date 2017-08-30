@@ -63,7 +63,14 @@ var gsUtils = {
     //populate localstorage settings with sync settings where undefined
     initSettings: function () {
         var self = this;
-        var rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings')) || {};
+        var rawLocalSettings;
+        try {
+            rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings'));
+        } catch(e) {
+            tgs.error('-> gsutils: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
+        }
+        rawLocalSettings = rawLocalSettings || {};
+
         var defaultSettings = gsUtils.getSettingsDefaults();
         var shouldSyncSettings = rawLocalSettings.hasOwnProperty(self.SYNC_SETTINGS)
             ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
@@ -109,7 +116,7 @@ var gsUtils = {
                 Object.keys(remoteSettings).forEach(function (key) {
                     var remoteSetting = remoteSettings[key];
                     if (localSettings[key] !== remoteSetting.newValue) {
-                        console.log('Changed value from sync', key, remoteSetting.newValue);
+                        tgs.log('-> gsutils: Changed value from sync', key, remoteSetting.newValue);
                         changedSettingKeys.push(key);
                         localSettings[key] = remoteSetting.newValue;
                     }
@@ -143,16 +150,19 @@ var gsUtils = {
     setOption: function (prop, value) {
         var settings = this.getSettings();
         settings[prop] = value;
-        // console.log('setting prop: ' + prop + ' to value ' + value);
+        // tgs.log('-> gsutils: setting prop: ' + prop + ' to value ' + value);
         this.saveSettings(settings);
     },
 
     getSettings: function () {
-        var settings = localStorage.getItem('gsSettings');
-        if (settings !== null && settings !== 'null') {
-            settings = JSON.parse(settings);
+        var settings;
+        try {
+            settings = JSON.parse(localStorage.getItem('gsSettings'));
+        } catch(e) {
+            tgs.error('-> gsutils: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
+        }
 
-        } else {
+        if (!settings) {
             settings = this.getSettingsDefaults();
             this.saveSettings(settings);
         }
@@ -160,7 +170,11 @@ var gsUtils = {
     },
 
     saveSettings: function (settings) {
-        localStorage.setItem('gsSettings', JSON.stringify(settings));
+        try {
+            localStorage.setItem('gsSettings', JSON.stringify(settings));
+        } catch (e) {
+            tgs.error('-> gsutils: failed to save gsSettings to local storage', e);
+        }
     },
 
     // Push settings to sync
@@ -169,8 +183,11 @@ var gsUtils = {
         if (settings[this.SYNC_SETTINGS]) {
             // Since sync is a local setting, delete it to simplify things.
             delete settings[this.SYNC_SETTINGS];
-            // console.log('Pushing local settings to sync', settings);
+            // tgs.log('-> gsutils: Pushing local settings to sync', settings);
             chrome.storage.sync.set(settings, this.noop);
+            if (chrome.runtime.lastError) {
+                tgs.error('-> gsutils: failed to save to chrome.storage.sync: ', chrome.runtime.lastError.message);
+            }
         }
     },
 
@@ -288,31 +305,41 @@ var gsUtils = {
     },
 
     fetchLastVersion: function () {
-        var version = localStorage.getItem(this.APP_VERSION);
-        if (version !== null) {
-            version = JSON.parse(version);
-            return version + '';
-        } else {
-            return '0.0.0';
+        var version;
+        try {
+            version = JSON.parse(localStorage.getItem(this.APP_VERSION));
+        } catch(e) {
+            tgs.error('-> gsutils: Failed to parse ' + this.APP_VERSION + ': ', localStorage.getItem(this.APP_VERSION));
         }
+        version = version || '0.0.0';
+        return version + '';
     },
 
     setLastVersion: function (newVersion) {
-        localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
-    },
-
-    fetchNoticeVersion: function () {
-        var result = localStorage.getItem(this.LAST_NOTICE);
-        if (result !== null) {
-            result = JSON.parse(result);
-            return result + '';
-        } else {
-            return '0.0.0';
+        try {
+            localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
+        } catch (e) {
+            tgs.error('-> gsutils: failed to save ' + this.APP_VERSION + ' to local storage', e);
         }
     },
 
+    fetchNoticeVersion: function () {
+        var lastNoticeVersion;
+        try {
+            lastNoticeVersion = JSON.parse(localStorage.getItem(this.LAST_NOTICE));
+        } catch(e) {
+            tgs.error('-> gsutils: Failed to parse ' + this.LAST_NOTICE + ': ', localStorage.getItem(this.LAST_NOTICE));
+        }
+        lastNoticeVersion = lastNoticeVersion || '0.0.0';
+        return lastNoticeVersion + '';
+    },
+
     setNoticeVersion: function (newVersion) {
-        localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
+        try {
+            localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
+        } catch (e) {
+            tgs.error('-> gsutils: failed to save ' + this.LAST_NOTICE + ' to local storage', e);
+        }
     },
 
     /**
@@ -417,7 +444,7 @@ var gsUtils = {
             server;
 
         if (!tabProperties.url) {
-            console.log('tabProperties.url not set.');
+            tgs.log('-> gsutils: tabProperties.url not set.');
             return;
         }
 
@@ -913,7 +940,7 @@ var gsUtils = {
                 //attempt to automatically restore any lost tabs/windows in their proper positions
                 lastSession.windows.forEach(function (sessionWindow) {
                     if (!matchedCurrentWindowBySessionWindowId[sessionWindow.id]) {
-                        console.log('Could not find match for sessionWindow: ', sessionWindow);
+                        tgs.log('-> gsutils: Could not find match for sessionWindow: ', sessionWindow);
                         self.recoverWindow(sessionWindow);
                     } else {
                         self.recoverWindow(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
@@ -939,7 +966,7 @@ var gsUtils = {
                 //remove from unmatchedSessionWindows and unmatchedCurrentWindows
                 unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
                 unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
-                console.log('Matched with ids: ', sessionWindow, matchingCurrentWindow);
+                tgs.log('-> gsutils: Matched with ids: ', sessionWindow, matchingCurrentWindow);
             }
         });
 
@@ -961,7 +988,7 @@ var gsUtils = {
             var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
             unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
             unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
-            console.log('Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
+            tgs.log('-> gsutils: Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
 
             //remove from tabMatchingObjects
             tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });

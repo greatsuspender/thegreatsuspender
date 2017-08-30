@@ -3,6 +3,7 @@
     'use strict';
 
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs;
     var elementPrefMap = {
         'preview': gsUtils.SCREEN_CAPTURE,
         'forceScreenCapture': gsUtils.SCREEN_CAPTURE_FORCE,
@@ -44,8 +45,7 @@
         for (i = 0; i < optionEls.length; i++) {
             element = optionEls[i];
             pref = elementPrefMap[element.id];
-            console.log(pref);
-            console.log(gsUtils.getOption(pref));
+            tgs.log('-> options: ', pref, gsUtils.getOption(pref));
             populateOption(element, gsUtils.getOption(pref));
         }
 

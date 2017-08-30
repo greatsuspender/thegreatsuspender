@@ -9,7 +9,7 @@
     var getTabStatus = function (retriesRemaining, callback) {
         tgs.requestTabInfo(false, function (info) {
             if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError.message);
+                tgs.error('-> popup: ', chrome.runtime.lastError.message);
             }
             if (retriesRemaining === 0 || (info && info.status !== 'unknown')) {
                 var status = info ? info.status : 'unknown';
@@ -156,7 +156,7 @@
             statusIconClass = 'fa fa-exclamation-triangle';
 
         } else {
-            console.log('Could not process tab status of: ' + status);
+            tgs.log('-> popup: Could not process tab status of: ' + status);
         }
         document.getElementById('statusDetail').innerHTML = statusDetail;
         document.getElementById('statusIcon').className = statusIconClass;
