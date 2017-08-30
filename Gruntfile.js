@@ -6,8 +6,8 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         manifest: grunt.file.readJSON('src/manifest.json'),
         config: {
-            tempDir: (grunt.task.current.name === 'tgut') ? 'build/tgut-temp/' : 'build/tgs-temp/',
-            buildName: (grunt.task.current.name === 'tgut') ? 'tgut-<%= manifest.version %>' : 'tgs-<%= manifest.version %>'
+            tempDir: (grunt.cli.tasks[0] === 'tgut') ? 'build/tgut-temp/' : 'build/tgs-temp/',
+            buildName: (grunt.cli.tasks[0] === 'tgut') ? 'tgut-<%= manifest.version %>' : 'tgs-<%= manifest.version %>'
         },
         copy: {
             main: {
