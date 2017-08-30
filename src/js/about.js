@@ -37,7 +37,7 @@
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var versionEl = document.getElementById('aboutVersion');
-        versionEl.innerHTML = 'The Great Suspender v' + chrome.runtime.getManifest().version;
+        versionEl.innerHTML = chrome.i18n.getMessage('ext_extension_name') + ' v' + chrome.runtime.getManifest().version;
 
         if (gsUtils.getOption(gsUtils.NO_NAG)) {
             document.getElementById('donateSection').style.display = 'none';
