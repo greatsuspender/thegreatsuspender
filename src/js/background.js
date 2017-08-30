@@ -251,6 +251,11 @@ var tgs = (function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
                 requestTabSuspension(tabs[0], 1);
+            // fallback on globalCurrentTabId. optimistic fix for #574
+            } else {
+                chrome.tabs.get(globalCurrentTabId, function (tab) {
+                    requestTabSuspension(tab, 1);
+                });
             }
         });
     }
