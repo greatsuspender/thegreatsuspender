@@ -58,7 +58,7 @@ module.exports = function (grunt) {
                     '!**/html2canvas.js',
                     '!**/Thumbs.db'
                 ],
-                dest: 'build/<%= config.buildName %>.zip'
+                dest: 'build/zip/<%= config.buildName %>.zip'
             },
             private: {
                 src: [
@@ -66,13 +66,13 @@ module.exports = function (grunt) {
                     '!**/html2canvas.js',
                     '!**/Thumbs.db'
                 ],
-                dest: 'build/<%= config.buildName %>.crx',
+                dest: 'build/crx/<%= config.buildName %>.crx',
                 options: {
                     'privateKey': 'key.pem'
                 }
             }
         },
-        clean: ['<%= config.tempDir %>', 'build/crx/', 'build/zip/']
+        clean: ['<%= config.tempDir %>']
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
