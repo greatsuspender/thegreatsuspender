@@ -521,10 +521,13 @@ var tgs = (function () {
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
-                //else if they are upgrading to a new version
+            //else if they are upgrading to a new version
             } else {
 
                 gsUtils.performMigration(lastVersion);
+
+                //clear context menu
+                buildContextMenu(false);
 
                 //recover tabs silently
                 checkForCrashRecovery(true);
@@ -541,7 +544,7 @@ var tgs = (function () {
                 });
             }
 
-            //else if restarting the same version
+        //else if restarting the same version
         } else {
 
             //check for possible crash
@@ -858,9 +861,18 @@ var tgs = (function () {
 
         var allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',
 
-        chrome.contextMenus.removeAll();
+        if (!showContextMenu) {
+            chrome.contextMenus.removeAll();
 
-        if (showContextMenu) {
+        } else {
+
+            chrome.contextMenus.create({
+                title: chrome.i18n.getMessage('js_background_open_link_in_suspended_tab'),
+                contexts: ['link'],
+                onclick: function (info, tab) {
+                    openLinkInSuspendedTab(tab, info.linkUrl);
+                }
+            });
 
             chrome.contextMenus.create({
                 title: chrome.i18n.getMessage('js_background_suspend_tab'),
@@ -909,15 +921,8 @@ var tgs = (function () {
                 contexts: allContexts,
                 onclick: unsuspendAllTabsInAllWindows
             });
-        }
 
-        chrome.contextMenus.create({
-            title: chrome.i18n.getMessage('js_background_open_link_in_suspended_tab'),
-            contexts: ['link'],
-            onclick: function (info, tab) {
-                openLinkInSuspendedTab(tab, info.linkUrl);
-            }
-        });
+        }
     }
 
     //HANDLERS FOR KEYBOARD SHORTCUTS
