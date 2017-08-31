@@ -35,7 +35,7 @@ var tgs = (function () {
             console.log(text, ...args);
         }
     }
-    function error(text, args) {
+    function error(text, ...args) {
         if (debug) {
             args = args || [];
             console.error(text, ...args);
