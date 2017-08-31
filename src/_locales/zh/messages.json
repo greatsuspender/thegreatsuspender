@@ -159,9 +159,9 @@
     "html_update_heading1_prefix": { "message": "需要採取的行動" }, //TODO: Used google translate
     "html_update_heading2": { "message": "請閱讀以下重要信息。" }, //TODO: Used google translate
     "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //TODO: Used google translate
+    "html_update_info_line2_prefix": { "message": "重要" }, //TODO: Used google translate
     "html_update_info_line2": { "message": "如果您在The Great Suspender更新時有任何頁面被暫停，那麼這些頁面將被關閉。" }, //TODO: Used google translate
-    "html_update_info_line3_prefix": { "message": "為了防止頁面丟失" }, //TODO: Used google translate
-    "html_update_info_line3_suffix": { "message": "，請在更新之前暫停所有選項卡。" }, //TODO: Used google translate
+    "html_update_info_line3": { "message": "为了防止页面丢失，请在更新之前重新加载所有页面。" }, //TODO: Used google translate
     "html_update_info_session_buddy_prefix": { "message": "您可能還想使用擴展程序（如" }, //TODO: Used google translate
     "html_update_info_session_buddy_suffix": { "message": "）備份您的選項卡會話" }, //TODO: Used google translate
     "html_update_info_session_buddy": { "message": "Session Buddy" },

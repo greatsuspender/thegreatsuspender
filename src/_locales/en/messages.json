@@ -159,12 +159,12 @@
     "html_update_heading1_prefix": { "message": "Action required for" },
     "html_update_heading2": { "message": "Please read the important information below." },
     "html_update_info_line1": { "message": "A new version of The Great Suspender is ready to be installed." },
-    "html_update_info_line2": { "message": "If you have any tabs suspended when The Great Suspender updates, those tabs will be closed." },
-    "html_update_info_line3_prefix": { "message": "To prevent tab loss" },
-    "html_update_info_line3_suffix": { "message": ", unsuspend all tabs before updating." },
+    "html_update_info_line2_prefix": { "message": "Important" },
+    "html_update_info_line2": { "message": "If you have suspended tabs when The Great Suspender updates, those tabs will be closed." },
+    "html_update_info_line3": { "message": "To prevent tab loss, unsuspend all tabs before updating." },
     "html_update_info_session_buddy_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
     "html_update_info_session_buddy_suffix": { "message": "" },
-    "html_update_info_session_buddy": { "message": "Session Buddy" },
+    "html_update_info_session_buddy": { "message": "Session Buddy." },
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
