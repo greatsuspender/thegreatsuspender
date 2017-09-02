@@ -76,6 +76,7 @@ var gsUtils = {
             ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
         var allSettingKeys = Object.keys(defaultSettings);
         chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
+            tgs.log('syncedSettings on init: ', syncedSettings);
 
             // if synced setting exists and local setting does not exist or syncing is turned on
             // then overwrite with synced value
