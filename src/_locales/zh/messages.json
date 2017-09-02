@@ -213,15 +213,15 @@
     "js_popup_error": { "message": "無法加載頁面信息" }, //TODO: Used google translate
 
     // Session management page (Javascript code)
-    "js_sessionUtils_delete": { "message": "刪除" }, //TODO: Used google translate
-    "js_sessionUtils_export": { "message": "匯出" },
-    "js_sessionUtils_reload": { "message": "重新載入" },
-    "js_sessionUtils_resuspend": { "message": "重新凍結" },
-    "js_sessionUtils_save": { "message": "儲存" },
-    "js_sessionUtils_window": { "message": "個視窗" },
-    "js_sessionUtils_tab": { "message": "個分頁" },
-    "js_sessionUtils_plural": { "message": "" },
-    "js_sessionUtils_enter_name_for_session": { "message": "對這個記錄命名" },
+    "js_sessionItems_delete": { "message": "刪除" }, //TODO: Used google translate
+    "js_sessionItems_export": { "message": "匯出" },
+    "js_sessionItems_reload": { "message": "重新載入" },
+    "js_sessionItems_resuspend": { "message": "重新凍結" },
+    "js_sessionItems_save": { "message": "儲存" },
+    "js_sessionItems_window": { "message": "個視窗" },
+    "js_sessionItems_tab": { "message": "個分頁" },
+    "js_sessionItems_plural": { "message": "" },
+    "js_sessionItems_enter_name_for_session": { "message": "對這個記錄命名" },
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" },

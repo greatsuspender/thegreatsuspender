@@ -1,4 +1,4 @@
-/*global chrome, sessionUtils */
+/*global chrome, sessionItems */
 (function () {
     'use strict';
 
@@ -20,17 +20,17 @@
 
             currentSessions.forEach(function (session, index) {
                 if (firstSession) {
-                    currentDiv.appendChild(sessionUtils.createSessionHtml(session));
+                    currentDiv.appendChild(sessionItems.createSessionHtml(session));
                     firstSession = false;
                 } else {
-                    sessionsDiv.appendChild(sessionUtils.createSessionHtml(session));
+                    sessionsDiv.appendChild(sessionItems.createSessionHtml(session));
                 }
             });
         });
 
         gsUtils.fetchSavedSessions().then(function (savedSessions) {
             savedSessions.forEach(function (session, index) {
-                historyDiv.appendChild(sessionUtils.createSessionHtml(session));
+                historyDiv.appendChild(sessionItems.createSessionHtml(session));
             });
         });
 

@@ -213,15 +213,15 @@
     "js_popup_error": { "message": "Failed to load tab information." },
 
     // Session management page (Javascript code)
-    "js_sessionUtils_delete": { "message": "delete" },
-    "js_sessionUtils_export": { "message": "export" },
-    "js_sessionUtils_reload": { "message": "reload" },
-    "js_sessionUtils_resuspend": { "message": "resuspend" },
-    "js_sessionUtils_save": { "message": "save" },
-    "js_sessionUtils_window": { "message": "window" },
-    "js_sessionUtils_tab": { "message": "tab" },
-    "js_sessionUtils_plural": { "message": "s" },
-    "js_sessionUtils_enter_name_for_session": { "message": "Enter a name for this session" },
+    "js_sessionItems_delete": { "message": "delete" },
+    "js_sessionItems_export": { "message": "export" },
+    "js_sessionItems_reload": { "message": "reload" },
+    "js_sessionItems_resuspend": { "message": "resuspend" },
+    "js_sessionItems_save": { "message": "save" },
+    "js_sessionItems_window": { "message": "window" },
+    "js_sessionItems_tab": { "message": "tab" },
+    "js_sessionItems_plural": { "message": "s" },
+    "js_sessionItems_enter_name_for_session": { "message": "Enter a name for this session" },
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },

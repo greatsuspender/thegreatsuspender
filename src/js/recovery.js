@@ -1,4 +1,4 @@
-/*global chrome, sessionUtils */
+/*global chrome, sessionItems */
 (function () {
     'use strict';
 
@@ -59,7 +59,7 @@
                     if (!tgs.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
                         tabProperties.sessionId = lastSession.sessionId;
-                        tabEl = sessionUtils.createTabHtml(tabProperties, true);
+                        tabEl = sessionItems.createTabHtml(tabProperties, true);
                         tabEl.onclick = function (e) {
                             e.preventDefault();
                             chrome.tabs.create({url: tabProperties.url, active: false});
