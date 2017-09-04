@@ -5,171 +5,43 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    function reloadTabs(element, suspendMode) {
-
-        return function () {
-            var windowId = element.getAttribute('data-windowId'),
-                sessionId = element.getAttribute('data-sessionId'),
-                windows = [],
-                curUrl;
-
-            gsUtils.fetchSessionById(sessionId).then(function (session) {
-
-                if (!session || !session.windows) {
-                    return;
-                }
-
-                //if loading a specific window
-                if (windowId) {
-                    windows.push(gsUtils.getWindowFromSession(windowId, session));
-
-                //else load all windows from session
-                } else {
-                    windows = session.windows;
-                }
-
-                windows.forEach(function (window) {
-
-                    chrome.windows.create(function (newWindow) {
-                        chrome.tabs.query({ windowId: newWindow.id }, function (tabs) {
-                            var initialNewTab = tabs[0];
-
-                            window.tabs.forEach(function (curTab) {
-                                curUrl = curTab.url;
-
-                                if (suspendMode && !tgs.isSuspended(curTab) && !tgs.isSpecialTab(curTab)) {
-                                    curUrl = gsUtils.generateSuspendedUrl(curTab.url, curTab.title);
-                                } else if (!suspendMode && tgs.isSuspended(curTab)) {
-                                    curUrl = gsUtils.getSuspendedUrl(curTab.url);
-                                }
-                                chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
-                            });
-
-                            //remove initial new tab created with the window
-                            if (initialNewTab) {
-                                chrome.tabs.remove(initialNewTab.id);
-                            }
-                        });
-                    });
-                });
-
-            });
-        };
+    function getSimpleDate(date) {
+        var d = new Date(date);
+        return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+            d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
     }
 
-    function saveSession(sessionId) {
+    function getHumanDate(date) {
+        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            d = new Date(date),
+            currentDate = d.getDate(),
+            currentMonth = d.getMonth(),
+            currentYear = d.getFullYear(),
+            currentHours = d.getHours(),
+            currentMinutes = d.getMinutes();
 
-        gsUtils.fetchSessionById(sessionId).then(function (session) {
+        // var suffix;
+        // if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
+        //     suffix = 'st';
+        // } else if (currentDate === 2 || currentDate === 22) {
+        //     suffix = 'nd';
+        // } else if (currentDate === 3 || currentDate === 23) {
+        //     suffix = 'rd';
+        // } else {
+        //     suffix = 'th';
+        // }
 
-            var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'));
-            if (sessionName) {
-                session.name = sessionName;
-                gsUtils.addToSavedSessions(session);
-                window.location.reload();
-            }
-        });
-    }
+        var ampm = currentHours >= 12 ? 'pm' : 'am';
+        var hoursString = (currentHours % 12) || 12;
+        var minutesString = ('0' + currentMinutes).slice(-2);
 
-    function deleteSession(sessionId) {
-
-        gsUtils.removeSessionFromHistory(sessionId, function () {
-            window.location.reload();
-        });
-    }
-
-    function exportSession(sessionId) {
-        var csvContent = 'data:text/csv;charset=utf-8,',
-            dataString = '';
-
-        gsUtils.fetchSessionById(sessionId).then(function (session) {
-
-            if (!session || !session.windows) {
-                return;
-            }
-
-            session.windows.forEach(function (curWindow, index) {
-                curWindow.tabs.forEach(function (curTab, tabIndex) {
-                    if (tgs.isSuspended(curTab)) {
-                        dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
-                    } else {
-                        dataString += curTab.url + '\n';
-                    }
-                });
-            });
-            csvContent += dataString;
-
-            var encodedUri = encodeURI(csvContent);
-            var link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'session.txt');
-            link.click();
-        });
-    }
-
-    function removeTab(element) {
-
-        return function () {
-
-            var tabId = element.getAttribute('data-tabId'),
-                windowId = element.getAttribute('data-windowId'),
-                sessionId = element.getAttribute('data-sessionId'),
-                sessionEl,
-                newSessionEl;
-
-            gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function (session) {
-                //if we have a valid session returned
-                if (session) {
-                    sessionEl = element.parentElement.parentElement;
-                    newSessionEl = createSessionHtml(session);
-                    sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-                    toggleSession(newSessionEl.getElementsByTagName('div')[0])();
-
-                //otherwise assume it was the last tab in session and session has been removed
-                } else {
-                    window.location.reload();
-                }
-            });
-        };
-    }
-
-    function toggleSession(element) {
-
-        return function () {
-
-            var sessionId = element.getAttribute('data-sessionId'),
-                windowProperties,
-                tabProperties;
-
-            if (element.childElementCount > 0) {
-                element.innerHTML = '';
-                return;
-            }
-
-            gsUtils.fetchSessionById(sessionId).then(function (session) {
-
-                if (!session || !session.windows) {
-                    return;
-                }
-
-                session.windows.forEach(function (window, index) {
-                    windowProperties = window;
-                    windowProperties.sessionId = session.sessionId;
-                    element.appendChild(createWindowHtml(windowProperties, index));
-
-                    windowProperties.tabs.forEach(function (tab) {
-                        tabProperties = tab;
-                        tabProperties.windowId = windowProperties.id;
-                        tabProperties.sessionId = session.sessionId;
-                        element.appendChild(createTabHtml(tabProperties));
-                    });
-                });
-            });
-        };
+        return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
     }
 
     function createSessionHtml(session) {
         session.windows = session.windows || [];
-        var savedSession = (session.name && true) || false,
+
+        var sessionType = (session.sessionId === tgs.sessionId) ? 'current' : (session.name ? 'saved' : 'recent'),
             sessionContainer,
             sessionTitle,
             sessionSave,
@@ -182,113 +54,102 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
             winCnt = session.windows.length,
             tabCnt = session.windows.reduce(function (a, b) { return a + b.tabs.length; }, 0);
 
-        if (savedSession) {
+        if (sessionType === 'saved') {
             titleText = session.name;
         } else {
-            titleText = gsUtils.getHumanDate(session.date);
+            titleText = getHumanDate(session.date);
         }
         titleText += '&nbsp;&nbsp;<small>(' +
             winCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionItems_window'), winCnt) + ', ' +
             tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionItems_tab'), tabCnt) + ')</small>';
 
         sessionDiv = createEl('div', {
-            'class': 'sessionDiv',
-            'data-sessionId': session.sessionId
+            'class': 'sessionContents',
         });
 
         sessionTitle = createEl('span', {
             'class': 'sessionLink'
         });
         sessionTitle.innerHTML = titleText;
-        sessionTitle.onclick = toggleSession(sessionDiv);
 
-        if (!savedSession) {
-            sessionSave = createEl('a', {
-                'class': 'groupLink',
-                'href': '#'
-            }, chrome.i18n.getMessage('js_sessionItems_save'));
-            sessionSave.onclick = function () {
-                saveSession(session.sessionId);
-            };
-        }
-
-        if (savedSession) {
-            sessionDelete = createEl('a', {
-                'class': 'groupLink',
-                'href': '#'
-            }, chrome.i18n.getMessage('js_sessionItems_delete'));
-            sessionDelete.onclick = function () {
-                deleteSession(session.sessionId);
-            };
-        }
-
-        sessionExport = createEl('a', {
-            'class': 'groupLink',
+        sessionSave = createEl('a', {
+            'class': 'groupLink saveLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_export'));
-        sessionExport.onclick = function () {
-            exportSession(session.sessionId);
-        };
+        }, chrome.i18n.getMessage('js_sessionItems_save'));
+
+        sessionDelete = createEl('a', {
+            'class': 'groupLink deleteLink',
+            'href': '#'
+        }, chrome.i18n.getMessage('js_sessionItems_delete'));
 
         windowResuspend = createEl('a', {
-            'class': 'groupLink',
+            'class': 'groupLink resuspendLink',
             'href': '#'
         }, chrome.i18n.getMessage('js_sessionItems_resuspend'));
-        windowResuspend.onclick = reloadTabs(sessionDiv, true);
 
         windowReload = createEl('a', {
-            'class': 'groupLink',
+            'class': 'groupLink reloadLink',
             'href': '#'
         }, chrome.i18n.getMessage('js_sessionItems_reload'));
-        windowReload.onclick = reloadTabs(sessionDiv, false);
 
-        sessionContainer = createEl('div');
+        sessionExport = createEl('a', {
+            'class': 'groupLink exportLink',
+            'href': '#'
+        }, chrome.i18n.getMessage('js_sessionItems_export'));
+
+        sessionContainer = createEl('div', {
+            'class': 'sessionContainer',
+        });
         sessionContainer.appendChild(sessionTitle);
-        sessionContainer.appendChild(windowResuspend);
-        sessionContainer.appendChild(windowReload);
+        if (sessionType !== 'current') {
+            sessionContainer.appendChild(windowResuspend);
+            sessionContainer.appendChild(windowReload);
+        }
         sessionContainer.appendChild(sessionExport);
-        if (!savedSession) sessionContainer.appendChild(sessionSave);
-        if (savedSession) sessionContainer.appendChild(sessionDelete);
+        if (sessionType !== 'saved') {
+            sessionContainer.appendChild(sessionSave);
+        }
+        if (sessionType !== 'current') {
+            sessionContainer.appendChild(sessionDelete);
+        }
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
     }
 
-    function createWindowHtml(window, count) {
+    function createWindowHtml(window, index, allowReload) {
 
         var groupHeading,
-            windowHeading,
+            windowContainer,
             groupUnsuspendCurrent,
             groupUnsuspendNew;
 
         groupHeading = createEl('div', {
-            'class': 'windowHeading',
-            'data-windowId': window.id,
-            'data-sessionId': window.sessionId
+            'class': 'windowContainer',
         });
 
-        windowHeading = createEl('span', {}, 'Window ' + (count + 1) + ':\u00A0');
+        windowContainer = createEl('span', {}, 'Window ' + (index + 1) + ':\u00A0');
 
         groupUnsuspendCurrent = createEl('a', {
-            'class': 'groupLink',
+            'class': 'groupLink resuspendLink ',
             'href': '#'
         }, chrome.i18n.getMessage('js_sessionItems_resuspend'));
-        groupUnsuspendCurrent.onclick = reloadTabs(groupHeading, true);
 
         groupUnsuspendNew = createEl('a', {
-            'class': 'groupLink',
+            'class': 'groupLink reloadLink',
             'href': '#'
         }, chrome.i18n.getMessage('js_sessionItems_reload'));
-        groupUnsuspendNew.onclick = reloadTabs(groupHeading, false);
 
-        groupHeading.appendChild(windowHeading);
-        groupHeading.appendChild(groupUnsuspendCurrent);
-        groupHeading.appendChild(groupUnsuspendNew);
+        groupHeading.appendChild(windowContainer);
+        if (allowReload) {
+            groupHeading.appendChild(groupUnsuspendCurrent);
+            groupHeading.appendChild(groupUnsuspendNew);
+        }
 
         return groupHeading;
     }
 
-    function createTabHtml(tabProperties, recoveryMode) {
+    function createTabHtml(tab, allowDelete) {
 
         var linksSpan,
             listImg,
@@ -296,43 +157,38 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
             listHover,
             favicon = false;
 
-        recoveryMode = recoveryMode || false;
-
         //try to get best favicon url path
-        if (tabProperties.favicon) {
-            favicon = tabProperties.favicon;
-        } else if (tabProperties.favIconUrl && tabProperties.favIconUrl.indexOf('chrome://theme') < 0) {
-            favicon = tabProperties.favIconUrl;
+        if (tab.favicon) {
+            favicon = tab.favicon;
+        } else if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
+            favicon = tab.favIconUrl;
         }
         if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
             favicon = 'chrome://favicon/size/16@2x/';
-            if (tgs.isSuspended(tabProperties)) {
-                favicon += gsUtils.getSuspendedUrl(tabProperties.url);
+            if (tgs.isSuspended(tab)) {
+                favicon += gsUtils.getSuspendedUrl(tab.url);
             } else {
-                favicon += tabProperties.url;
+                favicon += tab.url;
             }
         }
 
-        if (tabProperties.sessionId) {
+        if (tab.sessionId) {
             linksSpan = createEl('div', {
-                'class': 'recoveryLink',
-                'data-tabId': tabProperties.id || tabProperties.url,
-                'data-windowId': tabProperties.windowId,
-                'data-sessionId': tabProperties.sessionId,
-                'data-url': tabProperties.url
+                'class': 'tabContainer',
+                'data-tabId': tab.id || tab.url,
+                'data-url': tab.url
             });
         } else {
             linksSpan = createEl('div', {
-                'class': 'recoveryLink',
-                'data-url': tabProperties.url
+                'class': 'tabContainer',
+                'data-url': tab.url
             });
         }
 
         listHover = createEl('img', {
             'src': chrome.extension.getURL('/img/x.gif'),
-            'class': 'itemHover'
+            'class': 'itemHover removeLink'
         });
-        listHover.onclick = removeTab(linksSpan);
 
         listImg = createEl('img', {
             'src': favicon,
@@ -342,11 +198,13 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
 
         listLink = createEl('a', {
             'class': 'historyLink',
-            'href': tabProperties.url,
+            'href': tab.url,
             'target': '_blank'
-        }, tabProperties.title);
+        }, tab.title);
 
-        if (!recoveryMode) linksSpan.appendChild(listHover);
+        if (allowDelete) {
+            linksSpan.appendChild(listHover);
+        }
         linksSpan.appendChild(listImg);
         linksSpan.appendChild(listLink);
         linksSpan.appendChild(createEl('br'));
@@ -377,6 +235,7 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
 
     return {
         createSessionHtml: createSessionHtml,
+        createWindowHtml: createWindowHtml,
         createTabHtml: createTabHtml
     };
 }());

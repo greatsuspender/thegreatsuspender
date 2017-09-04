@@ -839,39 +839,6 @@ var gsUtils = {
         return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;
     },
 
-    getSimpleDate: function (date) {
-        var d = new Date(date);
-        return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
-            d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-    },
-
-    getHumanDate: function (date) {
-        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            d = new Date(date),
-            currentDate = d.getDate(),
-            currentMonth = d.getMonth(),
-            currentYear = d.getFullYear(),
-            currentHours = d.getHours(),
-            currentMinutes = d.getMinutes();
-
-        // var suffix;
-        // if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
-        //     suffix = 'st';
-        // } else if (currentDate === 2 || currentDate === 22) {
-        //     suffix = 'nd';
-        // } else if (currentDate === 3 || currentDate === 23) {
-        //     suffix = 'rd';
-        // } else {
-        //     suffix = 'th';
-        // }
-
-        var ampm = currentHours >= 12 ? 'pm' : 'am';
-        var hoursString = (currentHours % 12) || 12;
-        var minutesString = ('0' + currentMinutes).slice(-2);
-
-        return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
-    },
-
     getChromeVersion: function () {
         var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
         return raw ? parseInt(raw[2], 10) : false;

@@ -222,6 +222,7 @@
     "js_sessionItems_tab": { "message": "個分頁" },
     "js_sessionItems_plural": { "message": "" },
     "js_sessionItems_enter_name_for_session": { "message": "對這個記錄命名" },
+    "js_sessionItems_confirm_delete": { "message": "您确定要删除此记录吗？" },
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" },

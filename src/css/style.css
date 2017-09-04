@@ -273,11 +273,11 @@ hr.splashRule {
     background-color: #99A7AD;
     border-top: none;
 }
-div.recoveryLink {
+div.tabContainer {
     padding: 0px;
     margin: 0 0 3px 0;
 }
-div.recoveryLink > * {
+div.tabContainer > * {
     vertical-align: middle;
 }
 a.historyLink {
@@ -294,27 +294,34 @@ a.historyLink {
 a.historyLink:hover {
     text-decoration: underline;
 }
-.windowHeading {
+.windowContainer {
     font-size: 13px;
     font-weight: bold;
     color: #777;
     padding-top: 18px;
     padding-bottom: 4px;
 }
-.sessionDiv div:last-child{
+.sessionContents div:last-child{
     padding-bottom: 10px;
 }
 .groupLink {
     margin: 0 0 0 10px;
     font-size: 11px;
+    font-weight: normal;
 }
-.recoveryLink .itemHover {
+.sessionContainer .groupLink {
+    visibility: hidden;
+}
+.sessionContainer:hover .groupLink {
+    visibility: visible;
+}
+.tabContainer .itemHover {
     visibility: hidden;
     margin: 0;
     padding: 0 0 3px;
     cursor: pointer;
 }
-.recoveryLink:hover .itemHover {
+.tabContainer:hover .itemHover {
     visibility: visible;
 }
 #screenCaptureNotice {

@@ -8,19 +8,19 @@
 
     function removeTabFromList(tab) {
 
-        var recoveryLinksEl = document.getElementById('recoveryLinks'),
-            childLinks = recoveryLinksEl.children;
+        var recoveryTabsEl = document.getElementById('recoveryTabs'),
+            childLinks = recoveryTabsEl.children;
 
         for (var i = 0; i < childLinks.length; i++) {
             var element = childLinks[i];
             if (element.getAttribute('data-url') === tab.url ||
                     element.getAttribute('data-tabId') == tab.id) { // eslint-disable-line eqeqeq
-                recoveryLinksEl.removeChild(element);
+                recoveryTabsEl.removeChild(element);
             }
         }
 
         //if removing the last element
-        if (recoveryLinksEl.children.length === 0) {
+        if (recoveryTabsEl.children.length === 0) {
 
             //if we have already clicked the restore button then redirect to success page
             if (restoreAttempted) {
@@ -42,7 +42,7 @@
 
     function populateMissingTabs() {
 
-        var recoveryEl = document.getElementById('recoveryLinks'),
+        var recoveryEl = document.getElementById('recoveryTabs'),
             tabEl;
 
         gsUtils.fetchLastSession().then(function (lastSession) {
@@ -59,7 +59,7 @@
                     if (!tgs.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
                         tabProperties.sessionId = lastSession.sessionId;
-                        tabEl = sessionItems.createTabHtml(tabProperties, true);
+                        tabEl = sessionItems.createTabHtml(tabProperties, false);
                         tabEl.onclick = function (e) {
                             e.preventDefault();
                             chrome.tabs.create({url: tabProperties.url, active: false});
