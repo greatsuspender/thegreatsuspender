@@ -223,6 +223,7 @@
     "js_sessionItems_plural": { "message": "s" },
     "js_sessionItems_enter_name_for_session": { "message": "Enter a name for this session" },
     "js_sessionItems_confirm_delete": { "message": "Are you sure you want to delete this session?" },
+    "js_sessionItems_confirm_session_overwrite": { "message": "There is already a saved session with this name. Overwrite existing session?" },
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },

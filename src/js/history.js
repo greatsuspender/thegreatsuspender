@@ -59,9 +59,21 @@
 
             var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'));
             if (sessionName) {
-                session.name = sessionName;
-                gsUtils.addToSavedSessions(session);
-                window.location.reload();
+
+                gsUtils.fetchSavedSessions().then(function (savedSessions) {
+                    var nameExists = savedSessions.some(function (savedSession, index) {
+                        return savedSession.name === sessionName;
+                    });
+                    if (nameExists) {
+                        var overwrite = window.confirm(chrome.i18n.getMessage('js_sessionItems_confirm_session_overwrite'));
+                        if (!overwrite) {
+                            return;
+                        }
+                    }
+                    session.name = sessionName;
+                    gsUtils.addToSavedSessions(session);
+                    window.location.reload();
+                });
             }
         });
     }
