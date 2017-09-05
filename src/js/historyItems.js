@@ -1,5 +1,5 @@
 /*global chrome */
-var sessionItems = (function () { // eslint-disable-line no-unused-vars
+var historyItems = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
     var tgs = chrome.extension.getBackgroundPage().tgs;
@@ -60,8 +60,8 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
             titleText = getHumanDate(session.date);
         }
         titleText += '&nbsp;&nbsp;<small>(' +
-            winCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionItems_window'), winCnt) + ', ' +
-            tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_sessionItems_tab'), tabCnt) + ')</small>';
+            winCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_window'), winCnt) + ', ' +
+            tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_tab'), tabCnt) + ')</small>';
 
         sessionDiv = createEl('div', {
             'class': 'sessionContents',
@@ -75,27 +75,27 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
         sessionSave = createEl('a', {
             'class': 'groupLink saveLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_save'));
+        }, chrome.i18n.getMessage('js_history_save'));
 
         sessionDelete = createEl('a', {
             'class': 'groupLink deleteLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_delete'));
+        }, chrome.i18n.getMessage('js_history_delete'));
 
         windowResuspend = createEl('a', {
             'class': 'groupLink resuspendLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_resuspend'));
+        }, chrome.i18n.getMessage('js_history_resuspend'));
 
         windowReload = createEl('a', {
             'class': 'groupLink reloadLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_reload'));
+        }, chrome.i18n.getMessage('js_history_reload'));
 
         sessionExport = createEl('a', {
             'class': 'groupLink exportLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_export'));
+        }, chrome.i18n.getMessage('js_history_export'));
 
         sessionContainer = createEl('div', {
             'class': 'sessionContainer',
@@ -133,12 +133,12 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
         groupUnsuspendCurrent = createEl('a', {
             'class': 'groupLink resuspendLink ',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_resuspend'));
+        }, chrome.i18n.getMessage('js_history_resuspend'));
 
         groupUnsuspendNew = createEl('a', {
             'class': 'groupLink reloadLink',
             'href': '#'
-        }, chrome.i18n.getMessage('js_sessionItems_reload'));
+        }, chrome.i18n.getMessage('js_history_reload'));
 
         groupHeading.appendChild(windowContainer);
         if (allowReload) {
@@ -230,7 +230,7 @@ var sessionItems = (function () { // eslint-disable-line no-unused-vars
     }
 
     function pluralise(text, count) {
-        return text + (count > 1 ? chrome.i18n.getMessage('js_sessionItems_plural') : '');
+        return text + (count > 1 ? chrome.i18n.getMessage('js_history_plural') : '');
     }
 
     return {

@@ -1,4 +1,4 @@
-/*global chrome, sessionItems */
+/*global chrome, historyItems */
 (function () {
     'use strict';
 
@@ -64,7 +64,7 @@
                 return savedSession.name === sessionName;
             });
             if (nameExists) {
-                var overwrite = window.confirm(chrome.i18n.getMessage('js_sessionItems_confirm_session_overwrite'));
+                var overwrite = window.confirm(chrome.i18n.getMessage('js_history_confirm_session_overwrite'));
                 if (!overwrite) {
                     callback(false);
                     return;
@@ -77,7 +77,7 @@
     function saveSession(sessionId) {
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
-            var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'));
+            var sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'));
             if (sessionName) {
                 validateNewSessionName(sessionName, function (shouldSave) {
                     if (shouldSave) {
@@ -92,7 +92,7 @@
 
     function deleteSession(sessionId) {
 
-        var result = window.confirm(chrome.i18n.getMessage('js_sessionItems_confirm_delete'));
+        var result = window.confirm(chrome.i18n.getMessage('js_history_confirm_delete'));
         if (result) {
             gsUtils.removeSessionFromHistory(sessionId, function () {
                 window.location.reload();
@@ -107,14 +107,14 @@
             r.onload = function (e) {
                 var contents = e.target.result;
                 if (f.type !== 'text/plain') {
-                    alert(chrome.i18n.getMessage('js_sessionItems_import_fail'));
+                    alert(chrome.i18n.getMessage('js_history_import_fail'));
                 } else {
                     importSession(f.name, contents);
                 }
             };
             r.readAsText(f);
         } else {
-            alert(chrome.i18n.getMessage('js_sessionItems_import_fail'));
+            alert(chrome.i18n.getMessage('js_history_import_fail'));
         }
     }
 
@@ -159,7 +159,7 @@
             windows.push(curWindow);
         }
 
-        sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'), sessionName);
+        sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'), sessionName);
         if (sessionName) {
             validateNewSessionName(sessionName, function (shouldSave) {
                 if (shouldSave) {
@@ -262,7 +262,7 @@
     }
 
     function createSessionElement(session) {
-        var sessionEl = sessionItems.createSessionHtml(session);
+        var sessionEl = historyItems.createSessionHtml(session);
 
         addClickListenerToElement(sessionEl.getElementsByClassName('sessionLink')[0], function () {
             toggleSession(sessionEl, session.sessionId);
@@ -287,7 +287,7 @@
 
     function createWindowElement(session, window, index) {
         var allowReload = session.sessionId !== tgs.sessionId;
-        var windowEl = sessionItems.createWindowHtml(window, index, allowReload);
+        var windowEl = historyItems.createWindowHtml(window, index, allowReload);
 
         addClickListenerToElement(windowEl.getElementsByClassName('resuspendLink')[0], function () {
             reloadTabs(session.sessionId, window.id, true);
@@ -300,7 +300,7 @@
 
     function createTabElement(session, window, tab) {
         var allowDelete = session.sessionId !== tgs.sessionId;
-        var tabEl = sessionItems.createTabHtml(tab, allowDelete);
+        var tabEl = historyItems.createTabHtml(tab, allowDelete);
 
         addClickListenerToElement(tabEl.getElementsByClassName('removeLink')[0], function () {
             removeTab(tabEl, session.sessionId, window.id, tab.id);

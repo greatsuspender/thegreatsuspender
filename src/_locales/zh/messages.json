@@ -213,18 +213,18 @@
     "js_popup_error": { "message": "無法加載頁面信息" }, //TODO: Used google translate
 
     // Session management page (Javascript code)
-    "js_sessionItems_delete": { "message": "刪除" }, //TODO: Used google translate
-    "js_sessionItems_export": { "message": "匯出" },
-    "js_sessionItems_reload": { "message": "重新載入" },
-    "js_sessionItems_resuspend": { "message": "重新凍結" },
-    "js_sessionItems_save": { "message": "儲存" },
-    "js_sessionItems_window": { "message": "個視窗" },
-    "js_sessionItems_tab": { "message": "個分頁" },
-    "js_sessionItems_plural": { "message": "" },
-    "js_sessionItems_enter_name_for_session": { "message": "對這個記錄命名" },
-    "js_sessionItems_confirm_delete": { "message": "您确定要删除此记录吗？" }, //TODO: Used google translate
-    "js_sessionItems_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" }, //TODO: Used google translate
-    "js_sessionItems_import_fail": { "message": "无法加载文件。 确保文件是纯文本，并且每行包含单个URL。" }, //TODO: Used google translate
+    "js_history_delete": { "message": "刪除" }, //TODO: Used google translate
+    "js_history_export": { "message": "匯出" },
+    "js_history_reload": { "message": "重新載入" },
+    "js_history_resuspend": { "message": "重新凍結" },
+    "js_history_save": { "message": "儲存" },
+    "js_history_window": { "message": "個視窗" },
+    "js_history_tab": { "message": "個分頁" },
+    "js_history_plural": { "message": "" },
+    "js_history_enter_name_for_session": { "message": "對這個記錄命名" },
+    "js_history_confirm_delete": { "message": "您确定要删除此记录吗？" }, //TODO: Used google translate
+    "js_history_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" }, //TODO: Used google translate
+    "js_history_import_fail": { "message": "无法加载文件。 确保文件是纯文本，并且每行包含单个URL。" }, //TODO: Used google translate
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" },
