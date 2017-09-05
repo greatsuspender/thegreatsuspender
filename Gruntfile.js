@@ -19,7 +19,7 @@ module.exports = function (grunt) {
         'string-replace': {
             debug: {
                 files: {
-                    '<%= config.tempDir %>src/js/': '<%= config.tempDir %>src/js/background.js'
+                    '<%= config.tempDir %>src/js/': '<%= config.tempDir %>src/js/gsUtils.js'
                 },
                 options: {
                     replacements: [{
