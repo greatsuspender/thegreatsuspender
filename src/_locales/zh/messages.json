@@ -36,7 +36,7 @@
     "html_history_current_session": { "message": "目前記錄" },
     "html_history_recent_sessions": { "message": "最近記錄" },
     "html_history_saved_sessions": { "message": "已儲存記錄" },
-    "html_history_clear_tab_history": { "message": "清空分頁紀錄" },
+    "html_history_import_session": { "message": "进口记录" },
 
     // Important notice page
     "html_notice_title": { "message": "通知" },
@@ -222,8 +222,9 @@
     "js_sessionItems_tab": { "message": "個分頁" },
     "js_sessionItems_plural": { "message": "" },
     "js_sessionItems_enter_name_for_session": { "message": "對這個記錄命名" },
-    "js_sessionItems_confirm_delete": { "message": "您确定要删除此记录吗？" },
-    "js_sessionItems_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" },
+    "js_sessionItems_confirm_delete": { "message": "您确定要删除此记录吗？" }, //TODO: Used google translate
+    "js_sessionItems_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" }, //TODO: Used google translate
+    "js_sessionItems_import_fail": { "message": "无法加载文件。 确保文件是纯文本，并且每行包含单个URL。" }, //TODO: Used google translate
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" },

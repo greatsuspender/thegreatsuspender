@@ -28,7 +28,7 @@
             windows.forEach(function (window) {
 
                 chrome.windows.create(function (newWindow) {
-                    chrome.tabs.query({ windowId: newWindow.id }, function (tabs) {
+                    chrome.tabs.query({windowId: newWindow.id}, function (tabs) {
                         var initialNewTab = tabs[0];
 
                         window.tabs.forEach(function (curTab) {
@@ -39,7 +39,12 @@
                             } else if (!suspendMode && tgs.isSuspended(curTab)) {
                                 curUrl = gsUtils.getSuspendedUrl(curTab.url);
                             }
-                            chrome.tabs.create({windowId: newWindow.id, url: curUrl, pinned: curTab.pinned, active: false});
+                            chrome.tabs.create({
+                                windowId: newWindow.id,
+                                url: curUrl,
+                                pinned: curTab.pinned,
+                                active: false
+                            });
                         });
 
                         //remove initial new tab created with the window
@@ -88,8 +93,78 @@
         }
     }
 
+    function handleFileSelect(e) {
+        var f = e.target.files[0];
+        if (f) {
+            var r = new FileReader();
+            r.onload = function (e) {
+                var contents = e.target.result;
+                if (f.type !== 'text/plain') {
+                    alert(chrome.i18n.getMessage('js_sessionItems_import_fail'));
+                } else {
+                    importSession(f.name, contents);
+                }
+            };
+            r.readAsText(f);
+        } else {
+            alert(chrome.i18n.getMessage('js_sessionItems_import_fail'));
+        }
+    }
+
+    function importSession(sessionName, textContents) {
+
+        var sessionId = '_' + gsUtils.generateHashCode(sessionName);
+        var windows = [];
+
+        var createNextWindow = function () {
+            return {
+                id: sessionId + '_' + windows.length,
+                tabs: [],
+            };
+        };
+        var curWindow = createNextWindow();
+
+        textContents.split('\n').forEach(function (line) {
+            if (typeof line !== 'string') {
+                return;
+            }
+            if (line === '') {
+                if (curWindow.tabs.length > 0) {
+                    windows.push(curWindow);
+                    curWindow = createNextWindow();
+                }
+                return;
+            }
+            if (line.indexOf('://') < 0) {
+                return;
+            }
+            curWindow.tabs.push({
+                windowId: curWindow.id,
+                sessionId: sessionId,
+                id: curWindow.id + '_' + curWindow.tabs.length,
+                url: line,
+                title: line,
+                index: curWindow.tabs.length,
+                pinned: false,
+            });
+        });
+        if (curWindow.tabs.length > 0) {
+            windows.push(curWindow);
+        }
+
+        var session = {
+            name: sessionName,
+            sessionId: sessionId,
+            windows: windows,
+            date: (new Date()).toISOString()
+        };
+        gsUtils.updateSession(session, function () {
+            window.location.reload();
+        });
+    }
+
     function exportSession(sessionId) {
-        var csvContent = 'data:text/csv;charset=utf-8,',
+        var content = 'data:text/plain;charset=utf-8,',
             dataString = '';
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
@@ -106,10 +181,12 @@
                         dataString += curTab.url + '\n';
                     }
                 });
+                //add an extra newline to separate windows
+                dataString += '\n';
             });
-            csvContent += dataString;
+            content += dataString;
 
-            var encodedUri = encodeURI(csvContent);
+            var encodedUri = encodeURI(content);
             var link = document.createElement('a');
             link.setAttribute('href', encodedUri);
             link.setAttribute('download', 'session.txt');
@@ -222,7 +299,8 @@
         var currentDiv = document.getElementById('currentSessions'),
             sessionsDiv = document.getElementById('recoverySessions'),
             historyDiv = document.getElementById('historySessions'),
-            clearHistoryEl = document.getElementById('clearHistory'),
+            importSessionEl = document.getElementById('importSession'),
+            importSessionActionEl = document.getElementById('importSessionAction'),
             firstSession = true;
 
         currentDiv.innerHTML = '';
@@ -249,9 +327,9 @@
             });
         });
 
-        clearHistoryEl.onclick = function (e) {
-            gsUtils.clearGsSessions();
-            render();
+        importSessionActionEl.addEventListener('change', handleFileSelect, false);
+        importSessionEl.onclick = function () {
+            importSessionActionEl.click();
         };
 
         //hide incompatible sidebar items if in incognito mode

@@ -36,7 +36,7 @@
     "html_history_current_session": { "message": "Current session" },
     "html_history_recent_sessions": { "message": "Recent sessions" },
     "html_history_saved_sessions": { "message": "Saved sessions" },
-    "html_history_clear_tab_history": { "message": "Clear tab history" },
+    "html_history_import_session": { "message": "Import session" },
 
     // Important notice page
     "html_notice_title": { "message": "Notice" },
@@ -224,6 +224,7 @@
     "js_sessionItems_enter_name_for_session": { "message": "Enter a name for this session" },
     "js_sessionItems_confirm_delete": { "message": "Are you sure you want to delete this session?" },
     "js_sessionItems_confirm_session_overwrite": { "message": "There is already a saved session with this name. Overwrite existing session?" },
+    "js_sessionItems_import_fail": { "message": "Failed to load file. Ensure file is plain text and contains a single url per line." },
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
