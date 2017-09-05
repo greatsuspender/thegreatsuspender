@@ -2,23 +2,24 @@
 (function () {
     'use strict';
 
+    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var elementPrefMap = {
-        'preview': gsUtils.SCREEN_CAPTURE,
-        'forceScreenCapture': gsUtils.SCREEN_CAPTURE_FORCE,
-        'onlineCheck': gsUtils.ONLINE_CHECK,
-        'batteryCheck': gsUtils.BATTERY_CHECK,
-        'unsuspendOnFocus': gsUtils.UNSUSPEND_ON_FOCUS,
-        'dontSuspendPinned': gsUtils.IGNORE_PINNED,
-        'dontSuspendForms': gsUtils.IGNORE_FORMS,
-        'dontSuspendAudio': gsUtils.IGNORE_AUDIO,
-        'ignoreCache': gsUtils.IGNORE_CACHE,
-        'addContextMenu': gsUtils.ADD_CONTEXT,
-        'syncSettings': gsUtils.SYNC_SETTINGS,
-        'timeToSuspend': gsUtils.SUSPEND_TIME,
-        'theme': gsUtils.THEME,
-        'whitelist': gsUtils.WHITELIST
+        'preview': gsStorage.SCREEN_CAPTURE,
+        'forceScreenCapture': gsStorage.SCREEN_CAPTURE_FORCE,
+        'onlineCheck': gsStorage.ONLINE_CHECK,
+        'batteryCheck': gsStorage.BATTERY_CHECK,
+        'unsuspendOnFocus': gsStorage.UNSUSPEND_ON_FOCUS,
+        'dontSuspendPinned': gsStorage.IGNORE_PINNED,
+        'dontSuspendForms': gsStorage.IGNORE_FORMS,
+        'dontSuspendAudio': gsStorage.IGNORE_AUDIO,
+        'ignoreCache': gsStorage.IGNORE_CACHE,
+        'addContextMenu': gsStorage.ADD_CONTEXT,
+        'syncSettings': gsStorage.SYNC_SETTINGS,
+        'timeToSuspend': gsStorage.SUSPEND_TIME,
+        'theme': gsStorage.THEME,
+        'whitelist': gsStorage.WHITELIST
     };
 
     function selectComboBox(element, key) {
@@ -45,13 +46,13 @@
         for (i = 0; i < optionEls.length; i++) {
             element = optionEls[i];
             pref = elementPrefMap[element.id];
-            tgs.log('-> options: ', pref, gsUtils.getOption(pref));
-            populateOption(element, gsUtils.getOption(pref));
+            gsUtils.log('-> options: ', pref, gsStorage.getOption(pref));
+            populateOption(element, gsStorage.getOption(pref));
         }
 
-        setForceScreenCaptureVisibility(gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0');
-        setAutoSuspendOptionsVisibility(gsUtils.getOption(gsUtils.SUSPEND_TIME) > 0);
-        setSyncNoteVisibility(!gsUtils.getOption(gsUtils.SYNC_SETTINGS));
+        setForceScreenCaptureVisibility(gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0');
+        setAutoSuspendOptionsVisibility(gsStorage.getOption(gsStorage.SUSPEND_TIME) > 0);
+        setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
     }
 
     function populateOption(element, value) {
@@ -111,14 +112,14 @@
                 interval;
 
             //add specific screen element listeners
-            if (pref === gsUtils.SCREEN_CAPTURE) {
+            if (pref === gsStorage.SCREEN_CAPTURE) {
                 setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
 
-            } else if (pref === gsUtils.SUSPEND_TIME) {
+            } else if (pref === gsStorage.SUSPEND_TIME) {
                 interval = getOptionValue(element);
                 setAutoSuspendOptionsVisibility(interval > 0);
 
-            } else if (pref === gsUtils.SYNC_SETTINGS) {
+            } else if (pref === gsStorage.SYNC_SETTINGS) {
                 // we only really want to show this on load. not on toggle
                 if (getOptionValue(element)) {
                     setSyncNoteVisibility(false);
@@ -127,7 +128,7 @@
 
             var valueChanged = saveChange(element);
             if (valueChanged) {
-                gsUtils.syncSettings();
+                gsStorage.syncSettings();
                 var prefKey = elementPrefMap[element.id];
                 gsUtils.performPostSaveUpdates([prefKey]);
             }
@@ -137,16 +138,16 @@
     function saveChange(element) {
 
         var pref = elementPrefMap[element.id],
-            oldValue = gsUtils.getOption(pref),
+            oldValue = gsStorage.getOption(pref),
             newValue = getOptionValue(element);
 
         //clean up whitelist before saving
-        if (pref === gsUtils.WHITELIST) {
+        if (pref === gsStorage.WHITELIST) {
             newValue = gsUtils.cleanupWhitelist(newValue);
         }
 
         //save option
-        gsUtils.setOption(elementPrefMap[element.id], newValue);
+        gsStorage.setOption(elementPrefMap[element.id], newValue);
 
         return (oldValue !== newValue);
     }

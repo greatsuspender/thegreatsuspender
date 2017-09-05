@@ -2,10 +2,11 @@
 (function () {
     'use strict';
 
+    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function toggleNag(hideNag) {
-        gsUtils.setOption(gsUtils.NO_NAG, hideNag);
+        gsStorage.setOption(gsStorage.NO_NAG, hideNag);
     }
 
     function loadDonateButtons() {
@@ -39,7 +40,7 @@
         var versionEl = document.getElementById('aboutVersion');
         versionEl.innerHTML = chrome.i18n.getMessage('ext_extension_name') + ' v' + chrome.runtime.getManifest().version;
 
-        if (gsUtils.getOption(gsUtils.NO_NAG)) {
+        if (gsStorage.getOption(gsStorage.NO_NAG)) {
             document.getElementById('donateSection').style.display = 'none';
             document.getElementById('donatedSection').style.display = 'block';
         }

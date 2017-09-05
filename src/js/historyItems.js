@@ -2,46 +2,13 @@
 var historyItems = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-
-    function getSimpleDate(date) {
-        var d = new Date(date);
-        return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
-            d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-    }
-
-    function getHumanDate(date) {
-        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            d = new Date(date),
-            currentDate = d.getDate(),
-            currentMonth = d.getMonth(),
-            currentYear = d.getFullYear(),
-            currentHours = d.getHours(),
-            currentMinutes = d.getMinutes();
-
-        // var suffix;
-        // if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
-        //     suffix = 'st';
-        // } else if (currentDate === 2 || currentDate === 22) {
-        //     suffix = 'nd';
-        // } else if (currentDate === 3 || currentDate === 23) {
-        //     suffix = 'rd';
-        // } else {
-        //     suffix = 'th';
-        // }
-
-        var ampm = currentHours >= 12 ? 'pm' : 'am';
-        var hoursString = (currentHours % 12) || 12;
-        var minutesString = ('0' + currentMinutes).slice(-2);
-
-        return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
-    }
 
     function createSessionHtml(session) {
         session.windows = session.windows || [];
 
-        var sessionType = (session.sessionId === tgs.sessionId) ? 'current' : (session.name ? 'saved' : 'recent'),
+        var sessionType = (session.sessionId === gsSession.getSessionId()) ? 'current' : (session.name ? 'saved' : 'recent'),
             sessionContainer,
             sessionTitle,
             sessionSave,
@@ -57,7 +24,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         if (sessionType === 'saved') {
             titleText = session.name;
         } else {
-            titleText = getHumanDate(session.date);
+            titleText = gsUtils.getHumanDate(session.date);
         }
         titleText += '&nbsp;&nbsp;<small>(' +
             winCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_window'), winCnt) + ', ' +
@@ -165,7 +132,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         }
         if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
             favicon = 'chrome://favicon/size/16@2x/';
-            if (tgs.isSuspended(tab)) {
+            if (gsUtils.isSuspendedTab(tab)) {
                 favicon += gsUtils.getSuspendedUrl(tab.url);
             } else {
                 favicon += tab.url;

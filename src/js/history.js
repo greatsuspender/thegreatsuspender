@@ -2,7 +2,8 @@
 (function () {
     'use strict';
 
-    var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsSession = chrome.extension.getBackgroundPage().gsSession;
+    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     function reloadTabs(sessionId, windowId, suspendMode) {
@@ -10,7 +11,7 @@
         var windows = [],
             curUrl;
 
-        gsUtils.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionById(sessionId).then(function (session) {
 
             if (!session || !session.windows) {
                 return;
@@ -34,9 +35,9 @@
                         window.tabs.forEach(function (curTab) {
                             curUrl = curTab.url;
 
-                            if (suspendMode && !tgs.isSuspended(curTab) && !tgs.isSpecialTab(curTab)) {
+                            if (suspendMode && !gsUtils.isSuspendedTab(curTab) && !gsUtils.isSpecialTab(curTab)) {
                                 curUrl = gsUtils.generateSuspendedUrl(curTab.url, curTab.title);
-                            } else if (!suspendMode && tgs.isSuspended(curTab)) {
+                            } else if (!suspendMode && gsUtils.isSuspendedTab(curTab)) {
                                 curUrl = gsUtils.getSuspendedUrl(curTab.url);
                             }
                             chrome.tabs.create({
@@ -59,7 +60,7 @@
     }
 
     function validateNewSessionName(sessionName, callback) {
-        gsUtils.fetchSavedSessions().then(function (savedSessions) {
+        gsStorage.fetchSavedSessions().then(function (savedSessions) {
             var nameExists = savedSessions.some(function (savedSession, index) {
                 return savedSession.name === sessionName;
             });
@@ -76,13 +77,13 @@
 
     function saveSession(sessionId) {
 
-        gsUtils.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionById(sessionId).then(function (session) {
             var sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'));
             if (sessionName) {
                 validateNewSessionName(sessionName, function (shouldSave) {
                     if (shouldSave) {
                         session.name = sessionName;
-                        gsUtils.addToSavedSessions(session);
+                        gsStorage.addToSavedSessions(session);
                         window.location.reload();
                     }
                 });
@@ -94,7 +95,7 @@
 
         var result = window.confirm(chrome.i18n.getMessage('js_history_confirm_delete'));
         if (result) {
-            gsUtils.removeSessionFromHistory(sessionId, function () {
+            gsStorage.removeSessionFromHistory(sessionId, function () {
                 window.location.reload();
             });
         }
@@ -169,7 +170,7 @@
                         windows: windows,
                         date: (new Date()).toISOString()
                     };
-                    gsUtils.updateSession(session, function () {
+                    gsStorage.updateSession(session, function () {
                         window.location.reload();
                     });
                 }
@@ -181,7 +182,7 @@
         var content = 'data:text/plain;charset=utf-8,',
             dataString = '';
 
-        gsUtils.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionById(sessionId).then(function (session) {
 
             if (!session || !session.windows) {
                 return;
@@ -189,7 +190,7 @@
 
             session.windows.forEach(function (curWindow, index) {
                 curWindow.tabs.forEach(function (curTab, tabIndex) {
-                    if (tgs.isSuspended(curTab)) {
+                    if (gsUtils.isSuspendedTab(curTab)) {
                         dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
                     } else {
                         dataString += curTab.url + '\n';
@@ -212,13 +213,13 @@
         var sessionEl,
             newSessionEl;
 
-        gsUtils.removeTabFromSessionHistory(sessionId, windowId, tabId, function (session) {
+        gsStorage.removeTabFromSessionHistory(sessionId, windowId, tabId, function (session) {
             //if we have a valid session returned
             if (session) {
                 sessionEl = element.parentElement.parentElement;
                 newSessionEl = createSessionElement(session);
                 sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-                toggleSession(newSessionEl, session.sessionId)();
+                toggleSession(newSessionEl, session.sessionId);
 
                 //otherwise assume it was the last tab in session and session has been removed
             } else {
@@ -236,7 +237,7 @@
             return;
         }
 
-        gsUtils.fetchSessionById(sessionId).then(function (curSession) {
+        gsStorage.fetchSessionById(sessionId).then(function (curSession) {
 
             if (!curSession || !curSession.windows) {
                 return;
@@ -286,7 +287,7 @@
     }
 
     function createWindowElement(session, window, index) {
-        var allowReload = session.sessionId !== tgs.sessionId;
+        var allowReload = session.sessionId !== gsSession.getSessionId();
         var windowEl = historyItems.createWindowHtml(window, index, allowReload);
 
         addClickListenerToElement(windowEl.getElementsByClassName('resuspendLink')[0], function () {
@@ -299,7 +300,7 @@
     }
 
     function createTabElement(session, window, tab) {
-        var allowDelete = session.sessionId !== tgs.sessionId;
+        var allowDelete = session.sessionId !== gsSession.getSessionId();
         var tabEl = historyItems.createTabHtml(tab, allowDelete);
 
         addClickListenerToElement(tabEl.getElementsByClassName('removeLink')[0], function () {
@@ -321,7 +322,7 @@
         sessionsDiv.innerHTML = '';
         historyDiv.innerHTML = '';
 
-        gsUtils.fetchCurrentSessions().then(function (currentSessions) {
+        gsStorage.fetchCurrentSessions().then(function (currentSessions) {
 
             currentSessions.forEach(function (session, index) {
                 var sessionEl = createSessionElement(session);
@@ -334,7 +335,7 @@
             });
         });
 
-        gsUtils.fetchSavedSessions().then(function (savedSessions) {
+        gsStorage.fetchSavedSessions().then(function (savedSessions) {
             savedSessions.forEach(function (session, index) {
                 var sessionEl = createSessionElement(session);
                 historyDiv.appendChild(sessionEl);

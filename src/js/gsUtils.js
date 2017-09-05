@@ -1,226 +1,82 @@
-/*global chrome, localStorage, db, tgs */
+/*global chrome, localStorage, gsStorage, tgs */
 'use strict';
 
-var gsUtils = {
+var debug = false;
 
-    SCREEN_CAPTURE: 'screenCapture',
-    SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
-    ONLINE_CHECK: 'onlineCheck',
-    BATTERY_CHECK: 'batteryCheck',
-    UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
-    SUSPEND_TIME: 'gsTimeToSuspend',
-    IGNORE_PINNED: 'gsDontSuspendPinned',
-    IGNORE_FORMS: 'gsDontSuspendForms',
-    IGNORE_AUDIO: 'gsDontSuspendAudio',
-    IGNORE_CACHE: 'gsIgnoreCache',
-    ADD_CONTEXT: 'gsAddContextMenu',
-    SYNC_SETTINGS: 'gsSyncSettings',
-    NO_NAG: 'gsNoNag',
-    THEME: 'gsTheme',
-    WHITELIST: 'gsWhitelist',
-
-    APP_VERSION: 'gsVersion',
-    LAST_NOTICE: 'gsNotice',
-    HISTORY_OLD: 'gsHistory',
-    HISTORY: 'gsHistory2',
-    SESSION_HISTORY: 'gsSessionHistory',
-
-    DB_SERVER: 'tgs',
-    DB_VERSION: '2',
-    DB_PREVIEWS: 'gsPreviews',
-    DB_SUSPENDED_TABINFO: 'gsSuspendedTabInfo',
-    DB_CURRENT_SESSIONS: 'gsCurrentSessions',
-    DB_SAVED_SESSIONS: 'gsSavedSessions',
+var gsUtils = { // eslint-disable-line no-unused-vars
 
     noop: function () {},
 
-    getSettingsDefaults: function () {
-
-        var defaults = {};
-        defaults[this.SCREEN_CAPTURE] = '0';
-        defaults[this.SCREEN_CAPTURE_FORCE] = false;
-        defaults[this.ONLINE_CHECK] = false;
-        defaults[this.BATTERY_CHECK] = false;
-        defaults[this.UNSUSPEND_ON_FOCUS] = false;
-        defaults[this.IGNORE_PINNED] = true;
-        defaults[this.IGNORE_FORMS] = true;
-        defaults[this.IGNORE_AUDIO] = true;
-        defaults[this.IGNORE_CACHE] = false;
-        defaults[this.ADD_CONTEXT] = true;
-        defaults[this.SYNC_SETTINGS] = true;
-        defaults[this.SUSPEND_TIME] = '60';
-        defaults[this.NO_NAG] = false;
-        defaults[this.WHITELIST] = '';
-        defaults[this.THEME] = 'light';
-
-        return defaults;
+    contains: function (array, value) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] === value) return true;
+        }
+        return false;
     },
 
-    /**
-    * LOCAL STORAGE FUNCTIONS
-    */
+    getStack: function () {
+        return (new Error()).stack.split('\n').slice(3,4).join('\n').replace(/.*(chrome-extension[^)]*).*/, '$1');
+    },
+    log: function (text, ...args) {
+        if (debug) {
+            args = args || [];
+            console.log(text, ...args);
+        }
+    },
+    error: function (text, ...args) {
+        if (debug) {
+            args = args || [];
+            console.error(text, ...args);
+        }
+    },
+    dir: function (object) {
+        if (debug) {
+            console.dir(object);
+        }
+    },
 
-    //populate localstorage settings with sync settings where undefined
-    initSettings: function () {
-        var self = this;
-        var rawLocalSettings;
+    isDiscardedTab: function (tab) {
+        return tab.discarded;
+    },
+
+    //tests for non-standard web pages. does not check for suspended pages!
+    isSpecialTab: function (tab) {
+        var url = tab.url;
+
+        if ((url.indexOf('chrome-extension:') === 0 && url.indexOf('suspended.html') < 0) ||
+            url.indexOf('chrome:') === 0 ||
+            url.indexOf('chrome-devtools:') === 0 ||
+            url.indexOf('file:') === 0 ||
+            url.indexOf('chrome.google.com/webstore') >= 0) {
+            return true;
+        }
+        return false;
+    },
+
+    isPinnedTab: function (tab) {
+        var dontSuspendPinned = gsStorage.getOption(gsStorage.IGNORE_PINNED);
+        return dontSuspendPinned && tab.pinned;
+    },
+
+    isAudibleTab: function (tab) {
+        var dontSuspendAudible = gsStorage.getOption(gsStorage.IGNORE_AUDIO);
+        return dontSuspendAudible && tab.audible;
+    },
+
+    isSuspendedTab: function (tab) {
+        return tab.url.indexOf('suspended.html') > 0;
+    },
+
+    sendMessageToTab: function (tabId, message, callback) {
         try {
-            rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings'));
-        } catch(e) {
-            tgs.error('-> gsutils: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
-        }
-        rawLocalSettings = rawLocalSettings || {};
-
-        var defaultSettings = gsUtils.getSettingsDefaults();
-        var shouldSyncSettings = rawLocalSettings.hasOwnProperty(self.SYNC_SETTINGS)
-            ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
-        var allSettingKeys = Object.keys(defaultSettings);
-        chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
-            tgs.log('syncedSettings on init: ', syncedSettings);
-
-            // if synced setting exists and local setting does not exist or syncing is turned on
-            // then overwrite with synced value
-            var newSettings = {};
-            allSettingKeys.forEach(function (key) {
-                if (key !== self.SYNC_SETTINGS && syncedSettings.hasOwnProperty(key) &&
-                    (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)) {
-                    newSettings[key] = syncedSettings[key];
-                }
-                //make sure we have a value for this key
-                if (!newSettings.hasOwnProperty(key)) {
-                    newSettings[key] = rawLocalSettings.hasOwnProperty(key) ? rawLocalSettings[key] : defaultSettings[key];
-                }
-            });
-            self.saveSettings(newSettings);
-
-            // if any of the new settings are different to those in sync, then trigger a resync
-            var triggerResync = false;
-            allSettingKeys.forEach(function (key) {
-                if (key !== self.SYNC_SETTINGS && syncedSettings[key] !== newSettings[key]) {
-                    triggerResync = true;
-                }
-            });
-            if (triggerResync) {
-                self.syncSettings(newSettings);
-            }
-        });
-
-        // Listen for changes to synced settings
-        chrome.storage.onChanged.addListener(function (remoteSettings, namespace) {
-            if (namespace !== 'sync' || !remoteSettings) {
-                return;
-            }
-            var shouldSync = self.getOption(self.SYNC_SETTINGS);
-            if (shouldSync) {
-                var localSettings = self.getSettings();
-                var changedSettingKeys = [];
-                Object.keys(remoteSettings).forEach(function (key) {
-                    var remoteSetting = remoteSettings[key];
-                    if (localSettings[key] !== remoteSetting.newValue) {
-                        tgs.log('-> gsutils: Changed value from sync', key, remoteSetting.newValue);
-                        changedSettingKeys.push(key);
-                        localSettings[key] = remoteSetting.newValue;
-                    }
-                });
-
-                if (changedSettingKeys.length > 0) {
-                    self.saveSettings(localSettings);
-                    self.performPostSaveUpdates(changedSettingKeys);
-                }
-            }
-        });
-    },
-
-    //due to migration issues and new settings being added, i have built in some redundancy
-    //here so that getOption will always return a valid value.
-    getOption: function (prop) {
-        var settings = this.getSettings(),
-            defaults;
-
-        //test that option exists in settings object
-        if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
-            defaults = this.getSettingsDefaults();
-            this.setOption(prop, defaults[prop]);
-            return defaults[prop];
-
-        } else {
-            return settings[prop];
-        }
-    },
-
-    setOption: function (prop, value) {
-        var settings = this.getSettings();
-        settings[prop] = value;
-        // tgs.log('-> gsutils: setting prop: ' + prop + ' to value ' + value);
-        this.saveSettings(settings);
-    },
-
-    getSettings: function () {
-        var settings;
-        try {
-            settings = JSON.parse(localStorage.getItem('gsSettings'));
-        } catch(e) {
-            tgs.error('-> gsutils: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
-        }
-
-        if (!settings) {
-            settings = this.getSettingsDefaults();
-            this.saveSettings(settings);
-        }
-        return settings;
-    },
-
-    saveSettings: function (settings) {
-        try {
-            localStorage.setItem('gsSettings', JSON.stringify(settings));
+            chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
         } catch (e) {
-            tgs.error('-> gsutils: failed to save gsSettings to local storage', e);
-        }
-    },
-
-    // Push settings to sync
-    syncSettings: function () {
-        var settings = this.getSettings();
-        if (settings[this.SYNC_SETTINGS]) {
-            // Since sync is a local setting, delete it to simplify things.
-            delete settings[this.SYNC_SETTINGS];
-            // tgs.log('-> gsutils: Pushing local settings to sync', settings);
-            chrome.storage.sync.set(settings, this.noop);
-            if (chrome.runtime.lastError) {
-                tgs.error('-> gsutils: failed to save to chrome.storage.sync: ', chrome.runtime.lastError.message);
-            }
-        }
-    },
-
-    performPostSaveUpdates: function (changedSettingKeys) {
-
-        //if interval, or form input preferences have changed then reset the content scripts
-        var preferencesToUpdate = [];
-        if (this.contains(changedSettingKeys, gsUtils.SUSPEND_TIME)) {
-            preferencesToUpdate.push(gsUtils.SUSPEND_TIME);
-        }
-        if (this.contains(changedSettingKeys, gsUtils.IGNORE_FORMS)) {
-            preferencesToUpdate.push(gsUtils.IGNORE_FORMS);
-        }
-        if (preferencesToUpdate.length > 0) {
-            tgs.resetContentScripts(preferencesToUpdate);
-        }
-
-        //if context menu has been disabled then remove from chrome
-        if (this.contains(changedSettingKeys, gsUtils.ADD_CONTEXT)) {
-            var addContextMenu = gsUtils.getOption(gsUtils.ADD_CONTEXT);
-            tgs.buildContextMenu(addContextMenu);
-        }
-
-        //if theme or preview settings have changed then refresh all suspended pages
-        if (this.contains(changedSettingKeys, gsUtils.THEME) ||
-          this.contains(changedSettingKeys, gsUtils.SCREEN_CAPTURE)) {
-            tgs.resuspendAllSuspendedTabs();
+            chrome.tabs.sendMessage(tabId, message, callback);
         }
     },
 
     checkWhiteList: function (url) {
-        var whitelist = this.getOption(this.WHITELIST),
+        var whitelist = gsStorage.getOption(gsStorage.WHITELIST),
             whitelistItems = whitelist ? whitelist.split(/[\s\n]+/) : [],
             whitelisted;
 
@@ -231,7 +87,7 @@ var gsUtils = {
     },
 
     removeFromWhitelist: function (url) {
-        var whitelist = this.getOption(this.WHITELIST),
+        var whitelist = gsStorage.getOption(gsStorage.WHITELIST),
             whitelistItems = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
             i;
 
@@ -241,8 +97,8 @@ var gsUtils = {
             }
         }
         var whitelistString = whitelistItems.join('\n');
-        this.setOption(this.WHITELIST, whitelistString);
-        this.syncSettings({ [this.WHITELIST]: whitelistString });
+        gsStorage.setOption(gsStorage.WHITELIST, whitelistString);
+        gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelistString });
         this.updateOptionsView();
     },
 
@@ -251,10 +107,10 @@ var gsUtils = {
         if (whitelistItem.length < 1) {
             return false;
 
-        //test for regex ( must be of the form /foobar/ )
+            //test for regex ( must be of the form /foobar/ )
         } else if (whitelistItem.length > 2 &&
-                whitelistItem.indexOf('/') === 0 &&
-                whitelistItem.indexOf('/', whitelistItem.length - 1) !== -1) {
+            whitelistItem.indexOf('/') === 0 &&
+            whitelistItem.indexOf('/', whitelistItem.length - 1) !== -1) {
 
             whitelistItem = whitelistItem.substring(1, whitelistItem.length - 1);
             try {
@@ -264,18 +120,18 @@ var gsUtils = {
             }
             return new RegExp(whitelistItem).test(word);
 
-        // test as substring
+            // test as substring
         } else {
             return word.indexOf(whitelistItem) >= 0;
         }
     },
 
     saveToWhitelist: function (newString) {
-        var whitelist = this.getOption(this.WHITELIST);
+        var whitelist = gsStorage.getOption(gsStorage.WHITELIST);
         whitelist = whitelist ? whitelist + '\n' + newString : newString;
         whitelist = this.cleanupWhitelist(whitelist);
-        this.setOption(this.WHITELIST, whitelist);
-        this.syncSettings({ [this.WHITELIST]: whitelist });
+        gsStorage.setOption(gsStorage.WHITELIST, whitelist);
+        gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelist });
         this.updateOptionsView();
     },
 
@@ -304,427 +160,6 @@ var gsUtils = {
             }
         });
     },
-
-    fetchLastVersion: function () {
-        var version;
-        try {
-            version = JSON.parse(localStorage.getItem(this.APP_VERSION));
-        } catch(e) {
-            tgs.error('-> gsutils: Failed to parse ' + this.APP_VERSION + ': ', localStorage.getItem(this.APP_VERSION));
-        }
-        version = version || '0.0.0';
-        return version + '';
-    },
-
-    setLastVersion: function (newVersion) {
-        try {
-            localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
-        } catch (e) {
-            tgs.error('-> gsutils: failed to save ' + this.APP_VERSION + ' to local storage', e);
-        }
-    },
-
-    fetchNoticeVersion: function () {
-        var lastNoticeVersion;
-        try {
-            lastNoticeVersion = JSON.parse(localStorage.getItem(this.LAST_NOTICE));
-        } catch(e) {
-            tgs.error('-> gsutils: Failed to parse ' + this.LAST_NOTICE + ': ', localStorage.getItem(this.LAST_NOTICE));
-        }
-        lastNoticeVersion = lastNoticeVersion || '0.0.0';
-        return lastNoticeVersion + '';
-    },
-
-    setNoticeVersion: function (newVersion) {
-        try {
-            localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
-        } catch (e) {
-            tgs.error('-> gsutils: failed to save ' + this.LAST_NOTICE + ' to local storage', e);
-        }
-    },
-
-    /**
-    * INDEXEDDB FUNCTIONS
-    */
-
-    getDb: function () {
-        var self = this;
-        return db.open({
-            server: self.DB_SERVER,
-            version: self.DB_VERSION,
-            schema: self.getSchema
-        });
-    },
-
-    getSchema: function () {
-        return {
-            gsPreviews: {
-                key: {
-                    keyPath: 'id',
-                    autoIncrement: true
-                },
-                indexes: {
-                    id: {},
-                    url: {}
-                }
-            },
-            gsSuspendedTabInfo: {
-                key: {
-                    keyPath: 'id',
-                    autoIncrement: true
-                },
-                indexes: {
-                    id: {},
-                    url: {}
-                }
-            },
-            gsCurrentSessions: {
-                key: {
-                    keyPath: 'id',
-                    autoIncrement: true
-                },
-                indexes: {
-                    id: {},
-                    sessionId: {}
-                }
-            },
-            gsSavedSessions: {
-                key: {
-                    keyPath: 'id',
-                    autoIncrement: true
-                },
-                indexes: {
-                    id: {},
-                    sessionId: {}
-                }
-            }
-        };
-    },
-
-    fetchPreviewImage: function (tabUrl, callback) {
-        var self = this;
-        callback = typeof callback !== 'function' ? this.noop : callback;
-
-        this.getDb().then(function (s) {
-            return s.query(self.DB_PREVIEWS, 'url')
-                .only(tabUrl)
-                .execute();
-
-        }).then(function (results) {
-            if (results.length > 0) {
-                callback(results[0]);
-            } else {
-                callback(null);
-            }
-        });
-    },
-
-    addPreviewImage: function (tabUrl, previewUrl, callback) {
-        var self = this,
-            server;
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(self.DB_PREVIEWS, 'url')
-                .only(tabUrl)
-                .execute();
-
-        }).then(function (results) {
-            if (results.length > 0) {
-                return server.remove(self.DB_PREVIEWS, results[0].id);
-            } else {
-                return Promise.resolve();
-            }
-        }).then(function () {
-            server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
-            if (typeof callback === 'function') callback();
-        });
-    },
-
-    addSuspendedTabInfo: function (tabProperties, callback) {
-        var self = this,
-            server;
-
-        if (!tabProperties.url) {
-            tgs.log('-> gsutils: tabProperties.url not set.');
-            return;
-        }
-
-        //first check to see if tabProperties already exists
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(self.DB_SUSPENDED_TABINFO).filter('url', tabProperties.url).execute();
-
-        }).then(function (results) {
-            if (results.length > 0) {
-                return server.remove(self.DB_SUSPENDED_TABINFO, results[0].id);
-            } else {
-                return Promise.resolve();
-            }
-        }).then(function () {
-            server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function () {
-                if (typeof callback === 'function') callback();
-            });
-        });
-    },
-
-    fetchTabInfo: function (tabUrl) {
-        var self = this;
-        return this.getDb().then(function (s) {
-            return s.query(self.DB_SUSPENDED_TABINFO, 'url')
-                .only(tabUrl)
-                .distinct()
-                .desc()
-                .execute()
-                .then(function (results) {
-                    return results.length > 0 ? results[0] : null;
-                });
-        });
-    },
-
-    updateSession: function (session, callback) {
-
-        //if it's a saved session (prefixed with an underscore)
-        var server,
-            tableName = session.sessionId.indexOf('_') === 0
-                ? this.DB_SAVED_SESSIONS
-                : this.DB_CURRENT_SESSIONS;
-        callback = typeof callback !== 'function' ? this.noop : callback;
-
-        //first check to see if session id already exists
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(tableName).filter('sessionId', session.sessionId).execute();
-
-        }).then(function (result) {
-            if (result.length > 0) {
-                result = result[0];
-                session.id = result.id; //copy across id from matching session
-                session.date = (new Date()).toISOString();
-                return server.update(tableName, session); //then update based on that id
-            } else {
-                return server.add(tableName, session);
-            }
-        }).then(function (result) {
-            if (result.length > 0) {
-                callback(result[0]);
-            }
-        });
-    },
-
-    fetchCurrentSessions: function () {
-        var self = this;
-        return this.getDb().then(function (s) {
-            return s.query(self.DB_CURRENT_SESSIONS).all().desc().execute();
-        });
-    },
-
-    fetchSessionById: function (sessionId) {
-
-        //if it's a saved session (prefixed with an underscore)
-        var tableName = sessionId.indexOf('_') === 0
-            ? this.DB_SAVED_SESSIONS
-            : this.DB_CURRENT_SESSIONS;
-
-        return this.getDb().then(function (s) {
-            return s.query(tableName, 'sessionId')
-                .only(sessionId)
-                .distinct()
-                .desc()
-                .execute()
-                .then(function (results) {
-                    return results.length > 0 ? results[0] : null;
-                });
-        });
-    },
-
-    fetchLastSession: function () {
-        var self = this,
-            currentSessionId,
-            lastSession = null;
-
-        currentSessionId = typeof chrome.extension.getBackgroundPage !== 'undefined'
-            ? tgs.sessionId
-            : '';
-
-        return this.getDb().then(function (s) {
-            return s.query(self.DB_CURRENT_SESSIONS, 'id')
-                .all()
-                .desc()
-                .execute()
-                .then(function (results) {
-
-                    if (results.length > 0) {
-                        results.some(function (curSession) {
-
-                            //don't want to match on current session
-                            if (curSession.sessionId !== currentSessionId) {
-                                lastSession = curSession;
-                                return true;
-                            }
-                        });
-                        return lastSession;
-
-                    } else {
-                        return null;
-                    }
-                });
-        });
-    },
-
-    fetchSavedSessions: function () {
-        var self = this;
-        return this.getDb().then(function (s) {
-            return s.query(self.DB_SAVED_SESSIONS).all().execute();
-        });
-    },
-
-    addToSavedSessions: function (session) {
-
-        //if sessionId does not already have an underscore prefix then generate a new unique sessionId for this saved session
-        if (session.sessionId.indexOf('_') < 0) {
-            session.sessionId = '_' + this.generateHashCode(session.name);
-        }
-
-        //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
-        delete session.id;
-
-        this.updateSession(session);
-    },
-
-    clearGsSessions: function () {
-        var self = this;
-
-        this.getDb().then(function (s) {
-            s.clear(self.DB_CURRENT_SESSIONS);
-        });
-    },
-
-    removeTabFromSessionHistory: function (sessionId, windowId, tabId, callback) {
-
-        var self = this,
-            matched;
-
-        callback = typeof callback !== 'function' ? this.noop : callback;
-
-        this.fetchSessionById(sessionId).then(function (gsSession) {
-
-            gsSession.windows.some(function (curWindow, windowIndex) {
-                matched = curWindow.tabs.some(function (curTab, tabIndex) {
-                    //leave this as a loose matching as sometimes it is comparing strings. other times ints
-                    if (curTab.id == tabId || curTab.url == tabId) { // eslint-disable-line eqeqeq
-                        curWindow.tabs.splice(tabIndex, 1);
-                        return true;
-                    }
-                });
-                if (matched) {
-                    //remove window if it no longer contains any tabs
-                    if (curWindow.tabs.length === 0) {
-                        gsSession.windows.splice(windowIndex, 1);
-                    }
-                    return true;
-                }
-            });
-
-            //update session
-            if (gsSession.windows.length > 0) {
-                self.updateSession(gsSession, function (session) {
-                    callback(session);
-                });
-
-            //or remove session if it no longer contains any windows
-            } else {
-                self.removeSessionFromHistory(sessionId, function (session) {
-                    callback();
-                });
-            }
-        });
-    },
-
-    removeSessionFromHistory: function (sessionId, callback) {
-
-        var server,
-            session,
-            tableName = sessionId.indexOf('_') === 0
-                ? this.DB_SAVED_SESSIONS
-                : this.DB_CURRENT_SESSIONS;
-
-        callback = typeof callback !== 'function' ? this.noop : callback;
-
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(tableName).filter('sessionId', sessionId).execute();
-
-        }).then(function (result) {
-            if (result.length > 0) {
-                session = result[0];
-                server.remove(tableName, session.id);
-            }
-        }).then(callback);
-    },
-
-    trimDbItems: function () {
-        var self = this,
-            server,
-            maxTabItems = 1000,
-            maxHistories = 5,
-            itemsToRemove,
-            i;
-
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(self.DB_SUSPENDED_TABINFO, 'id')
-                .all()
-                .keys()
-                .execute();
-
-        //trim suspendedTabInfo
-        }).then(function (results) {
-
-            //if there are more than maxTabItems items, then remove the oldest ones
-            if (results.length > maxTabItems) {
-                itemsToRemove = results.length - maxTabItems;
-                for (i = 0; i < itemsToRemove; i++) {
-                    server.remove(self.DB_SUSPENDED_TABINFO, results[i]);
-                }
-            }
-
-            return server.query(self.DB_PREVIEWS, 'id')
-                .all()
-                .keys()
-                .execute();
-
-        //trim imagePreviews
-        }).then(function (results) {
-
-            //if there are more than maxTabItems items, then remove the oldest ones
-            if (results.length > maxTabItems) {
-                itemsToRemove = results.length - maxTabItems;
-                for (i = 0; i < itemsToRemove; i++) {
-                    server.remove(self.DB_PREVIEWS, results[i]);
-                }
-            }
-
-            return server.query(self.DB_CURRENT_SESSIONS, 'id')
-                .all()
-                .keys()
-                .execute();
-
-        //trim currentSessions
-        }).then(function (results) {
-
-            //if there are more than maxHistories items, then remove the oldest ones
-            if (results.length > maxHistories) {
-                itemsToRemove = results.length - maxHistories;
-                for (i = 0; i < itemsToRemove; i++) {
-                    server.remove(self.DB_CURRENT_SESSIONS, results[i]);
-                }
-            }
-        });
-    },
-
-    /**
-    * HELPER FUNCTIONS
-    */
 
     documentReadyAsPromsied: function (doc) {
         return new Promise(function (resolve, reject) {
@@ -757,11 +192,6 @@ var gsUtils = {
         return self.documentReadyAsPromsied(doc).then(function () {
             return self.localiseHtml(doc);
         });
-    },
-
-    //turn this into a string to make comparisons easier further down the track
-    generateSessionId: function () {
-        return Math.floor(Math.random() * 1000000) + '';
     },
 
     generateSuspendedUrl: function (url, title, scrollPos) {
@@ -828,13 +258,6 @@ var gsUtils = {
         return tabFound;
     },
 
-    contains: function (array, value) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i] === value) return true;
-        }
-        return false;
-    },
-
     htmlEncode: function (text) {
         return document.createElement('pre').appendChild(document.createTextNode(text)).parentNode.innerHTML;
     },
@@ -860,7 +283,7 @@ var gsUtils = {
 
         url = url || '';
         if (url.indexOf('suspended.html') > 0) {
-            url = gsUtils.getSuspendedUrl(url);
+            url = this.getSuspendedUrl(url);
         }
 
         // remove scheme
@@ -891,13 +314,60 @@ var gsUtils = {
         return rootUrlStr;
     },
 
+    performPostSaveUpdates: function (changedSettingKeys) {
+
+        //if interval, or form input preferences have changed then reset the content scripts
+        var preferencesToUpdate = [];
+        if (this.contains(changedSettingKeys, gsStorage.SUSPEND_TIME)) {
+            preferencesToUpdate.push(gsStorage.SUSPEND_TIME);
+        }
+        if (this.contains(changedSettingKeys, gsStorage.IGNORE_FORMS)) {
+            preferencesToUpdate.push(gsStorage.IGNORE_FORMS);
+        }
+        if (preferencesToUpdate.length > 0) {
+            this.resetContentScripts(preferencesToUpdate);
+        }
+
+        //if context menu has been disabled then remove from chrome
+        if (this.contains(changedSettingKeys, gsStorage.ADD_CONTEXT)) {
+            var addContextMenu = gsStorage.getOption(gsStorage.ADD_CONTEXT);
+            tgs.buildContextMenu(addContextMenu);
+        }
+
+        //if theme or preview settings have changed then refresh all suspended pages
+        if (this.contains(changedSettingKeys, gsStorage.THEME) ||
+            this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE)) {
+            tgs.resuspendAllSuspendedTabs();
+        }
+    },
+
+    resetContentScripts: function (preferencesToUpdate) {
+        var self = this;
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                self.resetContentScript(currentTab.id, preferencesToUpdate);
+            });
+        });
+    },
+
+    resetContentScript: function (tabId, preferencesToUpdate) {
+        var messageParams = {action: 'resetPreferences'};
+        if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
+            messageParams.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        }
+        if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
+            messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+        }
+        this.sendMessageToTab(tabId, messageParams);
+    },
+
     recoverLostTabs: function (callback) {
 
         var self = this;
 
         callback = typeof callback !== 'function' ? this.noop : callback;
 
-        this.fetchLastSession().then(function (lastSession) {
+        gsStorage.fetchLastSession().then(function (lastSession) {
             if (!lastSession) {
                 callback(null);
             }
@@ -908,7 +378,7 @@ var gsUtils = {
                 //attempt to automatically restore any lost tabs/windows in their proper positions
                 lastSession.windows.forEach(function (sessionWindow) {
                     if (!matchedCurrentWindowBySessionWindowId[sessionWindow.id]) {
-                        tgs.log('-> gsutils: Could not find match for sessionWindow: ', sessionWindow);
+                        gsUtils.log('-> gsStorage: Could not find match for sessionWindow: ', sessionWindow);
                         self.recoverWindow(sessionWindow);
                     } else {
                         self.recoverWindow(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
@@ -934,7 +404,7 @@ var gsUtils = {
                 //remove from unmatchedSessionWindows and unmatchedCurrentWindows
                 unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
                 unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
-                tgs.log('-> gsutils: Matched with ids: ', sessionWindow, matchingCurrentWindow);
+                gsUtils.log('-> gsStorage: Matched with ids: ', sessionWindow, matchingCurrentWindow);
             }
         });
 
@@ -956,7 +426,7 @@ var gsUtils = {
             var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
             unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
             unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
-            tgs.log('-> gsutils: Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
+            gsUtils.log('-> gsStorage: Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
 
             //remove from tabMatchingObjects
             tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });
@@ -972,11 +442,13 @@ var gsUtils = {
 
     generateTabMatchingObjects: function (sessionWindows, currentWindows) {
 
+        var self = this;
+
         var unsuspendedSessionUrlsByWindowId = {};
         sessionWindows.forEach(function (sessionWindow) {
             unsuspendedSessionUrlsByWindowId[sessionWindow.id] = [];
             sessionWindow.tabs.forEach(function (curTab) {
-                if (!tgs.isSpecialTab(curTab) && !tgs.isSuspended(curTab)) {
+                if (!self.isSpecialTab(curTab) && !self.isSuspendedTab(curTab)) {
                     unsuspendedSessionUrlsByWindowId[sessionWindow.id].push(curTab.url);
                 }
             });
@@ -985,7 +457,7 @@ var gsUtils = {
         currentWindows.forEach(function (currentWindow) {
             unsuspendedCurrentUrlsByWindowId[currentWindow.id] = [];
             currentWindow.tabs.forEach(function (curTab) {
-                if (!tgs.isSpecialTab(curTab) && !tgs.isSuspended(curTab)) {
+                if (!self.isSpecialTab(curTab) && !self.isSuspendedTab(curTab)) {
                     unsuspendedCurrentUrlsByWindowId[currentWindow.id].push(curTab.url);
                 }
             });
@@ -1010,7 +482,8 @@ var gsUtils = {
 
     recoverWindow: function (sessionWindow, currentWindow) {
 
-        var currentTabIds = [],
+        var self = this,
+            currentTabIds = [],
             currentTabUrls = [];
 
         //if we have been provided with a current window to recover into
@@ -1023,8 +496,8 @@ var gsUtils = {
             sessionWindow.tabs.forEach(function (sessionTab) {
 
                 //if current tab does not exist then recreate it
-                if (!tgs.isSpecialTab(sessionTab) &&
-                        !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
+                if (!self.isSpecialTab(sessionTab) &&
+                    !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
                     chrome.tabs.create({
                         windowId: currentWindow.id,
                         url: sessionTab.url,
@@ -1035,7 +508,7 @@ var gsUtils = {
                 }
             });
 
-        //else restore entire window
+            //else restore entire window
         } else if (sessionWindow.tabs.length > 0) {
 
             //create list of urls to open
@@ -1065,78 +538,39 @@ var gsUtils = {
             windows: windowsArray,
             date: (new Date()).toISOString()
         };
-        this.updateSession(session);
+        gsStorage.updateSession(session);
     },
 
-    /**
-    * MIGRATIONS
-    */
+    getSimpleDate: function (date) {
+        var d = new Date(date);
+        return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+            d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    },
 
-    performMigration: function (oldVersion) {
+    getHumanDate: function (date) {
+        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            d = new Date(date),
+            currentDate = d.getDate(),
+            currentMonth = d.getMonth(),
+            currentYear = d.getFullYear(),
+            currentHours = d.getHours(),
+            currentMinutes = d.getMinutes();
 
-        var self = this,
-            server;
+        // var suffix;
+        // if (currentDate === 1 || currentDate === 21 || currentDate === 31) {
+        //     suffix = 'st';
+        // } else if (currentDate === 2 || currentDate === 22) {
+        //     suffix = 'nd';
+        // } else if (currentDate === 3 || currentDate === 23) {
+        //     suffix = 'rd';
+        // } else {
+        //     suffix = 'th';
+        // }
 
-        var major = parseInt(oldVersion.split('.')[0] || 0),
-            minor = parseInt(oldVersion.split('.')[1] || 0);
-            // patch = parseInt(oldVersion.split('.')[2] || 0);
+        var ampm = currentHours >= 12 ? 'pm' : 'am';
+        var hoursString = (currentHours % 12) || 12;
+        var minutesString = ('0' + currentMinutes).slice(-2);
 
-        //perform migrated history fixup
-        if (major < 6 || (major === 6 && minor < 13)) { // if (oldVersion < 6.13)
-
-            //fix up migrated saved session and newly saved session sessionIds
-            this.getDb().then(function (s) {
-                server = s;
-                return s.query(self.DB_SAVED_SESSIONS).all().execute();
-
-            }).then(function (savedSessions) {
-                savedSessions.forEach(function (session, index) {
-                    if (session.id === 7777) {
-                        session.sessionId = '_7777';
-                        session.name = 'Recovered tabs';
-                        session.date = (new Date(session.date)).toISOString();
-                    } else {
-                        session.sessionId = '_' + self.generateHashCode(session.name);
-                    }
-                    server.update(self.DB_SAVED_SESSIONS, session);
-                });
-            });
-        }
-        if (major < 6 || (major === 6 && minor < 30)) { // if (oldVersion < 6.30)
-
-            if (this.getOption('preview')) {
-                if (this.getOption('previewQuality') === '0.1') {
-                    this.setOption(this.SCREEN_CAPTURE, '1');
-                } else {
-                    this.setOption(this.SCREEN_CAPTURE, '2');
-                }
-            } else {
-                this.setOption(this.SCREEN_CAPTURE, '0');
-            }
-        }
-        if (major < 6 || (major === 6 && minor < 31)) { // if (oldVersion < 6.31)
-            // When migrating old settings, disable sync by default.
-            // For new installs, we want this to default to on.
-            this.setOption(this.SYNC_SETTINGS, false);
-
-            chrome.cookies.getAll({}, function (cookies) {
-                var scrollPosByTabId = {};
-                cookies.forEach(function (cookie) {
-                    if (cookie.name.indexOf('gsScrollPos') === 0) {
-                        if (cookie.value && cookie.value !== '0') {
-                            var tabId = cookie.name.substr(12);
-                            scrollPosByTabId[tabId] = cookie.value;
-                        }
-                        var prefix = cookie.secure ? 'https://' : 'http://';
-                        if (cookie.domain.charAt(0) === '.') {
-                            prefix += 'www';
-                        }
-                        var url = prefix + cookie.domain + cookie.path;
-                        chrome.cookies.remove({ 'url': url, 'name': cookie.name });
-                    }
-                });
-                tgs.scrollPosByTabId = scrollPosByTabId;
-            });
-        }
-    }
+        return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
+    },
 };

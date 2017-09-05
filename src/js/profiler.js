@@ -32,7 +32,7 @@
 
                 tgs.requestTabInfo(curTab.id, function (suspendInfo) {
                     if (chrome.runtime.lastError) {
-                        tgs.error(chrome.runtime.lastError.message);
+                        gsUtils.error(chrome.runtime.lastError.message);
                     }
 
                     var html,

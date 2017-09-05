@@ -2,9 +2,10 @@
 (function () {
     'use strict';
 
-    var tgs = chrome.extension.getBackgroundPage().tgs,
-        gsUtils = chrome.extension.getBackgroundPage().gsUtils,
-        restoreAttempted = false;
+    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+
+    var restoreAttempted = false;
 
     function removeTabFromList(tab) {
 
@@ -45,7 +46,7 @@
         var recoveryEl = document.getElementById('recoveryTabs'),
             tabEl;
 
-        gsUtils.fetchLastSession().then(function (lastSession) {
+        gsStorage.fetchLastSession().then(function (lastSession) {
 
             if (!lastSession) {
                 hideRecoverySection();
@@ -56,7 +57,7 @@
 
                 window.tabs.forEach(function (tabProperties) {
 
-                    if (!tgs.isSpecialTab(tabProperties)) {
+                    if (!gsUtils.isSpecialTab(tabProperties)) {
                         tabProperties.windowId = window.id;
                         tabProperties.sessionId = lastSession.sessionId;
                         tabEl = historyItems.createTabHtml(tabProperties, false);
@@ -73,21 +74,13 @@
         });
     }
 
-    function sendMessageToTab(tabId, message, callback) {
-        try {
-            chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
-        } catch (e) {
-            chrome.tabs.sendMessage(tabId, message, callback);
-        }
-    }
-
     function checkForActiveTabs() {
 
         //hide tabs that respond to getInfo request
         chrome.windows.getAll({ populate: true }, function (windows) {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
-                    sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
+                    gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
                         removeTabFromList(curTab);
                     });
                 });
@@ -117,12 +110,12 @@
 
         if (previewsEl) {
             previewsEl.onclick = function (e) {
-                gsUtils.setOption(gsUtils.SCREEN_CAPTURE, '0');
+                gsStorage.setOption(gsStorage.SCREEN_CAPTURE, '0');
                 window.location.reload();
             };
 
             //show warning if screen capturing turned on
-            if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0') {
+            if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0') {
                 warningEl.style.display = 'block';
             }
         }

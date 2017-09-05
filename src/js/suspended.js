@@ -3,11 +3,12 @@
     'use strict';
 
     var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var url = gsUtils.getSuspendedUrl(window.location.href);
     var requestUnsuspendOnReload = false;
 
-    Promise.all([gsUtils.documentReadyAndLocalisedAsPromsied(document), gsUtils.fetchTabInfo(url)])
+    Promise.all([gsUtils.documentReadyAndLocalisedAsPromsied(document), gsStorage.fetchTabInfo(url)])
         .then(function ([domLoadedEvent, tabProperties]) {
             init(tabProperties);
         });
@@ -25,8 +26,8 @@
         var rootUrlStr = gsUtils.getRootUrl(url),
             fullUrlStr = gsUtils.getRootUrl(url, true),
             scrollPos = gsUtils.getSuspendedScrollPosition(window.location.href),
-            showPreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) !== '0',
-            scrollImagePreview = gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2';
+            showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0',
+            scrollImagePreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2';
 
         //set title
         document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
@@ -38,14 +39,14 @@
         });
 
         //set theme
-        if (gsUtils.getOption(gsUtils.THEME) === 'dark') {
+        if (gsStorage.getOption(gsStorage.THEME) === 'dark') {
             var body = document.querySelector('body');
             body.className += ' dark';
         }
 
         //set preview image
         if (showPreview) {
-            gsUtils.fetchPreviewImage(url, function (preview) {
+            gsStorage.fetchPreviewImage(url, function (preview) {
                 if (preview && preview.img && preview.img !== null && preview.img !== 'data:,') {
 
                     var previewEl = document.createElement('div');
@@ -64,7 +65,7 @@
                     previewEl.style.display = 'block';
 
                     //allow vertical scrollbar if we are using high quality previews
-                    if (gsUtils.getOption(gsUtils.SCREEN_CAPTURE) === '2') {
+                    if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2') {
                         document.body.style['overflow-x'] = 'auto';
                     }
                 } else {
@@ -135,7 +136,7 @@
         };
 
         //show dude and donate link (randomly 1 of 33 times)
-        if (!gsUtils.getOption(gsUtils.NO_NAG) && Math.random() > 0.97) {
+        if (!gsStorage.getOption(gsStorage.NO_NAG) && Math.random() > 0.97) {
             window.addEventListener('focus', displayPopup);
         }
 
@@ -188,7 +189,7 @@
         };
         chrome.runtime.sendMessage(payload, function (response) {
             if (chrome.runtime.lastError) {
-                tgs.error('-> Suspended tab: Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
+                gsUtils.error('-> Suspended tab: Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
                 unsuspendTab();
             }
         });
@@ -233,7 +234,7 @@
     }
 
     function hideNagForever() {
-        gsUtils.setOption(gsUtils.NO_NAG, true);
+        gsStorage.setOption(gsStorage.NO_NAG, true);
         tgs.resuspendAllSuspendedTabs();
         document.getElementById('dudePopup').style.display = 'none';
         document.getElementById('donateBubble').style.display = 'none';
