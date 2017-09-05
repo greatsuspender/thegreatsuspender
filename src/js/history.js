@@ -199,10 +199,10 @@
         var windowEl = sessionItems.createWindowHtml(window, index, allowReload);
 
         addClickListenerToElement(windowEl.getElementsByClassName('resuspendLink')[0], function () {
-            reloadTabs(null, window.id, true);
+            reloadTabs(session.sessionId, window.id, true);
         });
         addClickListenerToElement(windowEl.getElementsByClassName('reloadLink')[0], function () {
-            reloadTabs(null, window.id, false);
+            reloadTabs(session.sessionId, window.id, false);
         });
         return windowEl;
     }
