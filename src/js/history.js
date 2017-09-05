@@ -58,26 +58,33 @@
         });
     }
 
+    function validateNewSessionName(sessionName, callback) {
+        gsUtils.fetchSavedSessions().then(function (savedSessions) {
+            var nameExists = savedSessions.some(function (savedSession, index) {
+                return savedSession.name === sessionName;
+            });
+            if (nameExists) {
+                var overwrite = window.confirm(chrome.i18n.getMessage('js_sessionItems_confirm_session_overwrite'));
+                if (!overwrite) {
+                    callback(false);
+                    return;
+                }
+            }
+            callback(true);
+        });
+    }
+
     function saveSession(sessionId) {
 
         gsUtils.fetchSessionById(sessionId).then(function (session) {
-
             var sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'));
             if (sessionName) {
-
-                gsUtils.fetchSavedSessions().then(function (savedSessions) {
-                    var nameExists = savedSessions.some(function (savedSession, index) {
-                        return savedSession.name === sessionName;
-                    });
-                    if (nameExists) {
-                        var overwrite = window.confirm(chrome.i18n.getMessage('js_sessionItems_confirm_session_overwrite'));
-                        if (!overwrite) {
-                            return;
-                        }
+                validateNewSessionName(sessionName, function (shouldSave) {
+                    if (shouldSave) {
+                        session.name = sessionName;
+                        gsUtils.addToSavedSessions(session);
+                        window.location.reload();
                     }
-                    session.name = sessionName;
-                    gsUtils.addToSavedSessions(session);
-                    window.location.reload();
                 });
             }
         });
@@ -152,15 +159,22 @@
             windows.push(curWindow);
         }
 
-        var session = {
-            name: sessionName,
-            sessionId: sessionId,
-            windows: windows,
-            date: (new Date()).toISOString()
-        };
-        gsUtils.updateSession(session, function () {
-            window.location.reload();
-        });
+        sessionName = window.prompt(chrome.i18n.getMessage('js_sessionItems_enter_name_for_session'), sessionName);
+        if (sessionName) {
+            validateNewSessionName(sessionName, function (shouldSave) {
+                if (shouldSave) {
+                    var session = {
+                        name: sessionName,
+                        sessionId: sessionId,
+                        windows: windows,
+                        date: (new Date()).toISOString()
+                    };
+                    gsUtils.updateSession(session, function () {
+                        window.location.reload();
+                    });
+                }
+            });
+        }
     }
 
     function exportSession(sessionId) {
