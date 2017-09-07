@@ -845,7 +845,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             //reset tab timer if tab has just finished playing audio
             if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-                resetContentScript(tab.id, [gsStorage.SUSPEND_TIME]);
+                gsUtils.resetContentScript(tab.id, [gsStorage.SUSPEND_TIME]);
             }
             //if tab is currently visible then update popup icon
             if (tabId === globalCurrentTabId) {
