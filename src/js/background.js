@@ -597,7 +597,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //change the icon to either active or inactive
     function updateIcon(status) {
         var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
-        chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId });
+        chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId }, function () {
+            if (chrome.runtime.lastError) {
+                gsUtils.error(chrome.runtime.lastError.message);
+            }
+        });
     }
 
     //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
