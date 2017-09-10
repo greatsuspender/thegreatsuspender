@@ -2,12 +2,13 @@
 var gsSession = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var browserStartupDateTime;
+    var browserStartupTimestamp;
+    var lastExtensionLoadTimestamp = gsStorage.fetchLastExtensionLoadTimestamp();
     var sessionId;
 
     chrome.runtime.onStartup.addListener(function () {
-        // console.log('\n\n\nSTARTUP!!!!!\n\n\n');
-        browserStartupDateTime = Date.now();
+        browserStartupTimestamp = Date.now();
+        gsUtils.log('\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
     });
 
     function getSessionId() {
@@ -20,7 +21,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     }
 
     function runStartupChecks() {
-
         var lastVersion = gsStorage.fetchLastVersion(),
             curVersion = chrome.runtime.getManifest().version;
 
@@ -67,6 +67,8 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsStorage.trimDbItems();
         }
 
+        gsStorage.setLastExtensionLoadTimestamp(Date.now());
+
         //inject new content script into all open pages
         reinjectContentScripts();
 
@@ -82,6 +84,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     }
 
     function checkForCrashRecovery(isUpdating) {
+        gsUtils.log('\n\n\nCRASH RECOVERY CHECKS!!!!! ' + Date.now() + '\n\n\n');
 
         //try to detect whether the extension has crashed as separate to chrome crashing
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
@@ -94,18 +97,16 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             unsuspendedSessionTabs = [],
             currentlyOpenTabs = [];
 
-        //wait a bit to see if we get a browser startup event
 
+        var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
+        gsUtils.log('browserStartupTimestamp', browserStartupTimestamp);
+        gsUtils.log('isBrowserStarting', isBrowserStarting);
+        gsUtils.log('Checking for crash recovery');
 
-        // var isBrowserStarting = browserStartupDateTime && (Date.now() - browserStartupDateTime) < 5000;
-        // gsUtils.log('browserStartupDateTime', browserStartupDateTime);
-        // gsUtils.log('isBrowserStarting', isBrowserStarting);
-        // gsUtils.log('Checking for crash recovery');
-        //
-        // if (isBrowserStarting && !isUpdating) {
-        //     gsUtils.log('Aborting tab recovery. Browser is starting..');
-        //     return;
-        // }
+        if (isBrowserStarting && !isUpdating) {
+            gsUtils.log('Aborting tab recovery. Browser is starting..');
+            return;
+        }
 
         gsStorage.fetchLastSession().then(function (lastSession) {
 
@@ -141,10 +142,12 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 gsUtils.log('Tabs in current session: ', tabs);
                 gsUtils.log('Unsuspended session tabs: ', unsuspendedSessionTabs);
 
+                /* TODO: Find a way to identify a browser restart to distinguish it from a normal extension crash.
+                 * Unfortunately, we cant rely on chrome.runtime.onStartup as it may fire after this code
+                 * has already run. The code below is a fallback test for browser startup.
+                 */
                 //don't attempt recovery if there are less tabs in current session than there were
                 //unsuspended tabs in the last session
-                //TODO: this is not ideal. we really want to identify a browser restart to distinguish it from
-                //a normal extension crash
                 if (tabs.length < unsuspendedTabCount) {
                     gsUtils.log('Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
                             'tabs. Current session only contains ' + tabs.length);
@@ -187,10 +190,13 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     return;
                 }
 
-                //if we are doing an update, then automatically recover lost tabs
-                if (isUpdating) {
+                var hasCrashedRecently = lastExtensionLoadTimestamp && (Date.now() - lastExtensionLoadTimestamp) < (1000*60*5);
+
+                //if we are doing an update, or this is the first recent crash, then automatically recover lost tabs
+                if (isUpdating || !hasCrashedRecently) {
                     gsUtils.recoverLostTabs(null);
-                    //otherwise show the recovery page
+
+                //otherwise show the recovery page
                 } else {
                     chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
                 }
