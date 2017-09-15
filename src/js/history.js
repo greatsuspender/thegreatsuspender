@@ -184,7 +184,7 @@
     }
 
     function createSessionElement(session) {
-        var sessionEl = historyItems.createSessionHtml(session);
+        var sessionEl = historyItems.createSessionHtml(session, true);
 
         addClickListenerToElement(sessionEl.getElementsByClassName('sessionLink')[0], function () {
             toggleSession(sessionEl, session.sessionId);

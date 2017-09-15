@@ -5,7 +5,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
     var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    function createSessionHtml(session) {
+    function createSessionHtml(session, showLinks) {
         session.windows = session.windows || [];
 
         var sessionType = (session.sessionId === gsSession.getSessionId()) ? 'current' : (session.name ? 'saved' : 'recent'),
@@ -68,15 +68,17 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
             'class': 'sessionContainer',
         });
         sessionContainer.appendChild(sessionTitle);
-        if (sessionType !== 'current') {
+        if (showLinks && sessionType !== 'current') {
             sessionContainer.appendChild(windowResuspend);
             sessionContainer.appendChild(windowReload);
         }
-        sessionContainer.appendChild(sessionExport);
-        if (sessionType !== 'saved') {
+        if (showLinks) {
+            sessionContainer.appendChild(sessionExport);
+        }
+        if (showLinks && sessionType !== 'saved') {
             sessionContainer.appendChild(sessionSave);
         }
-        if (sessionType !== 'current') {
+        if (showLinks && sessionType !== 'current') {
             sessionContainer.appendChild(sessionDelete);
         }
         sessionContainer.appendChild(sessionDiv);
@@ -84,7 +86,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         return sessionContainer;
     }
 
-    function createWindowHtml(window, index, allowReload) {
+    function createWindowHtml(window, index, showLinks) {
 
         var groupHeading,
             windowContainer,
@@ -108,7 +110,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         }, chrome.i18n.getMessage('js_history_reload'));
 
         groupHeading.appendChild(windowContainer);
-        if (allowReload) {
+        if (showLinks) {
             groupHeading.appendChild(groupUnsuspendCurrent);
             groupHeading.appendChild(groupUnsuspendNew);
         }
@@ -116,7 +118,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         return groupHeading;
     }
 
-    function createTabHtml(tab, allowDelete) {
+    function createTabHtml(tab, showLinks) {
 
         var linksSpan,
             listImg,
@@ -169,7 +171,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
             'target': '_blank'
         }, tab.title);
 
-        if (allowDelete) {
+        if (showLinks) {
             linksSpan.appendChild(listHover);
         }
         linksSpan.appendChild(listImg);
