@@ -11,6 +11,53 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         gsUtils.log('\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
     });
 
+    //wishful thinking here that a synchronus iteration through tab views will enable them
+    //to unsuspend before the application closes
+    // chrome.runtime.setUninstallURL('', function () {
+    //     chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
+    //         view.location.reload();
+    //     });
+    // });
+
+    //handle special event where an extension update is available
+    chrome.runtime.onUpdateAvailable.addListener(function (details) {
+        prepareForUpdate(details);
+    });
+
+    function prepareForUpdate(newVersionDetails) {
+
+        var currentVersion = chrome.runtime.getManifest().version;
+        var newVersion = newVersionDetails.version;
+
+        gsUtils.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
+
+        var currentSession;
+        gsStorage.fetchSessionById(gsSession.getSessionId()).then(function (session) {
+            currentSession = session;
+            return gsStorage.fetchCurrentSessions();
+        }).then(function (sessions) {
+            if (!currentSession && sessions && sessions.length > 0) {
+                currentSession = sessions[0];
+            }
+            if (currentSession) {
+                currentSession.name = 'Automatic save point for v' + currentVersion;
+                gsStorage.addToSavedSessions(currentSession, function (savedSession) {
+                    sessionRestorePoint = savedSession;
+                });
+            }
+        }).then(function () {
+            if (gsUtils.getSuspendedTabCount() > 0) {
+                if (!gsUtils.isExtensionTabOpen('update')) {
+                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                }
+
+                // if there are no suspended tabs then simply install the update immediately
+            } else {
+                chrome.runtime.reload();
+            }
+        });
+    }
+
     function getSessionId() {
         if (!sessionId) {
             //turn this into a string to make comparisons easier further down the track

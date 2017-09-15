@@ -782,46 +782,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //interoperability with other extensions in the manner of an API
     chrome.runtime.onMessageExternal.addListener(messageRequestListener);
 
-    //wishful thinking here that a synchronus iteration through tab views will enable them
-    //to unsuspend before the application closes
-    chrome.runtime.setUninstallURL('', function () {
-        chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
-            view.location.reload();
-        });
-    });
-
-    //handle special event where an extension update is available
-    chrome.runtime.onUpdateAvailable.addListener(function (details) {
-        var currentVersion = chrome.runtime.getManifest().version;
-        var newVersion = details.version;
-
-        gsUtils.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
-
-        var currentSession;
-        gsStorage.fetchSessionById(gsSession.getSessionId()).then(function (session) {
-            currentSession = session;
-            return gsStorage.fetchCurrentSessions();
-        }).then(function (sessions) {
-            if (!currentSession && sessions && sessions.length > 0) {
-                currentSession = sessions[0];
-            }
-            if (currentSession) {
-                currentSession.name = 'Automatic save point for v' + currentVersion;
-                gsStorage.addToSavedSessions(currentSession);
-            }
-        }).then(function () {
-            if (gsUtils.getSuspendedTabCount() > 0) {
-                if (!gsUtils.isExtensionTabOpen('update')) {
-                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
-                }
-
-                // if there are no suspended tabs then simply install the update immediately
-            } else {
-                chrome.runtime.reload();
-            }
-        });
-    });
-
     chrome.windows.onFocusChanged.addListener(function (windowId) {
         handleWindowFocusChanged(windowId);
     });
