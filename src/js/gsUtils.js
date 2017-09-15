@@ -63,8 +63,16 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return dontSuspendAudible && tab.audible;
     },
 
-    isSuspendedTab: function (tab) {
-        return tab.url.indexOf('suspended.html') > 0;
+    isSuspendedTab: function (tab, strictMatching) {
+        return this.isSuspendedUrl(tab.url, strictMatching);
+    },
+
+    isSuspendedUrl: function (url, strictMatching) {
+        if (strictMatching) {
+            return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
+        } else {
+            return url.indexOf('suspended.html') > 0;
+        }
     },
 
     sendMessageToTab: function (tabId, message, callback) {
@@ -244,8 +252,9 @@ var gsUtils = { // eslint-disable-line no-unused-vars
 
     getSuspendedTabCount: function () {
         var suspendedTabCount = 0;
+        var self = this;
         chrome.extension.getViews({type: 'tab'}).forEach(function (window) {
-            if (window.location.href.indexOf('suspended.html') > 0) {
+            if (self.isSuspendedUrl(window.location.href, true)) {
                 suspendedTabCount++;
             }
         });
@@ -282,7 +291,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var rootUrlStr;
 
         url = url || '';
-        if (url.indexOf('suspended.html') > 0) {
+        if (this.isSuspendedUrl(url) > 0) {
             url = this.getSuspendedUrl(url);
         }
 

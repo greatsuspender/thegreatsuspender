@@ -303,7 +303,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function resuspendAllSuspendedTabs() {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                if (gsUtils.isSuspendedTab(currentTab)) {
+                if (gsUtils.isSuspendedTab(currentTab, true)) {
                     resuspendSuspendedTab(currentTab);
                 }
             });
@@ -421,7 +421,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     gsUtils.error(chrome.runtime.lastError.message);
                     return;
                 }
-                if (gsUtils.isSuspendedTab(tab)) {
+                if (gsUtils.isSuspendedTab(tab, true)) {
 
                     if (navigator.onLine) {
                         unsuspendTab(tab);
@@ -904,7 +904,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         var url = historyItem.url;
 
-        if (url.indexOf('suspended.html') >= 0) {
+        if (gsUtils.isSuspendedUrl(url, true)) {
             url = gsUtils.getSuspendedUrl(url);
 
             //remove suspended tab history item

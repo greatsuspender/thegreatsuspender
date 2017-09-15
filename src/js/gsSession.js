@@ -120,7 +120,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 sessionWindow.tabs.forEach(function (sessionTab) {
 
                     if (!gsUtils.isSpecialTab(sessionTab)) {
-                        if (!gsUtils.isSuspendedTab(sessionTab)) {
+                        if (!gsUtils.isSuspendedTab(sessionTab, true)) {
                             unsuspendedSessionTabs.push(sessionTab);
                             unsuspendedTabCount++;
                         } else {
@@ -165,7 +165,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     currentlyOpenTabs[curTab.id] = curTab;
 
                     //test if a suspended tab has crashed by sending a 'requestInfo' message
-                    if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab)) {
+                    if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
                         suspendedTabs.push(curTab);
                         gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
                             tabResponses[curTab.id] = true;
