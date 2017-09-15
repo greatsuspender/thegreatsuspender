@@ -349,12 +349,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             //if we failed to find the tab with the above method then try to reload the tab directly
             if (chrome.runtime.lastError) {
-                gsUtils.error('Error requesting unsuspendTab. Will reload directly.', chrome.runtime.lastError.message);
-                chrome.tabs.update(tab.id, {url: url}, function () {
-                    if (chrome.runtime.lastError) {
-                        gsUtils.error(chrome.runtime.lastError.message);
-                    }
-                });
+                gsUtils.error('Error requesting unsuspendTab.', chrome.runtime.lastError.message);
+                if (url) {
+                    gsUtils.log('Will reload directly.');
+                    chrome.tabs.update(tab.id, {url: url}, function () {
+                        if (chrome.runtime.lastError) {
+                            gsUtils.error(chrome.runtime.lastError.message);
+                        }
+                    });
+                }
             }
         });
     }
