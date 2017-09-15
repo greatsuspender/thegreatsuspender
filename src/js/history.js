@@ -151,6 +151,14 @@
 
     function toggleSession(element, sessionId) {
         var sessionContentsEl = element.getElementsByClassName('sessionContents')[0];
+        var sessionIcon = element.getElementsByClassName('sessionIcon')[0];
+        if (sessionIcon.classList.contains('fa-plus-square-o')) {
+            sessionIcon.classList.remove('fa-plus-square-o');
+            sessionIcon.classList.add('fa-minus-square-o');
+        } else {
+            sessionIcon.classList.remove('fa-minus-square-o');
+            sessionIcon.classList.add('fa-plus-square-o');
+        }
 
         //if toggled on already, then toggle off
         if (sessionContentsEl.childElementCount > 0) {
@@ -186,6 +194,9 @@
     function createSessionElement(session) {
         var sessionEl = historyItems.createSessionHtml(session, true);
 
+        addClickListenerToElement(sessionEl.getElementsByClassName('sessionIcon')[0], function () {
+            toggleSession(sessionEl, session.sessionId);
+        });
         addClickListenerToElement(sessionEl.getElementsByClassName('sessionLink')[0], function () {
             toggleSession(sessionEl, session.sessionId);
         });

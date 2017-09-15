@@ -218,7 +218,10 @@ ul.unorderedList li {
     font-size: 0.8em;
 }
 .hidden {
-	visibility: hidden;
+    visibility: hidden;
+}
+.reallyHidden {
+    display: none;
 }
 .mainContent {
     width: 900px;
@@ -262,8 +265,9 @@ ul.unorderedList li {
 }
 .sessionLink {
     cursor: pointer;
-    padding: 5px 0;
+    padding: 5px 0 0 0;
     display: inline-block;
+    vertical-align: bottom;
 }
 .sessionLink:hover {
 	text-decoration: underline;
@@ -301,6 +305,10 @@ a.historyLink:hover {
     padding-top: 18px;
     padding-bottom: 4px;
 }
+.sessionIcon {
+    cursor: pointer;
+    padding-right: 10px;
+}
 .sessionContents div:last-child{
     padding-bottom: 10px;
 }
@@ -315,6 +323,9 @@ a.historyLink:hover {
 .sessionContainer:hover .groupLink {
     visibility: visible;
 }
+.sessionContents {
+    margin-left: 20px;
+}
 .tabContainer .itemHover {
     visibility: hidden;
     margin: 0;
@@ -323,6 +334,9 @@ a.historyLink:hover {
 }
 .tabContainer:hover .itemHover {
     visibility: visible;
+}
+.tabContainer .removeLink {
+    margin-left: -15px;
 }
 #screenCaptureNotice {
     display: none;

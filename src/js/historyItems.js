@@ -15,6 +15,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
             sessionDelete,
             sessionExport,
             sessionDiv,
+            sessionIcon,
             windowResuspend,
             windowReload,
             titleText,
@@ -29,6 +30,10 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         titleText += '&nbsp;&nbsp;<small>(' +
             winCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_window'), winCnt) + ', ' +
             tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_tab'), tabCnt) + ')</small>';
+
+        sessionIcon = createEl('i', {
+            'class': 'sessionIcon fa fa-plus-square-o',
+        });
 
         sessionDiv = createEl('div', {
             'class': 'sessionContents',
@@ -67,6 +72,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         sessionContainer = createEl('div', {
             'class': 'sessionContainer',
         });
+        sessionContainer.appendChild(sessionIcon);
         sessionContainer.appendChild(sessionTitle);
         if (showLinks && sessionType !== 'current') {
             sessionContainer.appendChild(windowResuspend);
@@ -81,6 +87,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         if (showLinks && sessionType !== 'current') {
             sessionContainer.appendChild(sessionDelete);
         }
+
         sessionContainer.appendChild(sessionDiv);
 
         return sessionContainer;
