@@ -83,8 +83,9 @@
                 validateNewSessionName(sessionName, function (shouldSave) {
                     if (shouldSave) {
                         session.name = sessionName;
-                        gsStorage.addToSavedSessions(session);
-                        window.location.reload();
+                        gsStorage.addToSavedSessions(session, function () {
+                            window.location.reload();
+                        });
                     }
                 });
             }
@@ -120,93 +121,13 @@
     }
 
     function importSession(sessionName, textContents) {
-
-        var sessionId = '_' + gsUtils.generateHashCode(sessionName);
-        var windows = [];
-
-        var createNextWindow = function () {
-            return {
-                id: sessionId + '_' + windows.length,
-                tabs: [],
-            };
-        };
-        var curWindow = createNextWindow();
-
-        textContents.split('\n').forEach(function (line) {
-            if (typeof line !== 'string') {
-                return;
-            }
-            if (line === '') {
-                if (curWindow.tabs.length > 0) {
-                    windows.push(curWindow);
-                    curWindow = createNextWindow();
-                }
-                return;
-            }
-            if (line.indexOf('://') < 0) {
-                return;
-            }
-            curWindow.tabs.push({
-                windowId: curWindow.id,
-                sessionId: sessionId,
-                id: curWindow.id + '_' + curWindow.tabs.length,
-                url: line,
-                title: line,
-                index: curWindow.tabs.length,
-                pinned: false,
-            });
+        gsUtils.importSession(sessionName, textContents, function () {
+            window.location.reload();
         });
-        if (curWindow.tabs.length > 0) {
-            windows.push(curWindow);
-        }
-
-        sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'), sessionName);
-        if (sessionName) {
-            validateNewSessionName(sessionName, function (shouldSave) {
-                if (shouldSave) {
-                    var session = {
-                        name: sessionName,
-                        sessionId: sessionId,
-                        windows: windows,
-                        date: (new Date()).toISOString()
-                    };
-                    gsStorage.updateSession(session, function () {
-                        window.location.reload();
-                    });
-                }
-            });
-        }
     }
 
     function exportSession(sessionId) {
-        var content = 'data:text/plain;charset=utf-8,',
-            dataString = '';
-
-        gsStorage.fetchSessionById(sessionId).then(function (session) {
-
-            if (!session || !session.windows) {
-                return;
-            }
-
-            session.windows.forEach(function (curWindow, index) {
-                curWindow.tabs.forEach(function (curTab, tabIndex) {
-                    if (gsUtils.isSuspendedTab(curTab)) {
-                        dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
-                    } else {
-                        dataString += curTab.url + '\n';
-                    }
-                });
-                //add an extra newline to separate windows
-                dataString += '\n';
-            });
-            content += dataString;
-
-            var encodedUri = encodeURI(content);
-            var link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'session.txt');
-            link.click();
-        });
+        gsUtils.exportSession(sessionId);
     }
 
     function removeTab(element, sessionId, windowId, tabId) {

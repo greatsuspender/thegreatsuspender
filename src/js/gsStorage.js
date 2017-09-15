@@ -481,7 +481,8 @@ var gsStorage = {
         });
     },
 
-    addToSavedSessions: function (session) {
+    addToSavedSessions: function (session, callback) {
+        callback = typeof callback !== 'function' ? this.noop : callback;
 
         //if sessionId does not already have an underscore prefix then generate a new unique sessionId for this saved session
         if (session.sessionId.indexOf('_') < 0) {
@@ -491,7 +492,7 @@ var gsStorage = {
         //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
         delete session.id;
 
-        this.updateSession(session);
+        this.updateSession(session, callback);
     },
 
     clearGsSessions: function () {
