@@ -3,7 +3,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
     var browserStartupTimestamp;
-    var lastExtensionLoadTimestamp = gsStorage.fetchLastExtensionLoadTimestamp();
     var sessionId;
 
     chrome.runtime.onStartup.addListener(function () {
@@ -113,8 +112,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             //trim excess dbItems
             gsStorage.trimDbItems();
         }
-
-        gsStorage.setLastExtensionLoadTimestamp(Date.now());
 
         //inject new content script into all open pages
         reinjectContentScripts();
@@ -237,7 +234,9 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     return;
                 }
 
-                var hasCrashedRecently = lastExtensionLoadTimestamp && (Date.now() - lastExtensionLoadTimestamp) < (1000*60*5);
+                var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
+                var hasCrashedRecently = lastExtensionRecoveryTimestamp && (Date.now() - lastExtensionRecoveryTimestamp) < (1000*60*5);
+                gsStorage.setLastExtensionRecoveryTimestamp(Date.now());
 
                 //if we are doing an update, or this is the first recent crash, then automatically recover lost tabs
                 if (isUpdating || !hasCrashedRecently) {

@@ -21,7 +21,7 @@ var gsStorage = {
 
     APP_VERSION: 'gsVersion',
     LAST_NOTICE: 'gsNotice',
-    LAST_EXTENSION_LOAD: 'gsExtensionLoad',
+    LAST_EXTENSION_RECOVERY: 'gsExtensionRecovery',
     HISTORY_OLD: 'gsHistory',
     HISTORY: 'gsHistory2',
     SESSION_HISTORY: 'gsSessionHistory',
@@ -229,20 +229,20 @@ var gsStorage = {
         }
     },
 
-    fetchLastExtensionLoadTimestamp: function () {
-        var lastExtensionLoadTimestamp;
+    fetchLastExtensionRecoveryTimestamp: function () {
+        var lastExtensionRecoveryTimestamp;
         try {
-            lastExtensionLoadTimestamp = JSON.parse(localStorage.getItem(this.LAST_EXTENSION_LOAD));
+            lastExtensionRecoveryTimestamp = JSON.parse(localStorage.getItem(this.LAST_EXTENSION_RECOVERY));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse ' + this.LAST_EXTENSION_LOAD + ': ', localStorage.getItem(this.LAST_EXTENSION_LOAD));
+            gsUtils.error('-> gsStorage: Failed to parse ' + this.LAST_EXTENSION_RECOVERY + ': ', localStorage.getItem(this.LAST_EXTENSION_RECOVERY));
         }
-        return lastExtensionLoadTimestamp;
+        return lastExtensionRecoveryTimestamp;
     },
-    setLastExtensionLoadTimestamp: function (ExtensionLoadTimestamp) {
+    setLastExtensionRecoveryTimestamp: function (extensionRecoveryTimestamp) {
         try {
-            localStorage.setItem(this.LAST_EXTENSION_LOAD, JSON.stringify(ExtensionLoadTimestamp));
+            localStorage.setItem(this.LAST_EXTENSION_RECOVERY, JSON.stringify(extensionRecoveryTimestamp));
         } catch (e) {
-            gsUtils.error('-> gsStorage: failed to save ' + this.LAST_EXTENSION_LOAD + ' to local storage', e);
+            gsUtils.error('-> gsStorage: failed to save ' + this.LAST_EXTENSION_RECOVERY + ' to local storage', e);
         }
     },
 
