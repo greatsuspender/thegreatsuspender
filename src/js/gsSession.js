@@ -4,6 +4,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     var browserStartupTimestamp;
     var sessionId;
+    var sessionRestorePoint;
 
     chrome.runtime.onStartup.addListener(function () {
         browserStartupTimestamp = Date.now();
@@ -64,6 +65,10 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsUtils.log('sessionId: ', sessionId);
         }
         return sessionId;
+    }
+
+    function getSessionRestorePoint() {
+        return sessionRestorePoint;
     }
 
     function runStartupChecks() {
@@ -273,6 +278,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     return {
         runStartupChecks: runStartupChecks,
         getSessionId: getSessionId,
+        getSessionRestorePoint: getSessionRestorePoint,
     };
 }());
 
