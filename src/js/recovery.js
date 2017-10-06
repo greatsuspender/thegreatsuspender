@@ -105,6 +105,7 @@
         restoreEl.addEventListener('click', handleAutoRestore);
 
         manageEl.onclick = function (e) {
+            e.preventDefault();
             chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
         };
 
