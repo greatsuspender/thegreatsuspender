@@ -161,7 +161,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
     },
 
-    importSession: function (sessionName, textContents, callback) {
+    importSession: function (sessionName, textContents, window, callback) {
         callback = typeof callback !== 'function' ? this.noop : callback;
 
         var sessionId = '_' + gsUtils.generateHashCode(sessionName);
@@ -205,7 +205,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
 
         sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'), sessionName);
         if (sessionName) {
-            validateNewSessionName(sessionName, function (shouldSave) {
+            this.validateNewSessionName(sessionName, function (shouldSave) {
                 if (shouldSave) {
                     var session = {
                         name: sessionName,
