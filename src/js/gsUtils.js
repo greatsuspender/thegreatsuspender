@@ -475,20 +475,21 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                 callback(null);
             }
             chrome.windows.getAll({ populate: true }, function (currentWindows) {
-
+                var focusedWindow = currentWindows.find(currentWindow => currentWindow.focused);
                 var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
 
-                //attempt to automatically restore any lost tabs/windows in their proper positions
-                lastSession.windows.forEach(function (sessionWindow) {
-                    if (!matchedCurrentWindowBySessionWindowId[sessionWindow.id]) {
-                        gsUtils.log('-> gsStorage: Could not find match for sessionWindow: ', sessionWindow);
-                        self.recoverWindow(sessionWindow);
-                    } else {
-                        self.recoverWindow(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
+                var recoverWindows = async (callback) => {
+                    //attempt to automatically restore any lost tabs/windows in their proper positions
+                    for (var sessionWindow of lastSession.windows) {
+                        await self.recoverWindowAsPromise(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
                     }
-                });
-
-                callback();
+                    if (focusedWindow) {
+                        chrome.windows.update(focusedWindow.id, { focused: true }, callback);
+                    } else {
+                        callback();
+                    }
+                };
+                recoverWindows(callback);
             });
         });
     },
@@ -583,44 +584,49 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return tabMatchingObjects;
     },
 
-    recoverWindow: function (sessionWindow, currentWindow) {
+    recoverWindowAsPromise: function (sessionWindow, currentWindow) {
 
         var self = this,
             currentTabIds = [],
             currentTabUrls = [];
 
-        //if we have been provided with a current window to recover into
-        if (currentWindow) {
-            currentWindow.tabs.forEach(function (currentTab) {
-                currentTabIds.push(currentTab.id);
-                currentTabUrls.push(currentTab.url);
-            });
+        return new Promise((resolve, reject) => {
 
-            sessionWindow.tabs.forEach(function (sessionTab) {
+            //if we have been provided with a current window to recover into
+            if (currentWindow) {
+                currentWindow.tabs.forEach(function (currentTab) {
+                    currentTabIds.push(currentTab.id);
+                    currentTabUrls.push(currentTab.url);
+                });
 
-                //if current tab does not exist then recreate it
-                if (!self.isSpecialTab(sessionTab) &&
-                    !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
-                    chrome.tabs.create({
-                        windowId: currentWindow.id,
-                        url: sessionTab.url,
-                        index: sessionTab.index,
-                        pinned: sessionTab.pinned,
-                        active: false
-                    });
-                }
-            });
+                sessionWindow.tabs.forEach(function (sessionTab) {
+
+                    //if current tab does not exist then recreate it
+                    if (!self.isSpecialTab(sessionTab) &&
+                        !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
+                        chrome.tabs.create({
+                            windowId: currentWindow.id,
+                            url: sessionTab.url,
+                            index: sessionTab.index,
+                            pinned: sessionTab.pinned,
+                            active: false
+                        });
+                    }
+                });
+                resolve();
 
             //else restore entire window
-        } else if (sessionWindow.tabs.length > 0) {
+            } else if (sessionWindow.tabs.length > 0) {
+                gsUtils.log('-> gsStorage: Could not find match for sessionWindow: ', sessionWindow);
 
-            //create list of urls to open
-            var tabUrls = [];
-            sessionWindow.tabs.forEach(function (sessionTab) {
-                tabUrls.push(sessionTab.url);
-            });
-            chrome.windows.create({url: tabUrls, focused: false});
-        }
+                //create list of urls to open
+                var tabUrls = [];
+                sessionWindow.tabs.forEach(function (sessionTab) {
+                    tabUrls.push(sessionTab.url);
+                });
+                chrome.windows.create({url: tabUrls, focused: false}, resolve);
+            }
+        });
     },
 
     getWindowFromSession: function (windowId, session) {
