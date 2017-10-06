@@ -1,71 +1,73 @@
-/*global chrome */
+/*global chrome, historyItems */
 (function () {
     'use strict';
 
+    var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-    var tgs = chrome.extension.getBackgroundPage().tgs;
 
-    var unsuspending = false;
+    function toggleSession(sessionEl, session) {
+        var sessionContentsEl = sessionEl.getElementsByClassName('sessionContents')[0];
+        var sessionIcon = sessionEl.getElementsByClassName('sessionIcon')[0];
 
-    var updateSuspendedTabCount = function () {
-        var suspendedTabCount = gsUtils.getSuspendedTabCount();
-        if (suspendedTabCount > 0) {
-            document.getElementById('suspendedTabCount').innerHTML =
-                chrome.i18n.getMessage('js_update_suspended_count_prefix') + ' <strong>' + suspendedTabCount + '</strong> ' +
-                chrome.i18n.getMessage('js_update_suspended_count_suffix');
-            document.getElementById('unsuspendAllBtn').style = 'display: block';
-        } else {
-            document.getElementById('suspendedTabCount').innerHTML = chrome.i18n.getMessage('js_update_ready');
-            document.getElementById('unsuspendAllBtn').style = 'display: none';
+        //if toggled on already, then toggle off
+        if (sessionContentsEl.childElementCount > 0) {
+            sessionContentsEl.innerHTML = '';
+            sessionIcon.classList.remove('fa-minus-square-o');
+            sessionIcon.classList.add('fa-plus-square-o');
+            return;
         }
-        if (unsuspending) {
-            document.getElementById('unsuspendAllBtn').classList.add('btnDisabled');
-            document.getElementById('unsuspendAllBtn').innerHTML = "<i class='fa fa-spinner fa-spin '></i> " + chrome.i18n.getMessage('js_update_button_unsuspending_tabs');
-        } else {
-            document.getElementById('unsuspendAllBtn').classList.remove('btnDisabled');
-            document.getElementById('unsuspendAllBtn').innerHTML = chrome.i18n.getMessage('js_update_button_unsuspend');
+        if (!session || !session.windows) {
+            return;
         }
-        return suspendedTabCount;
-    };
+
+        sessionIcon.classList.remove('fa-plus-square-o');
+        sessionIcon.classList.add('fa-minus-square-o');
+        session.windows.forEach(function (curWindow, index) {
+            curWindow.sessionId = session.sessionId;
+            sessionContentsEl.appendChild(historyItems.createWindowHtml(curWindow, index, false));
+
+            curWindow.tabs.forEach(function (curTab) {
+                curTab.windowId = curWindow.id;
+                curTab.sessionId = session.sessionId;
+                sessionContentsEl.appendChild(historyItems.createTabHtml(curTab, false));
+            });
+        });
+    }
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
-        document.getElementById('unsuspendAllBtn').onclick = function (e) {
-            if (unsuspending) {
-                return;
-            }
-            unsuspending = true;
-            updateSuspendedTabCount();
-            tgs.unsuspendAllTabsInAllWindows();
-        };
+        Array.prototype.forEach.call(document.getElementsByClassName('sessionManagerLink'), function (el) {
+            el.onclick = function (e) {
+                e.preventDefault();
+                chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+            };
+        });
         document.getElementById('restartExtensionBtn').onclick = function (e) {
-            var newSuspendedTabCount = gsUtils.getSuspendedTabCount();
-            if (newSuspendedTabCount > 0) {
-                var result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
-                if (result) {
-                    chrome.runtime.reload();
-                }
-            } else {
+            var result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
+            if (result) {
                 chrome.runtime.reload();
             }
         };
-        updateSuspendedTabCount();
-    });
+        document.getElementById('exportBackupBtn').onclick = function (e) {
+            gsUtils.exportSession(sessionRestorePoint.sessionId);
+            document.getElementById('exportBackupBtn').style.display = 'none';
+            document.getElementById('restartExtensionBtn').onclick = function (e) {
+                chrome.runtime.reload();
+            };
+        };
 
-    //listen for background events
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        switch (request.action) {
-
-        case 'reportTabState':
-            if (request.status === 'suspended') {
-                unsuspending = false;
-                updateSuspendedTabCount();
-            }
-            return false;
-
-        case 'initTab':
-            updateSuspendedTabCount();
-            return false;
+        var sessionRestorePoint = gsSession.getSessionRestorePoint();
+        if (!sessionRestorePoint) {
+            gsUtils.log('Couldnt find session restore point. Something has gone horribly wrong!!');
+            document.getElementById('backupInfo').style.display = 'none';
+            document.getElementById('noBackupInfo').style.display = 'block';
+            document.getElementById('exportBackupBtn').style.display = 'none';
+        } else {
+            var sessionEl = historyItems.createSessionHtml(sessionRestorePoint, false);
+            document.getElementById('savedSession').appendChild(sessionEl);
+            sessionEl.onclick = function (e) {
+                toggleSession(sessionEl, sessionRestorePoint);
+            };
         }
     });
 }());

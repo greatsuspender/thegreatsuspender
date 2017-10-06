@@ -159,12 +159,11 @@
     "html_update_heading1_prefix": { "message": "Action required for" },
     "html_update_heading2": { "message": "Please read the important information below." },
     "html_update_info_line1": { "message": "A new version of The Great Suspender is ready to be installed." },
-    "html_update_info_line2_prefix": { "message": "Important" },
-    "html_update_info_line2": { "message": "If you have suspended tabs when The Great Suspender updates, those tabs will be closed." },
-    "html_update_info_line3": { "message": "To prevent tab loss, unsuspend all tabs before updating." },
-    "html_update_info_session_buddy_prefix": { "message": "You may also want to back up your tab session using an extension such as" },
-    "html_update_info_session_buddy_suffix": { "message": "" },
-    "html_update_info_session_buddy": { "message": "Session Buddy." },
+    "html_update_info_line2": { "message": "A backup of your current session has been created." },
+    "html_update_info_line3_prefix": { "message": "Important" },
+    "html_update_info_line3": { "message": "Please save a copy of this backup before proceeding with the update." },
+    "html_update_info_line2_alternate_prefix": { "message": "It is strongly recommended that you save a backup of your current session from " },
+    "html_update_info_line2_alternate_suffix": { "message": " before continuing with the update." },
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
@@ -233,13 +232,9 @@
     "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },
 
     // Update page (Javascript code)
-    "js_update_ready": { "message": "You have no suspended tabs. It is now safe to update the extension :)" },
-    "js_update_confirm": { "message": "Are you sure you want to update the extension now? To prevent tab loss, unsuspend all tabs before updating." },
-    "js_update_button_unsuspend": { "message": "Unsuspend all tabs" },
-    "js_update_button_unsuspending_tabs": { "message": "Unsuspending tabs" },
+    "js_update_confirm": { "message": "You have not save a backup yet. Update the extension anyway?" },
+    "js_update_button_export": { "message": "Save backup" },
     "js_update_button_reload": { "message": "Update extension now" },
-    "js_update_suspended_count_prefix": { "message": "You have" },
-    "js_update_suspended_count_suffix": { "message": "tabs currently suspended." },
 
     // Keyboard shortcuts page (Javascript code)
     "js_shortcuts_not_set": { "message": "(not set)" }

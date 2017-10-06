@@ -159,12 +159,11 @@
     "html_update_heading1_prefix": { "message": "需要採取的行動" }, //TODO: Used google translate
     "html_update_heading2": { "message": "請閱讀以下重要信息。" }, //TODO: Used google translate
     "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //TODO: Used google translate
-    "html_update_info_line2_prefix": { "message": "重要" }, //TODO: Used google translate
-    "html_update_info_line2": { "message": "如果您在The Great Suspender更新時有任何頁面被暫停，那麼這些頁面將被關閉。" }, //TODO: Used google translate
-    "html_update_info_line3": { "message": "为了防止页面丢失，请在更新之前重新加载所有页面。" }, //TODO: Used google translate
-    "html_update_info_session_buddy_prefix": { "message": "您可能還想使用擴展程序（如" }, //TODO: Used google translate
-    "html_update_info_session_buddy_suffix": { "message": "）備份您的選項卡會話" }, //TODO: Used google translate
-    "html_update_info_session_buddy": { "message": "Session Buddy" },
+    "html_update_info_line2": { "message": "您的当前会话的备份已创建。" }, //TODO: Used google translate
+    "html_update_info_line3_prefix": { "message": "重要" }, //TODO: Used google translate
+    "html_update_info_line3": { "message": "请在继续更新之前导出此备份的副本。" }, //TODO: Used google translate
+    "html_update_info_line2_alternate_prefix": { "message": "在继续更新之前，强烈建议您从 " }, //TODO: Used google translate
+    "html_update_info_line2_alternate_suffix": { "message": " 导出当前会话的备份。" }, //TODO: Used google translate
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //TODO: Used google translate
@@ -233,13 +232,9 @@
     "js_options_incognito_warning": { "message": "您處於隱身模式。當記錄關閉時，對無痕記錄內的設置進行的任何更改都將被重置" }, //TODO: Used google translate. Probably wrong!!!
 
     // Update page (Javascript code)
-    "js_update_ready": { "message": "你沒有暫停的頁面。現在可以安全地更新擴展 :)" }, //TODO: Used google translate. Probably wrong!!!
-    "js_update_confirm": { "message": "您確定要立即更新擴充功能嗎？為了防止頁面丟失，請在更新之前重新掛起所有頁面" }, //TODO: Used google translate. Probably wrong!!!
-    "js_update_button_unsuspend": { "message": "恢復所有分頁" },
-    "js_update_button_unsuspending_tabs": { "message": "恢復所有分頁" },
+    "js_update_confirm": { "message": "您尚未导出备份。 更新扩展？" }, //TODO: Used google translate. Probably wrong!!!
+    "js_update_button_export": { "message": "导出备份" }, //TODO: Used google translate
     "js_update_button_reload": { "message": "現在更新擴展" }, //TODO: Used google translate
-    "js_update_suspended_count_prefix": { "message": "您目前有" }, //TODO: Used google translate
-    "js_update_suspended_count_suffix": { "message": "頁凍結。" }, //TODO: Used google translate
 
     // Keyboard shortcuts page (Javascript code)
     "js_shortcuts_not_set": { "message": "沒有設置" } //TODO: Used google translate
