@@ -475,10 +475,10 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                 callback(null);
             }
             chrome.windows.getAll({ populate: true }, function (currentWindows) {
-                var focusedWindow = currentWindows.find(currentWindow => currentWindow.focused);
+                var focusedWindow = currentWindows.find(function (currentWindow) { return currentWindow.focused; });
                 var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
 
-                var recoverWindows = async (callback) => {
+                var recoverWindows = async function (callback) {
                     //attempt to automatically restore any lost tabs/windows in their proper positions
                     for (var sessionWindow of lastSession.windows) {
                         await self.recoverWindowAsPromise(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
@@ -590,7 +590,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             currentTabIds = [],
             currentTabUrls = [];
 
-        return new Promise((resolve, reject) => {
+        return new Promise(function (resolve, reject) {
 
             //if we have been provided with a current window to recover into
             if (currentWindow) {
