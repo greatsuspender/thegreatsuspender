@@ -5,15 +5,24 @@
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-    var url = gsUtils.getSuspendedUrl(window.location.href);
     var requestUnsuspendOnReload = false;
 
-    Promise.all([gsUtils.documentReadyAndLocalisedAsPromsied(document), gsStorage.fetchTabInfo(url)])
-        .then(function ([domLoadedEvent, tabProperties]) {
+    gsUtils.documentReadyAndLocalisedAsPromsied(document)
+        .then(function (domLoadedEvent) {
+            //try to set page title and favicon as early as possible
+            var url = gsUtils.getSuspendedUrl(window.location.href);
+            var title = gsUtils.getSuspendedTitle(window.location.href);
+            document.getElementById('gsTitle').innerHTML = title;
+            document.getElementById('gsFavicon').setAttribute('href', 'chrome://favicon/' + url);
+            return gsStorage.fetchTabInfo(url);
+        })
+        .then(function (tabProperties) {
             init(tabProperties);
         });
 
     function init(tabProperties) {
+
+        var url = gsUtils.getSuspendedUrl(window.location.href);
 
         //if we are missing some suspend information for this tab
         if (!tabProperties) {
@@ -29,8 +38,17 @@
             showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0',
             scrollImagePreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2';
 
-        //set title
-        document.getElementById('gsTitle').innerHTML = gsUtils.getSuspendedTitle(window.location.href);
+        var title = tabProperties ? tabProperties.title : '';
+        var placeholderTitle = chrome.i18n.getMessage('html_suspended_title');
+        if (!title || title === placeholderTitle) {
+            title = gsUtils.getSuspendedTitle(window.location.href);
+        }
+        if (!title || title === placeholderTitle) {
+            title = rootUrlStr;
+        } else if (title.indexOf('<') >= 0) {
+            // Encode any raw html tags that might be used in the title
+            title = gsUtils.htmlEncode(title);
+        }
 
         //set favicon
         var favicon = tabProperties.favicon;
@@ -78,8 +96,6 @@
         }
 
         //populate suspended tab bar
-        var title = tabProperties.title ? tabProperties.title : rootUrlStr;
-        title = title.indexOf('<') < 0 ? title : gsUtils.htmlEncode(title);
         document.getElementById('gsTitle').innerHTML = title;
         document.getElementById('gsTopBarTitle').innerHTML = title;
         document.getElementById('gsTopBarTitle').setAttribute('title', url);
