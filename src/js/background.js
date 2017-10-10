@@ -6,8 +6,6 @@
  * http://github.com/deanoemcke/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
-var _gaq = _gaq || []; // eslint-disable-line no-use-before-define
-
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
@@ -910,20 +908,19 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //start job to check for notices (once a day)
     window.setInterval(checkForNotices, 1000 * 60 * 60 * 24);
 
-    _gaq.push(['_setAccount', 'UA-52338347-1']);
-    _gaq.push(['_setCustomVar', 1, 'version', chrome.runtime.getManifest().version + '', 1]);
-    _gaq.push(['_setCustomVar', 2, 'screen_capture', gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '', 1]);
-    _gaq.push(['_setCustomVar', 3, 'suspend_time', gsStorage.getOption(gsStorage.SUSPEND_TIME) + '', 1]);
-    _gaq.push(['_setCustomVar', 4, 'no_nag', gsStorage.getOption(gsStorage.NO_NAG) + '', 1]);
-    //_gaq.push(['_setCustomVar', 5, 'migration', gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS) + "", 3]);
-    _gaq.push(['_trackPageview']);
-
-    var ga = document.createElement('script');
-    ga.type = 'text/javascript';
-    ga.async = true;
-    ga.src = 'https://ssl.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ga, s);
+    // Standard Google Universal Analytics code
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-52338347-1', 'auto');
+    ga('set', 'checkProtocolTask', function(){});
+    ga('require', 'displayfeatures');
+    ga('set', 'dimension1', chrome.runtime.getManifest().version + '', 1);
+    ga('set', 'dimension2', gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '', 1);
+    ga('set', 'dimension3', gsStorage.getOption(gsStorage.SUSPEND_TIME) + '', 1);
+    ga('set', 'dimension4', gsStorage.getOption(gsStorage.NO_NAG) + '', 1);
+    ga('send', 'pageview', '/background.js');
 
     return {
         init: init,

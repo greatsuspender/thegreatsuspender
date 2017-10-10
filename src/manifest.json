@@ -37,7 +37,7 @@
     "128": "img/icon128.png"
   },
   "web_accessible_resources": ["suspended.html"],
-  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
   "minimum_chrome_version": "49",
