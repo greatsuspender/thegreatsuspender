@@ -3,6 +3,7 @@
     'use strict';
 
     var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var requestUnsuspendOnReload = false;
@@ -261,7 +262,14 @@
         document.getElementById('donateBubble').onclick = hideNagForever;
 
         document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
+        document.getElementById('bitcoinBtn').onclick = function () {
+            gsAnalytics.reportEvent('Donations', 'Click', 'bitcoin');
+        };
+
         document.getElementById('paypalBtn').setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
+        document.getElementById('paypalBtn').onclick = function () {
+            gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
+        };
     }
 
     function displayPopup(e) {

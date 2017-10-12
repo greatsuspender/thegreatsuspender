@@ -16,7 +16,7 @@
     "cookies"
   ],
   "background": {
-    "scripts": ["js/db.js", "js/gsStorage.js", "js/background.js", "js/gsUtils.js", "js/gsSession.js"],
+    "scripts": ["js/db.js", "js/gsStorage.js", "js/background.js", "js/gsUtils.js", "js/gsSession.js", "js/gsAnalytics.js"],
     "persistent": true
   },
   "content_scripts": [

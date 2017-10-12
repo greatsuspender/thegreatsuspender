@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
@@ -290,4 +291,6 @@
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
         render();
     });
+
+    gsAnalytics.reportPageView('history.html');
 }());

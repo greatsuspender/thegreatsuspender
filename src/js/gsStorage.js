@@ -1,4 +1,4 @@
-/*global chrome, localStorage, db, tgs, gsUtils, gsSession */
+/*global chrome, localStorage, db, tgs, gsUtils, gsSession, gsAnalytics */
 'use strict';
 
 var gsStorage = {
@@ -174,6 +174,7 @@ var gsStorage = {
     saveSettings: function (settings) {
         try {
             localStorage.setItem('gsSettings', JSON.stringify(settings));
+            gsAnalytics.updateDimensions();
         } catch (e) {
             gsUtils.error('-> gsStorage: failed to save gsSettings to local storage', e);
         }

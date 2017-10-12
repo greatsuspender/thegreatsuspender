@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
@@ -20,9 +21,11 @@
 
         bitcoinBtn.onclick = function () {
             toggleNag(true);
+            gsAnalytics.reportEvent('Donations', 'Click', 'bitcoin');
         };
         paypalBtn.onclick = function () {
             toggleNag(true);
+            gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
         };
 
         document.getElementById('alreadyDonatedToggle').onclick = function () {
@@ -57,4 +60,6 @@
             });
         }
     });
+
+    gsAnalytics.reportPageView('about.html');
 }());

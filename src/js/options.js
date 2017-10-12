@@ -2,9 +2,9 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-    var tgs = chrome.extension.getBackgroundPage().tgs;
     var elementPrefMap = {
         'preview': gsStorage.SCREEN_CAPTURE,
         'forceScreenCapture': gsStorage.SCREEN_CAPTURE_FORCE,
@@ -188,4 +188,6 @@
             return false;
         }
     });
+
+    gsAnalytics.reportPageView('options.html');
 }());

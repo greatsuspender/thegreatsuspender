@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
@@ -27,4 +28,6 @@
             chrome.tabs.update({url: 'chrome://extensions/configureCommands'});
         };
     });
+
+    gsAnalytics.reportPageView('shortcuts.html');
 }());
