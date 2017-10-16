@@ -1,4 +1,4 @@
-/*global chrome, historyItems */
+/*global chrome, historyItems, historyUtils */
 (function () {
     'use strict';
 
@@ -49,7 +49,7 @@
             }
         };
         document.getElementById('exportBackupBtn').onclick = function (e) {
-            gsUtils.exportSession(sessionRestorePoint.sessionId);
+            historyUtils.exportSession(sessionRestorePoint.sessionId);
             document.getElementById('exportBackupBtn').style.display = 'none';
             document.getElementById('restartExtensionBtn').onclick = function (e) {
                 chrome.runtime.reload();

@@ -1,4 +1,4 @@
-/*global chrome, historyItems */
+/*global chrome, historyItems, historyUtils */
 (function () {
     'use strict';
 
@@ -60,39 +60,6 @@
         });
     }
 
-    function validateNewSessionName(sessionName, callback) {
-        gsStorage.fetchSavedSessions().then(function (savedSessions) {
-            var nameExists = savedSessions.some(function (savedSession, index) {
-                return savedSession.name === sessionName;
-            });
-            if (nameExists) {
-                var overwrite = window.confirm(chrome.i18n.getMessage('js_history_confirm_session_overwrite'));
-                if (!overwrite) {
-                    callback(false);
-                    return;
-                }
-            }
-            callback(true);
-        });
-    }
-
-    function saveSession(sessionId) {
-
-        gsStorage.fetchSessionById(sessionId).then(function (session) {
-            var sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'));
-            if (sessionName) {
-                validateNewSessionName(sessionName, function (shouldSave) {
-                    if (shouldSave) {
-                        session.name = sessionName;
-                        gsStorage.addToSavedSessions(session, function () {
-                            window.location.reload();
-                        });
-                    }
-                });
-            }
-        });
-    }
-
     function deleteSession(sessionId) {
 
         var result = window.confirm(chrome.i18n.getMessage('js_history_confirm_delete'));
@@ -101,34 +68,6 @@
                 window.location.reload();
             });
         }
-    }
-
-    function handleFileSelect(e) {
-        var f = e.target.files[0];
-        if (f) {
-            var r = new FileReader();
-            r.onload = function (e) {
-                var contents = e.target.result;
-                if (f.type !== 'text/plain') {
-                    alert(chrome.i18n.getMessage('js_history_import_fail'));
-                } else {
-                    importSession(f.name, contents);
-                }
-            };
-            r.readAsText(f);
-        } else {
-            alert(chrome.i18n.getMessage('js_history_import_fail'));
-        }
-    }
-
-    function importSession(sessionName, textContents) {
-        gsUtils.importSession(sessionName, textContents, function () {
-            window.location.reload();
-        });
-    }
-
-    function exportSession(sessionId) {
-        gsUtils.exportSession(sessionId);
     }
 
     function removeTab(element, sessionId, windowId, tabId) {
@@ -202,7 +141,7 @@
             toggleSession(sessionEl, session.sessionId);
         });
         addClickListenerToElement(sessionEl.getElementsByClassName('exportLink')[0], function () {
-            exportSession(session.sessionId);
+            historyUtils.exportSession(session.sessionId);
         });
         addClickListenerToElement(sessionEl.getElementsByClassName('resuspendLink')[0], function () {
             reloadTabs(session.sessionId, null, true);
@@ -211,7 +150,7 @@
             reloadTabs(session.sessionId, null, false);
         });
         addClickListenerToElement(sessionEl.getElementsByClassName('saveLink')[0], function () {
-            saveSession(session.sessionId);
+            historyUtils.saveSession(session.sessionId);
         });
         addClickListenerToElement(sessionEl.getElementsByClassName('deleteLink')[0], function () {
             deleteSession(session.sessionId);
@@ -275,7 +214,7 @@
             });
         });
 
-        importSessionActionEl.addEventListener('change', handleFileSelect, false);
+        importSessionActionEl.addEventListener('change', historyUtils.importSession, false);
         importSessionEl.onclick = function () {
             importSessionActionEl.click();
         };
