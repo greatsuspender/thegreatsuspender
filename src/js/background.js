@@ -800,6 +800,16 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         if (!changeInfo) return;
         gsUtils.log('tab updated. tabId: ', tabId, changeInfo);
 
+        //test for special case of a successful donation
+        if (changeInfo.url && changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
+            if (!gsStorage.getOption(gsStorage.NO_NAG)) {
+                gsStorage.setOption(gsStorage.NO_NAG, true);
+                // resuspendAllSuspendedTabs();
+            }
+            chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
+            return;
+        }
+
         //only save session if the tab url has changed
         if (changeInfo.url) {
             queueSessionTimer();

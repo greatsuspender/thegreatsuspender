@@ -178,6 +178,11 @@
     "html_welcome_get_started_linkname": { "message": "options" },
     "html_welcome_get_started_suffix": { "message": "page." },
 
+    // Thanks page
+    "html_thanks_title": { "message": "Thanks" },
+    "html_thanks_header": { "message": "Yay donations!" },
+    "html_thanks_sub_header": { "message": "Congratulations on being such a wonderful person." },
+
     // Donate sub-view for suspended.js and about.js (Javascript code)
     "js_donate_paypal": { "message": "Donate with Paypal" },
     "js_donate_bitcoin": { "message": "Donate with Bitcoin" },

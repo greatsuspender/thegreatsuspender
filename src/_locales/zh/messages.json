@@ -178,6 +178,11 @@
     "html_welcome_get_started_linkname": { "message": "頁面" },
     "html_welcome_get_started_suffix": { "message": "調整最適合的運作方式" },
 
+    // Thanks page
+    "html_thanks_title": { "message": "谢谢" }, //TODO: Used google translate
+    "html_thanks_header": { "message": "感谢您的捐赠！" }, //TODO: Used google translate
+    "html_thanks_sub_header": { "message": "C你是一个很棒的人！" }, //TODO: Used google translate
+
     // Donate sub-view for suspended.js and about.js (Javascript code)
     "js_donate_paypal": { "message": "透過 Paypal 捐款" },
     "js_donate_bitcoin": { "message": "透過 Bitcoin 捐款" },

@@ -20,11 +20,9 @@
         paypalBtn.setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
 
         bitcoinBtn.onclick = function () {
-            toggleNag(true);
             gsAnalytics.reportEvent('Donations', 'Click', 'bitcoin');
         };
         paypalBtn.onclick = function () {
-            toggleNag(true);
             gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
         };
 

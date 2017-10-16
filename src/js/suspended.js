@@ -250,16 +250,8 @@
         document.getElementById('whitelistOptionsModal').style.display = visible ? 'block' : 'none';
     }
 
-    function hideNagForever() {
-        gsStorage.setOption(gsStorage.NO_NAG, true);
-        tgs.resuspendAllSuspendedTabs();
-        document.getElementById('dudePopup').style.display = 'none';
-        document.getElementById('donateBubble').style.display = 'none';
-    }
-
     function loadDonateButtons() {
         document.getElementById('donateButtons').innerHTML = this.responseText;
-        document.getElementById('donateBubble').onclick = hideNagForever;
 
         document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
         document.getElementById('bitcoinBtn').onclick = function () {
@@ -275,6 +267,8 @@
     function displayPopup(e) {
 
         e.target.removeEventListener('focus', displayPopup);
+        //if user has donated since this page was first generated then dont display popup
+        if (gsStorage.getOption(gsStorage.NO_NAG)) { return; }
 
         //generate html for popupDude
         var popupEl = document.createElement('div');
