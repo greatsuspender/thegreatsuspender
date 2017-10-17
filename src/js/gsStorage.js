@@ -32,6 +32,8 @@ var gsStorage = {
     DB_SUSPENDED_TABINFO: 'gsSuspendedTabInfo',
     DB_CURRENT_SESSIONS: 'gsCurrentSessions',
     DB_SAVED_SESSIONS: 'gsSavedSessions',
+    DB_SESSION_PRE_UPGRADE_KEY: 'preUpgradeVersion',
+    DB_SESSION_POST_UPGRADE_KEY: 'postUpgradeVersion',
 
     server: null,
     noop: function () {},
@@ -452,15 +454,46 @@ var gsStorage = {
         });
     },
 
+    createSessionRestorePoint: function (currentVersion, newVersion) {
+        var currentSession;
+        var currentSessionId = gsSession.getSessionId();
+        return this.fetchSessionById(currentSessionId).then(function (session) {
+            currentSession = session;
+            return gsStorage.fetchCurrentSessions();
+        }).then(function (sessions) {
+            if (!currentSession && sessions && sessions.length > 0) {
+                currentSession = sessions[0];
+            }
+            if (currentSession) {
+                currentSession.name = 'Automatic save point for v' + currentVersion;
+                currentSession[gsStorage.DB_SESSION_PRE_UPGRADE_KEY] = currentVersion;
+                currentSession[gsStorage.DB_SESSION_POST_UPGRADE_KEY] = newVersion;
+                return gsStorage.addToSavedSessions(currentSession);
+            }
+        }).then(function () {
+            return currentSession;
+        });
+    },
+
+    fetchSessionRestorePoint: function (versionKey, versionValue) {
+        var tableName = this.DB_SAVED_SESSIONS;
+        return this.getDb().then(function (s) {
+            return s.query(tableName)
+                .filter(versionKey, versionValue)
+                .distinct()
+                .execute()
+                .then(function (results) {
+                    return results.length > 0 ? results[0] : null;
+                });
+        });
+    },
+
     fetchLastSession: function () {
         var self = this,
             currentSessionId,
             lastSession = null;
 
-        currentSessionId = typeof chrome.extension.getBackgroundPage !== 'undefined'
-            ? gsSession.getSessionId()
-            : '';
-
+        currentSessionId = gsSession.getSessionId();
         return this.getDb().then(function (s) {
             return s.query(self.DB_CURRENT_SESSIONS, 'id')
                 .all()

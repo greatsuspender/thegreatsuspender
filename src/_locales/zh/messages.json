@@ -134,8 +134,10 @@
     "html_success_great_success": { "message": "成功！" },
     "html_success_all_tabs_restored": { "message": "你的所有分頁已經恢復完成。" },
     "html_success_goto_advanced_prefix": { "message": "進階的記錄管理，請前往" },
-    "html_success_goto_advanced_link_name": { "message": "記錄管理頁面。" },
     "html_success_goto_advanced_suffix": { "message": "" },
+
+    // Session manager link
+    "html_session_manager": { "message": "記錄管理頁面。" },
 
     // Suspended page
     "html_suspended_title": { "message": "分頁已經被凍結" },

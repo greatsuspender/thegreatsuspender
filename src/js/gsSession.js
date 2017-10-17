@@ -4,7 +4,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     var browserStartupTimestamp;
     var sessionId;
-    var sessionRestorePoint;
 
     chrome.runtime.onStartup.addListener(function () {
         browserStartupTimestamp = Date.now();
@@ -31,31 +30,18 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
         gsUtils.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
 
-        var currentSession;
-        gsStorage.fetchSessionById(gsSession.getSessionId()).then(function (session) {
-            currentSession = session;
-            return gsStorage.fetchCurrentSessions();
-        }).then(function (sessions) {
-            if (!currentSession && sessions && sessions.length > 0) {
-                currentSession = sessions[0];
-            }
-            if (currentSession) {
-                currentSession.name = 'Automatic save point for v' + currentVersion;
-                gsStorage.addToSavedSessions(currentSession, function (savedSession) {
-                    sessionRestorePoint = savedSession;
-                });
-            }
-        }).then(function () {
-            if (gsUtils.getSuspendedTabCount() > 0) {
-                if (!gsUtils.isExtensionTabOpen('update')) {
-                    chrome.tabs.create({url: chrome.extension.getURL('update.html')});
-                }
-
+        gsStorage.createSessionRestorePoint(currentVersion, newVersion)
+            .then(function (session) {
+                if (!session || gsUtils.getSuspendedTabCount() > 0) {
+                    if (!gsUtils.isExtensionTabOpen('update')) {
+                        chrome.tabs.create({url: chrome.extension.getURL('update.html')});
+                    }
                 // if there are no suspended tabs then simply install the update immediately
-            } else {
-                chrome.runtime.reload();
-            }
-        });
+                } else {
+                    chrome.runtime.reload();
+                }
+            });
+
     }
 
     function getSessionId() {
@@ -65,10 +51,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsUtils.log('sessionId: ', sessionId);
         }
         return sessionId;
-    }
-
-    function getSessionRestorePoint() {
-        return sessionRestorePoint;
     }
 
     function runStartupChecks() {
@@ -85,26 +67,29 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 //show welcome screen
                 chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
-                //else if they are upgrading to a new version
+            //else if they are upgrading to a new version
             } else {
 
-                gsStorage.performMigration(lastVersion);
+                findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function (session) {
 
-                //clear context menu
-                tgs.buildContextMenu(false);
+                    gsStorage.performMigration(lastVersion);
 
-                //recover tabs silently
-                checkForCrashRecovery(true);
+                    //clear context menu
+                    tgs.buildContextMenu(false);
 
-                //close any 'update' and 'updated' tabs that may be open
-                chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
-                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
-                });
-                chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
-                    chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                    //recover tabs silently
+                    checkForCrashRecovery(true);
 
-                    //show updated screen
-                    chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                    //close any 'update' and 'updated' tabs that may be open
+                    chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
+                        chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                    });
+                    chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
+                        chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+
+                        //show updated screen
+                        chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                    });
                 });
             }
 
@@ -130,6 +115,17 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
         //initialise settings (important that this comes last. cant remember why?!?!)
         gsStorage.initSettings();
+    }
+
+    function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
+        return gsStorage.fetchSessionRestorePoint(gsStorage.DB_SESSION_POST_UPGRADE_KEY, curVersion)
+            .then(function (session) {
+                if (session) {
+                    return session;
+                } else {
+                    return gsStorage.createSessionRestorePoint(lastVersion, curVersion);
+                }
+            });
     }
 
     function checkForCrashRecovery(isUpdating) {
@@ -278,7 +274,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     return {
         runStartupChecks: runStartupChecks,
         getSessionId: getSessionId,
-        getSessionRestorePoint: getSessionRestorePoint,
     };
 }());
 

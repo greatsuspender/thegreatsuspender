@@ -1,7 +1,10 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet" href="css/font-awesome.min.css">
     <link type="text/css" href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/historyItems.js"></script>
+    <script type="text/javascript" src="js/historyUtils.js"></script>
     <script type="text/javascript" src="js/updated.js"></script>
     <title id="gsTitle" data-i18n="__MSG_ext_extension_name__ - __MSG_html_updated_title__"></title>
 
@@ -15,10 +18,24 @@
     </div>
 
     <h1 data-i18n="__MSG_html_updated_great_suspender_updated__"></h1>
-    <h2>
-        <span data-i18n="__MSG_html_updated_welcome__ "></span><span id="updatedVersion"></span>!</h2>
+    <h2></h2>
 
     <hr class="splashRule" />
+    <p>
+        <span data-i18n="__MSG_html_updated_welcome__ "></span><span id="updatedVersion"></span><span> of The Great Suspender!</span>
+    </p>
+    <div id="backupInfo" class="reallyHidden">
+        <p>
+            <!--<span data-i18n="__MSG_html_update_info_line2__"></span>-->
+            <!--<strong data-i18n="__MSG_html_update_info_line3_prefix__: "></strong><span data-i18n="__MSG_html_update_info_line3__"></span>-->
+            <span>An automatic backup was made of your tabs before the update. If you encountered any issues during the update</span>
+            <span>you can recover lost tabs from the <a class="sessionManagerLink" href="#" data-i18n="__MSG_html_session_manager__"></a> page.</span>
+            <!--<div id="savedSession">-->
+            <!--</div>-->
+        </p>
+    </div>
+    <p>
+    </p>
 
 </div>
 

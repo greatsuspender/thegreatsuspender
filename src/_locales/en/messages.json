@@ -134,8 +134,10 @@
     "html_success_great_success": { "message": "Great success!" },
     "html_success_all_tabs_restored": { "message": "All your tabs have been restored." },
     "html_success_goto_advanced_prefix": { "message": "For advanced session management, visit the" },
-    "html_success_goto_advanced_link_name": { "message": "session management" },
     "html_success_goto_advanced_suffix": { "message": "page" },
+
+    // Session manager link
+    "html_session_manager": { "message": "session management" },
 
     // Suspended page
     "html_suspended_title": { "message": "Suspended Tab" },

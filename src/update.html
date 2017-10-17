@@ -1,9 +1,8 @@
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="css/font-awesome.min.css">
     <link type="text/css" href="css/style.css" rel="stylesheet">
-    <script type="text/javascript" src="js/historyItems.js"></script>
+    <script type="text/javascript" src="js/historyUtils.js"></script>
     <script type="text/javascript" src="js/update.js"></script>
     <title id='gsTitle' data-i18n="__MSG_ext_extension_name__ - __MSG_html_update_title__"></title>
 
@@ -17,9 +16,10 @@
     </div>
 
     <h1>
-        <span data-i18n="__MSG_html_update_heading1_prefix__"></span>
-        <br />
         <span data-i18n="__MSG_ext_extension_name__"></span>
+        <br />
+        <span>is about to get greater</span>
+        <!--<span data-i18n="__MSG_html_update_heading1_prefix__"></span>-->
     </h1>
     <h2 data-i18n="__MSG_html_update_heading2__"></h2>
 
@@ -30,16 +30,12 @@
     </p>
     <div id="backupInfo">
         <p>
-            <span data-i18n="__MSG_html_update_info_line2__"></span>
-            <br />
-            <strong data-i18n="__MSG_html_update_info_line3_prefix__: "></strong><span data-i18n="__MSG_html_update_info_line3__"></span>
+            <span>Please save a backup of your current tab session before continuing.</span>
         </p>
-        <div id="savedSession">
-        </div>
     </div>
     <div id="noBackupInfo" class="reallyHidden">
         <p>
-            <span data-i18n="__MSG_html_update_info_line2_alternate_prefix__"></span><a class="sessionManagerLink" href="#" data-i18n="__MSG_html_success_goto_advanced_link_name__"></a><span data-i18n="__MSG_html_update_info_line2_alternate_suffix__"></span>
+            <span data-i18n="__MSG_html_update_info_line2_alternate_prefix__"></span><a class="sessionManagerLink" href="#" data-i18n="__MSG_html_session_manager__"></a><span data-i18n="__MSG_html_update_info_line2_alternate_suffix__"></span>
         </p>
     </div>
 
