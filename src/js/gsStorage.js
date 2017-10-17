@@ -33,6 +33,7 @@ var gsStorage = {
     DB_CURRENT_SESSIONS: 'gsCurrentSessions',
     DB_SAVED_SESSIONS: 'gsSavedSessions',
 
+    server: null,
     noop: function () {},
 
     getSettingsDefaults: function () {
@@ -253,16 +254,26 @@ var gsStorage = {
 
     getDb: function () {
         var self = this;
-        return db.open({
-            server: self.DB_SERVER,
-            version: self.DB_VERSION,
-            schema: self.getSchema
+        return new Promise(function (resolve, reject) {
+            if (self.server) {
+                resolve(self.server);
+            } else {
+                db.open({
+                    server: self.DB_SERVER,
+                    version: self.DB_VERSION,
+                    schema: self.getSchema
+                }).then(function (s) {
+                    self.server = s;
+                    resolve(s);
+                });
+            }
         });
     },
 
     getSchema: function () {
+        // NOTE: Called directly from db.js so 'this' cannot be relied upon
         return {
-            gsPreviews: {
+            [gsStorage.DB_PREVIEWS]: {
                 key: {
                     keyPath: 'id',
                     autoIncrement: true
@@ -272,7 +283,7 @@ var gsStorage = {
                     url: {}
                 }
             },
-            gsSuspendedTabInfo: {
+            [gsStorage.DB_SUSPENDED_TABINFO]: {
                 key: {
                     keyPath: 'id',
                     autoIncrement: true
@@ -282,7 +293,7 @@ var gsStorage = {
                     url: {}
                 }
             },
-            gsCurrentSessions: {
+            [gsStorage.DB_CURRENT_SESSIONS]: {
                 key: {
                     keyPath: 'id',
                     autoIncrement: true
@@ -292,7 +303,7 @@ var gsStorage = {
                     sessionId: {}
                 }
             },
-            gsSavedSessions: {
+            [gsStorage.DB_SAVED_SESSIONS]: {
                 key: {
                     keyPath: 'id',
                     autoIncrement: true
