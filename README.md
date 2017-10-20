@@ -16,9 +16,7 @@ If you have suggestions or problems using the extension, please [submit a bug or
 
 The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
 
-Please note that the webstore version has automatic updates *disabled* so you will need to uninstall/reinstall if you want to update after a new webstore version is pushed. For information on the safe way to update see [this guide](https://github.com/deanoemcke/thegreatsuspender/issues/526).
-
-For information on why this is the situation please read [this issue thread](https://github.com/deanoemcke/thegreatsuspender/issues/322).
+Please note that the webstore version may be significantly behind the latest version here. That is because I try to keep webstore updates down to a minimum due to their [disruptive effect](https://github.com/deanoemcke/thegreatsuspender/issues/526).
 
 For more information on the permissions required for the extension, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/213)
 
