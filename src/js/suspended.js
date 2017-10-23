@@ -2,24 +2,38 @@
 (function () {
     'use strict';
 
-    var tgs = chrome.extension.getBackgroundPage().tgs;
     var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var requestUnsuspendOnReload = false;
 
-    gsUtils.documentReadyAndLocalisedAsPromsied(document)
+    documentReadyAsPromsied()
+        .then(function () {
+            preInit();
+            return gsUtils.documentReadyAndLocalisedAsPromsied(document);
+        })
         .then(function (domLoadedEvent) {
-            //try to set page title and favicon as early as possible
             var url = gsUtils.getSuspendedUrl(window.location.href);
-            var title = gsUtils.getSuspendedTitle(window.location.href);
-            document.getElementById('gsTitle').innerHTML = title;
-            document.getElementById('gsFavicon').setAttribute('href', 'chrome://favicon/' + url);
             return gsStorage.fetchTabInfo(url);
         })
         .then(function (tabProperties) {
             init(tabProperties);
         });
+
+    //try to set page title and favicon as early as possible (in case background tools are unavailable)
+    function preInit() {
+        var href = window.location.href;
+        var titleRegex = /ttl=([^&]*)/;
+        var urlRegex = /uri=(.*)/;
+        var preTitle = href.match(titleRegex) ? href.match(titleRegex)[1] : null;
+        var preUrl = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
+        if (preTitle) {
+            document.getElementById('gsTitle').innerHTML = decodeURIComponent(preTitle);
+        }
+        if (preUrl) {
+            document.getElementById('gsFavicon').setAttribute('href', 'chrome://favicon/' + decodeURIComponent(preUrl));
+        }
+    }
 
     function init(tabProperties) {
 
@@ -283,6 +297,18 @@
 
         document.getElementById('dudePopup').setAttribute('class', 'poppedup');
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+    }
+
+    function documentReadyAsPromsied() {
+        return new Promise(function (resolve, reject) {
+            if (document.readyState !== 'loading') {
+                resolve();
+            } else {
+                document.addEventListener('DOMContentLoaded', function () {
+                    resolve();
+                });
+            }
+        });
     }
 
     //listen for background events
