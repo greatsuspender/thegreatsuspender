@@ -413,14 +413,20 @@ a.historyLink:hover {
 .suspendedMsg, .gsPreview {
     cursor: pointer;
 }
-.suspendedMsg h1, .suspendedMsg h2 {
-    font-size: 60px;
+.suspendedMsg h1, .suspendedMsg h2, .suspendedMsg h3 {
     color: #134960;
     margin: 30px 0 0;
     font-weight: 300;
 }
+.suspendedMsg h1 {
+    font-size: 60px;
+}
 .suspendedMsg h2 {
     font-size: 40px;
+}
+.suspendedMsg h3 {
+    font-size: 20px;
+    font-style: italic;
 }
 @media all and (max-width: 600px) {
     .suspendedMsg h1 {

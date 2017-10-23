@@ -3,7 +3,7 @@
     "ext_extension_name": { "message": "The Great Suspender" },
     "ext_extension_description": { "message": "凍結暫時用不到的分頁，達到系統資源釋放。" },
     "ext_default_title": { "message": "The Great Suspender" },
-    "ext_cmd_suspend_tab_description": { "message": "凍結目前的分頁" },
+    "ext_cmd_suspend_tab_description": { "message": "冻结/恢复当前页面" },
     "ext_cmd_unsuspend_tab_description": { "message": "恢復目前的分頁" },
     "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" },
     "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" },
@@ -144,7 +144,8 @@
     "html_suspended_tab_suspended": { "message": "分頁已經被凍結" },
     "html_suspended_tab_reload": { "message": "重新載入" }, //TODO: Used google translate. important!!1
     "html_suspended_tab_whitelist": { "message": "添加到例外列表" }, //TODO: Used google translate. important!!1
-    "html_suspended_click_to_reload": { "message": "刷新或點擊此處重新加載" }, //TODO: Used google translate. important!!1
+    "html_suspended_click_to_reload": { "message": "点击这里重新载入" }, //TODO: Used google translate. important!!1
+    "html_suspended_hotkey_to_reload": { "message": "鍵盤快速鍵: " }, //TODO: Used google translate. important!!1
     "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //TODO: Used google translate. important!!1
     "html_suspended_toast_reload_disabled": { "message": "禁用自動重新加載。" }, //TODO: Used google translate. important!!1
     "html_suspended_modal_header": { "message": "你想要什麼白名單?" }, //TODO: Used google translate. important!!1

@@ -140,6 +140,26 @@
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
         document.getElementById('gsTopBarImg').setAttribute('src', favicon);
 
+        //update hotkey
+        chrome.commands.getAll(function (commands) {
+            var hotkeyEl = document.getElementById('hotkeyCommand');
+            if (!hotkeyEl) { return; }
+            var toggleCommand = commands.find(function (command) {
+                return (command.name === '1-suspend-tab');
+            });
+            if (hotkeyEl && toggleCommand && toggleCommand.shortcut !== '') {
+                hotkeyEl.innerHTML = toggleCommand.shortcut;
+            }
+            else {
+                var shortcutNotSetEl = document.createElement('a');
+                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
+                hotkeyEl.appendChild(shortcutNotSetEl);
+                hotkeyEl.onclick = function () {
+                    chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
+                };
+            }
+        });
+
         //update whitelist text
         var isWhitelisted = gsUtils.checkWhiteList(url);
         if (isWhitelisted) {

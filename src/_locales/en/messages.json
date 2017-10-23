@@ -3,7 +3,7 @@
     "ext_extension_name": { "message": "The Great Suspender" },
     "ext_extension_description": { "message": "Automatically suspends unused tabs to free up system resources" },
     "ext_default_title": { "message": "The Great Suspender" },
-    "ext_cmd_suspend_tab_description": { "message": "Suspend active tab" },
+    "ext_cmd_suspend_tab_description": { "message": "Suspend/Unsuspend active tab" },
     "ext_cmd_unsuspend_tab_description": { "message": "Unsuspend active tab" },
     "ext_cmd_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },
@@ -144,7 +144,8 @@
     "html_suspended_tab_suspended": { "message": "Tab suspended" },
     "html_suspended_tab_reload": { "message": "Reload tab" },
     "html_suspended_tab_whitelist": { "message": "Whitelist site" },
-    "html_suspended_click_to_reload": { "message": "Refresh or click to reload" },
+    "html_suspended_click_to_reload": { "message": "Click to reload" },
+    "html_suspended_hotkey_to_reload": { "message": "keyboard shortcut: " },
     "html_suspended_toast_not_connected": { "message": "You are not connected to the internet" },
     "html_suspended_toast_reload_disabled": { "message": "Automatic tab reloading is temporarily disabled." },
     "html_suspended_modal_header": { "message": "What would you like to whitelist?" },
@@ -244,5 +245,5 @@
     "js_update_button_reload": { "message": "Update extension now" },
 
     // Keyboard shortcuts page (Javascript code)
-    "js_shortcuts_not_set": { "message": "(not set)" }
+    "js_shortcuts_not_set": { "message": "not set" }
 }

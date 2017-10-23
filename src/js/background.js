@@ -150,6 +150,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 callback(tabs[0]);
             }
             else {
+                //TODO: Possibly fallback on globalCurrentTabId here?
+                //see https://github.com/deanoemcke/thegreatsuspender/issues/574
                 callback(null);
             }
         });
@@ -211,6 +213,18 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             chrome.tabs.create(newTabProperties, function (tab) {
                 backgroundTabCreateTimestampByTabId[tab.id] = Date.now();
             });
+        });
+    }
+
+    function toggleSuspendedStateOfHighlightedTab() {
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                if (gsUtils.isSuspendedTab(activeTab)) {
+                    unsuspendTab(activeTab);
+                } else {
+                    requestTabSuspension(activeTab, 1);
+                }
+            }
         });
     }
 
@@ -684,7 +698,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     chrome.commands.onCommand.addListener(function (command) {
         if (command === '1-suspend-tab') {
-            suspendHighlightedTab();
+            toggleSuspendedStateOfHighlightedTab();
 
         } else if (command === '2-unsuspend-tab') {
             unsuspendHighlightedTab();
