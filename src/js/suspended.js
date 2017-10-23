@@ -2,37 +2,60 @@
 (function () {
     'use strict';
 
-    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-    var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var gsUtils;
+    var gsAnalytics;
+    var gsStorage;
     var requestUnsuspendOnReload = false;
 
-    documentReadyAsPromsied()
+    backgroundPageReadyAsPromsied()
         .then(function () {
-            preInit();
-            return gsUtils.documentReadyAndLocalisedAsPromsied(document);
+            gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+            gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+            gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+
+            gsUtils.documentReadyAndLocalisedAsPromsied(document)
+                .then(function (domLoadedEvent) {
+                    var url = gsUtils.getSuspendedUrl(window.location.href);
+                    return gsStorage.fetchTabInfo(url);
+                })
+                .then(function (tabProperties) {
+                    init(tabProperties);
+                });
         })
-        .then(function (domLoadedEvent) {
-            var url = gsUtils.getSuspendedUrl(window.location.href);
-            return gsStorage.fetchTabInfo(url);
-        })
-        .then(function (tabProperties) {
-            init(tabProperties);
+        .catch(function (err) {
+            console.error(err);
+            documentReadyAsPromsied().then(fallbackInit);
         });
 
-    //try to set page title and favicon as early as possible (in case background tools are unavailable)
-    function preInit() {
+    function fallbackInit() {
         var href = window.location.href;
         var titleRegex = /ttl=([^&]*)/;
         var urlRegex = /uri=(.*)/;
         var preTitle = href.match(titleRegex) ? href.match(titleRegex)[1] : null;
         var preUrl = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
         if (preTitle) {
+            preTitle = decodeURIComponent(preTitle);
             document.getElementById('gsTitle').innerHTML = decodeURIComponent(preTitle);
+            document.getElementById('gsTopBarTitle').innerHTML = preTitle;
+            document.getElementById('gsTopBarTitle').setAttribute('title', preTitle);
         }
         if (preUrl) {
-            document.getElementById('gsFavicon').setAttribute('href', 'chrome://favicon/' + decodeURIComponent(preUrl));
+            preUrl = decodeURIComponent(preUrl);
+            var faviconUrl = 'chrome://favicon/' + preUrl;
+            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
+            document.getElementById('gsTopBarImg').setAttribute('src', faviconUrl);
+            document.getElementById('gsTopBarTitle').setAttribute('href', preUrl);
+            document.getElementById('suspendedMsg').onclick = function () {
+                window.location.replace(preUrl);
+            };
+            document.getElementById('gsReloadLink').onclick = function () {
+                window.location.replace(preUrl);
+            };
         }
+        document.getElementById('suspendedMsg').getElementsByTagName('h1')[0].innerHTML = 'Tab suspended';
+        document.getElementById('suspendedMsg').getElementsByTagName('h2')[0].innerHTML = 'Refresh or click to reload';
+        document.getElementById('gsReloadLink').innerHTML = 'Reload tab';
+        document.getElementById('gsReloadLink').nextElementSibling.innerHTML = '';
     }
 
     function init(tabProperties) {
@@ -297,6 +320,25 @@
 
         document.getElementById('dudePopup').setAttribute('class', 'poppedup');
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+    }
+
+    function backgroundPageReadyAsPromsied() {
+        return new Promise(function (resolve, reject) {
+            if (chrome.extension.getBackgroundPage()) {
+                resolve();
+            }
+            else {
+                console.log('Background page not ready. Waiting 500ms..');
+                window.setTimeout(function () {
+                    if (chrome.extension.getBackgroundPage()) {
+                        resolve();
+                    }
+                    else {
+                        reject(new Error('Background page could not be initialised!'));
+                    }
+                }, 500);
+            }
+        });
     }
 
     function documentReadyAsPromsied() {
