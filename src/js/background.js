@@ -24,9 +24,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function init() {
 
         //initialise globalCurrentTabId
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                globalCurrentTabId = globalCurrentTabId || tabs[0].id;
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                globalCurrentTabId = globalCurrentTabId || activeTab.id;
             }
         });
     }
@@ -144,39 +144,50 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
-    function whitelistHighlightedTab() {
+    function getCurrentlyActiveTab(callback) {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             if (tabs.length > 0) {
-                var rootUrlStr = gsUtils.getRootUrl(tabs[0].url);
+                callback(tabs[0]);
+            }
+            else {
+                callback(null);
+            }
+        });
+    }
+
+    function whitelistHighlightedTab() {
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                var rootUrlStr = gsUtils.getRootUrl(activeTab.url);
                 gsUtils.saveToWhitelist(rootUrlStr);
-                if (gsUtils.isSuspendedTab(tabs[0])) {
-                    unsuspendTab(tabs[0]);
+                if (gsUtils.isSuspendedTab(activeTab)) {
+                    unsuspendTab(activeTab);
                 }
             }
         });
     }
 
     function unwhitelistHighlightedTab() {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                gsUtils.removeFromWhitelist(tabs[0].url);
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                gsUtils.removeFromWhitelist(activeTab.url);
             }
         });
     }
 
     function temporarilyWhitelistHighlightedTab() {
 
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                gsUtils.sendMessageToTab(tabs[0].id, {action: 'tempWhitelist'});
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                gsUtils.sendMessageToTab(activeTab.id, {action: 'tempWhitelist'});
             }
         });
     }
 
     function undoTemporarilyWhitelistHighlightedTab() {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                gsUtils.sendMessageToTab(tabs[0].id, {action: 'undoTempWhitelist'});
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                gsUtils.sendMessageToTab(activeTab.id, {action: 'undoTempWhitelist'});
             }
         });
     }
@@ -204,22 +215,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function suspendHighlightedTab() {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0) {
-                requestTabSuspension(tabs[0], 1);
-            // fallback on globalCurrentTabId. optimistic fix for #574
-            } else {
-                chrome.tabs.get(globalCurrentTabId, function (tab) {
-                    requestTabSuspension(tab, 1);
-                });
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab) {
+                requestTabSuspension(activeTab, 1);
             }
         });
     }
 
     function unsuspendHighlightedTab() {
-        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            if (tabs.length > 0 && gsUtils.isSuspendedTab(tabs[0])) {
-                unsuspendTab(tabs[0]);
+        getCurrentlyActiveTab(function (activeTab) {
+            if (activeTab && gsUtils.isSuspendedTab(activeTab)) {
+                unsuspendTab(activeTab);
             }
         });
     }
