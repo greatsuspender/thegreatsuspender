@@ -62,11 +62,7 @@
     }
 
     function suspendTab(suspendedUrl) {
-        if (suspendedUrl.indexOf('suspended.html') > 0) {
-            window.location.replace(suspendedUrl);
-        } else {
-            window.location.href = suspendedUrl;
-        }
+        window.location.replace(suspendedUrl);
     }
 
     function handlePreviewSuccess(suspendedUrl, dataUrl, timer) {
