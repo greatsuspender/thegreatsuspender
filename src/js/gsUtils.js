@@ -14,9 +14,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return false;
     },
 
-    getStack: function () {
-        return (new Error()).stack.split('\n').slice(3,4).join('\n').replace(/.*(chrome-extension[^)]*).*/, '$1');
-    },
     log: function (text, ...args) {
         if (debug) {
             args = args || [];
@@ -76,6 +73,13 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     sendMessageToTab: function (tabId, message, callback) {
+        if (!callback) {
+            callback = function () {
+                if (chrome.runtime.lastError) {
+                    gsUtils.error(chrome.runtime.lastError.message);
+                }
+            };
+        }
         try {
             chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
         } catch (e) {

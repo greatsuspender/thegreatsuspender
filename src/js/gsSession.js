@@ -213,7 +213,12 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
                         suspendedTabs.push(curTab);
                         gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
-                            tabResponses[curTab.id] = true;
+                            if (chrome.runtime.lastError) {
+                                gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
+                            }
+                            else {
+                                tabResponses[curTab.id] = true;
+                            }
                         });
                     }
                 });
@@ -261,7 +266,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
                         if (chrome.runtime.lastError) {
-                            gsUtils.error(chrome.runtime.lastError.message);
+                            gsUtils.log('Could not reinject contentscript.js into tab: ' + tabId);
                         } else {
                             gsUtils.sendMessageToTab(tabId, {action: 'resetPreferences', suspendTime: timeout});
                         }

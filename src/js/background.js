@@ -463,7 +463,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
-        gsUtils.sendMessageToTab(tabId, {action: 'cancelTimer'});
+        gsUtils.sendMessageToTab(tabId, {action: 'cancelTimer'}, function () {
+            if (chrome.runtime.lastError) {
+                gsUtils.log('Could not cancel timer on tab. Assuming this is because tab is suspended.');
+            }
+        });
     }
 
     function checkForNotices() {

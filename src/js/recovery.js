@@ -81,7 +81,12 @@
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
                     gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
-                        removeTabFromList(curTab);
+                        if (chrome.runtime.lastError) {
+                            gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
+                        }
+                        else {
+                            removeTabFromList(curTab);
+                        }
                     });
                 });
             });
