@@ -59,48 +59,54 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     //ask the tab to suspend itself
-    function confirmTabSuspension(tab, tabInfo) {
+    function requestTabSuspension(tab, tabInfo) {
 
         var scrollPos = tabInfo.scrollPos || '0';
+        var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos);
+        var handleSuspensionError = function () {
+            if (chrome.runtime.lastError) {
+                gsUtils.error(chrome.runtime.lastError.message);
+                chrome.tabs.update(tab.id, {url: suspendedUrl});
+                return true;
+            } else {
+                return false;
+            }
+        };
         saveSuspendData(tab, function () {
 
             //clear any outstanding tab requests
             delete unsuspendOnReloadByTabId[tab.id];
             delete temporaryWhitelistOnReloadByTabId[tab.id];
 
-            //if we need to save a preview image
             var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-            if (screenCaptureMode !== '0') {
-                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
+            if (screenCaptureMode === '0') {
+                gsUtils.sendMessageToTab(tab.id, {
+                    action: 'confirmTabSuspend',
+                    suspendedUrl: suspendedUrl,
+                }, handleSuspensionError);
 
-                    if (chrome.runtime.lastError) {
-                        gsUtils.error(chrome.runtime.lastError.message);
-                        return;
-                    }
+            //if we need to save a preview image
+            } else {
+                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
+                    if (handleSuspensionError()) { return; }
 
                     var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
                     chrome.tabs.getZoom(tab.id, function (zoomFactor) {
                         if (!forceScreenCapture && zoomFactor !== 1) {
                             gsUtils.sendMessageToTab(tab.id, {
                                 action: 'confirmTabSuspend',
-                                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos)
-                            });
+                                suspendedUrl: suspendedUrl,
+                            }, handleSuspensionError);
 
                         } else {
                             gsUtils.sendMessageToTab(tab.id, {
                                 action: 'generatePreview',
-                                suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos),
+                                suspendedUrl: suspendedUrl,
                                 screenCapture: screenCaptureMode,
                                 forceScreenCapture: forceScreenCapture
-                            });
+                            }, handleSuspensionError);
                         }
                     });
-                });
-
-            } else {
-                gsUtils.sendMessageToTab(tab.id, {
-                    action: 'confirmTabSuspend',
-                    suspendedUrl: gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos)
                 });
             }
         });
@@ -110,7 +116,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     // 1: Suspend if at all possible
     // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude active tabs
     // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
-    function requestTabSuspension(tab, forceLevel) {
+    function attemptTabSuspension(tab, forceLevel) {
 
         //safety check
         if (typeof tab === 'undefined') return;
@@ -136,11 +142,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         requestTabInfoFromContentScript(tab, function (tabInfo) {
             tabInfo = tabInfo || {};
-            if (forceLevel >= 2 &&
-                    (tabInfo.status === 'formInput' || tabInfo.status === 'tempWhitelist')) {
+            if (forceLevel >= 2 && (tabInfo.status === 'formInput' || tabInfo.status === 'tempWhitelist')) {
                 return;
             }
-            confirmTabSuspension(tab, tabInfo);
+            requestTabSuspension(tab, tabInfo);
         });
     }
 
@@ -222,7 +227,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 if (gsUtils.isSuspendedTab(activeTab)) {
                     unsuspendTab(activeTab);
                 } else {
-                    requestTabSuspension(activeTab, 1);
+                    attemptTabSuspension(activeTab, 1);
                 }
             }
         });
@@ -231,7 +236,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function suspendHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                requestTabSuspension(activeTab, 1);
+                attemptTabSuspension(activeTab, 1);
             }
         });
     }
@@ -250,7 +255,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             chrome.windows.get(curWindowId, {populate: true}, function (curWindow) {
                 curWindow.tabs.forEach(function (tab) {
                     if (!tab.active) {
-                        requestTabSuspension(tab, 2);
+                        attemptTabSuspension(tab, 2);
                     }
                 });
             });
@@ -260,7 +265,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function suspendAllTabsInAllWindows() {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                requestTabSuspension(currentTab, 1);
+                attemptTabSuspension(currentTab, 1);
             });
         });
     }
@@ -303,7 +308,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function suspendSelectedTabs() {
         chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (selectedTabs) {
             selectedTabs.forEach(function (tab) {
-                requestTabSuspension(tab, 1);
+                attemptTabSuspension(tab, 1);
             });
         });
     }
@@ -576,7 +581,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function requestTabInfoFromContentScript(tab, callback) {
-        gsUtils.sendMessageToTab(tab.id, {action: 'requestInfo'}, callback);
+        gsUtils.sendMessageToTab(tab.id, {action: 'requestInfo'}, function (result) {
+            if (chrome.runtime.lastError) {
+                gsUtils.error(chrome.runtime.lastError.message);
+            }
+            callback(result);
+        });
     }
 
     function processActiveTabStatus(tab, contentScriptStatus) {
@@ -753,7 +763,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             return false;
 
         case 'suspendTab':
-            requestTabSuspension(sender.tab, 3);
+            attemptTabSuspension(sender.tab, 3);
             return false;
 
         case 'requestUnsuspendTab':
@@ -878,7 +888,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 var backgroundTabCreateTimestamp = backgroundTabCreateTimestampByTabId[tab.id];
                 //safety check that only allows tab to auto suspend if it has been less than 300 seconds since background tab created
                 if (tab && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 300)) {
-                    requestTabSuspension(tab, 1);
+                    attemptTabSuspension(tab, 1);
                 }
             }
         }
