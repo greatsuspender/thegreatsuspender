@@ -26,7 +26,7 @@
         getTabStatus(0, resolve);
     });
     var tabStatusAsPromised = new Promise(function (resolve, reject) {
-        var retries = 50; //each retry is 200ms which makes 10 seconds
+        var retries = 10; //each retry is 200ms which makes 2 seconds
         getTabStatus(retries, resolve);
     });
     var selectedTabsAsPromised = new Promise(function (resolve, reject) {
@@ -57,8 +57,8 @@
 
     function setSuspendCurrentVisibility(tabStatus) {
 
-        var suspendOneVisible = !['suspended', 'special', 'unknown', 'error'].includes(tabStatus),
-            whitelistVisible = !['whitelisted', 'special', 'unknown', 'error'].includes(tabStatus),
+        var suspendOneVisible = !['suspended', 'special', 'unknown'].includes(tabStatus),
+            whitelistVisible = !['whitelisted', 'special', 'unknown'].includes(tabStatus),
             pauseVisible = (tabStatus === 'normal');
 
         if (suspendOneVisible) {

@@ -571,6 +571,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         if (tabInfo) {
                             info.status = processActiveTabStatus(tab, tabInfo.status);
                             info.timerUp = tabInfo.timerUp;
+                        } else {
+                            info.status = processActiveTabStatus(tab, 'unknown');
                         }
                         callback(info);
                     });
