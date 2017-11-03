@@ -567,7 +567,7 @@ a.historyLink:hover {
 .dark .suspendedMsg, .dark {
     background: #141a1d;
 }
-.dark .suspendedMsg h1, .dark .suspendedMsg h2 {
+.dark .suspendedMsg h1, .dark .suspendedMsg h2, .dark .suspendedMsg h3 {
     color: #666;
 }
 
