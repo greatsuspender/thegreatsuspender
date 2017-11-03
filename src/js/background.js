@@ -278,6 +278,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     if (gsUtils.isSuspendedTab(currentTab)) {
                         unsuspendTab(currentTab);
                     }
+                    else {
+                        gsUtils.resetContentScript(currentTab.id, [gsStorage.SUSPEND_TIME]);
+                    }
                 });
             });
         });
@@ -296,6 +299,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         } else {
                             unsuspendTab(tab);
                         }
+                    }
+                    else {
+                        gsUtils.resetContentScript(tab.id, [gsStorage.SUSPEND_TIME]);
                     }
                 });
                 deferredTabs.forEach(function (tab) {
