@@ -175,6 +175,7 @@
         //click listeners
         document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
         document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+        document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
         document.getElementById('gsWhitelistLink').onclick = function () {
             if (isWhitelisted) {
                 unwhitelistTab(rootUrlStr, fullUrlStr);
@@ -253,6 +254,7 @@
 
     function handleUnsuspendTab(e) {
         // dont want to pass the event arg along to the requestUnsuspendTab function!!
+        e.preventDefault();
         requestUnsuspendTab();
     }
 
