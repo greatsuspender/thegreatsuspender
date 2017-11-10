@@ -158,18 +158,50 @@ ul.unorderedList li {
 .splash h1 {
     font-size: 60px;
     line-height: 66px;
-    margin-top: 15px;
+    margin: 0;
 }
 .splash h2 {
     font-weight: 400;
-    font-size: 22px;
+    font-size: 60px;
+    margin: 0;
+}
+.splash h3 {
+    font-weight: 400;
+    font-size: 42px;
+    margin: 10px 0 0 0;
+}
+.splash h4 {
+    font-weight: 400;
+    font-size: 24px;
+    margin: 0;
 }
 .splash p {
-    font-size: 18px;
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0;
+    padding-top: 10px;
+}
+.splash p span {
+    font-size: 22px;
+    line-height: 27px;
+}
+hr.splashRule {
+    clear: left;
+    background-color: #99A7AD;
+    border-top: none;
+    margin-top: 0px;
 }
 .dude-left {
     float: left;
     padding-right: 25px;
+}
+.dude-text-top {
+    padding-top: 10px;
+}
+.dude-text-base {
+    display: table-cell;
+    padding-left: 3px;
+    padding-top: 20px;
 }
 .btn {
     background: #52a6c8;
@@ -271,11 +303,6 @@ ul.unorderedList li {
 }
 .sessionLink:hover {
 	text-decoration: underline;
-}
-hr.splashRule {
-    clear: left;
-    background-color: #99A7AD;
-    border-top: none;
 }
 div.tabContainer {
     padding: 0px;

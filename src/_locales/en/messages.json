@@ -170,7 +170,7 @@
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
-    "html_updated_great_suspender_updated": { "message": "The Great Suspender has been updated" },
+    "html_updated_great_suspender_updated": { "message": "has been updated" },
     "html_updated_welcome": { "message": "Welcome to" },
 
     // Welcome page
@@ -183,7 +183,7 @@
 
     // Thanks page
     "html_thanks_title": { "message": "Thanks" },
-    "html_thanks_header": { "message": "Yay donations!" },
+    "html_thanks_header": { "message": "Great thanks!" },
     "html_thanks_sub_header": { "message": "Congratulations on being such a wonderful person." },
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
