@@ -222,7 +222,7 @@ var gsStorage = {
         } catch(e) {
             gsUtils.error('-> gsStorage: Failed to parse ' + this.LAST_NOTICE + ': ', localStorage.getItem(this.LAST_NOTICE));
         }
-        lastNoticeVersion = lastNoticeVersion || '0.0.0';
+        lastNoticeVersion = lastNoticeVersion || '0';
         return lastNoticeVersion + '';
     },
     setNoticeVersion: function (newVersion) {

@@ -74,6 +74,9 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
                     gsStorage.performMigration(lastVersion);
 
+                    //reset notice version
+                    gsStorage.setNoticeVersion('0');
+
                     //clear context menu
                     tgs.buildContextMenu(false);
 

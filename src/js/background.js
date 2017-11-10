@@ -13,8 +13,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         backgroundTabCreateTimestampByTabId = {},
         globalCurrentTabId,
         sessionSaveTimer,
+        noticeToDisplay,
         chargingMode = false,
-        notice = {},
         unsuspendOnReloadByTabId = {},
         temporaryWhitelistOnReloadByTabId = {},
         scrollPosByTabId = {},
@@ -478,8 +478,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function checkForNotices() {
 
-        var xhr = new XMLHttpRequest(),
-            lastNoticeVersion = gsStorage.fetchNoticeVersion();
+        var xhr = new XMLHttpRequest();
+        var lastNoticeVersion = gsStorage.fetchNoticeVersion();
 
         xhr.open('GET', 'https://greatsuspender.github.io/notice.json', true);
         xhr.timeout = 4000;
@@ -494,19 +494,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     return;
                 }
 
+                if (!resp || !resp.active || !resp.text) {
+                    return;
+                }
+
                 //only show notice if it is intended for this version and it has not already been shown
-                if (resp && resp.active && resp.text && resp.title &&
-                    resp.target === chrome.runtime.getManifest().version &&
-                    resp.version !== lastNoticeVersion) {
+                var currentNoticeVersion = String(resp.version);
+                if (resp.target === chrome.runtime.getManifest().version &&
+                    currentNoticeVersion > lastNoticeVersion) {
 
-                    //set global notice field (so that notice page can access text)
-                    notice = resp;
-
-                    //update local notice version
-                    gsStorage.setNoticeVersion(resp.version);
-
-                    //show notice page
-                    chrome.tabs.create({url: chrome.extension.getURL('notice.html')});
+                    //set global notice field (so that it can be trigger to show later)
+                    noticeToDisplay = resp;
                 }
             }
         };
@@ -514,7 +512,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function requestNotice() {
-        return notice;
+        return noticeToDisplay;
+    }
+    function clearNotice() {
+        noticeToDisplay = undefined;
     }
 
     //get info for a tab
@@ -907,6 +908,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     });
     chrome.windows.onCreated.addListener(function () {
         queueSessionTimer();
+
+        if (requestNotice()) {
+            chrome.tabs.create({url: chrome.extension.getURL('notice.html')});
+        }
     });
     chrome.windows.onRemoved.addListener(function () {
         queueSessionTimer();
@@ -957,12 +962,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     });
 
-    //start job to check for notices (once a day)
-    window.setInterval(checkForNotices, 1000 * 60 * 60 * 24);
+    //start job to check for notices (twice a day)
+    var noticeCheckInterval = 1000 * 60 * 60 * 12;
+    checkForNotices();
+    window.setInterval(checkForNotices, noticeCheckInterval);
 
     return {
         init: init,
         requestNotice: requestNotice,
+        clearNotice: clearNotice,
         buildContextMenu: buildContextMenu,
         resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
         resuspendSuspendedTab: resuspendSuspendedTab,
