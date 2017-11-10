@@ -1,249 +1,246 @@
 {
     // manifest.json
     "ext_extension_name": { "message": "The Great Suspender" },
-    "ext_extension_description": { "message": "凍結暫時用不到的分頁，達到系統資源釋放。" },
+    "ext_extension_description": { "message": "凍結暫時用不到的分頁，達到系統資源釋放。" }, //Frozen temporary useless paging, to release system resources.
     "ext_default_title": { "message": "The Great Suspender" },
-    "ext_cmd_suspend_tab_description": { "message": "冻结/恢复当前页面" },
-    "ext_cmd_unsuspend_tab_description": { "message": "恢復目前的分頁" },
-    "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" },
-    "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" },
-    "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" },
-    "ext_cmd_unsuspend_all_windows_description": { "message": "恢復所有視窗的所有分頁" },
+    "ext_cmd_suspend_tab_description": { "message": "冻结/恢复当前页面" }, //Freeze / resume the current page
+    "ext_cmd_unsuspend_tab_description": { "message": "恢復目前的分頁" }, //Recover the current tab
+    "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
+    "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "ext_cmd_unsuspend_all_windows_description": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // About page
-    "html_about_title": { "message": "支援" },
+    "html_about_title": { "message": "支援" }, //support
     "html_about_github_title": { "message": "Github" },
     "html_about_twitter_title": { "message": "Twitter" },
-    "html_about_report_issues_prefix": { "message": "如果您有反饋意見或想報告問題，可以在" }, //TODO: Used google translate
-    "html_about_report_issues_suffix": { "message": ". 在創建新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" }, //TODO: Used google translate
-    "html_about_the_github_issues_page": { "message": "github上進行" }, //TODO: Used google translate
+    "html_about_report_issues_prefix": { "message": "如果您有反饋意見或想報告問題，可以在" }, //? If you have feedback or want to report a problem, you can
+    "html_about_report_issues_suffix": { "message": ". 在創建新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" }, //? Before creating a new idea or question, check that your idea or question exists. Thank you!
+    "html_about_the_github_issues_page": { "message": "github上進行" }, //? github on
     "html_about_html2canvas": { "message": "html2canvas" },
-    "html_about_html2canvas_prefix": { "message": "這個擴充元件使用 Niklas von Hertzen 撰寫的" },
-    "html_about_html2canvas_suffix": { "message": "資源。" },
+    "html_about_html2canvas_prefix": { "message": "這個擴充元件使用 Niklas von Hertzen 撰寫的" }, //This extension is written using Niklas von Hertzen
+    "html_about_html2canvas_suffix": { "message": "資源。" }, //Resources.
     "html_about_indexedDb": { "message": "db.js" },
-    "html_about_indexedDb_prefix": { "message": "也用了 Aaron Powell 撰寫的" },
-    "html_about_indexedDb_suffix": { "message": "資源" },
+    "html_about_indexedDb_prefix": { "message": "也用了 Aaron Powell 撰寫的" }, //Also used by Aaron Powell
+    "html_about_indexedDb_suffix": { "message": "資源" }, //Resources
     "html_about_browserstack": { "message": "browserstack" },
-    "html_about_browserstack_prefix": { "message": "同時也謝謝" },
-    "html_about_browserstack_suffix": { "message": "提供免費的 Chrome 測試工具" },
-    "html_about_feeling_generous": { "message": "如果你喜歡 The Great Suspender，也許可以..." },
-    "html_about_already_donated": { "message": "準備捐款？" },
-    "html_about_thanks_for_your_donation": { "message": "非常謝謝你的捐款支持" },
-    "html_about_want_to_donate_again": { "message": "想要再次捐款" },
+    "html_about_browserstack_prefix": { "message": "同時也謝謝" }, //Also thank you
+    "html_about_browserstack_suffix": { "message": "提供免費的 Chrome 測試工具" }, //Provide free Chrome testing tools
+    "html_about_feeling_generous": { "message": "如果你喜歡 The Great Suspender，也許可以..." }, //If you like The Great Suspender, maybe ...
+    "html_about_already_donated": { "message": "準備捐款？" }, //Ready to donate?
+    "html_about_thanks_for_your_donation": { "message": "非常謝謝你的捐款支持" }, //Thank you very much for your donation support
+    "html_about_want_to_donate_again": { "message": "想要再次捐款" }, //Want to donate again
 
     // Session management page
-    "html_history_title": { "message": "記錄管理" },
-    "html_history_current_session": { "message": "目前記錄" },
-    "html_history_recent_sessions": { "message": "最近記錄" },
-    "html_history_saved_sessions": { "message": "已儲存記錄" },
-    "html_history_import_session": { "message": "进口记录" },
+    "html_history_title": { "message": "記錄管理" }, //Record management
+    "html_history_current_session": { "message": "目前記錄" }, //Current record
+    "html_history_recent_sessions": { "message": "最近記錄" }, //Recently recorded
+    "html_history_saved_sessions": { "message": "已儲存記錄" }, //Saved records
+    "html_history_import_session": { "message": "进口记录" }, //Import records
 
     // Important notice page
-    "html_notice_title": { "message": "通知" },
-    "html_notice_important_notice": { "message": "來自 The Great Suspender的 重要通知" },
+    "html_notice_title": { "message": "通知" }, //Notice
+    "html_notice_important_notice": { "message": "來自 The Great Suspender的 重要通知" }, //Important Notice from The Great Suspender
 
     // Options page
-    "html_options_title": { "message": "設定" },
-    "html_options_suspend_title": { "message": "凍結分頁設定" },
-    "html_options_suspend_automatically_after": { "message": "多久後自動凍結" },
-    "html_options_suspend_never": { "message": "永不" },
-    "html_options_suspend_seconds": { "message": "秒" },
-    "html_options_suspend_minute": { "message": "分鐘" },
-    "html_options_suspend_minutes": { "message": "分鐘" },
-    "html_options_suspend_hour": { "message": "小時" },
-    "html_options_suspend_hours": { "message": "小時" },
-    "html_options_suspend_day": { "message": "天" },
-    "html_options_suspend_days": { "message": "天" },
-    "html_options_suspend_week": { "message": "週" },
-    "html_options_suspend_weeks": { "message": "週" },
-    "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" },
-    "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" },
-    "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" },
-    "html_options_suspend_only_connected": { "message": "只在網路連接下才自動凍結" },
-    "html_options_suspend_only_on_battery": { "message": "只在電池模式下才自動凍結" },
-    "html_options_suspend_automatically_unsuspend": { "message": "當分頁被瀏覽就自動恢復分頁" },
-    "html_options_suspend_theme": { "message": "主題" },
-    "html_options_suspend_theme_light": { "message": "明亮" },
-    "html_options_suspend_theme_dark": { "message": "深色" },
-    "html_options_suspend_screen_capturing": { "message": "螢幕擷取" },
-    "html_options_suspend_screen_capturing_disabled": { "message": "停用" },
-    "html_options_suspend_screen_capturing_screen_only": { "message": "只擷取可見的畫面" },
-    "html_options_suspend_screen_capturing_entire_page": { "message": "擷取整個頁面" },
-    "html_options_suspend_screen_capturing_tooltip_line1a": { "message": "在暫停的標籤上，擴展程序可以在掛起之前顯示該選項卡的圖像預覽。" }, //TODO: Used google translate
+    "html_options_title": { "message": "設定" }, //set up
+    "html_options_suspend_title": { "message": "凍結分頁設定" }, //Freeze page setting
+    "html_options_suspend_automatically_after": { "message": "多久後自動凍結" }, //How long after freezing automatically
+    "html_options_suspend_never": { "message": "永不" }, //Never
+    "html_options_suspend_seconds": { "message": "秒" }, //second
+    "html_options_suspend_minute": { "message": "分鐘" }, //minute
+    "html_options_suspend_minutes": { "message": "分鐘" }, //minute
+    "html_options_suspend_hour": { "message": "小時" }, //hour
+    "html_options_suspend_hours": { "message": "小時" }, //hour
+    "html_options_suspend_day": { "message": "天" }, //day
+    "html_options_suspend_days": { "message": "天" }, //day
+    "html_options_suspend_week": { "message": "週" }, //week
+    "html_options_suspend_weeks": { "message": "週" }, //week
+    "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" }, //Do not freeze a fixed page
+    "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" }, //Do not freeze pages that have text in the input box and have not been saved yet
+    "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound
+    "html_options_suspend_only_connected": { "message": "只在網路連接下才自動凍結" }, //Only in the Internet connection is automatically frozen
+    "html_options_suspend_only_on_battery": { "message": "只在電池模式下才自動凍結" }, //Frozen only in battery mode
+    "html_options_suspend_automatically_unsuspend": { "message": "當分頁被瀏覽就自動恢復分頁" }, //Paging is automatically resumed when pagination is viewed
+    "html_options_suspend_theme": { "message": "主題" }, //theme
+    "html_options_suspend_theme_light": { "message": "明亮" }, //Bright
+    "html_options_suspend_theme_dark": { "message": "深色" }, //Dark
+    "html_options_suspend_screen_capturing": { "message": "螢幕擷取" }, //Screen capture
+    "html_options_suspend_screen_capturing_disabled": { "message": "停用" }, //Disabled
+    "html_options_suspend_screen_capturing_screen_only": { "message": "只擷取可見的畫面" }, //Only capture the visible picture
+    "html_options_suspend_screen_capturing_entire_page": { "message": "擷取整個頁面" }, //Capture the entire page
+    "html_options_suspend_screen_capturing_tooltip_line1a": { "message": "在暫停的標籤上，擴展程序可以在掛起之前顯示該選項卡的圖像預覽。" }, //? On the paused tab, the extension can display an image preview of the tab before it is suspended
     "html_options_suspend_screen_capturing_tooltip_line1b": { "message": "" },
-    "html_options_suspend_screen_capturing_tooltip_line2a": { "message": "屏幕捕獲功能是實驗性的，可能會導致顯著的CPU使用率以及稍微增加的內存使用量。" }, //TODO: Used google translate
+    "html_options_suspend_screen_capturing_tooltip_line2a": { "message": "屏幕捕獲功能是實驗性的，可能會導致顯著的CPU使用率以及稍微增加的內存使用量。" }, //? Screen capture is experimental and can result in significant CPU usage and slightly increased memory usage
     "html_options_suspend_screen_capturing_tooltip_line2b": { "message": "" },
-    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "如果您注意到奇怪的行為，如標籤需要很長時間才能掛起，或者Chrome意外崩潰，請嘗試關閉此功能。" }, //TODO: Used google translate
+    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "如果您注意到奇怪的行為，如標籤需要很長時間才能掛起，或者Chrome意外崩潰，請嘗試關閉此功能。" }, //? If you notice weird behavior, such as if the tag takes a long time to hang or Chrome crashes unexpectedly, try turning the feature off
     "html_options_suspend_screen_capturing_tooltip_line3b": { "message": "" },
-    "html_options_suspend_force_screen_capture": { "message": "在縮放選項卡上啟用屏幕捕獲" }, //TODO: Used google translate
-    "html_options_suspend_force_screen_capture_tooltip_line1a": { "message": "暫停縮放的標籤（除100％以外的任何內容）都可能導致重大的CPU負載。" }, //TODO: Used google translate
+    "html_options_suspend_force_screen_capture": { "message": "在縮放選項卡上啟用屏幕捕獲" }, //? Enable screen capture on the Zoom tab
+    "html_options_suspend_force_screen_capture_tooltip_line1a": { "message": "暫停縮放的標籤（除100％以外的任何內容）都可能導致重大的CPU負載。" }, //? Suspended tab (anything except 100%) can cause significant CPU load
     "html_options_suspend_force_screen_capture_tooltip_line1b": { "message": "" },
-    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "默認情況下，縮放的標籤頁不會生成屏幕捕獲預覽。" }, //TODO: Used google translate
-    "html_options_whitelist_title": { "message": "例外清單" },
-    "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //TODO: Used google translate
-    "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //TODO: Used google translate
-    "html_options_whitelist_tooltip_line3": { "message": "您還可以通過以正斜杠括住文本來指定正則表達式:" }, //TODO: Used google translate
-    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單u" },
-    "html_options_other_enable_sync": { "message": "在不同系統之間同步設置" }, //TODO: Used google translate
-    "html_options_other_enable_sync_tooltip_line1a": { "message": "擴展設置將在所有使用相同配置文件登錄的Chrome瀏覽器中同步" }, //TODO: Used google translate
+    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "默認情況下，縮放的標籤頁不會生成屏幕捕獲預覽。" }, //? Scaled tabs do not generate a screen capture preview by default
+    "html_options_whitelist_title": { "message": "例外清單" }, //Exception list
+    "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
+    "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
+    "html_options_whitelist_tooltip_line3": { "message": "您還可以通過以正斜杠括住文本來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
+    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu u
+    "html_options_other_enable_sync": { "message": "在不同系統之間同步設置" }, //? Set synchronization between different systems
+    "html_options_other_enable_sync_tooltip_line1a": { "message": "擴展設置將在所有使用相同配置文件登錄的Chrome瀏覽器中同步" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
-    "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設置同步。" }, //TODO: Used google translate
-    "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設置" }, //TODO: Used google translate
+    "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設置同步。" }, //? This will also synchronize the settings in incognito mode
+    "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設置" }, //? Opening this item overrides the settings on all synced systems
 
     // Dropdown menu from button in the address bar
-    "html_popup_suspend_tab": { "message": "凍結此分頁" },
-    "html_popup_dont_suspend_now": { "message": "現在還不要凍結" },
-    "html_popup_never_suspend_site": { "message": "永遠不要凍結此網站" },
-    "html_popup_suspend_other_tabs": { "message": "凍結其他分頁" },
-    "html_popup_unsuspend_all_tabs": { "message": "恢復所有分頁" },
-    "html_popup_suspend_selected_tabs": { "message": "凍結已選擇分頁" },
-    "html_popup_unsuspend_selected_tabs": { "message": "恢復已選擇分頁" },
-    "html_popup_settings": { "message": "設定" },
+    "html_popup_suspend_tab": { "message": "凍結此分頁" }, //Freeze this tab
+    "html_popup_dont_suspend_now": { "message": "現在還不要凍結" }, //Do not freeze now
+    "html_popup_never_suspend_site": { "message": "永遠不要凍結此網站" }, //Never freeze this site
+    "html_popup_suspend_other_tabs": { "message": "凍結其他分頁" }, //Freeze other tabs
+    "html_popup_unsuspend_all_tabs": { "message": "恢復所有分頁" }, //Recover all pages
+    "html_popup_suspend_selected_tabs": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
+    "html_popup_unsuspend_selected_tabs": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
+    "html_popup_settings": { "message": "設定" }, //set up
 
     // Profiler page
-    "html_profiler_title": { "message": "探查" }, //TODO: Used google translate
-    "html_profiler_reload": { "message": "重新載入" },
-    "html_profiler_table_title": { "message": "標題" }, //TODO: Used google translate
-    "html_profiler_table_time_to_suspend": { "message": "暫停時間" }, //TODO: Used google translate
-    "html_profiler_table_status": { "message": "狀態" }, //TODO: Used google translate
+    "html_profiler_title": { "message": "探查" }, //? Exploring
+    "html_profiler_reload": { "message": "重新載入" }, //Reload
+    "html_profiler_table_title": { "message": "標題" }, //? title
+    "html_profiler_table_time_to_suspend": { "message": "暫停時間" }, //? Pause the time
+    "html_profiler_table_status": { "message": "狀態" }, //? status
 
     // Recovery page (to recover from a crashed session)
-    "html_recovery_title": { "message": "復甦" }, //TODO: Used google translate
-    "html_recovery_ruh_roh": { "message": "噢！" },
-    "html_recovery_description_line1": { "message": "看樣子你剛從當掉的擴充元件恢復過來。" },
-    "html_recovery_description_line2": { "message": "之前凍結的分頁可能無法還原。" },
-    "html_recovery_restore_tabs_automatically": { "message": "自動恢復分頁" },
-    "html_recovery_go_to_session_manager": { "message": "前往記錄管理器" },
-    "html_recovery_important_message": { "message": "你目前已開啟螢幕擷取，如果擴充元件多次發生故障，建議你取消勾選。" },
-    "html_recovery_disable_screen_capturing": { "message": "關閉螢幕擷取" },
-    "html_recovery_tabs_to_restore": { "message": "分頁恢復" },
+    "html_recovery_title": { "message": "復甦" }, //? recovery
+    "html_recovery_ruh_roh": { "message": "噢！" }, //Oh!
+    "html_recovery_description_line1": { "message": "看樣子你剛從當掉的擴充元件恢復過來。" }, //It looks like you just recovered from the dropped expansion.
+    "html_recovery_description_line2": { "message": "之前凍結的分頁可能無法還原。" }, //Frozen pages may not be restored before.
+    "html_recovery_restore_tabs_automatically": { "message": "自動恢復分頁" }, //Automatic recovery paging
+    "html_recovery_go_to_session_manager": { "message": "前往記錄管理器" }, //Go to Record Manager
+    "html_recovery_important_message": { "message": "你目前已開啟螢幕擷取，如果擴充元件多次發生故障，建議你取消勾選。" }, //You are currently enabled for screen capture. If there is more than one expansion component failure, we suggest you uncheck it.
+    "html_recovery_disable_screen_capturing": { "message": "關閉螢幕擷取" }, //Turn off screen capture
+    "html_recovery_tabs_to_restore": { "message": "分頁恢復" }, //Paging recovery
 
     // Keyboard shortcuts page
-    "html_shortcuts_title": { "message": "鍵盤快速鍵" },
-    "html_shortcuts_keyboard_shortcuts": { "message": "鍵盤快速鍵" },
-    "html_shortcuts_remap_keys": { "message": "修改鍵盤快速鍵" },
+    "html_shortcuts_title": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
+    "html_shortcuts_keyboard_shortcuts": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
+    "html_shortcuts_remap_keys": { "message": "修改鍵盤快速鍵" }, //Modify the keyboard shortcut
 
     // Sidebar from the configuration section (common to all settings)
-    "html_sidebar_general_settings": { "message": "設定" },
-    "html_sidebar_session_management": { "message": "記錄管理" },
-    "html_sidebar_shortcuts": { "message": "鍵盤快速鍵" },
-    "html_sidebar_support": { "message": "支援" },
+    "html_sidebar_general_settings": { "message": "設定" }, //set up
+    "html_sidebar_session_management": { "message": "記錄管理" }, //Record management
+    "html_sidebar_shortcuts": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
+    "html_sidebar_support": { "message": "支援" }, //support
 
     // Success page (after recovering from a crashed session)
-    "html_success_title": { "message": "復甦" }, //TODO: Used google translate
-    "html_success_great_success": { "message": "成功！" },
-    "html_success_all_tabs_restored": { "message": "你的所有分頁已經恢復完成。" },
-    "html_success_goto_advanced_prefix": { "message": "進階的記錄管理，請前往" },
+    "html_success_title": { "message": "復甦" }, //? recovery
+    "html_success_great_success": { "message": "成功！" }, //success!
+    "html_success_all_tabs_restored": { "message": "你的所有分頁已經恢復完成。" }, //All your paging has been restored.
+    "html_success_goto_advanced_prefix": { "message": "進階的記錄管理，請前往" }, //Advanced records management, please go to
     "html_success_goto_advanced_suffix": { "message": "" },
 
     // Session manager link
-    "html_session_manager": { "message": "記錄管理頁面。" },
+    "html_session_manager": { "message": "記錄管理頁面。" }, //Records management page.
 
     // Suspended page
-    "html_suspended_title": { "message": "分頁已經被凍結" },
-    "html_suspended_tab_suspended": { "message": "分頁已經被凍結" },
-    "html_suspended_tab_reload": { "message": "重新載入" }, //TODO: Used google translate. important!!1
-    "html_suspended_tab_whitelist": { "message": "添加到例外列表" }, //TODO: Used google translate. important!!1
-    "html_suspended_click_to_reload": { "message": "点击这里重新载入" }, //TODO: Used google translate. important!!1
-    "html_suspended_hotkey_to_reload": { "message": "鍵盤快速鍵: " }, //TODO: Used google translate. important!!1
-    "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //TODO: Used google translate. important!!1
-    "html_suspended_toast_reload_disabled": { "message": "禁用自動重新加載。" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_header": { "message": "你想要什麼白名單?" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_this_domain": { "message": "這個域名" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_this_page": { "message": "這一頁" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_temp_whitelist": { "message": "只是這個頁面，僅為當前記錄" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_temp_whitelist_notice": { "message": "白名單網站不會自動暫停。" }, //TODO: Used google translate. important!!1
-    "html_suspended_modal_ok": { "message": "送出" },
-    "html_suspended_modal_cancel": { "message": "取消" },
-    "html_suspended_donation_question": { "message": "你喜歡這個擴充元件嗎?" },
+    "html_suspended_title": { "message": "分頁已經被凍結" }, //Paging has been frozen
+    "html_suspended_tab_suspended": { "message": "分頁已經被凍結" }, //Paging has been frozen
+    "html_suspended_tab_reload": { "message": "重新載入" }, //? Reload
+    "html_suspended_tab_whitelist": { "message": "添加到例外列表" }, //? Add to the exceptions list
+    "html_suspended_click_to_reload": { "message": "点击这里重新载入" }, //? Click here to reload
+    "html_suspended_hotkey_to_reload": { "message": "鍵盤快速鍵: " }, //? Keyboard shortcut:
+    "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //? You are not connected to the network
+    "html_suspended_toast_reload_disabled": { "message": "禁用自動重新加載。" }, //? Disable automatic reload.
+    "html_suspended_modal_header": { "message": "你想要什麼白名單?" }, //? What white list do you want?
+    "html_suspended_modal_this_domain": { "message": "這個域名" }, //? This domain name
+    "html_suspended_modal_this_page": { "message": "這一頁" }, //? This page
+    "html_suspended_modal_temp_whitelist": { "message": "只是這個頁面，僅為當前記錄" }, //? Only this page, only for the current record
+    "html_suspended_modal_temp_whitelist_notice": { "message": "白名單網站不會自動暫停。" }, //? Whitelisted sites will not be suspended automatically.
+    "html_suspended_modal_ok": { "message": "送出" }, //Send
+    "html_suspended_modal_cancel": { "message": "取消" }, //cancel
+    "html_suspended_donation_question": { "message": "你喜歡這個擴充元件嗎?" }, //Do you like this extension?
 
     // Update page
-    "html_update_title": { "message": "更新" }, //TODO: Used google translate
-    "html_update_heading1_prefix": { "message": "需要採取的行動" }, //TODO: Used google translate
-    "html_update_heading2": { "message": "請閱讀以下重要信息。" }, //TODO: Used google translate
-    "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //TODO: Used google translate
-    "html_update_info_line2": { "message": "您的当前会话的备份已创建。" }, //TODO: Used google translate
-    "html_update_info_line3_prefix": { "message": "重要" }, //TODO: Used google translate
-    "html_update_info_line3": { "message": "请在继续更新之前导出此备份的副本。" }, //TODO: Used google translate
-    "html_update_info_line2_alternate_prefix": { "message": "在继续更新之前，强烈建议您从 " }, //TODO: Used google translate
-    "html_update_info_line2_alternate_suffix": { "message": " 导出当前会话的备份。" }, //TODO: Used google translate
+    "html_update_title": { "message": "更新" }, //? Updated
+    "html_update_heading2": { "message": "即将变得更好" }, //? It is about to get better
+    "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
+    "html_update_info_line2": { "message": "请继续前保存当前选项卡会话的备份。" }, //? Please save the backup of the current tab session before proceeding.
+    "html_update_info_line2_alternate_prefix": { "message": "在继续更新之前，强烈建议您从 " }, //? It is strongly recommended that you continue before updating
+    "html_update_info_line2_alternate_suffix": { "message": " 导出当前会话的备份。" }, //? Export a backup of the current session.
 
     // Updated page
-    "html_updated_title": { "message": "更新" }, //TODO: Used google translate
-    "html_updated_great_suspender_updated": { "message": "已更新" }, //TODO: Used google translate
-    "html_updated_welcome": { "message": "歡迎來到" }, //TODO: Used google translate
+    "html_updated_title": { "message": "更新" }, //? Updated
+    "html_updated_great_suspender_updated": { "message": "已更新" }, //? updated
+    "html_updated_welcome": { "message": "歡迎來到" }, //? Welcome to
 
     // Welcome page
-    "html_welcome_title": { "message": "歡迎來到" }, //TODO: Used google translate
-    "html_welcome_text_line1": { "message": "謝謝你安裝" },
-    "html_welcome_text_line2": { "message": "希望這會對你在使用瀏覽器有更好的體驗" },
-    "html_welcome_get_started_prefix": { "message": "可以先到設定" },
-    "html_welcome_get_started_linkname": { "message": "頁面" },
-    "html_welcome_get_started_suffix": { "message": "調整最適合的運作方式" },
+    "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to
+    "html_welcome_text_line1": { "message": "謝謝你安裝" }, //Thank you for installing
+    "html_welcome_text_line2": { "message": "希望這會對你在使用瀏覽器有更好的體驗" }, //Hope this will be a better experience for you using your browser
+    "html_welcome_get_started_prefix": { "message": "可以先到設定" }, //Can be set first
+    "html_welcome_get_started_linkname": { "message": "頁面" }, //page
+    "html_welcome_get_started_suffix": { "message": "調整最適合的運作方式" }, //Adjust the most suitable mode of operation
 
     // Thanks page
-    "html_thanks_title": { "message": "谢谢" }, //TODO: Used google translate
-    "html_thanks_header": { "message": "感谢您的捐赠！" }, //TODO: Used google translate
-    "html_thanks_sub_header": { "message": "C你是一个很棒的人！" }, //TODO: Used google translate
+    "html_thanks_title": { "message": "谢谢" }, //? Thank you
+    "html_thanks_header": { "message": "感谢您的捐赠！" }, //? Thank you for your donation!
+    "html_thanks_sub_header": { "message": "你是一个很棒的人！" }, //? You are a great person!
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
-    "js_donate_paypal": { "message": "透過 Paypal 捐款" },
-    "js_donate_bitcoin": { "message": "透過 Bitcoin 捐款" },
+    "js_donate_paypal": { "message": "透過 Paypal 捐款" }, //Make a donation via Paypal
+    "js_donate_bitcoin": { "message": "透過 Bitcoin 捐款" }, //Donate via Bitcoin
 
     // Contextual menu (Javascript code)
-    "js_background_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" },
-    "js_background_suspend_tab": { "message": "凍結此分頁" },
-    "js_background_dont_suspend_now": { "message": "現在還不要凍結" },
-    "js_background_never_suspend_site": { "message": "永遠不要凍結此網站" },
-    "js_background_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" },
-    "js_background_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" },
-    "js_background_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" },
-    "js_background_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" },
+    "js_background_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
+    "js_background_suspend_tab": { "message": "凍結此分頁" }, //Freeze this tab
+    "js_background_dont_suspend_now": { "message": "現在還不要凍結" }, //Do not freeze now
+    "js_background_never_suspend_site": { "message": "永遠不要凍結此網站" }, //Never freeze this site
+    "js_background_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
+    "js_background_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "js_background_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "js_background_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // Dropdown menu from button in the address bar (Javascript code)
-    "js_popup_normal": { "message": "分頁將會自動被凍結" },
-    "js_popup_special": { "message": "分頁無法被凍結" },
-    "js_popup_suspended": { "message": "T分頁已經被凍結" },
-    "js_popup_suspended_unsuspended": { "message": "取消凍結" },
-    "js_popup_whitelisted": { "message": "例外清單" },
-    "js_popup_whitelisted_remove": { "message": "從例外清單移除" },
-    "js_popup_audible": { "message": "分頁正在播放聲音" },
-    "js_popup_form_input": { "message": "分頁有文字還在輸入" },
-    "js_popup_form_input_unpause": { "message": "取消暫停" },
-    "js_popup_pinned": { "message": "分頁已經被固定" },
-    "js_popup_temp_whitelist": { "message": "暫時不要凍結" },
-    "js_popup_temp_whitelist_unpause": { "message": "取消暫停" },
-    "js_popup_never": { "message": "禁止自動凍結分頁" },
-    "js_popup_no_connectivity": { "message": "未連接網路" },
-    "js_popup_charging": { "message": "已接上電源" },
-    "js_popup_unknown": { "message": "正在載入信息..." }, //TODO: Used google translate
-    "js_popup_error": { "message": "無法加載頁面信息" }, //TODO: Used google translate
+    "js_popup_normal": { "message": "分頁將會自動被凍結" }, //Paging will be automatically frozen
+    "js_popup_special": { "message": "分頁無法被凍結" }, //Paging can not be frozen
+    "js_popup_suspended": { "message": "分頁已經被凍結" }, //Paging has been frozen
+    "js_popup_suspended_unsuspended": { "message": "取消凍結" }, //Unfreeze
+    "js_popup_whitelisted": { "message": "例外清單" }, //Exception list
+    "js_popup_whitelisted_remove": { "message": "從例外清單移除" }, //Remove from the exception list
+    "js_popup_audible": { "message": "分頁正在播放聲音" }, //Paging is playing sound
+    "js_popup_form_input": { "message": "分頁有文字還在輸入" }, //Pagination text is still input
+    "js_popup_form_input_unpause": { "message": "取消暫停" }, //Cancel pause
+    "js_popup_pinned": { "message": "分頁已經被固定" }, //Paging has been fixed
+    "js_popup_temp_whitelist": { "message": "暫時不要凍結" }, //Do not freeze for now
+    "js_popup_temp_whitelist_unpause": { "message": "取消暫停" }, //Cancel pause
+    "js_popup_never": { "message": "禁止自動凍結分頁" }, //Freezing of pages is forbidden
+    "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
+    "js_popup_charging": { "message": "已接上電源" }, //Connected to the power
+    "js_popup_unknown": { "message": "正在載入信息..." }, //? Loading message ...
+    "js_popup_error": { "message": "無法加載頁面信息" }, //? Could not load page info
 
     // Session management page (Javascript code)
-    "js_history_delete": { "message": "刪除" }, //TODO: Used google translate
-    "js_history_export": { "message": "匯出" },
-    "js_history_reload": { "message": "重新載入" },
-    "js_history_resuspend": { "message": "重新凍結" },
-    "js_history_save": { "message": "儲存" },
-    "js_history_window": { "message": "個視窗" },
-    "js_history_tab": { "message": "個分頁" },
+    "js_history_delete": { "message": "刪除" }, //? delete
+    "js_history_export": { "message": "匯出" }, //Export
+    "js_history_reload": { "message": "重新載入" }, //Reload
+    "js_history_resuspend": { "message": "重新凍結" }, //Re-freeze
+    "js_history_save": { "message": "儲存" }, //store
+    "js_history_window": { "message": "個視窗" }, //A window
+    "js_history_tab": { "message": "個分頁" }, //Pagination
     "js_history_plural": { "message": "" },
-    "js_history_enter_name_for_session": { "message": "對這個記錄命名" },
-    "js_history_confirm_delete": { "message": "您确定要删除此记录吗？" }, //TODO: Used google translate
-    "js_history_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" }, //TODO: Used google translate
-    "js_history_import_fail": { "message": "无法加载文件。 确保文件是纯文本，并且每行包含单个URL。" }, //TODO: Used google translate
+    "js_history_enter_name_for_session": { "message": "對這個記錄命名" }, //Name this record
+    "js_history_confirm_delete": { "message": "您确定要删除此记录吗？" }, //? Are you sure you want to delete this record?
+    "js_history_confirm_session_overwrite": { "message": "已经有保存的名称的记录。 覆盖现有记录？" }, //? There is already a record of the saved name. Overwrite existing records?
+    "js_history_import_fail": { "message": "无法加载文件。 确保文件是纯文本，并且每行包含单个URL。" }, //? Unable to load the file. Make sure the files are plain text and contain a single URL per line.
 
     // Suspended page (Javascript code)
-    "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" },
+    "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" }, //Remove from the exception list
 
     // Options page (Javascript code)
-    "js_options_incognito_warning": { "message": "您處於隱身模式。當記錄關閉時，對無痕記錄內的設置進行的任何更改都將被重置" }, //TODO: Used google translate. Probably wrong!!!
+    "js_options_incognito_warning": { "message": "您處於隱身模式。當記錄關閉時，對無痕記錄內的設置進行的任何更改都將被重置" }, //? You are in incognito mode. When the record is closed, any changes made to the settings in the traceless will be reset
 
     // Update page (Javascript code)
-    "js_update_confirm": { "message": "您尚未导出备份。 更新扩展？" }, //TODO: Used google translate. Probably wrong!!!
-    "js_update_button_export": { "message": "导出备份" }, //TODO: Used google translate
-    "js_update_button_reload": { "message": "現在更新擴展" }, //TODO: Used google translate
+    "js_update_confirm": { "message": "您尚未导出备份。 更新扩展？" }, //? You have not exported the backup yet. Update extension?
+    "js_update_button_export": { "message": "导出备份" }, //? Export the backup
+    "js_update_button_reload": { "message": "現在更新擴展" }, //? Now update the extension
 
     // Keyboard shortcuts page (Javascript code)
-    "js_shortcuts_not_set": { "message": "沒有設置" } //TODO: Used google translate
+    "js_shortcuts_not_set": { "message": "沒有設置" } //? Not set
 }
