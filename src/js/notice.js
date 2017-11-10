@@ -3,6 +3,7 @@
     'use strict';
 
     var tgs = chrome.extension.getBackgroundPage().tgs;
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
@@ -18,4 +19,5 @@
             noticeTextEl.innerHTML = noticeObj.text;
         }
     });
+    gsAnalytics.reportPageView('notice.html');
 }());

@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
@@ -128,4 +129,6 @@
 
         populateMissingTabs();
     });
+
+    gsAnalytics.reportPageView('recovery.html');
 }());

@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var currentTabs = {};
@@ -68,4 +69,5 @@
         });
         */
     });
+    gsAnalytics.reportPageView('profiler.html');
 }());
