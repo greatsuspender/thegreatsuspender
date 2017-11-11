@@ -347,9 +347,8 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             tgs.buildContextMenu(addContextMenu);
         }
 
-        //if theme or preview settings have changed then refresh all suspended pages
-        if (this.contains(changedSettingKeys, gsStorage.THEME) ||
-            this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE)) {
+        //if theme settings have changed then refresh all suspended pages
+        if (this.contains(changedSettingKeys, gsStorage.THEME)) {
             tgs.resuspendAllSuspendedTabs();
         }
     },
