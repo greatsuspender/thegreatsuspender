@@ -137,6 +137,7 @@ textarea {
     font-weight: 300;
     padding: 3px 5px;
     white-space: nowrap;
+    margin-top: 9px;
 }
 .formRow {
     margin: 15px 0;
@@ -183,6 +184,11 @@ ul.unorderedList li {
 .splash ul {
     list-style: square inside none;
     line-height: 20px;
+}
+.splash .notice p {
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 500px;
 }
 hr.splashRule {
     clear: left;
@@ -800,6 +806,9 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
     -webkit-transform: scale(0, 0);
     transform: scale(0, 0);
 }
+.sub-section {
+    margin-bottom: 35px;
+}
 
 /**
  * Tooltip Styles (https://chrisbracco.com/a-simple-css-tooltip/)
@@ -825,9 +834,11 @@ input[type=checkbox]:checked:before { background: url(/img/checkOn.png) #fff; }
 [data-i18n-tooltip]:before {
     position: absolute;
     bottom: 150%;
-    left: 50%;
+    /*left: 30%;*/
+    right: 0%;
     margin-bottom: 5px;
-    margin-left: -85px;
+    /*margin-left: -85px;*/
+    margin-right: -200px;
     padding: 20px 10px;
     width: 460px;
     border-radius: 3px;
