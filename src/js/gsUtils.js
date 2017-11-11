@@ -21,10 +21,8 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
     },
     error: function (text, ...args) {
-        if (debug) {
-            args = args || [];
-            console.error(text, ...args);
-        }
+        args = args || [];
+        console.error(text, ...args);
     },
     dir: function (object) {
         if (debug) {
