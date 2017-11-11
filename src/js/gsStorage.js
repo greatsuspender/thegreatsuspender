@@ -403,27 +403,25 @@ var gsStorage = {
     },
 
     updateSession: function (session, callback) {
-
+        var self = this;
         //if it's a saved session (prefixed with an underscore)
-        var server,
-            tableName = session.sessionId.indexOf('_') === 0
-                ? this.DB_SAVED_SESSIONS
-                : this.DB_CURRENT_SESSIONS;
-        callback = typeof callback !== 'function' ? this.noop : callback;
+        var tableName = session.sessionId.indexOf('_') === 0
+            ? self.DB_SAVED_SESSIONS
+            : self.DB_CURRENT_SESSIONS;
+        callback = typeof callback !== 'function' ? self.noop : callback;
 
         //first check to see if session id already exists
-        this.getDb().then(function (s) {
-            server = s;
-            return server.query(tableName).filter('sessionId', session.sessionId).execute();
-
-        }).then(function (result) {
-            if (result.length > 0) {
-                result = result[0];
-                session.id = result.id; //copy across id from matching session
+        self.fetchSessionBySessionId(session.sessionId).then(function (matchingSession) {
+            if (matchingSession) {
+                session.id = matchingSession.id; //copy across id from matching session
                 session.date = (new Date()).toISOString();
-                return server.update(tableName, session); //then update based on that id
+                return self.getDb().then(function (s) {
+                    return s.update(tableName, session); //then update based on that id
+                });
             } else {
-                return server.add(tableName, session);
+                return self.getDb().then(function (s) {
+                    return s.add(tableName, session);
+                });
             }
         }).then(function (result) {
             if (result.length > 0) {
@@ -434,7 +432,7 @@ var gsStorage = {
 
     fetchCurrentSessions: function () {
         var self = this;
-        return this.getDb().then(function (s) {
+        return self.getDb().then(function (s) {
             return s.query(self.DB_CURRENT_SESSIONS).all().desc().execute();
         });
     },
@@ -449,11 +447,19 @@ var gsStorage = {
         return this.getDb().then(function (s) {
             return s.query(tableName, 'sessionId')
                 .only(sessionId)
-                .distinct()
                 .desc()
                 .execute()
                 .then(function (results) {
-                    return results.length > 0 ? results[0] : null;
+                    if (results.length > 0) {
+                        // Remove any duplicates!!!
+                        gsUtils.error('Duplicate sessions found for sessionId: ' + sessionId + '! Removing older ones..');
+                        for (var session of results.slice(1)) {
+                            s.remove(tableName, session.id);
+                        }
+                        return results[0];
+                    } else {
+                        return null;
+                    }
                 });
         });
     },
