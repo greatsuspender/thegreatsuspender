@@ -44,7 +44,9 @@
 
     // Options page
     "html_options_title": { "message": "設定" }, //set up
-    "html_options_suspend_title": { "message": "凍結分頁設定" }, //Freeze page setting
+    "html_options_suspend_title": { "message": "自动页面冻结" }, //? Automatic page freeze
+    "html_options_suspended_title": { "message": "冻结的页面" }, //? Frozen page
+    "html_options_other_title": { "message": "其他设置" }, //? Other settings
     "html_options_suspend_automatically_after": { "message": "多久後自動凍結" }, //How long after freezing automatically
     "html_options_suspend_never": { "message": "永不" }, //Never
     "html_options_suspend_seconds": { "message": "秒" }, //second
