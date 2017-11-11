@@ -103,7 +103,7 @@
         //set preview image
         if (showPreview) {
             gsStorage.fetchPreviewImage(url, function (preview) {
-                if (preview && preview.img && preview.img !== null && preview.img !== 'data:,') {
+                if (preview && preview.img && preview.img !== null && preview.img !== 'data:,' && preview.img.length > 10000) {
 
                     var previewEl = document.createElement('div');
                     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
