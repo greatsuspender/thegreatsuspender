@@ -14,7 +14,7 @@ var gsAnalytics = (function () { // eslint-disable-line no-unused-vars
         ga('set', 'dimension2', gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '');
         ga('set', 'dimension3', gsStorage.getOption(gsStorage.SUSPEND_TIME) + '');
         ga('set', 'dimension4', gsStorage.getOption(gsStorage.NO_NAG) + '');
-        ga('set', 'dimension5', gsStorage.getOption(gsStorage.LAST_NOTICE) + '');
+        ga('set', 'dimension5', gsStorage.fetchNoticeVersion() + '');
     }
 
     return {

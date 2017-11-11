@@ -144,6 +144,10 @@ var gsStorage = {
         //test that option exists in settings object
         if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
             defaults = this.getSettingsDefaults();
+            if (typeof defaults[prop] === 'undefined' || defaults[prop] === null) {
+                gsUtils.error('Not default set for prop: ' + prop + '!');
+                defaults[prop] = 'to be defined';
+            }
             this.setOption(prop, defaults[prop]);
             return defaults[prop];
 
