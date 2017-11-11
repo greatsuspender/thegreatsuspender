@@ -92,7 +92,7 @@ var historyUtils = (function () { // eslint-disable-line no-unused-vars
         var content = 'data:text/plain;charset=utf-8,',
             dataString = '';
 
-        gsStorage.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionBySessionId(sessionId).then(function (session) {
 
             if (!session || !session.windows) {
                 callback();
@@ -138,7 +138,7 @@ var historyUtils = (function () { // eslint-disable-line no-unused-vars
 
     function saveSession(sessionId) {
 
-        gsStorage.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionBySessionId(sessionId).then(function (session) {
             var sessionName = window.prompt(chrome.i18n.getMessage('js_history_enter_name_for_session'));
             if (sessionName) {
                 historyUtils.validateNewSessionName(sessionName, function (shouldSave) {

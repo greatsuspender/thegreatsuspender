@@ -12,7 +12,7 @@
         var windows = [],
             curUrl;
 
-        gsStorage.fetchSessionById(sessionId).then(function (session) {
+        gsStorage.fetchSessionBySessionId(sessionId).then(function (session) {
 
             if (!session || !session.windows) {
                 return;
@@ -106,7 +106,7 @@
             return;
         }
 
-        gsStorage.fetchSessionById(sessionId).then(function (curSession) {
+        gsStorage.fetchSessionBySessionId(sessionId).then(function (curSession) {
 
             if (!curSession || !curSession.windows) {
                 return;

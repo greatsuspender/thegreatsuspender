@@ -439,7 +439,7 @@ var gsStorage = {
         });
     },
 
-    fetchSessionById: function (sessionId) {
+    fetchSessionBySessionId: function (sessionId) {
 
         //if it's a saved session (prefixed with an underscore)
         var tableName = sessionId.indexOf('_') === 0
@@ -461,7 +461,7 @@ var gsStorage = {
     createSessionRestorePoint: function (currentVersion, newVersion) {
         var currentSession;
         var currentSessionId = gsSession.getSessionId();
-        return this.fetchSessionById(currentSessionId).then(function (session) {
+        return this.fetchSessionBySessionId(currentSessionId).then(function (session) {
             currentSession = session;
             return gsStorage.fetchCurrentSessions();
         }).then(function (sessions) {
@@ -559,7 +559,7 @@ var gsStorage = {
 
         callback = typeof callback !== 'function' ? this.noop : callback;
 
-        this.fetchSessionById(sessionId).then(function (gsSession) {
+        this.fetchSessionBySessionId(sessionId).then(function (gsSession) {
 
             gsSession.windows.some(function (curWindow, windowIndex) {
                 matched = curWindow.tabs.some(function (curTab, tabIndex) {
