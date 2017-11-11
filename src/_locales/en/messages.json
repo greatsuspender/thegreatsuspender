@@ -12,11 +12,11 @@
 
     // About page
     "html_about_title": { "message": "About" },
-    "html_about_github_title": { "message": "Github" },
+    "html_about_github_title": { "message": "GitHub" },
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "If you have feedback or would like to report an issue, you can do so on the" },
     "html_about_report_issues_suffix": { "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!" },
-    "html_about_the_github_issues_page": { "message": "github issues page" },
+    "html_about_the_github_issues_page": { "message": "GitHub issues page" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "This extension uses the" },
     "html_about_html2canvas_suffix": { "message": "library written by Niklas von Hertzen." },
@@ -159,19 +159,23 @@
 
     // Update page
     "html_update_title": { "message": "Update" },
-    "html_update_heading1_prefix": { "message": "Action required for" },
-    "html_update_heading2": { "message": "Please read the important information below." },
+    "html_update_heading2": { "message": "is about to get greater" },
     "html_update_info_line1": { "message": "A new version of The Great Suspender is ready to be installed." },
-    "html_update_info_line2": { "message": "A backup of your current session has been created." },
-    "html_update_info_line3_prefix": { "message": "Important" },
-    "html_update_info_line3": { "message": "Please save a copy of this backup before proceeding with the update." },
+    "html_update_info_line2": { "message": "Please save a backup of your current tab session before continuing." },
     "html_update_info_line2_alternate_prefix": { "message": "It is strongly recommended that you save a backup of your current session from " },
     "html_update_info_line2_alternate_suffix": { "message": " before continuing with the update." },
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
     "html_updated_great_suspender_updated": { "message": "has been updated" },
-    "html_updated_welcome": { "message": "Welcome to" },
+    "html_updated_info_line1": { "message": "An automatic backup was made of your tabs before the update." },
+    "html_updated_info_line2_prefix": { "message": "If you encountered any issues during the update, you can recover lost tabs from the " },
+    "html_updated_info_line2_suffix": { "message": " page." },
+    "html_updated_detail_header_prefix": { "message": "What's new in " },
+    "html_updated_detail_header_suffix": { "message": "?" },
+    "html_updated_new_features_header": { "message": "New features:" },
+    "html_updated_bug_fixes_header": { "message": "Bug fixes:" },
+    "html_updated_release_notes": { "message": "Visit GitHub for full release notes: " },
 
     // Welcome page
     "html_welcome_title": { "message": "Welcome" },

@@ -39,17 +39,22 @@
         var versionEl = document.getElementById('updatedVersion');
         versionEl.innerHTML = 'v' + chrome.runtime.getManifest().version;
 
+        document.getElementById('sessionManagerLink').onclick = function (e) {
+            e.preventDefault();
+            chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+        };
+
         var currentVersion = chrome.runtime.getManifest().version;
         gsStorage.fetchSessionRestorePoint(gsStorage.DB_SESSION_POST_UPGRADE_KEY, currentVersion)
             .then(function (sessionRestorePoint) {
                 if (!sessionRestorePoint) {
                     gsUtils.log('Couldnt find session restore point. Something has gone horribly wrong!!');
                 } else {
-                    var sessionEl = historyItems.createSessionHtml(sessionRestorePoint, false);
-                    document.getElementById('savedSession').appendChild(sessionEl);
-                    sessionEl.onclick = function (e) {
-                        toggleSession(sessionEl, sessionRestorePoint);
-                    };
+                    // var sessionEl = historyItems.createSessionHtml(sessionRestorePoint, false);
+                    // document.getElementById('savedSession').appendChild(sessionEl);
+                    // sessionEl.onclick = function (e) {
+                    //     toggleSession(sessionEl, sessionRestorePoint);
+                    // };
                     document.getElementById('backupInfo').style.display = 'block';
                 }
             });

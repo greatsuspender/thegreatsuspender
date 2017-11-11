@@ -12,11 +12,11 @@
 
     // About page
     "html_about_title": { "message": "支援" }, //support
-    "html_about_github_title": { "message": "Github" },
+    "html_about_github_title": { "message": "GitHub" },
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "如果您有反饋意見或想報告問題，可以在" }, //? If you have feedback or want to report a problem, you can
     "html_about_report_issues_suffix": { "message": ". 在創建新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" }, //? Before creating a new idea or question, check that your idea or question exists. Thank you!
-    "html_about_the_github_issues_page": { "message": "github上進行" }, //? github on
+    "html_about_the_github_issues_page": { "message": "GitHub上進行" }, //? github on
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "這個擴充元件使用 Niklas von Hertzen 撰寫的" }, //This extension is written using Niklas von Hertzen
     "html_about_html2canvas_suffix": { "message": "資源。" }, //Resources.
@@ -137,7 +137,7 @@
     "html_success_goto_advanced_suffix": { "message": "" },
 
     // Session manager link
-    "html_session_manager": { "message": "記錄管理頁面。" }, //Records management page.
+    "html_session_manager": { "message": "記錄管理頁面" }, //Records management page
 
     // Suspended page
     "html_suspended_title": { "message": "分頁已經被凍結" }, //Paging has been frozen
@@ -162,13 +162,20 @@
     "html_update_heading2": { "message": "即将变得更好" }, //? It is about to get better
     "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
     "html_update_info_line2": { "message": "请继续前保存当前选项卡会话的备份。" }, //? Please save the backup of the current tab session before proceeding.
-    "html_update_info_line2_alternate_prefix": { "message": "在继续更新之前，强烈建议您从 " }, //? It is strongly recommended that you continue before updating
-    "html_update_info_line2_alternate_suffix": { "message": " 导出当前会话的备份。" }, //? Export a backup of the current session.
+    "html_update_info_line2_alternate_prefix": { "message": "强烈建议您在继续之前从 " }, //? We strongly recommend that you save a backup of your current session from
+    "html_update_info_line2_alternate_suffix": { "message": " 保存当前会话的备份。" }, //? before proceeding.
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //? Updated
     "html_updated_great_suspender_updated": { "message": "已更新" }, //? updated
-    "html_updated_welcome": { "message": "歡迎來到" }, //? Welcome to
+    "html_updated_info_line1": { "message": "更新之前，您的选项卡已被自动保存。" }, //? Your tab has been saved automatically before updating
+    "html_updated_info_line2_prefix": { "message": "如果在更新过程中遇到任何问题，可以从 " }, //? If you have any problems during the update, you can recover the missing tabs from the
+    "html_updated_info_line2_suffix": { "message": " 页面中恢复丢失的选项卡。" }, //? page.
+    "html_updated_detail_header_prefix": { "message": "是什么在 " }, //? What's new in
+    "html_updated_detail_header_suffix": { "message": "新?" }, //? ?
+    "html_updated_new_features_header": { "message": "新的功能：" }, //? New features:
+    "html_updated_bug_fixes_header": { "message": "错误修正：" }, //? Bugfixes:
+    "html_updated_release_notes": { "message": "请访问GitHub获取完整的发行说明: " }, //? Please visit gitHub for the complete release notes:
 
     // Welcome page
     "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to

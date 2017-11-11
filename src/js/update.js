@@ -7,12 +7,10 @@
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
-        Array.prototype.forEach.call(document.getElementsByClassName('sessionManagerLink'), function (el) {
-            el.onclick = function (e) {
-                e.preventDefault();
-                chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
-            };
-        });
+        document.getElementById('sessionManagerLink').onclick = function (e) {
+            e.preventDefault();
+            chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+        };
         document.getElementById('restartExtensionBtn').onclick = function (e) {
             var result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
             if (result) {

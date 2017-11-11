@@ -175,15 +175,14 @@ ul.unorderedList li {
     font-size: 24px;
     margin: 0;
 }
-.splash p {
+.splash h5 {
     font-weight: 400;
-    font-size: 22px;
-    margin: 0;
-    padding-top: 10px;
+    font-size: 20px;
+    margin: 20px 0 10px 0;
 }
-.splash p span {
-    font-size: 22px;
-    line-height: 27px;
+.splash ul {
+    list-style: square inside none;
+    line-height: 20px;
 }
 hr.splashRule {
     clear: left;
@@ -202,6 +201,16 @@ hr.splashRule {
     display: table-cell;
     padding-left: 3px;
     padding-top: 20px;
+}
+.dude-text-base p {
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0;
+    padding-top: 10px;
+}
+.dude-text-base p span {
+    font-size: 22px;
+    line-height: 27px;
 }
 .btn {
     background: #52a6c8;
