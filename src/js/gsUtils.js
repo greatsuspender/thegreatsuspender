@@ -355,7 +355,9 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var self = this;
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                self.resetContentScript(currentTab.id, preferencesToUpdate);
+                if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
+                    self.resetContentScript(currentTab.id, preferencesToUpdate);
+                }
             });
         });
     },
