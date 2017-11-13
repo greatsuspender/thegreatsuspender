@@ -10,14 +10,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         gsUtils.log('\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
     });
 
-    //wishful thinking here that a synchronus iteration through tab views will enable them
-    //to unsuspend before the application closes
-    // chrome.runtime.setUninstallURL('', function () {
-    //     chrome.extension.getViews({type: 'tab'}).forEach(function (view) {
-    //         view.location.reload();
-    //     });
-    // });
-
     //handle special event where an extension update is available
     chrome.runtime.onUpdateAvailable.addListener(function (details) {
         prepareForUpdate(details);
@@ -261,17 +253,13 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     function reinjectContentScripts() {
         chrome.tabs.query({}, function (tabs) {
-            var timeout = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-
             tabs.forEach(function (currentTab) {
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
                     var tabId = currentTab.id;
 
                     chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
                         if (chrome.runtime.lastError) {
-                            gsUtils.log('Could not reinject contentscript.js into tab: ' + tabId);
-                        } else {
-                            gsUtils.sendMessageToTab(tabId, {action: 'resetPreferences', suspendTime: timeout});
+                            gsUtils.error('Could not reinject contentscript.js into tab: ' + tabId, chrome.runtime.lastError.message);
                         }
                     });
                 }
