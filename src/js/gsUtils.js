@@ -71,16 +71,18 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     sendMessageToTab: function (tabId, message, callback) {
+        message.tabId = tabId;
         if (!callback) {
             callback = function () {
                 if (chrome.runtime.lastError) {
-                    gsUtils.error(chrome.runtime.lastError.message);
+                    gsUtils.error(chrome.runtime.lastError.message, tabId, message);
                 }
             };
         }
         try {
             chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
         } catch (e) {
+            gsUtils.error(e);
             chrome.tabs.sendMessage(tabId, message, callback);
         }
     },
