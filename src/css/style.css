@@ -631,6 +631,9 @@ a.historyLink:hover {
     top: 0;
     width: 100%;
     height: 100%;
+    opacity: 0;
+    -webkit-animation: fadeinout 4s linear forwards;
+    animation: fadeinout 4s linear forwards;
 }
 .toast-content {
     display: inline-block;
@@ -643,9 +646,6 @@ a.historyLink:hover {
     border: 1px solid #888;
     border-radius: 5px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-    opacity: 0;
-    -webkit-animation: fadeinout 4s linear forwards;
-    animation: fadeinout 4s linear forwards;
 }
 
 .toast-content p {
@@ -653,13 +653,13 @@ a.historyLink:hover {
 }
 
 @-webkit-keyframes fadeinout {
-    0%,100% { opacity: 0; }
-    50% { opacity: 1; }
+    0%,100% { opacity: 0; visibility: hidden; }
+    50% { opacity: 1; visibility: visible; }
 }
 
 @keyframes fadeinout {
-    0%,100% { opacity: 0; }
-    5%, 90% { opacity: 1; }
+    0%,100% { opacity: 0; visibility: hidden; }
+    5%, 90% { opacity: 1; visibility: visible; }
 }
 
 .modal-wrapper {

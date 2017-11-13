@@ -7,6 +7,9 @@
     var gsStorage;
     var requestUnsuspendOnReload = false;
 
+    var fullUrlStr;
+    var rootUrlStr;
+
     backgroundPageReadyAsPromsied()
         .then(function () {
             gsUtils = chrome.extension.getBackgroundPage().gsUtils;
@@ -61,6 +64,8 @@
     function init(tabProperties) {
 
         var url = gsUtils.getSuspendedUrl(window.location.href);
+        rootUrlStr = gsUtils.getRootUrl(url);
+        fullUrlStr = gsUtils.getRootUrl(url, true);
 
         //if we are missing some suspend information for this tab
         if (!tabProperties) {
@@ -69,12 +74,7 @@
                 favicon: 'chrome://favicon/' + url
             };
         }
-
-        var rootUrlStr = gsUtils.getRootUrl(url),
-            fullUrlStr = gsUtils.getRootUrl(url, true),
-            scrollPos = gsUtils.getSuspendedScrollPosition(window.location.href),
-            showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0',
-            scrollImagePreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2';
+        var showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0';
 
         var title = tabProperties ? tabProperties.title : '';
         var placeholderTitle = chrome.i18n.getMessage('html_suspended_title');
@@ -102,33 +102,7 @@
 
         //set preview image
         if (showPreview) {
-            gsStorage.fetchPreviewImage(url, function (preview) {
-                if (preview && preview.img && preview.img !== null && preview.img !== 'data:,' && preview.img.length > 10000) {
-
-                    var previewEl = document.createElement('div');
-                    previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
-                    gsUtils.localiseHtml(previewEl);
-                    previewEl.onclick = handleUnsuspendTab;
-                    document.getElementsByTagName('body')[0].appendChild(previewEl);
-
-                    document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
-                    if (scrollImagePreview) {
-                        document.getElementById('gsPreviewImg').addEventListener('load', function () {
-                            document.body.scrollTop = scrollPos || 0;
-                        }, { once: true });
-                    }
-                    document.getElementById('suspendedMsg').style.display = 'none';
-                    previewEl.style.display = 'block';
-
-                    //allow vertical scrollbar if we are using high quality previews
-                    if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2') {
-                        document.body.style['overflow-x'] = 'auto';
-                    }
-                } else {
-                    document.getElementById('suspendedMsg').style.display = 'table-cell';
-                }
-            });
-
+            loadImagePreviewTemplate(url);
         } else {
             document.getElementById('suspendedMsg').style.display = 'table-cell';
         }
@@ -165,12 +139,6 @@
         var isWhitelisted = gsUtils.checkWhiteList(url);
         if (isWhitelisted) {
             document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
-
-        //populate modal
-        } else {
-            document.getElementById('rootUrl').innerHTML = rootUrlStr;
-            document.getElementById('fullUrl').innerHTML = fullUrlStr;
-            //whitelistPageEl.innerHTML = fullUrlStr;
         }
 
         //click listeners
@@ -179,41 +147,19 @@
         document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
         document.getElementById('gsWhitelistLink').onclick = function () {
             if (isWhitelisted) {
-                unwhitelistTab(rootUrlStr, fullUrlStr);
+                unwhitelistTab();
             } else {
-                // hide second option (whitelist page) if the url is the same as the root url
-                if (rootUrlStr === fullUrlStr) {
-                    document.getElementById('whitelistPage').parentElement.style.display = 'none';
-                }
-                toggleModal(true);
-            }
-        };
-        document.getElementById('confirmWhitelistBtn').onclick = function () {
-            if (document.getElementById('whitelistSite').checked && rootUrlStr) {
-                whitelistTab(rootUrlStr);
-            } else if (document.getElementById('whitelistPage').checked && fullUrlStr) {
-                whitelistTab(fullUrlStr);
-            } else {
-                temporarilyWhitelistTab();
-            }
-        };
-
-        Array.from(document.querySelectorAll('.close')).forEach(function (link) {
-            link.addEventListener('click', function (event) {
-                toggleModal(false);
-            });
-        });
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target === document.getElementById('whitelistOptionsModal')) {
-                toggleModal(false);
+                toggleWhitelistModal(true);
             }
         };
 
         //show dude and donate link (randomly 1 of 33 times)
         if (!gsStorage.getOption(gsStorage.NO_NAG) && Math.random() > 0.97) {
-            window.addEventListener('focus', displayPopup);
+            var donationPopupFocusListener = function (e) {
+                e.target.removeEventListener('focus', donationPopupFocusListener);
+                loadDonationPopupTemplate();
+            };
+            window.addEventListener('focus', donationPopupFocusListener);
         }
 
         //add an unload listener to tell the page to unsuspend on refresh
@@ -283,34 +229,91 @@
 
     function whitelistTab(whitelistString) {
         gsUtils.saveToWhitelist(whitelistString);
-        toggleModal(false);
+        toggleWhitelistModal(false);
         requestUnsuspendTab();
     }
 
-    function unwhitelistTab(rootUrlStr, fullUrlStr) {
+    function unwhitelistTab() {
         gsUtils.removeFromWhitelist(rootUrlStr);
         gsUtils.removeFromWhitelist(fullUrlStr);
-        toggleModal(false);
+        toggleWhitelistModal(false);
         requestUnsuspendTab();
     }
 
     function temporarilyWhitelistTab() {
-        toggleModal(false);
+        toggleWhitelistModal(false);
         requestUnsuspendTab(true);
     }
 
+    function toggleWhitelistModal(visible) {
+        if (!document.getElementById('whitelistOptionsModal')) {
+            loadWhitelistModalTemplate();
+        }
+        document.getElementById('whitelistOptionsModal').style.display = visible ? 'block' : 'none';
+    }
+
     function showNoConnectivityMessage() {
+        if (!document.getElementById('disconnectedNotice')) {
+            loadToastTemplate();
+        }
         document.getElementById('disconnectedNotice').style.display = 'none';
         setTimeout(function () {
             document.getElementById('disconnectedNotice').style.display = 'block';
         }, 50);
     }
 
-    function toggleModal(visible) {
-        document.getElementById('whitelistOptionsModal').style.display = visible ? 'block' : 'none';
+    function loadWhitelistModalTemplate() {
+        var modalEl = document.createElement('div');
+        modalEl.setAttribute('id', 'whitelistOptionsModal');
+        modalEl.classList.add('modal-wrapper');
+        modalEl.innerHTML = document.getElementById('whitelistModalTemplate').innerHTML;
+        gsUtils.localiseHtml(modalEl);
+        document.getElementsByTagName('body')[0].appendChild(modalEl);
+
+        //update whitelist text
+        document.getElementById('rootUrl').innerHTML = rootUrlStr;
+        document.getElementById('fullUrl').innerHTML = fullUrlStr;
+        //whitelistPageEl.innerHTML = fullUrlStr;
+
+        // hide second option (whitelist page) if the url is the same as the root url
+        if (rootUrlStr === fullUrlStr) {
+            document.getElementById('whitelistPage').parentElement.style.display = 'none';
+        }
+
+        document.getElementById('confirmWhitelistBtn').onclick = function () {
+            if (document.getElementById('whitelistSite').checked && rootUrlStr) {
+                whitelistTab(rootUrlStr);
+            } else if (document.getElementById('whitelistPage').checked && fullUrlStr) {
+                whitelistTab(fullUrlStr);
+            } else {
+                temporarilyWhitelistTab();
+            }
+        };
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target === document.getElementById('whitelistOptionsModal')) {
+                toggleWhitelistModal(false);
+            }
+        };
+
+        Array.from(document.querySelectorAll('.close')).forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                toggleWhitelistModal(false);
+            });
+        });
     }
 
-    function loadDonateButtons() {
+    function loadToastTemplate() {
+        var toastEl = document.createElement('div');
+        toastEl.setAttribute('id', 'disconnectedNotice');
+        toastEl.classList.add('toast-wrapper');
+        toastEl.innerHTML = document.getElementById('toastTemplate').innerHTML;
+        gsUtils.localiseHtml(toastEl);
+        document.getElementsByTagName('body')[0].appendChild(toastEl);
+    }
+
+    function loadDonateButtonsHtml() {
         document.getElementById('donateButtons').innerHTML = this.responseText;
 
         document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
@@ -324,25 +327,54 @@
         };
     }
 
-    function displayPopup(e) {
-
-        e.target.removeEventListener('focus', displayPopup);
+    function loadDonationPopupTemplate() {
         //if user has donated since this page was first generated then dont display popup
         if (gsStorage.getOption(gsStorage.NO_NAG)) { return; }
 
-        //generate html for popupDude
         var popupEl = document.createElement('div');
         popupEl.innerHTML = document.getElementById('donateTemplate').innerHTML;
         gsUtils.localiseHtml(popupEl);
         document.getElementsByTagName('body')[0].appendChild(popupEl);
 
         var request = new XMLHttpRequest();
-        request.onload = loadDonateButtons;
+        request.onload = loadDonateButtonsHtml;
         request.open('GET', 'support.html', true);
         request.send();
 
         document.getElementById('dudePopup').setAttribute('class', 'poppedup');
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+    }
+
+    function loadImagePreviewTemplate(url) {
+        var scrollImagePreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2';
+
+        gsStorage.fetchPreviewImage(url, function (preview) {
+            if (preview && preview.img && preview.img !== null && preview.img !== 'data:,' && preview.img.length > 10000) {
+
+                var previewEl = document.createElement('div');
+                previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
+                gsUtils.localiseHtml(previewEl);
+                previewEl.onclick = handleUnsuspendTab;
+                document.getElementsByTagName('body')[0].appendChild(previewEl);
+
+                document.getElementById('gsPreviewImg').setAttribute('src', preview.img);
+                if (scrollImagePreview) {
+                    var scrollPos = gsUtils.getSuspendedScrollPosition(window.location.href);
+                    document.getElementById('gsPreviewImg').addEventListener('load', function () {
+                        document.body.scrollTop = scrollPos || 0;
+                    }, { once: true });
+                }
+                document.getElementById('suspendedMsg').style.display = 'none';
+                previewEl.style.display = 'block';
+
+                //allow vertical scrollbar if we are using high quality previews
+                if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2') {
+                    document.body.style['overflow-x'] = 'auto';
+                }
+            } else {
+                document.getElementById('suspendedMsg').style.display = 'table-cell';
+            }
+        });
     }
 
     function backgroundPageReadyAsPromsied() {

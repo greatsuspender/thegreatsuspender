@@ -9,6 +9,55 @@
 </head>
 <body class="suspended-page">
 
+<script type="text/html" id="previewTemplate">
+	<div id="gsPreview" class="gsPreview">
+		<img id="gsPreviewImg" class="gsPreviewImg" />
+	</div>
+</script>
+
+<script type="text/html" id="donateTemplate">
+	<img id="dudePopup" src="img/dude.png" style="float: left;">
+	<div id="donateBubble">
+		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;" data-i18n="__MSG_html_suspended_donation_question__"></div>
+		<div id="donateButtons" />
+	</div>
+</script>
+
+<script type="text/html" id="whitelistModalTemplate">
+	<div class="modal-content">
+		<div class="modal-header">
+			<span class="close close-x">&times;</span>
+			<h2 data-i18n="__MSG_html_suspended_modal_header__"></h2>
+		</div>
+		<div class="modal-body">
+			<div class="radio">
+				<input type="radio" name="whitelistOption" id="whitelistSite" checked />
+				<label for="whitelistSite"><span id="rootUrl" data-i18n="__MSG_html_suspended_modal_this_domain__"></span></label>
+			</div>
+			<div class="radio">
+				<input type="radio" name="whitelistOption" id="whitelistPage" />
+				<label for="whitelistPage"><span id="fullUrl" data-i18n="__MSG_html_suspended_modal_this_page__"></span></label>
+			</div>
+			<div class="radio">
+				<input type="radio" name="whitelistOption" id="whitelistTemporary" />
+				<label for="whitelistTemporary" data-i18n="__MSG_html_suspended_modal_temp_whitelist__"></label>
+			</div>
+			<p class="lesserText" data-i18n="__MSG_html_suspended_modal_temp_whitelist_notice__"></p>
+		</div>
+		<div class="modal-footer">
+			<div id="confirmWhitelistBtn" class="btn" data-i18n="__MSG_html_suspended_modal_ok__"></div>
+			<div class="btn close" style="background: #bbb;" data-i18n="__MSG_html_suspended_modal_cancel__"></div>
+		</div>
+	</div>
+</script>
+
+<script type="text/html" id="toastTemplate">
+	<div class="toast-content">
+		<h1 data-i18n="__MSG_html_suspended_toast_not_connected__"></h1>
+		<p data-i18n="__MSG_html_suspended_toast_reload_disabled__"></p>
+	</div>
+</script>
+
 <div id="gsTopBar" class="gsTopBar">
 	<div id="gsTitleWrap" class="gsTitleWrap">
 		<img id="gsTopBarImg" class="gsTopBarImg" /> <a id="gsTopBarTitle" class="gsTopBarTitle"></a>
@@ -25,54 +74,6 @@
     </div>
 </div>
 <div id="refreshSpinner"></div>
-<div id="disconnectedNotice" class="toast-wrapper">
-	<div class="toast-content">
-		<h1 data-i18n="__MSG_html_suspended_toast_not_connected__"></h1>
-		<p data-i18n="__MSG_html_suspended_toast_reload_disabled__"></p>
-	</div>
-</div>
-
-<script type="text/html" id="previewTemplate">
-	<div id="gsPreview" class="gsPreview">
-	    <img id="gsPreviewImg" class="gsPreviewImg" />
-	</div>
-</script>
-
-<script type="text/html" id="donateTemplate">
-	<img id="dudePopup" src="img/dude.png" style="float: left;">
-	<div id="donateBubble">
-		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;" data-i18n="__MSG_html_suspended_donation_question__"></div>
-	    <div id="donateButtons" />
-	</div>
-</script>
-
-<div id="whitelistOptionsModal" class="modal-wrapper">
-	<div class="modal-content">
-		<div class="modal-header">
-			<span class="close close-x">&times;</span>
-			<h2 data-i18n="__MSG_html_suspended_modal_header__"></h2>
-		</div>
-	  	<div class="modal-body">
-	    	<div class="radio">
-		    	<input type="radio" name="whitelistOption" id="whitelistSite" checked />
-		    	<label for="whitelistSite"><span id="rootUrl" data-i18n="__MSG_html_suspended_modal_this_domain__"></span></label>
-		    </div>
-		    <div class="radio">
-		    	<input type="radio" name="whitelistOption" id="whitelistPage" />
-		    	<label for="whitelistPage"><span id="fullUrl" data-i18n="__MSG_html_suspended_modal_this_page__"></span></label>
-		    </div>
-		    <div class="radio">
-			    <input type="radio" name="whitelistOption" id="whitelistTemporary" />
-		    	<label for="whitelistTemporary" data-i18n="__MSG_html_suspended_modal_temp_whitelist__"></label>
-		    </div>
-		    <p class="lesserText" data-i18n="__MSG_html_suspended_modal_temp_whitelist_notice__"></p>
-	  	</div>
-		<div class="modal-footer">
-			<div id="confirmWhitelistBtn" class="btn" data-i18n="__MSG_html_suspended_modal_ok__"></div>
-			<div class="btn close" style="background: #bbb;" data-i18n="__MSG_html_suspended_modal_cancel__"></div>
-		</div>
-	</div>
-</div>
 
 </body>
 </html>
