@@ -154,7 +154,8 @@
                 var shortcutNotSetEl = document.createElement('a');
                 shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
                 hotkeyEl.appendChild(shortcutNotSetEl);
-                hotkeyEl.onclick = function () {
+                hotkeyEl.onclick = function (e) {
+                    e.stopPropagation();
                     chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
                 };
             }
