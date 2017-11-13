@@ -372,7 +372,13 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
             messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         }
-        this.sendMessageToTab(tabId, messageParams);
+        this.sendMessageToTab(tabId, messageParams, function () {
+            if (chrome.runtime.lastError) {
+                gsUtils.log(
+                    'Failed to resetContentScript for tabId: ' + tabId + '. Tab is probably special or suspended.',
+                    chrome.runtime.lastError.message);
+            }
+        });
     },
 
     recoverLostTabs: function (callback) {
