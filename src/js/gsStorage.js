@@ -452,9 +452,12 @@ var gsStorage = {
                 .then(function (results) {
                     if (results.length > 0) {
                         // Remove any duplicates!!!
-                        gsUtils.error('Duplicate sessions found for sessionId: ' + sessionId + '! Removing older ones..');
-                        for (var session of results.slice(1)) {
-                            s.remove(tableName, session.id);
+                        if (results.length > 1) {
+                            gsUtils.error('Duplicate sessions found for sessionId: ' + sessionId + '! Removing older ones..');
+                            for (var session of results.slice(1)) {
+                                s.remove(tableName, session.id).then((res) => {
+                                });
+                            }
                         }
                         return results[0];
                     } else {
