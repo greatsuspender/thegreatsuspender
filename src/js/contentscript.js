@@ -180,7 +180,6 @@
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         switch (request.action) {
-
         //listen for request to reset preferences if options have changed
         case 'resetPreferences':
             if (request.hasOwnProperty('suspendTime')) {
@@ -199,7 +198,7 @@
                 }
                 inputState = inputState && request.ignoreForms;
             }
-            return false;
+            break;
 
         //listen for status request
         case 'requestInfo':
@@ -210,31 +209,33 @@
         case 'cancelTimer':
             clearTimeout(timerJob);
             suspendDateTime = false;
-            return false;
+            break;
 
         //listen for request to temporarily whitelist the tab
         case 'tempWhitelist':
             tempWhitelist = true;
-            return false;
+            break;
 
         //listen for request to undo temporary whitelisting
         case 'undoTempWhitelist':
             inputState = false;
             tempWhitelist = false;
-            return false;
+            break;
 
         //listen for preview request
         case 'generatePreview':
             generatePreviewImg(request.suspendedUrl, request.screenCapture, request.forceScreenCapture);
-            return false;
+            break;
 
         //listen for suspend request
         case 'confirmTabSuspend':
             if (request.suspendedUrl) {
                 suspendTab(request.suspendedUrl);
             }
-            return false;
+            break;
         }
+        sendResponse();
+        return false;
     });
 
     if (document.readyState !== 'loading') {

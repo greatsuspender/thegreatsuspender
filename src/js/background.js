@@ -773,11 +773,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
                 updateIcon(processActiveTabStatus(sender.tab, request.status));
             }
-            return false;
+            break;
 
         case 'suspendTab':
             attemptTabSuspension(sender.tab, 3);
-            return false;
+            break;
 
         case 'requestUnsuspendTab':
             if (sender.tab && gsUtils.isSuspendedTab(sender.tab)) {
@@ -786,13 +786,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 }
                 unsuspendTab(sender.tab);
             }
-            return true;
+            break;
 
         case 'requestUnsuspendOnReload':
             if (sender.tab && gsUtils.isSuspendedTab(sender.tab)) {
                 unsuspendOnReloadByTabId[sender.tab.id] = true;
             }
-            return false;
+            break;
 
         case 'savePreviewData':
             if (sender.tab) {
@@ -807,14 +807,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 gsStorage.addPreviewImage(sender.tab.url, request.previewUrl, function () {
                     sendResponse();
                 });
-            } else {
-                sendResponse();
+                return true;
             }
-            return true;
-
-        default:
-            return false;
+            break;
         }
+        sendResponse();
+        return false;
     }
 
     //attach listener to runtime

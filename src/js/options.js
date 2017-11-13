@@ -185,8 +185,9 @@
 
         case 'reloadOptions':
             initSettings();
-            return false;
         }
+        sendResponse();
+        return false;
     });
 
     gsAnalytics.reportPageView('options.html');

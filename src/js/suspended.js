@@ -381,18 +381,17 @@
 
         case 'unsuspendTab':
             unsuspendTab();
-            sendResponse({ result: 'done' });
-            return false;
+            break;
 
         case 'setUnsuspendOnReload':
             requestUnsuspendOnReload = request.value || false;
-            sendResponse({ result: 'done' });
-            return false;
+            break;
 
         case 'showNoConnectivityMessage':
             showNoConnectivityMessage();
-            sendResponse({ result: 'done' });
-            return false;
+            break;
         }
+        sendResponse();
+        return false;
     });
 }());
