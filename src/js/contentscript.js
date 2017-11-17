@@ -10,6 +10,7 @@
     'use strict';
 
     var inputState = false,
+        editedInputControls = [],
         tempWhitelist = false,
         timerJob,
         suspendDateTime = false,
@@ -155,6 +156,10 @@
         suspendDateTime = new Date((new Date()).getTime() + timeToSuspend);
 
         return setTimeout(function () {
+            //if inputState is set, perform value checks of edited elements
+            if (inputState) {
+				formInputChecker();
+            }
             //request suspension
             if (!inputState && !tempWhitelist) {
 
@@ -168,13 +173,51 @@
             if (event.keyCode >= 32 && event.keyCode <= 126 && event.target.tagName) {
                 if (event.target.tagName.toUpperCase() === 'INPUT' ||
                         event.target.tagName.toUpperCase() === 'TEXTAREA' ||
-                        event.target.tagName.toUpperCase() === 'FORM') {
+                        event.target.tagName.toUpperCase() === 'FORM' ||
+                        event.target.isContentEditable === true) {
                     inputState = true;
                     var tabState = buildTabStateObject();
                     chrome.runtime.sendMessage(tabState);
+                    //stores so it can be checked later for unsaved values
+                    editedInputControls.push(event.target);
                 }
             }
         }
+    }
+    
+    function formInputChecker() {
+        var newEditedInputControls = [];
+        for (var el of editedInputControls) {
+            if (isElementInBody(el) === true) {
+                //checks for `value` of `<input>` elements for any non-empty value
+                if (el.tagName.toUpperCase() == "INPUT" && !el.tagName.getAttribute("value")) {
+                    newEditedInputControls.push(el);                    
+                //checks for `textContent` of other types of elements for any non-empty value
+                } else if ((el.tagName.toUpperCase() == "TEXTAREA" ||
+                            el.tagName.isContentEditable === true) && 
+                           !el.textContent) {
+                    newEditedInputControls.push(el);
+                }
+            }
+        }
+        //replaces old list with updated one
+        editedInputControls = newEditedInputControls;
+        
+        //updates status if all edited elements don't have values.
+        if (editedInputControls.length == 0) {
+            inputState = false;
+            var tabState = buildTabStateObject();
+            chrome.runtime.sendMessage(tabState);
+        }
+    }
+
+    function isElementInBody(el) {
+        while (el) {
+            if (el.tagName === "BODY")
+                return true;
+            el = el.parentElement;
+        }
+        return false;
     }
 
     //listen for background events
