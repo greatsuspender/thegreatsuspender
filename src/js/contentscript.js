@@ -12,40 +12,6 @@
     var inputState = false,
         tempWhitelist = false,
         timerJob,
-        suspendDateTime = false,
-        suspendedEl = document.getElementById('gsTopBar');
-
-    //safety check here. don't load content script if we are on the suspended page
-    if (suspendedEl) { return; }
-
-    function init() {
-
-        //do startup jobs
-        chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
-
-            //set timer job (if tab is reloading in background)
-            var suspendTime = Number(response.suspendTime);
-            if (response && !isNaN(suspendTime) && suspendTime > 0) {
-                suspendTime = suspendTime * (1000 * 60);
-                timerJob = setTimerJob(suspendTime);
-            }
-
-            //add form input listener
-            if (response && response.ignoreForms) {
-                window.addEventListener('keydown', formInputListener);
-            }
-
-            //handle auto-scrolling
-            if (response && response.scrollPos && response.scrollPos !== '' && response.scrollPos !== '0') {
-                document.body.scrollTop = response.scrollPos;
-            }
-
-            //handle auto temporary whitelisting
-            if (response && response.tempWhitelist) {
-                tempWhitelist = true;
-            }
-        });
-    }
 
     function calculateState() {
         return inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
@@ -175,6 +141,24 @@
         switch (request.action) {
         //listen for request to reset preferences if options have changed
         case 'resetPreferences':
+            if (request.hasOwnProperty('ignoreForms')) {
+                window.removeEventListener('keydown', formInputListener);
+                if (request.ignoreForms) {
+                    window.addEventListener('keydown', formInputListener);
+                }
+                inputState = inputState && request.ignoreForms;
+            }
+            if (request.hasOwnProperty('tempWhitelist')) {
+                if (tempWhitelist && !request.tempWhitelist) {
+                    inputState = false;
+                }
+                tempWhitelist = request.tempWhitelist;
+            }
+            if (request.hasOwnProperty('scrollPos')) {
+                if (request.scrollPos !== '' && request.scrollPos !== '0') {
+                    document.body.scrollTop = request.scrollPos;
+                }
+            }
             if (request.hasOwnProperty('suspendTime')) {
                 clearTimeout(timerJob);
                 var suspendTime = Number(request.suspendTime);
@@ -184,36 +168,12 @@
                     suspendDateTime = false;
                 }
             }
-            if (request.hasOwnProperty('ignoreForms')) {
-                window.removeEventListener('keydown', formInputListener);
-                if (request.ignoreForms) {
-                    window.addEventListener('keydown', formInputListener);
-                }
-                inputState = inputState && request.ignoreForms;
-            }
             break;
 
         //listen for status request
         case 'requestInfo':
             sendResponse(buildTabStateObject());
             return false;
-
-        //cancel suspension timer job
-        case 'cancelTimer':
-            clearTimeout(timerJob);
-            suspendDateTime = false;
-            break;
-
-        //listen for request to temporarily whitelist the tab
-        case 'tempWhitelist':
-            tempWhitelist = true;
-            break;
-
-        //listen for request to undo temporary whitelisting
-        case 'undoTempWhitelist':
-            inputState = false;
-            tempWhitelist = false;
-            break;
 
         //listen for preview request
         case 'generatePreview':
@@ -230,12 +190,4 @@
         sendResponse();
         return false;
     });
-
-    if (document.readyState !== 'loading') {
-        init();
-    } else {
-        document.addEventListener('DOMContentLoaded', function () {
-            init();
-        });
-    }
 }());

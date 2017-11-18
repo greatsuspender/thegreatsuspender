@@ -278,8 +278,8 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
                     gsMessages.executeScriptOnTab(currentTab.id, 'js/contentscript.js', function (err) {
                         if (!err) {
-                            var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-                            gsMessages.sendInitTabToContentScript(currentTab.id, ignoreForms, '0', false);
+                            var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+                            gsMessages.sendInitTabToContentScript(currentTab.id, false, false, null, suspendTime);
                         }
                     });
                 }

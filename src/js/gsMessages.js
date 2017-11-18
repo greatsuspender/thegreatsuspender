@@ -5,13 +5,19 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     WARNING: 'warning',
     ERROR: 'error',
 
-    sendInitTabToContentScript(tabId, ignoreForms, scrollPos, tempWhitelist, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'initTab',
+    sendInitTabToContentScript(tabId, ignoreForms, tempWhitelist, scrollPos, suspendTime, callback) {
+        var props = {
+            action: 'resetPreferences',
             ignoreForms: ignoreForms,
-            scrollPos: scrollPos,
-            tempWhitelist: tempWhitelist
-        }, this.ERROR, callback);
+            tempWhitelist: tempWhitelist,
+        };
+        if (scrollPos) {
+            props.scrollPos = scrollPos;
+        }
+        if (suspendTime) {
+            props.suspendTime = suspendTime;
+        }
+        this.sendMessageToTab(tabId, props, this.ERROR, callback);
     },
 
     sendRequestInfoToContentScript(tabId, callback) {
@@ -22,24 +28,30 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendClearTimerToContentScript: function (tabId, callback) {
         this.sendMessageToTab(tabId, {
-            action: 'cancelTimer'
+            action: 'resetPreferences',
+            suspendTime: false,
         }, this.WARNING, callback);
     },
 
     sendRestartTimerToContentScript: function (tabId, callback) {
-        this.sendUpdatedPreferencesToContentScript(tabId, [gsStorage.SUSPEND_TIME], callback);
+        this.sendMessageToTab(tabId, {
+            action: 'resetPreferences',
+            suspendTime: gsStorage.getOption(gsStorage.SUSPEND_TIME),
+        }, this.WARNING, callback);
     },
 
     sendTemporaryWhitelistToContentScript: function (tabId, callback) {
         this.sendMessageToTab(tabId, {
-            action: 'tempWhitelist'
-        }, this.ERROR, callback);
+            action: 'resetPreferences',
+            tempWhitelist: true,
+        }, this.WARNING, callback);
     },
 
     sendUndoTemporaryWhitelistToContentScript: function (tabId, callback) {
         this.sendMessageToTab(tabId, {
-            action: 'undoTempWhitelist'
-        }, this.ERROR, callback);
+            action: 'resetPreferences',
+            tempWhitelist: false,
+        }, this.WARNING, callback);
     },
 
     sendUpdatedPreferencesToContentScript: function (tabId, preferencesToUpdate, callback) {
@@ -50,7 +62,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
             messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         }
-        this.sendMessageToTab(tabId, messageParams, this.INFO, callback);
+        this.sendMessageToTab(tabId, messageParams, this.WARNING, callback);
     },
 
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {

@@ -728,27 +728,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         switch (request.action) {
 
-        case 'initTab':
-            var isTempWhitelist = temporaryWhitelistOnReloadByTabId[sender.tab.id];
-            var response = {
-                ignoreForms: gsStorage.getOption(gsStorage.IGNORE_FORMS),
-                scrollPos: scrollPosByTabId[sender.tab.id] || '0',
-                tempWhitelist: isTempWhitelist
-            };
-            if (!sender.tab.active) {
-                response.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-            }
-            sendResponse(response);
-            delete temporaryWhitelistOnReloadByTabId[sender.tab.id];
-            delete scrollPosByTabId[sender.tab.id];
-
-            // If tab is currently visible then update popup icon
-            if (sender.tab && sender.tab.id === globalCurrentTabId) {
-                var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
-                updateIcon(processActiveTabStatus(sender.tab, contentScriptState));
-            }
-            return false;
-
         case 'reportTabState':
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
@@ -864,6 +843,21 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
                 if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
                     attemptTabSuspension(tab, 1);
+                //init loaded tab
+                } else {
+                    var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+                    var isTempWhitelist = temporaryWhitelistOnReloadByTabId[tab.id];
+                    var scrollPos = scrollPosByTabId[tab.id] || null;
+                    var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+                    delete temporaryWhitelistOnReloadByTabId[tab.id];
+                    delete scrollPosByTabId[tab.id];
+                    gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
+
+                    // If tab is currently visible then update popup icon
+                    if (tab.id === globalCurrentTabId) {
+                        var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
+                        updateIcon(processActiveTabStatus(tab, contentScriptState));
+                    }
                 }
             }
         }
