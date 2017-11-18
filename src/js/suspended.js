@@ -122,12 +122,15 @@
                 return (command.name === '1-suspend-tab');
             });
             if (hotkeyEl && toggleCommand && toggleCommand.shortcut !== '') {
-                hotkeyEl.innerHTML = toggleCommand.shortcut;
+                hotkeyEl.innerHTML = '(' + toggleCommand.shortcut + ')';
             }
             else {
                 var shortcutNotSetEl = document.createElement('a');
+                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
                 shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
+                hotkeyEl.insertAdjacentHTML('beforeend', '(' + chrome.i18n.getMessage('js_suspended_hotkey_to_reload') + ': ');
                 hotkeyEl.appendChild(shortcutNotSetEl);
+                hotkeyEl.insertAdjacentHTML('beforeend', ')');
                 hotkeyEl.onclick = function (e) {
                     e.stopPropagation();
                     chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
