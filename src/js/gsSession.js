@@ -229,11 +229,10 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     //test if a suspended tab has crashed by sending a 'requestInfo' message
                     if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
                         suspendedTabs.push(curTab);
-                        gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
-                            if (chrome.runtime.lastError) {
+                        gsMessages.sendPingToTab(curTab.id, function (err) {
+                            if (err) {
                                 gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
-                            }
-                            else {
+                            } else {
                                 tabResponses[curTab.id] = true;
                             }
                         });
@@ -277,11 +276,10 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    var tabId = currentTab.id;
-
-                    chrome.tabs.executeScript(tabId, {file: 'js/contentscript.js'}, function () {
-                        if (chrome.runtime.lastError) {
-                            gsUtils.error('Could not reinject contentscript.js into tab: ' + tabId, chrome.runtime.lastError.message);
+                    gsMessages.executeScriptOnTab(currentTab.id, 'js/contentscript.js', function (err) {
+                        if (!err) {
+                            var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+                            gsMessages.sendInitTabToContentScript(currentTab.id, ignoreForms, '0', false);
                         }
                     });
                 }

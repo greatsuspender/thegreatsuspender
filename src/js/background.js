@@ -1,4 +1,4 @@
-/* global gsStorage, gsUtils, gsSession, chrome, XMLHttpRequest */
+/* global gsStorage, gsUtils, gsSession, gsMessages, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -63,15 +63,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         var scrollPos = tabInfo.scrollPos || '0';
         var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos);
-        var handleSuspensionError = function () {
-            if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
-                chrome.tabs.update(tab.id, {url: suspendedUrl});
-                return true;
-            } else {
-                return false;
-            }
-        };
+        var fallbackSuspendFunc = () => chrome.tabs.update(tab.id, {url: suspendedUrl});
+
         saveSuspendData(tab, function () {
 
             //clear any outstanding tab requests
@@ -80,33 +73,30 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
             if (screenCaptureMode === '0') {
-                gsUtils.sendMessageToTab(tab.id, {
-                    action: 'confirmTabSuspend',
-                    suspendedUrl: suspendedUrl,
-                }, handleSuspensionError);
+                gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+                    if (err) fallbackSuspendFunc();
+                });
+                return;
+            }
 
             //if we need to save a preview image
-            } else {
-                chrome.tabs.executeScript(tab.id, { file: 'js/html2canvas.min.js' }, function (result) {
-                    if (handleSuspensionError()) { return; }
+            gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (err) {
+                if (err) {
+                    fallbackSuspendFunc();
+                    return;
+                }
 
-                    var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
-                    chrome.tabs.getZoom(tab.id, function (zoomFactor) {
-                        if (!forceScreenCapture && zoomFactor !== 1) {
-                            gsUtils.sendMessageToTab(tab.id, {
-                                action: 'confirmTabSuspend',
-                                suspendedUrl: suspendedUrl,
-                            }, handleSuspensionError);
-
-                        } else {
-                            gsUtils.sendMessageToTab(tab.id, {
-                                action: 'generatePreview',
-                                suspendedUrl: suspendedUrl,
-                                screenCapture: screenCaptureMode,
-                                forceScreenCapture: forceScreenCapture
-                            }, handleSuspensionError);
-                        }
-                    });
+                var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
+                chrome.tabs.getZoom(tab.id, function (zoomFactor) {
+                    if (!forceScreenCapture && zoomFactor !== 1) {
+                        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+                            if (err) fallbackSuspendFunc();
+                        });
+                    } else {
+                        gsMessages.sendGeneratePreviewToContentScript(tab.id, suspendedUrl, function (err) {
+                            if (err) fallbackSuspendFunc();
+                        });
+                    }
                 });
             }
         });
@@ -140,7 +130,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
         }
 
-        requestTabInfoFromContentScript(tab, function (tabInfo) {
+        gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
             tabInfo = tabInfo || {};
             if (forceLevel >= 2 && (tabInfo.status === 'formInput' || tabInfo.status === 'tempWhitelist')) {
                 return;
@@ -183,10 +173,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function temporarilyWhitelistHighlightedTab() {
-
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsUtils.sendMessageToTab(activeTab.id, {action: 'tempWhitelist'});
+                gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id);
             }
         });
     }
@@ -194,7 +183,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function undoTemporarilyWhitelistHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsUtils.sendMessageToTab(activeTab.id, {action: 'undoTempWhitelist'});
+                gsMessages.sendUndoTemporaryWhitelistToContentScript(activeTab.id);
             }
         });
     }
@@ -279,7 +268,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         unsuspendTab(currentTab);
                     }
                     else {
-                        gsUtils.resetContentScript(currentTab.id, [gsStorage.SUSPEND_TIME]);
+                        gsMessages.sendRestartTimerToContentScript(currentTab.id);
                     }
                 });
             });
@@ -301,7 +290,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         }
                     }
                     else {
-                        gsUtils.resetContentScript(tab.id, [gsStorage.SUSPEND_TIME]);
+                        gsMessages.sendRestartTimerToContentScript(tab.id);
                     }
                 });
                 deferredTabs.forEach(function (tab) {
@@ -340,12 +329,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function resuspendSuspendedTab(tab) {
-        gsUtils.sendMessageToTab(tab.id, { action: 'setUnsuspendOnReload', value: false }, function (response) {
-            if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
-            } else {
-                chrome.tabs.reload(tab.id);
-            }
+        gsMessages.sendUnsuspendOnReloadValueToSuspendedTab(tab.id, false, function (err) {
+            if (!err) chrome.tabs.reload(tab.id);
         });
     }
 
@@ -374,19 +359,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //bit of a hack here as using the chrome.tabs.update method will not allow
         //me to 'replace' the url - leaving a suspended tab in the history
-        gsUtils.sendMessageToTab(tab.id, { action: 'unsuspendTab' }, function (response) {
+            gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function (err) {
 
             //if we failed to find the tab with the above method then try to reload the tab directly
-            if (chrome.runtime.lastError) {
-                gsUtils.error('Error requesting unsuspendTab.', chrome.runtime.lastError.message);
-                if (url) {
-                    gsUtils.log('Will reload directly.');
-                    chrome.tabs.update(tab.id, {url: url}, function () {
-                        if (chrome.runtime.lastError) {
-                            gsUtils.error(chrome.runtime.lastError.message);
-                        }
-                    });
-                }
+            if (err && url) {
+                gsUtils.log('Will reload directly.');
+                chrome.tabs.update(tab.id, {url: url});
             }
         });
     }
@@ -421,7 +399,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         //TODO: ideally we'd only reset timer on last tab viewed for more than 500ms (as per setTimeout below)
         //but that's getting tricky to determine
         if (lastSelectedTab) {
-            gsUtils.resetContentScript(lastSelectedTab, [gsStorage.SUSPEND_TIME]);
+            gsMessages.sendRestartTimerToContentScript(lastSelectedTab);
         }
 
         //update icon
@@ -458,7 +436,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     if (navigator.onLine) {
                         unsuspendTab(tab);
                     } else {
-                        gsUtils.sendMessageToTab(tab.id, { action: 'showNoConnectivityMessage' });
+                        gsMessages.sendNoConnectivityMessageToSuspendedTab(tab.id);
                     }
                 }
             });
@@ -469,11 +447,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
-        gsUtils.sendMessageToTab(tabId, {action: 'cancelTimer'}, function () {
-            if (chrome.runtime.lastError) {
-                gsUtils.log('Could not cancel timer on tab. Assuming this is because tab is suspended.');
-            }
-        });
+        gsMessages.sendClearTimerToContentScript(tabId);
     }
 
     function checkForNotices() {
@@ -578,7 +552,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
                 //request tab state and timer state from the content script
                 } else {
-                    requestTabInfoFromContentScript(tab, function (tabInfo) {
+                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
                         if (tabInfo) {
                             info.status = processActiveTabStatus(tab, tabInfo.status);
                             info.timerUp = tabInfo.timerUp;
@@ -590,15 +564,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
                 }
             }
-        });
-    }
-
-    function requestTabInfoFromContentScript(tab, callback) {
-        gsUtils.sendMessageToTab(tab.id, {action: 'requestInfo'}, function (result) {
-            if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
-            }
-            callback(result);
         });
     }
 
@@ -747,16 +712,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         gsUtils.dir(sender);
 
         switch (request.action) {
-        case 'initTab':
 
-            var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        case 'initTab':
             var isTempWhitelist = temporaryWhitelistOnReloadByTabId[sender.tab.id];
             sendResponse({
-                dontSuspendForms: gsStorage.getOption(gsStorage.IGNORE_FORMS),
-                suspendTime: suspendTime,
-                screenCapture: gsStorage.getOption(gsStorage.SCREEN_CAPTURE),
+                ignoreForms: gsStorage.getOption(gsStorage.IGNORE_FORMS),
                 scrollPos: scrollPosByTabId[sender.tab.id] || '0',
-                temporaryWhitelist: isTempWhitelist
+                tempWhitelist: isTempWhitelist
             });
             delete temporaryWhitelistOnReloadByTabId[sender.tab.id];
             delete scrollPosByTabId[sender.tab.id];
@@ -861,7 +823,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             //reset tab timer if tab has just finished playing audio
             if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-                gsUtils.resetContentScript(tab.id, [gsStorage.SUSPEND_TIME]);
+                gsMessages.sendRestartTimerToContentScript(tab.id);
             }
             //if tab is currently visible then update popup icon
             if (tabId === globalCurrentTabId) {
@@ -884,7 +846,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             } else if (changeInfo.status === 'complete') {
                 //set the setUnsuspendOnReload to true
-                gsUtils.sendMessageToTab(tabId, { action: 'setUnsuspendOnReload', value: true });
+                gsMessages.sendUnsuspendOnReloadValueToSuspendedTab(tabId, true);
 
                 //remove request to instantly suspend this tab id
                 delete spawnedTabCreateTimestampByTabId[tabId];

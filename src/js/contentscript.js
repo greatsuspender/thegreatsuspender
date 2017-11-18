@@ -23,16 +23,10 @@
         //do startup jobs
         chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
-            //set timer job
-            var suspendTime = Number(response.suspendTime);
-            if (response && !isNaN(suspendTime) && suspendTime > 0) {
-
-                suspendTime = suspendTime * (1000 * 60);
-                timerJob = setTimerJob(suspendTime);
             }
 
             //add form input listener
-            if (response && response.dontSuspendForms) {
+            if (response && response.ignoreForms) {
                 window.addEventListener('keydown', formInputListener);
             }
 
@@ -42,7 +36,7 @@
             }
 
             //handle auto temporary whitelisting
-            if (response && response.temporaryWhitelist) {
+            if (response && response.tempWhitelist) {
                 tempWhitelist = true;
             }
         });

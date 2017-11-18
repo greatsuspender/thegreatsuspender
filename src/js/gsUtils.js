@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, tgs */
+/*global chrome, localStorage, gsStorage, gsMessages, tgs */
 'use strict';
 
 var debugInfo = true;
@@ -70,23 +70,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
         } else {
             return url.indexOf('suspended.html') > 0;
-        }
-    },
-
-    sendMessageToTab: function (tabId, message, callback) {
-        message.tabId = tabId;
-        if (!callback) {
-            callback = function () {
-                if (chrome.runtime.lastError) {
-                    gsUtils.error(chrome.runtime.lastError.message, tabId, message);
-                }
-            };
-        }
-        try {
-            chrome.tabs.sendMessage(tabId, message, {frameId: 0}, callback);
-        } catch (e) {
-            gsUtils.error(e);
-            chrome.tabs.sendMessage(tabId, message, callback);
         }
     },
 
@@ -171,7 +154,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     updateOptionsView: function () {
         chrome.tabs.query({ url: chrome.extension.getURL('options.html') }, function (tabs) {
             for (var i = 0; i < tabs.length; i++) {
-                chrome.tabs.sendMessage(tabs[i].id, { action: 'reloadOptions' });
+                gsMessages.sendReloadOptionsToOptionsTab(tabs[i].id);
             }
         });
     },
@@ -357,30 +340,16 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     resetContentScripts: function (preferencesToUpdate) {
-        var self = this;
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    self.resetContentScript(currentTab.id, preferencesToUpdate);
+                    gsMessages.sendUpdatedPreferencesToContentScript(currentTab.id, preferencesToUpdate, function (err) {
+                        if (err) {
+                            gsUtils.log('Failed to resetContentScript for tabId: ' + currentTab.id + '. Tab is probably special or suspended.', err);
+                        }
+                    });
                 }
             });
-        });
-    },
-
-    resetContentScript: function (tabId, preferencesToUpdate) {
-        var messageParams = {action: 'resetPreferences'};
-        if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
-            messageParams.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-        }
-        if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
-            messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-        }
-        this.sendMessageToTab(tabId, messageParams, function () {
-            if (chrome.runtime.lastError) {
-                gsUtils.log(
-                    'Failed to resetContentScript for tabId: ' + tabId + '. Tab is probably special or suspended.',
-                    chrome.runtime.lastError.message);
-            }
         });
     },
 
@@ -398,15 +367,15 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                 var focusedWindow = currentWindows.find(function (currentWindow) { return currentWindow.focused; });
                 var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
 
-                var recoverWindows = async function (callback) {
+                var recoverWindows = async function (done) {
                     //attempt to automatically restore any lost tabs/windows in their proper positions
                     for (var sessionWindow of lastSession.windows) {
                         await self.recoverWindowAsPromise(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
                     }
                     if (focusedWindow) {
-                        chrome.windows.update(focusedWindow.id, { focused: true }, callback);
+                        chrome.windows.update(focusedWindow.id, { focused: true }, done);
                     } else {
-                        callback();
+                        done();
                     }
                 };
                 recoverWindows(callback);

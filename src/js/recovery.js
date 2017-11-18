@@ -3,6 +3,7 @@
     'use strict';
 
     var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+    var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
@@ -81,8 +82,8 @@
         chrome.windows.getAll({ populate: true }, function (windows) {
             windows.forEach(function (curWindow) {
                 curWindow.tabs.forEach(function (curTab) {
-                    gsUtils.sendMessageToTab(curTab.id, {action: 'requestInfo'}, function (response) {
-                        if (chrome.runtime.lastError) {
+                    gsMessages.sendPingToTab(curTab.id, function (err) {
+                        if (err) {
                             gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
                         }
                         else {
