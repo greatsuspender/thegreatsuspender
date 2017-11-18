@@ -149,7 +149,7 @@
                 inputState = inputState && request.ignoreForms;
             }
             if (request.hasOwnProperty('tempWhitelist')) {
-                if (tempWhitelist && !request.tempWhitelist) {
+                if (inputState && !request.tempWhitelist) {
                     inputState = false;
                 }
                 tempWhitelist = request.tempWhitelist;
