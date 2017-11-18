@@ -7,7 +7,6 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendInitTabToContentScript(tabId, ignoreForms, tempWhitelist, scrollPos, suspendTime, callback) {
         var props = {
-            action: 'resetPreferences',
             ignoreForms: ignoreForms,
             tempWhitelist: tempWhitelist,
         };
@@ -20,42 +19,8 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         this.sendMessageToTab(tabId, props, this.ERROR, callback);
     },
 
-    sendRequestInfoToContentScript(tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'requestInfo'
-        }, this.ERROR, callback);
-    },
-
-    sendClearTimerToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'resetPreferences',
-            suspendTime: false,
-        }, this.WARNING, callback);
-    },
-
-    sendRestartTimerToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'resetPreferences',
-            suspendTime: gsStorage.getOption(gsStorage.SUSPEND_TIME),
-        }, this.WARNING, callback);
-    },
-
-    sendTemporaryWhitelistToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'resetPreferences',
-            tempWhitelist: true,
-        }, this.WARNING, callback);
-    },
-
-    sendUndoTemporaryWhitelistToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'resetPreferences',
-            tempWhitelist: false,
-        }, this.WARNING, callback);
-    },
-
     sendUpdatedPreferencesToContentScript: function (tabId, preferencesToUpdate, callback) {
-        var messageParams = {action: 'resetPreferences'};
+        var messageParams = {};
         if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
             messageParams.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
         }
@@ -63,6 +28,36 @@ var gsMessages = { // eslint-disable-line no-unused-vars
             messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         }
         this.sendMessageToTab(tabId, messageParams, this.WARNING, callback);
+    },
+
+    sendClearTimerToContentScript: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            suspendTime: false,
+        }, this.WARNING, callback);
+    },
+
+    sendRestartTimerToContentScript: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            suspendTime: gsStorage.getOption(gsStorage.SUSPEND_TIME),
+        }, this.WARNING, callback);
+    },
+
+    sendTemporaryWhitelistToContentScript: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            tempWhitelist: true,
+        }, this.WARNING, callback);
+    },
+
+    sendUndoTemporaryWhitelistToContentScript: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            tempWhitelist: false,
+        }, this.WARNING, callback);
+    },
+
+    sendRequestInfoToContentScript(tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            action: 'requestInfo'
+        }, this.ERROR, callback);
     },
 
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {

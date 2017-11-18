@@ -12,19 +12,6 @@
     var inputState = false,
         tempWhitelist = false,
         timerJob,
-
-    function calculateState() {
-        return inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal');
-    }
-
-    function buildTabStateObject(state) {
-        return {
-            action: 'reportTabState',
-            status: state || calculateState(),
-            scrollPos: document.body.scrollTop,
-            timerUp: suspendDateTime ? suspendDateTime + '' : '-'
-        };
-    }
         suspendDateTime = false;
 
     function suspendTab(suspendedUrl) {
@@ -117,7 +104,6 @@
         return setTimeout(function () {
             //request suspension
             if (!inputState && !tempWhitelist) {
-
                 chrome.runtime.sendMessage({ action: 'suspendTab' });
             }
         }, timeToSuspend);
@@ -130,8 +116,7 @@
                         event.target.tagName.toUpperCase() === 'TEXTAREA' ||
                         event.target.tagName.toUpperCase() === 'FORM') {
                     inputState = true;
-                    var tabState = buildTabStateObject();
-                    chrome.runtime.sendMessage(tabState);
+                    chrome.runtime.sendMessage(buildReportTabStatePayload());
                 }
             }
         }
@@ -139,56 +124,56 @@
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        switch (request.action) {
-        //listen for request to reset preferences if options have changed
-        case 'resetPreferences':
-            if (request.hasOwnProperty('ignoreForms')) {
-                window.removeEventListener('keydown', formInputListener);
-                if (request.ignoreForms) {
-                    window.addEventListener('keydown', formInputListener);
-                }
-                inputState = inputState && request.ignoreForms;
-            }
-            if (request.hasOwnProperty('tempWhitelist')) {
-                if (inputState && !request.tempWhitelist) {
-                    inputState = false;
-                }
-                tempWhitelist = request.tempWhitelist;
-            }
-            if (request.hasOwnProperty('scrollPos')) {
-                if (request.scrollPos !== '' && request.scrollPos !== '0') {
-                    document.body.scrollTop = request.scrollPos;
-                }
-            }
-            if (request.hasOwnProperty('suspendTime')) {
-                clearTimeout(timerJob);
-                var suspendTime = Number(request.suspendTime);
-                if (!isNaN(suspendTime) && suspendTime > 0) {
-                    timerJob = setTimerJob(request.suspendTime * (1000 * 60));
-                } else {
-                    suspendDateTime = false;
-                }
-            }
-            break;
 
-        //listen for status request
-        case 'requestInfo':
-            sendResponse(buildTabStateObject());
-            return false;
-
-        //listen for preview request
-        case 'generatePreview':
-            generatePreviewImg(request.screenCapture, request.forceScreenCapture, sendResponse);
-            return true;
-
-        //listen for suspend request
-        case 'confirmTabSuspend':
-            if (request.suspendedUrl) {
+        if (request.hasOwnProperty('action')) {
+            //listen for preview request
+            if (request.action === 'generatePreview') {
+                generatePreviewImg(request.screenCapture, request.forceScreenCapture, sendResponse);
+                return true;
+            //listen for suspend request
+            } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
                 suspendTab(request.suspendedUrl);
+                return false;
             }
-            break;
         }
-        sendResponse();
+
+        if (request.hasOwnProperty('ignoreForms')) {
+            window.removeEventListener('keydown', formInputListener);
+            if (request.ignoreForms) {
+                window.addEventListener('keydown', formInputListener);
+            }
+            inputState = inputState && request.ignoreForms;
+        }
+        if (request.hasOwnProperty('tempWhitelist')) {
+            if (inputState && !request.tempWhitelist) {
+                inputState = false;
+            }
+            tempWhitelist = request.tempWhitelist;
+        }
+        if (request.hasOwnProperty('scrollPos')) {
+            if (request.scrollPos !== '' && request.scrollPos !== '0') {
+                document.body.scrollTop = request.scrollPos;
+            }
+        }
+        if (request.hasOwnProperty('suspendTime')) {
+            clearTimeout(timerJob);
+            var suspendTime = Number(request.suspendTime);
+            if (!isNaN(suspendTime) && suspendTime > 0) {
+                timerJob = setTimerJob(request.suspendTime * (1000 * 60));
+            } else {
+                suspendDateTime = false;
+            }
+        }
+        sendResponse(buildReportTabStatePayload());
         return false;
     });
+
+    function buildReportTabStatePayload(state) {
+        return {
+            action: 'reportTabState',
+            status: state || (inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal')),
+            scrollPos: document.body.scrollTop,
+            timerUp: suspendDateTime ? suspendDateTime + '' : '-'
+        };
+    }
 }());
