@@ -864,6 +864,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
                 if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
                     attemptTabSuspension(tab, 1);
+                } else {
+                    //restart timer on tabs that reload in the background
+                    gsMessages.sendRestartTimerToContentScript(tab.id);
                 }
             }
         }
