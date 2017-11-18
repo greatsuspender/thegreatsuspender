@@ -582,13 +582,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
-    function processActiveTabStatus(tab, contentScriptStatus) {
+    function processActiveTabStatus(tab, tabStatusString) {
 
         var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME),
             onlySuspendOnBattery = gsStorage.getOption(gsStorage.BATTERY_CHECK),
             onlySuspendWithInternet = gsStorage.getOption(gsStorage.ONLINE_CHECK);
 
-        var status = contentScriptStatus;
+        var status = tabStatusString;
 
         //check whitelist (ignore contentScriptStatus)
         if (gsUtils.checkWhiteList(tab.url)) {
@@ -600,19 +600,19 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             status = 'never';
 
         //check running on battery
-        } else if (contentScriptStatus === 'normal' && onlySuspendOnBattery && chargingMode) {
+        } else if (tabStatusString === 'normal' && onlySuspendOnBattery && chargingMode) {
             status = 'charging';
 
         //check internet connectivity
-        } else if (contentScriptStatus === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
+        } else if (tabStatusString === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
             status = 'noConnectivity';
 
         //check pinned tab
-        } else if (contentScriptStatus === 'normal' && gsUtils.isPinnedTab(tab)) {
+        } else if (tabStatusString === 'normal' && gsUtils.isPinnedTab(tab)) {
             status = 'pinned';
 
         //check audible tab
-        } else if (contentScriptStatus === 'normal' && gsUtils.isAudibleTab(tab)) {
+        } else if (tabStatusString === 'normal' && gsUtils.isAudibleTab(tab)) {
             status = 'audible';
         }
         return status;
@@ -728,6 +728,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         switch (request.action) {
 
+        // Can be send either via a content script or suspended tab
         case 'reportTabState':
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
