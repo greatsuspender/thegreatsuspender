@@ -10,7 +10,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
     var lastSelectedTabByWindowId = {},
-        backgroundTabCreateTimestampByTabId = {},
+        spawnedTabCreateTimestampByTabId = {},
         globalCurrentTabId,
         sessionSaveTimer,
         noticeToDisplay,
@@ -216,7 +216,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 active: false
             };
             chrome.tabs.create(newTabProperties, function (tab) {
-                backgroundTabCreateTimestampByTabId[tab.id] = Date.now();
+                spawnedTabCreateTimestampByTabId[tab.id] = Date.now();
             });
         });
     }
@@ -465,7 +465,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //remove request to instantly suspend this tab id
-        delete backgroundTabCreateTimestampByTabId[tabId];
+        delete spawnedTabCreateTimestampByTabId[tabId];
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
@@ -834,7 +834,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         queueSessionTimer();
         delete unsuspendOnReloadByTabId[tabId];
         delete temporaryWhitelistOnReloadByTabId[tabId];
-        delete backgroundTabCreateTimestampByTabId[tabId];
+        delete spawnedTabCreateTimestampByTabId[tabId];
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
@@ -887,7 +887,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 gsUtils.sendMessageToTab(tabId, { action: 'setUnsuspendOnReload', value: true });
 
                 //remove request to instantly suspend this tab id
-                delete backgroundTabCreateTimestampByTabId[tabId];
+                delete spawnedTabCreateTimestampByTabId[tabId];
 
                 if (tabId === globalCurrentTabId) {
                     updateIcon('suspended');
@@ -896,9 +896,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         } else {
             if (changeInfo.status === 'complete') {
-                var backgroundTabCreateTimestamp = backgroundTabCreateTimestampByTabId[tab.id];
-                //safety check that only allows tab to auto suspend if it has been less than 300 seconds since background tab created
-                if (tab && backgroundTabCreateTimestamp && ((Date.now() - backgroundTabCreateTimestamp) / 1000 < 300)) {
+                var spawnedTabCreateTimestamp = spawnedTabCreateTimestampByTabId[tab.id];
+                //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
+                if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
                     attemptTabSuspension(tab, 1);
                 }
             }
