@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsUtils */
+/*global chrome, localStorage, tgs, db, gsStorage, gsUtils, gsMessages, gsAnalytics */
 var gsSession = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
@@ -45,71 +45,93 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         return sessionId;
     }
 
+    function backgroundScriptsReadyAsPromsied() {
+        return new Promise(function (resolve) {
+            var isReady = chrome.extension.getBackgroundPage() &&
+                typeof db !== 'undefined' &&
+                typeof gsStorage !== 'undefined' &&
+                typeof gsMessages !== 'undefined' &&
+                typeof gsUtils !== 'undefined' &&
+                typeof gsAnalytics !== 'undefined';
+            console.log('isReady',isReady);
+            resolve(isReady);
+        }).then(function (isReady) {
+            if (isReady) {
+                return Promise.resolve();
+            }
+            return new Promise(function (resolve) {
+                window.setTimeout(resolve, 50);
+            }).then(backgroundScriptsReadyAsPromsied);
+        });
+    }
+
     function runStartupChecks() {
-        var lastVersion = gsStorage.fetchLastVersion(),
-            curVersion = chrome.runtime.getManifest().version;
+        backgroundScriptsReadyAsPromsied().then(function () {
+            var lastVersion = gsStorage.fetchLastVersion(),
+                curVersion = chrome.runtime.getManifest().version;
 
-        //if version has changed then assume initial install or upgrade
-        if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
-            gsStorage.setLastVersion(curVersion);
+            //if version has changed then assume initial install or upgrade
+            if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
+                gsStorage.setLastVersion(curVersion);
 
-            //if they are installing for the first time
-            if (!lastVersion || lastVersion === '0.0.0') {
+                //if they are installing for the first time
+                if (!lastVersion || lastVersion === '0.0.0') {
 
-                //show welcome screen
-                chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+                    //show welcome screen
+                    chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
-            //else if they are upgrading to a new version
+                //else if they are upgrading to a new version
+                } else {
+
+                    findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function (session) {
+
+                        gsStorage.performMigration(lastVersion);
+
+                        //reset notice version
+                        gsStorage.setNoticeVersion('0');
+
+                        //clear context menu
+                        tgs.buildContextMenu(false);
+
+                        //recover tabs silently
+                        checkForCrashRecovery(true);
+
+                        //close any 'update' and 'updated' tabs that may be open
+                        chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
+                            chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                        });
+                        chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
+                            chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+
+                            //show updated screen
+                            chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                        });
+                    });
+                }
+
+                //else if restarting the same version
             } else {
 
-                findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function (session) {
+                //check for possible crash
+                checkForCrashRecovery(false);
 
-                    gsStorage.performMigration(lastVersion);
-
-                    //reset notice version
-                    gsStorage.setNoticeVersion('0');
-
-                    //clear context menu
-                    tgs.buildContextMenu(false);
-
-                    //recover tabs silently
-                    checkForCrashRecovery(true);
-
-                    //close any 'update' and 'updated' tabs that may be open
-                    chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
-                        chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
-                    });
-                    chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
-                        chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
-
-                        //show updated screen
-                        chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
-                    });
-                });
+                //trim excess dbItems
+                gsStorage.trimDbItems();
             }
 
-            //else if restarting the same version
-        } else {
+            //inject new content script into all open pages
+            reinjectContentScripts();
 
-            //check for possible crash
-            checkForCrashRecovery(false);
+            //add context menu items
+            var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
+            tgs.buildContextMenu(contextMenus);
 
-            //trim excess dbItems
-            gsStorage.trimDbItems();
-        }
+            //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
+            tgs.init();
 
-        //inject new content script into all open pages
-        reinjectContentScripts();
-
-        //add context menu items
-        var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
-        tgs.buildContextMenu(contextMenus);
-
-        //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
-        tgs.init();
-
-        //initialise settings (important that this comes last. cant remember why?!?!)
-        gsStorage.initSettings();
+            //initialise settings (important that this comes last. cant remember why?!?!)
+            gsStorage.initSettings();
+        });
     }
 
     function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
