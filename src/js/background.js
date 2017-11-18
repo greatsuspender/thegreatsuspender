@@ -717,11 +717,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         case 'initTab':
             var isTempWhitelist = temporaryWhitelistOnReloadByTabId[sender.tab.id];
-            sendResponse({
+            var response = {
                 ignoreForms: gsStorage.getOption(gsStorage.IGNORE_FORMS),
                 scrollPos: scrollPosByTabId[sender.tab.id] || '0',
                 tempWhitelist: isTempWhitelist
-            });
+            };
+            if (!sender.tab.active) {
+                response.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+            }
+            sendResponse(response);
             delete temporaryWhitelistOnReloadByTabId[sender.tab.id];
             delete scrollPosByTabId[sender.tab.id];
 
@@ -864,9 +868,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
                 if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
                     attemptTabSuspension(tab, 1);
-                } else {
-                    //restart timer on tabs that reload in the background
-                    gsMessages.sendRestartTimerToContentScript(tab.id);
                 }
             }
         }

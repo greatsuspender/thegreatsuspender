@@ -23,6 +23,11 @@
         //do startup jobs
         chrome.runtime.sendMessage({ action: 'initTab' }, function (response) {
 
+            //set timer job (if tab is reloading in background)
+            var suspendTime = Number(response.suspendTime);
+            if (response && !isNaN(suspendTime) && suspendTime > 0) {
+                suspendTime = suspendTime * (1000 * 60);
+                timerJob = setTimerJob(suspendTime);
             }
 
             //add form input listener
