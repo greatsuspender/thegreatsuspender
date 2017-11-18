@@ -25,6 +25,7 @@
             timerUp: suspendDateTime ? suspendDateTime + '' : '-'
         };
     }
+        suspendDateTime = false;
 
     function suspendTab(suspendedUrl) {
         window.location.replace(suspendedUrl);
