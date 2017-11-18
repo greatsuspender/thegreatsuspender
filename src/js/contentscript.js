@@ -64,27 +64,21 @@
         window.location.replace(suspendedUrl);
     }
 
-    function handlePreviewSuccess(suspendedUrl, dataUrl, timer) {
-        chrome.runtime.sendMessage({
-            action: 'savePreviewData',
+    function handlePreviewSuccess(dataUrl, timer, sendResponseCallback) {
+        sendResponseCallback({
             previewUrl: dataUrl,
             timerMsg: timer
-        }, function () {
-            suspendTab(suspendedUrl);
         });
     }
 
-    function handlePreviewError(suspendedUrl, err) {
-        chrome.runtime.sendMessage({
-            action: 'savePreviewData',
+    function handlePreviewError(err, sendResponseCallback) {
+        sendResponseCallback({
             previewUrl: false,
             errorMsg: err
-        }, function () {
-            suspendTab(suspendedUrl);
         });
     }
 
-    function generatePreviewImg(suspendedUrl, screenCapture, forceScreenCapture) {
+    function generatePreviewImg(screenCapture, forceScreenCapture, sendResponseCallback) {
         var elementCount = document.getElementsByTagName('*').length,
             processing = true,
             timer = new Date(),
@@ -112,7 +106,7 @@
             window.setTimeout(function () {
                 if (processing) {
                     processing = false;
-                    handlePreviewError(suspendedUrl, timeout + 'ms timeout reached');
+                    handlePreviewError(timeout + 'ms timeout reached', sendResponseCallback);
                 }
             }, timeout);
 
@@ -130,17 +124,17 @@
                             dataUrl = canvas.toDataURL();
                         }
                         if (!dataUrl || dataUrl === 'data:,') {
-                            handlePreviewError(suspendedUrl, 'Failed to generate dataUrl');
+                            handlePreviewError('Failed to generate dataUrl', sendResponseCallback);
                         } else {
                             timer = (new Date() - timer) / 1000;
-                            handlePreviewSuccess(suspendedUrl, dataUrl, timer);
+                            handlePreviewSuccess(dataUrl, timer, sendResponseCallback);
                         }
                     }
                 }
             });
 
         } else {
-            handlePreviewError(suspendedUrl, 'element count > 10000');
+            handlePreviewError('element count > 10000', sendResponseCallback);
         }
     }
 
@@ -223,8 +217,8 @@
 
         //listen for preview request
         case 'generatePreview':
-            generatePreviewImg(request.suspendedUrl, request.screenCapture, request.forceScreenCapture);
-            break;
+            generatePreviewImg(request.screenCapture, request.forceScreenCapture, sendResponse);
+            return true;
 
         //listen for suspend request
         case 'confirmTabSuspend':

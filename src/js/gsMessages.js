@@ -60,10 +60,9 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
-    sendGeneratePreviewToContentScript: function (tabId, suspendedUrl, screenCaptureMode, forceScreenCapture, callback) {
+    sendGeneratePreviewToContentScript: function (tabId, screenCaptureMode, forceScreenCapture, callback) {
         this.sendMessageToTab(tabId, {
             action: 'generatePreview',
-            suspendedUrl: suspendedUrl,
             screenCapture: screenCaptureMode,
             forceScreenCapture: forceScreenCapture
         }, this.ERROR, callback);

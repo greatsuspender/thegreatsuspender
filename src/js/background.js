@@ -58,12 +58,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function confirmTabSuspension(tab, suspendedUrl) {
+        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+            if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
+        });
+    }
+
     //ask the tab to suspend itself
     function requestTabSuspension(tab, tabInfo) {
 
         var scrollPos = tabInfo.scrollPos || '0';
         var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos);
-        var fallbackSuspendFunc = () => chrome.tabs.update(tab.id, {url: suspendedUrl});
 
         saveSuspendData(tab, function () {
 
@@ -73,30 +78,38 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
             if (screenCaptureMode === '0') {
-                gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
-                    if (err) fallbackSuspendFunc();
-                });
+                confirmTabSuspension(tab, suspendedUrl);
                 return;
             }
 
             //if we need to save a preview image
             gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (err) {
                 if (err) {
-                    fallbackSuspendFunc();
+                    confirmTabSuspension(tab, suspendedUrl);
                     return;
                 }
 
                 var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
                 chrome.tabs.getZoom(tab.id, function (zoomFactor) {
                     if (!forceScreenCapture && zoomFactor !== 1) {
-                        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
-                            if (err) fallbackSuspendFunc();
-                        });
-                    } else {
-                        gsMessages.sendGeneratePreviewToContentScript(tab.id, suspendedUrl, function (err) {
-                            if (err) fallbackSuspendFunc();
-                        });
+                        confirmTabSuspension(tab, suspendedUrl);
+                        return;
                     }
+                    gsMessages.sendGeneratePreviewToContentScript(tab.id, screenCaptureMode, forceScreenCapture, function (err, response) {
+                        if (err || !response) {
+                            confirmTabSuspension(tab, suspendedUrl);
+                            return;
+                        }
+                        if (response.errorMsg) {
+                            gsUtils.log('Error from content script from tabId ' + tab.id + ': ' + response.errorMsg);
+                        }
+                        if (response.timerMsg) {
+                            gsUtils.log('Time taken to generate preview for tabId ' + tab.id + ': ' + response.timerMsg);
+                        }
+                        gsStorage.addPreviewImage(tab.url, response.previewUrl, function () {
+                            confirmTabSuspension(tab, suspendedUrl);
+                        });
+                    });
                 });
             });
         });
@@ -759,23 +772,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         case 'requestUnsuspendOnReload':
             if (sender.tab && gsUtils.isSuspendedTab(sender.tab)) {
                 unsuspendOnReloadByTabId[sender.tab.id] = true;
-            }
-            break;
-
-        case 'savePreviewData':
-            if (sender.tab) {
-                if (request.errorMsg) {
-                    gsUtils.log('Error from content script from tabId ' + sender.tab.id + ': ' + request.errorMsg);
-                }
-                if (request.timerMsg) {
-                    gsUtils.log('Time taken to generate preview for tabId ' + sender.tab.id + ': ' + request.timerMsg);
-                }
-            }
-            if (request.previewUrl) {
-                gsStorage.addPreviewImage(sender.tab.url, request.previewUrl, function () {
-                    sendResponse();
-                });
-                return true;
             }
             break;
         }
