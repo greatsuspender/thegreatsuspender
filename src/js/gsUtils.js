@@ -1,7 +1,8 @@
 /*global chrome, localStorage, gsStorage, tgs */
 'use strict';
 
-var debug = false;
+var debugInfo = true;
+var debugError = true;
 
 var gsUtils = { // eslint-disable-line no-unused-vars
 
@@ -15,17 +16,19 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     log: function (text, ...args) {
-        if (debug) {
+        if (debugInfo) {
             args = args || [];
             console.log(text, ...args);
         }
     },
     error: function (text, ...args) {
-        args = args || [];
-        console.error(text, ...args);
+        if (debugError) {
+            args = args || [];
+            console.error(text, ...args);
+        }
     },
     dir: function (object) {
-        if (debug) {
+        if (debugInfo) {
             console.dir(object);
         }
     },

@@ -23,8 +23,11 @@ module.exports = function (grunt) {
                 },
                 options: {
                     replacements: [{
-                        pattern: /debug\s*=\s*true/,
-                        replacement: 'debug = false'
+                        pattern: /debugInfo\s*=\s*true/,
+                        replacement: 'debugInfo = false'
+                    },{
+                        pattern: /debugError\s*=\s*true/,
+                        replacement: 'debugError = false'
                     }]
                 }
             },
