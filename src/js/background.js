@@ -370,7 +370,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleWindowFocusChanged(windowId) {
-
+        if (windowId < 0) {
+            return;
+        }
         gsUtils.log('window changed:', windowId);
         chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
             if (tabs && tabs.length === 1) {
