@@ -76,11 +76,16 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     },
 
 
-
-    sendUnsuspendOnReloadValueToSuspendedTab: function (tabId, value, callback) {
+    sendInitSuspendedTab: function (tabId, tabProperties, callback) {
         this.sendMessageToTab(tabId, {
-            action: 'setUnsuspendOnReload',
-            value: value
+            action: 'initSuspendedTab',
+            tabProperties: tabProperties
+        }, this.ERROR, callback);
+    },
+
+    sendDisableUnsuspendOnReloadToSuspendedTab: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            action: 'disableUnsuspendOnReload',
         }, this.ERROR, callback);
     },
 

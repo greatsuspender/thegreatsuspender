@@ -9,17 +9,21 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
+    var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
+    var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
+    var SCROLL_POS = 'scrollPos';
+    var CREATE_TIMESTAMP = 'createTimestamp';
+
     var lastSelectedTabByWindowId = {},
-        spawnedTabCreateTimestampByTabId = {},
         globalCurrentTabId,
         sessionSaveTimer,
         noticeToDisplay,
         chargingMode = false,
-        unsuspendOnReloadByTabId = {},
-        temporaryWhitelistOnReloadByTabId = {},
-        scrollPosByTabId = {},
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png';
+
+    var tabFlagsByTabId = {};
+
 
     function init() {
 
@@ -71,10 +75,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos);
 
         saveSuspendData(tab, function () {
-
-            //clear any outstanding tab requests
-            delete unsuspendOnReloadByTabId[tab.id];
-            delete temporaryWhitelistOnReloadByTabId[tab.id];
 
             var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
             if (screenCaptureMode === '0') {
@@ -218,7 +218,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 active: false
             };
             chrome.tabs.create(newTabProperties, function (tab) {
-                spawnedTabCreateTimestampByTabId[tab.id] = Date.now();
+                setTabFlagForTabId(tab.id, CREATE_TIMESTAMP,  Date.now());
             });
         });
     }
@@ -342,7 +342,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function resuspendSuspendedTab(tab) {
-        gsMessages.sendUnsuspendOnReloadValueToSuspendedTab(tab.id, false, function (err) {
+        gsMessages.sendDisableUnsuspendOnReloadToSuspendedTab(tab.id, function (err) {
             if (!err) chrome.tabs.reload(tab.id);
         });
     }
@@ -362,24 +362,101 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function getTabFlagForTabId(tabId, tabFlag) {
+        return tabFlagsByTabId[tabId] ? tabFlagsByTabId[tabId][tabFlag] : undefined;
+    }
+    function setTabFlagForTabId(tabId, tabFlag, flagValue) {
+        var tabFlags = tabFlagsByTabId[tabId] || {};
+        tabFlags[tabFlag] = flagValue;
+        tabFlagsByTabId[tabId] = tabFlags;
+    }
+    function clearTabFlagsForTabId(tabId) {
+        delete tabFlagsByTabId[tabId];
+    }
+
     function unsuspendTab(tab) {
         if (!gsUtils.isSuspendedTab(tab)) return;
 
-        var url = gsUtils.getSuspendedUrl(tab.url),
-            scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-
-        scrollPosByTabId[tab.id] = scrollPosition || scrollPosByTabId[tab.id];
-
-        //bit of a hack here as using the chrome.tabs.update method will not allow
-        //me to 'replace' the url - leaving a suspended tab in the history
-            gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function (err) {
+        gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function (err) {
 
             //if we failed to find the tab with the above method then try to reload the tab directly
+            var url = gsUtils.getSuspendedUrl(tab.url);
             if (err && url) {
                 gsUtils.log('Will reload directly.');
                 chrome.tabs.update(tab.id, {url: url});
             }
         });
+    }
+
+    function handleUnsuspendedTabChanged(tab, changeInfo) {
+        //should probably filter out special and discarded tabs here
+
+        //check for change in tabs audible status
+        if (changeInfo.hasOwnProperty('audible')) {
+
+            //reset tab timer if tab has just finished playing audio
+            if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
+                gsMessages.sendRestartTimerToContentScript(tab.id);
+            }
+            //if tab is currently visible then update popup icon
+            if (tab.id === globalCurrentTabId) {
+                updateIcon(processActiveTabStatus(tab, 'normal'));
+            }
+        }
+
+        //check for change in tabs pinned status
+        if (changeInfo.hasOwnProperty('pinned') && tab.id === globalCurrentTabId) {
+            updateIcon(processActiveTabStatus(tab, 'normal'));
+        }
+
+        //if page has finished loading
+        if (changeInfo.status === 'complete') {
+
+            var spawnedTabCreateTimestamp = getTabFlagForTabId(tab.id, CREATE_TIMESTAMP);
+            //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
+            if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
+                attemptTabSuspension(tab, 1);
+                return;
+            }
+
+            //init loaded tab
+            var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+            var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
+            var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
+            var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+            gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
+            clearTabFlagsForTabId(tab.id);
+
+            // If tab is currently visible then update popup icon
+            if (tab.id === globalCurrentTabId) {
+                var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
+                updateIcon(processActiveTabStatus(tab, contentScriptState));
+            }
+        }
+    }
+
+    function handleSuspendedTabChanged(tab, changeInfo) {
+        //reload if tab does not have an unsuspend request. only permit unsuspend if tab is being reloaded
+        if (changeInfo.status === 'loading') {
+            var unsuspendOnReload = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD);
+            if (unsuspendOnReload) {
+                unsuspendTab(tab);
+            }
+            setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD, false);
+
+        } else if (changeInfo.status === 'complete') {
+            //initialized suspended tab
+            var url = gsUtils.getSuspendedUrl(tab.url);
+            gsStorage.fetchTabInfo(url).then(function (tabProperties) {
+                gsMessages.sendInitSuspendedTab(tab.id, tabProperties);
+            });
+            clearTabFlagsForTabId(tab.id);
+
+            // If tab is currently visible then update popup icon
+            if (tab.id === globalCurrentTabId) {
+                updateIcon('suspended');
+            }
+        }
     }
 
     function handleWindowFocusChanged(windowId) {
@@ -458,7 +535,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //remove request to instantly suspend this tab id
-        delete spawnedTabCreateTimestampByTabId[tabId];
+        if (getTabFlagForTabId(tabId, CREATE_TIMESTAMP)) {
+            setTabFlagForTabId(tabId, CREATE_TIMESTAMP,  false);
+        }
 
         //clear timer on newly focused tab
         //NOTE: only works if tab is currently unsuspended
@@ -740,20 +819,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             attemptTabSuspension(sender.tab, 3);
             break;
 
-        case 'requestUnsuspendTab':
-            if (sender.tab && gsUtils.isSuspendedTab(sender.tab)) {
-                if (request.addToTemporaryWhitelist) {
-                    temporaryWhitelistOnReloadByTabId[sender.tab.id] = true;
-                }
-                unsuspendTab(sender.tab);
-            }
-            break;
-
-        case 'requestUnsuspendOnReload':
-            if (sender.tab && gsUtils.isSuspendedTab(sender.tab)) {
-                unsuspendOnReloadByTabId[sender.tab.id] = true;
-            }
-            break;
         }
         sendResponse();
         return false;
@@ -776,9 +841,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     });
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         queueSessionTimer();
-        delete unsuspendOnReloadByTabId[tabId];
-        delete temporaryWhitelistOnReloadByTabId[tabId];
-        delete spawnedTabCreateTimestampByTabId[tabId];
+        clearTabFlagsForTabId(tabId);
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
@@ -800,67 +863,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             queueSessionTimer();
         }
 
-        //check for change in tabs audible status
-        if (changeInfo.hasOwnProperty('audible')) {
-
-            //reset tab timer if tab has just finished playing audio
-            if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-                gsMessages.sendRestartTimerToContentScript(tab.id);
-            }
-            //if tab is currently visible then update popup icon
-            if (tabId === globalCurrentTabId) {
-                updateIcon(processActiveTabStatus(tab, 'normal'));
-            }
-        }
-
-        //check for change in tabs pinned status
-        if (changeInfo.hasOwnProperty('pinned') && tabId === globalCurrentTabId) {
-            updateIcon(processActiveTabStatus(tab, 'normal'));
-        }
-
-        if (gsUtils.isSuspendedTab(tab)) {
-            //reload if tab does not have an unsuspend request. only permit unsuspend if tab is being reloaded
-            if (changeInfo.status === 'loading') {
-                if (unsuspendOnReloadByTabId[tabId]) {
-                    unsuspendTab(tab);
-                }
-                delete unsuspendOnReloadByTabId[tabId];
-
-            } else if (changeInfo.status === 'complete') {
-                //set the setUnsuspendOnReload to true
-                gsMessages.sendUnsuspendOnReloadValueToSuspendedTab(tabId, true);
-
-                //remove request to instantly suspend this tab id
-                delete spawnedTabCreateTimestampByTabId[tabId];
-
-                if (tabId === globalCurrentTabId) {
-                    updateIcon('suspended');
-                }
-            }
-
+        if (gsUtils.isSuspendedTab(tab, true)) {
+            handleSuspendedTabChanged(tab, changeInfo);
         } else {
-            if (changeInfo.status === 'complete') {
-                var spawnedTabCreateTimestamp = spawnedTabCreateTimestampByTabId[tab.id];
-                //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
-                if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
-                    attemptTabSuspension(tab, 1);
-                //init loaded tab
-                } else {
-                    var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-                    var isTempWhitelist = temporaryWhitelistOnReloadByTabId[tab.id];
-                    var scrollPos = scrollPosByTabId[tab.id] || null;
-                    var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-                    delete temporaryWhitelistOnReloadByTabId[tab.id];
-                    delete scrollPosByTabId[tab.id];
-                    gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
-
-                    // If tab is currently visible then update popup icon
-                    if (tab.id === globalCurrentTabId) {
-                        var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
-                        updateIcon(processActiveTabStatus(tab, contentScriptState));
-                    }
-                }
-            }
+            handleUnsuspendedTabChanged(tab, changeInfo);
         }
     });
     chrome.windows.onCreated.addListener(function () {
@@ -925,6 +931,14 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     window.setInterval(checkForNotices, noticeCheckInterval);
 
     return {
+
+        TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
+        UNSUSPEND_ON_RELOAD: UNSUSPEND_ON_RELOAD,
+        SCROLL_POS: SCROLL_POS,
+        CREATE_TIMESTAMP: CREATE_TIMESTAMP,
+        getTabFlagForTabId: getTabFlagForTabId,
+        setTabFlagForTabId: setTabFlagForTabId,
+
         init: init,
         requestNotice: requestNotice,
         clearNotice: clearNotice,
@@ -934,7 +948,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         updateIcon: updateIcon,
         requestTabInfo: requestTabInfo,
 
-        //external action handlers
         unsuspendHighlightedTab: unsuspendHighlightedTab,
         unwhitelistHighlightedTab: unwhitelistHighlightedTab,
         undoTemporarilyWhitelistHighlightedTab: undoTemporarilyWhitelistHighlightedTab,

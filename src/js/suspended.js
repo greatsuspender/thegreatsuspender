@@ -2,35 +2,43 @@
 (function () {
     'use strict';
 
+    var tgs;
     var gsUtils;
     var gsAnalytics;
     var gsStorage;
     var requestUnsuspendOnReload = false;
 
+    var tabId;
     var fullUrlStr;
     var rootUrlStr;
 
-    backgroundPageReadyAsPromsied()
-        .then(function () {
-            gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-            gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-            gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-
-            gsUtils.documentReadyAndLocalisedAsPromsied(document)
-                .then(function (domLoadedEvent) {
-                    var url = gsUtils.getSuspendedUrl(window.location.href);
-                    return gsStorage.fetchTabInfo(url);
-                })
-                .then(function (tabProperties) {
-                    init(tabProperties);
+    function documentReadyAsPromsied() {
+        return new Promise(function (resolve, reject) {
+            if (document.readyState !== 'loading') {
+                resolve();
+            } else {
+                document.addEventListener('DOMContentLoaded', function () {
+                    resolve();
                 });
-        })
-        .catch(function (err) {
-            console.error(err);
-            documentReadyAsPromsied().then(fallbackInit);
+            }
         });
+    }
 
-    function fallbackInit() {
+    function localiseHtml() {
+        var replaceFunc = function (match, p1) {
+            return p1 ? chrome.i18n.getMessage(p1) : '';
+        };
+        Array.prototype.forEach.call(document.getElementsByTagName('*'), function (el) {
+            if (el.hasAttribute('data-i18n')) {
+                el.innerHTML = el.getAttribute('data-i18n').replace(/__MSG_(\w+)__/g, replaceFunc);
+            }
+            if (el.hasAttribute('data-i18n-tooltip')) {
+                el.setAttribute('data-i18n-tooltip', el.getAttribute('data-i18n-tooltip').replace(/__MSG_(\w+)__/g, replaceFunc));
+            }
+        });
+    }
+
+    function preInit() {
         var href = window.location.href;
         var titleRegex = /ttl=([^&]*)/;
         var urlRegex = /uri=(.*)/;
@@ -51,17 +59,42 @@
             document.getElementById('suspendedMsg').onclick = function () {
                 window.location.replace(preUrl);
             };
-            document.getElementById('gsReloadLink').onclick = function () {
-                window.location.replace(preUrl);
-            };
+            document.getElementById('gsTitleLinks').style.visibility = 'hidden';
         }
         document.getElementById('suspendedMsg').getElementsByTagName('h1')[0].innerHTML = 'Tab suspended';
         document.getElementById('suspendedMsg').getElementsByTagName('h2')[0].innerHTML = 'Refresh or click to reload';
-        document.getElementById('gsReloadLink').innerHTML = 'Reload tab';
-        document.getElementById('gsReloadLink').nextElementSibling.innerHTML = '';
+
+        //update hotkey
+        chrome.commands.getAll(function (commands) {
+            var hotkeyEl = document.getElementById('hotkeyCommand');
+            if (!hotkeyEl) { return; }
+            var toggleCommand = commands.find(function (command) {
+                return (command.name === '1-suspend-tab');
+            });
+            if (hotkeyEl && toggleCommand && toggleCommand.shortcut !== '') {
+                hotkeyEl.innerHTML = '(' + toggleCommand.shortcut + ')';
+            }
+            else {
+                var shortcutNotSetEl = document.createElement('a');
+                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
+                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
+                hotkeyEl.insertAdjacentHTML('beforeend', '(' + chrome.i18n.getMessage('js_suspended_hotkey_to_reload') + ': ');
+                hotkeyEl.appendChild(shortcutNotSetEl);
+                hotkeyEl.insertAdjacentHTML('beforeend', ')');
+                hotkeyEl.onclick = function (e) {
+                    e.stopPropagation();
+                    chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
+                };
+            }
+        });
     }
 
     function init(tabProperties) {
+
+        tgs = chrome.extension.getBackgroundPage().tgs;
+        gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+        gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+        gsStorage = chrome.extension.getBackgroundPage().gsStorage;
 
         var url = gsUtils.getSuspendedUrl(window.location.href);
         rootUrlStr = gsUtils.getRootUrl(url);
@@ -113,30 +146,7 @@
         document.getElementById('gsTopBarTitle').setAttribute('title', url);
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
         document.getElementById('gsTopBarImg').setAttribute('src', favicon);
-
-        //update hotkey
-        chrome.commands.getAll(function (commands) {
-            var hotkeyEl = document.getElementById('hotkeyCommand');
-            if (!hotkeyEl) { return; }
-            var toggleCommand = commands.find(function (command) {
-                return (command.name === '1-suspend-tab');
-            });
-            if (hotkeyEl && toggleCommand && toggleCommand.shortcut !== '') {
-                hotkeyEl.innerHTML = '(' + toggleCommand.shortcut + ')';
-            }
-            else {
-                var shortcutNotSetEl = document.createElement('a');
-                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
-                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
-                hotkeyEl.insertAdjacentHTML('beforeend', '(' + chrome.i18n.getMessage('js_suspended_hotkey_to_reload') + ': ');
-                hotkeyEl.appendChild(shortcutNotSetEl);
-                hotkeyEl.insertAdjacentHTML('beforeend', ')');
-                hotkeyEl.onclick = function (e) {
-                    e.stopPropagation();
-                    chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
-                };
-            }
-        });
+        document.getElementById('gsTitleLinks').style.visibility = 'visible';
 
         //update whitelist text
         var isWhitelisted = gsUtils.checkWhiteList(url);
@@ -169,15 +179,9 @@
         //this will fail if tab is being closed but if page is refreshed it will trigger an unsuspend
         window.addEventListener('beforeunload', function (event) {
             if (requestUnsuspendOnReload) {
-                chrome.runtime.sendMessage({ action: 'requestUnsuspendOnReload' });
+                tgs.setTabFlagForTabId(tabId, tgs.UNSUSPEND_ON_RELOAD, true);
             }
         });
-
-        var payload = {
-            action: 'reportTabState',
-            status: 'suspended'
-        };
-        chrome.runtime.sendMessage(payload);
     }
 
     function generateFaviconUri(url, callback) {
@@ -203,25 +207,19 @@
     }
 
     function handleUnsuspendTab(e) {
-        // dont want to pass the event arg along to the requestUnsuspendTab function!!
+        // dont want to pass the event arg along to the unsuspendTab function!!
         e.preventDefault();
-        requestUnsuspendTab();
+        unsuspendTab();
     }
 
-    function requestUnsuspendTab(addToTemporaryWhitelist) {
-        var payload = {
-            action: 'requestUnsuspendTab',
-            addToTemporaryWhitelist: addToTemporaryWhitelist
-        };
-        chrome.runtime.sendMessage(payload, function (response) {
-            if (chrome.runtime.lastError) {
-                gsUtils.error('-> Suspended tab: Error requesting unsuspendTab. Will unsuspend locally.', chrome.runtime.lastError);
-                unsuspendTab();
-            }
-        });
-    }
-
-    function unsuspendTab() {
+    function unsuspendTab(addToTemporaryWhitelist) {
+        if (addToTemporaryWhitelist) {
+            tgs.setTabFlagForTabId(tabId, tgs.TEMP_WHITELIST_ON_RELOAD, true);
+        }
+        var scrollPosition = gsUtils.getSuspendedScrollPosition(window.location.href);
+        if (scrollPosition) {
+            tgs.setTabFlagForTabId(tabId, tgs.SCROLL_POS, scrollPosition);
+        }
         var url = gsUtils.getSuspendedUrl(window.location.href);
         if (url) {
             document.getElementById('suspendedMsg').innerHTML = '';
@@ -233,19 +231,19 @@
     function whitelistTab(whitelistString) {
         gsUtils.saveToWhitelist(whitelistString);
         toggleWhitelistModal(false);
-        requestUnsuspendTab();
+        unsuspendTab();
     }
 
     function unwhitelistTab() {
         gsUtils.removeFromWhitelist(rootUrlStr);
         gsUtils.removeFromWhitelist(fullUrlStr);
         toggleWhitelistModal(false);
-        requestUnsuspendTab();
+        unsuspendTab();
     }
 
     function temporarilyWhitelistTab() {
         toggleWhitelistModal(false);
-        requestUnsuspendTab(true);
+        unsuspendTab(true);
     }
 
     function toggleWhitelistModal(visible) {
@@ -380,47 +378,26 @@
         });
     }
 
-    function backgroundPageReadyAsPromsied() {
-        return new Promise(function (resolve, reject) {
-            if (chrome.extension.getBackgroundPage()) {
-                resolve();
-            }
-            else {
-                console.log('Background page not ready. Waiting 500ms..');
-                window.setTimeout(function () {
-                    if (chrome.extension.getBackgroundPage()) {
-                        resolve();
-                    }
-                    else {
-                        reject(new Error('Background page could not be initialised!'));
-                    }
-                }, 500);
-            }
-        });
-    }
-
-    function documentReadyAsPromsied() {
-        return new Promise(function (resolve, reject) {
-            if (document.readyState !== 'loading') {
-                resolve();
-            } else {
-                document.addEventListener('DOMContentLoaded', function () {
-                    resolve();
-                });
-            }
-        });
-    }
-
-    //listen for background events
+    // listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         switch (request.action) {
+
+        case 'initSuspendedTab':
+            tabId = request.tabId;
+            requestUnsuspendOnReload = true;
+            init(request.tabProperties);
+            sendResponse({
+                action: 'reportTabState',
+                status: 'suspended'
+            });
+            return false;
 
         case 'unsuspendTab':
             unsuspendTab();
             break;
 
-        case 'setUnsuspendOnReload':
-            requestUnsuspendOnReload = request.value || false;
+        case 'disableUnsuspendOnReload':
+            requestUnsuspendOnReload = false;
             break;
 
         case 'showNoConnectivityMessage':
@@ -429,5 +406,10 @@
         }
         sendResponse();
         return false;
+    });
+
+    documentReadyAsPromsied().then(function () {
+        localiseHtml();
+        preInit();
     });
 }());
