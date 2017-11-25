@@ -106,6 +106,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         if (response.timerMsg) {
                             gsUtils.log('Time taken to generate preview for tabId ' + tab.id + ': ' + response.timerMsg);
                         }
+                        if (response.cancelled) {
+                            return;
+                        }
                         gsStorage.addPreviewImage(tab.url, response.previewUrl, function () {
                             confirmTabSuspension(tab, suspendedUrl);
                         });

@@ -12,13 +12,21 @@
     var inputState = false,
         tempWhitelist = false,
         timerJob,
-        suspendDateTime = false;
+        suspendDateTime = false,
+        shouldSuspendTab = false;
 
     function suspendTab(suspendedUrl) {
         window.location.replace(suspendedUrl);
     }
 
     function handlePreviewSuccess(dataUrl, timer, sendResponseCallback) {
+        if (!shouldSuspendTab) {
+            sendResponseCallback({
+                cancelled: true,
+                timerMsg: timer
+            });
+            return;
+        }
         sendResponseCallback({
             previewUrl: dataUrl,
             timerMsg: timer
@@ -26,6 +34,12 @@
     }
 
     function handlePreviewError(err, sendResponseCallback) {
+        if (!shouldSuspendTab) {
+            sendResponseCallback({
+                cancelled: true
+            });
+            return;
+        }
         sendResponseCallback({
             previewUrl: false,
             errorMsg: err
@@ -129,9 +143,11 @@
             //listen for preview request
             if (request.action === 'generatePreview') {
                 generatePreviewImg(request.screenCapture, request.forceScreenCapture, sendResponse);
+                shouldSuspendTab = true;
                 return true;
             //listen for suspend request
             } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+                sendResponse();
                 suspendTab(request.suspendedUrl);
                 return false;
             }
@@ -157,6 +173,7 @@
         }
         if (request.hasOwnProperty('suspendTime')) {
             clearTimeout(timerJob);
+            shouldSuspendTab = false;
             var suspendTime = Number(request.suspendTime);
             if (!isNaN(suspendTime) && suspendTime > 0) {
                 timerJob = setTimerJob(request.suspendTime * (1000 * 60));
