@@ -18,13 +18,13 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     log: function (text, ...args) {
         if (debugInfo) {
             args = args || [];
-            console.log(text, ...args);
+            console.log(new Date(), text, ...args);
         }
     },
     error: function (text, ...args) {
         if (debugError) {
             args = args || [];
-            console.error(text, ...args);
+            console.error(new Date(), text, ...args);
         }
     },
     dir: function (object) {
@@ -59,6 +59,10 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     isAudibleTab: function (tab) {
         var dontSuspendAudible = gsStorage.getOption(gsStorage.IGNORE_AUDIO);
         return dontSuspendAudible && tab.audible;
+    },
+
+    isNormalTab: function (tab) {
+        return !gsUtils.isSpecialTab(tab) && !gsUtils.isDiscardedTab(tab) && !gsUtils.isSuspendedTab(tab);
     },
 
     isSuspendedTab: function (tab, strictMatching) {
@@ -97,7 +101,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var whitelistString = whitelistItems.join('\n');
         gsStorage.setOption(gsStorage.WHITELIST, whitelistString);
         gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelistString });
-        this.updateOptionsView();
     },
 
     testForMatch: function (whitelistItem, word) {
@@ -130,7 +133,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         whitelist = this.cleanupWhitelist(whitelist);
         gsStorage.setOption(gsStorage.WHITELIST, whitelist);
         gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelist });
-        this.updateOptionsView();
     },
 
     cleanupWhitelist: function (whitelist) {
@@ -149,14 +151,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         } else {
             return whitelistItems;
         }
-    },
-
-    updateOptionsView: function () {
-        chrome.tabs.query({ url: chrome.extension.getURL('options.html') }, function (tabs) {
-            for (var i = 0; i < tabs.length; i++) {
-                gsMessages.sendReloadOptionsToOptionsTab(tabs[i].id);
-            }
-        });
     },
 
     documentReadyAsPromsied: function (doc) {

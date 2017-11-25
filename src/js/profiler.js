@@ -31,7 +31,7 @@
             tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                tgs.requestTabInfo(curTab.id, function (suspendInfo) {
+                tgs.requestDebugInfo(curTab.id, function (debugInfo) {
                     if (chrome.runtime.lastError) {
                         gsUtils.error(chrome.runtime.lastError.message);
                     }
@@ -39,9 +39,9 @@
                     var html,
                         tableEl = document.getElementById('gsProfilerBody');
 
-                    suspendInfo.tab = curTab;
+                    debugInfo.tab = curTab;
 
-                    html = generateTabInfo(suspendInfo);
+                    html = generateTabInfo(debugInfo);
                     tableEl.innerHTML = tableEl.innerHTML + html;
                 });
             });

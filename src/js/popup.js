@@ -7,12 +7,12 @@
     var globalActionElListener;
 
     var getTabStatus = function (retriesRemaining, callback) {
-        tgs.requestTabInfo(false, function (info) {
+        tgs.requestActiveTabStatus(function (status) {
             if (chrome.runtime.lastError) {
                 gsUtils.error('-> popup: ', chrome.runtime.lastError.message);
             }
-            if (retriesRemaining === 0 || (info && info.status !== 'unknown')) {
-                var status = info ? info.status : 'unknown';
+            if (retriesRemaining === 0 || (status !== 'unknown')) {
+                status = status || 'unknown';
                 callback(status);
             } else {
                 retriesRemaining--;
@@ -190,7 +190,6 @@
             if (tgsHanderFunc) {
                 globalActionElListener = function (e) {
                     tgsHanderFunc();
-                    tgs.updateIcon('normal');
                     window.close();
                 };
                 actionEl.addEventListener('click', globalActionElListener);
@@ -227,12 +226,10 @@
         });
         document.getElementById('whitelist').addEventListener('click', function (e) {
             tgs.whitelistHighlightedTab();
-            tgs.updateIcon();
             window.close();
         });
         document.getElementById('tempWhitelist').addEventListener('click', function (e) {
             tgs.temporarilyWhitelistHighlightedTab();
-            tgs.updateIcon();
             window.close();
         });
         document.getElementById('settingsLink').addEventListener('click', function (e) {

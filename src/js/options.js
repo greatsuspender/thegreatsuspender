@@ -181,13 +181,11 @@
 
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        switch (request.action) {
-
-        case 'reloadOptions':
+        if (request && request.action === 'reloadOptions') {
             initSettings();
+            sendResponse();
+            return false;
         }
-        sendResponse();
-        return false;
     });
 
     gsAnalytics.reportPageView('options.html');

@@ -14,9 +14,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var SCROLL_POS = 'scrollPos';
     var CREATE_TIMESTAMP = 'createTimestamp';
 
-    var lastSelectedTabByWindowId = {},
+    var lastSelectedTabIdByWindowId = {},
         globalCurrentTabId,
         sessionSaveTimer,
+        newTabFocusTimer,
         noticeToDisplay,
         chargingMode = false,
         suspensionActiveIcon = '/img/icon19.png',
@@ -175,6 +176,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 gsUtils.saveToWhitelist(rootUrlStr);
                 if (gsUtils.isSuspendedTab(activeTab)) {
                     unsuspendTab(activeTab);
+                } else {
+                    calculateTabStatus(activeTab, null, function (status) {
+                        setIconStatus(status);
+                    });
                 }
             }
         });
@@ -184,6 +189,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
                 gsUtils.removeFromWhitelist(activeTab.url);
+                calculateTabStatus(activeTab, null, function (status) {
+                    setIconStatus(status);
+                });
             }
         });
     }
@@ -191,7 +199,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function temporarilyWhitelistHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id);
+                gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id, function (response) {
+                    var contentScriptStatus = (response && response.status) ? response.status : null;
+                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
+                        setIconStatus(status);
+                    });
+                });
             }
         });
     }
@@ -199,7 +212,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function undoTemporarilyWhitelistHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsMessages.sendUndoTemporaryWhitelistToContentScript(activeTab.id);
+                gsMessages.sendUndoTemporaryWhitelistToContentScript(activeTab.id, function (response) {
+                    var contentScriptStatus = (response && response.status) ? response.status : null;
+                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
+                        setIconStatus(status);
+                    });
+                });
             }
         });
     }
@@ -394,6 +412,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function handleUnsuspendedTabChanged(tab, changeInfo) {
         //should probably filter out special and discarded tabs here
 
+        var hasTabStatusChanged = false;
+
         //check for change in tabs audible status
         if (changeInfo.hasOwnProperty('audible')) {
 
@@ -401,40 +421,39 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
                 gsMessages.sendRestartTimerToContentScript(tab.id);
             }
-            //if tab is currently visible then update popup icon
-            if (tab.id === globalCurrentTabId) {
-                updateIcon(processActiveTabStatus(tab, 'normal'));
-            }
+            hasTabStatusChanged = true;
         }
-
-        //check for change in tabs pinned status
-        if (changeInfo.hasOwnProperty('pinned') && tab.id === globalCurrentTabId) {
-            updateIcon(processActiveTabStatus(tab, 'normal'));
+        if (changeInfo.hasOwnProperty('pinned')) {
+            hasTabStatusChanged = true;
         }
 
         //if page has finished loading
         if (changeInfo.status === 'complete') {
 
-            var spawnedTabCreateTimestamp = getTabFlagForTabId(tab.id, CREATE_TIMESTAMP);
-            //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
-            if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
-                attemptTabSuspension(tab, 1);
-                return;
-            }
+            if (gsUtils.isNormalTab(tab)) {
+                var spawnedTabCreateTimestamp = getTabFlagForTabId(tab.id, CREATE_TIMESTAMP);
+                //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
+                if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
+                    attemptTabSuspension(tab, 1);
+                    return;
+                }
 
-            //init loaded tab
-            var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-            var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
-            var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-            var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-            gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
-            clearTabFlagsForTabId(tab.id);
-
-            // If tab is currently visible then update popup icon
-            if (tab.id === globalCurrentTabId) {
-                var contentScriptState = isTempWhitelist ? 'tempWhitelist' : 'normal';
-                updateIcon(processActiveTabStatus(tab, contentScriptState));
+                //init loaded tab
+                var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+                var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
+                var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
+                var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+                gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
+                clearTabFlagsForTabId(tab.id);
+                hasTabStatusChanged = true;
             }
+        }
+
+        //if tab is currently visible then update popup icon
+        if (hasTabStatusChanged && tab.id === globalCurrentTabId) {
+            calculateTabStatus(tab, null, function (status) {
+                setIconStatus(status);
+            });
         }
     }
 
@@ -455,9 +474,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             });
             clearTabFlagsForTabId(tab.id);
 
-            // If tab is currently visible then update popup icon
             if (tab.id === globalCurrentTabId) {
-                updateIcon('suspended');
+                setIconStatus('suspended');
             }
         }
     }
@@ -471,80 +489,78 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (tabs && tabs.length === 1) {
 
                 var currentTab = tabs[0];
-                lastSelectedTabByWindowId[windowId] = currentTab.id;
+                lastSelectedTabIdByWindowId[windowId] = currentTab.id;
                 globalCurrentTabId = currentTab.id;
 
                 //update icon
-                requestTabInfo(currentTab.id, function (info) {
-                    updateIcon(info.status);
+                calculateTabStatus(currentTab, null, function (status) {
+                    setIconStatus(status);
                 });
             }
         });
     }
 
     function handleTabFocusChanged(tabId, windowId) {
-
         gsUtils.log('tab changed:', tabId);
-        var lastSelectedTab = lastSelectedTabByWindowId[windowId];
-
-        lastSelectedTabByWindowId[windowId] = tabId;
+        var lastSelectedTabId = lastSelectedTabIdByWindowId[windowId];
         globalCurrentTabId = tabId;
 
-        //reset timer on tab that lost focus
-        //TODO: ideally we'd only reset timer on last tab viewed for more than 500ms (as per setTimeout below)
-        //but that's getting tricky to determine
-        if (lastSelectedTab) {
-            gsMessages.sendRestartTimerToContentScript(lastSelectedTab);
-        }
+        chrome.tabs.get(tabId, function (tabProperties) {
+            if (chrome.runtime.lastError) {
+                gsUtils.error(chrome.runtime.lastError.message);
+                return;
+            }
 
-        //update icon
-        requestTabInfo(tabId, function (info) {
-            updateIcon(info.status);
+            //update icon
+            calculateTabStatus(tabProperties, null, function (status) {
+                setIconStatus(status);
+            });
+
+            //pause for a bit before assuming we're on a new tab as some users
+            //will key through intermediate tabs to get to the one they want.
+            queueNewTabFocusTimer(tabId, windowId, tabProperties, lastSelectedTabId);
         });
-
-        //pause for a bit before assuming we're on a new tab as some users
-        //will key through intermediate tabs to get to the one they want.
-        (function () {
-            var selectedTabId = tabId;
-            setTimeout(function () {
-                if (selectedTabId === globalCurrentTabId) {
-                    handleNewTabFocus(selectedTabId);
-                }
-            }, 500);
-        }());
     }
 
-    function handleNewTabFocus(tabId) {
-        var unsuspend = gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS);
+    function queueNewTabFocusTimer(tabId, windowId, tabProperties, lastSelectedTabId) {
+        clearTimeout(newTabFocusTimer);
+        newTabFocusTimer = setTimeout(function () {
+            handleNewTabFocus(tabId, windowId, tabProperties, lastSelectedTabId);
+        }, 500);
+    }
 
-        //optimisation to prevent a chrome.tabs.get call
-        if (unsuspend) {
-
-            //get tab object so we can check if it is a suspended tab
-            chrome.tabs.get(tabId, function (tab) {
-                if (chrome.runtime.lastError) {
-                    gsUtils.error(chrome.runtime.lastError.message);
-                    return;
-                }
-                if (gsUtils.isSuspendedTab(tab, true)) {
-
-                    if (navigator.onLine) {
-                        unsuspendTab(tab);
-                    } else {
-                        gsMessages.sendNoConnectivityMessageToSuspendedTab(tab.id);
-                    }
-                }
-            });
-        }
+    function handleNewTabFocus(tabId, windowId, tabProperties, lastSelectedTabId) {
+        lastSelectedTabIdByWindowId[windowId] = tabId;
 
         //remove request to instantly suspend this tab id
         if (getTabFlagForTabId(tabId, CREATE_TIMESTAMP)) {
             setTabFlagForTabId(tabId, CREATE_TIMESTAMP,  false);
         }
 
-        //clear timer on newly focused tab
-        //NOTE: only works if tab is currently unsuspended
-        gsMessages.sendClearTimerToContentScript(tabId);
+        if (gsUtils.isSuspendedTab(tabProperties)) {
+            var autoUnsuspend = gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS);
+            if (autoUnsuspend) {
+                if (navigator.onLine) {
+                    unsuspendTab(tabProperties);
+                } else {
+                    gsMessages.sendNoConnectivityMessageToSuspendedTab(tabProperties.id);
+                }
+            }
+
+        } else if (gsUtils.isSpecialTab(tabProperties)) {
+            if (tabProperties.url === chrome.extension.getURL('options.html')) {
+                gsMessages.sendReloadOptionsToOptionsTab(tabProperties.id);
+            }
+
+        } else {
+            //reset timer on tab that lost focus
+            if (lastSelectedTabId) {
+                gsMessages.sendRestartTimerToContentScript(lastSelectedTabId);
+            }
+            //clear timer on newly focused tab
+            gsMessages.sendClearTimerToContentScript(tabId, function (response) {
+            });
+        }
     }
 
     function checkForNotices() {
@@ -589,9 +605,64 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         noticeToDisplay = undefined;
     }
 
-    //get info for a tab
-    //returns the current tab suspension and timer states. possible suspension states are:
+    function requestDebugInfo(tabId, callback) {
+        var info = {
+            windowId: '',
+            tabId: '',
+            status: 'unknown',
+            timerUp: '-'
+        };
 
+        chrome.tabs.get(tabId, function (tab) {
+
+            if (chrome.runtime.lastError) {
+                gsUtils.error(chrome.runtime.lastError.message);
+                callback(info);
+
+            } else {
+
+                info.windowId = tab.windowId;
+                info.tabId = tab.id;
+                if(gsUtils.isNormalTab(tab)) {
+                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
+                        if (tabInfo) {
+                            info.timerUp = tabInfo.timerUp;
+                            calculateTabStatus(tab, tabInfo.status, function (status) {
+                                info.status = status;
+                                callback(info);
+                            });
+                        } else {
+                            info.status = 'unknown';
+                            callback(info);
+                        }
+                    });
+                } else {
+                    calculateTabStatus(tab, null, function (status) {
+                        info.status = status;
+                        callback(info);
+                    });
+                }
+            }
+        });
+    }
+
+    function getContentScriptStatus(tabId, knownContentScriptStatus) {
+        return new Promise(function (resolve) {
+            if (knownContentScriptStatus) {
+                resolve(knownContentScriptStatus);
+            } else {
+                gsMessages.sendRequestInfoToContentScript(tabId, function (err, tabInfo) {
+                    if (tabInfo) {
+                        resolve(tabInfo.status);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            }
+        });
+    }
+
+    //possible suspension states are:
     //normal: a tab that will be suspended
     //special: a tab that cannot be suspended
     //suspended: a tab that is suspended
@@ -605,103 +676,80 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //charging: computer currently charging (and BATTERY_CHECK is true)
     //noConnectivity: internet currently offline (and ONLINE_CHECK is true)
     //unknown: an error detecting tab status
-    function requestTabInfo(tabId, callback) {
-
-        tabId = tabId || globalCurrentTabId;
-
-        var info = {
-            windowId: '',
-            tabId: '',
-            status: 'unknown',
-            timerUp: '-'
-        };
-
-        if (typeof tabId === 'undefined') {
-            callback(info);
+    function calculateTabStatus(tab, knownContentScriptStatus, callback) {
+        //check if it is a special tab
+        if (gsUtils.isSpecialTab(tab)) {
+            callback('special');
             return;
         }
-
-        chrome.tabs.get(tabId, function (tab) {
-
-            if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
-                callback(info);
-
-            } else {
-
-                info.windowId = tab.windowId;
-                info.tabId = tab.id;
-
-                //check if it is a special tab
-                if (gsUtils.isSpecialTab(tab)) {
-                    info.status = 'special';
-                    callback(info);
-
-                //check if tab has been discarded
-                } else if (gsUtils.isDiscardedTab(tab)) {
-                    info.status = 'discarded';
-                    callback(info);
-
-                //check if it has already been suspended
-                } else if (gsUtils.isSuspendedTab(tab)) {
-                    info.status = 'suspended';
-                    callback(info);
-
-                //request tab state and timer state from the content script
-                } else {
-                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
-                        if (tabInfo) {
-                            info.status = processActiveTabStatus(tab, tabInfo.status);
-                            info.timerUp = tabInfo.timerUp;
-                        } else {
-                            info.status = processActiveTabStatus(tab, 'unknown');
-                        }
-                        callback(info);
-                    });
-
-                }
+        //check if tab has been discarded
+        if (gsUtils.isDiscardedTab(tab)) {
+            callback('discarded');
+            return;
+        }
+        //check if it has already been suspended
+        if (gsUtils.isSuspendedTab(tab)) {
+            callback('suspended');
+            return;
+        }
+        //check whitelist
+        if (gsUtils.checkWhiteList(tab.url)) {
+            callback('whitelisted');
+            return;
+        }
+        //check never suspend
+        //should come after whitelist check as it causes popup to show the whitelisting option
+        if (gsStorage.getOption(gsStorage.SUSPEND_TIME) === '0') {
+            callback('never');
+            return;
+        }
+        getContentScriptStatus(tab.id, knownContentScriptStatus).then(function (contentScriptStatus) {
+            if (contentScriptStatus && contentScriptStatus !== 'normal') {
+                callback(contentScriptStatus);
+                return;
             }
+            //check running on battery
+            if (gsStorage.getOption(gsStorage.BATTERY_CHECK) && chargingMode) {
+                callback('charging');
+                return;
+            }
+            //check internet connectivity
+            if (gsStorage.getOption(gsStorage.ONLINE_CHECK) && !navigator.onLine) {
+                callback('noConnectivity');
+                return;
+            }
+            //check pinned tab
+            if (gsUtils.isPinnedTab(tab)) {
+                callback('pinned');
+                return;
+            }
+            //check audible tab
+            if (gsUtils.isAudibleTab(tab)) {
+                callback('audible');
+                return;
+            }
+            if (contentScriptStatus) {
+                callback(contentScriptStatus); // should be 'normal'
+                return;
+            }
+            callback('unknown');
         });
     }
 
-    function processActiveTabStatus(tab, tabStatusString) {
-
-        var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME),
-            onlySuspendOnBattery = gsStorage.getOption(gsStorage.BATTERY_CHECK),
-            onlySuspendWithInternet = gsStorage.getOption(gsStorage.ONLINE_CHECK);
-
-        var status = tabStatusString;
-
-        //check whitelist (ignore contentScriptStatus)
-        if (gsUtils.checkWhiteList(tab.url)) {
-            status = 'whitelisted';
-
-        //check never suspend (ignore contentScriptStatus)
-        //should come after whitelist check as it causes popup to show the whitelisting option
-        } else if (suspendTime === '0') {
-            status = 'never';
-
-        //check running on battery
-        } else if (tabStatusString === 'normal' && onlySuspendOnBattery && chargingMode) {
-            status = 'charging';
-
-        //check internet connectivity
-        } else if (tabStatusString === 'normal' && onlySuspendWithInternet && !navigator.onLine) {
-            status = 'noConnectivity';
-
-        //check pinned tab
-        } else if (tabStatusString === 'normal' && gsUtils.isPinnedTab(tab)) {
-            status = 'pinned';
-
-        //check audible tab
-        } else if (tabStatusString === 'normal' && gsUtils.isAudibleTab(tab)) {
-            status = 'audible';
-        }
-        return status;
+    function getActiveTabStatus(callback) {
+        getCurrentlyActiveTab(function (tab) {
+            if (!tab) {
+                callback('unknown');
+                return;
+            }
+            calculateTabStatus(tab, null, function (status) {
+                callback(status);
+            });
+        });
     }
 
     //change the icon to either active or inactive
-    function updateIcon(status) {
+    function setIconStatus(status) {
         var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
         chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId }, function () {
             if (chrome.runtime.lastError) {
@@ -802,11 +850,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
     });
 
-    //HANDLERS FOR MESSAGE REQUESTS
+    //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
-    function messageRequestListener(request, sender, sendResponse) {
-        gsUtils.log('listener fired:', request.action);
-        gsUtils.dir(sender);
+    function contentScriptMessageRequestListener(request, sender, sendResponse) {
+        gsUtils.log('contentScriptMessageRequestListener from: ' + sender.tab.id, request.action);
 
         switch (request.action) {
 
@@ -814,7 +861,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         case 'reportTabState':
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
-                updateIcon(processActiveTabStatus(sender.tab, request.status));
+                var contentScriptStatus = (request && request.status) ? request.status : null;
+                calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
+                    setIconStatus(status);
+                });
             }
             break;
 
@@ -828,10 +878,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     //attach listener to runtime
-    chrome.runtime.onMessage.addListener(messageRequestListener);
+    chrome.runtime.onMessage.addListener(contentScriptMessageRequestListener);
     //attach listener to runtime for external messages, to allow
     //interoperability with other extensions in the manner of an API
-    chrome.runtime.onMessageExternal.addListener(messageRequestListener);
+    chrome.runtime.onMessageExternal.addListener(contentScriptMessageRequestListener);
 
     chrome.windows.onFocusChanged.addListener(function (windowId) {
         handleWindowFocusChanged(windowId);
@@ -849,7 +899,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
-        gsUtils.log('tab updated. tabId: ', tabId, changeInfo);
+        // gsUtils.log('tab updated. tabId: ', tabId, changeInfo);
 
         //test for special case of a successful donation
         if (changeInfo.url && changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
@@ -909,8 +959,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             battery.onchargingchange = function () {
                 chargingMode = battery.charging;
-                requestTabInfo(false, function (info) {
-                    updateIcon(info.status);
+                getActiveTabStatus(function (status) {
+                    setIconStatus(status);
                 });
             };
         });
@@ -918,13 +968,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     //add listeners for online/offline state changes
     window.addEventListener('online', function () {
-        requestTabInfo(false, function (info) {
-            updateIcon(info.status);
+        getActiveTabStatus(function (status) {
+            setIconStatus(status);
         });
     });
     window.addEventListener('offline', function () {
-        requestTabInfo(false, function (info) {
-            updateIcon(info.status);
+        getActiveTabStatus(function (status) {
+            setIconStatus(status);
         });
     });
 
@@ -948,8 +998,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         buildContextMenu: buildContextMenu,
         resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
         resuspendSuspendedTab: resuspendSuspendedTab,
-        updateIcon: updateIcon,
-        requestTabInfo: requestTabInfo,
+        requestActiveTabStatus: getActiveTabStatus,
+        requestDebugInfo: requestDebugInfo,
 
         unsuspendHighlightedTab: unsuspendHighlightedTab,
         unwhitelistHighlightedTab: unwhitelistHighlightedTab,
