@@ -20,6 +20,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         newTabFocusTimer,
         noticeToDisplay,
         chargingMode = false,
+        recoveryMode = false,
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png';
 
@@ -395,6 +396,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         delete tabFlagsByTabId[tabId];
     }
 
+    function setRecoveryMode(value) {
+        recoveryMode = value;
+    }
+
     function unsuspendTab(tab) {
         if (!gsUtils.isSuspendedTab(tab)) return;
 
@@ -476,6 +481,14 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             if (tab.id === globalCurrentTabId) {
                 setIconStatus('suspended');
+            }
+
+            if (recoveryMode) {
+                chrome.tabs.query({url: chrome.extension.getURL('recovery.html')}, function (recoveryTabs) {
+                    for (var recoveryTab of recoveryTabs) {
+                        gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab);
+                    }
+                });
             }
         }
     }
@@ -1000,6 +1013,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         resuspendSuspendedTab: resuspendSuspendedTab,
         requestActiveTabStatus: getActiveTabStatus,
         requestDebugInfo: requestDebugInfo,
+        setRecoveryMode: setRecoveryMode,
 
         unsuspendHighlightedTab: unsuspendHighlightedTab,
         unwhitelistHighlightedTab: unwhitelistHighlightedTab,

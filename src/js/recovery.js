@@ -3,27 +3,47 @@
     'use strict';
 
     var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-    var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+    var tgs = chrome.extension.getBackgroundPage().tgs;
 
     var restoreAttempted = false;
+    var tabsToRecover = [];
 
-    function removeTabFromList(tab) {
+    function populateRecoverableTabs() {
+        return new Promise(function (resolve) {
+            gsStorage.fetchLastSession().then(function (lastSession) {
+                if (lastSession) {
+                    lastSession.windows.forEach(function (window, index) {
+                        window.tabs.forEach(function (tabProperties) {
+                            if (gsUtils.isSuspendedTab(tabProperties)) {
+                                tabProperties.windowId = window.id;
+                                tabProperties.sessionId = lastSession.sessionId;
+                                tabsToRecover.push(tabProperties);
+                            }
+                        });
+                    });
+                }
+                resolve();
+            });
+        });
+    }
 
+    function removeSuspendedTabFromList(tabToRemove) {
         var recoveryTabsEl = document.getElementById('recoveryTabs'),
             childLinks = recoveryTabsEl.children;
 
         for (var i = 0; i < childLinks.length; i++) {
             var element = childLinks[i];
-            if (element.getAttribute('data-url') === tab.url ||
-                    element.getAttribute('data-tabId') == tab.id) { // eslint-disable-line eqeqeq
+            if (element.getAttribute('data-url') === tabToRemove.url ||
+                    element.getAttribute('data-tabId') == tabToRemove.id) { // eslint-disable-line eqeqeq
                 recoveryTabsEl.removeChild(element);
             }
         }
 
-        //if removing the last element
-        if (recoveryTabsEl.children.length === 0) {
+        //if removing the last element.. (re-get the element this function gets called asynchronously
+        if (document.getElementById('recoveryTabs').children.length === 0) {
+            tgs.setRecoveryMode(false);
 
             //if we have already clicked the restore button then redirect to success page
             if (restoreAttempted) {
@@ -43,73 +63,18 @@
         }
     }
 
-    function populateMissingTabs() {
-
-        var recoveryEl = document.getElementById('recoveryTabs'),
-            tabEl;
-
-        gsStorage.fetchLastSession().then(function (lastSession) {
-
-            if (!lastSession) {
-                hideRecoverySection();
-                return;
-            }
-
-            lastSession.windows.forEach(function (window, index) {
-
-                window.tabs.forEach(function (tabProperties) {
-
-                    if (!gsUtils.isSpecialTab(tabProperties)) {
-                        tabProperties.windowId = window.id;
-                        tabProperties.sessionId = lastSession.sessionId;
-                        tabEl = historyItems.createTabHtml(tabProperties, false);
-                        tabEl.onclick = function (e) {
-                            e.preventDefault();
-                            chrome.tabs.create({url: tabProperties.url, active: false});
-                            removeTabFromList(tabProperties);
-                        };
-                        recoveryEl.appendChild(tabEl);
-                    }
-                });
-            });
-            checkForActiveTabs();
-        });
-    }
-
-    function checkForActiveTabs() {
-
-        //hide tabs that respond to getInfo request
-        chrome.windows.getAll({ populate: true }, function (windows) {
-            windows.forEach(function (curWindow) {
-                curWindow.tabs.forEach(function (curTab) {
-                    gsMessages.sendPingToTab(curTab.id, function (err) {
-                        if (err) {
-                            gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
-                        }
-                        else {
-                            removeTabFromList(curTab);
-                        }
-                    });
-                });
-            });
-        });
-    }
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        removeSuspendedTabFromList(request);
+    });
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
 
         var restoreEl = document.getElementById('restoreSession'),
             manageEl = document.getElementById('manageManuallyLink'),
             previewsEl = document.getElementById('previewsOffBtn'),
-            warningEl = document.getElementById('screenCaptureNotice');
-
-        var handleAutoRestore = function () {
-            restoreAttempted = true;
-            restoreEl.className += ' btnDisabled';
-            gsUtils.recoverLostTabs(checkForActiveTabs);
-            restoreEl.removeEventListener('click', handleAutoRestore);
-        };
-
-        restoreEl.addEventListener('click', handleAutoRestore);
+            recoveryEl = document.getElementById('recoveryTabs'),
+            warningEl = document.getElementById('screenCaptureNotice'),
+            tabEl;
 
         manageEl.onclick = function (e) {
             e.preventDefault();
@@ -128,7 +93,31 @@
             }
         }
 
-        populateMissingTabs();
+        var performRestore = function () {
+            tgs.setRecoveryMode(true);
+            restoreAttempted = true;
+            restoreEl.className += ' btnDisabled';
+            restoreEl.removeEventListener('click', performRestore);
+            gsUtils.recoverLostTabs();
+        };
+
+        restoreEl.addEventListener('click', performRestore);
+
+        populateRecoverableTabs().then(function () {
+            if (tabsToRecover.length === 0) {
+                hideRecoverySection();
+                return;
+            }
+            for (var tabToRecover of tabsToRecover) {
+                tabEl = historyItems.createTabHtml(tabToRecover, false);
+                tabEl.onclick = function (e) {
+                    e.preventDefault();
+                    chrome.tabs.create({url: tabToRecover.url, active: false});
+                    removeSuspendedTabFromList(tabToRecover);
+                };
+                recoveryEl.appendChild(tabEl);
+            }
+        });
     });
 
     gsAnalytics.reportPageView('recovery.html');

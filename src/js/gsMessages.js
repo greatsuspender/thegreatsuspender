@@ -117,8 +117,13 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.INFO, callback);
     },
 
+    sendTabInfoToRecoveryTab: function (tabId, payload) {
+        this.sendMessageToTab(tabId, payload, this.INFO);
+    },
+
     sendMessageToTab: function (tabId, message, severity, callback) {
         var responseHandler = function (response) {
+            gsUtils.log('responseHandler', response);
             if (chrome.runtime.lastError) {
                 if (severity === gsMessages.ERROR) {
                     gsUtils.error(chrome.runtime.lastError.message, tabId, message);
