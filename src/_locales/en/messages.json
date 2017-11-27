@@ -246,7 +246,7 @@
     "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },
 
     // Update page (Javascript code)
-    "js_update_confirm": { "message": "You have not save a backup yet. Update the extension anyway?" },
+    "js_update_confirm": { "message": "You have not saved a backup yet. Update the extension anyway?" },
     "js_update_button_export": { "message": "Save backup" },
     "js_update_button_reload": { "message": "Update extension now" },
 
