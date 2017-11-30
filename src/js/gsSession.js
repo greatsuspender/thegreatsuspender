@@ -45,7 +45,11 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         return sessionId;
     }
 
-    function backgroundScriptsReadyAsPromsied() {
+    function backgroundScriptsReadyAsPromsied(retries) {
+        retries = retries || 0;
+        if (retries > 300) { // allow 30 seconds :scream:
+            return Promise.reject();
+        }
         return new Promise(function (resolve) {
             var isReady = chrome.extension.getBackgroundPage() &&
                 typeof db !== 'undefined' &&
@@ -60,8 +64,11 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 return Promise.resolve();
             }
             return new Promise(function (resolve) {
-                window.setTimeout(resolve, 50);
-            }).then(backgroundScriptsReadyAsPromsied);
+                window.setTimeout(resolve, 100);
+            }).then(function () {
+                retries += 1;
+                return backgroundScriptsReadyAsPromsied(retries);
+            });
         });
     }
 
@@ -131,6 +138,10 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
             //initialise settings (important that this comes last. cant remember why?!?!)
             gsStorage.initSettings();
+
+        }).catch(function (err) {
+            console.error(err);
+            chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
         });
     }
 
