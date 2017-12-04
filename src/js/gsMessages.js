@@ -16,7 +16,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         if (suspendTime) {
             props.suspendTime = suspendTime;
         }
-        this.sendMessageToTab(tabId, props, this.ERROR, callback);
+        this.sendMessageToContentScript(tabId, props, this.ERROR, callback);
     },
 
     sendUpdatedPreferencesToContentScript: function (tabId, preferencesToUpdate, callback) {
@@ -27,52 +27,67 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
             messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         }
-        this.sendMessageToTab(tabId, messageParams, this.WARNING, callback);
+        this.sendMessageToContentScript(tabId, messageParams, this.WARNING, callback);
     },
 
     sendClearTimerToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             suspendTime: false,
         }, this.WARNING, callback);
     },
 
     sendRestartTimerToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             suspendTime: gsStorage.getOption(gsStorage.SUSPEND_TIME),
         }, this.WARNING, callback);
     },
 
     sendTemporaryWhitelistToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             tempWhitelist: true,
         }, this.WARNING, callback);
     },
 
     sendUndoTemporaryWhitelistToContentScript: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             tempWhitelist: false,
         }, this.WARNING, callback);
     },
 
     sendRequestInfoToContentScript(tabId, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             action: 'requestInfo'
         }, this.ERROR, callback);
     },
 
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             action: 'confirmTabSuspend',
             suspendedUrl: suspendedUrl,
         }, this.ERROR, callback);
     },
 
     sendGeneratePreviewToContentScript: function (tabId, screenCaptureMode, forceScreenCapture, callback) {
-        this.sendMessageToTab(tabId, {
+        this.sendMessageToContentScript(tabId, {
             action: 'generatePreview',
             screenCapture: screenCaptureMode,
             forceScreenCapture: forceScreenCapture
         }, this.ERROR, callback);
+    },
+
+    sendMessageToContentScript: function (tabId, message, severity, callback) {
+        var self = this;
+        // console.log(new Error('sendMessageToContentScript notActuallyError').stack);
+        self.sendMessageToTab(tabId, message, severity, function (error, response) {
+            if (error) {
+                console.log('\n\n------------------------------------------------');
+                console.log('Failed to communicate with contentScript!');
+                console.log('------------------------------------------------\n\n');
+                        if (callback) callback(error);
+            } else {
+                if (callback) callback(null, response);
+            }
+        });
     },
 
 

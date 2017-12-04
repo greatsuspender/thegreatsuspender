@@ -57,7 +57,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 typeof gsMessages !== 'undefined' &&
                 typeof gsUtils !== 'undefined' &&
                 typeof gsAnalytics !== 'undefined';
-            console.log('isReady',isReady);
+            // console.log('isReady',isReady);
             resolve(isReady);
         }).then(function (isReady) {
             if (isReady) {
@@ -140,7 +140,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsStorage.initSettings();
 
         }).catch(function (err) {
-            console.error(err);
+            gsUtils.error(err);
             chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
         });
     }
