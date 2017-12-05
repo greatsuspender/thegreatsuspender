@@ -75,6 +75,7 @@
             newSessionEl;
 
         gsStorage.removeTabFromSessionHistory(sessionId, windowId, tabId, function (session) {
+            gsUtils.removeInternalUrlsFromSession(session);
             //if we have a valid session returned
             if (session) {
                 sessionEl = element.parentElement.parentElement;
@@ -111,6 +112,7 @@
             if (!curSession || !curSession.windows) {
                 return;
             }
+            gsUtils.removeInternalUrlsFromSession(curSession);
 
             curSession.windows.forEach(function (curWindow, index) {
                 curWindow.sessionId = curSession.sessionId;
@@ -197,6 +199,7 @@
         gsStorage.fetchCurrentSessions().then(function (currentSessions) {
 
             currentSessions.forEach(function (session, index) {
+                gsUtils.removeInternalUrlsFromSession(session);
                 var sessionEl = createSessionElement(session);
                 if (firstSession) {
                     currentDiv.appendChild(sessionEl);
@@ -209,6 +212,7 @@
 
         gsStorage.fetchSavedSessions().then(function (savedSessions) {
             savedSessions.forEach(function (session, index) {
+                gsUtils.removeInternalUrlsFromSession(session);
                 var sessionEl = createSessionElement(session);
                 historyDiv.appendChild(sessionEl);
             });

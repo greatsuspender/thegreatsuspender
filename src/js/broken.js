@@ -9,7 +9,7 @@
         document.getElementById('sessionManagementLink').addEventListener("click", function () {
             chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
         });
-        var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics1;
+        var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
         gsAnalytics.reportPageView('broken.html');
     }
     if (document.readyState !== 'loading') {

@@ -14,6 +14,7 @@
         return new Promise(function (resolve) {
             gsStorage.fetchLastSession().then(function (lastSession) {
                 if (lastSession) {
+                    gsUtils.removeInternalUrlsFromSession(lastSession);
                     lastSession.windows.forEach(function (window, index) {
                         window.tabs.forEach(function (tabProperties) {
                             if (gsUtils.isSuspendedTab(tabProperties)) {
@@ -109,13 +110,17 @@
                 return;
             }
             for (var tabToRecover of tabsToRecover) {
-                tabEl = historyItems.createTabHtml(tabToRecover, false);
-                tabEl.onclick = function (e) {
-                    e.preventDefault();
-                    chrome.tabs.create({url: tabToRecover.url, active: false});
-                    removeSuspendedTabFromList(tabToRecover);
-                };
-                recoveryEl.appendChild(tabEl);
+                if (!gsUtils.isInternalTab(tabToRecover)) {
+                    tabEl = historyItems.createTabHtml(tabToRecover, false);
+                    tabEl.onclick = function () {
+                        return function (e) {
+                            e.preventDefault();
+                            chrome.tabs.create({url: tabToRecover.url, active: false});
+                            removeSuspendedTabFromList(tabToRecover);
+                        };
+                    };
+                    recoveryEl.appendChild(tabEl);
+                }
             }
         });
     });

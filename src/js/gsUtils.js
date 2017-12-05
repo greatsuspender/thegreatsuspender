@@ -51,6 +51,12 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return false;
     },
 
+    //does not include suspended pages!
+    isInternalTab: function (tab) {
+        var isLocalExtensionPage = tab.url.indexOf('chrome-extension://' + chrome.runtime.id) === 0;
+        return isLocalExtensionPage && !gsUtils.isSuspendedUrl(tab.url, true);
+    },
+
     isPinnedTab: function (tab) {
         var dontSuspendPinned = gsStorage.getOption(gsStorage.IGNORE_PINNED);
         return dontSuspendPinned && tab.pinned;
@@ -357,6 +363,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             if (!lastSession) {
                 callback(null);
             }
+            gsUtils.removeInternalUrlsFromSession(lastSession);
             chrome.windows.getAll({ populate: true }, function (currentWindows) {
                 var focusedWindow = currentWindows.find(function (currentWindow) { return currentWindow.focused; });
                 var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
@@ -531,6 +538,25 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             date: (new Date()).toISOString()
         };
         gsStorage.updateSession(session);
+    },
+
+    removeInternalUrlsFromSession: function (session) {
+        if (!session || !session.windows) {
+            return;
+        }
+        for (var i = session.windows.length - 1; i >= 0; i--) {
+            var curWindow = session.windows[i];
+            for (var j = curWindow.tabs.length - 1; j >= 0; j--) {
+                var curTab = curWindow.tabs[j];
+                if (gsUtils.isInternalTab(curTab)) {
+                    curWindow.tabs.splice(j, 1);
+                }
+            }
+            if (curWindow.tabs.length === 0) {
+                session.windows.splice(i, 1);
+            }
+        }
+        return session;
     },
 
     getSimpleDate: function (date) {

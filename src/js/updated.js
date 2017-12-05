@@ -27,9 +27,11 @@
             sessionContentsEl.appendChild(historyItems.createWindowHtml(curWindow, index, false));
 
             curWindow.tabs.forEach(function (curTab) {
-                curTab.windowId = curWindow.id;
-                curTab.sessionId = session.sessionId;
-                sessionContentsEl.appendChild(historyItems.createTabHtml(curTab, false));
+                if (!gsUtils.isInternalTab(curTab)) {
+                    curTab.windowId = curWindow.id;
+                    curTab.sessionId = session.sessionId;
+                    sessionContentsEl.appendChild(historyItems.createTabHtml(curTab, false));
+                }
             });
         });
     }
