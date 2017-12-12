@@ -107,12 +107,6 @@
     }
 
     function setTimerJob(timeToSuspend) {
-
-        //slightly randomise suspension timer to spread the cpu load when multiple tabs all suspend at once
-        if (timeToSuspend > (1000 * 60)) {
-            timeToSuspend = timeToSuspend + parseInt((Math.random() * 1000 * 60), 10);
-        }
-
         suspendDateTime = new Date((new Date()).getTime() + timeToSuspend);
 
         return setTimeout(function () {

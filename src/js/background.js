@@ -15,7 +15,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var CREATE_TIMESTAMP = 'createTimestamp';
 
     var lastSelectedTabByWindowId = {},
+        suspensionDetailsByTabId = {},
         globalCurrentTabId,
+        processSuspensionQueueTimer,
         sessionSaveTimer,
         newTabFocusTimer,
         noticeToDisplay,
@@ -65,15 +67,16 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function confirmTabSuspension(tab, suspendedUrl) {
+        delete suspensionDetailsByTabId[tab.id];
         gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
             if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
         });
     }
 
     //ask the tab to suspend itself
-    function requestTabSuspension(tab, tabInfo) {
-
-        var scrollPos = tabInfo.scrollPos || '0';
+    function requestTabSuspension(suspensionDetails) {
+        var tab = suspensionDetails.tab;
+        var scrollPos = suspensionDetails.scrollPos || '0';
         var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, scrollPos);
 
         saveSuspendData(tab, function () {
@@ -153,8 +156,46 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (forceLevel >= 2 && (tabInfo.status === 'formInput' || tabInfo.status === 'tempWhitelist')) {
                 return;
             }
-            requestTabSuspension(tab, tabInfo);
+            suspensionDetailsByTabId[tab.id] = { tab: tab, scrollPos: tabInfo.scrollPos };
+            clearTimeout(processSuspensionQueueTimer);
+            processSuspensionQueueTimer = setTimeout(function () {
+                gsUtils.log('background', 'processRequestTabSuspensionQueue');
+                processRequestTabSuspensionQueue();
+            }, 100);
         });
+    }
+
+    function processRequestTabSuspensionQueue() {
+        var MAX_TABS_IN_PROGRESS = 2;
+        var inProgressTabIds = [];
+        var queuedTabIds = [];
+        for (var tabId of Object.keys(suspensionDetailsByTabId)) {
+            var suspensionDetails = suspensionDetailsByTabId[tabId];
+            if (suspensionDetails.startTime) {
+                if ((new Date() - suspensionDetails.startTime) > 30000) {
+                    delete suspensionDetailsByTabId[tabId];
+                } else {
+                    inProgressTabIds.push(tabId);
+                }
+            } else {
+                queuedTabIds.push(tabId);
+            }
+        }
+        gsUtils.log('background', 'inProgressTabIds size: ' + inProgressTabIds.length);
+        gsUtils.log('background', 'queuedTabIds size: ' + queuedTabIds.length);
+        while (queuedTabIds.length > 0 && inProgressTabIds.length < MAX_TABS_IN_PROGRESS) {
+            var tabIdToSuspend = queuedTabIds.splice(0, 1);
+            inProgressTabIds.push(tabIdToSuspend);
+            var suspensionDetailsToSuspend = suspensionDetailsByTabId[tabIdToSuspend];
+            suspensionDetailsToSuspend.startTime = new Date();
+            requestTabSuspension(suspensionDetailsToSuspend);
+        }
+        if (queuedTabIds.length > 0 && inProgressTabIds.length >= MAX_TABS_IN_PROGRESS) {
+            clearTimeout(processSuspensionQueueTimer);
+            setTimeout(function () {
+                processRequestTabSuspensionQueue();
+            }, 500);
+        }
     }
 
     function getCurrentlyActiveTab(callback) {
@@ -473,6 +514,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 gsMessages.sendInitSuspendedTab(tab.id, tabProperties);
             });
             clearTabFlagsForTabId(tab.id);
+            delete suspensionDetailsByTabId[tab.id];
 
             if (tab.id === globalCurrentTabId) {
                 setIconStatus('suspended');
@@ -633,7 +675,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 info.windowId = tab.windowId;
                 info.tabId = tab.id;
                 if(gsUtils.isNormalTab(tab)) {
-                    gsMessages.sendRequestInfoToContentScript(tab.id, false, function (err, tabInfo) {
+                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
                         if (tabInfo) {
                             info.timerUp = tabInfo.timerUp;
                             calculateTabStatus(tab, tabInfo.status, function (status) {
@@ -660,7 +702,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (knownContentScriptStatus) {
                 resolve(knownContentScriptStatus);
             } else {
-                gsMessages.sendRequestInfoToContentScript(tabId, false, function (err, tabInfo) {
+                gsMessages.sendRequestInfoToContentScript(tabId, function (err, tabInfo) {
                     if (tabInfo) {
                         resolve(tabInfo.status);
                     } else {
@@ -866,7 +908,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         switch (request.action) {
 
-        // Can be send either via a content script or suspended tab
         case 'reportTabState':
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
