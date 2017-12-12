@@ -15,16 +15,16 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return false;
     },
 
-    log: function (text, ...args) {
+    log: function (id, text, ...args) {
         if (debugInfo) {
             args = args || [];
-            console.log(new Date(), text, ...args);
+            console.log(id, (new Date() + '').split(' ')[4], text, ...args);
         }
     },
-    error: function (text, ...args) {
+    error: function (id, text, ...args) {
         if (debugError) {
             args = args || [];
-            console.error(new Date(), text, ...args);
+            console.error(id, (new Date() + '').split(' ')[4], text, ...args);
         }
     },
     dir: function (object) {
@@ -345,7 +345,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
                     gsMessages.sendUpdatedPreferencesToContentScript(currentTab.id, preferencesToUpdate, function (err) {
                         if (err) {
-                            gsUtils.log('Failed to resetContentScript for tabId: ' + currentTab.id + '. Tab is probably special or suspended.', err);
+                            gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably special or suspended.', err);
                         }
                     });
                 }
@@ -398,7 +398,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                 //remove from unmatchedSessionWindows and unmatchedCurrentWindows
                 unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
                 unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
-                gsUtils.log('-> gsStorage: Matched with ids: ', sessionWindow, matchingCurrentWindow);
+                gsUtils.log('gsUtils', 'Matched with ids: ', sessionWindow, matchingCurrentWindow);
             }
         });
 
@@ -420,7 +420,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
             unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
             unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
-            gsUtils.log('-> gsStorage: Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
+            gsUtils.log('gsUtils', 'Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
 
             //remove from tabMatchingObjects
             tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });
@@ -507,7 +507,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
 
             //else restore entire window
             } else if (sessionWindow.tabs.length > 0) {
-                gsUtils.log('-> gsStorage: Could not find match for sessionWindow: ', sessionWindow);
+                gsUtils.log('gsUtils', 'Could not find match for sessionWindow: ', sessionWindow);
 
                 //create list of urls to open
                 var tabUrls = [];

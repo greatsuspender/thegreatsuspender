@@ -7,7 +7,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     chrome.runtime.onStartup.addListener(function () {
         browserStartupTimestamp = Date.now();
-        gsUtils.log('\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
+        gsUtils.log('gsSession','\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
     });
 
     //handle special event where an extension update is available
@@ -20,7 +20,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         var currentVersion = chrome.runtime.getManifest().version;
         var newVersion = newVersionDetails.version;
 
-        gsUtils.log('A new version is available: ' + currentVersion + ' -> ' + newVersion);
+        gsUtils.log('gsSession','A new version is available: ' + currentVersion + ' -> ' + newVersion);
 
         gsStorage.createSessionRestorePoint(currentVersion, newVersion)
             .then(function (session) {
@@ -40,7 +40,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         if (!sessionId) {
             //turn this into a string to make comparisons easier further down the track
             sessionId =  Math.floor(Math.random() * 1000000) + '';
-            gsUtils.log('sessionId: ', sessionId);
+            gsUtils.log('gsSession','sessionId: ', sessionId);
         }
         return sessionId;
     }
@@ -140,7 +140,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsStorage.initSettings();
 
         }).catch(function (err) {
-            gsUtils.error(err);
+            gsUtils.error('gsSession', err);
             chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
         });
     }
@@ -157,7 +157,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     }
 
     function checkForCrashRecovery(isUpdating) {
-        gsUtils.log('\n\n\nCRASH RECOVERY CHECKS!!!!! ' + Date.now() + '\n\n\n');
+        gsUtils.log('gsSession','\n\n\nCRASH RECOVERY CHECKS!!!!! ' + Date.now() + '\n\n\n');
 
         //try to detect whether the extension has crashed as separate to chrome crashing
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
@@ -172,12 +172,12 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
 
         var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
-        gsUtils.log('browserStartupTimestamp', browserStartupTimestamp);
-        gsUtils.log('isBrowserStarting', isBrowserStarting);
-        gsUtils.log('Checking for crash recovery');
+        gsUtils.log('gsSession','browserStartupTimestamp', browserStartupTimestamp);
+        gsUtils.log('gsSession','isBrowserStarting', isBrowserStarting);
+        gsUtils.log('gsSession','Checking for crash recovery');
 
         if (isBrowserStarting && !isUpdating) {
-            gsUtils.log('Aborting tab recovery. Browser is starting..');
+            gsUtils.log('gsSession','Aborting tab recovery. Browser is starting..');
             return;
         }
 
@@ -186,7 +186,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             if (!lastSession) {
                 return;
             }
-            gsUtils.log('lastSession: ', lastSession);
+            gsUtils.log('gsSession','lastSession: ', lastSession);
 
             //collect all nonspecial, unsuspended tabs from the last session
             lastSession.windows.forEach(function (sessionWindow) {
@@ -205,15 +205,15 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
             //don't attempt recovery if last session had no suspended tabs
             if (suspendedTabCount === 0) {
-                gsUtils.log('Aborting tab recovery. Last session has no suspended tabs.');
+                gsUtils.log('gsSession','Aborting tab recovery. Last session has no suspended tabs.');
                 return;
             }
 
             //check to see if they still exist in current session
             chrome.tabs.query({}, function (tabs) {
 
-                gsUtils.log('Tabs in current session: ', tabs);
-                gsUtils.log('Unsuspended session tabs: ', unsuspendedSessionTabs);
+                gsUtils.log('gsSession','Tabs in current session: ', tabs);
+                gsUtils.log('gsSession','Unsuspended session tabs: ', unsuspendedSessionTabs);
 
                 /* TODO: Find a way to identify a browser restart to distinguish it from a normal extension crash.
                  * Unfortunately, we cant rely on chrome.runtime.onStartup as it may fire after this code
@@ -222,14 +222,14 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 //don't attempt recovery if there are less tabs in current session than there were
                 //unsuspended tabs in the last session
                 if (tabs.length < unsuspendedTabCount) {
-                    gsUtils.log('Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
+                    gsUtils.log('gsSession','Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
                             'tabs. Current session only contains ' + tabs.length);
                     return;
                 }
 
                 //if there is only one currently open tab and it is the 'new tab' page then abort recovery
                 if (tabs.length === 1 && tabs[0].url === 'chrome://newtab/') {
-                    gsUtils.log('Aborting tab recovery. Current session only contains a single newtab page.');
+                    gsUtils.log('gsSession','Aborting tab recovery. Current session only contains a single newtab page.');
                     return;
                 }
 
@@ -242,7 +242,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                         suspendedTabs.push(curTab);
                         gsMessages.sendPingToTab(curTab.id, function (err) {
                             if (err) {
-                                gsUtils.log('Could not make contact with tab: ' + curTab.id + '. Assuming tab has crashed.');
+                                gsUtils.log(curTab.id, 'Could not make contact with tab. Assuming tab has crashed.');
                             } else {
                                 tabResponses[curTab.id] = true;
                             }
@@ -263,7 +263,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     }, 5000);
 
                     //don't attempt recovery if there are still suspended tabs open
-                    gsUtils.log('Will not attempt recovery as there are still suspended tabs open.');
+                    gsUtils.log('gsSession','Will not attempt recovery as there are still suspended tabs open.');
                     return;
                 }
 

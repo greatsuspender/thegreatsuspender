@@ -71,7 +71,7 @@ var gsStorage = {
         try {
             rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings'));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
+            gsUtils.error('gsStorage', 'Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
         }
         rawLocalSettings = rawLocalSettings || {};
 
@@ -80,7 +80,7 @@ var gsStorage = {
             ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
         var allSettingKeys = Object.keys(defaultSettings);
         chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
-            gsUtils.log('syncedSettings on init: ', syncedSettings);
+            gsUtils.log('gsStorage', 'syncedSettings on init: ', syncedSettings);
 
             // if synced setting exists and local setting does not exist or syncing is turned on
             // then overwrite with synced value
@@ -121,7 +121,7 @@ var gsStorage = {
                 Object.keys(remoteSettings).forEach(function (key) {
                     var remoteSetting = remoteSettings[key];
                     if (localSettings[key] !== remoteSetting.newValue) {
-                        gsUtils.log('-> gsStorage: Changed value from sync', key, remoteSetting.newValue);
+                        gsUtils.log('gsStorage', 'Changed value from sync', key, remoteSetting.newValue);
                         changedSettingKeys.push(key);
                         localSettings[key] = remoteSetting.newValue;
                     }
@@ -145,7 +145,7 @@ var gsStorage = {
         if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
             defaults = this.getSettingsDefaults();
             if (typeof defaults[prop] === 'undefined' || defaults[prop] === null) {
-                gsUtils.error('Not default set for prop: ' + prop + '!');
+                gsUtils.error('gsStorage', 'Not default set for prop: ' + prop + '!');
                 defaults[prop] = 'to be defined';
             }
             this.setOption(prop, defaults[prop]);
@@ -159,7 +159,7 @@ var gsStorage = {
     setOption: function (prop, value) {
         var settings = this.getSettings();
         settings[prop] = value;
-        // gsUtils.log('-> gsStorage: setting prop: ' + prop + ' to value ' + value);
+        // gsUtils.log('gsStorage', 'gsStorage', 'setting prop: ' + prop + ' to value ' + value);
         this.saveSettings(settings);
     },
 
@@ -168,7 +168,7 @@ var gsStorage = {
         try {
             settings = JSON.parse(localStorage.getItem('gsSettings'));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
+            gsUtils.error('gsStorage', 'Failed to parse gsSettings: ', localStorage.getItem('gsSettings'));
         }
 
         if (!settings) {
@@ -183,7 +183,7 @@ var gsStorage = {
             localStorage.setItem('gsSettings', JSON.stringify(settings));
             gsAnalytics.updateDimensions();
         } catch (e) {
-            gsUtils.error('-> gsStorage: failed to save gsSettings to local storage', e);
+            gsUtils.error('gsStorage', 'failed to save gsSettings to local storage', e);
         }
     },
 
@@ -193,10 +193,10 @@ var gsStorage = {
         if (settings[this.SYNC_SETTINGS]) {
             // Since sync is a local setting, delete it to simplify things.
             delete settings[this.SYNC_SETTINGS];
-            // gsUtils.log('-> gsStorage: Pushing local settings to sync', settings);
+            // gsUtils.log('gsStorage', 'gsStorage', 'Pushing local settings to sync', settings);
             chrome.storage.sync.set(settings, this.noop);
             if (chrome.runtime.lastError) {
-                gsUtils.error('-> gsStorage: failed to save to chrome.storage.sync: ', chrome.runtime.lastError.message);
+                gsUtils.error('gsStorage', 'failed to save to chrome.storage.sync: ', chrome.runtime.lastError.message);
             }
         }
     },
@@ -206,7 +206,7 @@ var gsStorage = {
         try {
             version = JSON.parse(localStorage.getItem(this.APP_VERSION));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse ' + this.APP_VERSION + ': ', localStorage.getItem(this.APP_VERSION));
+            gsUtils.error('gsStorage', 'Failed to parse ' + this.APP_VERSION + ': ', localStorage.getItem(this.APP_VERSION));
         }
         version = version || '0.0.0';
         return version + '';
@@ -215,7 +215,7 @@ var gsStorage = {
         try {
             localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
         } catch (e) {
-            gsUtils.error('-> gsStorage: failed to save ' + this.APP_VERSION + ' to local storage', e);
+            gsUtils.error('gsStorage', 'failed to save ' + this.APP_VERSION + ' to local storage', e);
         }
     },
 
@@ -224,7 +224,7 @@ var gsStorage = {
         try {
             lastNoticeVersion = JSON.parse(localStorage.getItem(this.LAST_NOTICE));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse ' + this.LAST_NOTICE + ': ', localStorage.getItem(this.LAST_NOTICE));
+            gsUtils.error('gsStorage', 'Failed to parse ' + this.LAST_NOTICE + ': ', localStorage.getItem(this.LAST_NOTICE));
         }
         lastNoticeVersion = lastNoticeVersion || '0';
         return lastNoticeVersion + '';
@@ -233,7 +233,7 @@ var gsStorage = {
         try {
             localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
         } catch (e) {
-            gsUtils.error('-> gsStorage: failed to save ' + this.LAST_NOTICE + ' to local storage', e);
+            gsUtils.error('gsStorage', 'failed to save ' + this.LAST_NOTICE + ' to local storage', e);
         }
     },
 
@@ -242,7 +242,7 @@ var gsStorage = {
         try {
             lastExtensionRecoveryTimestamp = JSON.parse(localStorage.getItem(this.LAST_EXTENSION_RECOVERY));
         } catch(e) {
-            gsUtils.error('-> gsStorage: Failed to parse ' + this.LAST_EXTENSION_RECOVERY + ': ', localStorage.getItem(this.LAST_EXTENSION_RECOVERY));
+            gsUtils.error('gsStorage', 'Failed to parse ' + this.LAST_EXTENSION_RECOVERY + ': ', localStorage.getItem(this.LAST_EXTENSION_RECOVERY));
         }
         return lastExtensionRecoveryTimestamp;
     },
@@ -250,7 +250,7 @@ var gsStorage = {
         try {
             localStorage.setItem(this.LAST_EXTENSION_RECOVERY, JSON.stringify(extensionRecoveryTimestamp));
         } catch (e) {
-            gsUtils.error('-> gsStorage: failed to save ' + this.LAST_EXTENSION_RECOVERY + ' to local storage', e);
+            gsUtils.error('gsStorage', 'failed to save ' + this.LAST_EXTENSION_RECOVERY + ' to local storage', e);
         }
     },
 
@@ -366,7 +366,7 @@ var gsStorage = {
             server;
 
         if (!tabProperties.url) {
-            gsUtils.log('-> gsStorage: tabProperties.url not set.');
+            gsUtils.log('gsStorage', 'tabProperties.url not set.');
             return;
         }
 

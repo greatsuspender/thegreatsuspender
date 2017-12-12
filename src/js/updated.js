@@ -50,7 +50,7 @@
         gsStorage.fetchSessionRestorePoint(gsStorage.DB_SESSION_POST_UPGRADE_KEY, currentVersion)
             .then(function (sessionRestorePoint) {
                 if (!sessionRestorePoint) {
-                    gsUtils.log('Couldnt find session restore point. Something has gone horribly wrong!!');
+                    gsUtils.log('updated', 'Couldnt find session restore point. Something has gone horribly wrong!!');
                 } else {
                     // var sessionEl = historyItems.createSessionHtml(sessionRestorePoint, false);
                     // document.getElementById('savedSession').appendChild(sessionEl);

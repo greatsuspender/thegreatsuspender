@@ -22,7 +22,7 @@
         gsStorage.fetchSessionRestorePoint(gsStorage.DB_SESSION_PRE_UPGRADE_KEY, currentVersion)
             .then(function (sessionRestorePoint) {
                 if (!sessionRestorePoint) {
-                    gsUtils.log('Couldnt find session restore point. Something has gone horribly wrong!!');
+                    gsUtils.log('update', 'Couldnt find session restore point. Something has gone horribly wrong!!');
                     document.getElementById('noBackupInfo').style.display = 'block';
                     document.getElementById('backupInfo').style.display = 'none';
                     document.getElementById('exportBackupBtn').style.display = 'none';

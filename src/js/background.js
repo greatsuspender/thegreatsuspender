@@ -103,10 +103,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                             return;
                         }
                         if (response.errorMsg) {
-                            gsUtils.log('Error from content script from tabId ' + tab.id + ': ' + response.errorMsg);
+                            gsUtils.log(tab.id, 'Error from content script: ' + response.errorMsg);
                         }
                         if (response.timerMsg) {
-                            gsUtils.log('Time taken to generate preview for tabId ' + tab.id + ': ' + response.timerMsg);
+                            gsUtils.log(tab.id, 'Time taken to generate preview: ' + response.timerMsg);
                         }
                         if (response.cancelled) {
                             return;
@@ -372,7 +372,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function queueSessionTimer() {
         clearTimeout(sessionSaveTimer);
         sessionSaveTimer = setTimeout(function () {
-            gsUtils.log('savingWindowHistory');
+            gsUtils.log('background', 'savingWindowHistory');
             saveWindowHistory();
         }, 1000);
     }
@@ -408,7 +408,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             //if we failed to find the tab with the above method then try to reload the tab directly
             var url = gsUtils.getSuspendedUrl(tab.url);
             if (err && url) {
-                gsUtils.log('Will reload directly.');
+                gsUtils.log(tab.id, 'Will reload directly.');
                 chrome.tabs.update(tab.id, {url: url});
             }
         });
@@ -492,7 +492,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         if (windowId < 0) {
             return;
         }
-        gsUtils.log('window changed:', windowId);
+        gsUtils.log(windowId, 'window changed');
         chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
             if (tabs && tabs.length === 1) {
 
@@ -509,12 +509,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleTabFocusChanged(tabId, windowId) {
-        gsUtils.log('tab changed:', tabId);
+        gsUtils.log(tabId, 'tab gained focus');
         globalCurrentTabId = tabId;
 
         chrome.tabs.get(tabId, function (newTab) {
             if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
+                gsUtils.error(tabId, chrome.runtime.lastError.message);
                 return;
             }
 
@@ -586,7 +586,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 try {
                     resp = JSON.parse(xhr.responseText);
                 } catch(e) {
-                    gsUtils.error('Failed to parse notice response', xhr.responseText);
+                    gsUtils.error('background', 'Failed to parse notice response', xhr.responseText);
                     return;
                 }
 
@@ -625,7 +625,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         chrome.tabs.get(tabId, function (tab) {
 
             if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
+                gsUtils.error(tabId, chrome.runtime.lastError.message);
                 callback(info);
 
             } else {
@@ -633,7 +633,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 info.windowId = tab.windowId;
                 info.tabId = tab.id;
                 if(gsUtils.isNormalTab(tab)) {
-                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
+                    gsMessages.sendRequestInfoToContentScript(tab.id, false, function (err, tabInfo) {
                         if (tabInfo) {
                             info.timerUp = tabInfo.timerUp;
                             calculateTabStatus(tab, tabInfo.status, function (status) {
@@ -660,7 +660,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (knownContentScriptStatus) {
                 resolve(knownContentScriptStatus);
             } else {
-                gsMessages.sendRequestInfoToContentScript(tabId, function (err, tabInfo) {
+                gsMessages.sendRequestInfoToContentScript(tabId, false, function (err, tabInfo) {
                     if (tabInfo) {
                         resolve(tabInfo.status);
                     } else {
@@ -762,7 +762,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
         chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId }, function () {
             if (chrome.runtime.lastError) {
-                gsUtils.error(chrome.runtime.lastError.message);
+                gsUtils.error('background', chrome.runtime.lastError.message);
             }
         });
     }
@@ -862,7 +862,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
     function contentScriptMessageRequestListener(request, sender, sendResponse) {
-        gsUtils.log('contentScriptMessageRequestListener from: ' + sender.tab.id, request.action);
+        gsUtils.log(sender.tab.id, 'contentScriptMessageRequestListener', request.action);
 
         switch (request.action) {
 
@@ -911,8 +911,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
         if (!changeInfo) return;
-        // gsUtils.log('tab updated. tabId: ', tabId, changeInfo);
-        gsUtils.log('tab updated. tabId: ' + tabId + '. tabUrl: ' + tab.url);
+        // gsUtils.log(tabId, 'tab updated.', changeInfo);
+        gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url);
 
         //test for special case of a successful donation
         if (changeInfo.url && changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
@@ -959,7 +959,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             chrome.history.deleteUrl({url: historyItem.url});
             chrome.history.addUrl({url: url}, function () {
                 if (chrome.runtime.lastError) {
-                    gsUtils.error(chrome.runtime.lastError.message);
+                    gsUtils.error('background', chrome.runtime.lastError.message);
                 }
             });
         }

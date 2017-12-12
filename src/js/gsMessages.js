@@ -138,12 +138,12 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendMessageToTab: function (tabId, message, severity, callback) {
         var responseHandler = function (response) {
-            gsUtils.log('responseHandler', response);
+            gsUtils.log(tabId, 'response from tab', response);
             if (chrome.runtime.lastError) {
                 if (severity === gsMessages.ERROR) {
-                    gsUtils.error(chrome.runtime.lastError.message, tabId, message);
+                    gsUtils.error(tabId, chrome.runtime.lastError.message, message);
                 } else if (severity === gsMessages.WARNING) {
-                    gsUtils.log(chrome.runtime.lastError.message, tabId, message);
+                    gsUtils.log(tabId, chrome.runtime.lastError.message, message);
                 }
                 if (callback) callback(chrome.runtime.lastError);
             } else {
@@ -153,9 +153,10 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
         message.tabId = tabId;
         try {
+            gsUtils.log(tabId, 'send message to tab', message);
             chrome.tabs.sendMessage(tabId, message, {frameId: 0}, responseHandler);
         } catch (e) {
-            gsUtils.error(e);
+            gsUtils.error(tabId, e);
             chrome.tabs.sendMessage(tabId, message, responseHandler);
         }
     },
@@ -163,7 +164,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     executeScriptOnTab: function (tabId, scriptPath, callback) {
         chrome.tabs.executeScript(tabId, { file: scriptPath }, function (response) {
             if (chrome.runtime.lastError) {
-                gsUtils.error('Could not inject ' + scriptPath + ' into tab: ' + tabId, chrome.runtime.lastError.message);
+                gsUtils.error(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError.message);
                 if (callback) callback(chrome.runtime.lastError);
             } else {
                 if (callback) callback(null, response);
