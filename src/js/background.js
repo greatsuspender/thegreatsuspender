@@ -394,16 +394,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
-    function resuspendAllSuspendedTabs() {
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (currentTab) {
-                if (gsUtils.isSuspendedTab(currentTab, true)) {
-                    resuspendSuspendedTab(currentTab);
-                }
-            });
-        });
-    }
-
     function resuspendSuspendedTab(tab) {
         gsMessages.sendDisableUnsuspendOnReloadToSuspendedTab(tab.id, function (err) {
             if (!err) chrome.tabs.reload(tab.id);
@@ -595,6 +585,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 } else {
                     gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id);
                 }
+            } else {
+                gsMessages.sendRefreshMessageToSuspendedTab(newTab.id);
             }
 
         } else if (gsUtils.isNormalTab(newTab)) {
@@ -959,7 +951,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         if (changeInfo.url && changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
             if (!gsStorage.getOption(gsStorage.NO_NAG)) {
                 gsStorage.setOption(gsStorage.NO_NAG, true);
-                // resuspendAllSuspendedTabs();
             }
             chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
             return;
@@ -1051,7 +1042,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         requestNotice: requestNotice,
         clearNotice: clearNotice,
         buildContextMenu: buildContextMenu,
-        resuspendAllSuspendedTabs: resuspendAllSuspendedTabs,
         resuspendSuspendedTab: resuspendSuspendedTab,
         requestActiveTabStatus: getActiveTabStatus,
         requestDebugInfo: requestDebugInfo,

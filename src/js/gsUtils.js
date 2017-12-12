@@ -332,11 +332,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             var addContextMenu = gsStorage.getOption(gsStorage.ADD_CONTEXT);
             tgs.buildContextMenu(addContextMenu);
         }
-
-        //if theme settings have changed then refresh all suspended pages
-        if (this.contains(changedSettingKeys, gsStorage.THEME)) {
-            tgs.resuspendAllSuspendedTabs();
-        }
     },
 
     resetContentScripts: function (preferencesToUpdate) {

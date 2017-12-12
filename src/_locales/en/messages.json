@@ -146,7 +146,7 @@
     "html_suspended_tab_suspended": { "message": "Tab suspended" },
     "html_suspended_tab_reload": { "message": "Reload tab" },
     "html_suspended_tab_whitelist": { "message": "Whitelist site" },
-    "html_suspended_click_to_reload": { "message": "Click to reload" },
+    "html_suspended_click_to_reload": { "message": "Refresh or click to reload" },
     "html_suspended_toast_not_connected": { "message": "You are not connected to the internet" },
     "html_suspended_toast_reload_disabled": { "message": "Automatic tab reloading is temporarily disabled." },
     "html_suspended_modal_header": { "message": "What would you like to whitelist?" },

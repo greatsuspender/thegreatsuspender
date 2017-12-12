@@ -116,6 +116,12 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
+    sendRefreshMessageToSuspendedTab: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            action: 'refreshSuspendedTab'
+        }, this.ERROR, callback);
+    },
+
 
 
     sendReloadOptionsToOptionsTab: function (tabId, callback) {

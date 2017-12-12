@@ -12,6 +12,15 @@
     var fullUrlStr;
     var rootUrlStr;
 
+    var preFaviconUrl;
+    var preTitle;
+    var preUrl;
+
+    var showingDarkTheme = false;
+    var showingPreviewValue = false;
+    var showingNag = false;
+    var currentHotkeyShortcut;
+
     function documentReadyAsPromsied() {
         return new Promise(function (resolve, reject) {
             if (document.readyState !== 'loading') {
@@ -42,50 +51,32 @@
         var href = window.location.href;
         var titleRegex = /ttl=([^&]*)/;
         var urlRegex = /uri=(.*)/;
-        var preTitle = href.match(titleRegex) ? href.match(titleRegex)[1] : null;
-        var preUrl = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
-        if (preTitle) {
-            preTitle = decodeURIComponent(preTitle);
-            document.getElementById('gsTitle').innerHTML = decodeURIComponent(preTitle);
-            document.getElementById('gsTopBarTitle').innerHTML = preTitle;
-            document.getElementById('gsTopBarTitle').setAttribute('title', preTitle);
-        }
-        if (preUrl) {
-            preUrl = decodeURIComponent(preUrl);
-            var faviconUrl = 'chrome://favicon/' + preUrl;
-            document.getElementById('gsFavicon').setAttribute('href', faviconUrl);
-            document.getElementById('gsTopBarImg').setAttribute('src', faviconUrl);
-            document.getElementById('gsTopBarTitle').setAttribute('href', preUrl);
-            document.getElementById('suspendedMsg').onclick = function () {
-                window.location.replace(preUrl);
-            };
-            document.getElementById('gsTitleLinks').style.visibility = 'hidden';
-        }
-        document.getElementById('suspendedMsg').getElementsByTagName('h1')[0].innerHTML = 'Tab suspended';
-        document.getElementById('suspendedMsg').getElementsByTagName('h2')[0].innerHTML = 'Refresh or click to reload';
 
-        //update hotkey
-        chrome.commands.getAll(function (commands) {
-            var hotkeyEl = document.getElementById('hotkeyCommand');
-            if (!hotkeyEl) { return; }
-            var toggleCommand = commands.find(function (command) {
-                return (command.name === '1-suspend-tab');
-            });
-            if (hotkeyEl && toggleCommand && toggleCommand.shortcut !== '') {
-                hotkeyEl.innerHTML = '(' + toggleCommand.shortcut + ')';
-            }
-            else {
-                var shortcutNotSetEl = document.createElement('a');
-                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
-                shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
-                hotkeyEl.insertAdjacentHTML('beforeend', '(' + chrome.i18n.getMessage('js_suspended_hotkey_to_reload') + ': ');
-                hotkeyEl.appendChild(shortcutNotSetEl);
-                hotkeyEl.insertAdjacentHTML('beforeend', ')');
-                hotkeyEl.onclick = function (e) {
-                    e.stopPropagation();
-                    chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
-                };
-            }
+        var preTitleEncoded = href.match(titleRegex) ? href.match(titleRegex)[1] : null;
+        if (preTitleEncoded) {
+            preTitle = decodeURIComponent(preTitleEncoded);
+            updateTitle(preTitle);
+        }
+
+        var preUrlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
+        if (preUrlEncoded) {
+            preUrl = decodeURIComponent(preUrlEncoded);
+            updateUrl(preUrl);
+            document.getElementById('suspendedMsg').onclick = function () {
+                performPageReload(preUrl);
+            };
+            document.getElementById('gsTopBarTitle').onclick = function () {
+                performPageReload(preUrl);
+            };
+
+            preFaviconUrl = 'chrome://favicon/' + preUrl;
+            updateFavicon(preFaviconUrl);
+        }
+
+        document.getElementById('gsTitleLinks').style.visibility = 'hidden';
+
+        getUnsuspendHotkeyShortcut(function (hotkeyShortcut) {
+            updateHotkeyText(hotkeyShortcut);
         });
     }
 
@@ -107,7 +98,6 @@
                 favicon: 'chrome://favicon/' + url
             };
         }
-        var showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0';
 
         var title = tabProperties ? tabProperties.title : '';
         var placeholderTitle = chrome.i18n.getMessage('html_suspended_title');
@@ -121,43 +111,42 @@
             title = gsUtils.htmlEncode(title);
         }
 
-        //set favicon
-        var favicon = tabProperties.favicon;
-        generateFaviconUri(favicon, function (faviconUrl) {
-            setFavicon(faviconUrl);
-        });
+        //update favicon
+        if (preFaviconUrl !== tabProperties.favicon) {
+            updateFavicon(tabProperties.favicon);
+        }
 
         //set theme
-        if (gsStorage.getOption(gsStorage.THEME) === 'dark') {
-            var body = document.querySelector('body');
-            body.className += ' dark';
-        }
+        var showDarkTheme = gsStorage.getOption(gsStorage.THEME) === 'dark';
+        toggleTheme(showDarkTheme);
 
         //set preview image
+        var showPreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0';
         if (showPreview) {
             loadImagePreviewTemplate(url);
-        } else {
-            document.getElementById('suspendedMsg').style.display = 'table-cell';
         }
 
-        //populate suspended tab bar
-        document.getElementById('gsTitle').innerHTML = title;
-        document.getElementById('gsTopBarTitle').innerHTML = title;
-        document.getElementById('gsTopBarTitle').setAttribute('title', url);
-        document.getElementById('gsTopBarTitle').setAttribute('href', url);
-        document.getElementById('gsTopBarImg').setAttribute('src', favicon);
+        if (preUrl !== url) {
+            updateUrl(url);
+        }
+
+        if (preTitle !== title) {
+            updateTitle(title);
+        }
+
+        //show links
         document.getElementById('gsTitleLinks').style.visibility = 'visible';
 
-        //update whitelist text
+        //update unsuspend listeners
+        document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
+        document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
+        document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+
+        //update whitelist
         var isWhitelisted = gsUtils.checkWhiteList(url);
         if (isWhitelisted) {
             document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
         }
-
-        //click listeners
-        document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
-        document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
-        document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
         document.getElementById('gsWhitelistLink').onclick = function () {
             if (isWhitelisted) {
                 unwhitelistTab();
@@ -184,7 +173,7 @@
         });
     }
 
-    function generateFaviconUri(url, callback) {
+    function generateFaviconDataUrl(url, callback) {
         var img = new Image();
 
         img.onload = function () {
@@ -202,8 +191,60 @@
         img.src = url || chrome.extension.getURL('img/default.ico');
     }
 
-    function setFavicon(favicon) {
-        document.getElementById('gsFavicon').setAttribute('href', favicon);
+    function updateTitle(title) {
+        document.getElementById('gsTitle').innerHTML = title;
+        document.getElementById('gsTopBarTitle').innerHTML = title;
+    }
+
+    function updateUrl(url) {
+        document.getElementById('gsTopBarTitle').setAttribute('title', url);
+        document.getElementById('gsTopBarTitle').setAttribute('href', url);
+    }
+
+    function updateFavicon(faviconUrl) {
+        document.getElementById('gsTopBarImg').setAttribute('src', faviconUrl);
+        generateFaviconDataUrl(faviconUrl, function (dataUrl) {
+            document.getElementById('gsFavicon').setAttribute('href', dataUrl);
+        });
+    }
+
+    function getUnsuspendHotkeyShortcut(callback) {
+        chrome.commands.getAll(function (commands) {
+            var toggleCommand = commands.find(function (command) {
+                return (command.name === '1-suspend-tab');
+            });
+            if (toggleCommand && toggleCommand.shortcut !== '') {
+                callback(toggleCommand.shortcut);
+            } else {
+                callback(null);
+            }
+        });
+    }
+
+    function updateHotkeyText(hotkeyShortcut) {
+        currentHotkeyShortcut = hotkeyShortcut;
+        var hotkeyEl = document.getElementById('hotkeyCommand');
+        if (hotkeyShortcut) {
+            hotkeyShortcut = hotkeyShortcut
+                .replace(/Command/, '\u2318')
+                .replace(/Shift/, '\u21E7')
+                .replace(/Control/, '^')
+                .replace(/\+/g, ' ');
+            hotkeyEl.innerHTML = '(' + hotkeyShortcut + ')';
+        }
+        else {
+            hotkeyEl.innerHTML = '';
+            var shortcutNotSetEl = document.createElement('a');
+            shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
+            shortcutNotSetEl.innerHTML = chrome.i18n.getMessage('js_shortcuts_not_set');
+            hotkeyEl.insertAdjacentHTML('beforeend', '(' + chrome.i18n.getMessage('js_suspended_hotkey_to_reload') + ': ');
+            hotkeyEl.appendChild(shortcutNotSetEl);
+            hotkeyEl.insertAdjacentHTML('beforeend', ')');
+            hotkeyEl.onclick = function (e) {
+                e.stopPropagation();
+                chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
+            };
+        }
     }
 
     function handleUnsuspendTab(e) {
@@ -220,12 +261,14 @@
         if (scrollPosition) {
             tgs.setTabFlagForTabId(tabId, tgs.SCROLL_POS, scrollPosition);
         }
-        var url = gsUtils.getSuspendedUrl(window.location.href);
-        if (url) {
-            document.getElementById('suspendedMsg').innerHTML = '';
-            document.getElementById('refreshSpinner').classList.add('spinner');
-            window.location.replace(url);
-        }
+        var url = gsUtils.getSuspendedUrl(window.location.href) || preUrl;
+        performPageReload(url);
+    }
+
+    function performPageReload(url) {
+        document.getElementById('suspendedMsg').innerHTML = '';
+        document.getElementById('refreshSpinner').classList.add('spinner');
+        window.location.replace(url);
     }
 
     function whitelistTab(whitelistString) {
@@ -344,10 +387,18 @@
 
         document.getElementById('dudePopup').setAttribute('class', 'poppedup');
         document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+        showingNag = true;
+    }
+
+    function hideDonationPopup() {
+        document.getElementById('dudePopup').classList.remove('poppedup');
+        document.getElementById('donateBubble').classList.remove('fadeIn');
+        showingNag = false;
     }
 
     function loadImagePreviewTemplate(url) {
-        var scrollImagePreview = gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2';
+        var previewValue = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+        var scrollImagePreview = previewValue === '2';
 
         gsStorage.fetchPreviewImage(url, function (preview) {
             if (preview && preview.img && preview.img !== null && preview.img !== 'data:,' && preview.img.length > 10000) {
@@ -365,51 +416,91 @@
                         document.body.scrollTop = scrollPos || 0;
                     }, { once: true });
                 }
-                document.getElementById('suspendedMsg').style.display = 'none';
-                previewEl.style.display = 'block';
-
-                //allow vertical scrollbar if we are using high quality previews
-                if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) === '2') {
-                    document.body.style['overflow-x'] = 'auto';
-                }
+                toggleImagePreviewVisibility(previewValue);
             } else {
-                document.getElementById('suspendedMsg').style.display = 'table-cell';
+                toggleImagePreviewVisibility(previewValue);
             }
         });
     }
 
-    // listen for background events
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        switch (request.action) {
-
-        case 'initSuspendedTab':
-            tabId = request.tabId;
-            requestUnsuspendOnReload = true;
-            init(request.tabProperties);
-            sendResponse({
-                action: 'reportTabState',
-                status: 'suspended'
-            });
-            return false;
-
-        case 'unsuspendTab':
-            unsuspendTab();
-            break;
-
-        case 'disableUnsuspendOnReload':
-            requestUnsuspendOnReload = false;
-            break;
-
-        case 'showNoConnectivityMessage':
-            showNoConnectivityMessage();
-            break;
+    function toggleImagePreviewVisibility(previewValue) {
+        showingPreviewValue = previewValue;
+        if (!document.getElementById('gsPreview')) {
+            return;
         }
-        sendResponse();
-        return false;
-    });
+        var overflow = previewValue === '2' ? 'auto' : 'hidden';
+        document.body.style['overflow-x'] = overflow;
+
+        if (previewValue === '0') {
+            document.getElementById('gsPreview').style.display = 'none';
+            document.getElementById('suspendedMsg').style.display = 'table-cell';
+        } else {
+            document.getElementById('gsPreview').style.display = 'block';
+            document.getElementById('suspendedMsg').style.display = 'none';
+        }
+    }
+
+    function toggleTheme(showDarkTheme) {
+        if (showDarkTheme) {
+            document.querySelector('body').classList.add('dark');
+            showingDarkTheme = true;
+        } else {
+            document.querySelector('body').classList.remove('dark');
+            showingDarkTheme = false;
+        }
+    }
+
+    function addMessageListeners() {
+        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+            switch (request.action) {
+
+            case 'initSuspendedTab':
+                tabId = request.tabId;
+                requestUnsuspendOnReload = true;
+                init(request.tabProperties);
+                break;
+
+            case 'refreshSuspendedTab':
+                var showDarkTheme = gsStorage.getOption(gsStorage.THEME) === 'dark';
+                if ((showDarkTheme && !showingDarkTheme) || (!showDarkTheme && showingDarkTheme)) {
+                    toggleTheme(showDarkTheme);
+                }
+                var hideNag = gsStorage.getOption(gsStorage.NO_NAG);
+                if (hideNag && showingNag) {
+                    hideDonationPopup();
+                }
+                var previewValue = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+                if (previewValue !== showingPreviewValue) {
+                    toggleImagePreviewVisibility(previewValue);
+                }
+                getUnsuspendHotkeyShortcut(function (hotkeyShortcut) {
+                    if (hotkeyShortcut !== currentHotkeyShortcut) {
+                        updateHotkeyText(hotkeyShortcut);
+                    }
+                });
+                break;
+
+            case 'unsuspendTab':
+                unsuspendTab();
+                break;
+
+            case 'disableUnsuspendOnReload':
+                requestUnsuspendOnReload = false;
+                break;
+
+            case 'showNoConnectivityMessage':
+                showNoConnectivityMessage();
+                break;
+            }
+            sendResponse();
+            return false;
+        });
+    }
 
     documentReadyAsPromsied().then(function () {
         localiseHtml();
         preInit();
+        init();
+        addMessageListeners();
     });
 }());
