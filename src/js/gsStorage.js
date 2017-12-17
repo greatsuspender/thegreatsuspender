@@ -76,36 +76,49 @@ var gsStorage = {
         rawLocalSettings = rawLocalSettings || {};
 
         var defaultSettings = gsStorage.getSettingsDefaults();
-        var shouldSyncSettings = rawLocalSettings.hasOwnProperty(self.SYNC_SETTINGS)
-            ? rawLocalSettings[self.SYNC_SETTINGS] : defaultSettings[self.SYNC_SETTINGS];
-        var allSettingKeys = Object.keys(defaultSettings);
-        chrome.storage.sync.get(allSettingKeys, function (syncedSettings) {
+        var defaultKeys = Object.keys(defaultSettings);
+        var unprocessedRawKeys = Object.keys(rawLocalSettings);
+
+        var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
+        chrome.storage.sync.get(defaultKeys, function (syncedSettings) {
             gsUtils.log('gsStorage', 'syncedSettings on init: ', syncedSettings);
 
-            // if synced setting exists and local setting does not exist or syncing is turned on
-            // then overwrite with synced value
-            var newSettings = {};
-            allSettingKeys.forEach(function (key) {
+            var mergedSettings = {};
+            for (const key of defaultKeys) {
+                // if synced setting exists and local setting does not exist or syncing is turned on
+                // then overwrite with synced value
                 if (key !== self.SYNC_SETTINGS && syncedSettings.hasOwnProperty(key) &&
                     (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)) {
-                    newSettings[key] = syncedSettings[key];
+                    mergedSettings[key] = syncedSettings[key];
                 }
-                //make sure we have a value for this key
-                if (!newSettings.hasOwnProperty(key)) {
-                    newSettings[key] = rawLocalSettings.hasOwnProperty(key) ? rawLocalSettings[key] : defaultSettings[key];
+                //fallback on rawLocalSettings
+                if (!mergedSettings.hasOwnProperty(key)) {
+                    mergedSettings[key] = rawLocalSettings[key];
                 }
-            });
-            self.saveSettings(newSettings);
+                //fallback on defaultSettings
+                if (typeof mergedSettings[key] === 'undefined' || mergedSettings[key] === null) {
+                    gsUtils.error('gsStorage', 'Missing key: ' + key + '! Will init with default.');
+                    mergedSettings[key] = defaultSettings[key];
+                }
+                delete unprocessedRawKeys[key];
+            }
+            self.saveSettings(mergedSettings);
+
+            // test for settings that don't exist in defaults
+            for (var unprocessedRawKey of unprocessedRawKeys) {
+                gsUtils.error('gsStorage',
+                    'Settings contain unused key: ' + unprocessedRawKey + '! Should this be in defaults?');
+            }
 
             // if any of the new settings are different to those in sync, then trigger a resync
             var triggerResync = false;
-            allSettingKeys.forEach(function (key) {
-                if (key !== self.SYNC_SETTINGS && syncedSettings[key] !== newSettings[key]) {
+            for (const key of defaultKeys) {
+                if (key !== self.SYNC_SETTINGS && syncedSettings[key] !== mergedSettings[key]) {
                     triggerResync = true;
                 }
-            });
+            }
             if (triggerResync) {
-                self.syncSettings(newSettings);
+                self.syncSettings(mergedSettings);
             }
         });
 
@@ -138,22 +151,7 @@ var gsStorage = {
     //due to migration issues and new settings being added, i have built in some redundancy
     //here so that getOption will always return a valid value.
     getOption: function (prop) {
-        var settings = this.getSettings(),
-            defaults;
-
-        //test that option exists in settings object
-        if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
-            defaults = this.getSettingsDefaults();
-            if (typeof defaults[prop] === 'undefined' || defaults[prop] === null) {
-                gsUtils.error('gsStorage', 'Not default set for prop: ' + prop + '!');
-                defaults[prop] = 'to be defined';
-            }
-            this.setOption(prop, defaults[prop]);
-            return defaults[prop];
-
-        } else {
-            return settings[prop];
-        }
+        return this.getSettings()[prop];
     },
 
     setOption: function (prop, value) {
