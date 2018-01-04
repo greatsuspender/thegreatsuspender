@@ -3,6 +3,7 @@
     'use strict';
 
     var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+    var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var tgs = chrome.extension.getBackgroundPage().tgs;
@@ -13,19 +14,34 @@
     function populateRecoverableTabs() {
         return new Promise(function (resolve) {
             gsStorage.fetchLastSession().then(function (lastSession) {
-                if (lastSession) {
-                    gsUtils.removeInternalUrlsFromSession(lastSession);
-                    lastSession.windows.forEach(function (window, index) {
-                        window.tabs.forEach(function (tabProperties) {
-                            if (gsUtils.isSuspendedTab(tabProperties)) {
-                                tabProperties.windowId = window.id;
-                                tabProperties.sessionId = lastSession.sessionId;
-                                tabsToRecover.push(tabProperties);
-                            }
+                //check to see if they still exist in current session
+                chrome.tabs.query({}, function (currentTabs) {
+                    if (lastSession) {
+                        gsUtils.removeInternalUrlsFromSession(lastSession);
+                        lastSession.windows.forEach(function (window, index) {
+                            window.tabs.forEach(function (tabProperties) {
+                                if (gsUtils.isSuspendedTab(tabProperties)) {
+                                    var originalUrl = gsUtils.getSuspendedUrl(tabProperties.url);
+                                    // Ignore suspended tabs from previous session that exist unsuspended now
+                                    if (!currentTabs.find(function (o) {return o.url === originalUrl; })) {
+                                        tabProperties.windowId = window.id;
+                                        tabProperties.sessionId = lastSession.sessionId;
+                                        tabsToRecover.push(tabProperties);
+                                    }
+                                }
+                            });
                         });
-                    });
-                }
-                resolve();
+                        var currentSuspendedTabs = currentTabs.filter(function (o) {return gsUtils.isSuspendedTab(o, true); });
+                        currentSuspendedTabs.forEach(function (suspendedTab) {
+                            gsMessages.sendPingToTab(suspendedTab.id, function (err) {
+                                if (!err) {
+                                    removeSuspendedTabFromList(suspendedTab);
+                                }
+                            });
+                        });
+                    }
+                    resolve();
+                });
             });
         });
     }
