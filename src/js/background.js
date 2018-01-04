@@ -24,7 +24,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         chargingMode = false,
         recoveryMode = false,
         suspensionActiveIcon = '/img/icon19.png',
-        suspensionPausedIcon = '/img/icon19b.png';
+        suspensionPausedIcon = '/img/icon19b.png',
+        suspendUnsuspendHotkey;
 
     var tabFlagsByTabId = {};
 
@@ -445,6 +446,24 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function getSuspendUnsuspendHotkey(callback) {
+        if (suspendUnsuspendHotkey) {
+            callback(suspendUnsuspendHotkey);
+            return;
+        }
+        resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
+            callback(suspendUnsuspendHotkey);
+        });
+    }
+
+    function resetSuspendUnsuspendHotkey(callback) {
+        gsUtils.buildSuspendUnsuspendHotkey(function (_suspendUnsuspendHotkey) {
+            var hotkeyChanged = _suspendUnsuspendHotkey !== suspendUnsuspendHotkey;
+            suspendUnsuspendHotkey = _suspendUnsuspendHotkey;
+            callback(hotkeyChanged);
+        });
+    }
+
     function handleUnsuspendedTabChanged(tab, changeInfo) {
         var hasTabStatusChanged = false;
 
@@ -498,11 +517,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD, false);
 
         } else if (changeInfo.status === 'complete') {
-            //initialized suspended tab
-            var url = gsUtils.getSuspendedUrl(tab.url);
-            gsStorage.fetchTabInfo(url).then(function (tabProperties) {
-                gsMessages.sendInitSuspendedTab(tab.id, tabProperties);
-            });
+            initialiseSuspendedTab(tab);
             clearTabFlagsForTabId(tab.id);
             delete suspensionDetailsByTabId[tab.id];
 
@@ -518,6 +533,46 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 });
             }
         }
+    }
+
+    function initialiseSuspendedTab(tab) {
+
+        var suspendedUrl = tab.url;
+        var originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
+        var scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
+        var whitelisted = gsUtils.checkWhiteList(originalUrl);
+        gsStorage.fetchTabInfo(originalUrl).then(function (tabProperties) {
+            var favicon = tabProperties && tabProperties.favicon || 'chrome://favicon/' + originalUrl;
+            var title = tabProperties && tabProperties.title || gsUtils.getSuspendedTitle(suspendedUrl);
+            if (title.indexOf('<') >= 0) {
+                // Encode any raw html tags that might be used in the title
+                title = gsUtils.htmlEncode(title);
+            }
+            gsStorage.fetchPreviewImage(originalUrl, function (preview) {
+                var previewUri = null;
+                if (preview && preview.img && preview.img !== null && preview.img !== 'data:,' && preview.img.length > 10000) {
+                    previewUri = preview.img;
+                }
+                var options = gsStorage.getSettings();
+                getSuspendUnsuspendHotkey(function (suspendUnsuspendHotkey) {
+                    var payload = {
+                        tabId: tab.id,
+                        requestUnsuspendOnReload: true,
+                        url: originalUrl,
+                        scrollPosition: scrollPosition,
+                        favicon: favicon,
+                        title: title,
+                        whitelisted: whitelisted,
+                        theme: options[gsStorage.THEME],
+                        hideNag: options[gsStorage.NO_NAG],
+                        previewMode: options[gsStorage.SCREEN_CAPTURE],
+                        previewUri: previewUri,
+                        command: suspendUnsuspendHotkey,
+                    };
+                    gsMessages.sendInitSuspendedTab(tab.id, payload);
+                });
+            });
+        });
     }
 
     function handleWindowFocusChanged(windowId) {
@@ -585,8 +640,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 } else {
                     gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id);
                 }
-            } else {
-                gsMessages.sendRefreshMessageToSuspendedTab(newTab.id);
             }
 
         } else if (gsUtils.isNormalTab(newTab)) {
@@ -947,18 +1000,30 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         // gsUtils.log(tabId, 'tab updated.', changeInfo);
         gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url);
 
-        //test for special case of a successful donation
-        if (changeInfo.url && changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
-            if (!gsStorage.getOption(gsStorage.NO_NAG)) {
-                gsStorage.setOption(gsStorage.NO_NAG, true);
-            }
-            chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
-            return;
-        }
-
-        //only save session if the tab url has changed
+        // if url has changed
         if (changeInfo.url) {
-            queueSessionTimer();
+            // test for special case of a successful donation
+            if (changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
+                if (!gsStorage.getOption(gsStorage.NO_NAG)) {
+                    gsStorage.setOption(gsStorage.NO_NAG, true);
+                }
+                chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
+                return;
+            // test for a save of keyboard shortcuts (chrome://extensions/configureCommands)
+            } else if (changeInfo.url === 'chrome://extensions/') {
+                resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
+                    if (hotkeyChanged) {
+                        getSuspendUnsuspendHotkey(function (hotkey) {
+                            gsMessages.sendRefreshToAllSuspendedTabs({
+                                command: hotkey,
+                            });
+                        });
+                    }
+                });
+
+            } else {
+                queueSessionTimer();
+            }
         }
 
         if (gsUtils.isSuspendedTab(tab, true)) {

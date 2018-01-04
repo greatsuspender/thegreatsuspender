@@ -1,4 +1,4 @@
-/*global gsUtils, gsStorage */
+/*global gsUtils, gsStorage, gsSession */
 var gsMessages = { // eslint-disable-line no-unused-vars
 
     INFO: 'info',
@@ -19,15 +19,26 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         this.sendMessageToContentScript(tabId, props, this.ERROR, callback);
     },
 
-    sendUpdatedPreferencesToContentScript: function (tabId, preferencesToUpdate, callback) {
-        var messageParams = {};
+    sendResetToAllContentScripts: function (preferencesToUpdate) {
+        var self = this;
+        var payload = {};
         if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
-            messageParams.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+            payload.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
         }
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
-            messageParams.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+            payload.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         }
-        this.sendMessageToContentScript(tabId, messageParams, this.WARNING, callback);
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
+                    self.sendMessageToContentScript(currentTab.id, payload, this.WARNING, true, function (err) {
+                        if (err) {
+                            gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably special or suspended.', err);
+                        }
+                    });
+                }
+            });
+        });
     },
 
     sendClearTimerToContentScript: function (tabId, callback) {
@@ -91,11 +102,29 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     },
 
 
-    sendInitSuspendedTab: function (tabId, tabProperties, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'initSuspendedTab',
-            tabProperties: tabProperties
-        }, this.ERROR, callback);
+    sendInitSuspendedTab: function (tabId, payload, callback) {
+        callback = callback || gsUtils.noop();
+        payload = payload || {};
+        payload.action = 'initSuspendedTab';
+        this.sendMessageToTab(tabId, payload, this.ERROR, callback);
+    },
+
+    sendRefreshToAllSuspendedTabs: function (preferencesToUpdate, callback) {
+        var self = this;
+        var payload = {};
+        if (preferencesToUpdate.indexOf(gsStorage.THEME) > -1) {
+            payload.theme = gsStorage.getOption(gsStorage.THEME);
+        }
+        if (preferencesToUpdate.indexOf(gsStorage.SCREEN_CAPTURE) > -1) {
+            payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+        }
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (tab) {
+                if (gsUtils.isSuspendedTab(tab)) {
+                    self.sendInitSuspendedTab(tab.id, payload, callback);
+                }
+            });
+        });
     },
 
     sendDisableUnsuspendOnReloadToSuspendedTab: function (tabId, callback) {
@@ -113,12 +142,6 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     sendNoConnectivityMessageToSuspendedTab: function (tabId, callback) {
         this.sendMessageToTab(tabId, {
             action: 'showNoConnectivityMessage'
-        }, this.ERROR, callback);
-    },
-
-    sendRefreshMessageToSuspendedTab: function (tabId, callback) {
-        this.sendMessageToTab(tabId, {
-            action: 'refreshSuspendedTab'
         }, this.ERROR, callback);
     },
 

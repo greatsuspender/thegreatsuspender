@@ -277,54 +277,49 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return Math.abs(hash);
     },
 
-    getRootUrl: function (url, includePath) {
-        var rootUrlStr;
-
-        url = url || '';
-        if (this.isSuspendedUrl(url) > 0) {
-            url = this.getSuspendedUrl(url);
-        }
-
-        // remove scheme
-        rootUrlStr = url;
-        if (rootUrlStr.indexOf('//') > 0) {
-            rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
-        } else {
-            rootUrlStr = url;
-        }
-
-        // remove path
-        if (!includePath) {
-            rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
-
-        } else {
-            // remove query string
-            var match = rootUrlStr.match(/\/?[?#]+/);
-            if (match) {
-                rootUrlStr = rootUrlStr.substring(0, match.index);
+    buildSuspendUnsuspendHotkey: function (callback) {
+        var printableHotkey = '';
+        chrome.commands.getAll(function (commands) {
+            var toggleCommand = commands.find(function (command) {
+                return (command.name === '1-suspend-tab');
+            });
+            if (toggleCommand && toggleCommand.shortcut !== '') {
+                printableHotkey = toggleCommand.shortcut
+                    .replace(/Command/, '\u2318')
+                    .replace(/Shift/, '\u21E7')
+                    .replace(/Control/, '^')
+                    .replace(/\+/g, ' ');
+                callback(printableHotkey);
+            } else {
+                callback(null);
             }
-            // remove trailing slash
-            match = rootUrlStr.match(/\/$/);
-            if (match) {
-                rootUrlStr = rootUrlStr.substring(0, match.index);
-            }
-        }
-
-        return rootUrlStr;
+        });
     },
 
     performPostSaveUpdates: function (changedSettingKeys) {
 
         //if interval, or form input preferences have changed then reset the content scripts
-        var preferencesToUpdate = [];
+        var contentScriptPreferencesToUpdate = [];
         if (this.contains(changedSettingKeys, gsStorage.SUSPEND_TIME)) {
-            preferencesToUpdate.push(gsStorage.SUSPEND_TIME);
+            contentScriptPreferencesToUpdate.push(gsStorage.SUSPEND_TIME);
         }
         if (this.contains(changedSettingKeys, gsStorage.IGNORE_FORMS)) {
-            preferencesToUpdate.push(gsStorage.IGNORE_FORMS);
+            contentScriptPreferencesToUpdate.push(gsStorage.IGNORE_FORMS);
         }
-        if (preferencesToUpdate.length > 0) {
-            this.resetContentScripts(preferencesToUpdate);
+        if (contentScriptPreferencesToUpdate.length > 0) {
+            gsMessages.sendResetToAllContentScripts(contentScriptPreferencesToUpdate);
+        }
+
+        //if theme or screenshot preferences have changed then refresh suspended tabs
+        var suspendedTabPreferencesToUpdate = [];
+        if (this.contains(changedSettingKeys, gsStorage.THEME)) {
+            suspendedTabPreferencesToUpdate.push(gsStorage.THEME);
+        }
+        if (this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE)) {
+            suspendedTabPreferencesToUpdate.push(gsStorage.SCREEN_CAPTURE);
+        }
+        if (suspendedTabPreferencesToUpdate.length > 0) {
+            gsMessages.sendRefreshToAllSuspendedTabs(suspendedTabPreferencesToUpdate);
         }
 
         //if context menu has been disabled then remove from chrome
@@ -332,20 +327,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             var addContextMenu = gsStorage.getOption(gsStorage.ADD_CONTEXT);
             tgs.buildContextMenu(addContextMenu);
         }
-    },
-
-    resetContentScripts: function (preferencesToUpdate) {
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (currentTab) {
-                if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    gsMessages.sendUpdatedPreferencesToContentScript(currentTab.id, preferencesToUpdate, function (err) {
-                        if (err) {
-                            gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably special or suspended.', err);
-                        }
-                    });
-                }
-            });
-        });
     },
 
     recoverLostTabs: function (callback) {
