@@ -735,20 +735,21 @@ var gsStorage = {
 
             chrome.cookies.getAll({}, function (cookies) {
                 var scrollPosByTabId = {};
-                cookies.forEach(function (cookie) {
-                    if (cookie.name.indexOf('gsScrollPos') === 0) {
-                        if (cookie.value && cookie.value !== '0') {
-                            var tabId = cookie.name.substr(12);
-                            scrollPosByTabId[tabId] = cookie.value;
-                        }
-                        var prefix = cookie.secure ? 'https://' : 'http://';
-                        if (cookie.domain.charAt(0) === '.') {
-                            prefix += 'www';
-                        }
-                        var url = prefix + cookie.domain + cookie.path;
-                        chrome.cookies.remove({ 'url': url, 'name': cookie.name });
-                    }
-                });
+                //TO FIX : this needs to be fixed because it's causing a MAJOR bug in youtube and google website and many other domains!
+                // cookies.forEach(function (cookie) {
+                //     if (cookie.name.indexOf('gsScrollPos') === 0) {
+                //         if (cookie.value && cookie.value !== '0') {
+                //             var tabId = cookie.name.substr(12);
+                //             scrollPosByTabId[tabId] = cookie.value;
+                //         }
+                //         var prefix = cookie.secure ? 'https://' : 'http://';
+                //         if (cookie.domain.charAt(0) === '.') {
+                //             prefix += 'www';
+                //         }
+                //         var url = prefix + cookie.domain + cookie.path;
+                //         chrome.cookies.remove({ 'url': url, 'name': cookie.name });
+                //     }
+                // });
                 tgs.scrollPosByTabId = scrollPosByTabId;
             });
         }
