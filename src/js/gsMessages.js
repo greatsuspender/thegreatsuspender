@@ -78,14 +78,6 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
-    sendGeneratePreviewToContentScript: function (tabId, screenCaptureMode, forceScreenCapture, callback) {
-        this.sendMessageToContentScript(tabId, {
-            action: 'generatePreview',
-            screenCapture: screenCaptureMode,
-            forceScreenCapture: forceScreenCapture
-        }, this.ERROR, callback);
-    },
-
     sendMessageToContentScript: function (tabId, message, severity, callback) {
         var self = this;
         // console.log(new Error('sendMessageToContentScript notActuallyError').stack);
@@ -194,6 +186,17 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         chrome.tabs.executeScript(tabId, { file: scriptPath }, function (response) {
             if (chrome.runtime.lastError) {
                 gsUtils.error(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError.message);
+                if (callback) callback(chrome.runtime.lastError);
+            } else {
+                if (callback) callback(null, response);
+            }
+        });
+    },
+
+    executeCodeOnTab: function (tabId, codeString, callback) {
+        chrome.tabs.executeScript(tabId, { code: codeString }, function (response) {
+            if (chrome.runtime.lastError) {
+                gsUtils.error(tabId, 'Could not inject code into tab.', chrome.runtime.lastError.message);
                 if (callback) callback(chrome.runtime.lastError);
             } else {
                 if (callback) callback(null, response);

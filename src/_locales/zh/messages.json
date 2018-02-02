@@ -77,10 +77,14 @@
     "html_options_suspend_screen_capturing_tooltip_line2b": { "message": "" },
     "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "如果您注意到奇怪的行為，如標籤需要很長時間才能掛起，或者Chrome意外崩潰，請嘗試關閉此功能。" }, //? If you notice weird behavior, such as if the tag takes a long time to hang or Chrome crashes unexpectedly, try turning the feature off
     "html_options_suspend_screen_capturing_tooltip_line3b": { "message": "" },
-    "html_options_suspend_force_screen_capture": { "message": "在縮放選項卡上啟用屏幕捕獲" }, //? Enable screen capture on the Zoom tab
-    "html_options_suspend_force_screen_capture_tooltip_line1a": { "message": "暫停縮放的標籤（除100％以外的任何內容）都可能導致重大的CPU負載。" }, //? Suspended tab (anything except 100%) can cause significant CPU load
-    "html_options_suspend_force_screen_capture_tooltip_line1b": { "message": "" },
-    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "默認情況下，縮放的標籤頁不會生成屏幕捕獲預覽。" }, //? Scaled tabs do not generate a screen capture preview by default
+    "html_options_suspend_force_screen_capture": { "message": "启用高质量的屏幕捕捉模式" }, //? Enable high quality screen capture mode
+    "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "禁用时，屏幕截图具有以下限制以帮助提高性能：" }, //? When disabled, screen captures have the following limitations to aid in performance:
+    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "- 低质量的屏幕截图" }, //? - Low quality screen capture
+    "html_options_suspend_force_screen_capture_tooltip_line3": { "message": "- 不会捕捉任何缩放卡的屏幕" }, //? - Will not capture any zoom card's screen
+    "html_options_suspend_force_screen_capture_tooltip_line4": { "message": "- 如果生成图像需要1分钟以上，将不会捕捉屏幕" }, //? - Will not capture screen if it takes more than 1 minute to generate image
+    "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 图片的最大高度限制为5000像素" }, //? - Maximum height of image limited to 5000px
+    "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "启用高质量的屏幕捕捉模式可能会显着增加CPU负载和内存使用量。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
+    "html_options_suspend_force_screen_capture_tooltip_line7": { "message": "" },
     "html_options_whitelist_title": { "message": "例外清單" }, //Exception list
     "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:

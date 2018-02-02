@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsMessages, tgs */
+/*global chrome, localStorage, gsStorage, gsMessages, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = true;
@@ -326,6 +326,12 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         if (this.contains(changedSettingKeys, gsStorage.ADD_CONTEXT)) {
             var addContextMenu = gsStorage.getOption(gsStorage.ADD_CONTEXT);
             tgs.buildContextMenu(addContextMenu);
+        }
+
+        //if screenshot preferences have changed then update the queue parameters
+        if (this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
+            this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)) {
+            gsSuspendManager.updateQueueParameters();
         }
     },
 
