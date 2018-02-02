@@ -90,7 +90,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             return;
         }
 
-        gsMessages.sendRequestInfoToContentScript(tab.id, true, function (err, tabInfo) {
+        gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
             tabInfo = tabInfo || {};
             var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
             suspensionDetails.status = tabInfo.status;

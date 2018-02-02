@@ -31,7 +31,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
                 if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    self.sendMessageToContentScript(currentTab.id, payload, this.WARNING, true, function (err) {
+                    self.sendMessageToContentScript(currentTab.id, payload, this.WARNING, function (err) {
                         if (err) {
                             gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably special or suspended.', err);
                         }
@@ -86,7 +86,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
                 console.log('\n\n------------------------------------------------');
                 console.log('Failed to communicate with contentScript!');
                 console.log('------------------------------------------------\n\n');
-                        if (callback) callback(error);
+                if (callback) callback(error);
             } else {
                 if (callback) callback(null, response);
             }
