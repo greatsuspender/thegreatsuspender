@@ -177,7 +177,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
                 removeTabFromSuspensionQueue(tab, 'Tab has a disallowed zoom setting.');
                 return;
             }
-            gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas-1_00a9.min.js', function (error) {
+            gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (error) {
                 if (error) {
                     gsUtils.error('gsSuspendManager', error.message);
                     executeTabSuspension(tab);
