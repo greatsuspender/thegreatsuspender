@@ -846,8 +846,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-
         if (!changeInfo) return;
+        if (!changeInfo.url && !changeInfo.status && !changeInfo.audible && !changeInfo.pinned) return;
         // gsUtils.log(tabId, 'tab updated.', changeInfo);
         gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url);
 
