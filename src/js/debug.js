@@ -33,7 +33,7 @@
 
                 tgs.requestDebugInfo(curTab.id, function (debugInfo) {
                     if (chrome.runtime.lastError) {
-                        gsUtils.error('profiler', chrome.runtime.lastError.message);
+                        gsUtils.error('debug', chrome.runtime.lastError.message);
                     }
 
                     var html,
@@ -51,10 +51,27 @@
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
         fetchInfo();
 
-        //handler for refresh
         document.getElementById('refreshProfiler').onclick = function (e) {
             document.getElementById('gsProfilerBody').innerHTML = '';
             fetchInfo();
+        };
+
+        document.getElementById('toggleDebugInfo').innerHTML = gsUtils.isDebugInfo();
+        document.getElementById('toggleDebugInfo').onclick = function (e) {
+            gsUtils.setDebugInfo(!gsUtils.isDebugInfo());
+            document.getElementById('toggleDebugInfo').innerHTML = gsUtils.isDebugInfo();
+        };
+
+        document.getElementById('toggleDebugError').innerHTML = gsUtils.isDebugError();
+        document.getElementById('toggleDebugError').onclick = function (e) {
+            gsUtils.setDebugError(!gsUtils.isDebugError());
+            document.getElementById('toggleDebugError').innerHTML = gsUtils.isDebugError();
+        };
+
+        var extensionsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
+        document.getElementById('backgroundPage').setAttribute('href', extensionsUrl);
+        document.getElementById('backgroundPage').onclick = function () {
+            chrome.tabs.create({ url: extensionsUrl});
         };
 
         /*
@@ -69,5 +86,5 @@
         });
         */
     });
-    gsAnalytics.reportPageView('profiler.html');
+    gsAnalytics.reportPageView('debug.html');
 }());

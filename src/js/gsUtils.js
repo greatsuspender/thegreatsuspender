@@ -33,6 +33,22 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
     },
 
+    isDebugInfo: function () {
+        return debugInfo;
+    },
+
+    isDebugError: function () {
+        return debugError;
+    },
+
+    setDebugInfo: function (value) {
+        debugInfo = value;
+    },
+
+    setDebugError: function (value) {
+        debugError = value;
+    },
+
     isDiscardedTab: function (tab) {
         return tab.discarded;
     },

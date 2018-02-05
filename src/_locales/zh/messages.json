@@ -106,13 +106,6 @@
     "html_popup_unsuspend_selected_tabs": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
     "html_popup_settings": { "message": "設定" }, //set up
 
-    // Profiler page
-    "html_profiler_title": { "message": "探查" }, //? Exploring
-    "html_profiler_reload": { "message": "重新載入" }, //Reload
-    "html_profiler_table_title": { "message": "標題" }, //? title
-    "html_profiler_table_time_to_suspend": { "message": "暫停時間" }, //? Pause the time
-    "html_profiler_table_status": { "message": "狀態" }, //? status
-
     // Recovery page (to recover from a crashed session)
     "html_recovery_title": { "message": "復甦" }, //? recovery
     "html_recovery_ruh_roh": { "message": "噢！" }, //Oh!

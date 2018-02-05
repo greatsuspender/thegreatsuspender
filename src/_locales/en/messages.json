@@ -106,13 +106,6 @@
     "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
     "html_popup_settings": { "message": "Options" },
 
-    // Profiler page
-    "html_profiler_title": { "message": "Profiler" },
-    "html_profiler_reload": { "message": "reload" },
-    "html_profiler_table_title": { "message": "Title" },
-    "html_profiler_table_time_to_suspend": { "message": "Time to suspend" },
-    "html_profiler_table_status": { "message": "Status" },
-
     // Recovery page (to recover from a crashed session)
     "html_recovery_title": { "message": "Recovery" },
     "html_recovery_ruh_roh": { "message": "Ruh roh!" },
