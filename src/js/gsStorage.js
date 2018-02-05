@@ -100,7 +100,7 @@ var gsStorage = {
                     gsUtils.error('gsStorage', 'Missing key: ' + key + '! Will init with default.');
                     mergedSettings[key] = defaultSettings[key];
                 }
-                delete unprocessedRawKeys[key];
+                unprocessedRawKeys.splice(unprocessedRawKeys.indexOf(key), 1);
             }
             self.saveSettings(mergedSettings);
 
