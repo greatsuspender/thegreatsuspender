@@ -162,7 +162,7 @@
         var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
         document.body.style['overflow-x'] = overflow;
 
-        if (currentPreviewMode === '0') {
+        if (currentPreviewMode === '0' || !previewUri) {
             document.getElementById('gsPreview').style.display = 'none';
             document.getElementById('suspendedMsg').style.display = 'table-cell';
         } else {
