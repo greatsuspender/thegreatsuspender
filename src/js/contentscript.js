@@ -34,7 +34,8 @@
             if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
                 if (event.target.tagName.toUpperCase() === 'INPUT' ||
                         event.target.tagName.toUpperCase() === 'TEXTAREA' ||
-                        event.target.tagName.toUpperCase() === 'FORM') {
+                        event.target.tagName.toUpperCase() === 'FORM' ||
+                        event.target.isContentEditable === true) {
                     inputState = true;
                     chrome.runtime.sendMessage(buildReportTabStatePayload());
                 }
