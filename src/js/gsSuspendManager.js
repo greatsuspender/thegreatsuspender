@@ -27,8 +27,9 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function executeTabSuspension(tab) {
         var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
         delete tabToSuspendDetailsByTabId[tab.id];
-        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspensionDetails.suspendedUrl, function (err) {
-            if (err) chrome.tabs.update(tab.id, {url: suspensionDetails.suspendedUrl});
+        var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+            if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
         });
     }
 
