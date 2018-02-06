@@ -406,7 +406,8 @@ a.historyLink:hover {
     box-shadow: 0 0 4px -2px rgba(0, 0, 0, 0.5);
 }
 .gsTitleWrap {
-    width: 100%;
+    width: 94%;
+    margin: 0px auto;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
