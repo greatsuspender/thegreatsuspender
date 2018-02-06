@@ -166,9 +166,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         var suspendedTabCount = 0,
             unsuspendedTabCount = 0,
             suspendedTabs = [],
-            tabResponses = [],
-            unsuspendedSessionTabs = [],
-            currentlyOpenTabs = [];
+            unsuspendedSessionTabs = [];
 
 
         var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
@@ -234,32 +232,26 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 }
 
                 //check for suspended tabs and try to contact them
-                tabs.forEach(function (curTab) {
-                    currentlyOpenTabs[curTab.id] = curTab;
-
-                    //test if a suspended tab has crashed by sending a 'requestInfo' message
+                for (var curTab of tabs) {
                     if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
                         suspendedTabs.push(curTab);
-                        gsMessages.sendPingToTab(curTab.id, function (err) {
-                            if (err) {
-                                gsUtils.log(curTab.id, 'Could not make contact with tab. Assuming tab has crashed.');
-                            } else {
-                                tabResponses[curTab.id] = true;
-                            }
-                        });
                     }
-                });
+                }
 
-                //after 5 seconds, try to reload any suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
                 if (suspendedTabs.length > 0) {
+                    // after 5 seconds (to handle case of heavy load due to browser restart),
+                    // try to contact all suspended tabs to see if they are responsive.
+                    // resuspend any suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
                     setTimeout(function () {
-                        suspendedTabs.forEach(function (curTab) {
-                            if (typeof tabResponses[curTab.id] === 'undefined') {
-
-                                //automatically reload unresponsive suspended tabs
-                                chrome.tabs.reload(curTab.id);
-                            }
-                        });
+                        for (var curTab of suspendedTabs) {
+                            gsMessages.sendPingToTab(curTab.id, function (err) {
+                                if (err) {
+                                    //automatically reload unresponsive suspended tabs
+                                    tgs.setTabFlagForTabId(curTab.id, tgs.UNSUSPEND_ON_RELOAD, false);
+                                    chrome.tabs.reload(curTab.id);
+                                }
+                            });
+                        }
                     }, 5000);
 
                     //don't attempt recovery if there are still suspended tabs open
