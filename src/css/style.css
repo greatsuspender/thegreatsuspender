@@ -607,7 +607,7 @@ a.historyLink:hover {
 .dark .gsTopBarTitle {
     color: #ccc;
 }
-.dark .suspendedMsg, .dark {
+.dark .suspendedMsg, body.dark, .dark {
     background: #141a1d;
 }
 .dark .suspendedMsg h1, .dark .suspendedMsg h2, .dark .suspendedMsg h3 {
