@@ -218,8 +218,8 @@
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection." },
     "js_popup_charging": { "message": "Connected to power source." },
-    "js_popup_unknown": { "message": "Loading tab information..." },
-    "js_popup_error": { "message": "Failed to load tab information." },
+    "js_popup_unknown": { "message": "Waiting for tab to load..." },
+    "js_popup_error": { "message": "Auto-suspend unavailable for this tab." },
 
     // Session management page (Javascript code)
     "js_history_delete": { "message": "delete" },

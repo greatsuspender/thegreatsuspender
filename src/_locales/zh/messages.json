@@ -218,8 +218,8 @@
     "js_popup_never": { "message": "禁止自動凍結分頁" }, //Freezing of pages is forbidden
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
     "js_popup_charging": { "message": "已接上電源" }, //Connected to the power
-    "js_popup_unknown": { "message": "正在載入信息..." }, //? Loading message ...
-    "js_popup_error": { "message": "無法加載頁面信息" }, //? Could not load page info
+    "js_popup_unknown": { "message": "等待页面加载..." }, //? Waiting for page to load..
+    "js_popup_error": { "message": "自动冻结在此页面上不可用" }, //? Auto-freeze is not available on this page.
 
     // Session management page (Javascript code)
     "js_history_delete": { "message": "刪除" }, //? delete
