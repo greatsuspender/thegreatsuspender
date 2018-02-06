@@ -442,11 +442,11 @@ a.historyLink:hover {
     text-align: center;
     display: table-cell;
     vertical-align: middle;
+    padding-top: 100px;
 }
 .centerBox {
     margin-left: auto;
     margin-right: auto;
-    margin-top: 40px;
 }
 .suspendedMsg {
     width: 100%;
