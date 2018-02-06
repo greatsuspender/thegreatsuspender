@@ -149,6 +149,15 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
     },
 
+    saveRootUrlToWhitelist: function (url) {
+        let rootUrlStr = url;
+        if (rootUrlStr.indexOf('//') > 0) {
+            rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
+        }
+        rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+        this.saveToWhitelist(rootUrlStr);
+    },
+
     saveToWhitelist: function (newString) {
         var whitelist = gsStorage.getOption(gsStorage.WHITELIST);
         whitelist = whitelist ? whitelist + '\n' + newString : newString;

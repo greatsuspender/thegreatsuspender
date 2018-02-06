@@ -54,8 +54,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function whitelistHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                var rootUrlStr = gsUtils.getRootUrl(activeTab.url);
-                gsUtils.saveToWhitelist(rootUrlStr);
+                gsUtils.saveRootUrlToWhitelist(activeTab.url);
                 if (gsUtils.isSuspendedTab(activeTab)) {
                     unsuspendTab(activeTab);
                 } else {
