@@ -73,6 +73,8 @@
         currentUrl = url;
         document.getElementById('gsTopBarTitle').setAttribute('title', url);
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
+        document.getElementById('gsTopBarUrl').innerHTML = url;
+        document.getElementById('gsTopBarUrl').setAttribute('href', url);
     }
 
     function setFavicon(faviconUrl) {
