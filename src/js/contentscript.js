@@ -89,7 +89,7 @@
         return {
             action: 'reportTabState',
             status: state || (inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal')),
-            scrollPos: document.body.scrollTop,
+            scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
             timerUp: suspendDateTime ? suspendDateTime + '' : '-'
         };
     }
