@@ -33,7 +33,7 @@
 
                 tgs.requestDebugInfo(curTab.id, function (debugInfo) {
                     if (chrome.runtime.lastError) {
-                        gsUtils.error('debug', chrome.runtime.lastError.message);
+                        gsUtils.error('debug', chrome.runtime.lastError);
                     }
 
                     var html,

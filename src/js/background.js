@@ -437,7 +437,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         chrome.tabs.get(tabId, function (newTab) {
             if (chrome.runtime.lastError) {
-                gsUtils.error(tabId, chrome.runtime.lastError.message);
+                gsUtils.error(tabId, chrome.runtime.lastError);
                 return;
             }
 
@@ -552,7 +552,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         chrome.tabs.get(tabId, function (tab) {
 
             if (chrome.runtime.lastError) {
-                gsUtils.error(tabId, chrome.runtime.lastError.message);
+                gsUtils.error(tabId, chrome.runtime.lastError);
                 callback(info);
 
             } else {
@@ -689,7 +689,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
         chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId }, function () {
             if (chrome.runtime.lastError) {
-                gsUtils.error('background', chrome.runtime.lastError.message);
+                gsUtils.error('background', chrome.runtime.lastError);
             }
         });
     }
@@ -906,7 +906,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             chrome.history.deleteUrl({url: historyItem.url});
             chrome.history.addUrl({url: url}, function () {
                 if (chrome.runtime.lastError) {
-                    gsUtils.error('background', chrome.runtime.lastError.message);
+                    gsUtils.error('background', chrome.runtime.lastError);
                 }
             });
         }

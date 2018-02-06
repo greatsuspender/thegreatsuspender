@@ -9,7 +9,7 @@
     var getTabStatus = function (retriesRemaining, callback) {
         tgs.requestActiveTabStatus(function (status) {
             if (chrome.runtime.lastError) {
-                gsUtils.error('popup', chrome.runtime.lastError.message);
+                gsUtils.error('popup', chrome.runtime.lastError);
             }
             if (retriesRemaining === 0 || (status !== 'unknown')) {
                 status = status || 'unknown';

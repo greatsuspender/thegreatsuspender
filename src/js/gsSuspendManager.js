@@ -180,7 +180,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             }
             gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (error) {
                 if (error) {
-                    gsUtils.error('gsSuspendManager', error.message);
+                    gsUtils.error('gsSuspendManager', error);
                     executeTabSuspension(tab);
                     return;
                 }
@@ -188,7 +188,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
                     `(${executeContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
                     function (error) {
                         if (error) {
-                            gsUtils.error('gsSuspendManager', error.message);
+                            gsUtils.error('gsSuspendManager', error);
                             executeTabSuspension(tab);
                         }
                     });

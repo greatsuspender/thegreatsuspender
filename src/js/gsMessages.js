@@ -162,7 +162,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
             gsUtils.log(tabId, 'response from tab', response);
             if (chrome.runtime.lastError) {
                 if (severity === gsMessages.ERROR) {
-                    gsUtils.error(tabId, chrome.runtime.lastError.message, message);
+                    gsUtils.error(tabId, chrome.runtime.lastError, message);
                 } else if (severity === gsMessages.WARNING) {
                     gsUtils.log(tabId, chrome.runtime.lastError.message, message);
                 }
@@ -185,7 +185,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     executeScriptOnTab: function (tabId, scriptPath, callback) {
         chrome.tabs.executeScript(tabId, { file: scriptPath }, function (response) {
             if (chrome.runtime.lastError) {
-                gsUtils.error(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError.message);
+                gsUtils.error(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError);
                 if (callback) callback(chrome.runtime.lastError);
             } else {
                 if (callback) callback(null, response);
@@ -196,7 +196,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     executeCodeOnTab: function (tabId, codeString, callback) {
         chrome.tabs.executeScript(tabId, { code: codeString }, function (response) {
             if (chrome.runtime.lastError) {
-                gsUtils.error(tabId, 'Could not inject code into tab.', chrome.runtime.lastError.message);
+                gsUtils.error(tabId, 'Could not inject code into tab.', chrome.runtime.lastError);
                 if (callback) callback(chrome.runtime.lastError);
             } else {
                 if (callback) callback(null, response);
