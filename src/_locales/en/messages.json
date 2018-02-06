@@ -150,7 +150,7 @@
     "html_suspended_modal_this_domain": { "message": "this domain" },
     "html_suspended_modal_this_page": { "message": "this page" },
     "html_suspended_modal_temp_whitelist": { "message": "Just this tab, for this session only" },
-    "html_suspended_modal_temp_whitelist_notice": { "message": "Whitelisted sites won't be automatically suspended." },
+    "html_suspended_modal_temp_whitelist_notice": { "message": "Whitelisted sites will not be automatically suspended." },
     "html_suspended_modal_ok": { "message": "OK" },
     "html_suspended_modal_cancel": { "message": "Cancel" },
     "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
