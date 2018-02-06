@@ -37,6 +37,7 @@
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
             document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+            document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
             setFavicon(preFaviconUrl);
