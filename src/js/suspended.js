@@ -37,6 +37,7 @@
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
             document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+            document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
             setFavicon(preFaviconUrl);
@@ -73,6 +74,8 @@
         currentUrl = url;
         document.getElementById('gsTopBarTitle').setAttribute('title', url);
         document.getElementById('gsTopBarTitle').setAttribute('href', url);
+        document.getElementById('gsTopBarUrl').innerHTML = url;
+        document.getElementById('gsTopBarUrl').setAttribute('href', url);
     }
 
     function setFavicon(faviconUrl) {
