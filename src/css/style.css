@@ -423,7 +423,6 @@ a.historyLink:hover {
     line-height: 26px;
     color: rgb(68, 68, 68);
     font-weight: 300;
-    cursor: pointer;
 }
 .gsReloadLink {
     cursor: pointer;
@@ -605,7 +604,7 @@ a.historyLink:hover {
 .dark .gsTopBar, .dark .gsTopBar a {
     color: #7493a0;
 }
-.dark a.gsTopBarTitle {
+.dark .gsTopBarTitle {
     color: #ccc;
 }
 .dark .suspendedMsg, .dark {
