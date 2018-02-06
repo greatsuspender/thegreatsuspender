@@ -70,6 +70,7 @@
         if (request.hasOwnProperty('scrollPos')) {
             if (request.scrollPos !== '' && request.scrollPos !== '0') {
                 document.body.scrollTop = request.scrollPos;
+                document.documentElement.scrollTop = request.scrollPos;
             }
         }
         if (request.hasOwnProperty('suspendTime')) {

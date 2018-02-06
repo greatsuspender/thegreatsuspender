@@ -139,7 +139,6 @@
     }
 
     function buildImagePreview(callback) {
-        const scrollImagePreview = currentPreviewMode === '2';
         const previewEl = document.createElement('div');
         previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
         localiseHtml(previewEl);
@@ -149,9 +148,6 @@
 
         document.getElementById('gsPreviewImg').setAttribute('src', previewUri);
         document.getElementById('gsPreviewImg').addEventListener('load', function () {
-            if (scrollImagePreview) {
-                document.body.scrollTop = scrollPosition || 0;
-            }
             callback();
         }, { once: true });
     }
@@ -169,6 +165,12 @@
         } else {
             document.getElementById('gsPreview').style.display = 'block';
             document.getElementById('suspendedMsg').style.display = 'none';
+        }
+
+        const scrollImagePreview = currentPreviewMode === '2';
+        if (scrollImagePreview && scrollPosition) {
+            document.body.scrollTop = scrollPosition || 0;
+            document.documentElement.scrollTop = scrollPosition || 0;
         }
     }
 
