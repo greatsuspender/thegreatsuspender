@@ -1,8 +1,8 @@
 /*global chrome, localStorage, gsStorage, gsMessages, gsSuspendManager, tgs */
 'use strict';
 
-var debugInfo = true;
-var debugError = true;
+var debugInfo = false;
+var debugError = false;
 
 var gsUtils = { // eslint-disable-line no-unused-vars
 
