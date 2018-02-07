@@ -74,71 +74,78 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     function runStartupChecks() {
         backgroundScriptsReadyAsPromsied().then(function () {
-            var lastVersion = gsStorage.fetchLastVersion(),
-                curVersion = chrome.runtime.getManifest().version;
+            chrome.tabs.query({}, function (tabs) {
+                var lastVersion = gsStorage.fetchLastVersion(),
+                    curVersion = chrome.runtime.getManifest().version;
 
-            //if version has changed then assume initial install or upgrade
-            if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
-                gsStorage.setLastVersion(curVersion);
+                //if version has changed then assume initial install or upgrade
+                if (!chrome.extension.inIncognitoContext && (lastVersion !== curVersion)) {
+                    gsStorage.setLastVersion(curVersion);
 
-                //if they are installing for the first time
-                if (!lastVersion || lastVersion === '0.0.0') {
+                    //if they are installing for the first time
+                    if (!lastVersion || lastVersion === '0.0.0') {
 
-                    //show welcome screen
-                    chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
+                        //show welcome screen
+                        chrome.tabs.create({url: chrome.extension.getURL('welcome.html')});
 
-                //else if they are upgrading to a new version
-                } else {
+                    //else if they are upgrading to a new version
+                    } else {
 
-                    findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function (session) {
+                        findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function (session) {
 
-                        gsStorage.performMigration(lastVersion);
+                            gsStorage.performMigration(lastVersion);
 
-                        //reset notice version
-                        gsStorage.setNoticeVersion('0');
+                            //reset notice version
+                            gsStorage.setNoticeVersion('0');
 
-                        //clear context menu
-                        tgs.buildContextMenu(false);
+                            //clear context menu
+                            tgs.buildContextMenu(false);
 
-                        //recover tabs silently
-                        checkForCrashRecovery(true);
+                            //recover tabs silently
+                            checkForCrashRecovery(tabs, true);
 
-                        //close any 'update' and 'updated' tabs that may be open
-                        chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
-                            chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                            //close any 'update' and 'updated' tabs that may be open
+                            chrome.tabs.query({url: chrome.extension.getURL('update.html')}, function (tabs) {
+                                chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+                            });
+                            chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
+                                chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
+
+                                //show updated screen
+                                chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
+                            });
                         });
-                        chrome.tabs.query({url: chrome.extension.getURL('updated.html')}, function (tabs) {
-                            chrome.tabs.remove(tabs.map(function (tab) { return tab.id; }));
-
-                            //show updated screen
-                            chrome.tabs.create({url: chrome.extension.getURL('updated.html')});
-                        });
-                    });
-                }
+                    }
 
                 //else if restarting the same version
-            } else {
+                } else {
 
-                //check for possible crash
-                checkForCrashRecovery(false);
+                    //check for possible crash
+                    checkForCrashRecovery(tabs, false);
 
-                //trim excess dbItems
-                gsStorage.trimDbItems();
-            }
+                    //trim excess dbItems
+                    gsStorage.trimDbItems();
+                }
 
-            //inject new content script into all open pages
-            reinjectContentScripts();
+                //make sure the contentscript / suspended script of each tab is responsive
+                //if we are in the process of a chrome restart (and session restore) then it might take a while
+                //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 and then reinject if
+                //still not responding (after a total of 60 seconds)
+                for (const currentTab of tabs) {
+                    checkTabScript(currentTab, 4);
+                }
 
-            //add context menu items
-            var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
-            tgs.buildContextMenu(contextMenus);
+                //add context menu items
+                var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
+                tgs.buildContextMenu(contextMenus);
 
-            //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
-            tgs.init();
+                //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
+                tgs.init();
 
-            //initialise settings (important that this comes last. cant remember why?!?!)
-            gsStorage.initSettings();
+                //initialise settings (important that this comes last. cant remember why?!?!)
+                gsStorage.initSettings();
 
+            });
         }).catch(function (err) {
             gsUtils.error('gsSession', err);
             chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
@@ -156,17 +163,16 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             });
     }
 
-    function checkForCrashRecovery(isUpdating) {
+    function checkForCrashRecovery(currentTabs, isUpdating) {
         gsUtils.log('gsSession','\n\n\nCRASH RECOVERY CHECKS!!!!! ' + Date.now() + '\n\n\n');
 
         //try to detect whether the extension has crashed as separate to chrome crashing
         //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
         //and all normal tabs will still exist with the same ids
 
-        var suspendedTabCount = 0,
-            unsuspendedTabCount = 0,
-            suspendedTabs = [],
-            unsuspendedSessionTabs = [];
+        var lastSessionSuspendedTabCount = 0,
+            lastSessionUnsuspendedTabCount = 0,
+            lastSessionUnsuspendedTabs = [];
 
 
         var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
@@ -192,102 +198,104 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
                     if (!gsUtils.isSpecialTab(sessionTab)) {
                         if (!gsUtils.isSuspendedTab(sessionTab, true)) {
-                            unsuspendedSessionTabs.push(sessionTab);
-                            unsuspendedTabCount++;
+                            lastSessionUnsuspendedTabs.push(sessionTab);
+                            lastSessionUnsuspendedTabCount++;
                         } else {
-                            suspendedTabCount++;
+                            lastSessionSuspendedTabCount++;
                         }
                     }
                 });
             });
 
             //don't attempt recovery if last session had no suspended tabs
-            if (suspendedTabCount === 0) {
+            if (lastSessionSuspendedTabCount === 0) {
                 gsUtils.log('gsSession','Aborting tab recovery. Last session has no suspended tabs.');
                 return;
             }
 
             //check to see if they still exist in current session
-            chrome.tabs.query({}, function (tabs) {
+            gsUtils.log('gsSession','Tabs in current session: ', currentTabs);
+            gsUtils.log('gsSession','Unsuspended session tabs: ', lastSessionUnsuspendedTabs);
 
-                gsUtils.log('gsSession','Tabs in current session: ', tabs);
-                gsUtils.log('gsSession','Unsuspended session tabs: ', unsuspendedSessionTabs);
+            /* TODO: Find a way to identify a browser restart to distinguish it from a normal extension crash.
+             * Unfortunately, we cant rely on chrome.runtime.onStartup as it may fire after this code
+             * has already run. The code below is a fallback test for browser startup.
+             */
+            //don't attempt recovery if there are less tabs in current session than there were
+            //unsuspended tabs in the last session
+            if (currentTabs.length < lastSessionUnsuspendedTabCount) {
+                gsUtils.log('gsSession','Aborting tab recovery. Last session contained ' + lastSessionUnsuspendedTabCount +
+                        'tabs. Current session only contains ' + currentTabs.length);
+                return;
+            }
 
-                /* TODO: Find a way to identify a browser restart to distinguish it from a normal extension crash.
-                 * Unfortunately, we cant rely on chrome.runtime.onStartup as it may fire after this code
-                 * has already run. The code below is a fallback test for browser startup.
-                 */
-                //don't attempt recovery if there are less tabs in current session than there were
-                //unsuspended tabs in the last session
-                if (tabs.length < unsuspendedTabCount) {
-                    gsUtils.log('gsSession','Aborting tab recovery. Last session contained ' + unsuspendedTabCount +
-                            'tabs. Current session only contains ' + tabs.length);
-                    return;
+            //if there is only one currently open tab and it is the 'new tab' page then abort recovery
+            if (currentTabs.length === 1 && currentTabs[0].url === 'chrome://newtab/') {
+                gsUtils.log('gsSession','Aborting tab recovery. Current session only contains a single newtab page.');
+                return;
+            }
+
+            //check for suspended tabs in current session
+            const suspendedTabs = [];
+            for (var curTab of currentTabs) {
+                if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
+                    suspendedTabs.push(curTab);
                 }
+            }
+            if (suspendedTabs.length > 0) {
+                //don't attempt recovery if there are still suspended tabs open
+                gsUtils.log('gsSession','Will not attempt recovery as there are still suspended tabs open.');
+                return;
+            }
 
-                //if there is only one currently open tab and it is the 'new tab' page then abort recovery
-                if (tabs.length === 1 && tabs[0].url === 'chrome://newtab/') {
-                    gsUtils.log('gsSession','Aborting tab recovery. Current session only contains a single newtab page.');
-                    return;
-                }
+            var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
+            var hasCrashedRecently = lastExtensionRecoveryTimestamp && (Date.now() - lastExtensionRecoveryTimestamp) < (1000*60*5);
+            gsStorage.setLastExtensionRecoveryTimestamp(Date.now());
 
-                //check for suspended tabs and try to contact them
-                for (var curTab of tabs) {
-                    if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
-                        suspendedTabs.push(curTab);
-                    }
-                }
+            //if we are doing an update, or this is the first recent crash, then automatically recover lost tabs
+            if (isUpdating || !hasCrashedRecently) {
+                gsUtils.recoverLostTabs(null);
 
-                if (suspendedTabs.length > 0) {
-                    // after 5 seconds (to handle case of heavy load due to browser restart),
-                    // try to contact all suspended tabs to see if they are responsive.
-                    // resuspend any suspended tabs that haven't respond for whatever reason (usually because the tab has crashed)
-                    setTimeout(function () {
-                        for (var curTab of suspendedTabs) {
-                            gsMessages.sendPingToTab(curTab.id, function (err) {
-                                if (err) {
-                                    //automatically reload unresponsive suspended tabs
-                                    tgs.setTabFlagForTabId(curTab.id, tgs.UNSUSPEND_ON_RELOAD, false);
-                                    chrome.tabs.reload(curTab.id);
-                                }
-                            });
-                        }
-                    }, 5000);
-
-                    //don't attempt recovery if there are still suspended tabs open
-                    gsUtils.log('gsSession','Will not attempt recovery as there are still suspended tabs open.');
-                    return;
-                }
-
-                var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
-                var hasCrashedRecently = lastExtensionRecoveryTimestamp && (Date.now() - lastExtensionRecoveryTimestamp) < (1000*60*5);
-                gsStorage.setLastExtensionRecoveryTimestamp(Date.now());
-
-                //if we are doing an update, or this is the first recent crash, then automatically recover lost tabs
-                if (isUpdating || !hasCrashedRecently) {
-                    gsUtils.recoverLostTabs(null);
-
-                //otherwise show the recovery page
-                } else {
-                    chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
-                }
-            });
+            //otherwise show the recovery page
+            } else {
+                chrome.tabs.create({url: chrome.extension.getURL('recovery.html')});
+            }
         });
     }
 
-    function reinjectContentScripts() {
-        chrome.tabs.query({}, function (tabs) {
-            tabs.forEach(function (currentTab) {
-                if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    gsMessages.executeScriptOnTab(currentTab.id, 'js/contentscript.js', function (err) {
-                        if (!err) {
-                            var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-                            gsMessages.sendInitTabToContentScript(currentTab.id, false, false, null, suspendTime);
-                        }
-                    });
+    function checkTabScript(tab, timeout) {
+        if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
+            return;
+        }
+        setTimeout(function () {
+            gsUtils.log(tab.id, `Checking tab script with timeout: ${timeout} secs.`);
+            gsMessages.sendPingToTab(tab.id, function (err) {
+                if (err) {
+                    const nextTimeout = (timeout * 2);
+                    if (nextTimeout < 60) {
+                        checkTabScript(tab, nextTimeout);
+                        return;
+                    }
+                    if (gsUtils.isSuspendedTab(tab)) {
+                        // resuspend unresponsive suspended tabs
+                        gsUtils.log(tab.id, `Resuspending unresponsive suspended tab: ${tab.title}`);
+                        tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD, false);
+                        chrome.tabs.reload(tab.id);
+                    } else {
+                        // reinject content script on non-suspended tabs
+                        gsUtils.log(tab.id, `Reinjecting contentscript into unresponsive active tab: ${tab.title}`);
+                        gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function (err) {
+                            if (!err) {
+                                var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+                                gsMessages.sendInitTabToContentScript(tab.id, false, false, null, suspendTime);
+                            } else {
+                                gsUtils.error(tab.id, `Failed to inject contentscript. Tab may not auto-suspend.`);
+                            }
+                        });
+                    }
                 }
             });
-        });
+        }, timeout * 1000);
     }
 
     return {

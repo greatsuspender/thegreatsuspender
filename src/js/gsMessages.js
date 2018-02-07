@@ -71,6 +71,12 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
+    sendRequestDebugInfoToContentScript(tabId, callback) {
+        this.sendMessageToContentScript(tabId, {
+            action: 'requestInfo'
+        }, this.INFO, callback);
+    },
+
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {
         this.sendMessageToContentScript(tabId, {
             action: 'confirmTabSuspend',
@@ -83,9 +89,11 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         // console.log(new Error('sendMessageToContentScript notActuallyError').stack);
         self.sendMessageToTab(tabId, message, severity, function (error, response) {
             if (error) {
-                console.log('\n\n------------------------------------------------');
-                console.log('Failed to communicate with contentScript!');
-                console.log('------------------------------------------------\n\n');
+                if (severity === gsMessages.ERROR) {
+                    console.log('\n\n------------------------------------------------');
+                    console.log('Failed to communicate with contentScript!');
+                    console.log('------------------------------------------------\n\n');
+                }
                 if (callback) callback(error);
             } else {
                 if (callback) callback(null, response);

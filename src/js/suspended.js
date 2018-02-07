@@ -447,9 +447,28 @@
                 showNoConnectivityMessage();
                 break;
             }
-            sendResponse();
+            sendResponse(buildReportTabStatePayload());
             return false;
         });
+    }
+
+    function buildReportTabStatePayload() {
+        return {
+            tabId,
+            requestUnsuspendOnReload,
+            // previewUri,
+            scrollPosition,
+            // showingWhitelisted,
+            // showingNag,
+            // builtImagePreview,
+            // currentPreviewMode,
+            // currentTitle,
+            currentUrl,
+            // currentFaviconUrl,
+            // currentTheme,
+            // currentHideNag,
+            // currentCommand,
+        };
     }
 
     function handleInitRequest(request) {

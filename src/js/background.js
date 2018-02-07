@@ -560,7 +560,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 info.windowId = tab.windowId;
                 info.tabId = tab.id;
                 if(gsUtils.isNormalTab(tab)) {
-                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
+                    gsMessages.sendRequestDebugInfoToContentScript(tab.id, function (err, tabInfo) {
                         if (tabInfo) {
                             info.timerUp = tabInfo.timerUp;
                             calculateTabStatus(tab, tabInfo.status, function (status) {
