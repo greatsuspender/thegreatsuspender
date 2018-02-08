@@ -130,7 +130,7 @@
         }
         currentPreviewMode = previewMode;
 
-        if (!builtImagePreview && previewMode !== '0') {
+        if (!builtImagePreview && previewMode !== '0' && previewUri) {
             buildImagePreview(() => {
                 toggleImagePreviewVisibility();
             });
@@ -147,10 +147,20 @@
         document.getElementsByTagName('body')[0].appendChild(previewEl);
         builtImagePreview = true;
 
-        document.getElementById('gsPreviewImg').setAttribute('src', previewUri);
-        document.getElementById('gsPreviewImg').addEventListener('load', function () {
+        const previewImgEl = document.getElementById('gsPreviewImg');
+        const onLoadedHandler = function () {
+            previewImgEl.removeEventListener('load', onLoadedHandler);
+            previewImgEl.removeEventListener('error', onErrorHandler);
             callback();
-        }, { once: true });
+        };
+        const onErrorHandler = function () {
+            previewImgEl.removeEventListener('load', onLoadedHandler);
+            previewImgEl.removeEventListener('error', onErrorHandler);
+            callback();
+        };
+        previewImgEl.setAttribute('src', previewUri);
+        previewImgEl.addEventListener('load', onLoadedHandler);
+        previewImgEl.addEventListener('error', onErrorHandler);
     }
 
     function toggleImagePreviewVisibility() {
