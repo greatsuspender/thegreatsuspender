@@ -16,6 +16,11 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function queueTabForSuspension(tab, forceLevel) {
         if (typeof tab === 'undefined') return;
 
+        if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
+            gsUtils.log('gsSuspendManager', `Tab not eligible for suspension: ${tab.id}`);
+            return;
+        }
+
         tabToSuspendDetailsByTabId[tab.id] = { tab: tab, forceLevel: forceLevel };
         clearTimeout(processSuspensionQueueTimer);
         processSuspensionQueueTimer = setTimeout(function () {
@@ -107,11 +112,6 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function requestTabSuspension(suspensionDetails) {
         var tab = suspensionDetails.tab;
         var forceLevel = suspensionDetails.forceLevel;
-
-        if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
-            removeTabFromSuspensionQueue(tab, 'Tab not eligible for suspension');
-            return;
-        }
 
         gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
             //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
