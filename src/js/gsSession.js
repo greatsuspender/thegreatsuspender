@@ -2,17 +2,11 @@
 var gsSession = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var browserStartupTimestamp;
     var initialisationMode = false;
-    var initialSessionActivityRatio = 0;
+    var isProbablyBrowserRestart = false;
     var recoveryMode = false;
     var sessionId;
     var tabsUrlsToRecover = [];
-
-    chrome.runtime.onStartup.addListener(function () {
-        browserStartupTimestamp = Date.now();
-        gsUtils.log('gsSession','\n\n\nSTARTUP!!!!! ' + browserStartupTimestamp + '\n\n\n');
-    });
 
     //handle special event where an extension update is available
     chrome.runtime.onUpdateAvailable.addListener(function (details) {
@@ -88,6 +82,8 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         backgroundScriptsReadyAsPromsied().then(function () {
             initialisationMode = true;
             chrome.tabs.query({}, function (tabs) {
+                checkForBrowserStartup(tabs);
+
                 var lastVersion = gsStorage.fetchLastVersion(),
                     curVersion = chrome.runtime.getManifest().version;
 
@@ -155,10 +151,8 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     //if we are in the process of a chrome restart (and session restore) then it might take a while
                     //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 ...
                     var tabCheckPromises = [];
-                    var tabsLoading = tabs.filter(o => o.status === 'loading');
-                    initialSessionActivityRatio = tabsLoading.length / tabs.length;
                     gsUtils.log('gsSession', '\n\n------------------------------------------------\n' +
-                        `Extension initialization started. initialSessionActivityRatio: ${initialSessionActivityRatio}\n` +
+                        `Extension initialization started. isProbablyBrowserRestart: ${isProbablyBrowserRestart}\n` +
                         '------------------------------------------------\n\n');
                     for (const currentTab of tabs) {
                         const timeoutRandomiser = Math.random() * 1000 * (tabs.length / 2);
@@ -191,6 +185,22 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             });
     }
 
+    //TODO: Improve this function to determine browser startup with 100% certainty
+    //NOTE: Current implementation leans towards conservatively saying it's not a browser startup
+    function checkForBrowserStartup(currentTabs) {
+        //check for suspended tabs in current session
+        //if found, then we can probably assume that this is a browser startup which is restoring previously open tabs
+        const suspendedTabs = [];
+        for (var curTab of currentTabs) {
+            if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
+                suspendedTabs.push(curTab);
+            }
+        }
+        if (suspendedTabs.length > 0) {
+            isProbablyBrowserRestart = true;
+        }
+    }
+
     function checkForCrashRecovery(currentTabs, isUpdating) {
         gsUtils.log('gsSession','\n\n\nCRASH RECOVERY CHECKS!!!!! ' + Date.now() + '\n\n\n');
 
@@ -202,13 +212,10 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             lastSessionUnsuspendedTabCount = 0,
             lastSessionUnsuspendedTabs = [];
 
-        var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
-        gsUtils.log('gsSession','browserStartupTimestamp', browserStartupTimestamp);
-        gsUtils.log('gsSession','isBrowserStarting', isBrowserStarting);
         gsUtils.log('gsSession','Checking for crash recovery');
 
-        if (isBrowserStarting && !isUpdating) {
-            gsUtils.log('gsSession','Aborting tab recovery. Browser is starting..');
+        if (isProbablyBrowserRestart) {
+            gsUtils.log('gsSession','Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)');
             return;
         }
 
@@ -244,10 +251,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             gsUtils.log('gsSession','Tabs in current session: ', currentTabs);
             gsUtils.log('gsSession','Unsuspended session tabs: ', lastSessionUnsuspendedTabs);
 
-            /* TODO: Find a way to identify a browser restart to distinguish it from a normal extension crash.
-             * Unfortunately, we cant rely on chrome.runtime.onStartup as it may fire after this code
-             * has already run. The code below is a fallback test for browser startup.
-             */
             //don't attempt recovery if there are less tabs in current session than there were
             //unsuspended tabs in the last session
             if (currentTabs.length < lastSessionUnsuspendedTabCount) {
@@ -259,19 +262,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             //if there is only one currently open tab and it is the 'new tab' page then abort recovery
             if (currentTabs.length === 1 && currentTabs[0].url === 'chrome://newtab/') {
                 gsUtils.log('gsSession','Aborting tab recovery. Current session only contains a single newtab page.');
-                return;
-            }
-
-            //check for suspended tabs in current session
-            const suspendedTabs = [];
-            for (var curTab of currentTabs) {
-                if (!gsUtils.isSpecialTab(curTab) && gsUtils.isSuspendedTab(curTab, true)) {
-                    suspendedTabs.push(curTab);
-                }
-            }
-            if (suspendedTabs.length > 0) {
-                //don't attempt recovery if there are still suspended tabs open
-                gsUtils.log('gsSession','Will not attempt recovery as there are still suspended tabs open.');
                 return;
             }
 
@@ -343,7 +333,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     return;
                 }
 
-                if (initialSessionActivityRatio > 0.1 && totalTimeQueued < (60 * 1000)) {
+                if (isProbablyBrowserRestart && totalTimeQueued < (60 * 1000)) {
                     resolve(false);
                     return;
                 }
