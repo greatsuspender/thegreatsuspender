@@ -20,7 +20,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         newTabFocusTimer,
         noticeToDisplay,
         chargingMode = false,
-        recoveryMode = false,
         suspensionActiveIcon = '/img/icon19.png',
         suspensionPausedIcon = '/img/icon19b.png',
         suspendUnsuspendHotkey;
@@ -264,10 +263,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         delete tabFlagsByTabId[tabId];
     }
 
-    function setRecoveryMode(value) {
-        recoveryMode = value;
-    }
-
     function unsuspendTab(tab) {
         if (!gsUtils.isSuspendedTab(tab)) return;
 
@@ -326,13 +321,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
 
             //init loaded tab
-            var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-            var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
-            var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-            var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-            gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime);
+            initialiseUnsuspendedTab(tab);
             clearTabFlagsForTabId(tab.id);
             hasTabStatusChanged = true;
+
+            if (gsSession.isRecoveryMode()) {
+                gsSession.handleTabRecovered(tab);
+            }
         }
 
         //if tab is currently visible then update popup icon
@@ -341,6 +336,14 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 setIconStatus(status);
             });
         }
+    }
+
+    function initialiseUnsuspendedTab(tab, callback) {
+        var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+        var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
+        var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
+        var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
     function handleSuspendedTabChanged(tab, changeInfo) {
@@ -361,17 +364,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 setIconStatus('suspended');
             }
 
-            if (recoveryMode) {
-                chrome.tabs.query({url: chrome.extension.getURL('recovery.html')}, function (recoveryTabs) {
-                    for (var recoveryTab of recoveryTabs) {
-                        gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab);
-                    }
-                });
+            if (gsSession.isRecoveryMode()) {
+                gsSession.handleTabRecovered(tab);
             }
         }
     }
 
-    function initialiseSuspendedTab(tab) {
+    function initialiseSuspendedTab(tab, callback) {
 
         var suspendedUrl = tab.url;
         var originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
@@ -405,7 +404,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         previewUri: previewUri,
                         command: suspendUnsuspendHotkey,
                     };
-                    gsMessages.sendInitSuspendedTab(tab.id, payload);
+                    gsMessages.sendInitSuspendedTab(tab.id, payload, callback);
                 });
             });
         });
@@ -560,7 +559,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 info.windowId = tab.windowId;
                 info.tabId = tab.id;
                 if(gsUtils.isNormalTab(tab)) {
-                    gsMessages.sendRequestDebugInfoToContentScript(tab.id, function (err, tabInfo) {
+                    gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
                         if (tabInfo) {
                             info.timerUp = tabInfo.timerUp;
                             calculateTabStatus(tab, tabInfo.status, function (status) {
@@ -960,9 +959,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         resuspendSuspendedTab: resuspendSuspendedTab,
         requestActiveTabStatus: getActiveTabStatus,
         requestDebugInfo: requestDebugInfo,
-        setRecoveryMode: setRecoveryMode,
         isCharging: requestIsCharging,
 
+        initialiseUnsuspendedTab: initialiseUnsuspendedTab,
+        initialiseSuspendedTab: initialiseSuspendedTab,
         unsuspendHighlightedTab: unsuspendHighlightedTab,
         unwhitelistHighlightedTab: unwhitelistHighlightedTab,
         undoTemporarilyWhitelistHighlightedTab: undoTemporarilyWhitelistHighlightedTab,

@@ -3,7 +3,11 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
     var browserStartupTimestamp;
+    var initialisationMode = false;
+    var initialSessionActivityRatio = 0;
+    var recoveryMode = false;
     var sessionId;
+    var tabsUrlsToRecover = [];
 
     chrome.runtime.onStartup.addListener(function () {
         browserStartupTimestamp = Date.now();
@@ -45,6 +49,14 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         return sessionId;
     }
 
+    function isRecoveryMode() {
+        return recoveryMode;
+    }
+
+    function isInitialising() {
+        return initialisationMode;
+    }
+
     function backgroundScriptsReadyAsPromsied(retries) {
         retries = retries || 0;
         if (retries > 300) { // allow 30 seconds :scream:
@@ -74,6 +86,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     function runStartupChecks() {
         backgroundScriptsReadyAsPromsied().then(function () {
+            initialisationMode = true;
             chrome.tabs.query({}, function (tabs) {
                 var lastVersion = gsStorage.fetchLastVersion(),
                     curVersion = chrome.runtime.getManifest().version;
@@ -127,14 +140,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                     gsStorage.trimDbItems();
                 }
 
-                //make sure the contentscript / suspended script of each tab is responsive
-                //if we are in the process of a chrome restart (and session restore) then it might take a while
-                //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 and then reinject if
-                //still not responding (after a total of 60 seconds)
-                for (const currentTab of tabs) {
-                    checkTabScript(currentTab, 4);
-                }
-
                 //add context menu items
                 var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
                 tgs.buildContextMenu(contextMenus);
@@ -145,6 +150,29 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 //initialise settings (important that this comes last. cant remember why?!?!)
                 gsStorage.initSettings();
 
+                if (tabs) {
+                    //make sure the contentscript / suspended script of each tab is responsive
+                    //if we are in the process of a chrome restart (and session restore) then it might take a while
+                    //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 ...
+                    var tabCheckPromises = [];
+                    var tabsLoading = tabs.filter(o => o.status === 'loading');
+                    initialSessionActivityRatio = tabsLoading.length / tabs.length;
+                    gsUtils.log('gsSession', '\n\n------------------------------------------------\n' +
+                        `Extension initialization started. initialSessionActivityRatio: ${initialSessionActivityRatio}\n` +
+                        '------------------------------------------------\n\n');
+                    for (const currentTab of tabs) {
+                        const timeoutRandomiser = Math.random() * 1000 * (tabs.length / 2);
+                        tabCheckPromises.push(queueTabScriptCheck(currentTab, (4 * 1000) + timeoutRandomiser));
+                    }
+                    Promise.all(tabCheckPromises).then(() => {
+                        initialisationMode = false;
+                        gsUtils.log('gsSession', '\n\n------------------------------------------------\n' +
+                            'Extension initialization finished.\n' +
+                            '------------------------------------------------\n\n');
+                    }).catch((error) => {
+                        gsUtils.error('gsSession', error);
+                    });
+                }
             });
         }).catch(function (err) {
             gsUtils.error('gsSession', err);
@@ -173,7 +201,6 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         var lastSessionSuspendedTabCount = 0,
             lastSessionUnsuspendedTabCount = 0,
             lastSessionUnsuspendedTabs = [];
-
 
         var isBrowserStarting = browserStartupTimestamp && (Date.now() - browserStartupTimestamp) < 5000;
         gsUtils.log('gsSession','browserStartupTimestamp', browserStartupTimestamp);
@@ -254,7 +281,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
             //if we are doing an update, or this is the first recent crash, then automatically recover lost tabs
             if (isUpdating || !hasCrashedRecently) {
-                gsUtils.recoverLostTabs(null);
+                recoverLostTabs(null);
 
             //otherwise show the recovery page
             } else {
@@ -263,44 +290,274 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
-    function checkTabScript(tab, timeout) {
+    async function queueTabScriptCheck(tab, timeout, totalTimeQueued) {
+        totalTimeQueued = totalTimeQueued || 0;
         if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
             return;
         }
-        setTimeout(function () {
-            gsUtils.log(tab.id, `Checking tab script with timeout: ${timeout} secs.`);
-            gsMessages.sendPingToTab(tab.id, function (err) {
-                if (err) {
-                    const nextTimeout = (timeout * 2);
-                    if (nextTimeout < 60) {
-                        checkTabScript(tab, nextTimeout);
-                        return;
-                    }
+        if (totalTimeQueued >= 5 * 60 * 1000) {
+            gsUtils.error(tab.id, `Failed to initialize tab. Tab may not behave as expected.`);
+            return;
+        }
+        await new Promise(resolve => setTimeout(resolve, timeout));
+        await new Promise(resolve => chrome.tabs.get(tab.id, function (_tab) {
+            tab = _tab;
+            resolve();
+        }));
+        totalTimeQueued += (timeout);
+        gsUtils.log(tab.id, `${parseInt(totalTimeQueued / 1000)} seconds has elapsed. Pinging tab with state: ${tab.status}..`);
+        const result = await pingTabScript(tab, totalTimeQueued);
+        if (!result) {
+            const nextTimeout = (timeout * 2);
+            await queueTabScriptCheck(tab, nextTimeout, totalTimeQueued);
+        }
+    }
+
+    function pingTabScript(tab, totalTimeQueued) {
+        return new Promise((resolve, reject) => {
+            gsMessages.sendPingToTab(tab.id, function (err, response) {
+
+                // If tab is initialised then return true
+                if (response && response.isInitialised) {
+                    resolve(true);
+                    return;
+                }
+
+                // If tab has a state of loading, then requeue for checking later
+                if (tab.status === 'loading') {
+                    resolve(false);
+                    return;
+                }
+
+                // If tab returned a response (but is not initialised or loading) then initialise
+                if (response) {
                     if (gsUtils.isSuspendedTab(tab)) {
-                        // resuspend unresponsive suspended tabs
-                        gsUtils.log(tab.id, `Resuspending unresponsive suspended tab: ${tab.title}`);
-                        tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD, false);
-                        chrome.tabs.reload(tab.id);
+                        tgs.initialiseSuspendedTab(tab, function () {
+                            pingTabScript(tab, totalTimeQueued).then(resolve);
+                        });
                     } else {
-                        // reinject content script on non-suspended tabs
-                        gsUtils.log(tab.id, `Reinjecting contentscript into unresponsive active tab: ${tab.title}`);
-                        gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function (err) {
-                            if (!err) {
-                                var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-                                gsMessages.sendInitTabToContentScript(tab.id, false, false, null, suspendTime);
-                            } else {
-                                gsUtils.error(tab.id, `Failed to inject contentscript. Tab may not auto-suspend.`);
-                            }
+                        tgs.initialiseUnsuspendedTab(tab, function () {
+                            pingTabScript(tab, totalTimeQueued).then(resolve);
                         });
                     }
+                    return;
+                }
+
+                if (initialSessionActivityRatio > 0.1 && totalTimeQueued < (60 * 1000)) {
+                    resolve(false);
+                    return;
+                }
+
+                // If tab has loaded but returns no response after 30 seconds then try to reload / reinject tab
+                if (gsUtils.isSuspendedTab(tab)) {
+                    // resuspend unresponsive suspended tabs
+                    gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
+                    tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD, false);
+                    chrome.tabs.reload(tab.id);
+                    resolve(false);
+                } else {
+                    // reinject content script on non-suspended tabs
+                    gsUtils.log(tab.id, `Reinjecting contentscript into unresponsive active tab.`);
+                    gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function (err) {
+                        if (err) {
+                            resolve(false);
+                        } else {
+                            pingTabScript(tab, totalTimeQueued).then(resolve);
+                        }
+                    });
                 }
             });
-        }, timeout * 1000);
+        });
+    }
+
+    function recoverLostTabs(callback) {
+        callback = typeof callback !== 'function' ? function () {} : callback;
+
+        gsStorage.fetchLastSession().then(function (lastSession) {
+            if (!lastSession) {
+                callback(null);
+            }
+            gsUtils.removeInternalUrlsFromSession(lastSession);
+            chrome.windows.getAll({ populate: true }, function (currentWindows) {
+                var focusedWindow = currentWindows.find(function (currentWindow) { return currentWindow.focused; });
+                var matchedCurrentWindowBySessionWindowId = matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
+
+                var recoverWindows = async function (done) {
+                    //attempt to automatically restore any lost tabs/windows in their proper positions
+                    for (var sessionWindow of lastSession.windows) {
+                        var matchedCurrentWindow = matchedCurrentWindowBySessionWindowId[sessionWindow.id];
+                        await recoverWindowAsPromise(sessionWindow, matchedCurrentWindow);
+                    }
+                    if (focusedWindow) {
+                        chrome.windows.update(focusedWindow.id, { focused: true }, done);
+                    } else {
+                        done();
+                    }
+                };
+                recoveryMode = true;
+                recoverWindows(function () {
+                    callback();
+                });
+            });
+        });
+    }
+
+    //try to match session windows with currently open windows
+    function matchCurrentWindowsWithLastSessionWindows(unmatchedSessionWindows, unmatchedCurrentWindows) {
+        var matchedCurrentWindowBySessionWindowId = {};
+
+        //if there is a current window open that matches the id of the session window id then match it
+        unmatchedSessionWindows.slice().forEach(function (sessionWindow) {
+            var matchingCurrentWindow = unmatchedCurrentWindows.find(function (window) { return window.id === sessionWindow.id; });
+            if (matchingCurrentWindow) {
+                matchedCurrentWindowBySessionWindowId[sessionWindow.id] = matchingCurrentWindow;
+                //remove from unmatchedSessionWindows and unmatchedCurrentWindows
+                unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
+                unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
+                gsUtils.log('gsUtils', 'Matched with ids: ', sessionWindow, matchingCurrentWindow);
+            }
+        });
+
+        if (unmatchedSessionWindows.length === 0 || unmatchedCurrentWindows.length === 0) {
+            return matchedCurrentWindowBySessionWindowId;
+        }
+
+        //if we still have session windows that haven't been matched to a current window then attempt matching based on tab urls
+        var tabMatchingObjects = generateTabMatchingObjects(unmatchedSessionWindows, unmatchedCurrentWindows);
+
+        //find the tab matching objects with the highest tabMatchCounts
+        while (unmatchedSessionWindows.length > 0 && unmatchedCurrentWindows.length > 0) {
+            var maxTabMatchCount = Math.max(...tabMatchingObjects.map(function (o) { return o.tabMatchCount; }));
+            var bestTabMatchingObject = tabMatchingObjects.find(function (o) { return o.tabMatchCount === maxTabMatchCount; });
+
+            matchedCurrentWindowBySessionWindowId[bestTabMatchingObject.sessionWindow.id] = bestTabMatchingObject.currentWindow;
+
+            //remove from unmatchedSessionWindows and unmatchedCurrentWindows
+            var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
+            unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
+            unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
+            gsUtils.log('gsUtils', 'Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
+
+            //remove from tabMatchingObjects
+            tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });
+
+            //safety check to make sure we dont get stuck in infinite loop. should never happen though.
+            if (unmatchedSessionWindows.length >= unmatchedSessionWindowsLengthBefore) {
+                break;
+            }
+        }
+
+        return matchedCurrentWindowBySessionWindowId;
+    }
+
+    function generateTabMatchingObjects(sessionWindows, currentWindows) {
+        var unsuspendedSessionUrlsByWindowId = {};
+        sessionWindows.forEach(function (sessionWindow) {
+            unsuspendedSessionUrlsByWindowId[sessionWindow.id] = [];
+            sessionWindow.tabs.forEach(function (curTab) {
+                if (!gsUtils.isSpecialTab(curTab) && !gsUtils.isSuspendedTab(curTab)) {
+                    unsuspendedSessionUrlsByWindowId[sessionWindow.id].push(curTab.url);
+                }
+            });
+        });
+        var unsuspendedCurrentUrlsByWindowId = {};
+        currentWindows.forEach(function (currentWindow) {
+            unsuspendedCurrentUrlsByWindowId[currentWindow.id] = [];
+            currentWindow.tabs.forEach(function (curTab) {
+                if (!gsUtils.isSpecialTab(curTab) && !gsUtils.isSuspendedTab(curTab)) {
+                    unsuspendedCurrentUrlsByWindowId[currentWindow.id].push(curTab.url);
+                }
+            });
+        });
+
+        var tabMatchingObjects = [];
+        sessionWindows.forEach(function (sessionWindow) {
+            currentWindows.forEach(function (currentWindow) {
+                var unsuspendedSessionUrls = unsuspendedSessionUrlsByWindowId[sessionWindow.id];
+                var unsuspendedCurrentUrls = unsuspendedCurrentUrlsByWindowId[currentWindow.id];
+                var matchCount = unsuspendedCurrentUrls.filter(function (url) { return unsuspendedSessionUrls.includes(url); }).length;
+                tabMatchingObjects.push({
+                    tabMatchCount: matchCount,
+                    sessionWindow: sessionWindow,
+                    currentWindow: currentWindow
+                });
+            });
+        });
+
+        return tabMatchingObjects;
+    }
+
+    function recoverWindowAsPromise(sessionWindow, currentWindow) {
+        var currentTabIds = [],
+            currentTabUrls = [];
+
+        return new Promise(function (resolve, reject) {
+
+            //if we have been provided with a current window to recover into
+            if (currentWindow) {
+                currentWindow.tabs.forEach(function (currentTab) {
+                    currentTabIds.push(currentTab.id);
+                    currentTabUrls.push(currentTab.url);
+                });
+
+                sessionWindow.tabs.forEach(function (sessionTab) {
+
+                    //if current tab does not exist then recreate it
+                    if (!gsUtils.isSpecialTab(sessionTab) &&
+                        !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
+                        tabsUrlsToRecover.push(sessionTab.url);
+                        chrome.tabs.create({
+                            windowId: currentWindow.id,
+                            url: sessionTab.url,
+                            index: sessionTab.index,
+                            pinned: sessionTab.pinned,
+                            active: false
+                        });
+                    }
+                });
+                resolve();
+
+            //else restore entire window
+            } else if (sessionWindow.tabs.length > 0) {
+                gsUtils.log('gsUtils', 'Could not find match for sessionWindow: ', sessionWindow);
+
+                //create list of urls to open
+                var tabUrls = [];
+                sessionWindow.tabs.forEach(function (sessionTab) {
+                    tabUrls.push(sessionTab.url);
+                    tabsUrlsToRecover.push(sessionTab.url);
+                });
+                chrome.windows.create({url: tabUrls, focused: false}, resolve);
+            }
+        });
+    }
+
+    function handleTabRecovered(tab) {
+        if (tabsUrlsToRecover.indexOf(tab.url) >= 0) {
+            tabsUrlsToRecover.splice(tabsUrlsToRecover.indexOf(tab.url), 1);
+        }
+        if (tabsUrlsToRecover.length === 0) {
+            recoveryMode = false;
+            gsUtils.log('gsSession', '\n\n------------------------------------------------\n' +
+                'Recovery mode finished.\n' +
+                '------------------------------------------------\n\n');
+        }
+
+        // Update recovery view (if it exists)
+        chrome.tabs.query({url: chrome.extension.getURL('recovery.html')}, function (recoveryTabs) {
+            for (var recoveryTab of recoveryTabs) {
+                gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab);
+            }
+        });
     }
 
     return {
         runStartupChecks: runStartupChecks,
         getSessionId: getSessionId,
+        handleTabRecovered: handleTabRecovered,
+        isInitialising: isInitialising,
+        isRecoveryMode: isRecoveryMode,
+        recoverLostTabs: recoverLostTabs,
     };
 }());
 

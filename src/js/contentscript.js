@@ -1,4 +1,4 @@
-/*global chrome, html2canvas */
+/*global chrome */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -9,7 +9,8 @@
 (function () {
     'use strict';
 
-    var inputState = false,
+    var isInitialised = false,
+        inputState = false,
         tempWhitelist = false,
         timerJob,
         suspendDateTime = false;
@@ -47,7 +48,9 @@
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
         if (request.hasOwnProperty('action')) {
-            if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+            if (request.action === 'initialiseContentScript') {
+                isInitialised = true;
+            } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
                 sendResponse();
                 suspendTab(request.suspendedUrl);
                 return false;
@@ -89,6 +92,7 @@
     function buildReportTabStatePayload(state) {
         return {
             action: 'reportTabState',
+            isInitialised: isInitialised,
             status: state || (inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal')),
             scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
             timerUp: suspendDateTime ? suspendDateTime + '' : '-'

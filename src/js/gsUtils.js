@@ -1,12 +1,10 @@
-/*global chrome, localStorage, gsStorage, gsMessages, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
 var debugError = false;
 
 var gsUtils = { // eslint-disable-line no-unused-vars
-
-    noop: function () {},
 
     contains: function (array, value) {
         for (var i = 0; i < array.length; i++) {
@@ -24,6 +22,17 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     error: function (id, text, ...args) {
         if (debugError) {
             args = args || [];
+            console.error(id, (new Date() + '').split(' ')[4], text, ...args);
+        }
+    },
+    errorIfInitialised: function (id, text, ...args) {
+        if (!debugError) {
+            return;
+        }
+        args = args || [];
+        if (gsSession.isInitialising()) {
+            console.log(id, (new Date() + '').split(' ')[4], text, ...args);
+        } else {
             console.error(id, (new Date() + '').split(' ')[4], text, ...args);
         }
     },
@@ -336,14 +345,14 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
 
         //if theme or screenshot preferences have changed then refresh suspended tabs
-        var suspendedTabPreferencesToUpdate = [];
+        var suspendedTabPreferencesToUpdate = {};
         if (this.contains(changedSettingKeys, gsStorage.THEME)) {
-            suspendedTabPreferencesToUpdate.push(gsStorage.THEME);
+            suspendedTabPreferencesToUpdate.theme = gsStorage.getOption(gsStorage.THEME);
         }
         if (this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE)) {
-            suspendedTabPreferencesToUpdate.push(gsStorage.SCREEN_CAPTURE);
+            suspendedTabPreferencesToUpdate.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
         }
-        if (suspendedTabPreferencesToUpdate.length > 0) {
+        if (Object.keys(suspendedTabPreferencesToUpdate).length > 0) {
             gsMessages.sendRefreshToAllSuspendedTabs(suspendedTabPreferencesToUpdate);
         }
 
@@ -358,172 +367,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)) {
             gsSuspendManager.updateQueueParameters();
         }
-    },
-
-    recoverLostTabs: function (callback) {
-
-        var self = this;
-
-        callback = typeof callback !== 'function' ? this.noop : callback;
-
-        gsStorage.fetchLastSession().then(function (lastSession) {
-            if (!lastSession) {
-                callback(null);
-            }
-            gsUtils.removeInternalUrlsFromSession(lastSession);
-            chrome.windows.getAll({ populate: true }, function (currentWindows) {
-                var focusedWindow = currentWindows.find(function (currentWindow) { return currentWindow.focused; });
-                var matchedCurrentWindowBySessionWindowId = self.matchCurrentWindowsWithLastSessionWindows(lastSession.windows, currentWindows);
-
-                var recoverWindows = async function (done) {
-                    //attempt to automatically restore any lost tabs/windows in their proper positions
-                    for (var sessionWindow of lastSession.windows) {
-                        await self.recoverWindowAsPromise(sessionWindow, matchedCurrentWindowBySessionWindowId[sessionWindow.id]);
-                    }
-                    if (focusedWindow) {
-                        chrome.windows.update(focusedWindow.id, { focused: true }, done);
-                    } else {
-                        done();
-                    }
-                };
-                recoverWindows(callback);
-            });
-        });
-    },
-
-    //try to match session windows with currently open windows
-    matchCurrentWindowsWithLastSessionWindows: function (unmatchedSessionWindows, unmatchedCurrentWindows) {
-
-        var self = this;
-        var matchedCurrentWindowBySessionWindowId = {};
-
-        //if there is a current window open that matches the id of the session window id then match it
-        unmatchedSessionWindows.slice().forEach(function (sessionWindow) {
-            var matchingCurrentWindow = unmatchedCurrentWindows.find(function (window) { return window.id === sessionWindow.id; });
-            if (matchingCurrentWindow) {
-                matchedCurrentWindowBySessionWindowId[sessionWindow.id] = matchingCurrentWindow;
-                //remove from unmatchedSessionWindows and unmatchedCurrentWindows
-                unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== sessionWindow.id; });
-                unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== matchingCurrentWindow.id; });
-                gsUtils.log('gsUtils', 'Matched with ids: ', sessionWindow, matchingCurrentWindow);
-            }
-        });
-
-        if (unmatchedSessionWindows.length === 0 || unmatchedCurrentWindows.length === 0) {
-            return matchedCurrentWindowBySessionWindowId;
-        }
-
-        //if we still have session windows that haven't been matched to a current window then attempt matching based on tab urls
-        var tabMatchingObjects = self.generateTabMatchingObjects(unmatchedSessionWindows, unmatchedCurrentWindows);
-
-        //find the tab matching objects with the highest tabMatchCounts
-        while (unmatchedSessionWindows.length > 0 && unmatchedCurrentWindows.length > 0) {
-            var maxTabMatchCount = Math.max(...tabMatchingObjects.map(function (o) { return o.tabMatchCount; }));
-            var bestTabMatchingObject = tabMatchingObjects.find(function (o) { return o.tabMatchCount === maxTabMatchCount; });
-
-            matchedCurrentWindowBySessionWindowId[bestTabMatchingObject.sessionWindow.id] = bestTabMatchingObject.currentWindow;
-
-            //remove from unmatchedSessionWindows and unmatchedCurrentWindows
-            var unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
-            unmatchedSessionWindows = unmatchedSessionWindows.filter(function (window) { return window.id !== bestTabMatchingObject.sessionWindow.id; });
-            unmatchedCurrentWindows = unmatchedCurrentWindows.filter(function (window) { return window.id !== bestTabMatchingObject.currentWindow.id; });
-            gsUtils.log('gsUtils', 'Matched with tab count of ' + maxTabMatchCount + ': ', bestTabMatchingObject.sessionWindow, bestTabMatchingObject.currentWindow);
-
-            //remove from tabMatchingObjects
-            tabMatchingObjects = tabMatchingObjects.filter(function (o) { return o.sessionWindow !== bestTabMatchingObject.sessionWindow & o.currentWindow !== bestTabMatchingObject.currentWindow; });
-
-            //safety check to make sure we dont get stuck in infinite loop. should never happen though.
-            if (unmatchedSessionWindows.length >= unmatchedSessionWindowsLengthBefore) {
-                break;
-            }
-        }
-
-        return matchedCurrentWindowBySessionWindowId;
-    },
-
-    generateTabMatchingObjects: function (sessionWindows, currentWindows) {
-
-        var self = this;
-
-        var unsuspendedSessionUrlsByWindowId = {};
-        sessionWindows.forEach(function (sessionWindow) {
-            unsuspendedSessionUrlsByWindowId[sessionWindow.id] = [];
-            sessionWindow.tabs.forEach(function (curTab) {
-                if (!self.isSpecialTab(curTab) && !self.isSuspendedTab(curTab)) {
-                    unsuspendedSessionUrlsByWindowId[sessionWindow.id].push(curTab.url);
-                }
-            });
-        });
-        var unsuspendedCurrentUrlsByWindowId = {};
-        currentWindows.forEach(function (currentWindow) {
-            unsuspendedCurrentUrlsByWindowId[currentWindow.id] = [];
-            currentWindow.tabs.forEach(function (curTab) {
-                if (!self.isSpecialTab(curTab) && !self.isSuspendedTab(curTab)) {
-                    unsuspendedCurrentUrlsByWindowId[currentWindow.id].push(curTab.url);
-                }
-            });
-        });
-
-        var tabMatchingObjects = [];
-        sessionWindows.forEach(function (sessionWindow) {
-            currentWindows.forEach(function (currentWindow) {
-                var unsuspendedSessionUrls = unsuspendedSessionUrlsByWindowId[sessionWindow.id];
-                var unsuspendedCurrentUrls = unsuspendedCurrentUrlsByWindowId[currentWindow.id];
-                var matchCount = unsuspendedCurrentUrls.filter(function (url) { return unsuspendedSessionUrls.includes(url); }).length;
-                tabMatchingObjects.push({
-                    tabMatchCount: matchCount,
-                    sessionWindow: sessionWindow,
-                    currentWindow: currentWindow
-                });
-            });
-        });
-
-        return tabMatchingObjects;
-    },
-
-    recoverWindowAsPromise: function (sessionWindow, currentWindow) {
-
-        var self = this,
-            currentTabIds = [],
-            currentTabUrls = [];
-
-        return new Promise(function (resolve, reject) {
-
-            //if we have been provided with a current window to recover into
-            if (currentWindow) {
-                currentWindow.tabs.forEach(function (currentTab) {
-                    currentTabIds.push(currentTab.id);
-                    currentTabUrls.push(currentTab.url);
-                });
-
-                sessionWindow.tabs.forEach(function (sessionTab) {
-
-                    //if current tab does not exist then recreate it
-                    if (!self.isSpecialTab(sessionTab) &&
-                        !currentTabUrls.includes(sessionTab.url) && !currentTabIds.includes(sessionTab.id)) {
-                        chrome.tabs.create({
-                            windowId: currentWindow.id,
-                            url: sessionTab.url,
-                            index: sessionTab.index,
-                            pinned: sessionTab.pinned,
-                            active: false
-                        });
-                    }
-                });
-                resolve();
-
-            //else restore entire window
-            } else if (sessionWindow.tabs.length > 0) {
-                gsUtils.log('gsUtils', 'Could not find match for sessionWindow: ', sessionWindow);
-
-                //create list of urls to open
-                var tabUrls = [];
-                sessionWindow.tabs.forEach(function (sessionTab) {
-                    tabUrls.push(sessionTab.url);
-                });
-                chrome.windows.create({url: tabUrls, focused: false}, resolve);
-            }
-        });
     },
 
     getWindowFromSession: function (windowId, session) {

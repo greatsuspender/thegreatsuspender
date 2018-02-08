@@ -1,4 +1,4 @@
-/*global gsUtils, gsStorage, gsSession */
+/*global gsUtils, gsSession, gsStorage */
 var gsMessages = { // eslint-disable-line no-unused-vars
 
     INFO: 'info',
@@ -7,6 +7,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendInitTabToContentScript(tabId, ignoreForms, tempWhitelist, scrollPos, suspendTime, callback) {
         var props = {
+            action: 'initialiseContentScript',
             ignoreForms: ignoreForms,
             tempWhitelist: tempWhitelist,
         };
@@ -71,12 +72,6 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
-    sendRequestDebugInfoToContentScript(tabId, callback) {
-        this.sendMessageToContentScript(tabId, {
-            action: 'requestInfo'
-        }, this.INFO, callback);
-    },
-
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {
         this.sendMessageToContentScript(tabId, {
             action: 'confirmTabSuspend',
@@ -86,13 +81,12 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendMessageToContentScript: function (tabId, message, severity, callback) {
         var self = this;
-        // console.log(new Error('sendMessageToContentScript notActuallyError').stack);
         self.sendMessageToTab(tabId, message, severity, function (error, response) {
             if (error) {
-                if (severity === gsMessages.ERROR) {
-                    console.log('\n\n------------------------------------------------');
-                    console.log('Failed to communicate with contentScript!');
-                    console.log('------------------------------------------------\n\n');
+                if (severity === gsMessages.ERROR && !gsSession.isInitialising()) {
+                    gsUtils.error(tabId, '\n\n------------------------------------------------\n' +
+                        'Failed to communicate with contentScript!\n' +
+                        '------------------------------------------------\n\n');
                 }
                 if (callback) callback(error);
             } else {
@@ -103,25 +97,25 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
 
     sendInitSuspendedTab: function (tabId, payload, callback) {
-        callback = callback || gsUtils.noop();
+        callback = callback || function () {};
         payload = payload || {};
         payload.action = 'initSuspendedTab';
         this.sendMessageToTab(tabId, payload, this.ERROR, callback);
     },
 
-    sendRefreshToAllSuspendedTabs: function (preferencesToUpdate, callback) {
+    sendUpdateSuspendedTab: function (tabId, payload, callback) {
+        callback = callback || function () {};
+        payload = payload || {};
+        payload.action = 'updateSuspendedTab';
+        this.sendMessageToTab(tabId, payload, this.ERROR, callback);
+    },
+
+    sendRefreshToAllSuspendedTabs: function (payload, callback) {
         var self = this;
-        var payload = {};
-        if (preferencesToUpdate.indexOf(gsStorage.THEME) > -1) {
-            payload.theme = gsStorage.getOption(gsStorage.THEME);
-        }
-        if (preferencesToUpdate.indexOf(gsStorage.SCREEN_CAPTURE) > -1) {
-            payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-        }
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (tab) {
                 if (gsUtils.isSuspendedTab(tab)) {
-                    self.sendInitSuspendedTab(tab.id, payload, callback);
+                    self.sendUpdateSuspendedTab(tab.id, payload, callback);
                 }
             });
         });
@@ -170,7 +164,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
             gsUtils.log(tabId, 'response from tab', response);
             if (chrome.runtime.lastError) {
                 if (severity === gsMessages.ERROR) {
-                    gsUtils.error(tabId, chrome.runtime.lastError, message);
+                    gsUtils.errorIfInitialised(tabId, chrome.runtime.lastError, message);
                 } else if (severity === gsMessages.WARNING) {
                     gsUtils.log(tabId, chrome.runtime.lastError.message, message);
                 }
@@ -193,7 +187,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     executeScriptOnTab: function (tabId, scriptPath, callback) {
         chrome.tabs.executeScript(tabId, { file: scriptPath }, function (response) {
             if (chrome.runtime.lastError) {
-                gsUtils.error(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError);
+                gsUtils.errorIfInitialised(tabId, 'Could not inject ' + scriptPath + ' into tab.', chrome.runtime.lastError);
                 if (callback) callback(chrome.runtime.lastError);
             } else {
                 if (callback) callback(null, response);

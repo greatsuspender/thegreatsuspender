@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    let isInitialised = false;
     let tabId;
     let requestUnsuspendOnReload = false;
     let previewUri;
@@ -433,6 +434,11 @@
 
             case 'initSuspendedTab':
                 handleInitRequest(request);
+                isInitialised = true;
+                break;
+
+            case 'updateSuspendedTab':
+                handleInitRequest(request);
                 break;
 
             case 'unsuspendTab':
@@ -454,16 +460,17 @@
 
     function buildReportTabStatePayload() {
         return {
+            isInitialised,
             tabId,
             requestUnsuspendOnReload,
             // previewUri,
-            scrollPosition,
+            // scrollPosition,
             // showingWhitelisted,
             // showingNag,
             // builtImagePreview,
             // currentPreviewMode,
             // currentTitle,
-            currentUrl,
+            // currentUrl,
             // currentFaviconUrl,
             // currentTheme,
             // currentHideNag,

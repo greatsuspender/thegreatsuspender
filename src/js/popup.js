@@ -2,6 +2,7 @@
 (function () {
     'use strict';
 
+    var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
     var tgs = chrome.extension.getBackgroundPage().tgs;
     var globalActionElListener;
@@ -15,10 +16,14 @@
                 status = status || 'unknown';
                 callback(status);
             } else {
-                retriesRemaining--;
+                var timeout = 1000;
+                if (!gsSession.isInitialising()) {
+                    retriesRemaining--;
+                    timeout = 200;
+                }
                 setTimeout(function () {
                     getTabStatus(retriesRemaining, callback);
-                }, 200);
+                }, timeout);
             }
         });
     };
@@ -148,7 +153,11 @@
             statusIconClass = 'fa fa-plug';
 
         } else if (status === 'unknown') {
-            statusDetail = chrome.i18n.getMessage('js_popup_unknown');
+            if (gsSession.isInitialising()) {
+                statusDetail = chrome.i18n.getMessage('js_popup_initialising');
+            } else {
+                statusDetail = chrome.i18n.getMessage('js_popup_unknown');
+            }
             statusIconClass = 'fa fa-circle-o-notch';
 
         } else if (status === 'error') {

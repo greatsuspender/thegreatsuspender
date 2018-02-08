@@ -4,9 +4,9 @@
 
     var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
     var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
+    var gsSession = chrome.extension.getBackgroundPage().gsSession;
     var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
     var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-    var tgs = chrome.extension.getBackgroundPage().tgs;
 
     var restoreAttempted = false;
     var tabsToRecover = [];
@@ -60,7 +60,6 @@
 
         //if removing the last element.. (re-get the element this function gets called asynchronously
         if (document.getElementById('recoveryTabs').children.length === 0) {
-            tgs.setRecoveryMode(false);
 
             //if we have already clicked the restore button then redirect to success page
             if (restoreAttempted) {
@@ -111,11 +110,10 @@
         }
 
         var performRestore = function () {
-            tgs.setRecoveryMode(true);
             restoreAttempted = true;
             restoreEl.className += ' btnDisabled';
             restoreEl.removeEventListener('click', performRestore);
-            gsUtils.recoverLostTabs();
+            gsSession.recoverLostTabs();
         };
 
         restoreEl.addEventListener('click', performRestore);

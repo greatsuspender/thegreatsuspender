@@ -219,6 +219,7 @@
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
     "js_popup_charging": { "message": "已接上電源" }, //Connected to the power
     "js_popup_unknown": { "message": "等待页面加载..." }, //? Waiting for page to load..
+    "js_popup_initialising": { "message": "等待扩展名初始化..." }, //? Wait for the extension to be initialized..
     "js_popup_error": { "message": "自动冻结在此页面上不可用" }, //? Auto-freeze is not available on this page.
 
     // Session management page (Javascript code)
