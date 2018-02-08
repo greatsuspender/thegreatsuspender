@@ -48,9 +48,11 @@
       "description": "__MSG_ext_cmd_suspend_tab_description__",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
+    "1b-pause-tab": {
+      "description": "__MSG_ext_cmd_pause_tab_description__"
+    },
     "2-unsuspend-tab": {
-      "description": "__MSG_ext_cmd_unsuspend_tab_description__",
-      "suggested_key": { "default": "Ctrl+Shift+U" }
+      "description": "__MSG_ext_cmd_unsuspend_tab_description__"
     },
     "3-suspend-active-window": {
       "description": "__MSG_ext_cmd_suspend_active_window_description__"

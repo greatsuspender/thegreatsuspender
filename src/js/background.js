@@ -766,6 +766,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         if (command === '1-suspend-tab') {
             toggleSuspendedStateOfHighlightedTab();
 
+        } else if (command === '1b-pause-tab') {
+            temporarilyWhitelistHighlightedTab();
+
         } else if (command === '2-unsuspend-tab') {
             unsuspendHighlightedTab();
 

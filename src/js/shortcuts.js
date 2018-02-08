@@ -16,7 +16,7 @@
             commands.forEach(function (command) {
                 if (command.name !== '_execute_browser_action' && command.name !== '2-unsuspend-tab') {
                     var shortcut = command.shortcut !== '' ? command.shortcut : '(' + chrome.i18n.getMessage('js_shortcuts_not_set') + ')';
-                    var style = count % 2 === 1 ? '"margin: 0 0 2px;"' : '';
+                    var style = count % 2 === 0 ? '"margin: 0 0 2px;"' : '';
                     shortcutsEl.innerHTML += '<p style=' + style + '>' + command.description + ': ' + shortcut + '</p>';
                     count++;
                 }
