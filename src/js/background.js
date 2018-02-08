@@ -342,7 +342,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
         var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-        var suspendTime = tab.active ? null : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        var suspendTime = tab.active ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
         gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 

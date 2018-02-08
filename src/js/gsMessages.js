@@ -14,7 +14,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         if (scrollPos) {
             props.scrollPos = scrollPos;
         }
-        if (suspendTime) {
+        if (suspendTime !== null && !isNaN(Number(suspendTime))) {
             props.suspendTime = suspendTime;
         }
         this.sendMessageToContentScript(tabId, props, this.ERROR, callback);
