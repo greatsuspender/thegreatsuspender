@@ -305,17 +305,17 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
 
     function pingTabScript(tab, totalTimeQueued) {
         return new Promise((resolve, reject) => {
+
+            // If tab has a state of loading, then requeue for checking later
+            if (tab.status === 'loading') {
+                resolve(false);
+                return;
+            }
             gsMessages.sendPingToTab(tab.id, function (err, response) {
 
                 // If tab is initialised then return true
                 if (response && response.isInitialised) {
                     resolve(true);
-                    return;
-                }
-
-                // If tab has a state of loading, then requeue for checking later
-                if (tab.status === 'loading') {
-                    resolve(false);
                     return;
                 }
 

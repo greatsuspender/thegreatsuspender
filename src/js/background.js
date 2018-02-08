@@ -469,6 +469,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 gsMessages.sendClearTimerToContentScript(tabId);
             }
 
+            //if tab is already in the queue for suspension then remove it
+            gsSuspendManager.unqueueTabForSuspension(newTab);
+
         } else if (newTab.url === chrome.extension.getURL('options.html')) {
             gsMessages.sendReloadOptionsToOptionsTab(newTab.id);
         }

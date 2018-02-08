@@ -24,9 +24,20 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         }, 100);
     }
 
+    function unqueueTabForSuspension(tab) {
+        const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+        if (!suspensionDetails) {
+            return;
+        }
+        removeTabFromSuspensionQueue(tab, 'Tab unqueue requested externally.');
+    }
+
     function executeTabSuspension(tab) {
         var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
         delete tabToSuspendDetailsByTabId[tab.id];
+        if (suspensionDetails.cancelled) {
+            return;
+        }
         var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
         gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
             if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
@@ -34,7 +45,16 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     }
 
     function removeTabFromSuspensionQueue(tab, reason) {
-        delete tabToSuspendDetailsByTabId[tab.id];
+        const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+        if (!suspensionDetails) {
+            return;
+        }
+        if (!suspensionDetails.startDateTime) {
+            delete tabToSuspendDetailsByTabId[tab.id];
+        } else {
+            // Tab already being suspended. Mark to cancel instead
+            suspensionDetails.cancelled = true;
+        }
         gsUtils.log('gsSuspendManager', `Tab suspension cancelled for tab: ${tab.id}. Reason: ${reason}`);
     }
 
@@ -65,8 +85,10 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
                 queuedTabIds.push(tabId);
             }
         }
-        gsUtils.log('gsSuspendManager', 'inProgressTabIds size: ' + inProgressTabIds.length);
+        gsUtils.log('gsSuspendManager', 'inProgressTabIds: ' + inProgressTabIds.join(','));
         gsUtils.log('gsSuspendManager', 'queuedTabIds size: ' + queuedTabIds.length);
+
+        // Take tabs off the queue and ask them to suspend
         while (queuedTabIds.length > 0 && inProgressTabIds.length < MAX_TABS_IN_PROGRESS) {
             var tabIdToSuspend = queuedTabIds.splice(0, 1);
             inProgressTabIds.push(tabIdToSuspend);
@@ -92,10 +114,16 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         }
 
         gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
-            tabInfo = tabInfo || {};
+            //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
+            if (err) { // assume tab is still loading
+                tabInfo = {
+                    status: 'loading',
+                    scrollPos:  '0',
+                };
+            }
             var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
             suspensionDetails.status = tabInfo.status;
-            suspensionDetails.scrollPos = tabInfo.scrollPos || '0';
+            suspensionDetails.scrollPos = tabInfo.scrollPos;
             suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, suspensionDetails.scrollPos);
 
             if (!checkContentScriptEligibilityForSuspension(suspensionDetails.status, forceLevel)) {
@@ -247,6 +275,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     }
     return {
         queueTabForSuspension,
+        unqueueTabForSuspension,
         markTabAsSuspended,
         executeTabSuspension,
         updateQueueParameters,
