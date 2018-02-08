@@ -69,7 +69,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     sendRequestInfoToContentScript(tabId, callback) {
         this.sendMessageToContentScript(tabId, {
             action: 'requestInfo'
-        }, this.ERROR, callback);
+        }, this.WARNING, callback);
     },
 
     sendConfirmSuspendToContentScript: function (tabId, suspendedUrl, callback) {
