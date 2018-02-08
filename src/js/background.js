@@ -474,9 +474,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //Reset timer on tab that lost focus.
-        //NOTE: it's possible lastSelectedTab has been closed since
         if (lastSelectedTab && lastSelectedTab.id !== tabId) {
             chrome.tabs.get(lastSelectedTab.id, function (lastSelectedTab) {
+                if (chrome.runtime.lastError) {
+                    //Tab has probably been removed
+                    return;
+                }
                 if (lastSelectedTab && gsUtils.isNormalTab(lastSelectedTab)) {
                     gsMessages.sendRestartTimerToContentScript(lastSelectedTab.id);
                 }
@@ -827,9 +830,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
     });
     chrome.tabs.onCreated.addListener(function (tab) {
+        gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
         queueSessionTimer();
     });
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+        gsUtils.log(tabId, 'tab removed.');
         queueSessionTimer();
         clearTabFlagsForTabId(tabId);
     });
