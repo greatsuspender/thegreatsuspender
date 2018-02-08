@@ -337,7 +337,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleSuspendedTabChanged(tab, changeInfo) {
-        //reload if tab does not have an unsuspend request. only permit unsuspend if tab is being reloaded
+        //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
+        //if the UNSUSPEND_ON_RELOAD flag is true, then unsuspend.
         if (changeInfo.status === 'loading') {
             var unsuspendOnReload = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD);
             if (unsuspendOnReload) {

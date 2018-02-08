@@ -40,7 +40,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function executeTabSuspension(tab) {
         var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
         delete tabToSuspendDetailsByTabId[tab.id];
-        if (suspensionDetails.cancelled) {
+        if (suspensionDetails && suspensionDetails.cancelled) {
             return;
         }
         var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
@@ -203,7 +203,8 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
         chrome.tabs.getZoom(tab.id, function (zoomFactor) {
             if (!forceScreenCapture && zoomFactor !== 1) {
-                removeTabFromSuspensionQueue(tab, 'Tab has a disallowed zoom setting.');
+                gsUtils.log(tab, 'Tab has a disallowed zoom setting. Will not perform image capture.');
+                executeTabSuspension(tab);
                 return;
             }
             gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (error) {
