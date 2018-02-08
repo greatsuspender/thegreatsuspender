@@ -479,8 +479,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         } else if (gsUtils.isNormalTab(newTab)) {
             //clear timer on newly focused tab
-            gsMessages.sendClearTimerToContentScript(tabId, function (response) {
-            });
+            if (newTab.status === 'complete') {
+                gsMessages.sendClearTimerToContentScript(tabId);
+            }
 
         } else if (newTab.url === chrome.extension.getURL('options.html')) {
             gsMessages.sendReloadOptionsToOptionsTab(newTab.id);
