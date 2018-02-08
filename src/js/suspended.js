@@ -172,6 +172,9 @@
         if (scrollImagePreview && scrollPosition) {
             document.body.scrollTop = scrollPosition || 0;
             document.documentElement.scrollTop = scrollPosition || 0;
+        } else {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
     }
 
