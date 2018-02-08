@@ -57,9 +57,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 if (gsUtils.isSuspendedTab(activeTab)) {
                     unsuspendTab(activeTab);
                 } else {
-                    calculateTabStatus(activeTab, null, function (status) {
-                        setIconStatus(status);
-                    });
+                    calculateTabStatus(activeTab, null, setIconStatus);
                 }
             }
         });
@@ -69,9 +67,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
                 gsUtils.removeFromWhitelist(activeTab.url);
-                calculateTabStatus(activeTab, null, function (status) {
-                    setIconStatus(status);
-                });
+                calculateTabStatus(activeTab, null, setIconStatus);
             }
         });
     }
@@ -81,9 +77,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (activeTab) {
                 gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id, function (response) {
                     var contentScriptStatus = (response && response.status) ? response.status : null;
-                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
-                        setIconStatus(status);
-                    });
+                    calculateTabStatus(activeTab, contentScriptStatus, setIconStatus);
                 });
             }
         });
@@ -94,9 +88,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (activeTab) {
                 gsMessages.sendUndoTemporaryWhitelistToContentScript(activeTab.id, function (response) {
                     var contentScriptStatus = (response && response.status) ? response.status : null;
-                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
-                        setIconStatus(status);
-                    });
+                    calculateTabStatus(activeTab, contentScriptStatus, setIconStatus);
                 });
             }
         });
@@ -332,9 +324,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //if tab is currently visible then update popup icon
         if (hasTabStatusChanged && tab.id === globalCurrentTabId) {
-            calculateTabStatus(tab, null, function (status) {
-                setIconStatus(status);
-            });
+            calculateTabStatus(tab, null, setIconStatus);
         }
     }
 
@@ -423,9 +413,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 globalCurrentTabId = currentTab.id;
 
                 //update icon
-                calculateTabStatus(currentTab, null, function (status) {
-                    setIconStatus(status);
-                });
+                calculateTabStatus(currentTab, null, setIconStatus);
             }
         });
     }
@@ -441,9 +429,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
 
             //update icon
-            calculateTabStatus(tab, null, function (status) {
-                setIconStatus(status);
-            });
+            calculateTabStatus(tab, null, setIconStatus);
 
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
@@ -805,9 +791,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             // If tab is currently visible then update popup icon
             if (sender.tab && sender.tab.id === globalCurrentTabId) {
                 var contentScriptStatus = (request && request.status) ? request.status : null;
-                calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
-                    setIconStatus(status);
-                });
+                calculateTabStatus(sender.tab, contentScriptStatus, setIconStatus);
             }
             break;
 
