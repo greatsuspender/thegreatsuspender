@@ -67,6 +67,7 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var url = tab.url;
 
         if ((url.indexOf('chrome-extension:') === 0 && url.indexOf('suspended.html') < 0) ||
+            url.indexOf('about:') === 0 ||
             url.indexOf('chrome:') === 0 ||
             url.indexOf('chrome-devtools:') === 0 ||
             url.indexOf('file:') === 0 ||
