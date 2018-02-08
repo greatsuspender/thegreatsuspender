@@ -12,7 +12,7 @@
             if (chrome.runtime.lastError) {
                 gsUtils.error('popup', chrome.runtime.lastError);
             }
-            if (retriesRemaining === 0 || (status !== 'unknown')) {
+            if (retriesRemaining === 0 || (status !== 'unknown' && status !== 'loading')) {
                 status = status || 'unknown';
                 callback(status);
             } else {
@@ -62,8 +62,8 @@
 
     function setSuspendCurrentVisibility(tabStatus) {
 
-        var suspendOneVisible = !['suspended', 'special', 'unknown'].includes(tabStatus),
-            whitelistVisible = !['whitelisted', 'special', 'unknown'].includes(tabStatus),
+        var suspendOneVisible = !['suspended', 'special', 'loading', 'unknown'].includes(tabStatus),
+            whitelistVisible = !['whitelisted', 'special', 'loading', 'unknown'].includes(tabStatus),
             pauseVisible = (tabStatus === 'normal');
 
         if (suspendOneVisible) {
@@ -152,7 +152,7 @@
             statusDetail = chrome.i18n.getMessage('js_popup_charging');
             statusIconClass = 'fa fa-plug';
 
-        } else if (status === 'unknown') {
+        } else if (status === 'loading' || status === 'unknown') {
             if (gsSession.isInitialising()) {
                 statusDetail = chrome.i18n.getMessage('js_popup_initialising');
             } else {
@@ -169,7 +169,7 @@
         }
         document.getElementById('statusDetail').innerHTML = statusDetail;
         document.getElementById('statusIcon').className = statusIconClass;
-        if (status === 'unknown') {
+        if (status === 'unknown' || status === 'loading') {
             document.getElementById('statusIcon').classList.add('fa-spin');
         }
 

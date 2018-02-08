@@ -434,20 +434,20 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         gsUtils.log(tabId, 'tab gained focus');
         globalCurrentTabId = tabId;
 
-        chrome.tabs.get(tabId, function (newTab) {
+        chrome.tabs.get(tabId, function (tab) {
             if (chrome.runtime.lastError) {
                 gsUtils.error(tabId, chrome.runtime.lastError);
                 return;
             }
 
             //update icon
-            calculateTabStatus(newTab, null, function (status) {
+            calculateTabStatus(tab, null, function (status) {
                 setIconStatus(status);
             });
 
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
-            queueNewTabFocusTimer(tabId, windowId, newTab);
+            queueNewTabFocusTimer(tabId, windowId, tab);
         });
     }
 
@@ -598,6 +598,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     //possible suspension states are:
+    //loading: tab object has a state of 'loading'
     //normal: a tab that will be suspended
     //special: a tab that cannot be suspended
     //suspended: a tab that is suspended
@@ -612,6 +613,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //noConnectivity: internet currently offline (and ONLINE_CHECK is true)
     //unknown: an error detecting tab status
     function calculateTabStatus(tab, knownContentScriptStatus, callback) {
+        //check for loading
+        if (tab.status === 'loading') {
+            callback('loading');
+            return;
+        }
         //check if it is a special tab
         if (gsUtils.isSpecialTab(tab)) {
             callback('special');
