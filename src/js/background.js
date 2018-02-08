@@ -415,11 +415,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         gsUtils.log(windowId, 'window changed');
+        // Get the active tab in the newly focused window
         chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
             if (tabs && tabs.length === 1) {
 
                 var currentTab = tabs[0];
-                lastSelectedTabByWindowId[windowId] = currentTab;
                 globalCurrentTabId = currentTab.id;
 
                 //update icon
@@ -487,10 +487,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //Reset timer on tab that lost focus.
-        //NOTE: it's possible lastSelectedTab was actually closed (causing new tab focus)
-        //In this case, lastSelectedTab should be null
-        if (lastSelectedTab && gsUtils.isNormalTab(lastSelectedTab)) {
-            gsMessages.sendRestartTimerToContentScript(lastSelectedTab.id);
+        //NOTE: it's possible lastSelectedTab has been closed since
+        if (lastSelectedTab && lastSelectedTab.id !== tabId) {
+            chrome.tabs.get(lastSelectedTab.id, function (lastSelectedTab) {
+                if (lastSelectedTab && gsUtils.isNormalTab(lastSelectedTab)) {
+                    gsMessages.sendRestartTimerToContentScript(lastSelectedTab.id);
+                }
+            });
         }
     }
 
@@ -844,9 +847,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         queueSessionTimer();
         clearTabFlagsForTabId(tabId);
-        chrome.windows.getCurrent({}, function (currentWindow) {
-            lastSelectedTabByWindowId[currentWindow.id] = null;
-        });
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         if (!changeInfo) return;

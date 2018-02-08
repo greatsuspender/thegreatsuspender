@@ -44,7 +44,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendClearTimerToContentScript: function (tabId, callback) {
         this.sendMessageToContentScript(tabId, {
-            suspendTime: false,
+            suspendTime: 0,
         }, this.WARNING, callback);
     },
 
