@@ -11,9 +11,9 @@
         var html = '',
             windowId = info && info.windowId ? info.windowId : '?',
             tabId = info && info.tabId ? info.tabId : '?',
-            tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : 'unknown',
+            tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : '?',
             tabTimer = info ? info.timerUp : -1,
-            tabStatus = info ? info.status : 'unknown';
+            tabStatus = info ? info.status : '?';
 
         html += '<tr>';
         html += '<td>' + windowId + '</td>';

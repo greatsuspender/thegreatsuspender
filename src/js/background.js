@@ -567,7 +567,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                                 callback(info);
                             });
                         } else {
-                            info.status = 'unknown';
                             callback(info);
                         }
                     });
@@ -925,23 +924,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             battery.onchargingchange = function () {
                 chargingMode = battery.charging;
-                getActiveTabStatus(function (status) {
-                    setIconStatus(status);
-                });
+                getActiveTabStatus(setIconStatus);
             };
         });
     }
 
     //add listeners for online/offline state changes
     window.addEventListener('online', function () {
-        getActiveTabStatus(function (status) {
-            setIconStatus(status);
-        });
+        getActiveTabStatus(setIconStatus);
     });
     window.addEventListener('offline', function () {
-        getActiveTabStatus(function (status) {
-            setIconStatus(status);
-        });
+        getActiveTabStatus(setIconStatus);
     });
 
     //start job to check for notices (twice a day)

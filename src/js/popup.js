@@ -12,8 +12,9 @@
             if (chrome.runtime.lastError) {
                 gsUtils.error('popup', chrome.runtime.lastError);
             }
-            if (retriesRemaining === 0 || (status !== 'unknown' && status !== 'loading')) {
-                status = status || 'unknown';
+            if (status !== 'unknown' && status !== 'loading') {
+                callback(status);
+            } else if (retriesRemaining === 0) {
                 callback(status);
             } else {
                 var timeout = 1000;
@@ -32,7 +33,12 @@
     });
     var tabStatusAsPromised = new Promise(function (resolve, reject) {
         var retries = 10; //each retry is 200ms which makes 2 seconds
-        getTabStatus(retries, resolve);
+        getTabStatus(retries, function (status) {
+            if (status === 'unknown' || status === 'loading') {
+                status = 'error';
+            }
+            resolve(status);
+        });
     });
     var selectedTabsAsPromised = new Promise(function (resolve, reject) {
         chrome.tabs.query({highlighted: true, lastFocusedWindow: true}, function (tabs) {
@@ -51,11 +57,10 @@
             showPopupContents();
             addClickHandlers();
 
-            if (initialTabStatus === 'unknown') {
-                tabStatusAsPromised.then(function (tabStatus) {
-                    tabStatus = (tabStatus === 'unknown' ? 'error' : tabStatus);
-                    setSuspendCurrentVisibility(tabStatus);
-                    setStatus(tabStatus);
+            if (initialTabStatus === 'unknown' || initialTabStatus === 'loading') {
+                tabStatusAsPromised.then(function (finalTabStatus) {
+                    setSuspendCurrentVisibility(finalTabStatus);
+                    setStatus(finalTabStatus);
                 });
             }
         });
