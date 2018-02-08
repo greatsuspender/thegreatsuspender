@@ -81,7 +81,6 @@
     "html_options_suspend_force_screen_capture": { "message": "Enable high quality screen capture mode" },
     "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "When disabled, screen captures have the following limitations to aid in performance:" },
     "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "- Low quality screen capture" },
-    "html_options_suspend_force_screen_capture_tooltip_line3": { "message": "- Will not capture screen of tabs that are zoomed in or out" },
     "html_options_suspend_force_screen_capture_tooltip_line4": { "message": "- Will not capture screen if it takes more than 1 minute to generate image" },
     "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- Maximum height of screen capture limited to 5000px" },
     "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "Enabling high quality screen capture mode may significantly increase CPU load" },

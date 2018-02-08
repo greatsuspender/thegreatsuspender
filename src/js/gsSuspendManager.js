@@ -201,27 +201,20 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function generatePreviewImg(tab) {
         var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
         var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
-        chrome.tabs.getZoom(tab.id, function (zoomFactor) {
-            if (!forceScreenCapture && zoomFactor !== 1) {
-                gsUtils.log(tab, 'Tab has a disallowed zoom setting. Will not perform image capture.');
+        gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (error) {
+            if (error) {
+                gsUtils.error('gsSuspendManager', error);
                 executeTabSuspension(tab);
                 return;
             }
-            gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function (error) {
-                if (error) {
-                    gsUtils.error('gsSuspendManager', error);
-                    executeTabSuspension(tab);
-                    return;
-                }
-                gsMessages.executeCodeOnTab(tab.id,
-                    `(${executeContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
-                    function (error) {
-                        if (error) {
-                            gsUtils.error('gsSuspendManager', error);
-                            executeTabSuspension(tab);
-                        }
-                    });
-            });
+            gsMessages.executeCodeOnTab(tab.id,
+                `(${executeContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
+                function (error) {
+                    if (error) {
+                        gsUtils.error('gsSuspendManager', error);
+                        executeTabSuspension(tab);
+                    }
+                });
         });
     }
 

@@ -81,7 +81,6 @@
     "html_options_suspend_force_screen_capture": { "message": "启用高质量的屏幕捕捉模式" }, //? Enable high quality screen capture mode
     "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "禁用时，屏幕截图具有以下限制以帮助提高性能：" }, //? When disabled, screen captures have the following limitations to aid in performance:
     "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "- 低质量的屏幕截图" }, //? - Low quality screen capture
-    "html_options_suspend_force_screen_capture_tooltip_line3": { "message": "- 不会捕捉任何缩放卡的屏幕" }, //? - Will not capture any zoom card's screen
     "html_options_suspend_force_screen_capture_tooltip_line4": { "message": "- 如果生成图像需要1分钟以上，将不会捕捉屏幕" }, //? - Will not capture screen if it takes more than 1 minute to generate image
     "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 图片的最大高度限制为5000像素" }, //? - Maximum height of image limited to 5000px
     "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "启用高质量的屏幕捕捉模式可能会显着增加CPU负载和内存使用量。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
