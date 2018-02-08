@@ -12,7 +12,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
     var SCROLL_POS = 'scrollPos';
-    var CREATE_TIMESTAMP = 'createTimestamp';
+    var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
 
     var lastSelectedTabByWindowId = {},
         globalCurrentTabId,
@@ -111,7 +111,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 active: false
             };
             chrome.tabs.create(newTabProperties, function (tab) {
-                setTabFlagForTabId(tab.id, CREATE_TIMESTAMP,  Date.now());
+                setTabFlagForTabId(tab.id, SPAWNED_TAB_CREATE_TIMESTAMP,  Date.now());
             });
         });
     }
@@ -305,7 +305,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //if page has finished loading
         if (changeInfo.status === 'complete') {
-            var spawnedTabCreateTimestamp = getTabFlagForTabId(tab.id, CREATE_TIMESTAMP);
+            var spawnedTabCreateTimestamp = getTabFlagForTabId(tab.id, SPAWNED_TAB_CREATE_TIMESTAMP);
             //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
             if (spawnedTabCreateTimestamp && ((Date.now() - spawnedTabCreateTimestamp) / 1000 < 300)) {
                 gsSuspendManager.queueTabForSuspension(tab, 1);
@@ -449,8 +449,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         lastSelectedTabByWindowId[windowId] = newTab;
 
         //remove request to instantly suspend this tab id
-        if (getTabFlagForTabId(tabId, CREATE_TIMESTAMP)) {
-            setTabFlagForTabId(tabId, CREATE_TIMESTAMP, false);
+        if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
+            setTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP, false);
         }
 
         if (gsUtils.isSuspendedTab(newTab)) {
@@ -940,7 +940,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
         UNSUSPEND_ON_RELOAD: UNSUSPEND_ON_RELOAD,
         SCROLL_POS: SCROLL_POS,
-        CREATE_TIMESTAMP: CREATE_TIMESTAMP,
+        CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,
         getTabFlagForTabId: getTabFlagForTabId,
         setTabFlagForTabId: setTabFlagForTabId,
 
