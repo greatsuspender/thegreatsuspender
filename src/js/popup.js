@@ -69,7 +69,7 @@
 
         var suspendOneVisible = !['suspended', 'special', 'loading', 'unknown'].includes(tabStatus),
             whitelistVisible = !['whitelisted', 'special', 'loading', 'unknown'].includes(tabStatus),
-            pauseVisible = (tabStatus === 'normal');
+            pauseVisible = ['normal', 'audible', 'noConnectivity', 'charging'].includes(tabStatus);
 
         if (suspendOneVisible) {
             document.getElementById('suspendOne').style.display = 'block';
