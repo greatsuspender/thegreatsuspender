@@ -43,8 +43,8 @@ ol, ul {
 /* END RESET */
 * {box-sizing: border-box;}
 body {
-	font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-	font-size: 15px;
+		font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+		font-size: 15px;
     background: #cfe0e4;
     font-weight: 300;
     color: #444;
@@ -244,8 +244,8 @@ hr.splashRule {
     background: #ccc;
 }
 .btnDonate {
-    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-    margin: 0 7px 0 0;
+		font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+		margin: 0 7px 0 0;
     float: left;
 }
 .btnDonate:hover {
