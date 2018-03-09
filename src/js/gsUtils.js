@@ -66,11 +66,10 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     isSpecialTab: function (tab) {
         var url = tab.url;
 
-        if ((url.indexOf('chrome-extension:') === 0 && url.indexOf('suspended.html') < 0) ||
-            url.indexOf('about:') === 0 ||
-            url.indexOf('chrome:') === 0 ||
-            url.indexOf('chrome-devtools:') === 0 ||
-            url.indexOf('file:') === 0 ||
+        if ((url.indexOf('chrome-extension') === 0 && url.indexOf('suspended.html') < 0) ||
+            url.indexOf('about') === 0 ||
+            url.indexOf('chrome') === 0 ||
+            url.indexOf('file') === 0 ||
             url.indexOf('chrome.google.com/webstore') >= 0) {
             return true;
         }
