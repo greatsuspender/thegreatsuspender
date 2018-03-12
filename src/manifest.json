@@ -1,6 +1,6 @@
 {
-  "name": "__MSG_ext_extension_name__",
-  "description": "__MSG_ext_extension_description__",
+  "name": "TabsLazyLoad + TheGreatSuspender",
+  "description": "Tabs lazy loader on browser start on the basis of TheGreatSuspender extension.",
   "version": "7.0.84",
   "default_locale": "en",
   "permissions": [
