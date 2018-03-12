@@ -22,22 +22,40 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendResetToAllContentScripts: function (preferencesToUpdate) {
         var self = this;
-        var payload = {};
+        var suspendTime;
+        var ignoreForms;
+        var activeTabSuspendTime;
         if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
-            payload.suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+            suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
         }
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
-            payload.ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+            ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+        }
+        if (preferencesToUpdate.indexOf(gsStorage.IGNORE_ACTIVE_TABS) > -1) {
+            const ignoreActiveTabs = gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
+            activeTabSuspendTime = ignoreActiveTabs ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
         }
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                if (!gsUtils.isSpecialTab(currentTab) && !gsUtils.isSuspendedTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
-                    self.sendMessageToContentScript(currentTab.id, payload, this.WARNING, function (err) {
-                        if (err) {
-                            gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably special or suspended.', err);
-                        }
-                    });
+                if (gsUtils.isSpecialTab(currentTab) || gsUtils.isSuspendedTab(currentTab) || gsUtils.isDiscardedTab(currentTab)) {
+                    return true;
                 }
+
+                let tabPayload = {};
+                if (typeof ignoreForms !== 'undefined') {
+                    tabPayload.ignoreForms = ignoreForms;
+                }
+                if (typeof suspendTime !== 'undefined') {
+                    tabPayload.suspendTime = suspendTime;
+                }
+                if (typeof activeTabSuspendTime !== 'undefined' && gsUtils.isActiveTab(currentTab, true)) {
+                    tabPayload.suspendTime = activeTabSuspendTime;
+                }
+                self.sendMessageToContentScript(currentTab.id, tabPayload, this.WARNING, function (err) {
+                    if (err) {
+                        gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably loading?', err);
+                    }
+                });
             });
         });
     },

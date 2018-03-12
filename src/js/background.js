@@ -13,11 +13,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
     var SCROLL_POS = 'scrollPos';
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
+    var FOCUS_DELAY = 500;
 
-    var lastSelectedTabByWindowId = {},
-        globalCurrentTabId,
+    var lastFocusedTabByWindowId = {},
+        lastFocusedWindowId,
         sessionSaveTimer,
         newTabFocusTimer,
+        newWindowFocusTimer,
         noticeToDisplay,
         chargingMode = false,
         suspensionActiveIcon = '/img/icon19.png',
@@ -29,10 +31,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function init() {
 
-        //initialise globalCurrentTabId
+        //initialise lastFocusedWindowId and lastFocusedTabByWindowId
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                globalCurrentTabId = globalCurrentTabId || activeTab.id;
+                lastFocusedWindowId = activeTab.windowId;
+                lastFocusedTabByWindowId[activeTab.windowId] = activeTab;
             }
         });
     }
@@ -43,11 +46,27 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 callback(tabs[0]);
             }
             else {
-                //TODO: Possibly fallback on globalCurrentTabId here?
+                //TODO: Possibly fallback on lastFocusedWindowId and lastFocusedTabByWindowId here?
+                //except during initialization!!
                 //see https://github.com/deanoemcke/thegreatsuspender/issues/574
                 callback(null);
             }
         });
+    }
+
+    // NOTE: Focused here means has had focus for more than FOCUS_DELAY ms
+    // So it may not necessarily have the tab.active flag set to true
+    function isCurrentlyFocusedTab(tab) {
+        if (tab.windowId !== lastFocusedWindowId) {
+            return false;
+        }
+        var lastFocusedTabForWindow = lastFocusedTabByWindowId[tab.windowId];
+        if (lastFocusedTabForWindow) {
+            return tab.id === lastFocusedTabForWindow.id;
+        } else {
+            // fallback on active flag
+            return tab.active;
+        }
     }
 
     function whitelistHighlightedTab() {
@@ -57,7 +76,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 if (gsUtils.isSuspendedTab(activeTab)) {
                     unsuspendTab(activeTab);
                 } else {
-                    calculateTabStatus(activeTab, null, setIconStatus);
+                    calculateTabStatus(activeTab, null, function (status) {
+                        setIconStatus(status, activeTab.id);
+                    });
                 }
             }
         });
@@ -67,7 +88,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
                 gsUtils.removeFromWhitelist(activeTab.url);
-                calculateTabStatus(activeTab, null, setIconStatus);
+                calculateTabStatus(activeTab, null, function (status) {
+                    setIconStatus(status, activeTab.id);
+                });
             }
         });
     }
@@ -77,7 +100,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (activeTab) {
                 gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id, function (response) {
                     var contentScriptStatus = (response && response.status) ? response.status : null;
-                    calculateTabStatus(activeTab, contentScriptStatus, setIconStatus);
+                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
+                        setIconStatus(status, activeTab.id);
+                    });
                 });
             }
         });
@@ -88,7 +113,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             if (activeTab) {
                 gsMessages.sendUndoTemporaryWhitelistToContentScript(activeTab.id, function (response) {
                     var contentScriptStatus = (response && response.status) ? response.status : null;
-                    calculateTabStatus(activeTab, contentScriptStatus, setIconStatus);
+                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
+                        setIconStatus(status, activeTab.id);
+                    });
                 });
             }
         });
@@ -323,8 +350,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //if tab is currently visible then update popup icon
-        if (hasTabStatusChanged && tab.id === globalCurrentTabId) {
-            calculateTabStatus(tab, null, setIconStatus);
+        if (hasTabStatusChanged && isCurrentlyFocusedTab(tab)) {
+            calculateTabStatus(tab, null, function (status) {
+                setIconStatus(status, tab.id);
+            });
         }
     }
 
@@ -332,7 +361,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
         var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-        var suspendTime = tab.active ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        var suspendTime = gsUtils.isActiveTab(tab) ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
         gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
@@ -351,8 +380,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             clearTabFlagsForTabId(tab.id);
             gsSuspendManager.markTabAsSuspended(tab);
 
-            if (tab.id === globalCurrentTabId) {
-                setIconStatus('suspended');
+            if (isCurrentlyFocusedTab(tab)) {
+                setIconStatus('suspended', tab.id);
             }
 
             if (gsSession.isRecoveryMode()) {
@@ -407,21 +436,39 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
         gsUtils.log(windowId, 'window changed');
         // Get the active tab in the newly focused window
-        chrome.tabs.query({active: true, windowId: windowId}, function (tabs) {
-            if (tabs && tabs.length === 1) {
-
-                var currentTab = tabs[0];
-                globalCurrentTabId = currentTab.id;
-
-                //update icon
-                calculateTabStatus(currentTab, null, setIconStatus);
+        chrome.tabs.query({active: true}, function (tabs) {
+            if (!tabs || !tabs.length) {
+                return;
             }
+            var newTab;
+            var lastFocusedTab;
+            for (var tab of tabs) {
+                if (tab.windowId === windowId) {
+                    newTab = tab;
+                }
+                if (isCurrentlyFocusedTab(tab)) {
+                    lastFocusedTab = tab;
+                }
+            }
+            if (!newTab) {
+                gsUtils.error('background', 'Couldnt find active tab with windowId: ' + windowId);
+                return;
+            }
+
+            //update icon
+            calculateTabStatus(newTab, null, function (status) {
+                setIconStatus(status, newTab.id);
+            });
+
+            //pause for a bit before assuming we're on a new window as some users
+            //will key through intermediate windows to get to the one they want.
+            queueNewWindowFocusTimer(newTab.id, lastFocusedTab, newTab);
         });
+
     }
 
     function handleTabFocusChanged(tabId, windowId) {
         gsUtils.log(tabId, 'tab gained focus');
-        globalCurrentTabId = tabId;
 
         chrome.tabs.get(tabId, function (tab) {
             if (chrome.runtime.lastError) {
@@ -430,7 +477,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
 
             //update icon
-            calculateTabStatus(tab, null, setIconStatus);
+            calculateTabStatus(tab, null, function (status) {
+                setIconStatus(status, tab.id);
+            });
 
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
@@ -438,17 +487,25 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function queueNewWindowFocusTimer(tabId, lastFocusedTab, newTab) {
+        clearTimeout(newWindowFocusTimer);
+        newWindowFocusTimer = setTimeout(function () {
+            lastFocusedWindowId = newTab.windowId;
+            handleNewTabFocus(tabId, lastFocusedTab, newTab);
+        }, FOCUS_DELAY);
+    }
+
     function queueNewTabFocusTimer(tabId, windowId, newTab) {
         clearTimeout(newTabFocusTimer);
         newTabFocusTimer = setTimeout(function () {
-            handleNewTabFocus(tabId, windowId, newTab);
-        }, 500);
+            var lastFocusedTab = lastFocusedTabByWindowId[windowId];
+            lastFocusedTabByWindowId[windowId] = newTab;
+            handleNewTabFocus(tabId, lastFocusedTab, newTab);
+        }, FOCUS_DELAY);
     }
 
-    function handleNewTabFocus(tabId, windowId, newTab) {
-        var lastSelectedTab = lastSelectedTabByWindowId[windowId];
-        lastSelectedTabByWindowId[windowId] = newTab;
-
+    function handleNewTabFocus(tabId, lastFocusedTab, newTab) {
+        gsUtils.log(tabId, 'new tab focus handled');
         //remove request to instantly suspend this tab id
         if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
             setTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP, false);
@@ -478,14 +535,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
 
         //Reset timer on tab that lost focus.
-        if (lastSelectedTab && lastSelectedTab.id !== tabId) {
-            chrome.tabs.get(lastSelectedTab.id, function (lastSelectedTab) {
+        //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
+        if (lastFocusedTab && lastFocusedTab.id !== tabId) {
+            chrome.tabs.get(lastFocusedTab.id, function (lastFocusedTab) {
                 if (chrome.runtime.lastError) {
                     //Tab has probably been removed
                     return;
                 }
-                if (lastSelectedTab && gsUtils.isNormalTab(lastSelectedTab)) {
-                    gsMessages.sendRestartTimerToContentScript(lastSelectedTab.id);
+                if (lastFocusedTab && gsUtils.isNormalTab(lastFocusedTab) && !gsUtils.isActiveTab(lastFocusedTab)) {
+                    gsMessages.sendRestartTimerToContentScript(lastFocusedTab.id);
                 }
             });
         }
@@ -533,11 +591,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         noticeToDisplay = undefined;
     }
 
-    function requestIsCharging() {
+    function isCharging() {
         return chargingMode;
     }
 
-    function requestDebugInfo(tabId, callback) {
+    function getDebugInfo(tabId, callback) {
         var info = {
             windowId: '',
             tabId: '',
@@ -602,6 +660,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //never: suspension timer set to 'never suspend'
     //formInput: a tab that has a partially completed form (and IGNORE_FORMS is true)
     //audible: a tab that is playing audio (and IGNORE_AUDIO is true)
+    //active: a tab that is active (and IGNORE_ACTIVE_TABS is true)
     //tempWhitelist: a tab that has been manually paused
     //pinned: a pinned tab (and IGNORE_PINNED is true)
     //whitelisted: a tab that has been whitelisted
@@ -665,6 +724,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 callback('audible');
                 return;
             }
+            //check active
+            if (gsUtils.isActiveTab(tab)) {
+                callback('active');
+                return;
+            }
             if (contentScriptStatus) {
                 callback(contentScriptStatus); // should be 'normal'
                 return;
@@ -686,12 +750,23 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     //change the icon to either active or inactive
-    function setIconStatus(status) {
-        var icon = status !== 'normal' ? suspensionPausedIcon : suspensionActiveIcon;
-        chrome.browserAction.setIcon({ path: icon, tabId: globalCurrentTabId }, function () {
+    function setIconStatus(status, tabId) {
+        var icon = !['normal', 'active'].includes(status) ? suspensionPausedIcon : suspensionActiveIcon;
+        chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function () {
             if (chrome.runtime.lastError) {
                 gsUtils.error('background', chrome.runtime.lastError);
             }
+        });
+    }
+
+    function setIconStatusForActiveTab() {
+        getCurrentlyActiveTab(function (tab) {
+            if (!tab) {
+                return;
+            }
+            calculateTabStatus(tab, null, function (status) {
+                setIconStatus(status, tab.id);
+            });
         });
     }
 
@@ -799,9 +874,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         case 'reportTabState':
             // If tab is currently visible then update popup icon
-            if (sender.tab && sender.tab.id === globalCurrentTabId) {
+            if (sender.tab && isCurrentlyFocusedTab(sender.tab)) {
                 var contentScriptStatus = (request && request.status) ? request.status : null;
-                calculateTabStatus(sender.tab, contentScriptStatus, setIconStatus);
+                calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
+                    setIconStatus(status, sender.tab.id);
+                });
             }
             break;
 
@@ -921,17 +998,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
             battery.onchargingchange = function () {
                 chargingMode = battery.charging;
-                getActiveTabStatus(setIconStatus);
+                setIconStatusForActiveTab();
             };
         });
     }
 
     //add listeners for online/offline state changes
     window.addEventListener('online', function () {
-        getActiveTabStatus(setIconStatus);
+        setIconStatusForActiveTab();
     });
     window.addEventListener('offline', function () {
-        getActiveTabStatus(setIconStatus);
+        setIconStatusForActiveTab();
     });
 
     //start job to check for notices (twice a day)
@@ -953,9 +1030,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         clearNotice: clearNotice,
         buildContextMenu: buildContextMenu,
         resuspendSuspendedTab: resuspendSuspendedTab,
-        requestActiveTabStatus: getActiveTabStatus,
-        requestDebugInfo: requestDebugInfo,
-        isCharging: requestIsCharging,
+        getActiveTabStatus: getActiveTabStatus,
+        getDebugInfo: getDebugInfo,
+        isCharging: isCharging,
+        isCurrentlyFocusedTab: isCurrentlyFocusedTab,
 
         initialiseUnsuspendedTab: initialiseUnsuspendedTab,
         initialiseSuspendedTab: initialiseSuspendedTab,

@@ -8,11 +8,12 @@
     var currentTabs = {};
 
     function generateTabInfo(info) {
+        console.log(info.tabId, info);
         var html = '',
             windowId = info && info.windowId ? info.windowId : '?',
             tabId = info && info.tabId ? info.tabId : '?',
             tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : '?',
-            tabTimer = info ? info.timerUp : -1,
+            tabTimer = info && info.timerUp ? info.timerUp : '-',
             tabStatus = info ? info.status : '?';
 
         html += '<tr>';
@@ -31,7 +32,7 @@
             tabs.forEach(function (curTab, i, tabs) {
                 currentTabs[tabs[i].id] = tabs[i];
 
-                tgs.requestDebugInfo(curTab.id, function (debugInfo) {
+                tgs.getDebugInfo(curTab.id, function (debugInfo) {
                     if (chrome.runtime.lastError) {
                         gsUtils.error('debug', chrome.runtime.lastError);
                     }

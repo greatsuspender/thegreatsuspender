@@ -14,6 +14,7 @@
         'dontSuspendPinned': gsStorage.IGNORE_PINNED,
         'dontSuspendForms': gsStorage.IGNORE_FORMS,
         'dontSuspendAudio': gsStorage.IGNORE_AUDIO,
+        'dontSuspendActiveTabs': gsStorage.IGNORE_ACTIVE_TABS,
         'ignoreCache': gsStorage.IGNORE_CACHE,
         'addContextMenu': gsStorage.ADD_CONTEXT,
         'syncSettings': gsStorage.SYNC_SETTINGS,

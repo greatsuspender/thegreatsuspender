@@ -150,7 +150,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             }
         }
         if (forceLevel >= 2) {
-            if (tab.active || gsUtils.checkWhiteList(tab.url) || gsUtils.isPinnedTab(tab) || gsUtils.isAudibleTab(tab)) {
+            if (gsUtils.isActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isPinnedTab(tab) || gsUtils.isAudibleTab(tab)) {
                 return false;
             }
         }

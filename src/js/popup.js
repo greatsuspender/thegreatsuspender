@@ -8,7 +8,7 @@
     var globalActionElListener;
 
     var getTabStatus = function (retriesRemaining, callback) {
-        tgs.requestActiveTabStatus(function (status) {
+        tgs.getActiveTabStatus(function (status) {
             if (chrome.runtime.lastError) {
                 gsUtils.error('popup', chrome.runtime.lastError);
             }
@@ -32,7 +32,7 @@
         getTabStatus(0, resolve);
     });
     var tabStatusAsPromised = new Promise(function (resolve, reject) {
-        var retries = 10; //each retry is 200ms which makes 2 seconds
+        var retries = 50; //each retry is 200ms which makes 10 seconds
         getTabStatus(retries, function (status) {
             if (status === 'unknown' || status === 'loading') {
                 status = 'error';
@@ -69,7 +69,7 @@
 
         var suspendOneVisible = !['suspended', 'special', 'loading', 'unknown'].includes(tabStatus),
             whitelistVisible = !['whitelisted', 'special', 'loading', 'unknown'].includes(tabStatus),
-            pauseVisible = ['normal', 'audible', 'noConnectivity', 'charging'].includes(tabStatus);
+            pauseVisible = ['normal', 'audible', 'noConnectivity', 'charging', 'active'].includes(tabStatus);
 
         if (suspendOneVisible) {
             document.getElementById('suspendOne').style.display = 'block';
@@ -109,7 +109,7 @@
             statusIconClass = '';
 
         // Update status icon and text
-        if (status === 'normal') {
+        if (status === 'normal' || status === 'active') {
             statusDetail = chrome.i18n.getMessage('js_popup_normal');
             statusIconClass = 'fa fa-clock-o';
 
@@ -179,7 +179,7 @@
         }
 
         document.getElementById('header').classList.remove('willSuspend');
-        if (status === 'normal') {
+        if (status === 'normal' || status === 'active') {
             document.getElementById('header').classList.add('willSuspend');
         }
 

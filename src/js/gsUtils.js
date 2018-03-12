@@ -95,6 +95,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return dontSuspendAudible && tab.audible;
     },
 
+    isActiveTab: function (tab, ignorePref) {
+        var dontSuspendActiveTabs = ignorePref ? true : gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
+        return tgs.isCurrentlyFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
+    },
+
     isNormalTab: function (tab) {
         return !gsUtils.isSpecialTab(tab) && !gsUtils.isDiscardedTab(tab) && !gsUtils.isSuspendedTab(tab);
     },
@@ -342,6 +347,9 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
         if (this.contains(changedSettingKeys, gsStorage.IGNORE_FORMS)) {
             contentScriptPreferencesToUpdate.push(gsStorage.IGNORE_FORMS);
+        }
+        if (this.contains(changedSettingKeys, gsStorage.IGNORE_ACTIVE_TABS)) {
+            contentScriptPreferencesToUpdate.push(gsStorage.IGNORE_ACTIVE_TABS);
         }
         if (contentScriptPreferencesToUpdate.length > 0) {
             gsMessages.sendResetToAllContentScripts(contentScriptPreferencesToUpdate);

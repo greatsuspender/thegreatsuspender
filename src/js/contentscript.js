@@ -27,6 +27,7 @@
             if (!inputState && !tempWhitelist) {
                 chrome.runtime.sendMessage({ action: 'suspendTab' });
             }
+            suspendDateTime = false;
         }, timeToSuspend);
     }
 
@@ -47,14 +48,14 @@
     //listen for background events
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-        if (request.hasOwnProperty('action')) {
-            if (request.action === 'initialiseContentScript') {
-                isInitialised = true;
-            } else if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
-                sendResponse();
-                suspendTab(request.suspendedUrl);
-                return false;
-            }
+        if (request.hasOwnProperty('action') && request.action === 'confirmTabSuspend' && request.suspendedUrl) {
+            sendResponse();
+            suspendTab(request.suspendedUrl);
+            return false;
+        }
+
+        if (request.hasOwnProperty('action') && request.action === 'initialiseContentScript') {
+            isInitialised = true;
         }
 
         if (request.hasOwnProperty('ignoreForms')) {
@@ -95,7 +96,7 @@
             isInitialised: isInitialised,
             status: state || (inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal')),
             scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
-            timerUp: suspendDateTime ? suspendDateTime + '' : '-'
+            timerUp: suspendDateTime ? suspendDateTime + '' : false,
         };
     }
 }());
