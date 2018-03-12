@@ -1,4 +1,10 @@
-# <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
+# <img src="/src/img/icon48.png" align="absmiddle">LazyTabsLoader + The Great Suspender
+
+## On browser startup all the tabs are kept suspended thus no exessive RAM is consumed and no network is used to preload unnecessary tabs. Repeats original loading behavior of opera 45 version. 
+
+Almost all description is copied from original [TheGreatSuspender](https://github.com/deanoemcke/thegreatsuspender/) repository.
+
+### Settings example <img src="/descr/settings.png" align="absmiddle">
 
 ### Read this if you have lost tabs from your browser
 
@@ -12,20 +18,14 @@ Please contribute if you have any extra insight on alternative methods for tab r
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/).
 
-### Chrome Web Store
-
-The Great Suspender is also [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
-
-Please note that the webstore version may be significantly behind the latest version here. That is because I try to keep webstore updates down to a minimum due to their [disruptive effect](https://github.com/deanoemcke/thegreatsuspender/issues/526).
-
-For more information on the permissions required for the extension, please refer to this gitHub issue: (https://github.com/deanoemcke/thegreatsuspender/issues/213)
 
 ### Install as an extension from source
 
-1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
+1. Download the latest available version and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
-3. Click on the <kbd>Load unpacked extension...</kbd> button.
-4. Browse to the src directory of the downloaded, unarchived release and confirm.
+3. Using **Opera** browser, navigate to opera://extensions/ and enable "Developer mode" in the upper right corner. You also need to install [Install Chrome Extensions](https://addons.opera.com/uk/extensions/details/download-chrome-extension-9/)
+4. Click on the <kbd>Load unpacked extension...</kbd> button.
+5. Browse to the src directory of the downloaded, unarchived release and confirm.
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
