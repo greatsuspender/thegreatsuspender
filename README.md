@@ -1,6 +1,8 @@
-# <img src="/src/img/icon48.png" align="absmiddle">LazyTabsLoader + The Great Suspender
+# <img src="/src/img/icon48.png" align="absmiddle"> TabsLazyLoad + The Great Suspender
 
-## On browser startup all the tabs are kept suspended thus no exessive RAM is consumed and no network is used to preload unnecessary tabs. Repeats original loading behavior of opera 45 version. 
+## On browser startup all the tabs are kept suspended thus no exessive RAM is consumed and no network is used to preload unnecessary tabs. Repeats original loading behavior of opera 45. 
+
+### [Download crx file](https://github.com/ekonoval/TabsLazyLoad_thegreatsuspender/tabsLazyLoad.crx)
 
 Almost all description is copied from original [TheGreatSuspender](https://github.com/deanoemcke/thegreatsuspender/) repository.
 
