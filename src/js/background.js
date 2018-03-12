@@ -824,6 +824,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         return false;
     }
 
+    /**
+     * TabsLazyLoad - on browser start - suspend all tabs including pinned ones
+     */
+    suspendAllTabsInAllWindows();
+
     //attach listener to runtime
     chrome.runtime.onMessage.addListener(contentScriptMessageRequestListener);
     //attach listener to runtime for external messages, to allow
