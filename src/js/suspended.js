@@ -535,4 +535,14 @@
         preInit();
         addMessageListeners();
     });
+
+    /**
+     * TabsLazyLoad.
+     * Add quicker response when unsuspending focused tab.
+     * Quicker version of original "Automatically unsuspend tab when it is viewed" option
+     */
+    window.addEventListener("focus", function(event)
+    {
+        unsuspendTab();
+    }, false);
 }());
