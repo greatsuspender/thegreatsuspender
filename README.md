@@ -2,7 +2,7 @@
 
 ## On browser startup all the tabs are kept suspended thus no exessive RAM is consumed and no network is used to preload unnecessary tabs. Repeats original loading behavior of opera 45. 
 
-### [Download crx file](https://github.com/ekonoval/TabsLazyLoad_thegreatsuspender/blob/master/tabsLazyLoad.crx)
+### [Download crx file](https://github.com/ekonoval/TabsLazyLoad_thegreatsuspender/raw/master/tabsLazyLoad.crx)
 
 Almost all description is copied from original [TheGreatSuspender](https://github.com/deanoemcke/thegreatsuspender/) repository.
 
