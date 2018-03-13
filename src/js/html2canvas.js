@@ -1,5 +1,5 @@
 /*!
- * html2canvas 1.0.0-alpha.9 <https://html2canvas.hertzen.com>
+ * html2canvas 1.0.0-alpha.10 <https://html2canvas.hertzen.com>
  * Copyright (c) 2018 Niklas von Hertzen <https://hertzen.com>
  * Released under MIT License
  */
@@ -2575,7 +2575,7 @@ var CanvasRenderer = function () {
                                 var _options$fontMetrics$ = _this4.options.fontMetrics.getMetrics(font),
                                     baseline = _options$fontMetrics$.baseline;
 
-                                _this4.rectangle(text.bounds.left, Math.round(text.bounds.top + text.bounds.height - baseline), text.bounds.width, 1, textDecorationColor);
+                                _this4.rectangle(text.bounds.left, Math.round(text.bounds.top + baseline), text.bounds.width, 1, textDecorationColor);
                                 break;
                             case _textDecoration.TEXT_DECORATION_LINE.OVERLINE:
                                 _this4.rectangle(text.bounds.left, Math.round(text.bounds.top), text.bounds.width, 1, textDecorationColor);
@@ -2649,7 +2649,7 @@ var Logger = function () {
     function Logger(enabled, id, start) {
         _classCallCheck(this, Logger);
 
-        this.enabled = enabled;
+        this.enabled = typeof window !== 'undefined' && enabled;
         this.start = start ? start : Date.now();
         this.id = id;
     }
@@ -3336,8 +3336,6 @@ var Proxy = exports.Proxy = function Proxy(src, options) {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _CanvasRenderer = __webpack_require__(15);
 
 var _CanvasRenderer2 = _interopRequireDefault(_CanvasRenderer);
@@ -3353,14 +3351,9 @@ var _Bounds = __webpack_require__(1);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var html2canvas = function html2canvas(element, conf) {
-    // eslint-disable-next-line no-console
-    if ((typeof console === 'undefined' ? 'undefined' : _typeof(console)) === 'object' && typeof console.log === 'function') {
-        // eslint-disable-next-line no-console
-        console.log('html2canvas ' + "1.0.0-alpha.9");
-    }
-
     var config = conf || {};
     var logger = new _Logger2.default(typeof config.logging === 'boolean' ? config.logging : true);
+    logger.log('html2canvas ' + "1.0.0-alpha.10");
 
     if (true && typeof config.onrendered === 'function') {
         logger.error('onrendered option is deprecated, html2canvas returns a Promise with the canvas as the value');
@@ -6320,9 +6313,11 @@ var DocumentCloner = exports.DocumentCloner = function () {
             var contentBefore = (0, _PseudoNodeContent.resolvePseudoContent)(node, styleBefore, this.pseudoContentData);
 
             for (var child = node.firstChild; child; child = child.nextSibling) {
-                if (child.nodeType !== Node.ELEMENT_NODE ||
+                if (child.nodeType !== Node.ELEMENT_NODE || child.nodeName !== 'SCRIPT' &&
                 // $FlowFixMe
-                child.nodeName !== 'SCRIPT' && !child.hasAttribute(IGNORE_ATTRIBUTE)) {
+                !child.hasAttribute(IGNORE_ATTRIBUTE) && (typeof this.options.ignoreElements !== 'function' ||
+                // $FlowFixMe
+                !this.options.ignoreElements(child))) {
                     if (!this.copyStyles || child.nodeName !== 'STYLE') {
                         clone.appendChild(this.cloneNode(child));
                     }
@@ -6601,7 +6596,16 @@ var cloneWindow = exports.cloneWindow = function cloneWindow(ownerDocument, boun
                 documentClone.documentElement.style.left = -bounds.left + 'px';
                 documentClone.documentElement.style.position = 'absolute';
             }
-            return cloner.clonedReferenceElement instanceof cloneWindow.HTMLElement || cloner.clonedReferenceElement instanceof ownerDocument.defaultView.HTMLElement || cloner.clonedReferenceElement instanceof HTMLElement ? Promise.resolve([cloneIframeContainer, cloner.clonedReferenceElement, cloner.resourceLoader]) : Promise.reject( true ? 'Error finding the ' + referenceElement.nodeName + ' in the cloned document' : '');
+
+            var result = Promise.resolve([cloneIframeContainer, cloner.clonedReferenceElement, cloner.resourceLoader]);
+
+            var onclone = options.onclone;
+
+            return cloner.clonedReferenceElement instanceof cloneWindow.HTMLElement || cloner.clonedReferenceElement instanceof ownerDocument.defaultView.HTMLElement || cloner.clonedReferenceElement instanceof HTMLElement ? typeof onclone === 'function' ? Promise.resolve().then(function () {
+                return onclone(documentClone);
+            }).then(function () {
+                return result;
+            }) : result : Promise.reject( true ? 'Error finding the ' + referenceElement.nodeName + ' in the cloned document' : '');
         });
 
         documentClone.open();
