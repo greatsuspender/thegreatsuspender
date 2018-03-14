@@ -265,8 +265,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function saveWindowHistory() {
         chrome.windows.getAll({populate: true}, function (windows) {
-            //uses global sessionId
-            gsUtils.saveWindowsToSessionHistory(gsSession.getSessionId(), windows);
+            var tabsExist = windows.some((window) => window.tabs && window.tabs.length);
+            if (tabsExist) {
+                //uses global sessionId
+                gsUtils.saveWindowsToSessionHistory(gsSession.getSessionId(), windows);
+            }
         });
     }
 
