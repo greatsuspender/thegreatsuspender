@@ -9,10 +9,6 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     var processSuspensionQueueTimer;
     var tabToSuspendDetailsByTabId = {};
 
-    // forceLevel indicates which users preferences to respect when attempting to suspend the tab
-    // 1: Suspend if at all possible
-    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude active tabs
-    // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
     function queueTabForSuspension(tab, forceLevel) {
         if (typeof tab === 'undefined') return;
 
@@ -143,9 +139,13 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    // forceLevel indicates which users preferences to respect when attempting to suspend the tab
+    // 1: Suspend if at all possible
+    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude current active tab
+    // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
     function checkTabEligibilityForSuspension(tab, forceLevel) {
         if (forceLevel >= 1) {
-            if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
+            if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
                 return false;
             }
         }
