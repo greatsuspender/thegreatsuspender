@@ -8,6 +8,7 @@
     var elementPrefMap = {
         'preview': gsStorage.SCREEN_CAPTURE,
         'forceScreenCapture': gsStorage.SCREEN_CAPTURE_FORCE,
+        'discardingStrategy': gsStorage.DISCARDING_STRATEGY,
         'onlineCheck': gsStorage.ONLINE_CHECK,
         'batteryCheck': gsStorage.BATTERY_CHECK,
         'unsuspendOnFocus': gsStorage.UNSUSPEND_ON_FOCUS,

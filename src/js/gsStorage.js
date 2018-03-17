@@ -5,6 +5,7 @@ var gsStorage = {
 
     SCREEN_CAPTURE: 'screenCapture',
     SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
+    DISCARDING_STRATEGY: 'discardingStrategy',
     ONLINE_CHECK: 'onlineCheck',
     BATTERY_CHECK: 'batteryCheck',
     UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
@@ -44,6 +45,7 @@ var gsStorage = {
         var defaults = {};
         defaults[this.SCREEN_CAPTURE] = '0';
         defaults[this.SCREEN_CAPTURE_FORCE] = false;
+        defaults[this.DISCARDING_STRATEGY] = '0';
         defaults[this.ONLINE_CHECK] = false;
         defaults[this.BATTERY_CHECK] = false;
         defaults[this.UNSUSPEND_ON_FOCUS] = false;

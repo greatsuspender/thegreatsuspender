@@ -97,11 +97,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
 
     isActiveTab: function (tab, ignorePref) {
         var dontSuspendActiveTabs = ignorePref ? true : gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
-        return tgs.isCurrentlyFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
+        return tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
     },
 
     isNormalTab: function (tab) {
-        return !gsUtils.isSpecialTab(tab) && !gsUtils.isDiscardedTab(tab) && !gsUtils.isSuspendedTab(tab);
+        return !gsUtils.isSpecialTab(tab) && !gsUtils.isSuspendedTab(tab);
     },
 
     isSuspendedTab: function (tab, strictMatching) {
@@ -353,6 +353,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
         if (contentScriptPreferencesToUpdate.length > 0) {
             gsMessages.sendResetToAllContentScripts(contentScriptPreferencesToUpdate);
+        }
+
+        //if discarding strategy has changed then updated discarded and suspended tabs
+        if (this.contains(changedSettingKeys, gsStorage.DISCARDING_STRATEGY)) {
+            //TODO: Implement and also handle suspendedTabPreferencesToUpdate prefs below
         }
 
         //if theme or screenshot preferences have changed then refresh suspended tabs

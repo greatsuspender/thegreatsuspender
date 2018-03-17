@@ -86,6 +86,18 @@
     "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 图片的最大高度限制为5000像素" }, //? - Maximum height of image limited to 5000px
     "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "启用高质量的屏幕捕捉模式可能会显着增加CPU负载和内存使用量。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
     "html_options_suspend_force_screen_capture_tooltip_line7": { "message": "" },
+    //TODO: translate these messages
+    "html_options_discarding_strategy": { "message": "Tab discarding" },
+    "html_options_discarding_strategy_force_suspension": { "message": "Force chrome to suspend tabs instead of discarding them" },
+    "html_options_discarding_strategy_normal": { "message": "Let chrome manage tab discarding" },
+    "html_options_discarding_strategy_discard_after_suspension": { "message": "Discard tabs after suspending them" },
+    "html_options_discarding_strategy_force_discarding": { "message": "Discard tabs instead of suspending them" },
+    "html_options_discarding_strategy_tooltip_line1a": { "message": "On a suspended tab, the extension can display an image preview of the what the tab" },
+    "html_options_discarding_strategy_tooltip_line1b": { "message": "looked like just before it was suspended." },
+    "html_options_discarding_strategy_tooltip_line2a": { "message": "The screen capturing feature is experimental and can cause significant CPU usage as" },
+    "html_options_discarding_strategy_tooltip_line2b": { "message": "well as slightly increased memory usage." },
+    "html_options_discarding_strategy_tooltip_line3a": { "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome" },
+    "html_options_discarding_strategy_tooltip_line3b": { "message": "crashing unexpectedly, try turning this feature off." },
     "html_options_whitelist_title": { "message": "例外清單" }, //Exception list
     "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:

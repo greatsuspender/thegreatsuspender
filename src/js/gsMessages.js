@@ -173,8 +173,9 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.INFO, callback);
     },
 
-    sendTabInfoToRecoveryTab: function (tabId, payload) {
-        this.sendMessageToTab(tabId, payload, this.INFO);
+    sendTabInfoToRecoveryTab: function (recoveryTabId, tab) {
+        var payload = { 'recoveredTab': tab };
+        this.sendMessageToTab(recoveryTabId, payload, this.INFO);
     },
 
     sendMessageToTab: function (tabId, message, severity, callback) {

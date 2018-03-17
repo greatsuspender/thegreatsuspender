@@ -40,9 +40,32 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
-            if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
-        });
+        var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+
+        // If we want to force tabs to be discarded instead of suspending them
+        if (discardingStrategy === '3') {
+            forceTabDiscardation(tab);
+        } else {
+            gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+                if (err) forceTabSuspension(tab, suspendedUrl);
+            });
+        }
+    }
+
+    function forceTabSuspension(tab, suspendedUrl) {
+        if (!gsUtils.isSuspendedTab(tab)) {
+            chrome.tabs.update(tab.id, {url: suspendedUrl});
+        } else {
+            gsUtils.log(tab.id, 'Tab already suspended');
+        }
+    }
+
+    function forceTabDiscardation(tab) {
+        if (!gsUtils.isDiscardedTab(tab)) {
+            chrome.tabs.discard(tab.id);
+        } else {
+            gsUtils.log(tab.id, 'Tab already discarded');
+        }
     }
 
     function removeTabFromSuspensionQueue(tab, reason) {
@@ -66,7 +89,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function updateQueueParameters() {
         var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
         var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
-        MAX_TABS_IN_PROGRESS = screenCaptureMode ? 3 : 5;
+        MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
         IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
     }
 
@@ -272,6 +295,8 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         unqueueTabForSuspension,
         markTabAsSuspended,
         executeTabSuspension,
+        forceTabSuspension,
+        forceTabDiscardation,
         updateQueueParameters,
     };
 }());

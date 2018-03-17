@@ -143,12 +143,8 @@ __MSG_html_options_suspend_force_screen_capture_tooltip_line7__">
 					<i class="tooltipIcon fa fa-question-circle"></i>
 				</span>
 			</div>
-
-
-			<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
-			<label for="ignoreCache">Skip browser cache when reloading tab</label>
-			<br /> -->
 		</div>
+
 		<div class="sub-section">
 
 			<h2 data-i18n="__MSG_html_options_other_title__"></h2>
@@ -167,6 +163,27 @@ __MSG_html_options_other_enable_sync_tooltip_line2__">
 				</span>
 				<div id="syncNote" class="gsNote" data-i18n="__MSG_html_options_other_enable_sync_warning__"></div>
 			</div>
+		</div>
+
+		<div class="formRow">
+			<label id="discardingStrategyLbl" for="discardingStrategy" data-i18n="__MSG_html_options_discarding_strategy__:&nbsp;&nbsp;"></label>
+			<span data-i18n-tooltip="__MSG_html_options_discarding_strategy_tooltip_line1a__
+__MSG_html_options_discarding_strategy_tooltip_line1b__
+
+__MSG_html_options_discarding_strategy_tooltip_line2a__
+__MSG_html_options_discarding_strategy_tooltip_line2b__
+
+__MSG_html_options_discarding_strategy_tooltip_line3a__
+__MSG_html_options_discarding_strategy_tooltip_line3b__">
+					<i class="tooltipIcon fa fa-question-circle"></i>
+				</span>
+			<br />
+			<select id="discardingStrategy" class='option' style="margin-top: 8px;">
+				<option value="0" data-i18n="__MSG_html_options_discarding_strategy_force_suspension__"></option>
+				<option value="1" data-i18n="__MSG_html_options_discarding_strategy_normal__"></option>
+				<option value="2" data-i18n="__MSG_html_options_discarding_strategy_discard_after_suspension__"></option>
+				<option value="3" data-i18n="__MSG_html_options_discarding_strategy_force_discarding__"></option>
+			</select>
 		</div>
 	</div>
 
