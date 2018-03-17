@@ -1,39 +1,40 @@
 <!doctype html>
 <html>
-<head>
-    <link type="text/css" href="css/style.css" rel="stylesheet">
-    <script type="text/javascript" src="js/debug.js"></script>
-    <title id='gsTitle'>The Great Suspender - Profiler</title>
-</head>
-<body id="body">
-    <div>
-        <span>debugErrors: </span>
-        <a id='toggleDebugError' href='#'></a>
-        &nbsp;|&nbsp;
-        <span>debugInfo: </span>
-        <a id='toggleDebugInfo' href='#'></a>
-        &nbsp;|&nbsp;
-        <a id='refreshProfiler' href='#'>reload page</a>
-    </div>
-    <br />
-    <div>
-        <span>To view debug messages, go to the <a id="backgroundPage" target="_blank">chrome extensions page.</a></span>
-        <br />
-        <span>Ensure "developer mode" is checked at the top of the page, then click on the "Inspect views: background page" link for this extension.</span>
-    </div>
 
-    <hr />
-    <table id="gsProfiler" style="table-layout: fixed">
-        <thead>
-        <tr>
-            <th>WinId</th>
-            <th>TabId</th>
-            <th>Title</th>
-            <th>Time to suspend</th>
-            <th>Status</th>
-        </tr>
-        </thead>
-        <tbody id="gsProfilerBody"></tbody>
-    </table>
+<head>
+  <link type="text/css" href="css/style.css" rel="stylesheet">
+  <script type="text/javascript" src="js/debug.js"></script>
+  <title id='gsTitle'>The Great Suspender - Profiler</title>
+</head>
+
+<body id="body">
+  <div>
+    <span>debugErrors: </span>
+    <a id='toggleDebugError' href='#'></a> &nbsp;|&nbsp;
+    <span>debugInfo: </span>
+    <a id='toggleDebugInfo' href='#'></a> &nbsp;|&nbsp;
+    <a id='refreshProfiler' href='#'>reload page</a>
+  </div>
+  <br />
+  <div>
+    <span>To view debug messages, go to the <a id="backgroundPage" target="_blank">chrome extensions page.</a></span>
+    <br />
+    <span>Ensure "developer mode" is checked at the top of the page, then click on the "Inspect views: background page" link for this extension.</span>
+  </div>
+
+  <hr />
+  <table id="gsProfiler" style="table-layout: fixed">
+    <thead>
+      <tr>
+        <th>WinId</th>
+        <th>TabId</th>
+        <th>Title</th>
+        <th>Time to suspend</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="gsProfilerBody"></tbody>
+  </table>
 </body>
+
 </html>
