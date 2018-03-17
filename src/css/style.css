@@ -10,124 +10,25 @@
 */
 
 /* RESET */
-
 html,
-body,
-div,
-span,
-applet,
-object,
-iframe,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-blockquote,
-pre,
-a,
-abbr,
-acronym,
-address,
-big,
-cite,
-code,
-del,
-dfn,
-em,
-img,
-ins,
-kbd,
-q,
-s,
-samp,
-small,
-strike,
-strong,
-sub,
-sup,
-tt,
-var,
-b,
-u,
-i,
-center,
-dl,
-dt,
-dd,
-ol,
-ul,
-li,
-fieldset,
-form,
-label,
-legend,
-table,
-caption,
-tbody,
-tfoot,
-thead,
-tr,
-th,
-td,
-article,
-aside,
-canvas,
-details,
-embed,
-figure,
-figcaption,
-footer,
-header,
-hgroup,
-menu,
-nav,
-output,
-ruby,
-section,
-summary,
-time,
-mark,
-audio,
-video {
+body {
   margin: 0;
   padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
 }
-* {
+html {
   box-sizing: border-box;
 }
-/* HTML5 display-role reset for older browsers */
-article,
-aside,
-details,
-figcaption,
-figure,
-footer,
-header,
-hgroup,
-menu,
-nav,
-section {
-  display: block;
-}
-ol,
-ul {
-  list-style: none;
-}
-/* END RESET */
-* {
-  box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
   font-size: 15px;
-  background: #cfe0e4;
+  background: #fafafa;
   font-weight: 300;
   color: #444;
 }
@@ -137,9 +38,11 @@ strong {
 small {
   font-size: smaller;
 }
-body.suspended-page {
-  background: #cfe0e4;
-  display: table;
+body.suspended-page:not(.img-preview-mode) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   position: absolute;
   height: 100%;
   width: 100%;
@@ -181,38 +84,61 @@ hr {
   margin-left: 10px;
 }
 .pageHeader {
-  background: #134960;
-  color: #fff;
-  height: 63px;
-  line-height: 63px;
-  margin: 0;
-  padding: 0 0 0 50px;
-  font-weight: 300;
+  /* background: #fafafa;
+    color: #fff;
+    height: 63px;
+    line-height: 63px;
+    margin: 0;
+    padding: 0 0 0 50px;
+    font-weight: 300; */
 }
-img.headerIcon {
-  margin: 19px 5px 0 0;
-  float: right;
+/* img.headerIcon {
+    margin: 19px 5px 0 0;
+    float: right;
+} */
+.topLabel {
+  display: inline-block;
+  margin: 0 0 8px;
 }
 select {
   min-width: 150px;
   color: #444;
-}
-.formRow select {
   background: #fff;
   border-radius: 3px;
   -webkit-appearance: none;
-  padding: 10px 30px 10px 10px;
+  margin: 0;
+  padding: 10px 30px 10px 15px;
   font-size: 14px;
   border-color: #ccc;
-  background-image: url(/img/ddArrow.png);
+  position: relative;
+  /* background-image: url(/img/ddArrow.png);
   background-repeat: no-repeat;
-  background-position: 90% 16px;
+  background-position: 90% 16px; */
 }
-input,
+.select-wrapper {
+  background-color: #fff;
+  display: inline-block;
+  position: relative;
+}
+.select-wrapper::after {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-family: "fontello";
+  text-decoration: none;
+  speak: none;
+  content: "\f0dd";
+  color: #2196f3;
+  pointer-events: none;
+}
+/* select {
+    position: relative;
+} */
+/* input,
 select,
 button {
   margin-bottom: 8px;
-}
+} */
 textarea {
   color: #444;
   width: 100%;
@@ -224,7 +150,7 @@ textarea {
   margin-top: 9px;
 }
 .formRow {
-  margin: 15px 0;
+  margin: 0 0 25px;
 }
 ul.unorderedList,
 ol.orderedList {
@@ -304,7 +230,7 @@ hr.splashRule {
   line-height: 27px;
 }
 .btn {
-  background: #52a6c8;
+  background: #2196f3;
   color: #fff;
   border-radius: 3px;
   height: 40px;
@@ -313,6 +239,7 @@ hr.splashRule {
   display: inline-block;
   border: 0;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 
   min-width: 80px;
@@ -329,8 +256,9 @@ hr.splashRule {
   background: #ccc;
 }
 .btnDonate {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
   margin: 0 7px 0 0;
   float: left;
 }
@@ -357,38 +285,50 @@ hr.splashRule {
   display: none;
 }
 .mainContent {
-  width: 900px;
-  margin: 40px auto;
-  background: #fff;
-  overflow: hidden;
+  width: 700px;
+  margin: 50px auto;
+  display: grid;
+  /* defining first col width because 'auto' could change due to bold text on active item */
+  grid-template-columns: 200px auto;
+  grid-column-gap: 40px;
+  grid-template-areas:
+    "h h"
+    "n m";
 }
-.contentNav,
-.content {
-  float: left;
-  padding: 20px 50px 40px;
+.pageHeader {
+  grid-area: h;
+  margin: 0 0 50px;
+  font-size: 35px;
 }
 .contentNav {
-  width: 240px;
-  padding: 35px 10px 50px 50px;
-  margin: 15px 0 0;
+  grid-area: n;
+  border-right: 1px solid #ddd;
+  padding-right: 15px;
+  align-self: start;
 }
-.contentNav li {
-  height: 35px;
-  line-height: 100%;
+.contentNav ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+.contentNav a {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #888;
+  display: block;
+}
+.contentNav .active {
+  color: #2f9df3;
+  font-weight: bold;
 }
 .content {
-  border-left: 1px solid #e7e7e7;
-  width: 660px;
-  min-height: 250px;
-}
-.contentFull {
-  width: 800px;
+  grid-area: m;
+  font-size: 14px;
 }
 .content h2 {
-  padding: 0 0 10px 0;
-  margin: 30px 0 0 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
+  margin: 0 0 30px;
 }
 .gsNote {
   font-style: italic;
@@ -406,11 +346,11 @@ hr.splashRule {
 .sessionLink:hover {
   text-decoration: underline;
 }
-div.tabContainer {
+.tabContainer {
   padding: 0px;
-  margin: 0 0 3px 0;
+  margin: 0 0 10px 0;
 }
-div.tabContainer > * {
+.tabContainer > * {
   vertical-align: middle;
 }
 a.historyLink {
@@ -428,19 +368,10 @@ a.historyLink:hover {
   text-decoration: underline;
 }
 .windowContainer {
-  font-size: 13px;
   font-weight: bold;
-  color: #777;
-  padding-top: 18px;
-  padding-bottom: 4px;
+  margin: 20px 0 10px;
 }
-.sessionIcon {
-  cursor: pointer;
-  padding-right: 10px;
-}
-.sessionContents div:last-child {
-  padding-bottom: 10px;
-}
+
 .groupLink {
   margin: 0 0 0 10px;
   font-size: 11px;
@@ -448,6 +379,7 @@ a.historyLink:hover {
 }
 .sessionContainer {
   white-space: nowrap;
+  margin: 0 0 10px;
 }
 .sessionContainer .groupLink {
   visibility: hidden;
@@ -456,7 +388,18 @@ a.historyLink:hover {
   visibility: visible;
 }
 .sessionContents {
-  margin-left: 20px;
+  margin-left: 28px;
+}
+/* conatiner for a group of sessions */
+.sessionsContainer {
+  margin-bottom: 50px;
+}
+.sessionIcon {
+  cursor: pointer;
+  margin: 0 10px 0 -3px;
+}
+.sessionContents div:last-child {
+  padding-bottom: 10px;
 }
 .tabContainer .itemHover {
   visibility: hidden;
@@ -468,7 +411,8 @@ a.historyLink:hover {
   visibility: visible;
 }
 .tabContainer .removeLink {
-  margin-left: -15px;
+  margin-left: -20px;
+  color: #888;
 }
 #screenCaptureNotice {
   display: none;
@@ -481,35 +425,47 @@ a.historyLink:hover {
 /* suspended tab styles */
 .gsTopBar {
   position: fixed;
-  background: #efefef;
+  background: #fafafa;
   top: 0;
-  padding: 15px 0;
-  line-height: 30px;
+  padding: 30px 60px;
+
   width: 100%;
   max-width: 100%;
-  text-align: center;
-  color: #444;
-  border-bottom: 1px solid #aaa;
-  box-shadow: 0 0 4px -2px rgba(0, 0, 0, 0.5);
 }
-.gsTitleWrap {
-  width: 94%;
-  margin: 0px auto;
+/* .gsTitleWrap {
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+} */
+
+.gsTitleWrap > div {
+  margin: 10px 0;
+}
+
+.gsTopBarTitle {
+  /* font-size: 19px;
+    line-height: 26px;
+    color: rgb(68, 68, 68);
+    font-weight: 300; */
+  color: #2c9bf3;
+  font-weight: bold;
+  position: relative;
+}
+.gsTopBarImg {
+  /* margin-right: 5px;
+    margin-bottom: -1px; */
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  left: -35px;
+  top: 1px;
+}
+.gsTopBarUrl-wrap {
+  width: 100%;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-.gsTopBarImg {
-  margin-right: 5px;
-  margin-bottom: -1px;
-  height: 16px;
-  width: 16px;
-}
-.gsTopBarTitle {
-  font-size: 19px;
-  line-height: 26px;
-  color: rgb(68, 68, 68);
-  font-weight: 300;
 }
 .gsReloadLink {
   cursor: pointer;
@@ -518,57 +474,82 @@ a.historyLink:hover {
   width: 100%;
   height: 100%;
   background: #fff;
-  text-align: center;
 }
 .gsPreviewImg {
   display: block;
   max-width: 100%;
-  margin: 121px auto 0;
+  margin: 0;
 }
-.centerBoxContainer {
-  text-align: center;
-  display: table-cell;
-  vertical-align: middle;
-  padding-top: 100px;
+body.img-preview-mode .gsTopBar {
+  position: relative;
+}
+
+/* .centerBoxContainer {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 100px;
 }
 .centerBox {
   margin-left: auto;
   margin-right: auto;
 }
 .suspendedMsg {
-  width: 100%;
-  height: 100%;
-  display: table-cell;
-}
+    width: 100%;
+    height: 100%;
+    display: table-cell;
+} */
 .suspendedMsg,
 .gsPreview {
   cursor: pointer;
 }
-.suspendedMsg h1,
-.suspendedMsg h2,
-.suspendedMsg h3 {
-  color: #134960;
-  margin: 30px 0 0;
-  font-weight: 300;
+.suspendedMsg {
+  width: 100vw;
+  height: 100vh;
+
+  /* background: url(/img/snoozy_tab.png) no-repeat center 42% #fff;
+	background-size: 150px; */
+
+  line-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
-.suspendedMsg h1 {
-  font-size: 60px;
+.suspendedMsg img {
+  width: 180px;
+  margin-top: 50px;
+}
+.suspendedMsg-instr {
+  font-weight: bold;
+  font-size: 20px;
+}
+.suspendedMsg-shortcut {
+  font-size: 15px;
+}
+/* .suspendedMsg h1, .suspendedMsg h2, .suspendedMsg h3 {
+    color: #134960;
+    margin: 30px 0 0;
+    font-weight: 300;
+} */
+/* .suspendedMsg h1 {
+    font-size: 60px;
 }
 .suspendedMsg h2 {
   font-size: 40px;
 }
 .suspendedMsg h3 {
-  font-size: 20px;
-  font-style: italic;
-}
-@media all and (max-width: 600px) {
-  .suspendedMsg h1 {
-    font-size: 45px;
-  }
-  .suspendedMsg h2 {
-    font-size: 55px;
-  }
-}
+    font-size: 20px;
+    font-style: italic;
+} */
+/* @media all and (max-width: 600px) {
+    .suspendedMsg h1 {
+        font-size: 45px;
+    }
+    .suspendedMsg h2 {
+        font-size: 55px;
+    }
+} */
 @keyframes spinner {
   to {
     transform: rotate(360deg);
@@ -697,16 +678,16 @@ a.historyLink:hover {
 }
 
 /* dark theme for night lurkers */
-.dark .gsTopBar {
-  background: #134960;
-  border-bottom: 1px solid #666;
-}
+/* .dark .gsTopBar {
+    background: #134960;
+    border-bottom: 1px solid #666;
+} */
 .dark .gsTopBar,
 .dark .gsTopBar a {
   color: #7493a0;
 }
 .dark .gsTopBarTitle {
-  color: #ccc;
+  color: #fff;
 }
 .dark .suspendedMsg,
 body.dark,
@@ -850,7 +831,7 @@ body.dark,
 }
 .modal-header {
   padding: 10px 15px;
-  background-color: #01579b;
+  background-color: #2196f3;
   color: white;
 }
 .modal-header h2 {
@@ -867,31 +848,28 @@ body.dark,
 }
 
 /* custom checkboxes */
-.cbLabel {
-  line-height: 20px;
-  display: inline-block;
-  padding-left: 5px;
-  vertical-align: top;
-}
 input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  display: inline-block;
-  margin: 0;
-  padding: 0;
+  position: absolute;
+  opacity: 0;
 }
-input[type="checkbox"]:before {
-  content: "";
-  display: inline-block;
-  width: 20px;
-  height: 20px;
+input[type="checkbox"] + label {
+  position: relative;
+  padding-left: 30px;
 }
-input[type="checkbox"]:before {
-  background: url(/img/checkOff.png) #fff;
+input[type="checkbox"] + label:before {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  font-family: "fontello";
+  text-decoration: none;
+  speak: none;
+  content: "\f096";
+  color: #888;
+  font-size: 24px;
 }
-input[type="checkbox"]:checked:before {
-  background: url(/img/checkOn.png) #fff;
+input[type="checkbox"]:checked + label:before {
+  content: "\f14a";
+  color: #2196f3;
 }
 
 /* custom radio btns */
@@ -906,13 +884,13 @@ input[type="checkbox"]:checked:before {
   z-index: 1;
 }
 .radio input[type="radio"]:checked + label::before {
-  border-color: #52a6c8;
+  border-color: #2196f3;
 }
 .radio input[type="radio"]:checked + label::after {
   transform: scale(1, 1);
 }
 .radio input[type="radio"]:checked + label::after {
-  background-color: #52a6c8;
+  background-color: #2196f3;
 }
 .radio label {
   display: inline-block;
@@ -939,8 +917,8 @@ input[type="checkbox"]:checked:before {
   content: " ";
   width: 13px;
   height: 13px;
-  left: 3px;
-  top: 5px;
+  left: 2px;
+  top: 4px;
   margin-left: -20px;
   border-radius: 50%;
   background-color: #555;
@@ -991,6 +969,7 @@ input[type="checkbox"]:checked:before {
   white-space: pre;
   font-weight: 400;
   box-shadow: 0px 1px 2px #bbb;
+  box-sizing: content-box;
 }
 
 /* Show tooltip content on hover */

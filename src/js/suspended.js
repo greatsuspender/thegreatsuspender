@@ -37,7 +37,7 @@
             setUrl(preUrlDecoded);
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
-            document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+        //    document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
@@ -169,10 +169,11 @@
         }
         var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
         document.body.style['overflow-x'] = overflow;
+        document.body.classList.add('img-preview-mode');
 
         if (currentPreviewMode === '0' || !previewUri) {
             document.getElementById('gsPreview').style.display = 'none';
-            document.getElementById('suspendedMsg').style.display = 'table-cell';
+            document.getElementById('suspendedMsg').style.display = 'block';
         } else {
             document.getElementById('gsPreview').style.display = 'block';
             document.getElementById('suspendedMsg').style.display = 'none';

@@ -93,12 +93,12 @@
     function toggleSession(element, sessionId) {
         var sessionContentsEl = element.getElementsByClassName('sessionContents')[0];
         var sessionIcon = element.getElementsByClassName('sessionIcon')[0];
-        if (sessionIcon.classList.contains('fa-plus-square-o')) {
-            sessionIcon.classList.remove('fa-plus-square-o');
-            sessionIcon.classList.add('fa-minus-square-o');
+        if (sessionIcon.classList.contains('icon-plus-squared-alt')) {
+            sessionIcon.classList.remove('icon-plus-squared-alt');
+            sessionIcon.classList.add('icon-minus-squared-alt');
         } else {
-            sessionIcon.classList.remove('fa-minus-square-o');
-            sessionIcon.classList.add('fa-plus-square-o');
+            sessionIcon.classList.remove('icon-minus-squared-alt');
+            sessionIcon.classList.add('icon-plus-squared-alt');
         }
 
         //if toggled on already, then toggle off

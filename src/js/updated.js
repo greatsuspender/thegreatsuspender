@@ -12,16 +12,16 @@
         //if toggled on already, then toggle off
         if (sessionContentsEl.childElementCount > 0) {
             sessionContentsEl.innerHTML = '';
-            sessionIcon.classList.remove('fa-minus-square-o');
-            sessionIcon.classList.add('fa-plus-square-o');
+            sessionIcon.classList.remove('icon-minus-squared-alt');
+            sessionIcon.classList.add('icon-plus-squared-alt');
             return;
         }
         if (!session || !session.windows) {
             return;
         }
 
-        sessionIcon.classList.remove('fa-plus-square-o');
-        sessionIcon.classList.add('fa-minus-square-o');
+        sessionIcon.classList.remove('icon-plus-squared-alt');
+        sessionIcon.classList.add('icon-minus-squared-alt');
         session.windows.forEach(function (curWindow, index) {
             curWindow.sessionId = session.sessionId;
             sessionContentsEl.appendChild(historyItems.createWindowHtml(curWindow, index, false));
