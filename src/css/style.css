@@ -28,6 +28,7 @@ body {
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol";
   font-size: 15px;
+  line-height: 1.5em;
   background: #fafafa;
   font-weight: 300;
   color: #444;
@@ -57,7 +58,7 @@ p {
   margin: 0 0 15px;
 }
 a {
-  color: #3889ab;
+  color: #3477db;
   text-decoration: none;
   cursor: pointer;
 }
@@ -83,19 +84,6 @@ hr {
   float: right;
   margin-left: 10px;
 }
-.pageHeader {
-  /* background: #fafafa;
-    color: #fff;
-    height: 63px;
-    line-height: 63px;
-    margin: 0;
-    padding: 0 0 0 50px;
-    font-weight: 300; */
-}
-/* img.headerIcon {
-    margin: 19px 5px 0 0;
-    float: right;
-} */
 .topLabel {
   display: inline-block;
   margin: 0 0 8px;
@@ -111,9 +99,6 @@ select {
   font-size: 14px;
   border-color: #ccc;
   position: relative;
-  /* background-image: url(/img/ddArrow.png);
-  background-repeat: no-repeat;
-  background-position: 90% 16px; */
 }
 .select-wrapper {
   background-color: #fff;
@@ -123,22 +108,14 @@ select {
 .select-wrapper::after {
   position: absolute;
   right: 15px;
-  top: 10px;
+  top: 6px;
   font-family: "fontello";
   text-decoration: none;
   speak: none;
   content: "\f0dd";
-  color: #2196f3;
+  color: #3477db;
   pointer-events: none;
 }
-/* select {
-    position: relative;
-} */
-/* input,
-select,
-button {
-  margin-bottom: 8px;
-} */
 textarea {
   color: #444;
   width: 100%;
@@ -150,7 +127,7 @@ textarea {
   margin-top: 9px;
 }
 .formRow {
-  margin: 0 0 25px;
+  margin: 0 0 20px;
 }
 ul.unorderedList,
 ol.orderedList {
@@ -230,7 +207,7 @@ hr.splashRule {
   line-height: 27px;
 }
 .btn {
-  background: #2196f3;
+  background: #3477db;
   color: #fff;
   border-radius: 3px;
   height: 40px;
@@ -278,6 +255,7 @@ hr.splashRule {
   color: #929292;
   font-size: 0.8em;
 }
+/* oh dear. well, too late now... */
 .hidden {
   visibility: hidden;
 }
@@ -285,7 +263,7 @@ hr.splashRule {
   display: none;
 }
 .mainContent {
-  width: 700px;
+  width: 750px;
   margin: 50px auto;
   display: grid;
   /* defining first col width because 'auto' could change due to bold text on active item */
@@ -318,7 +296,7 @@ hr.splashRule {
   display: block;
 }
 .contentNav .active {
-  color: #2f9df3;
+  color: #3477db;
   font-weight: bold;
 }
 .content {
@@ -339,16 +317,13 @@ hr.splashRule {
 }
 .sessionLink {
   cursor: pointer;
-  padding: 5px 0 0 0;
-  display: inline-block;
-  vertical-align: bottom;
 }
 .sessionLink:hover {
   text-decoration: underline;
 }
 .tabContainer {
   padding: 0px;
-  margin: 0 0 10px 0;
+  margin: 0 0 5px 0;
 }
 .tabContainer > * {
   vertical-align: middle;
@@ -379,7 +354,7 @@ a.historyLink:hover {
 }
 .sessionContainer {
   white-space: nowrap;
-  margin: 0 0 10px;
+  margin: 0 0 5px;
 }
 .sessionContainer .groupLink {
   visibility: hidden;
@@ -432,34 +407,21 @@ a.historyLink:hover {
   width: 100%;
   max-width: 100%;
 }
-/* .gsTitleWrap {
-    width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-} */
-
 .gsTitleWrap > div {
   margin: 10px 0;
 }
 
 .gsTopBarTitle {
-  /* font-size: 19px;
-    line-height: 26px;
-    color: rgb(68, 68, 68);
-    font-weight: 300; */
-  color: #2c9bf3;
+  color: #3477db;
   font-weight: bold;
   position: relative;
 }
 .gsTopBarImg {
-  /* margin-right: 5px;
-    margin-bottom: -1px; */
   height: 16px;
   width: 16px;
   position: absolute;
   left: -35px;
-  top: 1px;
+  top: 3px;
 }
 .gsTopBarUrl-wrap {
   width: 100%;
@@ -483,22 +445,6 @@ a.historyLink:hover {
 body.img-preview-mode .gsTopBar {
   position: relative;
 }
-
-/* .centerBoxContainer {
-    text-align: center;
-    display: table-cell;
-    vertical-align: middle;
-    padding-top: 100px;
-}
-.centerBox {
-  margin-left: auto;
-  margin-right: auto;
-}
-.suspendedMsg {
-    width: 100%;
-    height: 100%;
-    display: table-cell;
-} */
 .suspendedMsg,
 .gsPreview {
   cursor: pointer;
@@ -506,10 +452,6 @@ body.img-preview-mode .gsTopBar {
 .suspendedMsg {
   width: 100vw;
   height: 100vh;
-
-  /* background: url(/img/snoozy_tab.png) no-repeat center 42% #fff;
-	background-size: 150px; */
-
   line-height: 30px;
   display: flex;
   align-items: center;
@@ -518,7 +460,7 @@ body.img-preview-mode .gsTopBar {
 }
 .suspendedMsg img {
   width: 180px;
-  margin-top: 50px;
+  margin-bottom: 30px;
 }
 .suspendedMsg-instr {
   font-weight: bold;
@@ -527,29 +469,6 @@ body.img-preview-mode .gsTopBar {
 .suspendedMsg-shortcut {
   font-size: 15px;
 }
-/* .suspendedMsg h1, .suspendedMsg h2, .suspendedMsg h3 {
-    color: #134960;
-    margin: 30px 0 0;
-    font-weight: 300;
-} */
-/* .suspendedMsg h1 {
-    font-size: 60px;
-}
-.suspendedMsg h2 {
-  font-size: 40px;
-}
-.suspendedMsg h3 {
-    font-size: 20px;
-    font-style: italic;
-} */
-/* @media all and (max-width: 600px) {
-    .suspendedMsg h1 {
-        font-size: 45px;
-    }
-    .suspendedMsg h2 {
-        font-size: 55px;
-    }
-} */
 @keyframes spinner {
   to {
     transform: rotate(360deg);
@@ -821,7 +740,7 @@ body.dark,
   float: right;
   font-size: 28px;
   font-weight: bold;
-  margin-top: -8px;
+  margin-top: -2px;
 }
 .close-x:hover,
 .close-x:focus {
@@ -831,7 +750,7 @@ body.dark,
 }
 .modal-header {
   padding: 10px 15px;
-  background-color: #2196f3;
+  background-color: #3477db;
   color: white;
 }
 .modal-header h2 {
@@ -869,7 +788,7 @@ input[type="checkbox"] + label:before {
 }
 input[type="checkbox"]:checked + label:before {
   content: "\f14a";
-  color: #2196f3;
+  color: #3477db;
 }
 
 /* custom radio btns */
@@ -884,13 +803,13 @@ input[type="checkbox"]:checked + label:before {
   z-index: 1;
 }
 .radio input[type="radio"]:checked + label::before {
-  border-color: #2196f3;
+  border-color: #3477db;
 }
 .radio input[type="radio"]:checked + label::after {
   transform: scale(1, 1);
 }
 .radio input[type="radio"]:checked + label::after {
-  background-color: #2196f3;
+  background-color: #3477db;
 }
 .radio label {
   display: inline-block;
@@ -905,7 +824,7 @@ input[type="checkbox"]:checked + label:before {
   width: 17px;
   height: 17px;
   left: 0;
-  top: 2px;
+  top: 4px;
   margin-left: -20px;
   border: 1px solid #ccc;
   border-radius: 50%;
@@ -918,7 +837,7 @@ input[type="checkbox"]:checked + label:before {
   width: 13px;
   height: 13px;
   left: 2px;
-  top: 4px;
+  top: 6px;
   margin-left: -20px;
   border-radius: 50%;
   background-color: #555;
