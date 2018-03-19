@@ -397,12 +397,19 @@ a.historyLink:hover {
   padding: 10px 0 10px 10px;
 }
 
+.donateButtons {
+  overflow: hidden;
+}
+
+.donationToggle {
+  margin-top: 15px;
+}
 /* suspended tab styles */
 .gsTopBar {
   position: fixed;
   background: #fafafa;
   top: 0;
-  padding: 30px 30px 30px 60px;
+  padding: 20px 20px 20px 65px;
   width: 100%;
 }
 .gsTitleWrap > div {
@@ -492,44 +499,8 @@ body.img-preview-mode .gsTopBar {
   left: 30px;
   bottom: -240px;
 }
-
-@-webkit-keyframes silde_to_top {
-  0% {
-    bottom: -240px;
-  }
-  100% {
-    bottom: 10px;
-    z-index: 1000000;
-  }
-}
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@-webkit-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 #dudePopup.poppedup {
-  -webkit-animation-name: silde_to_top;
-  -webkit-animation-duration: 1s;
-  -webkit-animation-timing-function: ease;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-direction: normal;
-  -webkit-animation-delay: 0.5s;
-  -webkit-animation-play-state: running;
-  -webkit-animation-fill-mode: forwards;
-
-  animation-name: silde_to_top;
+  animation-name: slideToTop;
   animation-duration: 1s;
   animation-timing-function: ease;
   animation-iteration-count: 1;
@@ -539,59 +510,46 @@ body.img-preview-mode .gsTopBar {
   animation-fill-mode: forwards;
 }
 
-#donateBubble {
-  position: relative;
+.donateBubble {
   width: 365px;
-  height: 120px;
-  padding: 5px 10px;
-  background: #e7f3f8;
-  border: #87bace solid 1px;
+  padding: 10px 10px;
+  background: #fff;
   border-radius: 4px;
-  color: #555;
-  bottom: 50px;
+  bottom: 35px;
   left: 133px;
   position: fixed;
   text-align: center;
-  font-size: 15px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   opacity: 0;
 }
-
-#donateBubble:after {
+.donateBubble:before {
   content: "";
   position: absolute;
   top: 19px;
-  left: -15px;
+  left: -14px;
   border-style: solid;
   border-width: 15px 15px 15px 0;
-  border-color: transparent #e7f3f8;
+  border-color: transparent #fff;
   display: block;
   width: 0;
-  z-index: 1;
+  filter: drop-shadow(-2px 0px 0 rgba(0, 0, 0, 0.1));
+}
+.donate-text {
+  margin: 10px 0;
+}
+.donateBubble .donateButtons {
+  display: flex;
+  justify-content: center;
 }
 
-#donateBubble:before {
-  content: "";
-  position: absolute;
-  top: 19px;
-  left: -16px;
-  border-style: solid;
-  border-width: 15px 15px 15px 0;
-  border-color: transparent #87bace;
-  display: block;
-  width: 0;
-  z-index: 0;
-}
-
-#donateBubble .btn {
+.donateBubble .btn {
   margin: 10px 5px;
   padding: 0 15px;
 }
-#donateBubble.fadeIn {
-  -webkit-animation: fadein 0.7s;
+.donateBubble.fadeIn {
   animation: fadein 0.7s;
-  -webkit-animation-fill-mode: forwards;
-  -webkit-animation-delay: 1.5s;
+  animation-fill-mode: forwards;
+  animation-delay: 1.5s;
 }
 
 /* dark theme for night lurkers */
@@ -628,7 +586,6 @@ body.img-preview-mode .gsTopBar {
   width: 100%;
   height: 100%;
   opacity: 0;
-  -webkit-animation: fadeinout 4s linear forwards;
   animation: fadeinout 4s linear forwards;
 }
 .toast-content {
@@ -646,18 +603,6 @@ body.img-preview-mode .gsTopBar {
 
 .toast-content p {
   font-size: 16px;
-}
-
-@-webkit-keyframes fadeinout {
-  0%,
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-  50% {
-    opacity: 1;
-    visibility: visible;
-  }
 }
 
 @keyframes fadeinout {
@@ -698,20 +643,8 @@ body.img-preview-mode .gsTopBar {
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  -webkit-animation-name: animatetop;
-  -webkit-animation-duration: 0.3s;
   animation-name: animatetop;
   animation-duration: 0.3s;
-}
-@-webkit-keyframes animatetop {
-  from {
-    top: -100px;
-    opacity: 0;
-  }
-  to {
-    top: 0;
-    opacity: 1;
-  }
 }
 
 @keyframes animatetop {
@@ -831,7 +764,6 @@ input[type="checkbox"]:checked + label:before {
   margin-left: -20px;
   border-radius: 50%;
   background-color: #555;
-  -webkit-transform: scale(0, 0);
   transform: scale(0, 0);
 }
 .sub-section {
@@ -851,9 +783,6 @@ input[type="checkbox"]:checked + label:before {
 /* Hide the tooltip content by default */
 [data-i18n-tooltip]:before,
 [data-i18n-tooltip]:after {
-  visibility: hidden;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   pointer-events: none;
 }
@@ -862,10 +791,8 @@ input[type="checkbox"]:checked + label:before {
 [data-i18n-tooltip]:before {
   position: absolute;
   bottom: 150%;
-  /*left: 30%;*/
   right: 0%;
   margin-bottom: 5px;
-  /*margin-left: -85px;*/
   margin-right: -200px;
   padding: 20px 10px;
   width: 460px;
@@ -884,8 +811,23 @@ input[type="checkbox"]:checked + label:before {
 /* Show tooltip content on hover */
 [data-i18n-tooltip]:hover:before,
 [data-i18n-tooltip]:hover:after {
-  visibility: visible;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-  filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
+}
+
+@keyframes slideToTop {
+  0% {
+    bottom: -240px;
+  }
+  100% {
+    bottom: 10px;
+    z-index: 1000000;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

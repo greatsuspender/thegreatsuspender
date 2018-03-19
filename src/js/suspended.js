@@ -37,7 +37,7 @@
             setUrl(preUrlDecoded);
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
-        //    document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+            //document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
@@ -367,8 +367,8 @@
         request.open('GET', 'support.html', true);
         request.send();
 
-        document.getElementById('dudePopup').setAttribute('class', 'poppedup');
-        document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+        document.getElementById('dudePopup').classList.add('poppedup');
+        document.getElementById('donateBubble').classList.add('fadeIn');
     }
 
     function getRootUrl(url, includePath) {

@@ -121,7 +121,7 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_shortcuts_remap_keys": { "message": "Remap keys" },
+    "html_shortcuts_remap_keys": { "message": "Edit shortcuts" },
 
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "Settings" },
