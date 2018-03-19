@@ -402,10 +402,8 @@ a.historyLink:hover {
   position: fixed;
   background: #fafafa;
   top: 0;
-  padding: 30px 60px;
-
+  padding: 30px 30px 30px 60px;
   width: 100%;
-  max-width: 100%;
 }
 .gsTitleWrap > div {
   margin: 10px 0;
@@ -597,26 +595,18 @@ body.img-preview-mode .gsTopBar {
 }
 
 /* dark theme for night lurkers */
-/* .dark .gsTopBar {
-    background: #134960;
-    border-bottom: 1px solid #666;
-} */
 .dark .gsTopBar,
-.dark .gsTopBar a {
-  color: #7493a0;
+.dark .suspendedMsg {
+  background: #333;
 }
-.dark .gsTopBarTitle {
-  color: #fff;
+.dark .gsTopBar,
+.dark .gsTopBarTitle,
+.dark .gsTopBar a,
+.dark .suspendedMsg {
+  color: #eee;
 }
-.dark .suspendedMsg,
-body.dark,
-.dark {
-  background: #141a1d;
-}
-.dark .suspendedMsg h1,
-.dark .suspendedMsg h2,
-.dark .suspendedMsg h3 {
-  color: #666;
+.dark .suspendedMsg img {
+  filter: brightness(0) invert(1);
 }
 
 #whitelistOptionsModal .radio span {
