@@ -351,11 +351,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //check for change in tabs audible status
         if (changeInfo.hasOwnProperty('audible')) {
-
-            //reset tab timer if tab has just finished playing audio
-            if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-                gsMessages.sendRestartTimerToContentScript(tab.id);
-            }
             hasTabStatusChanged = true;
         }
         if (changeInfo.hasOwnProperty('pinned')) {
