@@ -350,9 +350,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
         //check for change in tabs audible status
         if (changeInfo.hasOwnProperty('audible')) {
+            //reset tab timer if tab has just finished playing audio
+            if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
+                gsMessages.sendRestartTimerToContentScript(tab.id);
+            }
             hasTabStatusChanged = true;
         }
         if (changeInfo.hasOwnProperty('pinned')) {
+            //reset tab timer if tab has become unpinned
+            if (!changeInfo.pinned && gsStorage.getOption(gsStorage.IGNORE_PINNED)) {
+                gsMessages.sendRestartTimerToContentScript(tab.id);
+            }
             hasTabStatusChanged = true;
         }
 
@@ -997,7 +1005,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     });
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         if (!changeInfo) return;
-        if (!changeInfo.url && !changeInfo.status && !changeInfo.audible && !changeInfo.pinned && !changeInfo.discarded) {
+        if (!changeInfo.hasOwnProperty('url') && !changeInfo.hasOwnProperty('status') && !changeInfo.hasOwnProperty('audible') &&
+                !changeInfo.hasOwnProperty('pinned') && !changeInfo.hasOwnProperty('discarded')) {
             return;
         }
 
