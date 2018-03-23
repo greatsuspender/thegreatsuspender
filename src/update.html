@@ -1,49 +1,52 @@
 <!doctype html>
 <html>
+
 <head>
-    <link type="text/css" href="css/style.css" rel="stylesheet">
-    <script type="text/javascript" src="js/historyUtils.js"></script>
-    <script type="text/javascript" src="js/update.js"></script>
-    <title id='gsTitle' data-i18n="__MSG_ext_extension_name__ - __MSG_html_update_title__"></title>
+  <link type="text/css" href="css/style.css" rel="stylesheet">
+  <script type="text/javascript" src="js/historyUtils.js"></script>
+  <script type="text/javascript" src="js/update.js"></script>
+  <title id='gsTitle' data-i18n="__MSG_ext_extension_name__ - __MSG_html_update_title__"></title>
 
 </head>
+
 <body id="body">
 
-<div class="splash">
+  <div class="splash">
 
     <div class="dude-left">
-        <img src="img/dude_large.png" />
+      <img src="img/dude_large.png" />
     </div>
     <div class="dude-text-top">
-        <h1>
+      <h1>
             <span data-i18n="__MSG_ext_extension_name__"></span>
         </h1>
-        <h2>
+      <h2>
             <span data-i18n="__MSG_html_update_heading2__"></span>
         </h2>
     </div>
     <div class="dude-text-base">
+      <p>
+        <span data-i18n="__MSG_html_update_info_line1__"></span>
+      </p>
+      <div id="backupInfo">
         <p>
-            <span data-i18n="__MSG_html_update_info_line1__"></span>
+          <span data-i18n="__MSG_html_update_info_line2__"></span>
         </p>
-        <div id="backupInfo">
-            <p>
-                <span data-i18n="__MSG_html_update_info_line2__"></span>
-            </p>
-        </div>
-        <div id="noBackupInfo" class="reallyHidden">
-            <p>
-                <span data-i18n="__MSG_html_update_info_line2_alternate_prefix__"></span><a id="sessionManagerLink" href="#" data-i18n="__MSG_html_session_manager__"></a><span data-i18n="__MSG_html_update_info_line2_alternate_suffix__"></span>
-            </p>
-        </div>
+      </div>
+      <div id="noBackupInfo" class="reallyHidden">
+        <p>
+          <span data-i18n="__MSG_html_update_info_line2_alternate_prefix__"></span><a id="sessionManagerLink" href="#" data-i18n="__MSG_html_session_manager__"></a><span data-i18n="__MSG_html_update_info_line2_alternate_suffix__"></span>
+        </p>
+      </div>
     </div>
     <hr class="splashRule" />
 
     <div>
-        <a href="#" id="exportBackupBtn" class="btn" data-i18n="__MSG_js_update_button_export__"></a>
-        <a href="#" id="restartExtensionBtn" class="btn" data-i18n="__MSG_js_update_button_reload__"></a>
+      <a href="#" id="exportBackupBtn" class="btn" data-i18n="__MSG_js_update_button_export__"></a>
+      <a href="#" id="restartExtensionBtn" class="btn" data-i18n="__MSG_js_update_button_reload__"></a>
     </div>
-</div>
+  </div>
 
 </body>
+
 </html>

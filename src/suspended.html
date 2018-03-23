@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
 	<link id="gsFavicon" rel="icon" href="img/icon16.png" />
 	<link rel="stylesheet" href="css/font-awesome.min.css">
@@ -7,77 +8,79 @@
 	<script type="text/javascript" src="js/suspended.js"></script>
 	<title id="gsTitle" data-i18n="__MSG_html_suspended_title__"></title>
 </head>
+
 <body class="suspended-page">
 
-<script type="text/html" id="previewTemplate">
-	<div id="gsPreview" class="gsPreview">
-		<img id="gsPreviewImg" class="gsPreviewImg" />
-	</div>
-</script>
-
-<script type="text/html" id="donateTemplate">
-	<img id="dudePopup" src="img/dude.png" style="float: left;">
-	<div id="donateBubble">
-		<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;" data-i18n="__MSG_html_suspended_donation_question__"></div>
-		<div id="donateButtons" />
-	</div>
-</script>
-
-<script type="text/html" id="whitelistModalTemplate">
-	<div class="modal-content">
-		<div class="modal-header">
-			<span class="close close-x">&times;</span>
-			<h2 data-i18n="__MSG_html_suspended_modal_header__"></h2>
+	<script type="text/html" id="previewTemplate">
+		<div id="gsPreview" class="gsPreview">
+			<img id="gsPreviewImg" class="gsPreviewImg" />
 		</div>
-		<div class="modal-body">
-			<div class="radio">
-				<input type="radio" name="whitelistOption" id="whitelistSite" checked />
-				<label for="whitelistSite"><span id="rootUrl" data-i18n="__MSG_html_suspended_modal_this_domain__"></span></label>
-			</div>
-			<div class="radio">
-				<input type="radio" name="whitelistOption" id="whitelistPage" />
-				<label for="whitelistPage"><span id="fullUrl" data-i18n="__MSG_html_suspended_modal_this_page__"></span></label>
-			</div>
-			<div class="radio">
-				<input type="radio" name="whitelistOption" id="whitelistTemporary" />
-				<label for="whitelistTemporary" data-i18n="__MSG_html_suspended_modal_temp_whitelist__"></label>
-			</div>
-			<p class="lesserText" data-i18n="__MSG_html_suspended_modal_temp_whitelist_notice__"></p>
-		</div>
-		<div class="modal-footer">
-			<div id="confirmWhitelistBtn" class="btn" data-i18n="__MSG_html_suspended_modal_ok__"></div>
-			<div class="btn close" style="background: #bbb;" data-i18n="__MSG_html_suspended_modal_cancel__"></div>
-		</div>
-	</div>
-</script>
+	</script>
 
-<script type="text/html" id="toastTemplate">
-	<div class="toast-content">
-		<h1 data-i18n="__MSG_html_suspended_toast_not_connected__"></h1>
-		<p data-i18n="__MSG_html_suspended_toast_reload_disabled__"></p>
-	</div>
-</script>
+	<script type="text/html" id="donateTemplate">
+		<img id="dudePopup" src="img/dude.png" style="float: left;">
+		<div id="donateBubble">
+			<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;" data-i18n="__MSG_html_suspended_donation_question__"></div>
+			<div id="donateButtons" />
+		</div>
+	</script>
 
-<div id="gsTopBar" class="gsTopBar">
-	<div id="gsTitleWrap" class="gsTitleWrap">
-		<img id="gsTopBarImg" class="gsTopBarImg" /> <span id="gsTopBarTitle" class="gsTopBarTitle"></span>
-		<br>
-		<a id="gsTopBarUrl" class="gsTopBarUrl"></a>
+	<script type="text/html" id="whitelistModalTemplate">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span class="close close-x">&times;</span>
+				<h2 data-i18n="__MSG_html_suspended_modal_header__"></h2>
+			</div>
+			<div class="modal-body">
+				<div class="radio">
+					<input type="radio" name="whitelistOption" id="whitelistSite" checked />
+					<label for="whitelistSite"><span id="rootUrl" data-i18n="__MSG_html_suspended_modal_this_domain__"></span></label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="whitelistOption" id="whitelistPage" />
+					<label for="whitelistPage"><span id="fullUrl" data-i18n="__MSG_html_suspended_modal_this_page__"></span></label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="whitelistOption" id="whitelistTemporary" />
+					<label for="whitelistTemporary" data-i18n="__MSG_html_suspended_modal_temp_whitelist__"></label>
+				</div>
+				<p class="lesserText" data-i18n="__MSG_html_suspended_modal_temp_whitelist_notice__"></p>
+			</div>
+			<div class="modal-footer">
+				<div id="confirmWhitelistBtn" class="btn" data-i18n="__MSG_html_suspended_modal_ok__"></div>
+				<div class="btn close" style="background: #bbb;" data-i18n="__MSG_html_suspended_modal_cancel__"></div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/html" id="toastTemplate">
+		<div class="toast-content">
+			<h1 data-i18n="__MSG_html_suspended_toast_not_connected__"></h1>
+			<p data-i18n="__MSG_html_suspended_toast_reload_disabled__"></p>
+		</div>
+	</script>
+
+	<div id="gsTopBar" class="gsTopBar">
+		<div id="gsTitleWrap" class="gsTitleWrap">
+			<img id="gsTopBarImg" class="gsTopBarImg" /> <span id="gsTopBarTitle" class="gsTopBarTitle"></span>
+			<br>
+			<a id="gsTopBarUrl" class="gsTopBarUrl"></a>
+		</div>
+		<div id="gsTitleLinks">
+			<a id="gsReloadLink" class="gsReloadLink" data-i18n="__MSG_html_suspended_tab_reload__"></a>
+			<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+			<a id="gsWhitelistLink" class="gsWhitelistLink" data-i18n="__MSG_html_suspended_tab_whitelist__"></a>
+		</div>
 	</div>
-	<div id="gsTitleLinks">
-		<a id="gsReloadLink" class="gsReloadLink" data-i18n="__MSG_html_suspended_tab_reload__"></a>
-		<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-		<a id="gsWhitelistLink" class="gsWhitelistLink" data-i18n="__MSG_html_suspended_tab_whitelist__"></a>
+	<div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
+		<div class="centerBox">
+			<h1 data-i18n="__MSG_html_suspended_tab_suspended__"></h1>
+			<h2 data-i18n="__MSG_html_suspended_click_to_reload__"></h2>
+			<h3><span id="hotkeyCommand"></span></h3>
+		</div>
 	</div>
-</div>
-<div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
-    <div class="centerBox">
-		<h1 data-i18n="__MSG_html_suspended_tab_suspended__"></h1>
-		<h2 data-i18n="__MSG_html_suspended_click_to_reload__"></h2>
-		<h3><span id="hotkeyCommand"></span></h3>
-    </div>
-</div>
-<div id="refreshSpinner"></div>
+	<div id="refreshSpinner"></div>
 
 </body>
+
 </html>
