@@ -394,7 +394,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleSuspendedTabChanged(tab, changeInfo) {
-console.log(tab.id, 'suspended tab updated',  changeInfo);
         //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
         //if the UNSUSPEND_ON_RELOAD flag is true, then unsuspend.
         if (changeInfo.status === 'loading') {
@@ -428,7 +427,6 @@ console.log(tab.id, 'suspended tab updated',  changeInfo);
                 // If we want to discard tabs after suspending them
                 let discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
                 if ((discardingStrategy === '2' || discardingStrategy === '3') && !tab.active && discardOnLoad) {
-console.log(tab.id, 'suspended tab loaded. will discard.');
                     gsSuspendManager.forceTabDiscardation(tab);
                 }
             });
@@ -476,25 +474,19 @@ console.log(tab.id, 'suspended tab loaded. will discard.');
     }
 
     function updateTabIdReferences(newTabId, oldTabId) {
-console.log('--------------------------------------');
-console.log('updateTabIdReferences: ' + oldTabId + ' -> ' + newTabId);
-
         for (const windowId of Object.keys(lastFocusedTabIdByWindowId)) {
             if (lastFocusedTabIdByWindowId[windowId] === oldTabId) {
                 lastFocusedTabIdByWindowId[windowId] = newTabId;
-console.log('lastFocusedTabIdByWindowId[' + windowId + ']: ' + oldTabId + ' -> ' + newTabId);
             }
         }
         for (const windowId of Object.keys(lastStationaryTabIdByWindowId)) {
             if (lastStationaryTabIdByWindowId[windowId] === oldTabId) {
                 lastStationaryTabIdByWindowId[windowId] = newTabId;
-console.log('lastStationaryTabIdByWindowId[' + windowId + ']: ' + oldTabId + ' -> ' + newTabId);
             }
         }
         if (tabFlagsByTabId[oldTabId]) {
             tabFlagsByTabId[newTabId] = tabFlagsByTabId[oldTabId];
             delete tabFlagsByTabId[oldTabId];
-console.log('tabFlagsByTabId[' + oldTabId + '] -> ' + 'tabFlagsByTabId[' + newTabId + ']');
         }
     }
 
@@ -538,7 +530,6 @@ console.log('tabFlagsByTabId[' + oldTabId + '] -> ' + 'tabFlagsByTabId[' + newTa
     }
 
     function handleTabFocusChanged(tabId, windowId) {
-console.log(tabId, 'tab gained focus');
         gsUtils.log(tabId, 'tab gained focus');
         var lastFocusedTabId = lastFocusedTabIdByWindowId[windowId];
         lastFocusedTabIdByWindowId[windowId] = tabId;
@@ -578,7 +569,6 @@ console.log(tabId, 'tab gained focus');
     }
 
     function handleNewTabFocus(tabId, lastStationaryTabId, newTab) {
-console.log(tabId, 'new tab focus handled');
         gsUtils.log(tabId, 'new tab focus handled');
         //remove request to instantly suspend this tab id
         if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
@@ -611,11 +601,9 @@ console.log(tabId, 'new tab focus handled');
         if (lastStationaryTabId && lastStationaryTabId !== tabId) {
             chrome.tabs.get(lastStationaryTabId, function (lastStationaryTab) {
                 if (chrome.runtime.lastError) {
-console.log(lastStationaryTabId, 'Tab does not exist');
                     //Tab has probably been removed
                     return;
                 }
-console.log(lastStationaryTabId, 'Tab exists!');
 
                 //Reset timer on tab that lost focus.
                 //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
@@ -629,7 +617,6 @@ console.log(lastStationaryTabId, 'Tab exists!');
                 if (gsUtils.isSuspendedTab(lastStationaryTab)) {
                     var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
                     var discardOnLoad = getTabFlagForTabId(lastStationaryTabId, DISCARD_ON_LOAD);
-console.log('discardOnLoad', discardOnLoad);
                     if ((discardingStrategy === '2' || discardingStrategy === '3') && !discardOnLoad) {
                         gsSuspendManager.forceTabDiscardation(lastStationaryTab);
                     }
