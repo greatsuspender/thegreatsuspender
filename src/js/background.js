@@ -531,7 +531,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function handleTabFocusChanged(tabId, windowId) {
         gsUtils.log(tabId, 'tab gained focus');
-        var lastFocusedTabId = lastFocusedTabIdByWindowId[windowId];
         lastFocusedTabIdByWindowId[windowId] = tabId;
 
         chrome.tabs.get(tabId, function (tab) {
@@ -827,7 +826,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     //change the icon to either active or inactive
     function setIconStatus(status, tabId) {
-gsUtils.log(tabId, 'Setting icon status: ' + status);
+        // gsUtils.log(tabId, 'Setting icon status: ' + status);
         var icon = !['normal', 'active'].includes(status) ? suspensionPausedIcon : suspensionActiveIcon;
         chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function () {
             if (chrome.runtime.lastError) {
@@ -1008,8 +1007,7 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
             return;
         }
 
-        // gsUtils.log(tabId, 'tab updated.', changeInfo);
-        gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url);
+        gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url, changeInfo);
 
         // if url has changed
         if (changeInfo.url) {
@@ -1044,7 +1042,8 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
             handleUnsuspendedTabChanged(tab, changeInfo);
         }
     });
-    chrome.windows.onCreated.addListener(function () {
+    chrome.windows.onCreated.addListener(function (window) {
+        gsUtils.log(window.id, 'window created.');
         queueSessionTimer();
 
         if (requestNotice()) {
@@ -1052,6 +1051,7 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
         }
     });
     chrome.windows.onRemoved.addListener(function () {
+        gsUtils.log('background', 'window removed.');
         queueSessionTimer();
     });
 
@@ -1081,6 +1081,7 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
 
             battery.onchargingchange = function () {
                 chargingMode = battery.charging;
+                gsUtils.log('background', `chargingMode: ${chargingMode}`);
                 setIconStatusForActiveTab();
             };
         });
@@ -1088,9 +1089,11 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
 
     //add listeners for online/offline state changes
     window.addEventListener('online', function () {
+        gsUtils.log('background', 'Internet is online.');
         setIconStatusForActiveTab();
     });
     window.addEventListener('offline', function () {
+        gsUtils.log('background', 'Internet is offline.');
         setIconStatusForActiveTab();
     });
 
