@@ -11,6 +11,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
+    var DISCARD_ON_LOAD = 'discardOnLoad';
     var SCROLL_POS = 'scrollPos';
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
     var FOCUS_DELAY = 500;
@@ -393,34 +394,44 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleSuspendedTabChanged(tab, changeInfo) {
+console.log(tab.id, 'suspended tab updated',  changeInfo);
         //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
         //if the UNSUSPEND_ON_RELOAD flag is true, then unsuspend.
         if (changeInfo.status === 'loading') {
-            var unsuspendOnReload = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD);
+            let unsuspendOnReload = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD);
             if (unsuspendOnReload) {
                 unsuspendTab(tab);
             }
             setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD, false);
 
+            // If we want to force tabs to be discarded instead of suspending them
+            let discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+            if (discardingStrategy === '2' || discardingStrategy === '3') {
+                setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
+            }
+
         } else if (changeInfo.status === 'complete') {
-            // If we want to discard tabs after suspending them
-            var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-            if (discardingStrategy === '2' && !tab.active) {
-                gsSuspendManager.forceTabDiscardation(tab);
-            } else {
-                initialiseSuspendedTab(tab);
-            }
+            initialiseSuspendedTab(tab, function () {
 
-            clearTabFlagsForTabId(tab.id);
-            gsSuspendManager.markTabAsSuspended(tab);
+                let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
+                clearTabFlagsForTabId(tab.id);
+                gsSuspendManager.markTabAsSuspended(tab);
 
-            if (isCurrentFocusedTab(tab)) {
-                setIconStatus('suspended', tab.id);
-            }
+                if (isCurrentFocusedTab(tab)) {
+                    setIconStatus('suspended', tab.id);
+                }
 
-            if (gsSession.isRecoveryMode()) {
-                gsSession.handleTabRecovered(tab);
-            }
+                if (gsSession.isRecoveryMode()) {
+                    gsSession.handleTabRecovered(tab);
+                }
+
+                // If we want to discard tabs after suspending them
+                let discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+                if ((discardingStrategy === '2' || discardingStrategy === '3') && !tab.active && discardOnLoad) {
+console.log(tab.id, 'suspended tab loaded. will discard.');
+                    gsSuspendManager.forceTabDiscardation(tab);
+                }
+            });
         }
     }
 
@@ -465,24 +476,26 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function updateTabIdReferences(newTabId, oldTabId) {
-        console.log('--------------------------------------');
-        console.log('replacing oldTabId: ' + oldTabId + ' with newTabId: ' + newTabId);
-        console.log('--------------------------------------');
+console.log('--------------------------------------');
+console.log('updateTabIdReferences: ' + oldTabId + ' -> ' + newTabId);
 
-        lastFocusedTabIdByWindowId = {};
-        lastFocusedWindowId;
-        lastStationaryTabIdByWindowId = {};
-        lastStationaryWindowId;
-        sessionSaveTimer;
-        newTabFocusTimer;
-        newWindowFocusTimer;
-        noticeToDisplay;
-        chargingMode = false;
-        suspensionActiveIcon = '/img/icon19.png';
-        suspensionPausedIcon = '/img/icon19b.png';
-        suspendUnsuspendHotkey;
-
-        tabFlagsByTabId = {};
+        for (const windowId of Object.keys(lastFocusedTabIdByWindowId)) {
+            if (lastFocusedTabIdByWindowId[windowId] === oldTabId) {
+                lastFocusedTabIdByWindowId[windowId] = newTabId;
+console.log('lastFocusedTabIdByWindowId[' + windowId + ']: ' + oldTabId + ' -> ' + newTabId);
+            }
+        }
+        for (const windowId of Object.keys(lastStationaryTabIdByWindowId)) {
+            if (lastStationaryTabIdByWindowId[windowId] === oldTabId) {
+                lastStationaryTabIdByWindowId[windowId] = newTabId;
+console.log('lastStationaryTabIdByWindowId[' + windowId + ']: ' + oldTabId + ' -> ' + newTabId);
+            }
+        }
+        if (tabFlagsByTabId[oldTabId]) {
+            tabFlagsByTabId[newTabId] = tabFlagsByTabId[oldTabId];
+            delete tabFlagsByTabId[oldTabId];
+console.log('tabFlagsByTabId[' + oldTabId + '] -> ' + 'tabFlagsByTabId[' + newTabId + ']');
+        }
     }
 
     function handleWindowFocusChanged(windowId) {
@@ -525,6 +538,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleTabFocusChanged(tabId, windowId) {
+console.log(tabId, 'tab gained focus');
         gsUtils.log(tabId, 'tab gained focus');
         var lastFocusedTabId = lastFocusedTabIdByWindowId[windowId];
         lastFocusedTabIdByWindowId[windowId] = tabId;
@@ -539,22 +553,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             calculateTabStatus(tab, null, function (status) {
                 setIconStatus(status, tab.id);
             });
-
-            //if we want to discard tabs after suspending them and the lastStationaryTab is suspended
-            //we do this here instead of after the handleNewTabFocus delay because discarded tabs
-            //auto-reload as soon as they gain focus, so need to be re-discarded when they lose focus again
-            var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-            if (discardingStrategy === '2') {
-                chrome.tabs.get(lastFocusedTabId, function (lastFocusedTab) {
-                    if (chrome.runtime.lastError) {
-                        //Tab has probably been removed
-                        return;
-                    }
-                    if (gsUtils.isSuspendedTab(lastFocusedTab)) {
-                        gsSuspendManager.forceTabDiscardation(lastFocusedTab);
-                    }
-                });
-            }
 
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
@@ -580,6 +578,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function handleNewTabFocus(tabId, lastStationaryTabId, newTab) {
+console.log(tabId, 'new tab focus handled');
         gsUtils.log(tabId, 'new tab focus handled');
         //remove request to instantly suspend this tab id
         if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
@@ -609,17 +608,31 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             gsMessages.sendReloadOptionsToOptionsTab(newTab.id);
         }
 
-        //Reset timer on tab that lost focus.
-        //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
         if (lastStationaryTabId && lastStationaryTabId !== tabId) {
             chrome.tabs.get(lastStationaryTabId, function (lastStationaryTab) {
                 if (chrome.runtime.lastError) {
+console.log(lastStationaryTabId, 'Tab does not exist');
                     //Tab has probably been removed
                     return;
                 }
+console.log(lastStationaryTabId, 'Tab exists!');
+
+                //Reset timer on tab that lost focus.
+                //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
                 if (lastStationaryTab && gsUtils.isNormalTab(lastStationaryTab) &&
                         !gsUtils.isActiveTab(lastStationaryTab) && !gsUtils.isDiscardedTab(lastStationaryTab)) {
                     gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id);
+                }
+
+                //if discarding strategy is to discard tabs after suspending them, and the lastFocusedTab
+                //is suspended, then discard it again.
+                if (gsUtils.isSuspendedTab(lastStationaryTab)) {
+                    var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+                    var discardOnLoad = getTabFlagForTabId(lastStationaryTabId, DISCARD_ON_LOAD);
+console.log('discardOnLoad', discardOnLoad);
+                    if ((discardingStrategy === '2' || discardingStrategy === '3') && !discardOnLoad) {
+                        gsSuspendManager.forceTabDiscardation(lastStationaryTab);
+                    }
                 }
             });
         }
@@ -1103,6 +1116,7 @@ gsUtils.log(tabId, 'Setting icon status: ' + status);
 
         TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
         UNSUSPEND_ON_RELOAD: UNSUSPEND_ON_RELOAD,
+        DISCARD_ON_LOAD: DISCARD_ON_LOAD,
         SCROLL_POS: SCROLL_POS,
         CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,
         getTabFlagForTabId: getTabFlagForTabId,

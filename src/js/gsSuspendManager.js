@@ -68,6 +68,14 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         }
     }
 
+    function undiscardTab(tab) {
+        if (gsUtils.isDiscardedTab(tab)) {
+            chrome.tabs.reload(tab.id);
+        } else {
+            gsUtils.log(tab.id, 'Tab not discarded');
+        }
+    }
+
     function removeTabFromSuspensionQueue(tab, reason) {
         const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
         if (!suspensionDetails) {
@@ -297,6 +305,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         executeTabSuspension,
         forceTabSuspension,
         forceTabDiscardation,
+        undiscardTab,
         updateQueueParameters,
     };
 }());

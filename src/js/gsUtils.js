@@ -357,7 +357,18 @@ var gsUtils = { // eslint-disable-line no-unused-vars
 
         //if discarding strategy has changed then updated discarded and suspended tabs
         if (this.contains(changedSettingKeys, gsStorage.DISCARDING_STRATEGY)) {
-            //TODO: Implement and also handle suspendedTabPreferencesToUpdate prefs below
+            var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+            var shouldDiscard = (discardingStrategy === '0' || discardingStrategy === '1') ? false : true;
+            chrome.tabs.query({}, function (tabs) {
+                var currentSuspendedTabs = tabs.filter(function (o) {return gsUtils.isSuspendedTab(o, true); });
+                currentSuspendedTabs.forEach(function (suspendedTab) {
+                    if (shouldDiscard) {
+                        gsSuspendManager.forceTabDiscardation(suspendedTab);
+                    } else {
+                        gsSuspendManager.undiscardTab(suspendedTab);
+                    }
+                });
+            });
         }
 
         //if theme or screenshot preferences have changed then refresh suspended tabs
