@@ -33,7 +33,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }
         if (preferencesToUpdate.indexOf(gsStorage.IGNORE_ACTIVE_TABS) > -1) {
             const ignoreActiveTabs = gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
-            activeTabSuspendTime = ignoreActiveTabs ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+            activeTabSuspendTime = ignoreActiveTabs ? '0' : gsStorage.getOption(gsStorage.SUSPEND_TIME);
         }
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
@@ -62,7 +62,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
 
     sendClearTimerToContentScript: function (tabId, callback) {
         this.sendMessageToContentScript(tabId, {
-            suspendTime: 0,
+            suspendTime: '0',
         }, this.WARNING, callback);
     },
 
