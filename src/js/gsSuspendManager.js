@@ -186,10 +186,10 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             }
         }
         if (forceLevel >= 3) {
-            if (gsStorage.getOption(gsStorage.ONLINE_CHECK) && !navigator.onLine) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) && !navigator.onLine) {
                 return false;
             }
-            if (gsStorage.getOption(gsStorage.BATTERY_CHECK) && tgs.isCharging()) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && tgs.isCharging()) {
                 return false;
             }
         }

@@ -9,6 +9,9 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
+    var ICON_SUSPENSION_ACTIVE = '/img/icon19.png';
+    var ICON_SUSPENSION_PAUSED = '/img/icon19b.png';
+
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
     var DISCARD_ON_LOAD = 'discardOnLoad';
@@ -16,31 +19,27 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
     var FOCUS_DELAY = 500;
 
-    var lastFocusedTabIdByWindowId = {},
-        lastFocusedWindowId,
-        lastStationaryTabIdByWindowId = {},
-        lastStationaryWindowId,
-        sessionSaveTimer,
-        newTabFocusTimer,
-        newWindowFocusTimer,
-        noticeToDisplay,
-        chargingMode = false,
-        suspensionActiveIcon = '/img/icon19.png',
-        suspensionPausedIcon = '/img/icon19b.png',
-        suspendUnsuspendHotkey;
-
-    var tabFlagsByTabId = {};
-
+    var _lastFocusedTabIdByWindowId = {},
+        _lastFocusedWindowId,
+        _lastStationaryTabIdByWindowId = {},
+        _lastStationaryWindowId,
+        _sessionSaveTimer,
+        _newTabFocusTimer,
+        _newWindowFocusTimer,
+        _noticeToDisplay,
+        _isCharging = false,
+        _suspendUnsuspendHotkey,
+        _tabFlagsByTabId = {};
 
     function init() {
 
         //initialise lastStationary and lastFocused vars
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                lastStationaryWindowId = activeTab.windowId;
-                lastFocusedWindowId = activeTab.windowId;
-                lastStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
-                lastFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
+                _lastStationaryWindowId = activeTab.windowId;
+                _lastFocusedWindowId = activeTab.windowId;
+                _lastStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
+                _lastFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
             }
         });
     }
@@ -51,7 +50,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 callback(tabs[0]);
             }
             else {
-                //TODO: Possibly fallback on lastStationaryWindowId and lastStationaryTabIdByWindowId here?
+                //TODO: Possibly fallback on _lastStationaryWindowId and _lastStationaryTabIdByWindowId here?
                 //except during initialization!!
                 //see https://github.com/deanoemcke/thegreatsuspender/issues/574
                 callback(null);
@@ -62,10 +61,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     // NOTE: Stationary here means has had focus for more than FOCUS_DELAY ms
     // So it may not necessarily have the tab.active flag set to true
     function isCurrentStationaryTab(tab) {
-        if (tab.windowId !== lastStationaryWindowId) {
+        if (tab.windowId !== _lastStationaryWindowId) {
             return false;
         }
-        var lastStationaryTabIdForWindow = lastStationaryTabIdByWindowId[tab.windowId];
+        var lastStationaryTabIdForWindow = _lastStationaryTabIdByWindowId[tab.windowId];
         if (lastStationaryTabIdForWindow) {
             return tab.id === lastStationaryTabIdForWindow;
         } else {
@@ -75,10 +74,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function isCurrentFocusedTab(tab) {
-        if (tab.windowId !== lastFocusedWindowId) {
+        if (tab.windowId !== _lastFocusedWindowId) {
             return false;
         }
-        var lastFocusedTabIdForWindow = lastFocusedTabIdByWindowId[tab.windowId];
+        var lastFocusedTabIdForWindow = _lastFocusedTabIdByWindowId[tab.windowId];
         if (lastFocusedTabIdForWindow) {
             return tab.id === lastFocusedTabIdForWindow;
         } else {
@@ -274,8 +273,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function queueSessionTimer() {
-        clearTimeout(sessionSaveTimer);
-        sessionSaveTimer = setTimeout(function () {
+        clearTimeout(_sessionSaveTimer);
+        _sessionSaveTimer = setTimeout(function () {
             gsUtils.log('background', 'savingWindowHistory');
             saveWindowHistory();
         }, 1000);
@@ -292,15 +291,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function getTabFlagForTabId(tabId, tabFlag) {
-        return tabFlagsByTabId[tabId] ? tabFlagsByTabId[tabId][tabFlag] : undefined;
+        return _tabFlagsByTabId[tabId] ? _tabFlagsByTabId[tabId][tabFlag] : undefined;
     }
     function setTabFlagForTabId(tabId, tabFlag, flagValue) {
-        var tabFlags = tabFlagsByTabId[tabId] || {};
+        var tabFlags = _tabFlagsByTabId[tabId] || {};
         tabFlags[tabFlag] = flagValue;
-        tabFlagsByTabId[tabId] = tabFlags;
+        _tabFlagsByTabId[tabId] = tabFlags;
     }
     function clearTabFlagsForTabId(tabId) {
-        delete tabFlagsByTabId[tabId];
+        delete _tabFlagsByTabId[tabId];
     }
 
     function unsuspendTab(tab) {
@@ -318,19 +317,19 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function getSuspendUnsuspendHotkey(callback) {
-        if (suspendUnsuspendHotkey) {
-            callback(suspendUnsuspendHotkey);
+        if (_suspendUnsuspendHotkey) {
+            callback(_suspendUnsuspendHotkey);
             return;
         }
         resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
-            callback(suspendUnsuspendHotkey);
+            callback(_suspendUnsuspendHotkey);
         });
     }
 
     function resetSuspendUnsuspendHotkey(callback) {
-        gsUtils.buildSuspendUnsuspendHotkey(function (_suspendUnsuspendHotkey) {
-            var hotkeyChanged = _suspendUnsuspendHotkey !== suspendUnsuspendHotkey;
-            suspendUnsuspendHotkey = _suspendUnsuspendHotkey;
+        gsUtils.buildSuspendUnsuspendHotkey(function (hotkey) {
+            var hotkeyChanged = hotkey !== _suspendUnsuspendHotkey;
+            _suspendUnsuspendHotkey = hotkey;
             callback(hotkeyChanged);
         });
     }
@@ -447,7 +446,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     previewUri = preview.img;
                 }
                 var options = gsStorage.getSettings();
-                getSuspendUnsuspendHotkey(function (suspendUnsuspendHotkey) {
+                getSuspendUnsuspendHotkey(function (hotkey) {
                     var payload = {
                         tabId: tab.id,
                         requestUnsuspendOnReload: true,
@@ -460,7 +459,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                         hideNag: options[gsStorage.NO_NAG],
                         previewMode: options[gsStorage.SCREEN_CAPTURE],
                         previewUri: previewUri,
-                        command: suspendUnsuspendHotkey,
+                        command: hotkey,
                     };
                     gsMessages.sendInitSuspendedTab(tab.id, payload, callback);
                 });
@@ -469,19 +468,19 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function updateTabIdReferences(newTabId, oldTabId) {
-        for (const windowId of Object.keys(lastFocusedTabIdByWindowId)) {
-            if (lastFocusedTabIdByWindowId[windowId] === oldTabId) {
-                lastFocusedTabIdByWindowId[windowId] = newTabId;
+        for (const windowId of Object.keys(_lastFocusedTabIdByWindowId)) {
+            if (_lastFocusedTabIdByWindowId[windowId] === oldTabId) {
+                _lastFocusedTabIdByWindowId[windowId] = newTabId;
             }
         }
-        for (const windowId of Object.keys(lastStationaryTabIdByWindowId)) {
-            if (lastStationaryTabIdByWindowId[windowId] === oldTabId) {
-                lastStationaryTabIdByWindowId[windowId] = newTabId;
+        for (const windowId of Object.keys(_lastStationaryTabIdByWindowId)) {
+            if (_lastStationaryTabIdByWindowId[windowId] === oldTabId) {
+                _lastStationaryTabIdByWindowId[windowId] = newTabId;
             }
         }
-        if (tabFlagsByTabId[oldTabId]) {
-            tabFlagsByTabId[newTabId] = tabFlagsByTabId[oldTabId];
-            delete tabFlagsByTabId[oldTabId];
+        if (_tabFlagsByTabId[oldTabId]) {
+            _tabFlagsByTabId[newTabId] = _tabFlagsByTabId[oldTabId];
+            delete _tabFlagsByTabId[oldTabId];
         }
     }
 
@@ -490,7 +489,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         gsUtils.log(windowId, 'window changed');
-        lastFocusedWindowId = windowId;
+        _lastFocusedWindowId = windowId;
 
         // Get the active tab in the newly focused window
         chrome.tabs.query({active: true}, function (tabs) {
@@ -526,7 +525,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function handleTabFocusChanged(tabId, windowId) {
         gsUtils.log(tabId, 'tab gained focus');
-        lastFocusedTabIdByWindowId[windowId] = tabId;
+        _lastFocusedTabIdByWindowId[windowId] = tabId;
 
         chrome.tabs.get(tabId, function (tab) {
             if (chrome.runtime.lastError) {
@@ -546,18 +545,18 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function queueNewWindowFocusTimer(tabId, lastStationaryTabId, newTab) {
-        clearTimeout(newWindowFocusTimer);
-        newWindowFocusTimer = setTimeout(function () {
-            lastStationaryWindowId = newTab.windowId;
+        clearTimeout(_newWindowFocusTimer);
+        _newWindowFocusTimer = setTimeout(function () {
+            _lastStationaryWindowId = newTab.windowId;
             handleNewTabFocus(tabId, lastStationaryTabId, newTab);
         }, FOCUS_DELAY);
     }
 
     function queueNewTabFocusTimer(tabId, windowId, newTab) {
-        clearTimeout(newTabFocusTimer);
-        newTabFocusTimer = setTimeout(function () {
-            var lastStationaryTabId = lastStationaryTabIdByWindowId[windowId];
-            lastStationaryTabIdByWindowId[windowId] = newTab.id;
+        clearTimeout(_newTabFocusTimer);
+        _newTabFocusTimer = setTimeout(function () {
+            var lastStationaryTabId = _lastStationaryTabIdByWindowId[windowId];
+            _lastStationaryTabIdByWindowId[windowId] = newTab.id;
             handleNewTabFocus(tabId, lastStationaryTabId, newTab);
         }, FOCUS_DELAY);
     }
@@ -647,7 +646,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                     currentNoticeVersion > lastNoticeVersion) {
 
                     //set global notice field (so that it can be trigger to show later)
-                    noticeToDisplay = resp;
+                    _noticeToDisplay = resp;
                 }
             }
         };
@@ -655,14 +654,14 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     }
 
     function requestNotice() {
-        return noticeToDisplay;
+        return _noticeToDisplay;
     }
     function clearNotice() {
-        noticeToDisplay = undefined;
+        _noticeToDisplay = undefined;
     }
 
     function isCharging() {
-        return chargingMode;
+        return _isCharging;
     }
 
     function getDebugInfo(tabId, callback) {
@@ -734,8 +733,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //tempWhitelist: a tab that has been manually paused
     //pinned: a pinned tab (and IGNORE_PINNED is true)
     //whitelisted: a tab that has been whitelisted
-    //charging: computer currently charging (and BATTERY_CHECK is true)
-    //noConnectivity: internet currently offline (and ONLINE_CHECK is true)
+    //charging: computer currently charging (and IGNORE_WHEN_CHARGING is true)
+    //noConnectivity: internet currently offline (and IGNORE_WHEN_OFFLINE is true)
     //unknown: an error detecting tab status
     function calculateTabStatus(tab, knownContentScriptStatus, callback) {
         //check for loading
@@ -775,12 +774,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 return;
             }
             //check running on battery
-            if (gsStorage.getOption(gsStorage.BATTERY_CHECK) && chargingMode) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && _isCharging) {
                 callback('charging');
                 return;
             }
             //check internet connectivity
-            if (gsStorage.getOption(gsStorage.ONLINE_CHECK) && !navigator.onLine) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) && !navigator.onLine) {
                 callback('noConnectivity');
                 return;
             }
@@ -822,7 +821,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //change the icon to either active or inactive
     function setIconStatus(status, tabId) {
         // gsUtils.log(tabId, 'Setting icon status: ' + status);
-        var icon = !['normal', 'active'].includes(status) ? suspensionPausedIcon : suspensionActiveIcon;
+        var icon = !['normal', 'active'].includes(status) ? ICON_SUSPENSION_PAUSED : ICON_SUSPENSION_ACTIVE;
         chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function () {
             if (chrome.runtime.lastError) {
                 gsUtils.error('background', chrome.runtime.lastError);
@@ -1072,11 +1071,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     if (navigator.getBattery) {
         navigator.getBattery().then(function (battery) {
 
-            chargingMode = battery.charging;
+            _isCharging = battery.charging;
 
             battery.onchargingchange = function () {
-                chargingMode = battery.charging;
-                gsUtils.log('background', `chargingMode: ${chargingMode}`);
+                _isCharging = battery.charging;
+                gsUtils.log('background', `_isCharging: ${_isCharging}`);
                 setIconStatusForActiveTab();
             };
         });

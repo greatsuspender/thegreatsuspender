@@ -6,10 +6,10 @@ var gsStorage = {
     SCREEN_CAPTURE: 'screenCapture',
     SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
     DISCARDING_STRATEGY: 'discardingStrategy',
-    ONLINE_CHECK: 'onlineCheck',
-    BATTERY_CHECK: 'batteryCheck',
     UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
     SUSPEND_TIME: 'gsTimeToSuspend',
+    IGNORE_WHEN_OFFLINE: 'onlineCheck',
+    IGNORE_WHEN_CHARGING: 'batteryCheck',
     IGNORE_PINNED: 'gsDontSuspendPinned',
     IGNORE_FORMS: 'gsDontSuspendForms',
     IGNORE_AUDIO: 'gsDontSuspendAudio',
@@ -46,8 +46,8 @@ var gsStorage = {
         defaults[this.SCREEN_CAPTURE] = '0';
         defaults[this.SCREEN_CAPTURE_FORCE] = false;
         defaults[this.DISCARDING_STRATEGY] = '0';
-        defaults[this.ONLINE_CHECK] = false;
-        defaults[this.BATTERY_CHECK] = false;
+        defaults[this.IGNORE_WHEN_OFFLINE] = false;
+        defaults[this.IGNORE_WHEN_CHARGING] = false;
         defaults[this.UNSUSPEND_ON_FOCUS] = false;
         defaults[this.IGNORE_PINNED] = true;
         defaults[this.IGNORE_FORMS] = true;
