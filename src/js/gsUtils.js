@@ -356,16 +356,14 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
 
         //if discarding strategy has changed then updated discarded and suspended tabs
-        if (this.contains(changedSettingKeys, gsStorage.DISCARDING_STRATEGY)) {
-            var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-            var shouldDiscard = (discardingStrategy === '0' || discardingStrategy === '1') ? false : true;
+        if (this.contains(changedSettingKeys, gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)) {
+            var suspendInPlaceOfDiscard = gsStorage.getOption(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD);
             chrome.tabs.query({}, function (tabs) {
-                var currentSuspendedTabs = tabs.filter(function (o) {return gsUtils.isSuspendedTab(o, true); });
-                currentSuspendedTabs.forEach(function (suspendedTab) {
-                    if (shouldDiscard) {
-                        gsSuspendManager.forceTabDiscardation(suspendedTab);
-                    } else {
-                        gsSuspendManager.undiscardTab(suspendedTab);
+                var currentNormalTabs = tabs.filter(function (o) {return gsUtils.isNormalTab(o, true); });
+                currentNormalTabs.forEach(function (normalTab) {
+                    if (gsUtils.isDiscardedTab(normalTab) && suspendInPlaceOfDiscard) {
+                        var suspendedUrl = gsUtils.generateSuspendedUrl(normalTab.url, normalTab.title, 0);
+                        gsSuspendManager.forceTabSuspension(normalTab, suspendedUrl);
                     }
                 });
             });

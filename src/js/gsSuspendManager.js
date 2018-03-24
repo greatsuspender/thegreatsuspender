@@ -40,10 +40,10 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+        let discardInPlaceOfSuspend = gsStorage.getOption(gsStorage.DISCARD_IN_PLACE_OF_SUSPEND);
 
         // If we want to force tabs to be discarded instead of suspending them
-        if (discardingStrategy === '3') {
+        if (discardInPlaceOfSuspend) {
             forceTabDiscardation(tab);
         } else {
             gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {

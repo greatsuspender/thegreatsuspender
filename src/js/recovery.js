@@ -109,7 +109,7 @@
             if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0') {
                 warningEl.style.display = 'block';
             }
-            //TODO: Potentially show warning here if DISCARDING_STRATEGY has tab discarding disabled?
+            //TODO: Potentially show warning here if SUSPEND_IN_PLACE_OF_DISCARD enabled?
         }
 
         var performRestore = function () {

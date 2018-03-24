@@ -59,6 +59,7 @@
     "html_options_suspend_days": { "message": "天" }, //day
     "html_options_suspend_week": { "message": "週" }, //week
     "html_options_suspend_weeks": { "message": "週" }, //week
+    "html_options_suspend_on_low_memory": { "message": "当系统内存变得非常低时冻结页面" }, //Freeze page when system memory becomes very low
     "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" }, //Do not freeze a fixed page
     "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" }, //Do not freeze pages that have text in the input box and have not been saved yet
     "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound
@@ -86,40 +87,6 @@
     "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 图片的最大高度限制为5000像素" }, //? - Maximum height of image limited to 5000px
     "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "启用高质量的屏幕捕捉模式可能会显着增加CPU负载和内存使用量。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
     "html_options_suspend_force_screen_capture_tooltip_line7": { "message": "" },
-    //TODO: translate these messages
-    "html_options_discarding_strategy": { "message": "Tab discarding" },
-    "html_options_discarding_strategy_force_suspension": { "message": "Force chrome to suspend tabs instead of discarding them" },
-    "html_options_discarding_strategy_normal": { "message": "Let chrome manage tab discarding" },
-    "html_options_discarding_strategy_discard_after_suspension": { "message": "Discard tabs after suspending them" },
-    "html_options_discarding_strategy_force_discarding": { "message": "Discard tabs instead of suspending them" },
-    "html_options_discarding_strategy_tooltip_prefixa": { "message": "When chrome detects that the system is running critically low on memory, it will start" },
-    "html_options_discarding_strategy_tooltip_prefixb": { "message": "discarding tabs. This does a similar thing to suspending a tab, except that the tab" },
-    "html_options_discarding_strategy_tooltip_prefixc": { "message": "favicon will not change, and the tab will reload as soon as it is revisited." },
-    "html_options_discarding_strategy_tooltip_prefixd": { "message": "This option allows you to configure how The Great Suspender interacts with Chrome's native" },
-    "html_options_discarding_strategy_tooltip_prefixe": { "message": "tab discarding." },
-    "html_options_discarding_strategy_tooltip_option0a": { "message": "Force chrome to suspend tabs instead of discarding them:" },
-    "html_options_discarding_strategy_tooltip_option0b": { "message": "- When tab discarding is detected, the tab will suspend via The Great Suspender instead." },
-    "html_options_discarding_strategy_tooltip_option0c": { "message": "- This may happen even before the requested extension 'time to suspend' option if the" },
-    "html_options_discarding_strategy_tooltip_option0d": { "message": "system is low on memory." },
-    "html_options_discarding_strategy_tooltip_option1a": { "message": "Let chrome manage tab discarding:" },
-    "html_options_discarding_strategy_tooltip_option1b": { "message": "- Chrome is free to discard tabs when system resources are low." },
-    "html_options_discarding_strategy_tooltip_option1c": { "message": "- Discarded tabs will not automatically suspend." },
-    "html_options_discarding_strategy_tooltip_option2a": { "message": "Discard tabs after suspending them:" },
-    "html_options_discarding_strategy_tooltip_option2b": { "message": "- Suspend tabs as normal, but once they are suspended, also discard them." },
-    "html_options_discarding_strategy_tooltip_option2c": { "message": "- This will give you increased memory performance, but suspended tabs will briefly flash when" },
-    "html_options_discarding_strategy_tooltip_option2d": { "message": "  they are revisited." },
-    "html_options_discarding_strategy_tooltip_option3a": { "message": "Discard tabs instead of suspending them:" },
-    "html_options_discarding_strategy_tooltip_option3b": { "message": "- Tabs will suspend as normal. Instead they will discard which has a few side effects:" },
-    "html_options_discarding_strategy_tooltip_option3c": { "message": "- Favicons will not fade out when a tab reaches it's timeout." },
-    "html_options_discarding_strategy_tooltip_option3d": { "message": "- Tabs will automatically reload as soon as they are revisited which means the 'theme' and" },
-    "html_options_discarding_strategy_tooltip_option3e": { "message": "  screen capture' options will have no effect." },
-    "html_options_discarding_strategy_tooltip_option3f": { "message": "- When chrome is restarted, these tabs will NOT reload as discarded. They will need to wait" },
-    "html_options_discarding_strategy_tooltip_option3g": { "message": "  for the 'time to suspend' before discarding again." },
-    "html_options_discarding_strategy_tooltip_option3h": { "message": "- NOTE: Enabling this mode will enable proper chrome syncing of tabs across devices (with" },
-    "html_options_discarding_strategy_tooltip_option3i": { "message": "  the correct urls!). It will also prevent tabs from disappearing when the extension is" },
-    "html_options_discarding_strategy_tooltip_option3j": { "message": "  updated or uninstalled." },
-    "html_options_discarding_strategy_tooltip_suffixa": { "message": "For more information on Chrome's native tab discarding refer to this link:" },
-    "html_options_discarding_strategy_tooltip_suffixb": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
     "html_options_whitelist_title": { "message": "例外清單" }, //Exception list
     "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:

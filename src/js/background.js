@@ -340,8 +340,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         //check if tab has just been discarded
         if (changeInfo.hasOwnProperty('discarded')) {
             // If we want to force tabs to be suspended instead of discarding them
-            var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-            if (discardingStrategy === '0') {
+            var suspendInPlaceOfDiscard = gsStorage.getOption(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD);
+            var discardInPlaceOfSuspend = gsStorage.getOption(gsStorage.DISCARD_IN_PLACE_OF_SUSPEND);
+            if (suspendInPlaceOfDiscard && !discardInPlaceOfSuspend) {
                 var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
                 gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
                 return;
@@ -405,9 +406,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
             setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD, false);
 
-            // If we want to force tabs to be discarded instead of suspending them
-            let discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-            if (discardingStrategy === '2' || discardingStrategy === '3') {
+            // If we want to force tabs to be discarded after suspending them
+            let discardAfterSuspend = gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND);
+            if (discardAfterSuspend) {
                 setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
             }
 
@@ -427,8 +428,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 }
 
                 // If we want to discard tabs after suspending them
-                let discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
-                if ((discardingStrategy === '2' || discardingStrategy === '3') && !tab.active && discardOnLoad) {
+                let discardAfterSuspend = gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND);
+                if (discardAfterSuspend && !tab.active && discardOnLoad) {
                     gsSuspendManager.forceTabDiscardation(tab);
                 }
             });
@@ -616,9 +617,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 //if discarding strategy is to discard tabs after suspending them, and the lastFocusedTab
                 //is suspended, then discard it again.
                 if (gsUtils.isSuspendedTab(lastStationaryTab)) {
-                    var discardingStrategy = gsStorage.getOption(gsStorage.DISCARDING_STRATEGY);
+                    let discardAfterSuspend = gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND);
                     var discardOnLoad = getTabFlagForTabId(lastStationaryTabId, DISCARD_ON_LOAD);
-                    if ((discardingStrategy === '2' || discardingStrategy === '3') && !discardOnLoad) {
+                    if (discardAfterSuspend && !discardOnLoad) {
                         gsSuspendManager.forceTabDiscardation(lastStationaryTab);
                     }
                 }
