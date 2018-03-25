@@ -181,7 +181,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             }
         }
         if (forceLevel >= 2) {
-            if (gsUtils.isActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isPinnedTab(tab) || gsUtils.isAudibleTab(tab)) {
+            if (gsUtils.isProtectedActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isProtectedPinnedTab(tab) || gsUtils.isProtectedAudibleTab(tab)) {
                 return false;
             }
         }

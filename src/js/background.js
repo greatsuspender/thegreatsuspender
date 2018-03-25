@@ -414,7 +414,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
         var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
         var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-        var suspendTime = gsUtils.isActiveTab(tab) ? '0' : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        var suspendTime = gsUtils.isProtectedActiveTab(tab) ? '0' : gsStorage.getOption(gsStorage.SUSPEND_TIME);
         gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
@@ -632,7 +632,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 //Reset timer on tab that lost focus.
                 //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
                 if (lastStationaryTab && gsUtils.isNormalTab(lastStationaryTab) &&
-                        !gsUtils.isActiveTab(lastStationaryTab) && !gsUtils.isDiscardedTab(lastStationaryTab)) {
+                        !gsUtils.isProtectedActiveTab(lastStationaryTab) && !gsUtils.isDiscardedTab(lastStationaryTab)) {
                     gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id);
                 }
 
@@ -815,17 +815,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 return;
             }
             //check pinned tab
-            if (gsUtils.isPinnedTab(tab)) {
+            if (gsUtils.isProtectedPinnedTab(tab)) {
                 callback('pinned');
                 return;
             }
             //check audible tab
-            if (gsUtils.isAudibleTab(tab)) {
+            if (gsUtils.isProtectedAudibleTab(tab)) {
                 callback('audible');
                 return;
             }
             //check active
-            if (gsUtils.isActiveTab(tab)) {
+            if (gsUtils.isProtectedActiveTab(tab)) {
                 callback('active');
                 return;
             }

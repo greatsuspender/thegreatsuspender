@@ -85,17 +85,17 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return isLocalExtensionPage && !gsUtils.isSuspendedUrl(tab.url, true);
     },
 
-    isPinnedTab: function (tab) {
+    isProtectedPinnedTab: function (tab) {
         var dontSuspendPinned = gsStorage.getOption(gsStorage.IGNORE_PINNED);
         return dontSuspendPinned && tab.pinned;
     },
 
-    isAudibleTab: function (tab) {
+    isProtectedAudibleTab: function (tab) {
         var dontSuspendAudible = gsStorage.getOption(gsStorage.IGNORE_AUDIO);
         return dontSuspendAudible && tab.audible;
     },
 
-    isActiveTab: function (tab, ignorePref) {
+    isProtectedActiveTab: function (tab, ignorePref) {
         var dontSuspendActiveTabs = ignorePref ? true : gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
         return tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
     },

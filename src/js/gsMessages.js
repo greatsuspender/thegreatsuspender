@@ -48,7 +48,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
                 if (typeof suspendTime !== 'undefined') {
                     tabPayload.suspendTime = suspendTime;
                 }
-                if (typeof activeTabSuspendTime !== 'undefined' && gsUtils.isActiveTab(currentTab, true)) {
+                if (typeof activeTabSuspendTime !== 'undefined' && gsUtils.isProtectedActiveTab(currentTab, true)) {
                     tabPayload.suspendTime = activeTabSuspendTime;
                 }
                 self.sendMessageToContentScript(currentTab.id, tabPayload, this.WARNING, function (err) {
