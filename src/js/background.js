@@ -1087,6 +1087,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 _isCharging = battery.charging;
                 gsUtils.log('background', `_isCharging: ${_isCharging}`);
                 setIconStatusForActiveTab();
+                //restart timer on all normal tabs
+                //NOTE: some tabs may have been prevented from suspending when computer was charging
+                if (!_isCharging && gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)) {
+                    gsMessages.sendResetToContentScripts([gsStorage.SUSPEND_TIME]);
+                }
             };
         });
     }
@@ -1094,6 +1099,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //add listeners for online/offline state changes
     window.addEventListener('online', function () {
         gsUtils.log('background', 'Internet is online.');
+        //restart timer on all normal tabs
+        //NOTE: some tabs may have been prevented from suspending when internet was offline
+        if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
+            gsMessages.sendResetToContentScripts([gsStorage.SUSPEND_TIME]);
+        }
         setIconStatusForActiveTab();
     });
     window.addEventListener('offline', function () {
