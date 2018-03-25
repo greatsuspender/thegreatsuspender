@@ -58,6 +58,28 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function getAllExpiredTabs(callback) {
+        var expiredTabs = [];
+        var checkTabExpiryPromises = [];
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if(gsUtils.isNormalTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
+                    checkTabExpiryPromises.push(new Promise(function (resolve) {
+                        gsMessages.sendRequestInfoToContentScript(currentTab.id, function (err, tabInfo) {
+                            if (tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
+                                expiredTabs.push(currentTab);
+                            }
+                            resolve();
+                        });
+                    }));
+                }
+            });
+            Promise.all(checkTabExpiryPromises).then(function () {
+                callback(expiredTabs);
+            });
+        });
+    }
+
     // NOTE: Stationary here means has had focus for more than FOCUS_DELAY ms
     // So it may not necessarily have the tab.active flag set to true
     function isCurrentStationaryTab(tab) {
