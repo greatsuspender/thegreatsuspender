@@ -38,7 +38,7 @@
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
             //document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
-            document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
+            //document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
             setFavicon(preFaviconUrl);
@@ -73,8 +73,9 @@
             return;
         }
         currentUrl = url;
-        document.getElementById('gsTopBarUrl').innerHTML = url;
-        document.getElementById('gsTopBarUrl').setAttribute('href', url);
+        //const domain = 'cool.com';
+        document.getElementById('gsTopBarUrl').innerHTML = getRootUrl(currentUrl);
+        //document.getElementById('gsTopBarUrl').setAttribute('href', url);
     }
 
     function setFavicon(faviconUrl) {
@@ -212,10 +213,10 @@
         }
         showingWhitelisted = whitelisted;
         if (whitelisted) {
-            document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
+            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
             document.getElementById('gsWhitelistLink').onclick = unwhitelistTab;
         } else {
-            document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('html_suspended_tab_whitelist');
+            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('html_suspended_tab_whitelist');
             document.getElementById('gsWhitelistLink').onclick = function () {
                 toggleWhitelistModal(true);
             };
