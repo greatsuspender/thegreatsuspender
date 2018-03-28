@@ -261,7 +261,7 @@
             chrome.extension.getBackgroundPage().gsUtils.removeFromWhitelist(getRootUrl(currentUrl, true));
         } catch (error) { console.error(error); }
         toggleWhitelistModal(false);
-        unsuspendTab();
+        setWhitelisted(false);
     }
 
     function temporarilyWhitelistTab() {
