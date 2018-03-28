@@ -164,7 +164,11 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                             'Extension initialization finished.\n' +
                             '------------------------------------------------\n\n');
                     }).catch((error) => {
+                        initialisationMode = false;
                         gsUtils.error('gsSession', error);
+                        gsUtils.error('gsSession', '\n\n------------------------------------------------\n' +
+                            'Extension initialization FAILED.\n' +
+                            '------------------------------------------------\n\n');
                     });
                 }
             });
@@ -290,10 +294,20 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         await new Promise(resolve => setTimeout(resolve, timeout));
-        await new Promise(resolve => chrome.tabs.get(tab.id, function (_tab) {
-            tab = _tab;
-            resolve();
+        let _tab = await new Promise(resolve => chrome.tabs.get(tab.id, function (newTab) {
+            if (chrome.runtime.lastError) {
+                gsUtils.log(tab.id, chrome.runtime.lastError);
+                resolve();
+                return;
+            }
+            resolve(newTab);
         }));
+        if (!_tab) {
+            gsUtils.log(tab.id, `Failed to initialize tab. Tab may have been removed.`);
+            return;
+        } else {
+            tab = _tab;
+        }
         totalTimeQueued += (timeout);
         gsUtils.log(tab.id, `${parseInt(totalTimeQueued / 1000)} seconds has elapsed. Pinging tab with state: ${tab.status}..`);
         const result = await pingTabScript(tab, totalTimeQueued);

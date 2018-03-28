@@ -344,12 +344,17 @@ var gsStorage = {
             } else {
                 callback(null);
             }
+        }).catch(function (err) {
+            gsUtils.error('gsStorage', err);
+            callback(null);
         });
     },
 
     addPreviewImage: function (tabUrl, previewUrl, callback) {
         var self = this,
             server;
+        callback = typeof callback !== 'function' ? this.noop : callback;
+
         this.getDb().then(function (s) {
             server = s;
             return server.query(self.DB_PREVIEWS, 'url')
@@ -364,16 +369,18 @@ var gsStorage = {
             }
         }).then(function () {
             server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
-            if (typeof callback === 'function') callback();
+            callback();
         });
     },
 
     addSuspendedTabInfo: function (tabProperties, callback) {
         var self = this,
             server;
+        callback = typeof callback !== 'function' ? this.noop : callback;
 
         if (!tabProperties.url) {
             gsUtils.log('gsStorage', 'tabProperties.url not set.');
+            callback();
             return;
         }
 
@@ -390,7 +397,7 @@ var gsStorage = {
             }
         }).then(function () {
             server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function () {
-                if (typeof callback === 'function') callback();
+                callback();
             });
         });
     },
