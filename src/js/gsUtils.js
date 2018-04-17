@@ -95,8 +95,8 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return dontSuspendAudible && tab.audible;
     },
 
-    isProtectedActiveTab: function (tab, ignorePref) {
-        var dontSuspendActiveTabs = ignorePref ? true : gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
+    isProtectedActiveTab: function (tab) {
+        var dontSuspendActiveTabs = gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
         return tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
     },
 
@@ -117,8 +117,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     checkWhiteList: function (url) {
-        var whitelist = gsStorage.getOption(gsStorage.WHITELIST),
-            whitelistItems = whitelist ? whitelist.split(/[\s\n]+/) : [],
+        return gsUtils.checkSpecificWhiteList(url, gsStorage.getOption(gsStorage.WHITELIST));
+    },
+
+    checkSpecificWhiteList: function (url, whitelistString) {
+        var whitelistItems = whitelistString ? whitelistString.split(/[\s\n]+/) : [],
             whitelisted;
 
         whitelisted = whitelistItems.some(function (item) {
@@ -128,8 +131,8 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     removeFromWhitelist: function (url) {
-        var whitelist = gsStorage.getOption(gsStorage.WHITELIST),
-            whitelistItems = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
+        var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '',
+            whitelistItems = oldWhitelistString.split(/[\s\n]+/).sort(),
             i;
 
         for (i = whitelistItems.length - 1; i >= 0; i--) {
@@ -140,6 +143,9 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var whitelistString = whitelistItems.join('\n');
         gsStorage.setOption(gsStorage.WHITELIST, whitelistString);
         gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelistString });
+
+        var key = gsStorage.WHITELIST;
+        gsUtils.performPostSaveUpdates([key], { [key]: oldWhitelistString }, { [key]: whitelistString });
     },
 
     testForMatch: function (whitelistItem, word) {
@@ -176,11 +182,14 @@ var gsUtils = { // eslint-disable-line no-unused-vars
     },
 
     saveToWhitelist: function (newString) {
-        var whitelist = gsStorage.getOption(gsStorage.WHITELIST);
-        whitelist = whitelist ? whitelist + '\n' + newString : newString;
-        whitelist = this.cleanupWhitelist(whitelist);
-        gsStorage.setOption(gsStorage.WHITELIST, whitelist);
-        gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelist });
+        var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '';
+        var newWhitelistString = oldWhitelistString + '\n' + newString;
+        newWhitelistString = this.cleanupWhitelist(newWhitelistString);
+        gsStorage.setOption(gsStorage.WHITELIST, newWhitelistString);
+        gsStorage.syncSettings({ [gsStorage.WHITELIST]: newWhitelistString });
+
+        var key = gsStorage.WHITELIST;
+        gsUtils.performPostSaveUpdates([key], { [key]: oldWhitelistString }, { [key]: newWhitelistString });
     },
 
     cleanupWhitelist: function (whitelist) {
@@ -192,6 +201,9 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             j = whitelistItems.lastIndexOf(whitelistItems[i]);
             if (j !== i) {
                 whitelistItems.splice(i + 1, j - i);
+            }
+            if (!whitelistItems[i] || whitelistItems[i] === '') {
+                whitelistItems.splice(i, 1);
             }
         }
         if (whitelistItems.length) {
@@ -338,48 +350,108 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         });
     },
 
-    performPostSaveUpdates: function (changedSettingKeys) {
-
-        //if interval, or form input preferences have changed then reset the content scripts
-        var contentScriptPreferencesToUpdate = [];
-        if (this.contains(changedSettingKeys, gsStorage.SUSPEND_TIME)) {
-            contentScriptPreferencesToUpdate.push(gsStorage.SUSPEND_TIME);
-        }
-        if (this.contains(changedSettingKeys, gsStorage.IGNORE_FORMS)) {
-            contentScriptPreferencesToUpdate.push(gsStorage.IGNORE_FORMS);
-        }
-        if (this.contains(changedSettingKeys, gsStorage.IGNORE_ACTIVE_TABS)) {
-            contentScriptPreferencesToUpdate.push(gsStorage.IGNORE_ACTIVE_TABS);
-        }
-        if (contentScriptPreferencesToUpdate.length > 0) {
-            gsMessages.sendResetToAllContentScripts(contentScriptPreferencesToUpdate);
-        }
-
-        //if discarding strategy has changed then updated discarded and suspended tabs
-        if (this.contains(changedSettingKeys, gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)) {
-            var suspendInPlaceOfDiscard = gsStorage.getOption(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD);
-            chrome.tabs.query({}, function (tabs) {
-                var currentNormalTabs = tabs.filter(function (o) {return gsUtils.isNormalTab(o, true); });
-                currentNormalTabs.forEach(function (normalTab) {
-                    if (gsUtils.isDiscardedTab(normalTab) && suspendInPlaceOfDiscard) {
-                        var suspendedUrl = gsUtils.generateSuspendedUrl(normalTab.url, normalTab.title, 0);
-                        gsSuspendManager.forceTabSuspension(normalTab, suspendedUrl);
-                    }
-                });
+    getAllExpiredTabs: function (callback) {
+        var expiredTabs = [];
+        var checkTabExpiryPromises = [];
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (currentTab) {
+                if(gsUtils.isNormalTab(currentTab) && !gsUtils.isDiscardedTab(currentTab)) {
+                    checkTabExpiryPromises.push(new Promise(function (resolve) {
+                        gsMessages.sendRequestInfoToContentScript(currentTab.id, function (err, tabInfo) {
+                            if (tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
+                                expiredTabs.push(currentTab);
+                            }
+                            resolve();
+                        });
+                    }));
+                }
             });
-        }
+            Promise.all(checkTabExpiryPromises).then(function () {
+                callback(expiredTabs);
+            });
+        });
+    },
 
-        //if theme or screenshot preferences have changed then refresh suspended tabs
-        var suspendedTabPreferencesToUpdate = {};
-        if (this.contains(changedSettingKeys, gsStorage.THEME)) {
-            suspendedTabPreferencesToUpdate.theme = gsStorage.getOption(gsStorage.THEME);
-        }
-        if (this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE)) {
-            suspendedTabPreferencesToUpdate.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-        }
-        if (Object.keys(suspendedTabPreferencesToUpdate).length > 0) {
-            gsMessages.sendRefreshToAllSuspendedTabs(suspendedTabPreferencesToUpdate);
-        }
+    performPostSaveUpdates: function (changedSettingKeys, oldValueBySettingKey, newValueBySettingKey) {
+
+        chrome.tabs.query({}, function (tabs) {
+            tabs.forEach(function (tab) {
+
+                if (gsUtils.isSpecialTab(tab)) {
+                    return;
+                }
+
+                if (gsUtils.isSuspendedTab(tab)) {
+                    //If toggling IGNORE_PINNED or IGNORE_ACTIVE_TABS to TRUE, then unsuspend any suspended pinned/active tabs
+                    if ((changedSettingKeys.includes(gsStorage.IGNORE_PINNED) && gsUtils.isProtectedPinnedTab(tab)) ||
+                            (changedSettingKeys.includes(gsStorage.IGNORE_ACTIVE_TABS) && gsUtils.isProtectedActiveTab(tab))){
+                        tgs.unsuspendTab(tab);
+                        return;
+                    }
+
+                    //if theme, screenshot or whitelist preferences have changed then refresh suspended tabs
+                    var payload = {};
+                    if (changedSettingKeys.includes(gsStorage.THEME)) {
+                        payload.theme = gsStorage.getOption(gsStorage.THEME);
+                    }
+                    if (changedSettingKeys.includes(gsStorage.SCREEN_CAPTURE)) {
+                        payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+                    }
+                    if (changedSettingKeys.includes(gsStorage.WHITELIST)) {
+                        let suspendedUrl = gsUtils.getSuspendedUrl(tab.url);
+                        let wasWhitelisted = gsUtils.checkSpecificWhiteList(suspendedUrl, oldValueBySettingKey[gsStorage.WHITELIST]);
+                        let isWhitelisted = gsUtils.checkSpecificWhiteList(suspendedUrl, newValueBySettingKey[gsStorage.WHITELIST]);
+                        if ((wasWhitelisted && !isWhitelisted) || (!wasWhitelisted && isWhitelisted)) {
+                            payload.whitelisted = isWhitelisted;
+                        }
+                    }
+                    if (Object.keys(payload).length > 0) {
+                        gsMessages.sendUpdateSuspendedTab(tab.id, payload);
+                    }
+                    return;
+                }
+
+                if (gsUtils.isDiscardedTab(tab)) {
+
+                    //if discarding strategy has changed then updated discarded and suspended tabs
+                    if (changedSettingKeys.includes(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)) {
+                        var suspendInPlaceOfDiscard = gsStorage.getOption(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD);
+                        if (suspendInPlaceOfDiscard) {
+                            var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+                            gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
+                        }
+                    }
+                    return;
+                }
+
+                //update content scripts of normal tabs
+                let updateIgnoreForms = changedSettingKeys.includes(gsStorage.IGNORE_FORMS);
+                let updateSuspendTime = (changedSettingKeys.includes(gsStorage.SUSPEND_TIME) ||
+                    (changedSettingKeys.includes(gsStorage.IGNORE_ACTIVE_TABS) && tab.active) ||
+                    (changedSettingKeys.includes(gsStorage.IGNORE_PINNED) && !gsStorage.getOption(gsStorage.IGNORE_PINNED) && tab.pinned) ||
+                    (changedSettingKeys.includes(gsStorage.IGNORE_AUDIO) && !gsStorage.getOption(gsStorage.IGNORE_AUDIO) && tab.audible) ||
+                    (changedSettingKeys.includes(gsStorage.IGNORE_WHEN_OFFLINE) && !gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) && !navigator.onLine) ||
+                    (changedSettingKeys.includes(gsStorage.IGNORE_WHEN_CHARGING) && !gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && tgs.isCharging()) ||
+                    (changedSettingKeys.includes(gsStorage.WHITELIST) && (gsUtils.checkSpecificWhiteList(tab.url, oldValueBySettingKey[gsStorage.WHITELIST]) && !gsUtils.checkSpecificWhiteList(tab.url, newValueBySettingKey[gsStorage.WHITELIST]))));
+
+                if (updateSuspendTime || updateIgnoreForms) {
+                    gsMessages.sendUpdateToContentScriptOfTab(tab, updateSuspendTime, updateIgnoreForms);
+                }
+
+                //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer
+                //should always be caught by tests above, but we'll check all tabs anyway just in case
+                // if (!updateSuspendTime) {
+                //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
+                //         tgs.calculateTabStatus(tab, tabInfo, function (tabStatus) {
+                //             if (tabStatus === 'normal' && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
+                //                 gsUtils.error(tab.id, 'Tab has an expired timer!', tabInfo);
+                //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false);
+                //             }
+                //         });
+                //     });
+                // }
+            });
+        });
 
         //if context menu has been disabled then remove from chrome
         if (this.contains(changedSettingKeys, gsStorage.ADD_CONTEXT)) {
@@ -465,5 +537,18 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         var minutesString = ('0' + currentMinutes).slice(-2);
 
         return currentDate + ' ' + monthNames[currentMonth] + ' ' + currentYear + ' ' + hoursString + ':' + minutesString + ampm;
+    },
+
+    debounce: function (func, wait) {
+        var timeout;
+        return function () {
+            var context = this, args = arguments;
+            var later = function () {
+                timeout = null;
+                func.apply(context, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     },
 };

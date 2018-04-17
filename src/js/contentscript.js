@@ -10,7 +10,9 @@
     'use strict';
 
     var isInitialised = false,
-        inputState = false,
+        isFormListenerInitialised = false,
+        isReceivingFormInput = false,
+        isIgnoreForms = false,
         tempWhitelist = false,
         timerJob,
         suspendDateTime = false;
@@ -24,25 +26,30 @@
 
         return setTimeout(function () {
             //request suspension
-            if (!inputState && !tempWhitelist) {
+            if (!isReceivingFormInput && !tempWhitelist) {
                 chrome.runtime.sendMessage({ action: 'suspendTab' });
             }
-            suspendDateTime = false;
         }, timeToSuspend);
     }
 
-    function formInputListener(event) {
-        if (!inputState && !tempWhitelist) {
-            if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
-                if (event.target.tagName.toUpperCase() === 'INPUT' ||
+    function initFormInputListener() {
+        if (isFormListenerInitialised) {
+            return;
+        }
+        window.addEventListener('keydown', function (event) {
+            if (!isReceivingFormInput && !tempWhitelist) {
+                if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
+                    if (event.target.tagName.toUpperCase() === 'INPUT' ||
                         event.target.tagName.toUpperCase() === 'TEXTAREA' ||
                         event.target.tagName.toUpperCase() === 'FORM' ||
                         event.target.isContentEditable === true) {
-                    inputState = true;
-                    chrome.runtime.sendMessage(buildReportTabStatePayload());
+                        isReceivingFormInput = true;
+                        chrome.runtime.sendMessage(buildReportTabStatePayload());
+                    }
                 }
             }
-        }
+        });
+        isFormListenerInitialised = true;
     }
 
     //listen for background events
@@ -58,24 +65,14 @@
             isInitialised = true;
         }
 
-        if (request.hasOwnProperty('ignoreForms')) {
-            window.removeEventListener('keydown', formInputListener);
-            if (request.ignoreForms) {
-                window.addEventListener('keydown', formInputListener);
-            }
-            inputState = inputState && request.ignoreForms;
-        }
-        if (request.hasOwnProperty('tempWhitelist')) {
-            if (inputState && !request.tempWhitelist) {
-                inputState = false;
-            }
-            tempWhitelist = request.tempWhitelist;
-        }
         if (request.hasOwnProperty('scrollPos')) {
             if (request.scrollPos !== '' && request.scrollPos !== '0') {
                 document.body.scrollTop = request.scrollPos;
                 document.documentElement.scrollTop = request.scrollPos;
             }
+        }
+        if (request.hasOwnProperty('ignoredFormsSuspendTime') && isReceivingFormInput) {
+            request.suspendTime = request.ignoredFormsSuspendTime;
         }
         if (request.hasOwnProperty('suspendTime')) {
             clearTimeout(timerJob);
@@ -86,15 +83,27 @@
                 suspendDateTime = false;
             }
         }
+        if (request.hasOwnProperty('ignoreForms')) {
+            isIgnoreForms = request.ignoreForms;
+            if (isIgnoreForms) {
+                initFormInputListener();
+            }
+        }
+        if (request.hasOwnProperty('tempWhitelist')) {
+            if (isReceivingFormInput && !request.tempWhitelist) {
+                isReceivingFormInput = false;
+            }
+            tempWhitelist = request.tempWhitelist;
+        }
         sendResponse(buildReportTabStatePayload());
         return false;
     });
 
-    function buildReportTabStatePayload(state) {
+    function buildReportTabStatePayload() {
         return {
             action: 'reportTabState',
             isInitialised: isInitialised,
-            status: state || (inputState ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal')),
+            status: (isIgnoreForms && isReceivingFormInput) ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal'),
             scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
             timerUp: suspendDateTime ? suspendDateTime + '' : false,
         };

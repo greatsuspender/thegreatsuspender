@@ -140,18 +140,22 @@ var gsStorage = {
             if (shouldSync) {
                 var localSettings = self.getSettings();
                 var changedSettingKeys = [];
+                var oldValueBySettingKey = {};
+                var newValueBySettingKey = {};
                 Object.keys(remoteSettings).forEach(function (key) {
                     var remoteSetting = remoteSettings[key];
                     if (localSettings[key] !== remoteSetting.newValue) {
                         gsUtils.log('gsStorage', 'Changed value from sync', key, remoteSetting.newValue);
                         changedSettingKeys.push(key);
+                        oldValueBySettingKey[key] = localSettings[key];
+                        newValueBySettingKey[key] = remoteSetting.newValue;
                         localSettings[key] = remoteSetting.newValue;
                     }
                 });
 
                 if (changedSettingKeys.length > 0) {
                     self.saveSettings(localSettings);
-                    gsUtils.performPostSaveUpdates(changedSettingKeys);
+                    gsUtils.performPostSaveUpdates(changedSettingKeys, oldValueBySettingKey, newValueBySettingKey);
                 }
             }
         });
