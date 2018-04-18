@@ -170,14 +170,15 @@
         }
         var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
         document.body.style['overflow-x'] = overflow;
-        document.body.classList.add('img-preview-mode');
 
         if (currentPreviewMode === '0' || !previewUri) {
             document.getElementById('gsPreview').style.display = 'none';
-            document.getElementById('suspendedMsg').style.display = 'block';
+            document.getElementById('suspendedMsg').style.display = 'flex';
+            document.body.classList.remove('img-preview-mode');
         } else {
             document.getElementById('gsPreview').style.display = 'block';
             document.getElementById('suspendedMsg').style.display = 'none';
+            document.body.classList.add('img-preview-mode');
         }
 
         const scrollImagePreview = currentPreviewMode === '2';
