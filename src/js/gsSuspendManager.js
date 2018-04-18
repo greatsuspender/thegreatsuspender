@@ -9,10 +9,6 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     var processSuspensionQueueTimer;
     var tabToSuspendDetailsByTabId = {};
 
-    // forceLevel indicates which users preferences to respect when attempting to suspend the tab
-    // 1: Suspend if at all possible
-    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude active tabs
-    // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
     function queueTabForSuspension(tab, forceLevel) {
         if (typeof tab === 'undefined') return;
 
@@ -44,9 +40,40 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             return;
         }
         var suspendedUrl = suspensionDetails ? suspensionDetails.suspendedUrl : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
-            if (err) chrome.tabs.update(tab.id, {url: suspendedUrl});
-        });
+        let discardInPlaceOfSuspend = gsStorage.getOption(gsStorage.DISCARD_IN_PLACE_OF_SUSPEND);
+
+        // If we want to force tabs to be discarded instead of suspending them
+        if (discardInPlaceOfSuspend) {
+            forceTabDiscardation(tab);
+        } else {
+            gsMessages.sendConfirmSuspendToContentScript(tab.id, suspendedUrl, function (err) {
+                if (err) forceTabSuspension(tab, suspendedUrl);
+            });
+        }
+    }
+
+    function forceTabSuspension(tab, suspendedUrl) {
+        if (!gsUtils.isSuspendedTab(tab)) {
+            chrome.tabs.update(tab.id, {url: suspendedUrl});
+        } else {
+            gsUtils.log(tab.id, 'Tab already suspended');
+        }
+    }
+
+    function forceTabDiscardation(tab) {
+        if (!gsUtils.isDiscardedTab(tab)) {
+            chrome.tabs.discard(tab.id);
+        } else {
+            gsUtils.log(tab.id, 'Tab already discarded');
+        }
+    }
+
+    function undiscardTab(tab) {
+        if (gsUtils.isDiscardedTab(tab)) {
+            chrome.tabs.reload(tab.id);
+        } else {
+            gsUtils.log(tab.id, 'Tab not discarded');
+        }
     }
 
     function removeTabFromSuspensionQueue(tab, reason) {
@@ -70,7 +97,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     function updateQueueParameters() {
         var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
         var forceScreenCapture = gsStorage.getOption(gsStorage.SCREEN_CAPTURE_FORCE);
-        MAX_TABS_IN_PROGRESS = screenCaptureMode ? 3 : 5;
+        MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
         IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
     }
 
@@ -143,22 +170,26 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    // forceLevel indicates which users preferences to respect when attempting to suspend the tab
+    // 1: Suspend if at all possible
+    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude current active tab
+    // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
     function checkTabEligibilityForSuspension(tab, forceLevel) {
         if (forceLevel >= 1) {
-            if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
+            if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
                 return false;
             }
         }
         if (forceLevel >= 2) {
-            if (gsUtils.isActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isPinnedTab(tab) || gsUtils.isAudibleTab(tab)) {
+            if (gsUtils.isProtectedActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isProtectedPinnedTab(tab) || gsUtils.isProtectedAudibleTab(tab)) {
                 return false;
             }
         }
         if (forceLevel >= 3) {
-            if (gsStorage.getOption(gsStorage.ONLINE_CHECK) && !navigator.onLine) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) && !navigator.onLine) {
                 return false;
             }
-            if (gsStorage.getOption(gsStorage.BATTERY_CHECK) && tgs.isCharging()) {
+            if (gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && tgs.isCharging()) {
                 return false;
             }
         }
@@ -272,6 +303,9 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
         unqueueTabForSuspension,
         markTabAsSuspended,
         executeTabSuspension,
+        forceTabSuspension,
+        forceTabDiscardation,
+        undiscardTab,
         updateQueueParameters,
     };
 }());

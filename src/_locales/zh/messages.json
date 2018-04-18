@@ -59,6 +59,7 @@
     "html_options_suspend_days": { "message": "天" }, //day
     "html_options_suspend_week": { "message": "週" }, //week
     "html_options_suspend_weeks": { "message": "週" }, //week
+    "html_options_suspend_on_low_memory": { "message": "当系统内存变得非常低时冻结页面" }, //Freeze page when system memory becomes very low
     "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" }, //Do not freeze a fixed page
     "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" }, //Do not freeze pages that have text in the input box and have not been saved yet
     "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound

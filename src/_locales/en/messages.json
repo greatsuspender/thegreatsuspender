@@ -59,6 +59,7 @@
     "html_options_suspend_days": { "message": "days" },
     "html_options_suspend_week": { "message": "week" },
     "html_options_suspend_weeks": { "message": "weeks" },
+    "html_options_suspend_on_low_memory": { "message": "Suspend when system memory gets very low" },
     "html_options_suspend_no_pinned": { "message": "Never suspend pinned tabs" },
     "html_options_suspend_no_forms": { "message": "Never suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Never suspend tabs that are playing audio" },

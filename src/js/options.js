@@ -8,8 +8,9 @@
     var elementPrefMap = {
         'preview': gsStorage.SCREEN_CAPTURE,
         'forceScreenCapture': gsStorage.SCREEN_CAPTURE_FORCE,
-        'onlineCheck': gsStorage.ONLINE_CHECK,
-        'batteryCheck': gsStorage.BATTERY_CHECK,
+        'suspendInPlaceOfDiscard': gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
+        'onlineCheck': gsStorage.IGNORE_WHEN_OFFLINE,
+        'batteryCheck': gsStorage.IGNORE_WHEN_CHARGING,
         'unsuspendOnFocus': gsStorage.UNSUSPEND_ON_FOCUS,
         'dontSuspendPinned': gsStorage.IGNORE_PINNED,
         'dontSuspendForms': gsStorage.IGNORE_FORMS,
@@ -127,11 +128,11 @@
                 }
             }
 
-            var valueChanged = saveChange(element);
-            if (valueChanged) {
+            var [oldValue, newValue] = saveChange(element);
+            if (oldValue !== newValue) {
                 gsStorage.syncSettings();
                 var prefKey = elementPrefMap[element.id];
-                gsUtils.performPostSaveUpdates([prefKey]);
+                gsUtils.performPostSaveUpdates([prefKey], { [prefKey]: oldValue }, { [prefKey]: newValue });
             }
         };
     }
@@ -150,7 +151,7 @@
         //save option
         gsStorage.setOption(elementPrefMap[element.id], newValue);
 
-        return (oldValue !== newValue);
+        return [oldValue, newValue];
     }
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
@@ -165,7 +166,7 @@
         for (i = 0; i < optionEls.length; i++) {
             element = optionEls[i];
             if (element.tagName === 'TEXTAREA') {
-                element.addEventListener('input', handleChange(element), false);
+                element.addEventListener('input', gsUtils.debounce(handleChange(element), 200), false);
             } else {
                 element.onchange = handleChange(element);
             }

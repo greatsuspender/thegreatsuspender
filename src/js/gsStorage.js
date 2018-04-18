@@ -5,10 +5,11 @@ var gsStorage = {
 
     SCREEN_CAPTURE: 'screenCapture',
     SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
-    ONLINE_CHECK: 'onlineCheck',
-    BATTERY_CHECK: 'batteryCheck',
+    SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',
     UNSUSPEND_ON_FOCUS: 'gsUnsuspendOnFocus',
     SUSPEND_TIME: 'gsTimeToSuspend',
+    IGNORE_WHEN_OFFLINE: 'onlineCheck',
+    IGNORE_WHEN_CHARGING: 'batteryCheck',
     IGNORE_PINNED: 'gsDontSuspendPinned',
     IGNORE_FORMS: 'gsDontSuspendForms',
     IGNORE_AUDIO: 'gsDontSuspendAudio',
@@ -19,6 +20,9 @@ var gsStorage = {
     NO_NAG: 'gsNoNag',
     THEME: 'gsTheme',
     WHITELIST: 'gsWhitelist',
+
+    DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
+    DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
 
     APP_VERSION: 'gsVersion',
     LAST_NOTICE: 'gsNotice',
@@ -44,8 +48,11 @@ var gsStorage = {
         var defaults = {};
         defaults[this.SCREEN_CAPTURE] = '0';
         defaults[this.SCREEN_CAPTURE_FORCE] = false;
-        defaults[this.ONLINE_CHECK] = false;
-        defaults[this.BATTERY_CHECK] = false;
+        defaults[this.SUSPEND_IN_PLACE_OF_DISCARD] = true;
+        defaults[this.DISCARD_IN_PLACE_OF_SUSPEND] = false;
+        defaults[this.DISCARD_AFTER_SUSPEND] = false;
+        defaults[this.IGNORE_WHEN_OFFLINE] = false;
+        defaults[this.IGNORE_WHEN_CHARGING] = false;
         defaults[this.UNSUSPEND_ON_FOCUS] = false;
         defaults[this.IGNORE_PINNED] = true;
         defaults[this.IGNORE_FORMS] = true;
@@ -133,18 +140,22 @@ var gsStorage = {
             if (shouldSync) {
                 var localSettings = self.getSettings();
                 var changedSettingKeys = [];
+                var oldValueBySettingKey = {};
+                var newValueBySettingKey = {};
                 Object.keys(remoteSettings).forEach(function (key) {
                     var remoteSetting = remoteSettings[key];
                     if (localSettings[key] !== remoteSetting.newValue) {
                         gsUtils.log('gsStorage', 'Changed value from sync', key, remoteSetting.newValue);
                         changedSettingKeys.push(key);
+                        oldValueBySettingKey[key] = localSettings[key];
+                        newValueBySettingKey[key] = remoteSetting.newValue;
                         localSettings[key] = remoteSetting.newValue;
                     }
                 });
 
                 if (changedSettingKeys.length > 0) {
                     self.saveSettings(localSettings);
-                    gsUtils.performPostSaveUpdates(changedSettingKeys);
+                    gsUtils.performPostSaveUpdates(changedSettingKeys, oldValueBySettingKey, newValueBySettingKey);
                 }
             }
         });
@@ -337,12 +348,17 @@ var gsStorage = {
             } else {
                 callback(null);
             }
+        }).catch(function (err) {
+            gsUtils.error('gsStorage', err);
+            callback(null);
         });
     },
 
     addPreviewImage: function (tabUrl, previewUrl, callback) {
         var self = this,
             server;
+        callback = typeof callback !== 'function' ? this.noop : callback;
+
         this.getDb().then(function (s) {
             server = s;
             return server.query(self.DB_PREVIEWS, 'url')
@@ -357,16 +373,18 @@ var gsStorage = {
             }
         }).then(function () {
             server.add(self.DB_PREVIEWS, {url: tabUrl, img: previewUrl});
-            if (typeof callback === 'function') callback();
+            callback();
         });
     },
 
     addSuspendedTabInfo: function (tabProperties, callback) {
         var self = this,
             server;
+        callback = typeof callback !== 'function' ? this.noop : callback;
 
         if (!tabProperties.url) {
             gsUtils.log('gsStorage', 'tabProperties.url not set.');
+            callback();
             return;
         }
 
@@ -383,7 +401,7 @@ var gsStorage = {
             }
         }).then(function () {
             server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function () {
-                if (typeof callback === 'function') callback();
+                callback();
             });
         });
     },

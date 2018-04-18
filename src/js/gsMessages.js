@@ -1,4 +1,4 @@
-/*global gsUtils, gsSession, gsStorage */
+/*global tgs, gsUtils, gsSession, gsStorage */
 var gsMessages = { // eslint-disable-line no-unused-vars
 
     INFO: 'info',
@@ -6,52 +6,27 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     ERROR: 'error',
 
     sendInitTabToContentScript(tabId, ignoreForms, tempWhitelist, scrollPos, suspendTime, callback) {
-        var props = {
+        var payload = {
             action: 'initialiseContentScript',
             ignoreForms: ignoreForms,
             tempWhitelist: tempWhitelist,
         };
         if (scrollPos) {
-            props.scrollPos = scrollPos;
+            payload.scrollPos = scrollPos;
         }
         if (suspendTime !== null && !isNaN(Number(suspendTime))) {
-            props.suspendTime = suspendTime;
+            payload.suspendTime = suspendTime;
         }
-        this.sendMessageToContentScript(tabId, props, this.ERROR, callback);
+        this.sendMessageToContentScript(tabId, payload, this.ERROR, callback);
     },
 
-    sendResetToAllContentScripts: function (preferencesToUpdate) {
+    sendResetTimerToAllContentScripts: function () {
         var self = this;
-        var suspendTime;
-        var ignoreForms;
-        var activeTabSuspendTime;
-        if (preferencesToUpdate.indexOf(gsStorage.SUSPEND_TIME) > -1) {
-            suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-        }
-        if (preferencesToUpdate.indexOf(gsStorage.IGNORE_FORMS) > -1) {
-            ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-        }
-        if (preferencesToUpdate.indexOf(gsStorage.IGNORE_ACTIVE_TABS) > -1) {
-            const ignoreActiveTabs = gsStorage.getOption(gsStorage.IGNORE_ACTIVE_TABS);
-            activeTabSuspendTime = ignoreActiveTabs ? 0 : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-        }
+        var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(function (currentTab) {
-                if (gsUtils.isSpecialTab(currentTab) || gsUtils.isSuspendedTab(currentTab) || gsUtils.isDiscardedTab(currentTab)) {
-                    return true;
-                }
-
-                let tabPayload = {};
-                if (typeof ignoreForms !== 'undefined') {
-                    tabPayload.ignoreForms = ignoreForms;
-                }
-                if (typeof suspendTime !== 'undefined') {
-                    tabPayload.suspendTime = suspendTime;
-                }
-                if (typeof activeTabSuspendTime !== 'undefined' && gsUtils.isActiveTab(currentTab, true)) {
-                    tabPayload.suspendTime = activeTabSuspendTime;
-                }
-                self.sendMessageToContentScript(currentTab.id, tabPayload, this.WARNING, function (err) {
+                self.sendMessageToContentScript(currentTab.id, { suspendTime: suspendTime }, this.WARNING, function (err) {
                     if (err) {
                         gsUtils.log(currentTab.id, 'Failed to resetContentScript. Tab is probably loading?', err);
                     }
@@ -60,9 +35,32 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         });
     },
 
+    sendUpdateToContentScriptOfTab: function (tab, updateSuspendTime, updateIgnoreForms) {
+        var self = this;
+        var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+        var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+
+        if (gsUtils.isSpecialTab(tab) || gsUtils.isSuspendedTab(tab) || gsUtils.isDiscardedTab(tab)) {
+            return;
+        }
+
+        let tabPayload = {};
+        let tabSuspendTime = gsUtils.isProtectedActiveTab(tab) ? '0' : suspendTime;
+        if (updateSuspendTime) {
+            tabPayload.suspendTime = tabSuspendTime;
+        }
+        if (updateIgnoreForms) {
+            tabPayload.ignoreForms = ignoreForms;
+            if (!ignoreForms) {
+                tabPayload.ignoredFormsSuspendTime = tabSuspendTime;
+            }
+        }
+        self.sendMessageToContentScript(tab.id, tabPayload, this.WARNING);
+    },
+
     sendClearTimerToContentScript: function (tabId, callback) {
         this.sendMessageToContentScript(tabId, {
-            suspendTime: 0,
+            suspendTime: '0',
         }, this.WARNING, callback);
     },
 
@@ -173,8 +171,9 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.INFO, callback);
     },
 
-    sendTabInfoToRecoveryTab: function (tabId, payload) {
-        this.sendMessageToTab(tabId, payload, this.INFO);
+    sendTabInfoToRecoveryTab: function (recoveryTabId, tab) {
+        var payload = { 'recoveredTab': tab };
+        this.sendMessageToTab(recoveryTabId, payload, this.INFO);
     },
 
     sendMessageToTab: function (tabId, message, severity, callback) {

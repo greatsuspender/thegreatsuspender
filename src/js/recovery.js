@@ -80,7 +80,9 @@
     }
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        removeSuspendedTabFromList(request);
+        if (request && request.recoveredTab) {
+            removeSuspendedTabFromList(request.recoveredTab);
+        }
     });
 
     gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
@@ -107,6 +109,7 @@
             if (gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0') {
                 warningEl.style.display = 'block';
             }
+            //TODO: Potentially show warning here if SUSPEND_IN_PLACE_OF_DISCARD enabled?
         }
 
         var performRestore = function () {
