@@ -143,7 +143,8 @@
     "html_suspended_title": { "message": "分頁已經被凍結" }, //Paging has been frozen
     "html_suspended_tab_suspended": { "message": "分頁已經被凍結" }, //Paging has been frozen
     "html_suspended_tab_reload": { "message": "重新載入" }, //? Reload
-    "html_suspended_tab_whitelist": { "message": "添加到例外列表" }, //? Add to the exceptions list
+    "html_suspended_tab_whitelist_prefix": { "message": "添加" }, //? Add
+    "html_suspended_tab_whitelist_suffix": { "message": "到例外列表..." }, //? to the exceptions list
     "html_suspended_click_to_reload": { "message": "点击这里重新载入" }, //? Click here to reload
     "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //? You are not connected to the network
     "html_suspended_toast_reload_disabled": { "message": "禁用自動重新加載。" }, //? Disable automatic reload.
