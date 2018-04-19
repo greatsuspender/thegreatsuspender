@@ -169,7 +169,7 @@
             return;
         }
         var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
-        document.body.style['overflow-x'] = overflow;
+        document.body.style['overflow'] = overflow;
 
         if (currentPreviewMode === '0' || !previewUri) {
             document.getElementById('gsPreview').style.display = 'none';

@@ -139,7 +139,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         } else if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
             favicon = tab.favIconUrl;
         }
-        if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
+        if (!favicon || favicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')) {
             favicon = 'chrome://favicon/size/16@2x/';
             if (gsUtils.isSuspendedTab(tab)) {
                 favicon += gsUtils.getSuspendedUrl(tab.url);

@@ -9,8 +9,8 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var ICON_SUSPENSION_ACTIVE = '/img/icon19.png';
-    var ICON_SUSPENSION_PAUSED = '/img/icon19b.png';
+    var ICON_SUSPENSION_ACTIVE = '/img/ic_suspendy_128x128.png';
+    var ICON_SUSPENSION_PAUSED = '/img/ic_suspendy_128x128_grey.png';
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
