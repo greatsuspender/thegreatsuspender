@@ -174,7 +174,8 @@ ul.unorderedList li {
   text-align: center;
 }
 .btn:hover {
-  background: #3477db;
+  background: #5c9dfe;
+  text-decoration: none;
 }
 .btn.btnNeg {
   background: #ddd;
@@ -190,9 +191,9 @@ ul.unorderedList li {
   margin: 0 7px 0 0;
   float: left;
 }
-.btnDonate:hover {
+/* .btnDonate:hover {
   text-decoration: underline;
-}
+} */
 .btnDisabled {
   background: #f1f1f1;
   color: #888;
@@ -662,6 +663,7 @@ input[type='checkbox'] {
 input[type='checkbox'] + label {
   position: relative;
   padding-left: 30px;
+  cursor: pointer;
 }
 input[type='checkbox'] + label:before {
   position: absolute;
@@ -673,6 +675,7 @@ input[type='checkbox'] + label:before {
   content: '\f096';
   color: #888;
   font-size: 24px;
+  cursor: pointer;
 }
 input[type='checkbox']:checked + label:before {
   content: '\f14a';
@@ -704,8 +707,10 @@ input[type='checkbox']:checked + label:before {
   vertical-align: middle;
   position: relative;
   padding-left: 5px;
+  cursor: pointer;
 }
 .radio label::before {
+  cursor: pointer;
   content: '';
   display: inline-block;
   position: absolute;
@@ -735,49 +740,36 @@ input[type='checkbox']:checked + label:before {
   margin-bottom: 35px;
 }
 
-/**
- * Tooltip Styles (https://chrisbracco.com/a-simple-css-tooltip/)
- */
 .tooltipIcon {
   color: #444;
 }
-[data-i18n-tooltip] {
-  position: relative;
-  z-index: 2;
+/* Tooltips */
+[data-i18n-tooltip]{
+  position:relative;
 }
-/* Hide the tooltip content by default */
-[data-i18n-tooltip]:before,
-[data-i18n-tooltip]:after {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Position tooltip above the element */
-[data-i18n-tooltip]:before {
-  position: absolute;
-  bottom: 150%;
-  right: 0%;
-  margin-bottom: 5px;
-  margin-right: -200px;
-  padding: 20px 10px;
-  width: 460px;
-  border-radius: 3px;
-  background-color: #eee;
-  color: #000;
+[data-i18n-tooltip]::after {
   content: attr(data-i18n-tooltip);
-  font-size: 11px;
-  line-height: 1.2;
+  position: absolute;
+  left:50%;
+  top: -6px;
+  transform: translateX(-50%) translateY(-100%);
+  background: #fff;
+  line-height: 20px;
+  color: #444;
+  padding:4px 2px;
+  min-width: 500px;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  pointer-events: none;
+  padding: 24px 24px 32px;
+  z-index: 99;
+  opacity: 0;
   white-space: pre;
-  font-weight: 400;
-  box-shadow: 0px 1px 2px #bbb;
-  box-sizing: content-box;
 }
-
-/* Show tooltip content on hover */
-[data-i18n-tooltip]:hover:before,
-[data-i18n-tooltip]:hover:after {
+[data-i18n-tooltip]:hover::after {
   opacity: 1;
 }
+
 
 @keyframes slideToTop {
   0% {
