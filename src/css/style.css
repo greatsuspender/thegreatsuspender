@@ -107,6 +107,7 @@ select {
   font-size: 14px;
   border-color: #ccc;
   position: relative;
+  cursor: pointer;
 }
 .select-wrapper {
   background-color: #fff;
