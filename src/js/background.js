@@ -28,6 +28,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         _newWindowFocusTimer,
         _noticeToDisplay,
         _isCharging = false,
+        _triggerHotkeyUpdate = false,
         _suspendUnsuspendHotkey,
         _tabFlagsByTabId = {};
 
@@ -334,6 +335,18 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function updateSuspendUnsuspendHotkey() {
+        resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
+            if (hotkeyChanged) {
+                getSuspendUnsuspendHotkey(function (hotkey) {
+                    gsMessages.sendRefreshToAllSuspendedTabs({
+                        command: hotkey,
+                    });
+                });
+            }
+        });
+    }
+
     function handleUnsuspendedTabChanged(tab, changeInfo) {
         var hasTabStatusChanged = false;
 
@@ -550,7 +563,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
             queueNewTabFocusTimer(tabId, windowId, tab);
+
+            // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
+            if (tab.url === 'chrome://extensions/shortcuts') {
+                _triggerHotkeyUpdate = true;
+            }
         });
+
+        if (_triggerHotkeyUpdate) {
+            updateSuspendUnsuspendHotkey();
+            _triggerHotkeyUpdate = false;
+        }
     }
 
     function queueNewWindowFocusTimer(tabId, lastStationaryTabId, newTab) {
@@ -1022,21 +1045,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 }
                 chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
                 return;
-            // test for a save of keyboard shortcuts (chrome://extensions/configureCommands)
-            } else if (changeInfo.url === 'chrome://extensions/') {
-                resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
-                    if (hotkeyChanged) {
-                        getSuspendUnsuspendHotkey(function (hotkey) {
-                            gsMessages.sendRefreshToAllSuspendedTabs({
-                                command: hotkey,
-                            });
-                        });
-                    }
-                });
-
-            } else {
-                queueSessionTimer();
             }
+            queueSessionTimer();
         }
 
         if (gsUtils.isSuspendedTab(tab, true)) {
