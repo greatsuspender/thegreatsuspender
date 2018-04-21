@@ -241,7 +241,7 @@
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" }, //Remove from the exception list
-    "js_suspended_hotkey_to_reload": { "message": "鍵盤快速鍵" }, //? Keyboard shortcut
+    "js_suspended_hotkey_to_reload": { "message": "設置鍵盤快捷鍵" }, //? Set keyboard shortcuts
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "您處於隱身模式。當記錄關閉時，對無痕記錄內的設置進行的任何更改都將被重置" }, //? You are in incognito mode. When the record is closed, any changes made to the settings in the traceless will be reset

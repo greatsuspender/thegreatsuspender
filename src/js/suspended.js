@@ -202,9 +202,7 @@
         }
         else {
             const reloadString = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
-            const notSetString = chrome.i18n.getMessage('js_shortcuts_not_set');
-            hotkeyEl.innerHTML =
-                `<a id="setKeyboardShortcut" href="#">(${reloadString}: ${notSetString})</a>`;
+            hotkeyEl.innerHTML = `<a id="setKeyboardShortcut" href="#">${reloadString}</a>`;
         }
     }
 

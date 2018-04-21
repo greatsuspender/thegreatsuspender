@@ -241,7 +241,7 @@
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
-    "js_suspended_hotkey_to_reload": { "message": "keyboard shortcut" },
+    "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },
