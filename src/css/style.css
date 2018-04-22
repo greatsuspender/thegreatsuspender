@@ -34,12 +34,16 @@ body {
   font-weight: 300;
   color: #444;
 }
-/* 'content' pages alignment (suspended tabs habve own overrides): */
+/* 'content' pages alignment (suspended tabs have own overrides): */
 /* apply to body tag */
 .splash-wrap {
   display: flex;
-  align-items: center;
   justify-content: center;
+  /*
+  vertical center usually looks a little better but some pages have content
+  which changes height (accordion etc) so this doens't really work
+  */
+  /* align-items: center; */
 }
 strong {
   font-weight: 600;
