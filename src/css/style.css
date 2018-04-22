@@ -65,8 +65,8 @@ body.suspended-page:not(.img-preview-mode) {
 .watermark {
   display: none; /* show only if not image preview mode */
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 30px;
+  right: 30px;
   font-weight: bold;
   color: #b6b6b6;
   cursor: pointer;
