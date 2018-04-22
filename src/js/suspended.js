@@ -137,6 +137,9 @@
             });
         } else {
             toggleImagePreviewVisibility();
+            document.querySelector('.watermark').addEventListener('click', () => {
+                chrome.tabs.create({url: chrome.extension.getURL('about.html')});
+            });
         }
     }
 

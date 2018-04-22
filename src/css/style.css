@@ -34,7 +34,7 @@ body {
   font-weight: 300;
   color: #444;
 }
-/* 'content' pages alignment (suspended tabs have own overrides): */
+/* 'content' pages alignment (suspended tabs have their own overrides) */
 /* apply to body tag */
 .splash-wrap {
   display: flex;
@@ -61,6 +61,18 @@ body.suspended-page:not(.img-preview-mode) {
   width: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
+}
+.watermark {
+  display: none; /* show only if not image preview mode */
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  font-weight: bold;
+  color: #b6b6b6;
+  cursor: pointer;
+}
+.suspended-page:not(.img-preview-mode) .watermark {
+  display: block;
 }
 h1 {
   font-size: 26px;
