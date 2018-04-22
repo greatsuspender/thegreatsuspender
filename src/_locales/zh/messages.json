@@ -192,7 +192,8 @@
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
     "js_donate_paypal": { "message": "透過 Paypal 捐款" }, //Make a donation via Paypal
-    "js_donate_bitcoin": { "message": "透過 Bitcoin 捐款" }, //Donate via Bitcoin
+    "js_donate_bitcoin": { "message": "透過 比特币 捐款" }, //Donate via Bitcoin
+    "js_donate_patreon": { "message": "透過 Patreon 捐款" }, //Donate through Patreon
 
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab

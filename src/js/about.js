@@ -14,13 +14,18 @@
         document.getElementById('donateButtons').innerHTML = this.responseText;
 
         var bitcoinBtn = document.getElementById('bitcoinBtn');
+        var patreonBtn = document.getElementById('patreonBtn');
         var paypalBtn = document.getElementById('paypalBtn');
 
         bitcoinBtn.innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
+        patreonBtn.innerHTML = chrome.i18n.getMessage('js_donate_patreon');
         paypalBtn.setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
 
         bitcoinBtn.onclick = function () {
-            gsAnalytics.reportEvent('Donations', 'Click', 'bitcoin');
+            gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
+        };
+        patreonBtn.onclick = function () {
+            gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
         };
         paypalBtn.onclick = function () {
             gsAnalytics.reportEvent('Donations', 'Click', 'paypal');

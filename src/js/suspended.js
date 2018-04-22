@@ -344,9 +344,14 @@
     function loadDonateButtonsHtml() {
         document.getElementById('donateButtons').innerHTML = this.responseText;
         document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage('js_donate_bitcoin');
+        document.getElementById('patreonBtn').innerHTML = chrome.i18n.getMessage('js_donate_patreon');
         document.getElementById('paypalBtn').setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
         document.getElementById('bitcoinBtn').onclick = function () {
-            try { chrome.extension.getBackgroundPage().gsAnalytics.reportEvent('Donations', 'Click', 'bitcoin'); }
+            try { chrome.extension.getBackgroundPage().gsAnalytics.reportEvent('Donations', 'Click', 'coinbase'); }
+            catch (error) { console.error(error); }
+        };
+        document.getElementById('patreonBtn').onclick = function () {
+            try { chrome.extension.getBackgroundPage().gsAnalytics.reportEvent('Donations', 'Click', 'patreon'); }
             catch (error) { console.error(error); }
         };
         document.getElementById('paypalBtn').onclick = function () {
