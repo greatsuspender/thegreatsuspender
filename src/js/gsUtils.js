@@ -19,6 +19,12 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             console.log(id, (new Date() + '').split(' ')[4], text, ...args);
         }
     },
+    debug: function (id, text, ...args) {
+        args = args || [];
+        const stackStrings = gsUtils.getStackTrace().split('\n');
+        const stackString = (stackStrings[3] || stackStrings[2] || stackStrings[1]).replace(/.*\/(.*):.*/, '$1');
+        console.log(id, (new Date() + '').split(' ')[4], text, ...args, ' -> ', stackString);
+    },
     error: function (id, text, ...args) {
         if (debugError) {
             args = args || [];
@@ -40,6 +46,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         if (debugInfo) {
             console.dir(object);
         }
+    },
+    getStackTrace: function () {
+        var obj = {};
+        Error.captureStackTrace(obj, gsUtils.getStackTrace);
+        return obj.stack;
     },
 
     isDebugInfo: function () {
