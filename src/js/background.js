@@ -13,7 +13,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     var ICON_SUSPENSION_PAUSED = '/img/icon19b.png';
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-    var UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
+    var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
     var DISCARD_ON_LOAD = 'discardOnLoad';
     var SCROLL_POS = 'scrollPos';
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
@@ -290,10 +290,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    //tab flags allow us to flag a tab id to execute specific behaviour on load/reload
+    //all tab flags are cleared when the tab id receives changeInfo.status === 'complete' or tab is removed
     function getTabFlagForTabId(tabId, tabFlag) {
         return _tabFlagsByTabId[tabId] ? _tabFlagsByTabId[tabId][tabFlag] : undefined;
     }
     function setTabFlagForTabId(tabId, tabFlag, flagValue) {
+        gsUtils.log(tabId, `Setting tabFlag: ${tabFlag}=${flagValue}`);
         var tabFlags = _tabFlagsByTabId[tabId] || {};
         tabFlags[tabFlag] = flagValue;
         _tabFlagsByTabId[tabId] = tabFlags;
@@ -396,15 +399,13 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
-    function handleSuspendedTabChanged(tab, changeInfo) {
+    function handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl) {
         //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
-        //if the UNSUSPEND_ON_RELOAD flag is true, then unsuspend.
+        //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
         if (changeInfo.status === 'loading') {
-            let unsuspendOnReload = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD);
-            if (unsuspendOnReload) {
+            if (unsuspendOnReloadUrl && unsuspendOnReloadUrl === tab.url) {
                 unsuspendTab(tab);
             }
-            setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD, false);
 
             // If we want to force tabs to be discarded after suspending them
             let discardAfterSuspend = gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND);
@@ -1039,8 +1040,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             }
         }
 
+        let unsuspendOnReloadUrl = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL);
+        setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
         if (gsUtils.isSuspendedTab(tab, true)) {
-            handleSuspendedTabChanged(tab, changeInfo);
+            handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl);
         }
         else if (gsUtils.isNormalTab(tab)) {
             handleUnsuspendedTabChanged(tab, changeInfo);
@@ -1119,7 +1122,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     return {
 
         TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
-        UNSUSPEND_ON_RELOAD: UNSUSPEND_ON_RELOAD,
+        UNSUSPEND_ON_RELOAD_URL: UNSUSPEND_ON_RELOAD_URL,
         DISCARD_ON_LOAD: DISCARD_ON_LOAD,
         SCROLL_POS: SCROLL_POS,
         CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,

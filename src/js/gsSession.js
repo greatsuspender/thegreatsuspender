@@ -356,7 +356,7 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
                 if (gsUtils.isSuspendedTab(tab)) {
                     // resuspend unresponsive suspended tabs
                     gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
-                    tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD, false);
+                    tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
                     chrome.tabs.reload(tab.id);
                     resolve(false);
                 } else {
