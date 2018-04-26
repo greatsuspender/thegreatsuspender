@@ -2,8 +2,7 @@
 <html>
 
 <head>
-	<link id="gsFavicon" rel="icon" href="img/icon16.png" />
-	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link id="gsFavicon" rel="icon" href="img/ic_suspendy_128x128.png" />
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<script type="text/javascript" src="js/suspended.js"></script>
 	<title id="gsTitle" data-i18n="__MSG_html_suspended_title__"></title>
@@ -18,10 +17,10 @@
 	</script>
 
 	<script type="text/html" id="donateTemplate">
-		<img id="dudePopup" src="img/dude.png" style="float: left;">
-		<div id="donateBubble">
-			<div style="font-size: 15px; margin-top: 15px; margin-bottom: 10px;" data-i18n="__MSG_html_suspended_donation_question__"></div>
-			<div id="donateButtons" />
+		<img id="dudePopup" src="img/suspendy-guy.png">
+		<div id="donateBubble" class="donateBubble">
+			<div class="donate-text" data-i18n="__MSG_html_suspended_donation_question__"></div>
+			<div id="donateButtons" class="donateButtons" />
 		</div>
 	</script>
 
@@ -62,23 +61,34 @@
 
 	<div id="gsTopBar" class="gsTopBar">
 		<div id="gsTitleWrap" class="gsTitleWrap">
-			<img id="gsTopBarImg" class="gsTopBarImg" /> <span id="gsTopBarTitle" class="gsTopBarTitle"></span>
-			<br>
-			<a id="gsTopBarUrl" class="gsTopBarUrl"></a>
-		</div>
-		<div id="gsTitleLinks">
-			<a id="gsReloadLink" class="gsReloadLink" data-i18n="__MSG_html_suspended_tab_reload__"></a>
-			<span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-			<a id="gsWhitelistLink" class="gsWhitelistLink" data-i18n="__MSG_html_suspended_tab_whitelist__"></a>
-		</div>
-	</div>
-	<div id="suspendedMsg" class="suspendedMsg centerBoxContainer">
-		<div class="centerBox">
-			<h1 data-i18n="__MSG_html_suspended_tab_suspended__"></h1>
-			<h2 data-i18n="__MSG_html_suspended_click_to_reload__"></h2>
-			<h3><span id="hotkeyCommand"></span></h3>
+			<div class="gsTopBarTitle">
+				<img id="gsTopBarImg" class="gsTopBarImg" />
+				<span id="gsTopBarTitle"></span>
+				<!-- &bull;	<span data-i18n="__MSG_html_suspended_tab_suspended__"></span> -->
+			</div>
+			<div>
+				<a id="gsWhitelistLink" class="gsWhitelistLink">
+					<span data-i18n="__MSG_html_suspended_tab_whitelist_prefix__"></span>
+					<span id="gsTopBarUrl" class="gsTopBarUrl"></span>
+					<span data-i18n="__MSG_html_suspended_tab_whitelist_suffix__"></span>
+				</a>
+			</div>
+
 		</div>
 	</div>
+	<div id="suspendedMsg" class="suspendedMsg">
+		<img src="/img/snoozy_tab.png" alt="Tab suspended" title="Tab suspended" />
+		<div class="suspendedMsg-instr">
+			<span data-i18n="__MSG_html_suspended_click_to_reload__"></span>
+		</div>
+		<div class="suspendedMsg-shortcut">
+			<span id="hotkeyCommand"></span>
+		</div>
+	</div>
+	<div class="watermark">
+		The Great Suspender
+	</div>
+
 	<div id="refreshSpinner"></div>
 
 </body>

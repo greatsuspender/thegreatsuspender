@@ -37,8 +37,8 @@
             setUrl(preUrlDecoded);
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
             document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
-            document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
-            document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
+            //document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
+            //document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
             setFavicon(preFaviconUrl);
@@ -75,8 +75,9 @@
             return;
         }
         currentUrl = url;
-        document.getElementById('gsTopBarUrl').innerHTML = url;
-        document.getElementById('gsTopBarUrl').setAttribute('href', url);
+        //const domain = 'cool.com';
+        document.getElementById('gsTopBarUrl').innerHTML = getRootUrl(currentUrl);
+        //document.getElementById('gsTopBarUrl').setAttribute('href', url);
     }
 
     function setFavicon(faviconUrl) {
@@ -138,6 +139,9 @@
             });
         } else {
             toggleImagePreviewVisibility();
+            document.querySelector('.watermark').addEventListener('click', () => {
+                chrome.tabs.create({url: chrome.extension.getURL('about.html')});
+            });
         }
     }
 
@@ -170,14 +174,16 @@
             return;
         }
         var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
-        document.body.style['overflow-x'] = overflow;
+        document.body.style['overflow'] = overflow;
 
         if (currentPreviewMode === '0' || !previewUri) {
             document.getElementById('gsPreview').style.display = 'none';
-            document.getElementById('suspendedMsg').style.display = 'table-cell';
+            document.getElementById('suspendedMsg').style.display = 'flex';
+            document.body.classList.remove('img-preview-mode');
         } else {
             document.getElementById('gsPreview').style.display = 'block';
             document.getElementById('suspendedMsg').style.display = 'none';
+            document.body.classList.add('img-preview-mode');
         }
 
         const scrollImagePreview = currentPreviewMode === '2';
@@ -201,9 +207,7 @@
         }
         else {
             const reloadString = chrome.i18n.getMessage('js_suspended_hotkey_to_reload');
-            const notSetString = chrome.i18n.getMessage('js_shortcuts_not_set');
-            hotkeyEl.innerHTML =
-                `<a id="setKeyboardShortcut" href="#">(${reloadString}: ${notSetString})</a>`;
+            hotkeyEl.innerHTML = `<a id="setKeyboardShortcut" href="#">${reloadString}</a>`;
         }
     }
 
@@ -213,10 +217,10 @@
         }
         showingWhitelisted = whitelisted;
         if (whitelisted) {
-            document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
+            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
             document.getElementById('gsWhitelistLink').onclick = unwhitelistTab;
         } else {
-            document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('html_suspended_tab_whitelist');
+            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('html_suspended_tab_whitelist');
             document.getElementById('gsWhitelistLink').onclick = function () {
                 toggleWhitelistModal(true);
             };
@@ -373,8 +377,8 @@
         request.open('GET', 'support.html', true);
         request.send();
 
-        document.getElementById('dudePopup').setAttribute('class', 'poppedup');
-        document.getElementById('donateBubble').setAttribute('class', 'fadeIn');
+        document.getElementById('dudePopup').classList.add('poppedup');
+        document.getElementById('donateBubble').classList.add('fadeIn');
     }
 
     function getRootUrl(url, includePath) {

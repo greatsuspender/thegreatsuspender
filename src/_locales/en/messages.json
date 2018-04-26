@@ -44,7 +44,7 @@
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
 
     // Options page
-    "html_options_title": { "message": "Options" },
+    "html_options_title": { "message": "Settings" },
     "html_options_suspend_title": { "message": "Automatic tab suspension" },
     "html_options_suspended_title": { "message": "Suspended tabs" },
     "html_options_other_title": { "message": "Other" },
@@ -106,7 +106,7 @@
     "html_popup_unsuspend_all_tabs": { "message": "Unsuspend all tabs" },
     "html_popup_suspend_selected_tabs": { "message": "Suspend selected tabs" },
     "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
-    "html_popup_settings": { "message": "Options" },
+    "html_popup_settings": { "message": "Settings" },
 
     // Recovery page (to recover from a crashed session)
     "html_recovery_title": { "message": "Recovery" },
@@ -122,10 +122,10 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_shortcuts_remap_keys": { "message": "Remap keys" },
+    "html_shortcuts_remap_keys": { "message": "Edit shortcuts" },
 
     // Sidebar from the configuration section (common to all settings)
-    "html_sidebar_general_settings": { "message": "Options" },
+    "html_sidebar_general_settings": { "message": "Settings" },
     "html_sidebar_session_management": { "message": "Session management" },
     "html_sidebar_shortcuts": { "message": "Keyboard shortcuts" },
     "html_sidebar_support": { "message": "About" },
@@ -144,7 +144,8 @@
     "html_suspended_title": { "message": "Suspended Tab" },
     "html_suspended_tab_suspended": { "message": "Tab suspended" },
     "html_suspended_tab_reload": { "message": "Reload tab" },
-    "html_suspended_tab_whitelist": { "message": "Whitelist site" },
+    "html_suspended_tab_whitelist_prefix": { "message": "Add" },
+    "html_suspended_tab_whitelist_suffix": { "message": "to whitelist..." },
     "html_suspended_click_to_reload": { "message": "Refresh or click to reload" },
     "html_suspended_toast_not_connected": { "message": "You are not connected to the internet" },
     "html_suspended_toast_reload_disabled": { "message": "Automatic tab reloading is temporarily disabled." },
@@ -182,7 +183,7 @@
     "html_welcome_text_line1": { "message": "Thanks for trying" },
     "html_welcome_text_line2": { "message": "Hopefully it will make you a happier and more productive human." },
     "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
-    "html_welcome_get_started_linkname": { "message": "options" },
+    "html_welcome_get_started_linkname": { "message": "settings" },
     "html_welcome_get_started_suffix": { "message": "page." },
 
     // Thanks page
@@ -206,24 +207,24 @@
     "js_background_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
 
     // Dropdown menu from button in the address bar (Javascript code)
-    "js_popup_normal": { "message": "Tab will be suspended automatically." },
-    "js_popup_special": { "message": "Tab cannot be suspended." },
-    "js_popup_suspended": { "message": "Tab suspended." },
+    "js_popup_normal": { "message": "Tab will be suspended automatically" },
+    "js_popup_special": { "message": "Tab cannot be suspended" },
+    "js_popup_suspended": { "message": "Tab suspended" },
     "js_popup_suspended_unsuspended": { "message": "Unsuspend" },
     "js_popup_whitelisted": { "message": "Site whitelisted." },
     "js_popup_whitelisted_remove": { "message": "Remove from whitelist" },
     "js_popup_audible": { "message": "Tab is playing audio." },
     "js_popup_form_input": { "message": "Tab is receiving form input." },
     "js_popup_form_input_unpause": { "message": "Unpause" },
-    "js_popup_pinned": { "message": "Tab has been pinned." },
-    "js_popup_temp_whitelist": { "message": "Tab suspension paused." },
+    "js_popup_pinned": { "message": "Tab has been pinned" },
+    "js_popup_temp_whitelist": { "message": "Tab suspension paused" },
     "js_popup_temp_whitelist_unpause": { "message": "Unpause" },
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
-    "js_popup_no_connectivity": { "message": "No network connection." },
-    "js_popup_charging": { "message": "Connected to power source." },
+    "js_popup_no_connectivity": { "message": "No network connection" },
+    "js_popup_charging": { "message": "Connected to power source" },
     "js_popup_unknown": { "message": "Waiting for tab to load..." },
     "js_popup_initialising": { "message": "Waiting for extension to initialize..." },
-    "js_popup_error": { "message": "Auto-suspend unavailable for this tab." },
+    "js_popup_error": { "message": "Auto-suspend unavailable for this tab" },
 
     // Session management page (Javascript code)
     "js_history_delete": { "message": "delete" },
@@ -241,7 +242,7 @@
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
-    "js_suspended_hotkey_to_reload": { "message": "keyboard shortcut" },
+    "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },

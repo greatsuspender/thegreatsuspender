@@ -32,7 +32,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
             tabCnt + pluralise(' ' + chrome.i18n.getMessage('js_history_tab'), tabCnt) + ')</small>';
 
         sessionIcon = createEl('i', {
-            'class': 'sessionIcon fa fa-plus-square-o',
+            'class': 'sessionIcon icon icon-plus-squared-alt',
         });
 
         sessionDiv = createEl('div', {
@@ -139,7 +139,7 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
         } else if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
             favicon = tab.favIconUrl;
         }
-        if (!favicon || favicon === chrome.extension.getURL('img/icon16.png')) {
+        if (!favicon || favicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')) {
             favicon = 'chrome://favicon/size/16@2x/';
             if (gsUtils.isSuspendedTab(tab)) {
                 favicon += gsUtils.getSuspendedUrl(tab.url);
@@ -161,10 +161,9 @@ var historyItems = (function () { // eslint-disable-line no-unused-vars
             });
         }
 
-        listHover = createEl('img', {
-            'src': chrome.extension.getURL('/img/x.gif'),
+        listHover = createEl('span', {
             'class': 'itemHover removeLink'
-        });
+        }, '\u2716');
 
         listImg = createEl('img', {
             'src': favicon,

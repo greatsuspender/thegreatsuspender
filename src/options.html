@@ -1,18 +1,18 @@
+<!doctype html>
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link type="text/css" href="css/fontello.css" rel="stylesheet">
 	<link type="text/css" href="css/style.css" rel="stylesheet">
 	<script type="text/javascript" src="js/options.js"></script>
 	<title data-i18n="__MSG_ext_extension_name__ - __MSG_html_options_title__"></title>
 </head>
 
-
-<body id="body">
+<body>
 
 	<div class="mainContent">
 
-		<h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" /><span data-i18n="__MSG_ext_extension_name__"></span></h1>
+		<h1 class="pageHeader"><span data-i18n="__MSG_ext_extension_name__"></span></h1>
 
 		<div class="contentNav">
 			<ul>
@@ -27,9 +27,10 @@
 			<div class="sub-section">
 				<h2 data-i18n="__MSG_html_options_suspend_title__"></h2>
 				<div class="formRow">
-					<label id="timeToSuspendLbl" for="timeToSuspend" data-i18n="__MSG_html_options_suspend_automatically_after__:"></label>
+					<label id="timeToSuspendLbl" class="topLabel" for="timeToSuspend" data-i18n="__MSG_html_options_suspend_automatically_after__:"></label>
 					<br />
-					<select id="timeToSuspend" class='option' style="margin-top: 8px;">
+					<div class="select-wrapper">
+						<select id="timeToSuspend" class='option'>
 
 					<option value="0" data-i18n="__MSG_html_options_suspend_never__"></option>
 					<option value="0.33" data-i18n="20 __MSG_html_options_suspend_seconds__"></option>
@@ -49,6 +50,7 @@
 					<option value="10080" data-i18n="1 __MSG_html_options_suspend_week__"></option>
 					<option value="20160" data-i18n="2 __MSG_html_options_suspend_weeks__"></option>
 				</select>
+					</div>
 				</div>
 				<div class="formRow autoSuspendOption">
 					<input type="checkbox" id="suspendInPlaceOfDiscard" class='option' />
@@ -82,21 +84,16 @@
 
 				<label id="whitelistLbl" for="whitelist" data-i18n="__MSG_html_options_whitelist_title__&nbsp;&nbsp;"></label>
 				<span data-i18n-tooltip="__MSG_html_options_whitelist_tooltip_line1__
-
-https://play.google.com/music/listen
-https://mail.google.com
+&nbsp;&nbsp;&nbsp;&nbsp;https://play.google.com/music/listen
+&nbsp;&nbsp;&nbsp;&nbsp;https://mail.google.com
 
 __MSG_html_options_whitelist_tooltip_line2__
-
-google.com
+&nbsp;&nbsp;&nbsp;&nbsp;google.com
 
 __MSG_html_options_whitelist_tooltip_line3__
-
-/^https:.*google\.com/">
-
-					<i class="tooltipIcon fa fa-question-circle"></i>
+&nbsp;&nbsp;&nbsp;&nbsp;/^https:.*google\.com/">
+					<i class="tooltipIcon icon icon-help-circled"></i>
 			</span>
-				<br />
 				<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
 			</div>
 			<div class="sub-section">
@@ -108,16 +105,19 @@ __MSG_html_options_whitelist_tooltip_line3__
 				</div>
 
 				<div class="formRow">
-					<label id="themeLbl" for="theme" data-i18n="__MSG_html_options_suspend_theme__:"></label>
+					<label id="themeLbl" class="topLabel" for="theme" data-i18n="__MSG_html_options_suspend_theme__:"></label>
 					<br />
-					<select id="theme" class='option' style="margin-top: 8px;">
-					<option value="light" data-i18n="__MSG_html_options_suspend_theme_light__"></option>
-					<option value="dark" data-i18n="__MSG_html_options_suspend_theme_dark__"></option>
-				</select>
+					<div class="select-wrapper">
+						<select id="theme" class='option'>
+						<option value="light" data-i18n="__MSG_html_options_suspend_theme_light__"></option>
+						<option value="dark" data-i18n="__MSG_html_options_suspend_theme_dark__"></option>
+					</select>
+					</div>
+
 				</div>
 
 				<div class="formRow">
-					<label id="previewLbl" for="preview" data-i18n="__MSG_html_options_suspend_screen_capturing__:&nbsp;&nbsp;"></label>
+					<label id="previewLbl" class="topLabel" for="preview" data-i18n="__MSG_html_options_suspend_screen_capturing__:&nbsp;&nbsp;"></label>
 					<span data-i18n-tooltip="__MSG_html_options_suspend_screen_capturing_tooltip_line1a__
 __MSG_html_options_suspend_screen_capturing_tooltip_line1b__
 
@@ -126,14 +126,16 @@ __MSG_html_options_suspend_screen_capturing_tooltip_line2b__
 
 __MSG_html_options_suspend_screen_capturing_tooltip_line3a__
 __MSG_html_options_suspend_screen_capturing_tooltip_line3b__">
-					<i class="tooltipIcon fa fa-question-circle"></i>
+					<i class="tooltipIcon icon icon-help-circled"></i>
 				</span>
 					<br />
-					<select id="preview" class='option' style="margin-top: 8px;">
-					<option value="0" data-i18n="__MSG_html_options_suspend_screen_capturing_disabled__"></option>
-					<option value="1" data-i18n="__MSG_html_options_suspend_screen_capturing_screen_only__"></option>
-					<option value="2" data-i18n="__MSG_html_options_suspend_screen_capturing_entire_page__"></option>
-				</select>
+					<div class="select-wrapper">
+						<select id="preview" class='option'>
+						<option value="0" data-i18n="__MSG_html_options_suspend_screen_capturing_disabled__"></option>
+						<option value="1" data-i18n="__MSG_html_options_suspend_screen_capturing_screen_only__"></option>
+						<option value="2" data-i18n="__MSG_html_options_suspend_screen_capturing_entire_page__"></option>
+					</select>
+					</div>
 				</div>
 				<div class="formRow" id="forceScreenCaptureContainer">
 					<input type="checkbox" id="forceScreenCapture" class='option' />
@@ -145,31 +147,34 @@ __MSG_html_options_suspend_force_screen_capture_tooltip_line5__
 
 __MSG_html_options_suspend_force_screen_capture_tooltip_line6__
 __MSG_html_options_suspend_force_screen_capture_tooltip_line7__">
-					    <i class="tooltipIcon fa fa-question-circle"></i>
-				    </span>
-			    </div>
-		    </div>
+					<i class="tooltipIcon icon icon-help-circled"></i>
+				</span>
+				</div>
 
-		    <div class="sub-section">
 
-                <h2 data-i18n="__MSG_html_options_other_title__"></h2>
-                <div class="formRow">
-                    <input type="checkbox" id="addContextMenu" class='option' />
-                    <label for="addContextMenu" class="cbLabel" data-i18n="__MSG_html_options_other_enable_context_menu__"></label>
-                </div>
-                <div class="formRow">
-                    <input type="checkbox" id="syncSettings" class='option' />
-                    <label for="syncSettings" class="cbLabel"  data-i18n="__MSG_html_options_other_enable_sync__&nbsp;&nbsp;"></label>
-                   <span data-i18n-tooltip="__MSG_html_options_other_enable_sync_tooltip_line1a__
-    __MSG_html_options_other_enable_sync_tooltip_line1b__
+				<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
+			<label for="ignoreCache">Skip browser cache when reloading tab</label>
+			<br /> -->
+			</div>
+			<div class="sub-section">
 
-    __MSG_html_options_other_enable_sync_tooltip_line2__">
-                        <i class="tooltipIcon fa fa-question-circle"></i>
-                    </span>
-                    <div id="syncNote" class="gsNote" data-i18n="__MSG_html_options_other_enable_sync_warning__"></div>
-                </div>
-            </div>
-        </div>
+				<h2 data-i18n="__MSG_html_options_other_title__"></h2>
+				<div class="formRow">
+					<input type="checkbox" id="addContextMenu" class='option' />
+					<label for="addContextMenu" class="cbLabel" data-i18n="__MSG_html_options_other_enable_context_menu__"></label>
+				</div>
+				<div class="formRow">
+					<input type="checkbox" id="syncSettings" class='option' />
+					<label for="syncSettings" class="cbLabel" data-i18n="__MSG_html_options_other_enable_sync__&nbsp;&nbsp;"></label>
+					<span data-i18n-tooltip="__MSG_html_options_other_enable_sync_tooltip_line1a__ __MSG_html_options_other_enable_sync_tooltip_line1b__
+
+__MSG_html_options_other_enable_sync_tooltip_line2__">
+					<i class="tooltipIcon icon icon-help-circled"></i>
+				</span>
+					<div id="syncNote" class="gsNote" data-i18n="__MSG_html_options_other_enable_sync_warning__"></div>
+				</div>
+			</div>
+		</div>
 
 	</div>
 

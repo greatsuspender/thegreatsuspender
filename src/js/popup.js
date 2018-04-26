@@ -105,57 +105,57 @@
     }
 
     function setStatus(status) {
-        var statusDetail = '',
-            statusIconClass = '';
+        var statusDetail = '';
+          //  statusIconClass = '';
 
         // Update status icon and text
         if (status === 'normal' || status === 'active') {
             statusDetail = chrome.i18n.getMessage('js_popup_normal');
-            statusIconClass = 'fa fa-clock-o';
+        //    statusIconClass = 'fa fa-clock-o';
 
         } else if (status === 'suspended') {
             statusDetail = chrome.i18n.getMessage('js_popup_suspended') +
                 " <a href='#'>" + chrome.i18n.getMessage('js_popup_suspended_unsuspend') + '</a>';
-            statusIconClass = 'fa fa-pause';
+        //    statusIconClass = 'fa fa-pause';
 
         } else if (status === 'never') {
             statusDetail = chrome.i18n.getMessage('js_popup_never');
-            statusIconClass = 'fa fa-ban';
+        //    statusIconClass = 'fa fa-ban';
 
         } else if (status === 'special') {
             statusDetail = chrome.i18n.getMessage('js_popup_special');
-            statusIconClass = 'fa fa-remove';
+        //    statusIconClass = 'fa fa-remove';
 
         } else if (status === 'whitelisted') {
             statusDetail = chrome.i18n.getMessage('js_popup_whitelisted') +
                 " <a href='#'>" + chrome.i18n.getMessage('js_popup_whitelisted_remove') + '</a>';
-            statusIconClass = 'fa fa-check';
+        //    statusIconClass = 'fa fa-check';
 
         } else if (status === 'audible') {
             statusDetail = chrome.i18n.getMessage('js_popup_audible');
-            statusIconClass = 'fa fa-volume-up';
+        //    statusIconClass = 'fa fa-volume-up';
 
         } else if (status === 'formInput') {
             statusDetail = chrome.i18n.getMessage('js_popup_form_input') +
                 " <a href='#'>" + chrome.i18n.getMessage('js_popup_form_input_unpause') + '</a>';
-            statusIconClass = 'fa fa-edit';
+        //    statusIconClass = 'fa fa-edit';
 
         } else if (status === 'pinned') {
             statusDetail = chrome.i18n.getMessage('js_popup_pinned');
-            statusIconClass = 'fa fa-thumb-tack';
+          //  statusIconClass = 'fa fa-thumb-tack';
 
         } else if (status === 'tempWhitelist') {
             statusDetail = chrome.i18n.getMessage('js_popup_temp_whitelist') +
                 " <a href='#'>" + chrome.i18n.getMessage('js_popup_temp_whitelist_unpause') + '</a>';
-            statusIconClass = 'fa fa-pause';
+        //    statusIconClass = 'fa fa-pause';
 
         } else if (status === 'noConnectivity') {
             statusDetail = chrome.i18n.getMessage('js_popup_no_connectivity');
-            statusIconClass = 'fa fa-plane';
+        //    statusIconClass = 'fa fa-plane';
 
         } else if (status === 'charging') {
             statusDetail = chrome.i18n.getMessage('js_popup_charging');
-            statusIconClass = 'fa fa-plug';
+        //    statusIconClass = 'fa fa-plug';
 
         } else if (status === 'loading' || status === 'unknown') {
             if (gsSession.isInitialising()) {
@@ -163,20 +163,20 @@
             } else {
                 statusDetail = chrome.i18n.getMessage('js_popup_unknown');
             }
-            statusIconClass = 'fa fa-circle-o-notch';
+      //      statusIconClass = 'fa fa-circle-o-notch';
 
         } else if (status === 'error') {
             statusDetail = chrome.i18n.getMessage('js_popup_error');
-            statusIconClass = 'fa fa-exclamation-triangle';
+        //    statusIconClass = 'fa fa-exclamation-triangle';
 
         } else {
             gsUtils.log('popup', 'Could not process tab status of: ' + status);
         }
         document.getElementById('statusDetail').innerHTML = statusDetail;
-        document.getElementById('statusIcon').className = statusIconClass;
-        if (status === 'unknown' || status === 'loading') {
-            document.getElementById('statusIcon').classList.add('fa-spin');
-        }
+      //  document.getElementById('statusIcon').className = statusIconClass;
+        // if (status === 'unknown' || status === 'loading') {
+        //     document.getElementById('statusIcon').classList.add('fa-spin');
+        // }
 
         document.getElementById('header').classList.remove('willSuspend');
         if (status === 'normal' || status === 'active') {

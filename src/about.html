@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
 
 <head>
@@ -7,11 +8,11 @@
 </head>
 
 
-<body id="body">
+<body>
 
 	<div class="mainContent">
 
-		<h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" /><span data-i18n="__MSG_ext_extension_name__"></span></h1>
+		<h1 class="pageHeader"><span data-i18n="__MSG_ext_extension_name__"></span></h1>
 
 		<div class="contentNav">
 			<ul>
@@ -26,7 +27,6 @@
 
 			<h2 id="aboutVersion" data-i18n="__MSG_ext_extension_name__"></h2>
 
-			<br />
 			<p>
 				<span data-i18n="__MSG_html_about_github_title__: "></span>
 				<a href="https://github.com/deanoemcke/thegreatsuspender/issues" target="_blank">github.com/deanoemcke/thegreatsuspender</a>
@@ -63,8 +63,10 @@
 
 			<div id='donateSection'>
 				<p data-i18n="__MSG_html_about_feeling_generous__"></p>
-				<div id='donateButtons'></div>
-				<a id='alreadyDonatedToggle' href='#' style="clear: left; float: left; margin-top: 15px;" data-i18n="__MSG_html_about_already_donated__"></a>
+				<div id='donateButtons' class="donateButtons"></div>
+				<p class="donationToggle">
+					<a id='alreadyDonatedToggle' href='#' data-i18n="__MSG_html_about_already_donated__"></a>
+				</p>
 			</div>
 			<div id='donatedSection' style='display:none;'>
 				<p data-i18n="__MSG_html_about_thanks_for_your_donation__"></p>

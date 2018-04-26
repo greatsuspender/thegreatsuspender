@@ -28,14 +28,14 @@
   ],
   "browser_action": {
     "default_title": "__MSG_ext_default_title__",
-    "default_icon": "img/icon19.png",
+    "default_icon": "img/ic_suspendy_128x128.png",
     "default_popup": "popup.html"
   },
   "options_page": "options.html",
   "icons": {
-    "16": "img/icon16.png",
-    "48": "img/icon48.png",
-    "128": "img/icon128.png"
+    "16": "img/ic_suspendy_128x128.png",
+    "48": "img/ic_suspendy_128x128.png",
+    "128": "img/ic_suspendy_128x128.png"
   },
   "web_accessible_resources": ["suspended.html"],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",

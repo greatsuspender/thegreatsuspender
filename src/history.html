@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link type="text/css" href="css/fontello.css" rel="stylesheet">
   <link type="text/css" href="css/style.css" rel="stylesheet"></link>
   <script type="text/javascript" src="js/historyItems.js"></script>
   <script type="text/javascript" src="js/historyUtils.js"></script>
@@ -15,7 +15,7 @@
 
   <div class="mainContent">
 
-    <h1 class="pageHeader"><img src="img/icon64_hidden.png" class="headerIcon" /><span data-i18n="__MSG_ext_extension_name__"></span></h1>
+    <h1 class="pageHeader"><span data-i18n="__MSG_ext_extension_name__"></span></h1>
 
     <div class="contentNav">
       <ul>
@@ -28,18 +28,16 @@
 
     <div class="content">
       <h2 data-i18n="__MSG_html_history_current_session__:"></h2>
-      <div id='currentSessions'></div>
+      <div id='currentSessions' class="sessionsContainer"></div>
 
       <h2 data-i18n="__MSG_html_history_recent_sessions__:"></h2>
-      <div id='recoverySessions'></div>
+      <div id='recoverySessions' class="sessionsContainer"></div>
 
       <h2 data-i18n="__MSG_html_history_saved_sessions__:"></h2>
-      <div id='historySessions'></div>
+      <div id='historySessions' class="sessionsContainer"></div>
 
-      <br />
-      <br />
       <a href="#" id="importSession" class="btn" data-i18n="__MSG_html_history_import_session__"></a>
-      <input type="file" id="importSessionAction" style="display:none" />
+      <input type="file" id="importSessionAction" hidden />
     </div>
 
   </div>

@@ -9,8 +9,8 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
-    var ICON_SUSPENSION_ACTIVE = '/img/icon19.png';
-    var ICON_SUSPENSION_PAUSED = '/img/icon19b.png';
+    var ICON_SUSPENSION_ACTIVE = '/img/ic_suspendy_128x128.png';
+    var ICON_SUSPENSION_PAUSED = '/img/ic_suspendy_128x128_grey.png';
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
@@ -28,6 +28,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         _newWindowFocusTimer,
         _noticeToDisplay,
         _isCharging = false,
+        _triggerHotkeyUpdate = false,
         _suspendUnsuspendHotkey,
         _tabFlagsByTabId = {};
 
@@ -337,6 +338,18 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function updateSuspendUnsuspendHotkey() {
+        resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
+            if (hotkeyChanged) {
+                getSuspendUnsuspendHotkey(function (hotkey) {
+                    gsMessages.sendRefreshToAllSuspendedTabs({
+                        command: hotkey,
+                    });
+                });
+            }
+        });
+    }
+
     function handleUnsuspendedTabChanged(tab, changeInfo) {
         var hasTabStatusChanged = false;
 
@@ -551,7 +564,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             //pause for a bit before assuming we're on a new tab as some users
             //will key through intermediate tabs to get to the one they want.
             queueNewTabFocusTimer(tabId, windowId, tab);
+
+            // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
+            if (tab.url === 'chrome://extensions/shortcuts') {
+                _triggerHotkeyUpdate = true;
+            }
         });
+
+        if (_triggerHotkeyUpdate) {
+            updateSuspendUnsuspendHotkey();
+            _triggerHotkeyUpdate = false;
+        }
     }
 
     function queueNewWindowFocusTimer(tabId, lastStationaryTabId, newTab) {
@@ -1023,21 +1046,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 }
                 chrome.tabs.update(tabId, { url: chrome.extension.getURL('thanks.html') });
                 return;
-            // test for a save of keyboard shortcuts (chrome://extensions/configureCommands)
-            } else if (changeInfo.url === 'chrome://extensions/') {
-                resetSuspendUnsuspendHotkey(function (hotkeyChanged) {
-                    if (hotkeyChanged) {
-                        getSuspendUnsuspendHotkey(function (hotkey) {
-                            gsMessages.sendRefreshToAllSuspendedTabs({
-                                command: hotkey,
-                            });
-                        });
-                    }
-                });
-
-            } else {
-                queueSessionTimer();
             }
+            queueSessionTimer();
         }
 
         let unsuspendOnReloadUrl = getTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL);

@@ -2,7 +2,6 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="css/font-awesome.min.css">
   <link type="text/css" href="css/style.css" rel="stylesheet">
   <script type="text/javascript" src="js/historyItems.js"></script>
   <script type="text/javascript" src="js/historyUtils.js"></script>
@@ -11,63 +10,53 @@
 
 </head>
 
-<body id="body">
+<body class="splash-wrap">
 
   <div class="splash">
 
-    <div class="dude-left">
-      <img src="img/dude_large.png" />
-    </div>
+    <img class="suspendy-guy" src="img/suspendy-guy.png" />
 
-    <div class="dude-text-top">
-      <h1>
-            <span data-i18n="__MSG_ext_extension_name__"></span>
-        </h1>
-      <h2 data-i18n="__MSG_html_updated_great_suspender_updated__"></h2>
-    </div>
-    <div class="dude-text-base">
+    <div>
+      <h1><span data-i18n="__MSG_ext_extension_name__"></span> <span data-i18n="__MSG_html_updated_great_suspender_updated__"></span></h1>
+
       <div id="backupInfo" class="reallyHidden">
-        <p>
-          <span data-i18n="__MSG_html_updated_info_line1__"></span>
-        </p>
+        <p><span data-i18n="__MSG_html_updated_info_line1__"></span></p>
         <p>
           <span data-i18n="__MSG_html_updated_info_line2_prefix__"></span><a id="sessionManagerLink" href="#" data-i18n="__MSG_html_session_manager__"></a><span data-i18n="__MSG_html_updated_info_line2_suffix__"></span>
         </p>
       </div>
+
+      <hr />
+      <h4>
+          <span data-i18n="__MSG_html_updated_detail_header_prefix__"></span><span id="updatedVersion"></span><span data-i18n="__MSG_html_updated_detail_header_suffix__"></span>
+      </h4>
+      <h5>
+          <span data-i18n="__MSG_html_updated_new_features_header__"></span>
+      </h5>
+      <ul>
+        <li>Extension settings can now be synced across computers.</li>
+        <li>Improved "Open link in new suspended tab" right-click menu option.</li>
+        <li>Support for retina favicons and high resolution screen captures.</li>
+        <li>New keyboard shortcuts.</li>
+        <li>Session management now supports importing of saved sessions.</li>
+        <li>Added one & two week suspend timeout options.</li>
+      </ul>
+      <h5>
+          <span data-i18n="__MSG_html_updated_bug_fixes_header__"></span>
+      </h5>
+      <ul>
+        <li>Fixed issue with cookies breaking websites like YouTube.</li>
+        <li>Improved behaviour of automatic tab unsuspending.</li>
+        <li>Fixed bugs with setting the correct scroll location on suspend and unsuspend.</li>
+        <li>Fixed bugs with right-click context menu.</li>
+        <li>Many other minor bug fixes and performance improvements.</li>
+      </ul>
+      <br />
+      <p>
+        <span data-i18n="__MSG_html_updated_release_notes__"></span><a href="https://github.com/deanoemcke/thegreatsuspender/releases">github.com/deanoemcke/thegreatsuspender/releases</a></span>
+      </p>
     </div>
-
-    <hr class="splashRule" />
-    <h4>
-        <span data-i18n="__MSG_html_updated_detail_header_prefix__"></span><span id="updatedVersion"></span><span data-i18n="__MSG_html_updated_detail_header_suffix__"></span>
-    </h4>
-    <h5>
-        <span data-i18n="__MSG_html_updated_new_features_header__"></span>
-    </h5>
-    <ul>
-      <li>Extension settings can now be synced across computers.</li>
-      <li>Improved "Open link in new suspended tab" right-click menu option.</li>
-      <li>Support for retina favicons and high resolution screen captures.</li>
-      <li>New keyboard shortcuts.</li>
-      <li>Session management now supports importing of saved sessions.</li>
-      <li>Added one & two week suspend timeout options.</li>
-    </ul>
-    <h5>
-        <span data-i18n="__MSG_html_updated_bug_fixes_header__"></span>
-    </h5>
-    <ul>
-      <li>Fixed issue with cookies breaking websites like YouTube.</li>
-      <li>Improved behaviour of automatic tab unsuspending.</li>
-      <li>Fixed bugs with setting the correct scroll location on suspend and unsuspend.</li>
-      <li>Fixed bugs with right-click context menu.</li>
-      <li>Many other minor bug fixes and performance improvements.</li>
-    </ul>
-    <br />
-    <p>
-      <span data-i18n="__MSG_html_updated_release_notes__"></span><a href="https://github.com/deanoemcke/thegreatsuspender/releases">github.com/deanoemcke/thegreatsuspender/releases</a></span>
-    </p>
-
   </div>
-
 
 </body>
 
