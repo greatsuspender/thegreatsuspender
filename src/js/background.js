@@ -550,6 +550,12 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         gsUtils.log(tabId, 'tab gained focus');
         _lastFocusedTabIdByWindowId[windowId] = tabId;
 
+        // The the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
+        if (_triggerHotkeyUpdate) {
+            updateSuspendUnsuspendHotkey();
+            _triggerHotkeyUpdate = false;
+        }
+
         chrome.tabs.get(tabId, function (tab) {
             if (chrome.runtime.lastError) {
                 gsUtils.error(tabId, chrome.runtime.lastError);
@@ -570,11 +576,6 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 _triggerHotkeyUpdate = true;
             }
         });
-
-        if (_triggerHotkeyUpdate) {
-            updateSuspendUnsuspendHotkey();
-            _triggerHotkeyUpdate = false;
-        }
     }
 
     function queueNewWindowFocusTimer(tabId, lastStationaryTabId, newTab) {
