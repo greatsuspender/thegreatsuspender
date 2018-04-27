@@ -192,7 +192,7 @@
     "html_thanks_sub_header": { "message": "你是一个很棒的人！" }, //? You are a great person!
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
-    "js_donate_paypal": { "message": "Paypal" }, // Paypal
+    "js_donate_paypal": { "message": "PayPal" }, // PayPal
     "js_donate_bitcoin": { "message": "比特币" }, //Bitcoin
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
 
