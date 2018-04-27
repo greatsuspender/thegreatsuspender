@@ -391,6 +391,12 @@ a.historyLink:hover {
   font-weight: bold;
   position: relative;
 }
+#gsTopBarTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
 .gsTopBarImg {
   height: 16px;
   width: 16px;
@@ -398,12 +404,6 @@ a.historyLink:hover {
   left: -35px;
   top: 3px;
 }
-/* .gsTopBarUrl-wrap {
-  width: 100%;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-} */
 .gsReloadLink {
   cursor: pointer;
 }
