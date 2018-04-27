@@ -27,7 +27,7 @@
     "html_about_browserstack": { "message": "browserstack" },
     "html_about_browserstack_prefix": { "message": "Thank you also to" },
     "html_about_browserstack_suffix": { "message": "for providing free chrome testing tools." },
-    "html_about_feeling_generous": { "message": "If you like The Great Suspender &amp; you're feeling generous..." },
+    "html_about_feeling_generous": { "message": "You can support The Great Suspender by donating:" },
     "html_about_already_donated": { "message": "Already donated?" },
     "html_about_thanks_for_your_donation": { "message": "Thanks a lot for your donation. You've made thank you cat happy." },
     "html_about_want_to_donate_again": { "message": "Want to donate again?" },
@@ -156,7 +156,7 @@
     "html_suspended_modal_temp_whitelist_notice": { "message": "Whitelisted sites will not be automatically suspended." },
     "html_suspended_modal_ok": { "message": "OK" },
     "html_suspended_modal_cancel": { "message": "Cancel" },
-    "html_suspended_donation_question": { "message": "Does this extension make you happy?" },
+    "html_suspended_donation_question": { "message": "Does this extension make you happy?<br>Show your support by donating:" },
 
     // Update page
     "html_update_title": { "message": "Update" },
@@ -192,9 +192,9 @@
     "html_thanks_sub_header": { "message": "Congratulations on being such a wonderful person." },
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
-    "js_donate_paypal": { "message": "Donate with Paypal" },
-    "js_donate_bitcoin": { "message": "Donate with crypto" },
-    "js_donate_patreon": { "message": "Support us on Patreon" },
+    "js_donate_paypal": { "message": "Paypal" },
+    "js_donate_bitcoin": { "message": "Crypto" },
+    "js_donate_patreon": { "message": "Patreon" },
 
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },

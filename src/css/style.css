@@ -201,16 +201,7 @@ ul.unorderedList li {
 .btn.btnNeg:hover {
   background: #ccc;
 }
-.btnDonate {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol';
-  margin: 0 7px 0 0;
-  float: left;
-}
-/* .btnDonate:hover {
-  text-decoration: underline;
-} */
+
 .btnDisabled {
   background: #f1f1f1;
   color: #888;
@@ -369,6 +360,16 @@ a.historyLink:hover {
 .donateButtons {
   overflow: hidden;
 }
+.donateButtons > * {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  margin: 0 7px 0 0;
+  float: left;
+}
+.donateButtons > *:last-child {
+  margin: 0;
+}
 
 .donationToggle {
   margin-top: 15px;
@@ -488,7 +489,7 @@ body.img-preview-mode .gsTopBar {
 
 .donateBubble {
   width: 365px;
-  padding: 10px 10px;
+  padding: 15px 10px;
   background: #fff;
   border-radius: 4px;
   bottom: 35px;
@@ -510,17 +511,10 @@ body.img-preview-mode .gsTopBar {
   width: 0;
   filter: drop-shadow(-2px 0px 0 rgba(0, 0, 0, 0.1));
 }
-.donate-text {
-  margin: 10px 0;
-}
 .donateBubble .donateButtons {
   display: flex;
   justify-content: center;
-}
-
-.donateBubble .btn {
-  margin: 10px 5px;
-  padding: 0 15px;
+  margin-bottom: 10px;
 }
 .donateBubble.fadeIn {
   animation: fadein 0.7s;
@@ -761,19 +755,19 @@ input[type='checkbox']:checked + label:before {
   color: #444;
 }
 /* Tooltips */
-[data-i18n-tooltip]{
-  position:relative;
+[data-i18n-tooltip] {
+  position: relative;
 }
 [data-i18n-tooltip]::after {
   content: attr(data-i18n-tooltip);
   position: absolute;
-  left:50%;
+  left: 50%;
   top: -6px;
   transform: translateX(-50%) translateY(-100%);
   background: #fff;
   line-height: 20px;
   color: #444;
-  padding:4px 2px;
+  padding: 4px 2px;
   min-width: 500px;
   border-radius: 4px;
   border: 1px solid #e8e8e8;
@@ -786,7 +780,6 @@ input[type='checkbox']:checked + label:before {
 [data-i18n-tooltip]:hover::after {
   opacity: 1;
 }
-
 
 @keyframes slideToTop {
   0% {

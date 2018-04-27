@@ -156,7 +156,7 @@
     "html_suspended_modal_temp_whitelist_notice": { "message": "白名單網站不會自動暫停。" }, //? Whitelisted sites will not be suspended automatically.
     "html_suspended_modal_ok": { "message": "送出" }, //Send
     "html_suspended_modal_cancel": { "message": "取消" }, //cancel
-    "html_suspended_donation_question": { "message": "你喜歡這個擴充元件嗎?" }, //Do you like this extension?
+    "html_suspended_donation_question": { "message": "你喜歡這個擴充元件嗎?<br>通过捐赠表明你的支持" }, //Do you like this extension? Show your support by donating
 
     // Update page
     "html_update_title": { "message": "更新" }, //? Updated
@@ -192,9 +192,9 @@
     "html_thanks_sub_header": { "message": "你是一个很棒的人！" }, //? You are a great person!
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
-    "js_donate_paypal": { "message": "透過 Paypal 捐款" }, //Make a donation via Paypal
-    "js_donate_bitcoin": { "message": "透過 比特币 捐款" }, //Donate via Bitcoin
-    "js_donate_patreon": { "message": "透過 Patreon 捐款" }, //Donate through Patreon
+    "js_donate_paypal": { "message": "Paypal" }, // Paypal
+    "js_donate_bitcoin": { "message": "比特币" }, //Bitcoin
+    "js_donate_patreon": { "message": "Patreon" }, //Patreon
 
     // Contextual menu (Javascript code)
     "js_background_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
