@@ -172,7 +172,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
 
     // forceLevel indicates which users preferences to respect when attempting to suspend the tab
     // 1: Suspend if at all possible
-    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude current active tab
+    // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, exclude current active window's tabs, and exclude current active tab
     // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
     function checkTabEligibilityForSuspension(tab, forceLevel) {
         if (forceLevel >= 1) {
@@ -181,7 +181,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             }
         }
         if (forceLevel >= 2) {
-            if (gsUtils.isProtectedActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isProtectedPinnedTab(tab) || gsUtils.isProtectedAudibleTab(tab)) {
+            if (gsUtils.isProtectedActiveTab(tab) || gsUtils.checkWhiteList(tab.url) || gsUtils.isProtectedPinnedTab(tab) || gsUtils.isProtectedAudibleTab(tab) || gsUtils.isProtectedTabInActiveWindow(tab)) {
                 return false;
             }
         }
