@@ -111,6 +111,11 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         return tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active);
     },
 
+    isProtectedTabInActiveWindow: function (tab) {
+        var dontSuspendTabsInActiveWindow = gsStorage.getOption(gsStorage.IGNORE_ACTIVE_WINDOW_TABS)
+        return dontSuspendTabsInActiveWindow && tab.windowId === tgs.getActiveWindowId()
+    },
+
     isNormalTab: function (tab) {
         return !gsUtils.isSpecialTab(tab) && !gsUtils.isSuspendedTab(tab);
     },
