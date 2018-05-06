@@ -65,6 +65,7 @@
     "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound
     "html_options_suspend_only_connected": { "message": "只在網路連接下才自動凍結" }, //Only in the Internet connection is automatically frozen
     "html_options_suspend_only_on_battery": { "message": "只在電池模式下才自動凍結" }, //Frozen only in battery mode
+    "html_options_suspend_with_timestamp": { "message": "YouTube在冻结时使用时间戳" }, //YouTube uses a timestamp when it freezes
     "html_options_suspend_no_active_tabs": { "message": "不要冻结每个窗口中的活动页面" }, //? Do not freeze the active page in each window
     "html_options_suspend_automatically_unsuspend": { "message": "當分頁被瀏覽就自動恢復分頁" }, //Paging is automatically resumed when pagination is viewed
     "html_options_suspend_theme": { "message": "主題" }, //theme

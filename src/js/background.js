@@ -9,12 +9,16 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
+    //Matches the video id
+    var YOUTUBE_ID_REGEX = /https?:\/\/(?:www\.)?youtube.com\/watch.+?(?:v\=)([0-9A-Za-z_-]{11})/
+
     var ICON_SUSPENSION_ACTIVE = '/img/ic_suspendy_128x128.png';
     var ICON_SUSPENSION_PAUSED = '/img/ic_suspendy_128x128_grey.png';
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
     var DISCARD_ON_LOAD = 'discardOnLoad';
+    var YOUTUBE_TIMESTAMP = 'saveTimestamp';
     var SCROLL_POS = 'scrollPos';
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
     var FOCUS_DELAY = 500;
@@ -406,10 +410,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function initialiseUnsuspendedTab(tab, callback) {
         var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+        var youtubeTimestamp = gsStorage.getOption(gsStorage.YOUTUBE_TIMESTAMP);
         var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
         var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
         var suspendTime = gsUtils.isProtectedActiveTab(tab) ? '0' : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-        gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
+        gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, youtubeTimestamp, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
     function handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl) {
@@ -745,6 +750,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             } else {
                 gsMessages.sendRequestInfoToContentScript(tabId, function (err, tabInfo) {
                     if (tabInfo) {
+                        if (tabInfo.timestamp) {
+                            setTabFlagForTabId(tabId,YOUTUBE_TIMESTAMP,tabInfo.timestamp);
+                        }
                         resolve(tabInfo.status);
                     } else {
                         resolve(null);
@@ -969,10 +977,30 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
     });
 
+    function captureTimestamp(tab) {
+        var matchURL = YOUTUBE_ID_REGEX.exec(tab.url);
+        var timestamp = getTabFlagForTabId(tab.id, YOUTUBE_TIMESTAMP);
+        if (matchURL && timestamp){
+            var id = matchURL[1]
+            return {id,timestamp};
+        } else return false;
+    }
+
+    function createYoutubeURL(id, timestamp) {
+        return `https://youtube.com/watch?v=${id}&t=${timestamp}`
+    }
+
     //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
     function contentScriptMessageRequestListener(request, sender, sendResponse) {
+        let doTimestampCapture = captureTimestamp(sender.tab);
+
         gsUtils.log(sender.tab.id, 'contentScriptMessageRequestListener', request.action);
+
+        if (doTimestampCapture){//[TODO] ADD SETTINGS THINGY HERE
+            let {id, timestamp} = doTimestampCapture;
+            sender.tab.url = createYoutubeURL(id,timestamp);
+        }
 
         switch (request.action) {
 
@@ -980,6 +1008,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             // If tab is currently visible then update popup icon
             if (sender.tab && isCurrentFocusedTab(sender.tab)) {
                 var contentScriptStatus = (request && request.status) ? request.status : null;
+
                 calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
                     setIconStatus(status, sender.tab.id);
                 });
@@ -1135,6 +1164,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
         UNSUSPEND_ON_RELOAD_URL: UNSUSPEND_ON_RELOAD_URL,
         DISCARD_ON_LOAD: DISCARD_ON_LOAD,
+        YOUTUBE_TIMESTAMP: YOUTUBE_TIMESTAMP,
         SCROLL_POS: SCROLL_POS,
         CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,
         getTabFlagForTabId: getTabFlagForTabId,

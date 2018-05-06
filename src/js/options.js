@@ -21,7 +21,8 @@
         'syncSettings': gsStorage.SYNC_SETTINGS,
         'timeToSuspend': gsStorage.SUSPEND_TIME,
         'theme': gsStorage.THEME,
-        'whitelist': gsStorage.WHITELIST
+        'whitelist': gsStorage.WHITELIST,
+        'youtubeTimestamp': gsStorage.YOUTUBE_TIMESTAMP
     };
 
     function selectComboBox(element, key) {
