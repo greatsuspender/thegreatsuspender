@@ -852,6 +852,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         });
     }
 
+    function getActiveWindowId() {
+        return _lastFocusedWindowId;
+    }
+
     //change the icon to either active or inactive
     function setIconStatus(status, tabId) {
         // gsUtils.log(tabId, 'Setting icon status: ' + status);
@@ -1146,6 +1150,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         buildContextMenu: buildContextMenu,
         resuspendSuspendedTab: resuspendSuspendedTab,
         getActiveTabStatus: getActiveTabStatus,
+        getActiveWindowId: getActiveWindowId,
         getDebugInfo: getDebugInfo,
         calculateTabStatus: calculateTabStatus,
         isCharging: isCharging,

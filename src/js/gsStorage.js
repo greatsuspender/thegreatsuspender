@@ -14,6 +14,7 @@ var gsStorage = {
     IGNORE_FORMS: 'gsDontSuspendForms',
     IGNORE_AUDIO: 'gsDontSuspendAudio',
     IGNORE_ACTIVE_TABS: 'gsDontSuspendActiveTabs',
+    IGNORE_ACTIVE_WINDOW_TABS: 'gsDontSuspendTabsInActiveWindow', 
     IGNORE_CACHE: 'gsIgnoreCache',
     ADD_CONTEXT: 'gsAddContextMenu',
     SYNC_SETTINGS: 'gsSyncSettings',
@@ -58,6 +59,7 @@ var gsStorage = {
         defaults[this.IGNORE_FORMS] = true;
         defaults[this.IGNORE_AUDIO] = true;
         defaults[this.IGNORE_ACTIVE_TABS] = true;
+        defaults[this.IGNORE_ACTIVE_WINDOW_TABS] = false;
         defaults[this.IGNORE_CACHE] = false;
         defaults[this.ADD_CONTEXT] = true;
         defaults[this.SYNC_SETTINGS] = true;
