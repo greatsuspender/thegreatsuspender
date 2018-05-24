@@ -9,7 +9,7 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         var payload = {
             action: 'initialiseContentScript',
             ignoreForms: ignoreForms,
-            tempWhitelist: tempWhitelist,
+            tempWhitelist: tempWhitelist
         };
         if (scrollPos) {
             payload.scrollPos = scrollPos;

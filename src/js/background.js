@@ -9,12 +9,16 @@
 var tgs = (function () { // eslint-disable-line no-unused-vars
     'use strict';
 
+    //Matches the video id
+    var YOUTUBE_ID_REGEX = /https?:\/\/(?:www\.)?youtube.com\/watch.+?(?:v\=)([0-9A-Za-z_-]{11})/
+
     var ICON_SUSPENSION_ACTIVE = '/img/ic_suspendy_128x128.png';
     var ICON_SUSPENSION_PAUSED = '/img/ic_suspendy_128x128_grey.png';
 
     var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
     var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
     var DISCARD_ON_LOAD = 'discardOnLoad';
+    var YOUTUBE_TIMESTAMP = 'saveTimestamp';
     var SCROLL_POS = 'scrollPos';
     var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
     var FOCUS_DELAY = 500;
@@ -745,6 +749,9 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             } else {
                 gsMessages.sendRequestInfoToContentScript(tabId, function (err, tabInfo) {
                     if (tabInfo) {
+                        if (tabInfo.timestamp) {
+                            setTabFlagForTabId(tabId,YOUTUBE_TIMESTAMP,tabInfo.timestamp);
+                        }
                         resolve(tabInfo.status);
                     } else {
                         resolve(null);
@@ -969,10 +976,30 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
     });
 
+    function captureTimestamp(tab) {
+        var matchURL = YOUTUBE_ID_REGEX.exec(tab.url);
+        var timestamp = getTabFlagForTabId(tab.id, YOUTUBE_TIMESTAMP);
+        if (matchURL && timestamp){
+            return timestamp;
+        } else return false;
+    }
+
+    function createYoutubeURL(url, timestamp) {
+        url = new URL(url);
+        url.searchParams.set('t', timestamp+'s');
+        return url.href;
+    }
+
     //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
     function contentScriptMessageRequestListener(request, sender, sendResponse) {
+        let timestamp = captureTimestamp(sender.tab);
+
         gsUtils.log(sender.tab.id, 'contentScriptMessageRequestListener', request.action);
+
+        if (timestamp){
+            sender.tab.url = createYoutubeURL(sender.tab.url, timestamp);
+        }
 
         switch (request.action) {
 
@@ -980,6 +1007,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
             // If tab is currently visible then update popup icon
             if (sender.tab && isCurrentFocusedTab(sender.tab)) {
                 var contentScriptStatus = (request && request.status) ? request.status : null;
+
                 calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
                     setIconStatus(status, sender.tab.id);
                 });
@@ -1135,6 +1163,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
         UNSUSPEND_ON_RELOAD_URL: UNSUSPEND_ON_RELOAD_URL,
         DISCARD_ON_LOAD: DISCARD_ON_LOAD,
+        YOUTUBE_TIMESTAMP: YOUTUBE_TIMESTAMP,
         SCROLL_POS: SCROLL_POS,
         CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,
         getTabFlagForTabId: getTabFlagForTabId,
