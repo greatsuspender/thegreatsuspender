@@ -148,24 +148,25 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
                     scrollPos:  '0',
                 };
             }
-            var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
-            suspensionDetails.status = tabInfo.status;
-            suspensionDetails.scrollPos = tabInfo.scrollPos;
-            suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, suspensionDetails.scrollPos);
-
-            if (!checkContentScriptEligibilityForSuspension(suspensionDetails.status, forceLevel)) {
+            if (!checkContentScriptEligibilityForSuspension(tabInfo.status, forceLevel)) {
                 removeTabFromSuspensionQueue(tab, 'Content script not eligible for suspension');
                 return;
             }
 
-            saveSuspendData(tab, function () {
-                var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-                if (screenCaptureMode === '0') {
-                    executeTabSuspension(tab);
-                } else {
-                    generatePreviewImg(tab);
-                    // executeTabSuspension is called on the 'savePreviewData' message response
-                }
+            updateYouTubeUrlWithTimestamp(tab, function () {
+                var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+                suspensionDetails.scrollPos = tabInfo.scrollPos;
+                suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, suspensionDetails.scrollPos);
+
+                saveSuspendData(tab, function () {
+                    var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+                    if (screenCaptureMode === '0') {
+                        executeTabSuspension(tab);
+                    } else {
+                        generatePreviewImg(tab);
+                        // executeTabSuspension is called on the 'savePreviewData' message response
+                    }
+                });
             });
         });
     }
@@ -201,6 +202,35 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
             return false;
         }
         return true;
+    }
+
+    function updateYouTubeUrlWithTimestamp(tab, callback) {
+        if (tab.url.indexOf('https://www.youtube.com/watch') < 0) {
+            callback();
+            return;
+        }
+
+        gsMessages.executeCodeOnTab(tab.id,
+            `(${fetchYouTubeTimestampContentScript})();`,
+            function (error, response) {
+                if (error) {
+                    callback();
+                    return;
+                }
+                var timestamp = response;
+                if (timestamp && timestamp > 0) {
+                    var youTubeUrl = new URL(tab.url);
+                    youTubeUrl.searchParams.set('t', timestamp + 's');
+                    tab.url = youTubeUrl.href;
+                }
+                callback();
+            });
+    }
+
+    function fetchYouTubeTimestampContentScript() {
+        var videoEl = document.querySelector('video.video-stream.html5-main-video');
+        var timestamp = videoEl ? videoEl.currentTime >> 0 : 0;
+        return timestamp
     }
 
     function saveSuspendData(tab, callback) {
@@ -239,7 +269,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
                 return;
             }
             gsMessages.executeCodeOnTab(tab.id,
-                `(${executeContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
+                `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
                 function (error) {
                     if (error) {
                         gsUtils.error('gsSuspendManager', error);
@@ -250,7 +280,7 @@ var gsSuspendManager = (function () { // eslint-disable-line no-unused-vars
     }
 
     // eslint-disable-next-line no-unused-vars
-    function executeContentScript(screenCaptureMode, forceScreenCapture) {
+    function generatePreviewImgContentScript(screenCaptureMode, forceScreenCapture) {
         var MAX_CANVAS_HEIGHT = forceScreenCapture ? 10000 : 5000;
         var IMAGE_TYPE = 'image/webp';
         var IMAGE_QUALITY = forceScreenCapture ? 0.92 : 0.5;

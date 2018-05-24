@@ -8,7 +8,6 @@
 */
 (function () {
     'use strict';
-    var YOUTUBE_ID_REGEX = /https?:\/\/(?:www\.)?youtube.com\/watch.+?(?:v\=)([0-9A-Za-z_-]{11})/
 
     var isInitialised = false,
         isFormListenerInitialised = false,
@@ -16,8 +15,7 @@
         isIgnoreForms = false,
         tempWhitelist = false,
         timerJob,
-        suspendDateTime = false,
-        isYoutubeVideo = false;
+        suspendDateTime = false;
 
     function suspendTab(suspendedUrl) {
         window.location.replace(suspendedUrl);
@@ -65,16 +63,6 @@
 
         if (request.hasOwnProperty('action') && request.action === 'initialiseContentScript') {
             isInitialised = true;
-            
-            let ytURL = YOUTUBE_ID_REGEX.exec(window.location.href);
-
-
-            if (ytURL) {
-                isYoutubeVideo = true;
-                sendResponse({
-                    action: 'setYoutubeFlag'
-                })
-            }
         }
 
         if (request.hasOwnProperty('scrollPos')) {
@@ -112,20 +100,12 @@
     });
 
     function buildReportTabStatePayload() {
-        var state =  {
+        return {
             action: 'reportTabState',
             isInitialised: isInitialised,
             status: (isIgnoreForms && isReceivingFormInput) ? 'formInput' : (tempWhitelist ? 'tempWhitelist' : 'normal'),
             scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
             timerUp: suspendDateTime ? suspendDateTime + '' : false,
         };
-        if (isYoutubeVideo) {
-            state.timestamp = getYoutubeTimestamp();
-        }
-        return state;
-    }
-
-    function getYoutubeTimestamp() {
-        return document.querySelector('video.video-stream.html5-main-video').currentTime>>0;
     }
 }());
