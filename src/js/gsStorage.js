@@ -20,7 +20,6 @@ var gsStorage = {
     NO_NAG: 'gsNoNag',
     THEME: 'gsTheme',
     WHITELIST: 'gsWhitelist',
-    YOUTUBE_TIMESTAMP:'gsYoutubeTimestamp',
 
     DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
     DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
@@ -65,7 +64,6 @@ var gsStorage = {
         defaults[this.SUSPEND_TIME] = '60';
         defaults[this.NO_NAG] = false;
         defaults[this.WHITELIST] = '';
-        defaults[this.YOUTUBE_TIMESTAMP] = false;
         defaults[this.THEME] = 'light';
 
         return defaults;

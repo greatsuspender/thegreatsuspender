@@ -410,11 +410,10 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
 
     function initialiseUnsuspendedTab(tab, callback) {
         var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-        var youtubeTimestamp = gsStorage.getOption(gsStorage.YOUTUBE_TIMESTAMP);
         var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
         var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
         var suspendTime = gsUtils.isProtectedActiveTab(tab) ? '0' : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-        gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, youtubeTimestamp, isTempWhitelist, scrollPos, suspendTime, callback);
+        gsMessages.sendInitTabToContentScript(tab.id, ignoreForms, isTempWhitelist, scrollPos, suspendTime, callback);
     }
 
     function handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl) {
@@ -981,25 +980,25 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         var matchURL = YOUTUBE_ID_REGEX.exec(tab.url);
         var timestamp = getTabFlagForTabId(tab.id, YOUTUBE_TIMESTAMP);
         if (matchURL && timestamp){
-            var id = matchURL[1]
-            return {id,timestamp};
+            return timestamp;
         } else return false;
     }
 
-    function createYoutubeURL(id, timestamp) {
-        return `https://youtube.com/watch?v=${id}&t=${timestamp}`
+    function createYoutubeURL(url, timestamp) {
+        url = new URL(url);
+        url.searchParams.set('t', timestamp+'s');
+        return url.href;
     }
 
     //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
     function contentScriptMessageRequestListener(request, sender, sendResponse) {
-        let doTimestampCapture = captureTimestamp(sender.tab);
+        let timestamp = captureTimestamp(sender.tab);
 
         gsUtils.log(sender.tab.id, 'contentScriptMessageRequestListener', request.action);
 
-        if (doTimestampCapture){//[TODO] ADD SETTINGS THINGY HERE
-            let {id, timestamp} = doTimestampCapture;
-            sender.tab.url = createYoutubeURL(id,timestamp);
+        if (timestamp){
+            sender.tab.url = createYoutubeURL(sender.tab.url, timestamp);
         }
 
         switch (request.action) {

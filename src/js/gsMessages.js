@@ -5,12 +5,11 @@ var gsMessages = { // eslint-disable-line no-unused-vars
     WARNING: 'warning',
     ERROR: 'error',
 
-    sendInitTabToContentScript(tabId, ignoreForms, youtubeTimestamp, tempWhitelist, scrollPos, suspendTime, callback) {
+    sendInitTabToContentScript(tabId, ignoreForms, tempWhitelist, scrollPos, suspendTime, callback) {
         var payload = {
             action: 'initialiseContentScript',
             ignoreForms: ignoreForms,
-            tempWhitelist: tempWhitelist,
-            youtubeTimestamp: youtubeTimestamp
+            tempWhitelist: tempWhitelist
         };
         if (scrollPos) {
             payload.scrollPos = scrollPos;

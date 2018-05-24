@@ -17,8 +17,7 @@
         tempWhitelist = false,
         timerJob,
         suspendDateTime = false,
-        isYoutubeVideo = false,
-        suspendWithTimestamp = false;
+        isYoutubeVideo = false;
 
     function suspendTab(suspendedUrl) {
         window.location.replace(suspendedUrl);
@@ -102,9 +101,6 @@
                 initFormInputListener();
             }
         }
-        if (request.hasOwnProperty('youtubeTimestamp')) {
-            suspendWithTimestamp = request.youtubeTimestamp;
-        }
         if (request.hasOwnProperty('tempWhitelist')) {
             if (isReceivingFormInput && !request.tempWhitelist) {
                 isReceivingFormInput = false;
@@ -123,7 +119,7 @@
             scrollPos: document.body.scrollTop || document.documentElement.scrollTop || 0,
             timerUp: suspendDateTime ? suspendDateTime + '' : false,
         };
-        if (isYoutubeVideo && suspendWithTimestamp) {
+        if (isYoutubeVideo) {
             state.timestamp = getYoutubeTimestamp();
         }
         return state;
