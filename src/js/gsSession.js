@@ -81,6 +81,12 @@ var gsSession = (function () { // eslint-disable-line no-unused-vars
     function runStartupChecks() {
         backgroundScriptsReadyAsPromsied().then(function () {
             initialisationMode = true;
+
+            // Check if the extension can work on file:// URLs
+            chrome.extension.isAllowedFileSchemeAccess(function(isAllowedAccess) {
+                tgs._fileUrlsAccessAllowed = isAllowedAccess;
+            });
+
             chrome.tabs.query({}, function (tabs) {
                 checkForBrowserStartup(tabs);
 

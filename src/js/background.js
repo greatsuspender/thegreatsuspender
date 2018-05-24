@@ -30,7 +30,8 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         _isCharging = false,
         _triggerHotkeyUpdate = false,
         _suspendUnsuspendHotkey,
-        _tabFlagsByTabId = {};
+        _tabFlagsByTabId = {},
+        _fileUrlsAccessAllowed;
 
     function init() {
 
@@ -652,6 +653,15 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
     }
 
+    function promptForFilePermissions() {
+        var proceed = confirm('The Great Suspender requires access to file URLs in order to suspend URLs beginning with "file://".\nPlease turn on "Allow access to file URLs" on the next page in order to enable suspension of file URLs.');
+        if (proceed) {
+            getCurrentlyActiveTab(function (activeTab) {
+                chrome.tabs.create({url: 'chrome://extensions?id=' + chrome.runtime.id, index: activeTab.index + 1});
+            });
+        }
+    }
+
     function checkForNotices() {
 
         var xhr = new XMLHttpRequest();
@@ -758,6 +768,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     //loading: tab object has a state of 'loading'
     //normal: a tab that will be suspended
     //special: a tab that cannot be suspended
+    //blockedFile: a file:// tab that can theoretically be suspended but is being blocked by the user's settings
     //suspended: a tab that is suspended
     //discarded: a tab that has been discarded
     //never: suspension timer set to 'never suspend'
@@ -779,6 +790,11 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         //check if it is a special tab
         if (gsUtils.isSpecialTab(tab)) {
             callback('special');
+            return;
+        }
+        //check if it is a blockedFile tab
+        if (gsUtils.isBlockedFileTab(tab)) {
+            callback('blockedFile');
             return;
         }
         //check if tab has been discarded
@@ -1166,6 +1182,7 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         whitelistHighlightedTab: whitelistHighlightedTab,
         temporarilyWhitelistHighlightedTab: temporarilyWhitelistHighlightedTab,
         unsuspendAllTabsInAllWindows: unsuspendAllTabsInAllWindows,
+        promptForFilePermissions: promptForFilePermissions,
     };
 
 }());

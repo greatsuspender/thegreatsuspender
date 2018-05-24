@@ -67,8 +67,8 @@
 
     function setSuspendCurrentVisibility(tabStatus) {
 
-        var suspendOneVisible = !['suspended', 'special', 'loading', 'unknown'].includes(tabStatus),
-            whitelistVisible = !['whitelisted', 'special', 'loading', 'unknown'].includes(tabStatus),
+        var suspendOneVisible = !['suspended', 'special', 'blockedFile', 'loading', 'unknown'].includes(tabStatus),
+            whitelistVisible = !['whitelisted', 'special', 'blockedFile', 'loading', 'unknown'].includes(tabStatus),
             pauseVisible = ['normal', 'audible', 'noConnectivity', 'charging', 'active'].includes(tabStatus);
 
         if (suspendOneVisible) {
@@ -157,6 +157,10 @@
             statusDetail = chrome.i18n.getMessage('js_popup_charging');
         //    statusIconClass = 'fa fa-plug';
 
+    } else if (status === 'blockedFile') {
+            statusDetail = '<a href="#">' + chrome.i18n.getMessage('js_popup_blockedFile') + '</a>';
+        //    statusIconClass = 'fa fa-exclamation-triangle';
+
         } else if (status === 'loading' || status === 'unknown') {
             if (gsSession.isInitialising()) {
                 statusDetail = chrome.i18n.getMessage('js_popup_initialising');
@@ -182,6 +186,9 @@
         if (status === 'normal' || status === 'active') {
             document.getElementById('header').classList.add('willSuspend');
         }
+        if (status === 'blockedFile') {
+            document.getElementById('header').classList.add('blockedFile');
+        }
 
         // Update action handler
         var actionEl = document.getElementsByTagName('a')[0];
@@ -196,6 +203,8 @@
 
             } else if (status === 'formInput' || status === 'tempWhitelist') {
                 tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
+            } else if (status === 'blockedFile') {
+                tgsHanderFunc = tgs.promptForFilePermissions;
             }
 
             if (globalActionElListener) {
