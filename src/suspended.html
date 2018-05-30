@@ -69,19 +69,43 @@
 			<div>
 				<a id="gsWhitelistLink" class="gsWhitelistLink">
 					<span data-i18n="__MSG_html_suspended_tab_whitelist_prefix__"></span>
-					<span id="gsTopBarUrl" class="gsTopBarUrl"></span><span data-i18n="__MSG_html_suspended_tab_whitelist_suffix__"></span>
+					<span id="gsTopBarUrl" class="gsTopBarUrl"></span>
+					<span data-i18n="__MSG_html_suspended_tab_whitelist_suffix__"></span>
 				</a>
 			</div>
 
 		</div>
 	</div>
 	<div id="suspendedMsg" class="suspendedMsg">
-		<img src="/img/snoozy_tab.png" alt="Tab suspended" title="Tab suspended" />
-		<div class="suspendedMsg-instr">
-			<span data-i18n="__MSG_html_suspended_click_to_reload__"></span>
+		<!-- <img src="/img/snoozy_tab.png" alt="Tab suspended" title="Tab suspended" /> -->
+
+
+		<div class="tab">
+			<div class="bar">
+				&bull;&bull;&bull;
+				<div class="spinner"></div>
+			</div>
+			<div class="face">
+				<div class="eye eye-closed eye-l"></div>
+				<div class="eye eye-closed eye-r"></div>
+				<div class="eye eye-open eye-l"></div>
+				<div class="eye eye-open eye-r"></div>
+				<div class="mouth"></div>
+			</div>
+			<div class="zzz">
+				<span class="z">Z</span>
+				<span class="z">Z</span>
+				<span class="z">Z</span>
+			</div>
 		</div>
-		<div class="suspendedMsg-shortcut">
-			<span id="hotkeyCommand"></span>
+
+		<div class="suspendedTextWrap">
+			<div class="suspendedMsg-instr">
+				<span data-i18n="__MSG_html_suspended_click_to_reload__"></span>
+			</div>
+			<div class="suspendedMsg-shortcut">
+				<span id="hotkeyCommand"></span>
+			</div>
 		</div>
 	</div>
 	<div class="watermark">

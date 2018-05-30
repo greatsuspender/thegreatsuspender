@@ -140,7 +140,7 @@
         } else {
             toggleImagePreviewVisibility();
             document.querySelector('.watermark').addEventListener('click', () => {
-                chrome.tabs.create({url: chrome.extension.getURL('about.html')});
+                chrome.tabs.create({ url: chrome.extension.getURL('about.html') });
             });
         }
     }
@@ -230,7 +230,7 @@
     function handleUnsuspendTab(e) {
         e.preventDefault();
         if (e.target.id === 'setKeyboardShortcut') {
-            chrome.tabs.create({url: 'chrome://extensions/configureCommands'});
+            chrome.tabs.create({ url: 'chrome://extensions/configureCommands' });
         } else {
             unsuspendTab();
         }
@@ -249,8 +249,9 @@
                 }
             } catch (error) { console.error(error); }
         }
-        document.getElementById('suspendedMsg').innerHTML = '';
-        document.getElementById('refreshSpinner').classList.add('spinner');
+        // document.getElementById('suspendedMsg').innerHTML = '';
+        // document.getElementById('refreshSpinner').classList.add('spinner');
+        document.body.classList.add('waking');
         window.location.replace(currentUrl);
     }
 
@@ -456,26 +457,26 @@
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             switch (request.action) {
 
-            case 'initSuspendedTab':
-                handleInitRequest(request);
-                isInitialised = true;
-                break;
+                case 'initSuspendedTab':
+                    handleInitRequest(request);
+                    isInitialised = true;
+                    break;
 
-            case 'updateSuspendedTab':
-                handleInitRequest(request);
-                break;
+                case 'updateSuspendedTab':
+                    handleInitRequest(request);
+                    break;
 
-            case 'unsuspendTab':
-                unsuspendTab();
-                break;
+                case 'unsuspendTab':
+                    unsuspendTab();
+                    break;
 
-            case 'disableUnsuspendOnReload':
-                requestUnsuspendOnReload = false;
-                break;
+                case 'disableUnsuspendOnReload':
+                    requestUnsuspendOnReload = false;
+                    break;
 
-            case 'showNoConnectivityMessage':
-                showNoConnectivityMessage();
-                break;
+                case 'showNoConnectivityMessage':
+                    showNoConnectivityMessage();
+                    break;
             }
             sendResponse(buildReportTabStatePayload());
             return false;
