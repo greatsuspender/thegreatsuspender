@@ -476,37 +476,36 @@ body.img-preview-mode .gsTopBar {
   position: relative;
   color: #3477db;
   user-select: none;
-  width: 20rem;
-  height: 15rem;
-  border: 0.4rem solid #3477db;
+  width: 18rem;
+  height: 13rem;
+  border: 0.3rem solid #3477db;
   border-radius: 5px;
   display: grid;
-  grid-template-rows: 2.5rem 1fr;
+  grid-template-rows: 2.2rem 1fr;
 }
 .bar {
   position: relative;
-  border-bottom: 0.4rem solid #3477db;
-  font-size: 3.3rem;
-  line-height: 2.5rem;
+  border-bottom: 0.3rem solid #3477db;
+  font-size: 2.6rem;
   padding-left: 0.5rem;
   letter-spacing: 0.3rem;
-  line-height: 1.5rem;
+  line-height: 1.4rem;
 }
 .face {
   position: relative;
 }
 .eye,
 .mouth {
-  border: 0.5rem solid #3477db;
+  border: 0.4rem solid #3477db;
   position: absolute;
-  width: 2.8rem;
-  height: 2rem;
-  border-radius: 50%;
+  width: 2.5rem;
+  height: 1.7rem;
+  border-radius: 45%;
   top: 25%;
   clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0% 100%);
 }
 .eye-l {
-  left: 20%;
+  left: 22%;
 }
 .eye-r {
   right: 15%;
@@ -516,20 +515,20 @@ body.img-preview-mode .gsTopBar {
   transform: rotateX(90deg);
   clip-path: none;
   background: #3477db;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 50%;
   border-color: transparent;
 }
-.eye-l {
-  margin-left: 0.5rem;
+.eye-open.eye-l {
+  margin-left: 0.9rem;
 }
-.eye-r {
-  margin-right: 0.5rem;
+.eye-open.eye-r {
+  margin-right: 0.7rem;
 }
 
 .mouth {
-  width: 2rem;
+  width: 1.7rem;
   left: 55%;
   top: 33%;
   transform: translateX(-50%);
@@ -572,11 +571,10 @@ body.img-preview-mode .gsTopBar {
   height: 1.5rem;
   width: 1.5rem;
   opacity: 0;
-  /* transition: all 0.5s 0.5s ease; */
 }
 
 .tab .spinner::before {
-  top: 0;
+  top: -0.1rem;
   left: 0;
   margin: 0;
   content: "";
