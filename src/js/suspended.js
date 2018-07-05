@@ -95,11 +95,17 @@
         if (currentTheme === newTheme) {
             return;
         }
-        currentTheme = newTheme;
-        if (newTheme === 'dark') {
-            document.querySelector('body').classList.add('dark');
-        } else {
-            document.querySelector('body').classList.remove('dark');
+
+        const themes = ['dark', 'mojave'];
+
+        themes.map(themeName => {
+            document.querySelector('body').classList.remove(themeName);
+        })
+
+        // only add valid themes
+        if (themes.includes(newTheme)) {
+            document.querySelector('body').classList.add(newTheme);
+            currentTheme = newTheme;
         }
     }
 
