@@ -595,60 +595,12 @@ body.img-preview-mode .gsTopBar {
   transform: translateY(-10px);
 }
 .waking .mouth {
-  /* animation: mouth 0.01s 0.9s linear forwards; */
   background: #3477db;
 }
 .waking .eye-open {
   display: block;
-
-  /* animation: blinkblink 1s 0.2s linear forwards; */
   transform: rotateX(0);
 }
-
-/* @keyframes blinkblink {
-  //5% per open/close duration
-  //open 1
-  5% {
-    transform: rotateX(0);
-  }
-  15% {
-    transform: rotateX(0);
-  }
-  //close 1
-  20% {
-    transform: rotateX(90deg);
-  }
-  45% {
-    transform: rotateX(90deg);
-  }
-  //open 2
-  50% {
-    transform: rotateX(0);
-  }
-  55% {
-    transform: rotateX(0);
-  }
-  //close 2
-  60% {
-    transform: rotateX(90deg);
-  }
-  65% {
-    transform: rotateX(90deg);
-  }
-  //open 3 (then stay open)
-  75% {
-    transform: rotateX(0);
-  }
-  100% {
-    transform: rotateX(0);
-  }
-}
-
-@keyframes mouth {
-  to {
-    background: #3477db;
-  }
-} */
 
 .waking .spinner {
   opacity: 1;
