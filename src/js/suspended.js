@@ -252,9 +252,7 @@
         // document.getElementById('suspendedMsg').innerHTML = '';
         // document.getElementById('refreshSpinner').classList.add('spinner');
         document.body.classList.add('waking');
-      //  setTimeout(() => {
         window.location.replace(currentUrl);
-      //  }, 500);
     }
 
     function whitelistTab(whitelistString) {
