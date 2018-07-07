@@ -694,6 +694,53 @@ body.img-preview-mode .gsTopBar {
   max-width: 600px;
   display: inline-block;
 }
+
+/* Mojave theme inspired by MacOS Mojave dark mode */
+.mojave {
+  -webkit-font-smoothing: antialiased;
+}
+.mojave,
+.mojave .suspendedMsg {
+  background: #272727;
+}
+.mojave .gsTopBar {
+  background: #3e3e3f;
+  border-bottom: 1px solid #090000;
+}
+.mojave .gsTopBar,
+.mojave .gsTopBarTitle,
+.mojave .suspendedMsg {
+  color: #faf8f9;
+}
+.mojave .gsPreviewImg {
+  filter: brightness(0.5);
+  transition: all 0.4s ease-in;
+}
+.mojave .gsPreviewImg:hover {
+  filter: brightness(0.8);
+}
+.mojave .gsTopBar a {
+  color: #d7d9de;
+  padding: 0.3rem 1rem;
+  background: #6b6b6c;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: inset 0 1px 1px #858587;
+}
+.mojave .gsTopBar a:hover {
+  text-decoration: none;
+}
+.mojave .tab,
+.mojave .tab * {
+  border-color: #2e3e55;
+  color: #22739e;
+}
+.mojave a {
+  color: #1a6fbb;
+  font-weight: 500;
+}
+
 /* end suspended tab styles */
 
 /* Modal Content */
