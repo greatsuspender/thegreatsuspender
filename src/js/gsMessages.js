@@ -149,6 +149,12 @@ var gsMessages = { // eslint-disable-line no-unused-vars
         }, this.ERROR, callback);
     },
 
+    sendTemporaryWhitelistToSuspendedTab: function (tabId, callback) {
+        this.sendMessageToTab(tabId, {
+            action: 'tempWhitelist'
+        }, this.ERROR, callback);
+    },
+
     sendNoConnectivityMessageToSuspendedTab: function (tabId, callback) {
         this.sendMessageToTab(tabId, {
             action: 'showNoConnectivityMessage'

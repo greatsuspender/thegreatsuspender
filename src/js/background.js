@@ -87,13 +87,17 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
         }
     }
 
-    function whitelistHighlightedTab() {
+    function whitelistHighlightedTab(includePath) {
+        includePath = includePath || false;
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsUtils.saveRootUrlToWhitelist(activeTab.url);
                 if (gsUtils.isSuspendedTab(activeTab)) {
+                    let url = gsUtils.getRootUrl(gsUtils.getSuspendedUrl(activeTab.url), includePath);
+                    gsUtils.saveToWhitelist(url);
                     unsuspendTab(activeTab);
                 } else {
+                    let url = gsUtils.getRootUrl(activeTab.url, includePath);
+                    gsUtils.saveToWhitelist(url);
                     calculateTabStatus(activeTab, null, function (status) {
                         setIconStatus(status, activeTab.id);
                     });
@@ -116,12 +120,16 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
     function temporarilyWhitelistHighlightedTab() {
         getCurrentlyActiveTab(function (activeTab) {
             if (activeTab) {
-                gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id, function (response) {
-                    var contentScriptStatus = (response && response.status) ? response.status : null;
-                    calculateTabStatus(activeTab, contentScriptStatus, function (status) {
-                        setIconStatus(status, activeTab.id);
+                if (gsUtils.isSuspendedTab(activeTab)) {
+                    gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id);
+                } else {
+                    gsMessages.sendTemporaryWhitelistToContentScript(activeTab.id, function (response) {
+                        var contentScriptStatus = (response && response.status) ? response.status : null;
+                        calculateTabStatus(activeTab, contentScriptStatus, function (status) {
+                            setIconStatus(status, activeTab.id);
+                        });
                     });
-                });
+                }
             }
         });
     }
@@ -904,9 +912,14 @@ var tgs = (function () { // eslint-disable-line no-unused-vars
                 onclick: temporarilyWhitelistHighlightedTab
             });
             chrome.contextMenus.create({
-                title: chrome.i18n.getMessage('js_background_never_suspend_site'),
+                title: chrome.i18n.getMessage('js_background_never_suspend_page'),
                 contexts: allContexts,
-                onclick: whitelistHighlightedTab
+                onclick: () => whitelistHighlightedTab(true),
+            });
+            chrome.contextMenus.create({
+                title: chrome.i18n.getMessage('js_background_never_suspend_domain'),
+                contexts: allContexts,
+                onclick: () => whitelistHighlightedTab(false),
             });
 
             chrome.contextMenus.create({

@@ -2,7 +2,8 @@
 <html>
 
 <head>
-	<link id="gsFavicon" rel="icon" href="img/ic_suspendy_128x128.png" />
+	<!--should use the same as the default extension favicon-->
+	<link id="gsFavicon" rel="icon" href="img/icon128-suspendy.png" />
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<script type="text/javascript" src="js/suspended.js"></script>
 	<title id="gsTitle" data-i18n="__MSG_html_suspended_title__"></title>
@@ -24,34 +25,6 @@
 		</div>
 	</script>
 
-	<script type="text/html" id="whitelistModalTemplate">
-		<div class="modal-content">
-			<div class="modal-header">
-				<span class="close close-x">&times;</span>
-				<h2 data-i18n="__MSG_html_suspended_modal_header__"></h2>
-			</div>
-			<div class="modal-body">
-				<div class="radio">
-					<input type="radio" name="whitelistOption" id="whitelistSite" checked />
-					<label for="whitelistSite"><span id="rootUrl" data-i18n="__MSG_html_suspended_modal_this_domain__"></span></label>
-				</div>
-				<div class="radio">
-					<input type="radio" name="whitelistOption" id="whitelistPage" />
-					<label for="whitelistPage"><span id="fullUrl" data-i18n="__MSG_html_suspended_modal_this_page__"></span></label>
-				</div>
-				<div class="radio">
-					<input type="radio" name="whitelistOption" id="whitelistTemporary" />
-					<label for="whitelistTemporary" data-i18n="__MSG_html_suspended_modal_temp_whitelist__"></label>
-				</div>
-				<p class="lesserText" data-i18n="__MSG_html_suspended_modal_temp_whitelist_notice__"></p>
-			</div>
-			<div class="modal-footer">
-				<div id="confirmWhitelistBtn" class="btn" data-i18n="__MSG_html_suspended_modal_ok__"></div>
-				<div class="btn close" style="background: #bbb;" data-i18n="__MSG_html_suspended_modal_cancel__"></div>
-			</div>
-		</div>
-	</script>
-
 	<script type="text/html" id="toastTemplate">
 		<div class="toast-content">
 			<h1 data-i18n="__MSG_html_suspended_toast_not_connected__"></h1>
@@ -61,17 +34,13 @@
 
 	<div id="gsTopBar" class="gsTopBar">
 		<div id="gsTitleWrap" class="gsTitleWrap">
-			<div class="gsTopBarTitle">
+			<div>
 				<img id="gsTopBarImg" class="gsTopBarImg" />
-				<span id="gsTopBarTitle"></span>
+				<span id="gsTopBarTitle" class="gsTopBarTitle"></span>
 				<!-- &bull;	<span data-i18n="__MSG_html_suspended_tab_suspended__"></span> -->
 			</div>
 			<div>
-				<a id="gsWhitelistLink" class="gsWhitelistLink">
-					<span data-i18n="__MSG_html_suspended_tab_whitelist_prefix__"></span>
-					<span id="gsTopBarUrl" class="gsTopBarUrl"></span>
-					<span data-i18n="__MSG_html_suspended_tab_whitelist_suffix__"></span>
-				</a>
+				<a id="gsTopBarUrl" class="gsTopBarUrl"></a>
 			</div>
 
 		</div>

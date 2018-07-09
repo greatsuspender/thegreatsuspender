@@ -8,7 +8,6 @@
     let previewUri;
     let scrollPosition;
 
-    let showingWhitelisted;
     let showingNag;
     let builtImagePreview;
 
@@ -36,14 +35,10 @@
             const preUrlDecoded = decodeURIComponent(preUrlEncoded);
             setUrl(preUrlDecoded);
             document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
-            document.getElementById('gsTopBarTitle').onclick = handleUnsuspendTab;
-            //document.getElementById('gsReloadLink').onclick = handleUnsuspendTab;
-            //document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
 
             const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
             setFavicon(preFaviconUrl);
         }
-        setWhitelisted(false);
     }
 
     function init(_tabId) {
@@ -75,9 +70,9 @@
             return;
         }
         currentUrl = url;
-        //const domain = 'cool.com';
-        document.getElementById('gsTopBarUrl').innerHTML = getRootUrl(currentUrl);
-        //document.getElementById('gsTopBarUrl').setAttribute('href', url);
+        document.getElementById('gsTopBarUrl').innerHTML = cleanUrl(currentUrl);
+        document.getElementById('gsTopBarUrl').setAttribute('href', url);
+        document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
     }
 
     function setFavicon(faviconUrl) {
@@ -211,22 +206,6 @@
         }
     }
 
-    function setWhitelisted(whitelisted) {
-        if (showingWhitelisted === whitelisted) {
-            return;
-        }
-        showingWhitelisted = whitelisted;
-        if (whitelisted) {
-            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('js_suspended_remove_from_whitelist');
-            document.getElementById('gsWhitelistLink').onclick = unwhitelistTab;
-        } else {
-            //document.getElementById('gsWhitelistLink').innerHTML = chrome.i18n.getMessage('html_suspended_tab_whitelist');
-            document.getElementById('gsWhitelistLink').onclick = function () {
-                toggleWhitelistModal(true);
-            };
-        }
-    }
-
     function handleUnsuspendTab(e) {
         e.preventDefault();
         if (e.target.id === 'setKeyboardShortcut') {
@@ -255,34 +234,6 @@
         window.location.replace(currentUrl);
     }
 
-    function whitelistTab(whitelistString) {
-        try { chrome.extension.getBackgroundPage().gsUtils.saveToWhitelist(whitelistString); }
-        catch (error) { console.error(error); }
-        toggleWhitelistModal(false);
-        unsuspendTab();
-    }
-
-    function unwhitelistTab() {
-        try {
-            chrome.extension.getBackgroundPage().gsUtils.removeFromWhitelist(getRootUrl(currentUrl));
-            chrome.extension.getBackgroundPage().gsUtils.removeFromWhitelist(getRootUrl(currentUrl, true));
-        } catch (error) { console.error(error); }
-        toggleWhitelistModal(false);
-        setWhitelisted(false);
-    }
-
-    function temporarilyWhitelistTab() {
-        toggleWhitelistModal(false);
-        unsuspendTab(true);
-    }
-
-    function toggleWhitelistModal(visible) {
-        if (!document.getElementById('whitelistOptionsModal')) {
-            loadWhitelistModalTemplate();
-        }
-        document.getElementById('whitelistOptionsModal').style.display = visible ? 'block' : 'none';
-    }
-
     function showNoConnectivityMessage() {
         if (!document.getElementById('disconnectedNotice')) {
             loadToastTemplate();
@@ -291,50 +242,6 @@
         setTimeout(function () {
             document.getElementById('disconnectedNotice').style.display = 'block';
         }, 50);
-    }
-
-    function loadWhitelistModalTemplate() {
-        const modalEl = document.createElement('div');
-        modalEl.setAttribute('id', 'whitelistOptionsModal');
-        modalEl.classList.add('modal-wrapper');
-        modalEl.innerHTML = document.getElementById('whitelistModalTemplate').innerHTML;
-        localiseHtml(modalEl);
-        document.getElementsByTagName('body')[0].appendChild(modalEl);
-
-        const rootUrlStr = getRootUrl(currentUrl);
-        const fullUrlStr = getRootUrl(currentUrl, true);
-
-        //update whitelist text
-        document.getElementById('rootUrl').innerHTML = rootUrlStr;
-        document.getElementById('fullUrl').innerHTML = fullUrlStr;
-
-        // hide second option (whitelist page) if the url is the same as the root url
-        if (rootUrlStr === fullUrlStr) {
-            document.getElementById('whitelistPage').parentElement.style.display = 'none';
-        }
-
-        document.getElementById('confirmWhitelistBtn').onclick = function () {
-            if (document.getElementById('whitelistSite').checked && rootUrlStr) {
-                whitelistTab(rootUrlStr);
-            } else if (document.getElementById('whitelistPage').checked && fullUrlStr) {
-                whitelistTab(fullUrlStr);
-            } else {
-                temporarilyWhitelistTab();
-            }
-        };
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target === document.getElementById('whitelistOptionsModal')) {
-                toggleWhitelistModal(false);
-            }
-        };
-
-        Array.from(document.querySelectorAll('.close')).forEach(function (link) {
-            link.addEventListener('click', function (event) {
-                toggleWhitelistModal(false);
-            });
-        });
     }
 
     function loadToastTemplate() {
@@ -382,31 +289,22 @@
         document.getElementById('donateBubble').classList.add('fadeIn');
     }
 
-    function getRootUrl(url, includePath) {
-        let rootUrlStr = url;
-
+    function cleanUrl(urlStr) {
         // remove scheme
-        if (rootUrlStr.indexOf('//') > 0) {
-            rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
+        if (urlStr.indexOf('//') > 0) {
+            urlStr = urlStr.substring(urlStr.indexOf('//') + 2);
         }
-
-        // remove path
-        if (!includePath) {
-            rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
-
-        } else {
-            // remove query string
-            var match = rootUrlStr.match(/\/?[?#]+/);
-            if (match) {
-                rootUrlStr = rootUrlStr.substring(0, match.index);
-            }
-            // remove trailing slash
-            match = rootUrlStr.match(/\/$/);
-            if (match) {
-                rootUrlStr = rootUrlStr.substring(0, match.index);
-            }
+        // remove query string
+        var match = urlStr.match(/\/?[?#]+/);
+        if (match) {
+            urlStr = urlStr.substring(0, match.index);
         }
-        return rootUrlStr;
+        // remove trailing slash
+        match = urlStr.match(/\/$/);
+        if (match) {
+            urlStr = urlStr.substring(0, match.index);
+        }
+        return urlStr;
     }
 
     function generateFaviconDataUrl(url, callback) {
@@ -474,6 +372,10 @@
                     requestUnsuspendOnReload = false;
                     break;
 
+                case 'tempWhitelist':
+                    unsuspendTab(true);
+                    break;
+
                 case 'showNoConnectivityMessage':
                     showNoConnectivityMessage();
                     break;
@@ -536,9 +438,6 @@
         }
         if (request.hasOwnProperty('url')) {
             setUrl(request.url);
-        }
-        if (request.hasOwnProperty('whitelisted')) {
-            setWhitelisted(request.whitelisted);
         }
     }
 

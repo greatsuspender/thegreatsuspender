@@ -99,9 +99,11 @@
     "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設置" }, //? Opening this item overrides the settings on all synced systems
 
     // Dropdown menu from button in the address bar
+    "html_popup_unsuspend_tab": { "message": "恢復此選項卡" }, //? Restore this tab
     "html_popup_suspend_tab": { "message": "凍結此分頁" }, //Freeze this tab
     "html_popup_dont_suspend_now": { "message": "現在還不要凍結" }, //Do not freeze now
-    "html_popup_never_suspend_site": { "message": "永遠不要凍結此網站" }, //Never freeze this site
+    "html_popup_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
+    "html_popup_never_suspend_page": { "message": "永遠不要凍結此網页" }, //Never freeze this web page
     "html_popup_suspend_other_tabs": { "message": "凍結其他分頁" }, //Freeze other tabs
     "html_popup_unsuspend_all_tabs": { "message": "恢復所有分頁" }, //Recover all pages
     "html_popup_suspend_selected_tabs": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
@@ -145,7 +147,7 @@
     "html_suspended_tab_suspended": { "message": "分頁已經被凍結" }, //Paging has been frozen
     "html_suspended_tab_reload": { "message": "重新載入" }, //? Reload
     "html_suspended_tab_whitelist_prefix": { "message": "永远不要冻结" }, //Don't freeze
-    "html_suspended_tab_whitelist_suffix": { "message": "..." },
+    "html_suspended_tab_whitelist_suffix": { "message": "" },
     "html_suspended_click_to_reload": { "message": "点击这里重新载入" }, //? Click here to reload
     "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //? You are not connected to the network
     "html_suspended_toast_reload_disabled": { "message": "禁用自動重新加載。" }, //? Disable automatic reload.
@@ -200,7 +202,8 @@
     "js_background_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
     "js_background_suspend_tab": { "message": "凍結此分頁" }, //Freeze this tab
     "js_background_dont_suspend_now": { "message": "現在還不要凍結" }, //Do not freeze now
-    "js_background_never_suspend_site": { "message": "永遠不要凍結此網站" }, //Never freeze this site
+    "js_background_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
+    "js_background_never_suspend_page": { "message": "永遠不要凍結此網页" }, //Never freeze this web page
     "js_background_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
     "js_background_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
     "js_background_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
@@ -208,16 +211,17 @@
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "分頁將會自動被凍結" }, //Paging will be automatically frozen
+    "js_popup_normal_pause": { "message": "暫時不要凍結" }, //Do not freeze for now
     "js_popup_special": { "message": "分頁無法被凍結" }, //Paging can not be frozen
     "js_popup_suspended": { "message": "分頁已經被凍結" }, //Paging has been frozen
-    "js_popup_suspended_unsuspended": { "message": "取消凍結" }, //Unfreeze
+    "js_popup_suspended_pause": { "message": "暫時不要凍結" }, //Do not freeze for now
     "js_popup_whitelisted": { "message": "例外清單" }, //Exception list
     "js_popup_whitelisted_remove": { "message": "從例外清單移除" }, //Remove from the exception list
     "js_popup_audible": { "message": "分頁正在播放聲音" }, //Paging is playing sound
     "js_popup_form_input": { "message": "分頁有文字還在輸入" }, //Pagination text is still input
     "js_popup_form_input_unpause": { "message": "取消暫停" }, //Cancel pause
     "js_popup_pinned": { "message": "分頁已經被固定" }, //Paging has been fixed
-    "js_popup_temp_whitelist": { "message": "暫時不要凍結" }, //Do not freeze for now
+    "js_popup_temp_whitelist": { "message": "頁面凍結暫停" }, //Page freeze pause
     "js_popup_temp_whitelist_unpause": { "message": "取消暫停" }, //Cancel pause
     "js_popup_never": { "message": "禁止自動凍結分頁" }, //Freezing of pages is forbidden
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet

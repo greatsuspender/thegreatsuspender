@@ -69,7 +69,7 @@
 
         var suspendOneVisible = !['suspended', 'special', 'loading', 'unknown'].includes(tabStatus),
             whitelistVisible = !['whitelisted', 'special', 'loading', 'unknown'].includes(tabStatus),
-            pauseVisible = ['normal', 'audible', 'noConnectivity', 'charging', 'active'].includes(tabStatus);
+            unsuspendVisible = ['suspended'].includes(tabStatus);
 
         if (suspendOneVisible) {
             document.getElementById('suspendOne').style.display = 'block';
@@ -78,21 +78,23 @@
         }
 
         if (whitelistVisible) {
-            document.getElementById('whitelist').style.display = 'block';
+            document.getElementById('whitelistPage').style.display = 'block';
+            document.getElementById('whitelistDomain').style.display = 'block';
         } else {
-            document.getElementById('whitelist').style.display = 'none';
+            document.getElementById('whitelistPage').style.display = 'none';
+            document.getElementById('whitelistDomain').style.display = 'none';
         }
 
-        if (pauseVisible) {
-            document.getElementById('tempWhitelist').style.display = 'block';
-        } else {
-            document.getElementById('tempWhitelist').style.display = 'none';
-        }
-
-        if (suspendOneVisible || whitelistVisible || pauseVisible) {
+        if (suspendOneVisible || whitelistVisible) {
             document.getElementById('optsCurrent').style.display = 'block';
         } else {
             document.getElementById('optsCurrent').style.display = 'none';
+        }
+
+        if (unsuspendVisible) {
+            document.getElementById('unsuspendOne').style.display = 'block';
+        } else {
+            document.getElementById('unsuspendOne').style.display = 'none';
         }
     }
 
@@ -106,16 +108,17 @@
 
     function setStatus(status) {
         var statusDetail = '';
-          //  statusIconClass = '';
+        //  statusIconClass = '';
 
         // Update status icon and text
         if (status === 'normal' || status === 'active') {
-            statusDetail = chrome.i18n.getMessage('js_popup_normal');
+            statusDetail = chrome.i18n.getMessage('js_popup_normal') +
+                " <a href='#'>" + chrome.i18n.getMessage('js_popup_normal_pause') + '</a>';
         //    statusIconClass = 'fa fa-clock-o';
 
         } else if (status === 'suspended') {
             statusDetail = chrome.i18n.getMessage('js_popup_suspended') +
-                " <a href='#'>" + chrome.i18n.getMessage('js_popup_suspended_unsuspend') + '</a>';
+                " <a href='#'>" + chrome.i18n.getMessage('js_popup_suspended_pause') + '</a>';
         //    statusIconClass = 'fa fa-pause';
 
         } else if (status === 'never') {
@@ -141,8 +144,7 @@
         //    statusIconClass = 'fa fa-edit';
 
         } else if (status === 'pinned') {
-            statusDetail = chrome.i18n.getMessage('js_popup_pinned');
-          //  statusIconClass = 'fa fa-thumb-tack';
+            statusDetail = chrome.i18n.getMessage('js_popup_pinned');//  statusIconClass = 'fa fa-thumb-tack';
 
         } else if (status === 'tempWhitelist') {
             statusDetail = chrome.i18n.getMessage('js_popup_temp_whitelist') +
@@ -163,7 +165,7 @@
             } else {
                 statusDetail = chrome.i18n.getMessage('js_popup_unknown');
             }
-      //      statusIconClass = 'fa fa-circle-o-notch';
+        //    statusIconClass = 'fa fa-circle-o-notch';
 
         } else if (status === 'error') {
             statusDetail = chrome.i18n.getMessage('js_popup_error');
@@ -173,7 +175,7 @@
             gsUtils.log('popup', 'Could not process tab status of: ' + status);
         }
         document.getElementById('statusDetail').innerHTML = statusDetail;
-      //  document.getElementById('statusIcon').className = statusIconClass;
+        //  document.getElementById('statusIcon').className = statusIconClass;
         // if (status === 'unknown' || status === 'loading') {
         //     document.getElementById('statusIcon').classList.add('fa-spin');
         // }
@@ -188,8 +190,11 @@
         if (actionEl) {
 
             var tgsHanderFunc;
-            if (status === 'suspended') {
-                tgsHanderFunc = tgs.unsuspendHighlightedTab;
+            if (status === 'normal' || status === 'active') {
+                tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
+
+            } else if (status === 'suspended') {
+                tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
 
             } else if (status === 'whitelisted') {
                 tgsHanderFunc = tgs.unwhitelistHighlightedTab;
@@ -218,6 +223,10 @@
     }
 
     function addClickHandlers() {
+        document.getElementById('unsuspendOne').addEventListener('click', function (e) {
+            tgs.unsuspendHighlightedTab();
+            window.close();
+        });
         document.getElementById('suspendOne').addEventListener('click', function (e) {
             tgs.suspendHighlightedTab();
             window.close();
@@ -238,12 +247,12 @@
             tgs.unsuspendSelectedTabs();
             window.close();
         });
-        document.getElementById('whitelist').addEventListener('click', function (e) {
-            tgs.whitelistHighlightedTab();
+        document.getElementById('whitelistDomain').addEventListener('click', function (e) {
+            tgs.whitelistHighlightedTab(false);
             window.close();
         });
-        document.getElementById('tempWhitelist').addEventListener('click', function (e) {
-            tgs.temporarilyWhitelistHighlightedTab();
+        document.getElementById('whitelistPage').addEventListener('click', function (e) {
+            tgs.whitelistHighlightedTab(true);
             window.close();
         });
         document.getElementById('settingsLink').addEventListener('click', function (e) {

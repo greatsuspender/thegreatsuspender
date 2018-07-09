@@ -183,15 +183,6 @@ var gsUtils = { // eslint-disable-line no-unused-vars
         }
     },
 
-    saveRootUrlToWhitelist: function (url) {
-        let rootUrlStr = url;
-        if (rootUrlStr.indexOf('//') > 0) {
-            rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
-        }
-        rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
-        this.saveToWhitelist(rootUrlStr);
-    },
-
     saveToWhitelist: function (newString) {
         var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '';
         var newWhitelistString = oldWhitelistString + '\n' + newString;
@@ -264,6 +255,33 @@ var gsUtils = { // eslint-disable-line no-unused-vars
             'uri=' + (url);
 
         return chrome.extension.getURL('suspended.html' + args);
+    },
+
+    getRootUrl: function (url, includePath) {
+        let rootUrlStr = url;
+
+        // remove scheme
+        if (rootUrlStr.indexOf('//') > 0) {
+            rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
+        }
+
+        // remove path
+        if (!includePath) {
+            rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+
+        } else {
+            // remove query string
+            var match = rootUrlStr.match(/\/?[?#]+/);
+            if (match) {
+                rootUrlStr = rootUrlStr.substring(0, match.index);
+            }
+            // remove trailing slash
+            match = rootUrlStr.match(/\/$/);
+            if (match) {
+                rootUrlStr = rootUrlStr.substring(0, match.index);
+            }
+        }
+        return rootUrlStr;
     },
 
     getHashVariable: function (key, urlStr) {
@@ -400,21 +418,13 @@ var gsUtils = { // eslint-disable-line no-unused-vars
                         return;
                     }
 
-                    //if theme, screenshot or whitelist preferences have changed then refresh suspended tabs
+                    //if theme or screenshot preferences have changed then refresh suspended tabs
                     var payload = {};
                     if (changedSettingKeys.includes(gsStorage.THEME)) {
                         payload.theme = gsStorage.getOption(gsStorage.THEME);
                     }
                     if (changedSettingKeys.includes(gsStorage.SCREEN_CAPTURE)) {
                         payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-                    }
-                    if (changedSettingKeys.includes(gsStorage.WHITELIST)) {
-                        let suspendedUrl = gsUtils.getSuspendedUrl(tab.url);
-                        let wasWhitelisted = gsUtils.checkSpecificWhiteList(suspendedUrl, oldValueBySettingKey[gsStorage.WHITELIST]);
-                        let isWhitelisted = gsUtils.checkSpecificWhiteList(suspendedUrl, newValueBySettingKey[gsStorage.WHITELIST]);
-                        if ((wasWhitelisted && !isWhitelisted) || (!wasWhitelisted && isWhitelisted)) {
-                            payload.whitelisted = isWhitelisted;
-                        }
                     }
                     if (Object.keys(payload).length > 0) {
                         gsMessages.sendUpdateSuspendedTab(tab.id, payload);

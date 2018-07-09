@@ -385,15 +385,15 @@ a.historyLink:hover {
   width: 100%;
 }
 .gsTitleWrap > div {
-  margin: 10px 0;
+  position: relative;
+  margin: 5px 0;
+  cursor: pointer;
 }
 
 .gsTopBarTitle {
   color: #3477db;
   font-weight: bold;
   position: relative;
-}
-#gsTopBarTitle {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -405,9 +405,6 @@ a.historyLink:hover {
   position: absolute;
   left: -35px;
   top: 3px;
-}
-.gsReloadLink {
-  cursor: pointer;
 }
 .gsPreview {
   width: 90%;
