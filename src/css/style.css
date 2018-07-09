@@ -668,13 +668,14 @@ body.img-preview-mode .gsTopBar {
 .dark,
 .dark .gsTopBar,
 .dark .suspendedMsg {
-  background: #444;
+  background: #777;
 }
 .dark .gsTopBar,
 .dark .gsTopBarTitle,
 .dark .gsTopBar a,
-.dark .suspendedMsg {
-  color: #eee;
+.dark .suspendedMsg, 
+.dark .watermark {
+  color: #000;
 }
 .dark .tab {
   filter: brightness(0);
