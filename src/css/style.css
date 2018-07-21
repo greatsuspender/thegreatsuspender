@@ -606,6 +606,25 @@ body.img-preview-mode .gsTopBar {
   opacity: 0;
 }
 
+/* i seriously need to get around to sass-ifying this */
+.dark .tab {
+  color: #999;
+  border-color: #999;
+}
+.dark .bar,
+.dark .eye,
+.dark .mouth {
+  border-color: #999;
+}
+.dark .tab .spinner::before {
+  border-top-color: #999;
+  border-right-color: #999;
+}
+.dark.waking .mouth,
+.dark .eye-open {
+  background: #999;
+}
+
 @keyframes spinner {
   to {
     transform: rotate(360deg);
@@ -668,21 +687,18 @@ body.img-preview-mode .gsTopBar {
 .dark,
 .dark .gsTopBar,
 .dark .suspendedMsg {
-  background: #777;
+  background: #222;
 }
 .dark .gsTopBar,
 .dark .gsTopBarTitle,
 .dark .gsTopBar a,
-.dark .suspendedMsg, 
+.dark .suspendedMsg,
 .dark .watermark {
-  color: #000;
-}
-.dark .tab {
-  filter: brightness(0);
+  color: #b8b8b8;
 }
 .dark #setKeyboardShortcut {
   text-decoration: underline;
-  color: #eee;
+  color: #b8b8b8;
 }
 
 #whitelistOptionsModal .radio span {
