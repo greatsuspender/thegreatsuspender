@@ -1,10 +1,10 @@
 /*global chrome */
-(function () {
-    'use strict';
+(function() {
+  'use strict';
 
-    var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-    gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function () {
-        //just used for localisation
-    });
-}());
+  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+    //just used for localisation
+  });
+})();
