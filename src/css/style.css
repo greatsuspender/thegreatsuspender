@@ -26,9 +26,9 @@ html {
 }
 body {
   min-height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol";
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
   font-size: 1.5rem;
   line-height: 1.5em;
   background: #fafafa;
@@ -136,10 +136,10 @@ select {
   position: absolute;
   right: 15px;
   top: 6px;
-  font-family: "fontello";
+  font-family: 'fontello';
   text-decoration: none;
   speak: none;
-  content: "\f0dd";
+  content: '\f0dd';
   color: #3477db;
   pointer-events: none;
 }
@@ -232,8 +232,8 @@ ul.unorderedList li {
   grid-template-columns: 200px auto;
   grid-column-gap: 40px;
   grid-template-areas:
-    "h h"
-    "n m";
+    'h h'
+    'n m';
 }
 .pageHeader {
   grid-area: h;
@@ -363,9 +363,9 @@ a.historyLink:hover {
   overflow: hidden;
 }
 .donateButtons > * {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol";
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
   margin: 0 7px 0 0;
   float: left;
 }
@@ -422,6 +422,9 @@ a.historyLink:hover {
   max-width: 100%;
   margin: 0;
 }
+.dark .gsPreviewImg {
+  filter: brightness(50%);
+}
 body.img-preview-mode .gsTopBar {
   position: relative;
 }
@@ -452,7 +455,7 @@ body.img-preview-mode .gsTopBar {
 }
 
 .spinner:before {
-  content: "";
+  content: '';
   box-sizing: border-box;
   position: fixed;
   top: 50%;
@@ -574,7 +577,7 @@ body.img-preview-mode .gsTopBar {
   top: -0.1rem;
   left: 0;
   margin: 0;
-  content: "";
+  content: '';
   box-sizing: border-box;
   position: absolute;
   width: 100%;
@@ -608,21 +611,21 @@ body.img-preview-mode .gsTopBar {
 
 /* i seriously need to get around to sass-ifying this */
 .dark .tab {
-  color: #999;
-  border-color: #999;
+  color: #555;
+  border-color: #555;
 }
 .dark .bar,
 .dark .eye,
 .dark .mouth {
-  border-color: #999;
+  border-color: #555;
 }
 .dark .tab .spinner::before {
-  border-top-color: #999;
-  border-right-color: #999;
+  border-top-color: #555;
+  border-right-color: #555;
 }
 .dark.waking .mouth,
 .dark .eye-open {
-  background: #999;
+  background: #555;
 }
 
 @keyframes spinner {
@@ -661,7 +664,7 @@ body.img-preview-mode .gsTopBar {
   opacity: 0;
 }
 .donateBubble:before {
-  content: "";
+  content: '';
   position: absolute;
   top: 19px;
   left: -14px;
@@ -824,29 +827,29 @@ body.img-preview-mode .gsTopBar {
 }
 
 /* custom checkboxes */
-input[type="checkbox"] {
+input[type='checkbox'] {
   position: absolute;
   opacity: 0;
 }
-input[type="checkbox"] + label {
+input[type='checkbox'] + label {
   position: relative;
   padding-left: 30px;
   cursor: pointer;
 }
-input[type="checkbox"] + label:before {
+input[type='checkbox'] + label:before {
   position: absolute;
   left: 0;
   top: -2px;
-  font-family: "fontello";
+  font-family: 'fontello';
   text-decoration: none;
   speak: none;
-  content: "\f096";
+  content: '\f096';
   color: #888;
   font-size: 24px;
   cursor: pointer;
 }
-input[type="checkbox"]:checked + label:before {
-  content: "\f14a";
+input[type='checkbox']:checked + label:before {
+  content: '\f14a';
   color: #3477db;
 }
 
@@ -857,17 +860,17 @@ input[type="checkbox"]:checked + label:before {
   margin-top: 15px;
   margin-bottom: 15px;
 }
-.radio input[type="radio"] {
+.radio input[type='radio'] {
   opacity: 0;
   z-index: 1;
 }
-.radio input[type="radio"]:checked + label::before {
+.radio input[type='radio']:checked + label::before {
   border-color: #3477db;
 }
-.radio input[type="radio"]:checked + label::after {
+.radio input[type='radio']:checked + label::after {
   transform: scale(1, 1);
 }
-.radio input[type="radio"]:checked + label::after {
+.radio input[type='radio']:checked + label::after {
   background-color: #3477db;
 }
 .radio label {
@@ -879,7 +882,7 @@ input[type="checkbox"]:checked + label:before {
 }
 .radio label::before {
   cursor: pointer;
-  content: "";
+  content: '';
   display: inline-block;
   position: absolute;
   width: 17px;
@@ -894,7 +897,7 @@ input[type="checkbox"]:checked + label:before {
 .radio label::after {
   display: inline-block;
   position: absolute;
-  content: " ";
+  content: ' ';
   width: 13px;
   height: 13px;
   left: 2px;
