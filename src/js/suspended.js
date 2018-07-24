@@ -2,7 +2,10 @@
 (function() {
   'use strict';
 
+  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.ico');
+
   let isInitialised = false;
+  let isLowContrastFavicon = false;
   let tabId;
   let requestUnsuspendOnReload = false;
   let previewUri;
@@ -87,10 +90,28 @@
       return;
     }
     currentFaviconUrl = faviconUrl;
-    document.getElementById('gsTopBarImg').setAttribute('src', faviconUrl);
-    generateFaviconDataUrl(faviconUrl, function(dataUrl) {
-      document.getElementById('gsFavicon').setAttribute('href', dataUrl);
+    getFaviconMetaData(faviconUrl, function(faviconMetaData) {
+      isLowContrastFavicon = faviconMetaData.isDark;
+      setContrast();
+      document
+        .getElementById('gsTopBarImg')
+        .setAttribute('src', faviconMetaData.normalisedDataUrl);
+      document
+        .getElementById('gsFavicon')
+        .setAttribute('href', faviconMetaData.transparentDataUrl);
     });
+  }
+
+  function setContrast() {
+    if (currentTheme === 'dark' && isLowContrastFavicon) {
+      document
+        .getElementById('faviconWrap')
+        .classList.add('faviconWrapLowContrast');
+    } else {
+      document
+        .getElementById('faviconWrap')
+        .classList.remove('faviconWrapLowContrast');
+    }
   }
 
   function setTheme(newTheme) {
@@ -103,6 +124,7 @@
     } else {
       document.querySelector('body').classList.remove('dark');
     }
+    setContrast();
   }
 
   function handleDonationPopup(hideNag) {
@@ -250,7 +272,6 @@
     }
 
     if (document.body.classList.contains('img-preview-mode')) {
-      document.getElementById('gsPreview').innerHTML = '';
       document.getElementById('refreshSpinner').classList.add('spinner');
     } else {
       document.body.classList.add('waking');
@@ -352,7 +373,7 @@
     return urlStr;
   }
 
-  function generateFaviconDataUrl(url, callback) {
+  function getFaviconMetaData(url, callback) {
     var img = new Image();
 
     img.onload = function() {
@@ -361,12 +382,60 @@
       canvas.width = img.width;
       canvas.height = img.height;
       context = canvas.getContext('2d');
-      context.globalAlpha = 0.5;
       context.drawImage(img, 0, 0);
 
-      callback(canvas.toDataURL());
+      var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      var origDataArray = imageData.data;
+      var normalisedDataArray = new Uint8ClampedArray(origDataArray);
+      var transparentDataArray = new Uint8ClampedArray(origDataArray);
+      var r, g, b, a;
+
+      var fuzzy = 0.1;
+      var light = 0;
+      var dark = 0;
+      var maxAlpha = 0;
+      var maxRgb = 0;
+
+      for (let x = 0; x < origDataArray.length; x += 4) {
+        r = origDataArray[x];
+        g = origDataArray[x + 1];
+        b = origDataArray[x + 2];
+        a = origDataArray[x + 3];
+
+        maxAlpha = Math.max(a, maxAlpha);
+        maxRgb = Math.max(Math.max(r, g), b);
+        if (maxRgb < 128 || a < 128) dark++;
+        else light++;
+      }
+
+      var darkLightDiff = (light - dark) / (canvas.width * canvas.height);
+      var isDark = darkLightDiff + fuzzy < 0;
+      var normaliserMultiple = 1 / (maxAlpha / 255);
+
+      for (let x = 0; x < origDataArray.length; x += 4) {
+        a = origDataArray[x + 3];
+        normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
+      }
+      for (let x = 0; x < normalisedDataArray.length; x += 4) {
+        a = normalisedDataArray[x + 3];
+        transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
+      }
+
+      imageData.data.set(normalisedDataArray);
+      context.putImageData(imageData, 0, 0);
+      var normalisedDataUrl = canvas.toDataURL('image/png');
+
+      imageData.data.set(transparentDataArray);
+      context.putImageData(imageData, 0, 0);
+      var transparentDataUrl = canvas.toDataURL('image/png');
+
+      callback({
+        isDark,
+        normalisedDataUrl,
+        transparentDataUrl,
+      });
     };
-    img.src = url || chrome.extension.getURL('img/default.ico');
+    img.src = url || DEFAULT_FAVICON;
   }
 
   function documentReadyAsPromsied() {

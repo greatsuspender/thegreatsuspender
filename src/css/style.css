@@ -393,15 +393,8 @@ a.historyLink:hover {
   grid-area: i;
   padding-top: 3px;
 }
-.dark .faviconWrap {
-  background:#d8d8d8;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 0;
+.dark .faviconWrapLowContrast {
+  filter: invert(1) grayscale(1);
 }
 .gsTopBarImg {
   height: 16px;
@@ -438,6 +431,10 @@ a.historyLink:hover {
 }
 .dark .gsPreviewImg {
   filter: brightness(50%);
+  transition: all 0.2s ease-in;
+}
+.dark .gsPreviewImg:hover {
+  filter: brightness(80%);
 }
 body.img-preview-mode .gsTopBar {
   position: relative;
@@ -482,6 +479,7 @@ body.img-preview-mode .gsTopBar {
   border: 8px solid transparent;
   border-top-color: #3477db;
   animation: spinner 0.6s linear infinite;
+  z-index: 100;
 }
 
 .tab {
@@ -625,7 +623,7 @@ body.img-preview-mode .gsTopBar {
 
 /* i seriously need to get around to sass-ifying this */
 .dark .tab {
-  color: #555;
+  color: #777;
   border-color: #555;
 }
 .dark .bar,
