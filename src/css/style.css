@@ -138,7 +138,6 @@ select {
   top: 6px;
   font-family: 'fontello';
   text-decoration: none;
-  speak: none;
   content: '\f0dd';
   color: #3477db;
   pointer-events: none;
@@ -381,15 +380,33 @@ a.historyLink:hover {
   position: fixed;
   background: #fafafa;
   top: 0;
-  padding: 20px 20px 20px 65px;
+  padding: 30px 20px 20px 65px;
   width: 100%;
+  display: grid;
+  grid-template:
+   "i t"
+   "i u";
+   grid-template-columns: auto 1fr;
+   grid-gap: 7px 20px;
 }
-.gsTitleWrap > div {
-  position: relative;
-  margin: 5px 0;
-  cursor: pointer;
+.faviconWrap {
+  grid-area: i;
+  padding-top: 3px;
 }
-
+.dark .faviconWrap {
+  background:#d8d8d8;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+}
+.gsTopBarImg {
+  height: 16px;
+  width: 16px;
+}
 .gsTopBarTitle {
   color: #3477db;
   font-weight: bold;
@@ -398,13 +415,10 @@ a.historyLink:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+  grid-area: t;
 }
-.gsTopBarImg {
-  height: 16px;
-  width: 16px;
-  position: absolute;
-  left: -35px;
-  top: 3px;
+.gsTopBarUrl {
+  grid-area: u;
 }
 .gsPreview {
   width: 90%;
@@ -842,7 +856,6 @@ input[type='checkbox'] + label:before {
   top: -2px;
   font-family: 'fontello';
   text-decoration: none;
-  speak: none;
   content: '\f096';
   color: #888;
   font-size: 24px;

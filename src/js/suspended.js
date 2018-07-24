@@ -248,9 +248,13 @@
         console.error(error);
       }
     }
-    // document.getElementById('suspendedMsg').innerHTML = '';
-    // document.getElementById('refreshSpinner').classList.add('spinner');
-    document.body.classList.add('waking');
+
+    if (document.body.classList.contains('img-preview-mode')) {
+      document.getElementById('gsPreview').innerHTML = '';
+      document.getElementById('refreshSpinner').classList.add('spinner');
+    } else {
+      document.body.classList.add('waking');
+    }
     window.location.replace(currentUrl);
   }
 
