@@ -2,7 +2,7 @@
 (function() {
   'use strict';
 
-  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.ico');
+  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
 
   let isInitialised = false;
   let isLowContrastFavicon = false;
@@ -402,10 +402,17 @@
         b = origDataArray[x + 2];
         a = origDataArray[x + 3];
 
-        maxAlpha = Math.max(a, maxAlpha);
-        maxRgb = Math.max(Math.max(r, g), b);
-        if (maxRgb < 128 || a < 128) dark++;
+        let localMaxRgb = Math.max(Math.max(r, g), b);
+        if (localMaxRgb < 128 || a < 128) dark++;
         else light++;
+        maxAlpha = Math.max(a, maxAlpha);
+        maxRgb = Math.max(localMaxRgb, maxRgb);
+      }
+
+      //saftey check to make sure image is not completely transparent
+      if (maxRgb === 0) {
+        getFaviconMetaData(DEFAULT_FAVICON, callback);
+        return;
       }
 
       var darkLightDiff = (light - dark) / (canvas.width * canvas.height);
