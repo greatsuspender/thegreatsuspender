@@ -380,14 +380,14 @@ a.historyLink:hover {
   position: fixed;
   background: #fafafa;
   top: 0;
-  padding: 30px 20px 20px 65px;
+  padding: 30px 40px 20px;
   width: 100%;
   display: grid;
   grid-template:
    "i t"
    "i u";
    grid-template-columns: auto 1fr;
-   grid-gap: 7px 20px;
+   grid-gap: 2px 20px;
 }
 .faviconWrap {
   grid-area: i;
@@ -413,6 +413,15 @@ a.historyLink:hover {
 .gsTopBarUrl {
   grid-area: u;
 }
+.gsTopBarUrl, .gsTopBarTitle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+.hideOverflow {
+  overflow: hidden;
+}
 .gsPreview {
   width: 90%;
   margin: 30px auto;
@@ -424,17 +433,17 @@ a.historyLink:hover {
 .gsPreview:hover {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
+.dark .gsPreview {
+  filter: brightness(70%);
+  opacity: 0.7;
+}
+.dark .gsPreview:hover {
+  opacity: 1;
+}
 .gsPreviewImg {
   display: block;
   max-width: 100%;
   margin: 0;
-}
-.dark .gsPreviewImg {
-  filter: brightness(50%);
-  transition: all 0.2s ease-in;
-}
-.dark .gsPreviewImg:hover {
-  filter: brightness(80%);
 }
 body.img-preview-mode .gsTopBar {
   position: relative;
