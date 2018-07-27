@@ -145,12 +145,12 @@
     // Suspended page
     "html_suspended_title": { "message": "分页已經被冻结" }, //Paging has been frozen
     "html_suspended_tab_suspended": { "message": "分页已經被冻结" }, //Paging has been frozen
-    "html_suspended_tab_reload": { "message": "重新加載" }, //? Reload
+    "html_suspended_tab_reload": { "message": "重新加载" }, //? Reload
     "html_suspended_tab_whitelist_prefix": { "message": "永远不要冻结" }, //Don't freeze
     "html_suspended_tab_whitelist_suffix": { "message": "" },
-    "html_suspended_click_to_reload": { "message": "点击此处重新加載" }, //? Click here to reload
+    "html_suspended_click_to_reload": { "message": "点击此处重新加载" }, //? Click here to reload
     "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //? You are not connected to the network
-    "html_suspended_toast_reload_disabled": { "message": "禁用自动重新加載。" }, //? Disable automatic reload.
+    "html_suspended_toast_reload_disabled": { "message": "禁用自动重新加载。" }, //? Disable automatic reload.
     "html_suspended_modal_header": { "message": "你想要什么白名单?" }, //? What white list do you want?
     "html_suspended_modal_this_domain": { "message": "这个域名" }, //? This domain name
     "html_suspended_modal_this_page": { "message": "这一页" }, //? This page
@@ -219,14 +219,14 @@
     "js_popup_whitelisted_remove": { "message": "從例外清單移除" }, //Remove from the exception list
     "js_popup_audible": { "message": "分页正在播放声音" }, //Paging is playing sound
     "js_popup_form_input": { "message": "分页有文字还在輸入" }, //Pagination text is still input
-    "js_popup_form_input_unpause": { "message": "取消暫停" }, //Cancel pause
+    "js_popup_form_input_unpause": { "message": "取消暂停" }, //Cancel pause
     "js_popup_pinned": { "message": "分页已經被固定" }, //Paging has been fixed
-    "js_popup_temp_whitelist": { "message": "页面冻结暫停" }, //Page freeze pause
-    "js_popup_temp_whitelist_unpause": { "message": "取消暫停" }, //Cancel pause
+    "js_popup_temp_whitelist": { "message": "页面冻结暂停" }, //Page freeze pause
+    "js_popup_temp_whitelist_unpause": { "message": "取消暂停" }, //Cancel pause
     "js_popup_never": { "message": "禁止自动冻结分页" }, //Freezing of pages is forbidden
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
     "js_popup_charging": { "message": "已接上电源" }, //Connected to the power
-    "js_popup_unknown": { "message": "等待页面加載..." }, //? Waiting for page to load..
+    "js_popup_unknown": { "message": "等待页面加载..." }, //? Waiting for page to load..
     "js_popup_initialising": { "message": "等待扩充元件初始化..." }, //? Wait for the extension to be initialized..
     "js_popup_error": { "message": "自动冻结在此页面上不可用" }, //? Auto-freeze is not available on this page.
 
