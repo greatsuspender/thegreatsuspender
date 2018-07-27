@@ -9,7 +9,7 @@
     "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
     "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
     "ext_cmd_unsuspend_all_windows_description": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
-    "ext_cmd_pause_tab_description": { "message": "现在不要凍結目前分頁" }, //? Do not freeze current page now
+    "ext_cmd_pause_tab_description": { "message": "現在不要凍結目前分頁" }, //? Do not freeze current page now
 
     // About page
     "html_about_title": { "message": "支援" }, //support
