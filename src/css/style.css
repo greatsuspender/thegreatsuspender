@@ -403,10 +403,6 @@ a.historyLink:hover {
 .gsTopBarTitle {
   color: #3477db;
   font-weight: bold;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: block;
   grid-area: t;
 }
@@ -416,6 +412,7 @@ a.historyLink:hover {
 .gsTopBarUrl, .gsTopBarTitle {
   max-width: 100%;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
   display: inline-block;
 }
