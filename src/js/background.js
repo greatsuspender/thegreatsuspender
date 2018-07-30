@@ -487,7 +487,7 @@ var tgs = (function() {
         gsSuspendManager.markTabAsSuspended(tab);
 
         if (isCurrentFocusedTab(tab)) {
-          setIconStatus('suspended', tab.id);
+          setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
         }
 
         if (gsSession.isRecoveryMode()) {
@@ -779,7 +779,7 @@ var tgs = (function() {
     var info = {
       windowId: '',
       tabId: '',
-      status: 'unknown',
+      status: gsUtils.STATUS_UNKNOWN,
       timerUp: '-',
     };
 
@@ -853,45 +853,48 @@ var tgs = (function() {
   function calculateTabStatus(tab, knownContentScriptStatus, callback) {
     //check for loading
     if (tab.status === 'loading') {
-      callback('loading');
+      callback(gsUtils.STATUS_LOADING);
       return;
     }
     //check if it is a special tab
     if (gsUtils.isSpecialTab(tab)) {
-      callback('special');
+      callback(gsUtils.STATUS_SPECIAL);
       return;
     }
     //check if tab has been discarded
     if (gsUtils.isDiscardedTab(tab)) {
-      callback('discarded');
+      callback(gsUtils.STATUS_DISCARDED);
       return;
     }
     //check if it has already been suspended
     if (gsUtils.isSuspendedTab(tab)) {
-      callback('suspended');
+      callback(gsUtils.STATUS_SUSPENDED);
       return;
     }
     //check whitelist
     if (gsUtils.checkWhiteList(tab.url)) {
-      callback('whitelisted');
+      callback(gsUtils.STATUS_WHITELISTED);
       return;
     }
     //check never suspend
     //should come after whitelist check as it causes popup to show the whitelisting option
     if (gsStorage.getOption(gsStorage.SUSPEND_TIME) === '0') {
-      callback('never');
+      callback(gsUtils.STATUS_NEVER);
       return;
     }
     getContentScriptStatus(tab.id, knownContentScriptStatus).then(function(
       contentScriptStatus
     ) {
-      if (contentScriptStatus && contentScriptStatus !== 'normal') {
+      if (
+        contentScriptStatus &&
+        contentScriptStatus !== gsUtils.STATUS_NORMAL
+      ) {
         callback(contentScriptStatus);
         return;
       }
       //check running on battery
       if (gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && _isCharging) {
-        callback('charging');
+        callback(gsUtils.STATUS_CHARGING);
         return;
       }
       //check internet connectivity
@@ -899,36 +902,36 @@ var tgs = (function() {
         gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) &&
         !navigator.onLine
       ) {
-        callback('noConnectivity');
+        callback(gsUtils.STATUS_NOCONNECTIVITY);
         return;
       }
       //check pinned tab
       if (gsUtils.isProtectedPinnedTab(tab)) {
-        callback('pinned');
+        callback(gsUtils.STATUS_PINNED);
         return;
       }
       //check audible tab
       if (gsUtils.isProtectedAudibleTab(tab)) {
-        callback('audible');
+        callback(gsUtils.STATUS_AUDIBLE);
         return;
       }
       //check active
       if (gsUtils.isProtectedActiveTab(tab)) {
-        callback('active');
+        callback(gsUtils.STATUS_ACTIVE);
         return;
       }
       if (contentScriptStatus) {
         callback(contentScriptStatus); // should be 'normal'
         return;
       }
-      callback('unknown');
+      callback(gsUtils.STATUS_UNKNOWN);
     });
   }
 
   function getActiveTabStatus(callback) {
     getCurrentlyActiveTab(function(tab) {
       if (!tab) {
-        callback('unknown');
+        callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
       calculateTabStatus(tab, null, function(status) {
@@ -940,7 +943,7 @@ var tgs = (function() {
   //change the icon to either active or inactive
   function setIconStatus(status, tabId) {
     // gsUtils.log(tabId, 'Setting icon status: ' + status);
-    var icon = !['normal', 'active'].includes(status)
+    var icon = ![gsUtils.STATUS_NORMAL, gsUtils.STATUS_ACTIVE].includes(status)
       ? ICON_SUSPENSION_PAUSED
       : ICON_SUSPENSION_ACTIVE;
     chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {

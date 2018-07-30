@@ -5,8 +5,23 @@ var debugInfo = false;
 var debugError = false;
 
 var gsUtils = {
-  // eslint-disable-line no-unused-vars
+  STATUS_NORMAL: 'normal',
+  STATUS_LOADING: 'loading',
+  STATUS_SPECIAL: 'special',
+  STATUS_SUSPENDED: 'suspended',
+  STATUS_DISCARDED: 'discarded',
+  STATUS_NEVER: 'never',
+  STATUS_FORMINPUT: 'formInput',
+  STATUS_AUDIBLE: 'audible',
+  STATUS_ACTIVE: 'active',
+  STATUS_TEMPWHITELIST: 'tempWhitelist',
+  STATUS_PINNED: 'pinned',
+  STATUS_WHITELISTED: 'whitelisted',
+  STATUS_CHARGING: 'charging',
+  STATUS_NOCONNECTIVITY: 'noConnectivity',
+  STATUS_UNKNOWN: 'unknown',
 
+  // eslint-disable-line no-unused-vars
   contains: function(array, value) {
     for (var i = 0; i < array.length; i++) {
       if (array[i] === value) return true;
@@ -571,7 +586,7 @@ var gsUtils = {
         // if (!updateSuspendTime) {
         //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
         //         tgs.calculateTabStatus(tab, tabInfo, function (tabStatus) {
-        //             if (tabStatus === 'normal' && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
+        //             if (tabStatus === STATUS_NORMAL && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
         //                 gsUtils.error(tab.id, 'Tab has an expired timer!', tabInfo);
         //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false);
         //             }

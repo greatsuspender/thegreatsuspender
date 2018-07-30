@@ -257,8 +257,8 @@ var gsSuspendManager = (function() {
   ) {
     if (
       forceLevel >= 2 &&
-      (contentScriptStatus === 'formInput' ||
-        contentScriptStatus === 'tempWhitelist')
+      (contentScriptStatus === gsUtils.STATUS_FORMINPUT ||
+        contentScriptStatus === gsUtils.STATUS_TEMPWHITELIST)
     ) {
       return false;
     }

@@ -12,7 +12,7 @@
       if (chrome.runtime.lastError) {
         gsUtils.error('popup', chrome.runtime.lastError);
       }
-      if (status !== 'unknown' && status !== 'loading') {
+      if (status !== gsUtils.STATUS_UNKNOWN && status !== gsUtils.STATUS_LOADING) {
         callback(status);
       } else if (retriesRemaining === 0) {
         callback(status);
@@ -34,7 +34,7 @@
   var tabStatusAsPromised = new Promise(function(resolve, reject) {
     var retries = 50; //each retry is 200ms which makes 10 seconds
     getTabStatus(retries, function(status) {
-      if (status === 'unknown' || status === 'loading') {
+      if (status === gsUtils.STATUS_UNKNOWN || status === gsUtils.STATUS_LOADING) {
         status = 'error';
       }
       resolve(status);
@@ -59,7 +59,7 @@
     showPopupContents();
     addClickHandlers();
 
-    if (initialTabStatus === 'unknown' || initialTabStatus === 'loading') {
+    if (initialTabStatus === gsUtils.STATUS_UNKNOWN || initialTabStatus === gsUtils.STATUS_LOADING) {
       tabStatusAsPromised.then(function(finalTabStatus) {
         setSuspendCurrentVisibility(finalTabStatus);
         setStatus(finalTabStatus);
@@ -69,18 +69,18 @@
 
   function setSuspendCurrentVisibility(tabStatus) {
     var suspendOneVisible = ![
-        'suspended',
-        'special',
-        'loading',
-        'unknown',
+        gsUtils.STATUS_SUSPENDED,
+        gsUtils.STATUS_SPECIAL,
+        gsUtils.STATUS_LOADING,
+        gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
       whitelistVisible = ![
-        'whitelisted',
-        'special',
-        'loading',
-        'unknown',
+        gsUtils.STATUS_WHITELISTED,
+        gsUtils.STATUS_SPECIAL,
+        gsUtils.STATUS_LOADING,
+        gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
-      unsuspendVisible = ['suspended'].includes(tabStatus);
+      unsuspendVisible = [gsUtils.STATUS_SUSPENDED].includes(tabStatus);
 
     if (suspendOneVisible) {
       document.getElementById('suspendOne').style.display = 'block';
@@ -122,59 +122,59 @@
     //  statusIconClass = '';
 
     // Update status icon and text
-    if (status === 'normal' || status === 'active') {
+    if (status === gsUtils.STATUS_NORMAL || status === gsUtils.STATUS_ACTIVE) {
       statusDetail =
         chrome.i18n.getMessage('js_popup_normal') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_normal_pause') +
         '</a>';
       //    statusIconClass = 'fa fa-clock-o';
-    } else if (status === 'suspended') {
+    } else if (status === gsUtils.STATUS_SUSPENDED) {
       statusDetail =
         chrome.i18n.getMessage('js_popup_suspended') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_suspended_pause') +
         '</a>';
       //    statusIconClass = 'fa fa-pause';
-    } else if (status === 'never') {
+    } else if (status === gsUtils.STATUS_NEVER) {
       statusDetail = chrome.i18n.getMessage('js_popup_never');
       //    statusIconClass = 'fa fa-ban';
-    } else if (status === 'special') {
+    } else if (status === gsUtils.STATUS_SPECIAL) {
       statusDetail = chrome.i18n.getMessage('js_popup_special');
       //    statusIconClass = 'fa fa-remove';
-    } else if (status === 'whitelisted') {
+    } else if (status === gsUtils.STATUS_WHITELISTED) {
       statusDetail =
         chrome.i18n.getMessage('js_popup_whitelisted') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_whitelisted_remove') +
         '</a>';
       //    statusIconClass = 'fa fa-check';
-    } else if (status === 'audible') {
+    } else if (status === gsUtils.STATUS_AUDIBLE) {
       statusDetail = chrome.i18n.getMessage('js_popup_audible');
       //    statusIconClass = 'fa fa-volume-up';
-    } else if (status === 'formInput') {
+    } else if (status === gsUtils.STATUS_FORMINPUT) {
       statusDetail =
         chrome.i18n.getMessage('js_popup_form_input') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_form_input_unpause') +
         '</a>';
       //    statusIconClass = 'fa fa-edit';
-    } else if (status === 'pinned') {
+    } else if (status === gsUtils.STATUS_PINNED) {
       statusDetail = chrome.i18n.getMessage('js_popup_pinned'); //  statusIconClass = 'fa fa-thumb-tack';
-    } else if (status === 'tempWhitelist') {
+    } else if (status === gsUtils.STATUS_TEMPWHITELIST) {
       statusDetail =
         chrome.i18n.getMessage('js_popup_temp_whitelist') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_temp_whitelist_unpause') +
         '</a>';
       //    statusIconClass = 'fa fa-pause';
-    } else if (status === 'noConnectivity') {
+    } else if (status === gsUtils.STATUS_NOCONNECTIVITY) {
       statusDetail = chrome.i18n.getMessage('js_popup_no_connectivity');
       //    statusIconClass = 'fa fa-plane';
-    } else if (status === 'charging') {
+    } else if (status === gsUtils.STATUS_CHARGING) {
       statusDetail = chrome.i18n.getMessage('js_popup_charging');
       //    statusIconClass = 'fa fa-plug';
-    } else if (status === 'loading' || status === 'unknown') {
+    } else if (status === gsUtils.STATUS_LOADING || status === gsUtils.STATUS_UNKNOWN) {
       if (gsSession.isInitialising()) {
         statusDetail = chrome.i18n.getMessage('js_popup_initialising');
       } else {
@@ -189,12 +189,12 @@
     }
     document.getElementById('statusDetail').innerHTML = statusDetail;
     //  document.getElementById('statusIcon').className = statusIconClass;
-    // if (status === 'unknown' || status === 'loading') {
+    // if (status === gsUtils.STATUS_UNKNOWN || status === gsUtils.STATUS_LOADING) {
     //     document.getElementById('statusIcon').classList.add('fa-spin');
     // }
 
     document.getElementById('header').classList.remove('willSuspend');
-    if (status === 'normal' || status === 'active') {
+    if (status === gsUtils.STATUS_NORMAL || status === gsUtils.STATUS_ACTIVE) {
       document.getElementById('header').classList.add('willSuspend');
     }
 
@@ -202,13 +202,13 @@
     var actionEl = document.getElementsByTagName('a')[0];
     if (actionEl) {
       var tgsHanderFunc;
-      if (status === 'normal' || status === 'active') {
+      if (status === gsUtils.STATUS_NORMAL || status === gsUtils.STATUS_ACTIVE) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
-      } else if (status === 'suspended') {
+      } else if (status === gsUtils.STATUS_SUSPENDED) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
-      } else if (status === 'whitelisted') {
+      } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
-      } else if (status === 'formInput' || status === 'tempWhitelist') {
+      } else if (status === gsUtils.STATUS_FORMINPUT || status === gsUtils.STATUS_TEMPWHITELIST) {
         tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
       }
 
