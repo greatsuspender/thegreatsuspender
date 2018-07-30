@@ -211,9 +211,9 @@
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Tab will suspend automatically." },
-    "js_popup_normal_pause": { "message": "Don't suspend" },
+    "js_popup_normal_pause": { "message": "Not now" },
     "js_popup_special": { "message": "Tab cannot be suspended" },
-    "js_popup_suspended": { "message": "Tab suspended." },
+    "js_popup_suspended": { "message": "Tab suspended" },
     "js_popup_suspended_pause": { "message": "Don't suspend" },
     "js_popup_whitelisted": { "message": "Site whitelisted." },
     "js_popup_whitelisted_remove": { "message": "Remove from whitelist" },

@@ -12,7 +12,10 @@
       if (chrome.runtime.lastError) {
         gsUtils.error('popup', chrome.runtime.lastError);
       }
-      if (status !== gsUtils.STATUS_UNKNOWN && status !== gsUtils.STATUS_LOADING) {
+      if (
+        status !== gsUtils.STATUS_UNKNOWN &&
+        status !== gsUtils.STATUS_LOADING
+      ) {
         callback(status);
       } else if (retriesRemaining === 0) {
         callback(status);
@@ -34,7 +37,10 @@
   var tabStatusAsPromised = new Promise(function(resolve, reject) {
     var retries = 50; //each retry is 200ms which makes 10 seconds
     getTabStatus(retries, function(status) {
-      if (status === gsUtils.STATUS_UNKNOWN || status === gsUtils.STATUS_LOADING) {
+      if (
+        status === gsUtils.STATUS_UNKNOWN ||
+        status === gsUtils.STATUS_LOADING
+      ) {
         status = 'error';
       }
       resolve(status);
@@ -53,15 +59,16 @@
     initialTabStatusAsPromised,
     selectedTabsAsPromised,
   ]).then(function([domLoadedEvent, initialTabStatus, selectedTabs]) {
-    setSuspendCurrentVisibility(initialTabStatus);
     setSuspendSelectedVisibility(selectedTabs);
     setStatus(initialTabStatus);
     showPopupContents();
     addClickHandlers();
 
-    if (initialTabStatus === gsUtils.STATUS_UNKNOWN || initialTabStatus === gsUtils.STATUS_LOADING) {
+    if (
+      initialTabStatus === gsUtils.STATUS_UNKNOWN ||
+      initialTabStatus === gsUtils.STATUS_LOADING
+    ) {
       tabStatusAsPromised.then(function(finalTabStatus) {
-        setSuspendCurrentVisibility(finalTabStatus);
         setStatus(finalTabStatus);
       });
     }
@@ -80,7 +87,7 @@
         gsUtils.STATUS_LOADING,
         gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
-      unsuspendVisible = [gsUtils.STATUS_SUSPENDED].includes(tabStatus);
+      unsuspendVisible = false; //[gsUtils.STATUS_SUSPENDED].includes(tabStatus);
 
     if (suspendOneVisible) {
       document.getElementById('suspendOne').style.display = 'block';
@@ -118,6 +125,8 @@
   }
 
   function setStatus(status) {
+    setSuspendCurrentVisibility(status);
+
     var statusDetail = '';
     //  statusIconClass = '';
 
@@ -130,11 +139,12 @@
         '</a>';
       //    statusIconClass = 'fa fa-clock-o';
     } else if (status === gsUtils.STATUS_SUSPENDED) {
-      statusDetail =
-        chrome.i18n.getMessage('js_popup_suspended') +
-        " <a href='#'>" +
-        chrome.i18n.getMessage('js_popup_suspended_pause') +
-        '</a>';
+      // statusDetail =
+      //   chrome.i18n.getMessage('js_popup_suspended') +
+      //   " <a href='#'>" +
+      //   chrome.i18n.getMessage('js_popup_suspended_pause') +
+      //   '</a>';
+      statusDetail = chrome.i18n.getMessage('js_popup_suspended');
       //    statusIconClass = 'fa fa-pause';
     } else if (status === gsUtils.STATUS_NEVER) {
       statusDetail = chrome.i18n.getMessage('js_popup_never');
@@ -174,7 +184,10 @@
     } else if (status === gsUtils.STATUS_CHARGING) {
       statusDetail = chrome.i18n.getMessage('js_popup_charging');
       //    statusIconClass = 'fa fa-plug';
-    } else if (status === gsUtils.STATUS_LOADING || status === gsUtils.STATUS_UNKNOWN) {
+    } else if (
+      status === gsUtils.STATUS_LOADING ||
+      status === gsUtils.STATUS_UNKNOWN
+    ) {
       if (gsSession.isInitialising()) {
         statusDetail = chrome.i18n.getMessage('js_popup_initialising');
       } else {
@@ -202,14 +215,25 @@
     var actionEl = document.getElementsByTagName('a')[0];
     if (actionEl) {
       var tgsHanderFunc;
-      if (status === gsUtils.STATUS_NORMAL || status === gsUtils.STATUS_ACTIVE) {
+      var newStatus = status;
+      if (
+        status === gsUtils.STATUS_NORMAL ||
+        status === gsUtils.STATUS_ACTIVE
+      ) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
+        newStatus = gsUtils.STATUS_TEMPWHITELIST;
       } else if (status === gsUtils.STATUS_SUSPENDED) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
+        newStatus = gsUtils.STATUS_TEMPWHITELIST;
       } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
-      } else if (status === gsUtils.STATUS_FORMINPUT || status === gsUtils.STATUS_TEMPWHITELIST) {
+        newStatus = gsUtils.STATUS_NORMAL;
+      } else if (
+        status === gsUtils.STATUS_FORMINPUT ||
+        status === gsUtils.STATUS_TEMPWHITELIST
+      ) {
         tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
+        newStatus = gsUtils.STATUS_NORMAL;
       }
 
       if (globalActionElListener) {
@@ -218,7 +242,8 @@
       if (tgsHanderFunc) {
         globalActionElListener = function(e) {
           tgsHanderFunc();
-          window.close();
+          setStatus(newStatus);
+          // window.close();
         };
         actionEl.addEventListener('click', globalActionElListener);
       }
@@ -272,13 +297,15 @@
       .getElementById('whitelistDomain')
       .addEventListener('click', function(e) {
         tgs.whitelistHighlightedTab(false);
-        window.close();
+        setStatus(gsUtils.STATUS_WHITELISTED);
+        // window.close();
       });
     document
       .getElementById('whitelistPage')
       .addEventListener('click', function(e) {
         tgs.whitelistHighlightedTab(true);
-        window.close();
+        setStatus(gsUtils.STATUS_WHITELISTED);
+        // window.close();
       });
     document
       .getElementById('settingsLink')
