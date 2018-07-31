@@ -401,13 +401,14 @@ a.historyLink:hover {
   width: 16px;
 }
 .gsTopBarTitle {
-  color: #3477db;
+  color: #444;
   font-weight: bold;
   display: block;
   grid-area: t;
 }
 .gsTopBarUrl {
   grid-area: u;
+  color: #444;
 }
 .gsTopBarUrl, .gsTopBarTitle {
   max-width: 100%;
@@ -492,18 +493,18 @@ body.img-preview-mode .gsTopBar {
   text-align: left;
   margin-bottom: 2.5rem;
   position: relative;
-  color: #3477db;
+  color: #444;
   user-select: none;
   width: 18rem;
   height: 13rem;
-  border: 0.3rem solid #3477db;
+  border: 0.3rem solid #444;
   border-radius: 5px;
   display: grid;
   grid-template-rows: 2.2rem 1fr;
 }
 .bar {
   position: relative;
-  border-bottom: 0.3rem solid #3477db;
+  border-bottom: 0.3rem solid #444;
   font-size: 2.6rem;
   padding-left: 0.5rem;
   letter-spacing: 0.3rem;
@@ -514,7 +515,7 @@ body.img-preview-mode .gsTopBar {
 }
 .eye,
 .mouth {
-  border: 0.4rem solid #3477db;
+  border: 0.4rem solid #444;
   position: absolute;
   width: 2.5rem;
   height: 1.7rem;
@@ -532,7 +533,7 @@ body.img-preview-mode .gsTopBar {
   display: none;
   transform: rotateX(90deg);
   clip-path: none;
-  background: #3477db;
+  background: #444;
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
@@ -602,8 +603,8 @@ body.img-preview-mode .gsTopBar {
   height: 100%;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: #3477db;
-  border-right-color: #3477db;
+  border-top-color: #444;
+  border-right-color: #444;
   animation: spinner 0.6s linear infinite;
 }
 
@@ -613,7 +614,7 @@ body.img-preview-mode .gsTopBar {
   transform: translateY(-10px);
 }
 .waking .mouth {
-  background: #3477db;
+  background: #444;
 }
 .waking .eye-open {
   display: block;
