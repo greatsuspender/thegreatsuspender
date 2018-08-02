@@ -723,15 +723,8 @@ body.img-preview-mode .gsTopBar {
   color: #b8b8b8;
 }
 
-#whitelistOptionsModal .radio span {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 600px;
-  display: inline-block;
-}
 /* end suspended tab styles */
 
-/* Modal Content */
 .toast-wrapper {
   display: none;
   text-align: center;
@@ -774,35 +767,6 @@ body.img-preview-mode .gsTopBar {
   }
 }
 
-.modal-wrapper {
-  display: none;
-  text-align: center;
-  position: fixed;
-  z-index: 9999999;
-  padding-top: 50px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-.modal-content {
-  display: inline-block;
-  text-align: left;
-  position: relative;
-  max-width: 800px;
-  min-width: 400px;
-  white-space: nowrap;
-  background-color: #fefefe;
-  margin: auto;
-  padding: 0;
-  border: 1px solid #888;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  animation-name: animatetop;
-  animation-duration: 0.3s;
-}
-
 @keyframes animatetop {
   from {
     top: -100px;
@@ -826,23 +790,6 @@ body.img-preview-mode .gsTopBar {
   color: #000;
   text-decoration: none;
   cursor: pointer;
-}
-.modal-header {
-  padding: 10px 15px;
-  background-color: #3477db;
-  color: white;
-}
-.modal-header h2 {
-  font-weight: normal;
-  margin: 0;
-  font-size: 18px;
-}
-.modal-body {
-  padding: 2px 16px;
-}
-.modal-footer {
-  padding: 10px 15px;
-  background-color: #eee;
 }
 
 /* custom checkboxes */
