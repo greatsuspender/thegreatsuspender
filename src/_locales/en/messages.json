@@ -180,13 +180,11 @@
     "html_updated_bug_fixes_header": { "message": "Bug fixes:" },
     "html_updated_release_notes": { "message": "Visit GitHub for full release notes: " },
 
-    // Welcome page
+    // Welcome message
     "html_welcome_title": { "message": "Welcome" },
     "html_welcome_text_line1": { "message": "Thanks for trying" },
-    "html_welcome_text_line2": { "message": "Hopefully it will make you a happier and more productive human." },
-    "html_welcome_get_started_prefix": { "message": "Get started by checking out the" },
-    "html_welcome_get_started_linkname": { "message": "settings" },
-    "html_welcome_get_started_suffix": { "message": "page." },
+    "html_welcome_text_line2": { "message": "I make your computer run smoothly suspending the tabs you aren't using." },
+    "html_welcome_text_line3": { "message": "You can fine-tune the settings below." },
 
     // Thanks page
     "html_thanks_title": { "message": "Thanks" },

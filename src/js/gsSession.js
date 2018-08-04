@@ -102,9 +102,9 @@ var gsSession = (function() {
 
             //if they are installing for the first time
             if (!lastVersion || lastVersion === '0.0.0') {
-              //show welcome screen
+              //show welcome message
               chrome.tabs.create({
-                url: chrome.extension.getURL('welcome.html'),
+                url: chrome.extension.getURL('options.html?firsttime'),
               });
 
               //else if they are upgrading to a new version

@@ -237,7 +237,7 @@ ul.unorderedList li {
 .pageHeader {
   grid-area: h;
   margin: 0 0 50px;
-  font-size: 35px;
+  font-size: 20px;
 }
 .contentNav {
   grid-area: n;
@@ -268,6 +268,14 @@ ul.unorderedList li {
   font-size: 16px;
   font-weight: bold;
   margin: 0 0 30px;
+}
+.welcome-message {
+  border-radius: 6px;
+  background: #fff;
+  padding: 30px;
+  margin-bottom: 20px;
+  align-items: center;
+  grid-gap: 40px;
 }
 .gsNote {
   font-style: italic;
@@ -384,10 +392,10 @@ a.historyLink:hover {
   width: 100%;
   display: grid;
   grid-template:
-   "i t"
-   "i u";
-   grid-template-columns: auto 1fr;
-   grid-gap: 2px 20px;
+    'i t'
+    'i u';
+  grid-template-columns: auto 1fr;
+  grid-gap: 2px 20px;
 }
 .faviconWrap {
   grid-area: i;
@@ -410,7 +418,8 @@ a.historyLink:hover {
   grid-area: u;
   color: #444;
 }
-.gsTopBarUrl, .gsTopBarTitle {
+.gsTopBarUrl,
+.gsTopBarTitle {
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
@@ -627,7 +636,9 @@ body.img-preview-mode .gsTopBar {
 .waking .suspendedTextWrap {
   opacity: 0;
 }
-
+.card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
 /* i seriously need to get around to sass-ifying this */
 .dark .tab {
   color: #777;
