@@ -183,7 +183,7 @@
     // Welcome message
     "html_welcome_title": { "message": "Welcome" },
     "html_welcome_text_line1": { "message": "Thanks for trying" },
-    "html_welcome_text_line2": { "message": "I make your computer run smoothly suspending the tabs you aren't using." },
+    "html_welcome_text_line2": { "message": "I make your computer run smoothly by suspending the tabs you aren't using." },
     "html_welcome_text_line3": { "message": "You can fine-tune the settings below." },
 
     // Thanks page
