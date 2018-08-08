@@ -10,8 +10,14 @@ var tgs = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
 
-  var ICON_SUSPENSION_ACTIVE = '/img/ic_suspendy_128x128.png';
-  var ICON_SUSPENSION_PAUSED = '/img/ic_suspendy_128x128_grey.png';
+  var ICON_SUSPENSION_ACTIVE = {
+    '16': 'img/ic_suspendy_16x16.png',
+    '32': 'img/ic_suspendy_32x32.png',
+  };
+  var ICON_SUSPENSION_PAUSED = {
+    '16': 'img/ic_suspendy_16x16_grey.png',
+    '32': 'img/ic_suspendy_32x32_grey.png',
+  };
 
   var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
   var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
