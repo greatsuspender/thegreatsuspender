@@ -59,7 +59,7 @@
     setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
 
     let searchParams = new URL(location.href).searchParams;
-    if (searchParams.get('firstTime') === 'true') {
+    if (searchParams.has('firstTime')) {
       document
         .querySelector('.welcome-message')
         .classList.remove('reallyHidden');
