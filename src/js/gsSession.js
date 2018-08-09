@@ -104,7 +104,7 @@ var gsSession = (function() {
             if (!lastVersion || lastVersion === '0.0.0') {
               //show welcome message
               chrome.tabs.create({
-                url: chrome.extension.getURL('options.html?firsttime'),
+                url: chrome.extension.getURL('options.html?firstTime=true'),
               });
 
               //else if they are upgrading to a new version
