@@ -43,10 +43,7 @@
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var versionEl = document.getElementById('aboutVersion');
-    versionEl.innerHTML =
-      chrome.i18n.getMessage('ext_extension_name') +
-      ' v' +
-      chrome.runtime.getManifest().version;
+    versionEl.innerHTML = 'v' + chrome.runtime.getManifest().version;
 
     if (gsStorage.getOption(gsStorage.NO_NAG)) {
       document.getElementById('donateSection').style.display = 'none';
