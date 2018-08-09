@@ -12,14 +12,37 @@
 
 	<div class="mainContent">
 
-		<h1 class="pageHeader"><span data-i18n="__MSG_ext_extension_name__"></span></h1>
+		<div class="pageHeader">
+			<h1 id="options-heading" data-i18n="__MSG_ext_extension_name__"></h1>
+			<div class="splash reallyHidden welcome-message card">
+
+				<img class="suspendy-guy" src="img/suspendy-guy.png" />
+
+				<div>
+					<h1>
+						<span data-i18n="__MSG_html_welcome_text_line1__"></span>
+						<span data-i18n="__MSG_ext_extension_name__"></span>
+					</h1>
+					<p data-i18n="__MSG_html_welcome_text_line2__"></p>
+					<p data-i18n="__MSG_html_welcome_text_line3__"></p>
+				</div>
+			</div>
+		</div>
 
 		<div class="contentNav">
 			<ul>
-				<li><a class="active" href='options.html' data-i18n="__MSG_html_sidebar_general_settings__"></a></li>
-				<li class="noIncognito"><a href="history.html" data-i18n="__MSG_html_sidebar_session_management__"></a></li>
-				<li class="noIncognito"><a href='shortcuts.html' data-i18n="__MSG_html_sidebar_shortcuts__"></a></li>
-				<li><a href="about.html" data-i18n="__MSG_html_sidebar_support__"></a></li>
+				<li>
+					<a class="active" href='options.html' data-i18n="__MSG_html_sidebar_general_settings__"></a>
+				</li>
+				<li class="noIncognito">
+					<a href="history.html" data-i18n="__MSG_html_sidebar_session_management__"></a>
+				</li>
+				<li class="noIncognito">
+					<a href='shortcuts.html' data-i18n="__MSG_html_sidebar_shortcuts__"></a>
+				</li>
+				<li>
+					<a href="about.html" data-i18n="__MSG_html_sidebar_support__"></a>
+				</li>
 			</ul>
 		</div>
 
@@ -32,24 +55,24 @@
 					<div class="select-wrapper">
 						<select id="timeToSuspend" class='option'>
 
-					<option value="0" data-i18n="__MSG_html_options_suspend_never__"></option>
-					<option value="0.33" data-i18n="20 __MSG_html_options_suspend_seconds__"></option>
-					<option value="1" data-i18n="1 __MSG_html_options_suspend_minute__"></option>
-					<option value="5" data-i18n="5 __MSG_html_options_suspend_minutes__"></option>
-					<option value="10" data-i18n="10 __MSG_html_options_suspend_minutes__"></option>
-					<option value="15" data-i18n="15 __MSG_html_options_suspend_minutes__"></option>
-					<option value="30" data-i18n="30 __MSG_html_options_suspend_minutes__"></option>
-					<option value="60" data-i18n="1 __MSG_html_options_suspend_hour__"></option>
-					<option value="120" data-i18n="2 __MSG_html_options_suspend_hours__"></option>
-					<option value="240" data-i18n="4 __MSG_html_options_suspend_hours__"></option>
-					<option value="360" data-i18n="6 __MSG_html_options_suspend_hours__"></option>
-					<option value="720" data-i18n="12 __MSG_html_options_suspend_hours__"></option>
-					<option value="1440" data-i18n="1 __MSG_html_options_suspend_day__"></option>
-					<option value="2880" data-i18n="2 __MSG_html_options_suspend_days__"></option>
-					<option value="4320" data-i18n="3 __MSG_html_options_suspend_days__"></option>
-					<option value="10080" data-i18n="1 __MSG_html_options_suspend_week__"></option>
-					<option value="20160" data-i18n="2 __MSG_html_options_suspend_weeks__"></option>
-				</select>
+							<option value="0" data-i18n="__MSG_html_options_suspend_never__"></option>
+							<option value="0.33" data-i18n="20 __MSG_html_options_suspend_seconds__"></option>
+							<option value="1" data-i18n="1 __MSG_html_options_suspend_minute__"></option>
+							<option value="5" data-i18n="5 __MSG_html_options_suspend_minutes__"></option>
+							<option value="10" data-i18n="10 __MSG_html_options_suspend_minutes__"></option>
+							<option value="15" data-i18n="15 __MSG_html_options_suspend_minutes__"></option>
+							<option value="30" data-i18n="30 __MSG_html_options_suspend_minutes__"></option>
+							<option value="60" data-i18n="1 __MSG_html_options_suspend_hour__"></option>
+							<option value="120" data-i18n="2 __MSG_html_options_suspend_hours__"></option>
+							<option value="240" data-i18n="4 __MSG_html_options_suspend_hours__"></option>
+							<option value="360" data-i18n="6 __MSG_html_options_suspend_hours__"></option>
+							<option value="720" data-i18n="12 __MSG_html_options_suspend_hours__"></option>
+							<option value="1440" data-i18n="1 __MSG_html_options_suspend_day__"></option>
+							<option value="2880" data-i18n="2 __MSG_html_options_suspend_days__"></option>
+							<option value="4320" data-i18n="3 __MSG_html_options_suspend_days__"></option>
+							<option value="10080" data-i18n="1 __MSG_html_options_suspend_week__"></option>
+							<option value="20160" data-i18n="2 __MSG_html_options_suspend_weeks__"></option>
+						</select>
 					</div>
 				</div>
 				<div class="formRow autoSuspendOption">
@@ -93,7 +116,7 @@ __MSG_html_options_whitelist_tooltip_line2__
 __MSG_html_options_whitelist_tooltip_line3__
 &nbsp;&nbsp;&nbsp;&nbsp;/^https:.*google\.com/">
 					<i class="tooltipIcon icon icon-help-circled"></i>
-			</span>
+				</span>
 				<textarea id="whitelist" class='option' rows="10" cols="50"></textarea>
 			</div>
 			<div class="sub-section">
@@ -109,9 +132,9 @@ __MSG_html_options_whitelist_tooltip_line3__
 					<br />
 					<div class="select-wrapper">
 						<select id="theme" class='option'>
-						<option value="light" data-i18n="__MSG_html_options_suspend_theme_light__"></option>
-						<option value="dark" data-i18n="__MSG_html_options_suspend_theme_dark__"></option>
-					</select>
+							<option value="light" data-i18n="__MSG_html_options_suspend_theme_light__"></option>
+							<option value="dark" data-i18n="__MSG_html_options_suspend_theme_dark__"></option>
+						</select>
 					</div>
 
 				</div>
@@ -126,15 +149,15 @@ __MSG_html_options_suspend_screen_capturing_tooltip_line2b__
 
 __MSG_html_options_suspend_screen_capturing_tooltip_line3a__
 __MSG_html_options_suspend_screen_capturing_tooltip_line3b__">
-					<i class="tooltipIcon icon icon-help-circled"></i>
-				</span>
+						<i class="tooltipIcon icon icon-help-circled"></i>
+					</span>
 					<br />
 					<div class="select-wrapper">
 						<select id="preview" class='option'>
-						<option value="0" data-i18n="__MSG_html_options_suspend_screen_capturing_disabled__"></option>
-						<option value="1" data-i18n="__MSG_html_options_suspend_screen_capturing_screen_only__"></option>
-						<option value="2" data-i18n="__MSG_html_options_suspend_screen_capturing_entire_page__"></option>
-					</select>
+							<option value="0" data-i18n="__MSG_html_options_suspend_screen_capturing_disabled__"></option>
+							<option value="1" data-i18n="__MSG_html_options_suspend_screen_capturing_screen_only__"></option>
+							<option value="2" data-i18n="__MSG_html_options_suspend_screen_capturing_entire_page__"></option>
+						</select>
 					</div>
 				</div>
 				<div class="formRow" id="forceScreenCaptureContainer">
@@ -147,14 +170,9 @@ __MSG_html_options_suspend_force_screen_capture_tooltip_line5__
 
 __MSG_html_options_suspend_force_screen_capture_tooltip_line6__
 __MSG_html_options_suspend_force_screen_capture_tooltip_line7__">
-					<i class="tooltipIcon icon icon-help-circled"></i>
-				</span>
+						<i class="tooltipIcon icon icon-help-circled"></i>
+					</span>
 				</div>
-
-
-				<!-- <input type="checkbox" id="ignoreCache" class='option'></input>
-			<label for="ignoreCache">Skip browser cache when reloading tab</label>
-			<br /> -->
 			</div>
 			<div class="sub-section">
 
@@ -169,8 +187,8 @@ __MSG_html_options_suspend_force_screen_capture_tooltip_line7__">
 					<span data-i18n-tooltip="__MSG_html_options_other_enable_sync_tooltip_line1a__ __MSG_html_options_other_enable_sync_tooltip_line1b__
 
 __MSG_html_options_other_enable_sync_tooltip_line2__">
-					<i class="tooltipIcon icon icon-help-circled"></i>
-				</span>
+						<i class="tooltipIcon icon icon-help-circled"></i>
+					</span>
 					<div id="syncNote" class="gsNote" data-i18n="__MSG_html_options_other_enable_sync_warning__"></div>
 				</div>
 			</div>

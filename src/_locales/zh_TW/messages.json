@@ -180,13 +180,11 @@
     "html_updated_bug_fixes_header": { "message": "錯誤修復：" }, //? Bugfixes:
     "html_updated_release_notes": { "message": "請瀏覽GitHub獲取完整的發行說明: " }, //? Please visit gitHub for the complete release notes:
 
-    // Welcome page
+    // Welcome message
     "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to
     "html_welcome_text_line1": { "message": "謝謝你安裝" }, //Thank you for installing
-    "html_welcome_text_line2": { "message": "希望這會對你在使用瀏覽器有更好的體驗" }, //Hope this will be a better experience for you using your browser
-    "html_welcome_get_started_prefix": { "message": "可以先到設定" }, //Can be set first
-    "html_welcome_get_started_linkname": { "message": "頁面" }, //page
-    "html_welcome_get_started_suffix": { "message": "調整最適合的運作方式" }, //Adjust the most suitable mode of operation
+    "html_welcome_text_line2": { "message": "通过暂停您不使用的标签，我可以让您的计算机更快。" }, //I make your computer faster by pausing tabs you aren't using.
+    "html_welcome_text_line3": { "message": "您可以在下面更改设置" }, //? You can change the following settings
 
     // Thanks page
     "html_thanks_title": { "message": "謝謝" }, //? Thank you

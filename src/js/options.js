@@ -57,6 +57,13 @@
       gsStorage.getOption(gsStorage.SUSPEND_TIME) > 0
     );
     setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
+
+    if (window.location.href.includes('firsttime')) {
+      document
+        .querySelector('.welcome-message')
+        .classList.remove('reallyHidden');
+      document.querySelector('#options-heading').classList.add('reallyHidden');
+    }
   }
 
   function populateOption(element, value) {
