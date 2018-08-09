@@ -5,17 +5,37 @@
   var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
-    document.getElementById('sessionManagerLink').onclick = function(e) {
-      e.preventDefault();
-      chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
-    };
+  function setRestartExtensionClickHandler(warnFirst) {
     document.getElementById('restartExtensionBtn').onclick = function(e) {
-      var result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
+      var result = true;
+      if (warnFirst) {
+        result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
+      }
       if (result) {
         chrome.runtime.reload();
       }
     };
+  }
+
+  function setExportBackupClickHandler(sessionRestorePoint) {
+    document.getElementById('exportBackupBtn').onclick = function(e) {
+      historyUtils.exportSession(sessionRestorePoint.sessionId);
+      document.getElementById('exportBackupBtn').style.display = 'none';
+      setRestartExtensionClickHandler(false);
+    };
+  }
+
+  function setSessionManagerClickHandler() {
+    document.getElementById('sessionManagerLink').onclick = function(e) {
+      e.preventDefault();
+      chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+      setRestartExtensionClickHandler(false);
+    };
+  }
+
+  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+    setSessionManagerClickHandler();
+    setRestartExtensionClickHandler(true);
 
     var currentVersion = chrome.runtime.getManifest().version;
     gsStorage
@@ -33,15 +53,7 @@
           document.getElementById('backupInfo').style.display = 'none';
           document.getElementById('exportBackupBtn').style.display = 'none';
         } else {
-          document.getElementById('exportBackupBtn').onclick = function(e) {
-            historyUtils.exportSession(sessionRestorePoint.sessionId);
-            document.getElementById('exportBackupBtn').style.display = 'none';
-            document.getElementById('restartExtensionBtn').onclick = function(
-              e
-            ) {
-              chrome.runtime.reload();
-            };
-          };
+          setExportBackupClickHandler(sessionRestorePoint);
         }
       });
   });
