@@ -188,8 +188,8 @@
 
     // Thanks page
     "html_thanks_title": { "message": "Thanks" },
-    "html_thanks_header": { "message": "Great thanks!" },
-    "html_thanks_sub_header": { "message": "Congratulations on being such a wonderful person." },
+    "html_thanks_header": { "message": "Thanks for the support!" },
+    "html_thanks_sub_header": { "message": "May great things come your way today." },
 
     // Donate sub-view for suspended.js and about.js (Javascript code)
     "js_donate_paypal": { "message": "PayPal" },
