@@ -184,7 +184,7 @@
     "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to
     "html_welcome_text_line1": { "message": "謝謝你安裝" }, //Thank you for installing
     "html_welcome_text_line2": { "message": "通过暂停您不使用的标签，我可以让您的计算机更快。" }, //I make your computer faster by pausing tabs you aren't using.
-    "html_welcome_text_line3": { "message": "您可以在下面更改设置" }, //You can change settings, below
+    "html_welcome_text_line3": { "message": "您可以在下面更改设置" }, //? You can change the following settings
 
     // Thanks page
     "html_thanks_title": { "message": "謝謝" }, //? Thank you

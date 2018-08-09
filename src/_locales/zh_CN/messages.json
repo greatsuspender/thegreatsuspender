@@ -184,9 +184,7 @@
     "html_welcome_title": { "message": "欢迎来到" }, //? Welcome to
     "html_welcome_text_line1": { "message": "谢谢你安装" }, //Thank you for installing
     "html_welcome_text_line2": { "message": "希望这会对你在使用浏览器有更好的体验" }, //Hope this will be a better experience for you using your browser
-    "html_welcome_get_started_prefix": { "message": "可以先到设定" }, //Can be set first
-    "html_welcome_get_started_linkname": { "message": "页面" }, //page
-    "html_welcome_get_started_suffix": { "message": "调整最适合的运作方式" }, //Adjust the most suitable mode of operation
+    "html_welcome_text_line3": { "message": "您可以在下面更改设置" }, //? You can change the following settings
 
     // Thanks page
     "html_thanks_title": { "message": "谢谢" }, //? Thank you
