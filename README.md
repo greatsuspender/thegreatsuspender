@@ -1,4 +1,4 @@
-# <img src="/src/img/icon48.png" align="absmiddle"> The Great Suspender
+# <img src="/src/img/ic_suspendy_128x128.png" width="48px" /> The Great Suspender
 
 ### Read this if you have lost tabs from your browser
 
