@@ -164,9 +164,10 @@
     "html_update_title": { "message": "更新" }, //? Updated
     "html_update_heading2": { "message": "即將變得更好" }, //? It is about to get better
     "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
-    "html_update_info_line2": { "message": "請在繼續之前保存目前瀏覽階段的備份。" }, //? Please save the backup of the current tab session before proceeding.
-    "html_update_info_line2_alternate_prefix": { "message": "強烈建議您在繼續之前從" }, //? We strongly recommend that you save a backup of your current session from
-    "html_update_info_line2_alternate_suffix": { "message": " 保存目前瀏覽階段的備份。" }, //? before proceeding.
+    "html_update_info_line2": { "message": "请注意：冻结页面将在更新过程中暂时消失。" }, //? Please note: The frozen page will temporarily disappear during the update process.
+    "html_update_info_withbackup": { "message": "請在繼續之前保存目前瀏覽階段的備份。" }, //? Please save the backup of the current tab session before proceeding.
+    "html_update_info_nobackup_prefix": { "message": "強烈建議您在繼續之前從" }, //? We strongly recommend that you save a backup of your current session from
+    "html_update_info_nobackup_suffix": { "message": " 保存目前瀏覽階段的備份。" }, //? before proceeding.
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //? Updated

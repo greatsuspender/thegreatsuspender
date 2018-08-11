@@ -164,9 +164,10 @@
     "html_update_title": { "message": "Update" },
     "html_update_heading2": { "message": "is about to get greater" },
     "html_update_info_line1": { "message": "A new version of The Great Suspender is ready to be installed." },
-    "html_update_info_line2": { "message": "Just in case, now might be a good time to save a backup of your current tab session." },
-    "html_update_info_line2_alternate_prefix": { "message": "It is strongly recommended that you export a copy of your current session from " },
-    "html_update_info_line2_alternate_suffix": { "message": " before continuing with the update." },
+    "html_update_info_line2": { "message": "Please note: during the update your suspended tabs will briefly disappear." },
+    "html_update_info_withbackup": { "message": "Just in case, now might be a good time to save a backup of your current tab session." },
+    "html_update_info_nobackup_prefix": { "message": "It is strongly recommended that you export a copy of your current session from " },
+    "html_update_info_nobackup_suffix": { "message": " before continuing with the update." },
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
