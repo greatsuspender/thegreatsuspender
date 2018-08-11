@@ -31,33 +31,35 @@
       }
     });
   };
-  var initialTabStatusAsPromised = new Promise(function(resolve, reject) {
-    getTabStatus(0, resolve);
-  });
-  var tabStatusAsPromised = new Promise(function(resolve, reject) {
-    var retries = 50; //each retry is 200ms which makes 10 seconds
-    getTabStatus(retries, function(status) {
-      if (
-        status === gsUtils.STATUS_UNKNOWN ||
-        status === gsUtils.STATUS_LOADING
-      ) {
-        status = 'error';
-      }
-      resolve(status);
+  function getTabStatusAsPromise(retries, allowTransientStates) {
+    return new Promise(function(resolve, reject) {
+      getTabStatus(retries, function(status) {
+        if (
+          !allowTransientStates &&
+          (status === gsUtils.STATUS_UNKNOWN ||
+            status === gsUtils.STATUS_LOADING)
+        ) {
+          status = 'error';
+        }
+        resolve(status);
+      });
     });
-  });
-  var selectedTabsAsPromised = new Promise(function(resolve, reject) {
-    chrome.tabs.query({ highlighted: true, lastFocusedWindow: true }, function(
-      tabs
-    ) {
-      resolve(tabs);
+  }
+  function getSelectedTabsAsPromise() {
+    return new Promise(function(resolve, reject) {
+      chrome.tabs.query(
+        { highlighted: true, lastFocusedWindow: true },
+        function(tabs) {
+          resolve(tabs);
+        }
+      );
     });
-  });
+  }
 
   Promise.all([
     gsUtils.documentReadyAndLocalisedAsPromsied(document),
-    initialTabStatusAsPromised,
-    selectedTabsAsPromised,
+    getTabStatusAsPromise(0, true),
+    getSelectedTabsAsPromise(),
   ]).then(function([domLoadedEvent, initialTabStatus, selectedTabs]) {
     setSuspendSelectedVisibility(selectedTabs);
     setStatus(initialTabStatus);
@@ -68,7 +70,7 @@
       initialTabStatus === gsUtils.STATUS_UNKNOWN ||
       initialTabStatus === gsUtils.STATUS_LOADING
     ) {
-      tabStatusAsPromised.then(function(finalTabStatus) {
+      getTabStatusAsPromise(50, false).then(function(finalTabStatus) {
         setStatus(finalTabStatus);
       });
     }
@@ -215,25 +217,20 @@
     var actionEl = document.getElementsByTagName('a')[0];
     if (actionEl) {
       var tgsHanderFunc;
-      var newStatus = status;
       if (
         status === gsUtils.STATUS_NORMAL ||
         status === gsUtils.STATUS_ACTIVE
       ) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
-        newStatus = gsUtils.STATUS_TEMPWHITELIST;
       } else if (status === gsUtils.STATUS_SUSPENDED) {
         tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
-        newStatus = gsUtils.STATUS_TEMPWHITELIST;
       } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
-        newStatus = gsUtils.STATUS_NORMAL;
       } else if (
         status === gsUtils.STATUS_FORMINPUT ||
         status === gsUtils.STATUS_TEMPWHITELIST
       ) {
         tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
-        newStatus = gsUtils.STATUS_NORMAL;
       }
 
       if (globalActionElListener) {
@@ -242,7 +239,9 @@
       if (tgsHanderFunc) {
         globalActionElListener = function(e) {
           tgsHanderFunc();
-          setStatus(newStatus);
+          getTabStatusAsPromise(0, false).then(function(newTabStatus) {
+            setStatus(newTabStatus);
+          });
           // window.close();
         };
         actionEl.addEventListener('click', globalActionElListener);
