@@ -16,6 +16,8 @@
         return;
       }
 
+      gsUtils.removeInternalUrlsFromSession(session);
+
       //if loading a specific window
       if (windowId) {
         windows.push(gsUtils.getWindowFromSession(windowId, session));
