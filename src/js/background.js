@@ -476,6 +476,7 @@ var tgs = (function() {
     //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
     if (changeInfo.status === 'loading') {
       if (unsuspendOnReloadUrl && unsuspendOnReloadUrl === tab.url) {
+        //TODO: Somehow update suspended tab with correct theme and preview?
         unsuspendTab(tab);
       }
 
@@ -622,7 +623,7 @@ var tgs = (function() {
     gsUtils.log(tabId, 'tab gained focus');
     _lastFocusedTabIdByWindowId[windowId] = tabId;
 
-    // The the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
+    // If the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
     if (_triggerHotkeyUpdate) {
       updateSuspendUnsuspendHotkey();
       _triggerHotkeyUpdate = false;
