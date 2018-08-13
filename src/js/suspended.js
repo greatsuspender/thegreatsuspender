@@ -64,6 +64,14 @@
           );
       }
     });
+
+    try {
+      chrome.extension
+        .getBackgroundPage()
+        .gsAnalytics.reportPageView('suspended.html');
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function setTitle(title) {
@@ -132,8 +140,8 @@
     currentHideNag = hideNag;
 
     if (queueNag) {
-      //show dude and donate link (randomly 1 of 33 times)
-      if (Math.random() > 0.97) {
+      //show dude and donate link (randomly 1 of 20 times)
+      if (Math.random() > 0.95) {
         var donationPopupFocusListener = function(e) {
           e.target.removeEventListener('focus', donationPopupFocusListener);
 
