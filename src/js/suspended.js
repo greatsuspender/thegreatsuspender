@@ -40,6 +40,7 @@
       const preUrlDecoded = decodeURIComponent(preUrlEncoded);
       setUrl(preUrlDecoded);
       document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
+      document.getElementById('gsTopBar').onclick = handleUnsuspendTab;
 
       const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
       setFavicon(preFaviconUrl);
