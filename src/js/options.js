@@ -121,7 +121,7 @@
       document.getElementsByClassName('autoSuspendOption'),
       function(el) {
         if (visible) {
-          el.style.display = 'block';
+          el.style.display = 'inline-block';
         } else {
           el.style.display = 'none';
         }
