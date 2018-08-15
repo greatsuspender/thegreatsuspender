@@ -39,8 +39,8 @@
     if (preUrlEncoded) {
       const preUrlDecoded = decodeURIComponent(preUrlEncoded);
       setUrl(preUrlDecoded);
-      document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
-      document.getElementById('gsTopBar').onclick = handleUnsuspendTab;
+      document.getElementById('gsTopBar').onmousedown = handleUnsuspendTab;
+      document.getElementById('suspendedMsg').onmousedown = handleUnsuspendTab;
 
       const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
       setFavicon(preFaviconUrl);
@@ -82,6 +82,12 @@
     currentTitle = title;
     document.getElementById('gsTitle').innerHTML = title;
     document.getElementById('gsTopBarTitle').innerHTML = title;
+    // Prevent unsuspend by parent container
+    // Using mousedown event otherwise click can still be triggered if
+    // mouse is released outside of this element
+    document.getElementById('gsTopBarTitle').onmousedown = function(e) {
+      e.stopPropagation();
+    };
   }
 
   function setUrl(url) {
@@ -91,7 +97,7 @@
     currentUrl = url;
     document.getElementById('gsTopBarUrl').innerHTML = cleanUrl(currentUrl);
     document.getElementById('gsTopBarUrl').setAttribute('href', url);
-    document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
+    document.getElementById('gsTopBarUrl').onmousedown = handleUnsuspendTab;
   }
 
   function setFavicon(faviconUrl) {
@@ -182,7 +188,7 @@
     const previewEl = document.createElement('div');
     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
     localiseHtml(previewEl);
-    previewEl.onclick = handleUnsuspendTab;
+    previewEl.onmousedown = handleUnsuspendTab;
     document.getElementsByTagName('body')[0].appendChild(previewEl);
     builtImagePreview = true;
 
@@ -247,9 +253,10 @@
 
   function handleUnsuspendTab(e) {
     e.preventDefault();
+    e.stopPropagation();
     if (e.target.id === 'setKeyboardShortcut') {
       chrome.tabs.create({ url: 'chrome://extensions/configureCommands' });
-    } else {
+    } else if (e.which === 1) {
       unsuspendTab();
     }
   }
