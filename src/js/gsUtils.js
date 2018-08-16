@@ -607,7 +607,7 @@ var gsUtils = {
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
     ) {
-      gsSuspendManager.updateQueueParameters();
+      gsSuspendManager.init();
     }
   },
 
