@@ -192,7 +192,7 @@ var gsUtils = {
     }
     var whitelistString = whitelistItems.join('\n');
     gsStorage.setOption(gsStorage.WHITELIST, whitelistString);
-    gsStorage.syncSettings({ [gsStorage.WHITELIST]: whitelistString });
+    gsStorage.syncSettings();
 
     var key = gsStorage.WHITELIST;
     gsUtils.performPostSaveUpdates(
@@ -231,7 +231,7 @@ var gsUtils = {
     var newWhitelistString = oldWhitelistString + '\n' + newString;
     newWhitelistString = this.cleanupWhitelist(newWhitelistString);
     gsStorage.setOption(gsStorage.WHITELIST, newWhitelistString);
-    gsStorage.syncSettings({ [gsStorage.WHITELIST]: newWhitelistString });
+    gsStorage.syncSettings();
 
     var key = gsStorage.WHITELIST;
     gsUtils.performPostSaveUpdates(
