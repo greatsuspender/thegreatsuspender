@@ -99,10 +99,9 @@
 					<input type="checkbox" id="batteryCheck" class='option' />
 					<label for="batteryCheck" class="cbLabel" data-i18n="__MSG_html_options_suspend_only_on_battery__"></label>
 				</div>
-				<br class="autoSuspendOption" />
-
-				<label id="whitelistLbl" class="autoSuspendOption" for="whitelist" data-i18n="__MSG_html_options_whitelist_title__&nbsp;&nbsp;"></label>
-				<span class="autoSuspendOption" data-i18n-tooltip="__MSG_html_options_whitelist_tooltip_line1__
+				<div class="formRow autoSuspendOption">
+					<label id="whitelistLbl" for="whitelist" data-i18n="__MSG_html_options_whitelist_title__&nbsp;&nbsp;"></label>
+					<span data-i18n-tooltip="__MSG_html_options_whitelist_tooltip_line1__
 &nbsp;&nbsp;&nbsp;&nbsp;https://play.google.com/music/listen
 &nbsp;&nbsp;&nbsp;&nbsp;https://mail.google.com
 
@@ -111,9 +110,10 @@ __MSG_html_options_whitelist_tooltip_line2__
 
 __MSG_html_options_whitelist_tooltip_line3__
 &nbsp;&nbsp;&nbsp;&nbsp;/^https:.*google\.com/">
-					<i class="tooltipIcon icon icon-help-circled"></i>
-				</span>
-				<textarea id="whitelist" class='option autoSuspendOption' rows="10" cols="50"></textarea>
+						<i class="tooltipIcon icon icon-help-circled"></i>
+					</span>
+					<textarea id="whitelist" class="option" rows="10" cols="50"></textarea>
+				</div>
 			</div>
 			<div class="sub-section">
 
