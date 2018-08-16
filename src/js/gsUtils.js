@@ -350,20 +350,22 @@ var gsUtils = {
       keyPairRegEx = /^(.+)=(.+)/,
       hashStr;
 
+    if (!urlStr || urlStr.length === 0 || urlStr.indexOf('#') === -1) {
+      return false;
+    }
+
     //extract hash component from url
-    hashStr = urlStr.replace(/^[^#]+#(.*)/, '$1');
+    hashStr = urlStr.replace(/^[^#]+#+(.*)/, '$1');
 
     if (hashStr.length === 0) {
       return false;
     }
 
-    //remove possible # prefix
-    hashStr = hashStr.replace(/^#(.*)/, '$1');
-
     //handle possible unencoded final var called 'uri'
-    if (hashStr.indexOf('uri=') >= 0) {
-      valuesByKey.uri = hashStr.split('uri=')[1];
-      hashStr = hashStr.split('uri=')[0];
+    let uriIndex = hashStr.indexOf('uri=');
+    if (uriIndex >= 0) {
+      valuesByKey.uri = hashStr.substr(uriIndex + 4);
+      hashStr = hashStr.substr(0, uriIndex);
     }
 
     hashStr.split('&').forEach(function(keyPair) {
