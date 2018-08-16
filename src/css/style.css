@@ -455,8 +455,7 @@ a.historyLink:hover {
 body.img-preview-mode .gsTopBar {
   position: relative;
 }
-.suspendedMsg,
-.gsPreview {
+.suspended-page {
   cursor: pointer;
 }
 .suspendedMsg {
