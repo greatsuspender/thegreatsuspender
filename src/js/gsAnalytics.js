@@ -1,7 +1,6 @@
 /*global ga, gsStorage */
-
+// eslint-disable-next-line no-unused-vars
 var gsAnalytics = (function() {
-  // eslint-disable-line no-unused-vars
   'use strict';
 
   function init() {

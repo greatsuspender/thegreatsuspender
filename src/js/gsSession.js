@@ -1,6 +1,6 @@
-/*global chrome, localStorage, tgs, db, gsStorage, gsUtils, gsMessages, gsAnalytics */
+/*global chrome, localStorage, tgs, gsStorage, gsUtils, gsMessages */
+// eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
-  // eslint-disable-line no-unused-vars
   'use strict';
 
   var initialisationMode = false;

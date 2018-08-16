@@ -1,7 +1,6 @@
-/*global tgs, gsUtils, gsSession, gsStorage */
+/*global gsUtils, gsSession, gsStorage */
+// eslint-disable-next-line no-unused-vars
 var gsMessages = {
-  // eslint-disable-line no-unused-vars
-
   INFO: 'info',
   WARNING: 'warning',
   ERROR: 'error',

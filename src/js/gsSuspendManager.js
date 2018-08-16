@@ -1,6 +1,6 @@
 /*global html2canvas, tgs, gsMessages, gsStorage, gsUtils */
+// eslint-disable-next-line no-unused-vars
 var gsSuspendManager = (function() {
-  // eslint-disable-line no-unused-vars
   'use strict';
 
   var MAX_TABS_IN_PROGRESS = 10;
