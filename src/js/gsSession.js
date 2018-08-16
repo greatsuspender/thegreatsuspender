@@ -9,10 +9,12 @@ var gsSession = (function() {
   var sessionId;
   var tabsUrlsToRecover = [];
 
-  //handle special event where an extension update is available
-  chrome.runtime.onUpdateAvailable.addListener(function(details) {
-    prepareForUpdate(details);
-  });
+  function init() {
+    //handle special event where an extension update is available
+    chrome.runtime.onUpdateAvailable.addListener(function(details) {
+      prepareForUpdate(details);
+    });
+  }
 
   function prepareForUpdate(newVersionDetails) {
     var currentVersion = chrome.runtime.getManifest().version;
@@ -54,167 +56,112 @@ var gsSession = (function() {
     return initialisationMode;
   }
 
-  function backgroundScriptsReadyAsPromsied(retries) {
-    retries = retries || 0;
-    if (retries > 300) {
-      // allow 30 seconds :scream:
-      return Promise.reject();
-    }
-    return new Promise(function(resolve) {
-      var isReady =
-        chrome.extension.getBackgroundPage() &&
-        typeof db !== 'undefined' &&
-        typeof gsStorage !== 'undefined' &&
-        typeof gsMessages !== 'undefined' &&
-        typeof gsUtils !== 'undefined' &&
-        typeof gsAnalytics !== 'undefined';
-      // console.log('isReady',isReady);
-      resolve(isReady);
-    }).then(function(isReady) {
-      if (isReady) {
-        return Promise.resolve();
+  function runStartupChecks() {
+    initialisationMode = true;
+    chrome.tabs.query({}, function(tabs) {
+      checkForBrowserStartup(tabs);
+
+      var lastVersion = gsStorage.fetchLastVersion();
+      var curVersion = chrome.runtime.getManifest().version;
+      var newInstall = !lastVersion || lastVersion === '0.0.0';
+
+      // do nothing if in incognito context
+      if (chrome.extension.inIncognitoContext) {
+        //else if restarting the same version
+      } else if (lastVersion === curVersion) {
+        checkForCrashRecovery(tabs, false);
+        gsStorage.trimDbItems();
+
+        //else if they are installing for the first time
+      } else if (newInstall) {
+        gsStorage.setLastVersion(curVersion);
+
+        //show welcome message
+        chrome.tabs.create({
+          url: chrome.extension.getURL('options.html?firstTime'),
+        });
+
+        //else if they are upgrading to a new version
+      } else {
+        gsStorage.setLastVersion(curVersion);
+        findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function(
+          session
+        ) {
+          gsStorage.performMigration(lastVersion);
+          gsStorage.setNoticeVersion('0');
+          checkForCrashRecovery(tabs, true);
+
+          //close any 'update' and 'updated' tabs that may be open
+          chrome.tabs.query(
+            { url: chrome.extension.getURL('update.html') },
+            function(tabs) {
+              chrome.tabs.remove(
+                tabs.map(function(tab) {
+                  return tab.id;
+                })
+              );
+            }
+          );
+          chrome.tabs.query(
+            { url: chrome.extension.getURL('updated.html') },
+            function(tabs) {
+              chrome.tabs.remove(
+                tabs.map(function(tab) {
+                  return tab.id;
+                })
+              );
+
+              //show updated screen
+              chrome.tabs.create({
+                url: chrome.extension.getURL('updated.html'),
+              });
+            }
+          );
+        });
       }
-      return new Promise(function(resolve) {
-        window.setTimeout(resolve, 100);
-      }).then(function() {
-        retries += 1;
-        return backgroundScriptsReadyAsPromsied(retries);
-      });
+
+      if (tabs) {
+        checkTabsForResponsiveness(tabs);
+      }
     });
   }
 
-  function runStartupChecks() {
-    backgroundScriptsReadyAsPromsied()
-      .then(function() {
-        initialisationMode = true;
-        chrome.tabs.query({}, function(tabs) {
-          checkForBrowserStartup(tabs);
-
-          var lastVersion = gsStorage.fetchLastVersion(),
-            curVersion = chrome.runtime.getManifest().version;
-
-          //if version has changed then assume initial install or upgrade
-          if (
-            !chrome.extension.inIncognitoContext &&
-            lastVersion !== curVersion
-          ) {
-            gsStorage.setLastVersion(curVersion);
-
-            //if they are installing for the first time
-            if (!lastVersion || lastVersion === '0.0.0') {
-              //show welcome message
-              chrome.tabs.create({
-                url: chrome.extension.getURL('options.html?firstTime'),
-              });
-
-              //else if they are upgrading to a new version
-            } else {
-              findOrCreateSessionRestorePoint(lastVersion, curVersion).then(
-                function(session) {
-                  gsStorage.performMigration(lastVersion);
-
-                  //reset notice version
-                  gsStorage.setNoticeVersion('0');
-
-                  //clear context menu
-                  tgs.buildContextMenu(false);
-
-                  //recover tabs silently
-                  checkForCrashRecovery(tabs, true);
-
-                  //close any 'update' and 'updated' tabs that may be open
-                  chrome.tabs.query(
-                    { url: chrome.extension.getURL('update.html') },
-                    function(tabs) {
-                      chrome.tabs.remove(
-                        tabs.map(function(tab) {
-                          return tab.id;
-                        })
-                      );
-                    }
-                  );
-                  chrome.tabs.query(
-                    { url: chrome.extension.getURL('updated.html') },
-                    function(tabs) {
-                      chrome.tabs.remove(
-                        tabs.map(function(tab) {
-                          return tab.id;
-                        })
-                      );
-
-                      //show updated screen
-                      chrome.tabs.create({
-                        url: chrome.extension.getURL('updated.html'),
-                      });
-                    }
-                  );
-                }
-              );
-            }
-
-            //else if restarting the same version
-          } else {
-            //check for possible crash
-            checkForCrashRecovery(tabs, false);
-
-            //trim excess dbItems
-            gsStorage.trimDbItems();
-          }
-
-          //add context menu items
-          var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
-          tgs.buildContextMenu(contextMenus);
-
-          //initialise globalCurrentTabId (important that this comes last. cant remember why?!?!)
-          tgs.init();
-
-          //initialise settings (important that this comes last. cant remember why?!?!)
-          gsStorage.initSettings();
-
-          if (tabs) {
-            //make sure the contentscript / suspended script of each tab is responsive
-            //if we are in the process of a chrome restart (and session restore) then it might take a while
-            //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 ...
-            var tabCheckPromises = [];
-            gsUtils.log(
-              'gsSession',
-              '\n\n------------------------------------------------\n' +
-                `Extension initialization started. isProbablyBrowserRestart: ${isProbablyBrowserRestart}\n` +
-                '------------------------------------------------\n\n'
-            );
-            for (const currentTab of tabs) {
-              const timeoutRandomiser =
-                Math.random() * 1000 * (tabs.length / 2);
-              tabCheckPromises.push(
-                queueTabScriptCheck(currentTab, 4 * 1000 + timeoutRandomiser)
-              );
-            }
-            Promise.all(tabCheckPromises)
-              .then(() => {
-                initialisationMode = false;
-                gsUtils.log(
-                  'gsSession',
-                  '\n\n------------------------------------------------\n' +
-                    'Extension initialization finished.\n' +
-                    '------------------------------------------------\n\n'
-                );
-              })
-              .catch(error => {
-                initialisationMode = false;
-                gsUtils.error('gsSession', error);
-                gsUtils.error(
-                  'gsSession',
-                  '\n\n------------------------------------------------\n' +
-                    'Extension initialization FAILED.\n' +
-                    '------------------------------------------------\n\n'
-                );
-              });
-          }
-        });
+  function checkTabsForResponsiveness(tabs) {
+    //make sure the contentscript / suspended script of each tab is responsive
+    //if we are in the process of a chrome restart (and session restore) then it might take a while
+    //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 ...
+    var tabCheckPromises = [];
+    gsUtils.log(
+      'gsSession',
+      '\n\n------------------------------------------------\n' +
+        `Extension initialization started. isProbablyBrowserRestart: ${isProbablyBrowserRestart}\n` +
+        '------------------------------------------------\n\n'
+    );
+    for (const currentTab of tabs) {
+      const timeoutRandomiser = Math.random() * 1000 * (tabs.length / 2);
+      tabCheckPromises.push(
+        queueTabScriptCheck(currentTab, 4 * 1000 + timeoutRandomiser)
+      );
+    }
+    Promise.all(tabCheckPromises)
+      .then(() => {
+        initialisationMode = false;
+        gsUtils.log(
+          'gsSession',
+          '\n\n------------------------------------------------\n' +
+            'Extension initialization finished.\n' +
+            '------------------------------------------------\n\n'
+        );
       })
-      .catch(function(err) {
-        gsUtils.error('gsSession', err);
-        chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
+      .catch(error => {
+        initialisationMode = false;
+        gsUtils.error('gsSession', error);
+        gsUtils.error(
+          'gsSession',
+          '\n\n------------------------------------------------\n' +
+            'Extension initialization FAILED.\n' +
+            '------------------------------------------------\n\n'
+        );
       });
   }
 
@@ -724,13 +671,12 @@ var gsSession = (function() {
   }
 
   return {
-    runStartupChecks: runStartupChecks,
-    getSessionId: getSessionId,
-    handleTabRecovered: handleTabRecovered,
-    isInitialising: isInitialising,
-    isRecoveryMode: isRecoveryMode,
-    recoverLostTabs: recoverLostTabs,
+    init,
+    runStartupChecks,
+    getSessionId,
+    handleTabRecovered,
+    isInitialising,
+    isRecoveryMode,
+    recoverLostTabs,
   };
 })();
-
-gsSession.runStartupChecks();

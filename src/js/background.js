@@ -39,15 +39,57 @@ var tgs = (function() {
     _suspendUnsuspendHotkey,
     _tabFlagsByTabId = {};
 
-  function init() {
-    //initialise lastStationary and lastFocused vars
-    getCurrentlyActiveTab(function(activeTab) {
-      if (activeTab) {
-        _lastStationaryWindowId = activeTab.windowId;
-        _lastFocusedWindowId = activeTab.windowId;
-        _lastStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
-        _lastFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
+  function backgroundScriptsReadyAsPromsied(retries) {
+    retries = retries || 0;
+    if (retries > 300) {
+      // allow 30 seconds :scream:
+      return Promise.reject();
+    }
+    return new Promise(function(resolve) {
+      var isReady =
+        typeof db !== 'undefined' &&
+        typeof gsSession !== 'undefined' &&
+        typeof gsStorage !== 'undefined' &&
+        typeof gsMessages !== 'undefined' &&
+        typeof gsUtils !== 'undefined' &&
+        typeof gsAnalytics !== 'undefined';
+      // console.log('isReady',isReady);
+      resolve(isReady);
+    }).then(function(isReady) {
+      if (isReady) {
+        return Promise.resolve();
       }
+      return new Promise(function(resolve) {
+        window.setTimeout(resolve, 100);
+      }).then(function() {
+        retries += 1;
+        return backgroundScriptsReadyAsPromsied(retries);
+      });
+    });
+  }
+
+  function initAsPromised() {
+    return new Promise(function(resolve) {
+      addCommandListeners();
+      addChromeListeners();
+      addMiscListeners();
+      startNoticeCheckerJob();
+
+      //add context menu items
+      buildContextMenu(false);
+      var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
+      buildContextMenu(contextMenus);
+
+      //initialise lastStationary and lastFocused vars
+      getCurrentlyActiveTab(function(activeTab) {
+        if (activeTab) {
+          _lastStationaryWindowId = activeTab.windowId;
+          _lastFocusedWindowId = activeTab.windowId;
+          _lastStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
+          _lastFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
+        }
+        resolve();
+      });
     });
   }
 
@@ -1050,23 +1092,25 @@ var tgs = (function() {
 
   //HANDLERS FOR KEYBOARD SHORTCUTS
 
-  chrome.commands.onCommand.addListener(function(command) {
-    if (command === '1-suspend-tab') {
-      toggleSuspendedStateOfHighlightedTab();
-    } else if (command === '1b-pause-tab') {
-      temporarilyWhitelistHighlightedTab();
-    } else if (command === '2-unsuspend-tab') {
-      unsuspendHighlightedTab();
-    } else if (command === '3-suspend-active-window') {
-      suspendAllTabs();
-    } else if (command === '4-unsuspend-active-window') {
-      unsuspendAllTabs();
-    } else if (command === '5-suspend-all-windows') {
-      suspendAllTabsInAllWindows();
-    } else if (command === '6-unsuspend-all-windows') {
-      unsuspendAllTabsInAllWindows();
-    }
-  });
+  function addCommandListeners() {
+    chrome.commands.onCommand.addListener(function(command) {
+      if (command === '1-suspend-tab') {
+        toggleSuspendedStateOfHighlightedTab();
+      } else if (command === '1b-pause-tab') {
+        temporarilyWhitelistHighlightedTab();
+      } else if (command === '2-unsuspend-tab') {
+        unsuspendHighlightedTab();
+      } else if (command === '3-suspend-active-window') {
+        suspendAllTabs();
+      } else if (command === '4-unsuspend-active-window') {
+        unsuspendAllTabs();
+      } else if (command === '5-suspend-all-windows') {
+        suspendAllTabsInAllWindows();
+      } else if (command === '6-unsuspend-all-windows') {
+        unsuspendAllTabsInAllWindows();
+      }
+    });
+  }
 
   //HANDLERS FOR CONTENT SCRIPT MESSAGE REQUESTS
 
@@ -1112,177 +1156,200 @@ var tgs = (function() {
     return false;
   }
 
-  //attach listener to runtime
-  chrome.runtime.onMessage.addListener(contentScriptMessageRequestListener);
-  //attach listener to runtime for external messages, to allow
-  //interoperability with other extensions in the manner of an API
-  chrome.runtime.onMessageExternal.addListener(
-    contentScriptMessageRequestListener
-  );
+  function addChromeListeners() {
+    //attach listener to runtime
+    chrome.runtime.onMessage.addListener(contentScriptMessageRequestListener);
+    //attach listener to runtime for external messages, to allow
+    //interoperability with other extensions in the manner of an API
+    chrome.runtime.onMessageExternal.addListener(
+      contentScriptMessageRequestListener
+    );
 
-  chrome.windows.onFocusChanged.addListener(function(windowId) {
-    handleWindowFocusChanged(windowId);
-  });
-  chrome.tabs.onActivated.addListener(function(activeInfo) {
-    handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
-  });
-  chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
-    updateTabIdReferences(addedTabId, removedTabId);
-  });
-  chrome.tabs.onCreated.addListener(function(tab) {
-    gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
-    queueSessionTimer();
-  });
-  chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    gsUtils.log(tabId, 'tab removed.');
-    queueSessionTimer();
-    clearTabFlagsForTabId(tabId);
-  });
-  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (!changeInfo) return;
-    if (
-      !changeInfo.hasOwnProperty('url') &&
-      !changeInfo.hasOwnProperty('status') &&
-      !changeInfo.hasOwnProperty('audible') &&
-      !changeInfo.hasOwnProperty('pinned') &&
-      !changeInfo.hasOwnProperty('discarded')
-    ) {
-      return;
-    }
-
-    gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url, changeInfo);
-
-    // if url has changed
-    if (changeInfo.url) {
-      // test for special case of a successful donation
-      if (changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
-        if (!gsStorage.getOption(gsStorage.NO_NAG)) {
-          gsStorage.setOption(gsStorage.NO_NAG, true);
-        }
-        chrome.tabs.update(tabId, {
-          url: chrome.extension.getURL('thanks.html'),
-        });
+    chrome.windows.onFocusChanged.addListener(function(windowId) {
+      handleWindowFocusChanged(windowId);
+    });
+    chrome.tabs.onActivated.addListener(function(activeInfo) {
+      handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId);
+    });
+    chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
+      updateTabIdReferences(addedTabId, removedTabId);
+    });
+    chrome.tabs.onCreated.addListener(function(tab) {
+      gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
+      queueSessionTimer();
+    });
+    chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+      gsUtils.log(tabId, 'tab removed.');
+      queueSessionTimer();
+      clearTabFlagsForTabId(tabId);
+    });
+    chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+      if (!changeInfo) return;
+      if (
+        !changeInfo.hasOwnProperty('url') &&
+        !changeInfo.hasOwnProperty('status') &&
+        !changeInfo.hasOwnProperty('audible') &&
+        !changeInfo.hasOwnProperty('pinned') &&
+        !changeInfo.hasOwnProperty('discarded')
+      ) {
         return;
       }
+
+      gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url, changeInfo);
+
+      // if url has changed
+      if (changeInfo.url) {
+        // test for special case of a successful donation
+        if (changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
+          if (!gsStorage.getOption(gsStorage.NO_NAG)) {
+            gsStorage.setOption(gsStorage.NO_NAG, true);
+          }
+          chrome.tabs.update(tabId, {
+            url: chrome.extension.getURL('thanks.html'),
+          });
+          return;
+        }
+        queueSessionTimer();
+      }
+
+      let unsuspendOnReloadUrl = getTabFlagForTabId(
+        tab.id,
+        UNSUSPEND_ON_RELOAD_URL
+      );
+      setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
+      if (gsUtils.isSuspendedTab(tab, true)) {
+        handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl);
+      } else if (gsUtils.isNormalTab(tab)) {
+        handleUnsuspendedTabChanged(tab, changeInfo);
+      }
+    });
+    chrome.windows.onCreated.addListener(function(window) {
+      gsUtils.log(window.id, 'window created.');
       queueSessionTimer();
-    }
 
-    let unsuspendOnReloadUrl = getTabFlagForTabId(
-      tab.id,
-      UNSUSPEND_ON_RELOAD_URL
-    );
-    setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
-    if (gsUtils.isSuspendedTab(tab, true)) {
-      handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl);
-    } else if (gsUtils.isNormalTab(tab)) {
-      handleUnsuspendedTabChanged(tab, changeInfo);
-    }
-  });
-  chrome.windows.onCreated.addListener(function(window) {
-    gsUtils.log(window.id, 'window created.');
-    queueSessionTimer();
+      if (requestNotice()) {
+        chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
+      }
+    });
+    chrome.windows.onRemoved.addListener(function() {
+      gsUtils.log('background', 'window removed.');
+      queueSessionTimer();
+    });
 
-    if (requestNotice()) {
-      chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
-    }
-  });
-  chrome.windows.onRemoved.addListener(function() {
-    gsUtils.log('background', 'window removed.');
-    queueSessionTimer();
-  });
+    //tidy up history items as they are created
+    chrome.history.onVisited.addListener(function(historyItem) {
+      var url = historyItem.url;
 
-  //tidy up history items as they are created
-  chrome.history.onVisited.addListener(function(historyItem) {
-    var url = historyItem.url;
+      if (gsUtils.isSuspendedUrl(url, true)) {
+        url = gsUtils.getSuspendedUrl(url);
 
-    if (gsUtils.isSuspendedUrl(url, true)) {
-      url = gsUtils.getSuspendedUrl(url);
-
-      //remove suspended tab history item
-      chrome.history.deleteUrl({ url: historyItem.url });
-      chrome.history.addUrl({ url: url }, function() {
-        if (chrome.runtime.lastError) {
-          gsUtils.error('background', chrome.runtime.lastError);
-        }
-      });
-    }
-  });
-
-  //add listener for battery state changes
-  if (navigator.getBattery) {
-    navigator.getBattery().then(function(battery) {
-      _isCharging = battery.charging;
-
-      battery.onchargingchange = function() {
-        _isCharging = battery.charging;
-        gsUtils.log('background', `_isCharging: ${_isCharging}`);
-        setIconStatusForActiveTab();
-        //restart timer on all normal tabs
-        //NOTE: some tabs may have been prevented from suspending when computer was charging
-        if (
-          !_isCharging &&
-          gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)
-        ) {
-          gsMessages.sendResetTimerToAllContentScripts();
-        }
-      };
+        //remove suspended tab history item
+        chrome.history.deleteUrl({ url: historyItem.url });
+        chrome.history.addUrl({ url: url }, function() {
+          if (chrome.runtime.lastError) {
+            gsUtils.error('background', chrome.runtime.lastError);
+          }
+        });
+      }
     });
   }
 
-  //add listeners for online/offline state changes
-  window.addEventListener('online', function() {
-    gsUtils.log('background', 'Internet is online.');
-    //restart timer on all normal tabs
-    //NOTE: some tabs may have been prevented from suspending when internet was offline
-    if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
-      gsMessages.sendResetTimerToAllContentScripts();
-    }
-    setIconStatusForActiveTab();
-  });
-  window.addEventListener('offline', function() {
-    gsUtils.log('background', 'Internet is offline.');
-    setIconStatusForActiveTab();
-  });
+  function addMiscListeners() {
+    //add listener for battery state changes
+    if (navigator.getBattery) {
+      navigator.getBattery().then(function(battery) {
+        _isCharging = battery.charging;
 
-  //start job to check for notices (twice a day)
-  var noticeCheckInterval = 1000 * 60 * 60 * 12;
-  checkForNotices();
-  window.setInterval(checkForNotices, noticeCheckInterval);
+        battery.onchargingchange = function() {
+          _isCharging = battery.charging;
+          gsUtils.log('background', `_isCharging: ${_isCharging}`);
+          setIconStatusForActiveTab();
+          //restart timer on all normal tabs
+          //NOTE: some tabs may have been prevented from suspending when computer was charging
+          if (
+            !_isCharging &&
+            gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)
+          ) {
+            gsMessages.sendResetTimerToAllContentScripts();
+          }
+        };
+      });
+    }
+
+    //add listeners for online/offline state changes
+    window.addEventListener('online', function() {
+      gsUtils.log('background', 'Internet is online.');
+      //restart timer on all normal tabs
+      //NOTE: some tabs may have been prevented from suspending when internet was offline
+      if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
+        gsMessages.sendResetTimerToAllContentScripts();
+      }
+      setIconStatusForActiveTab();
+    });
+    window.addEventListener('offline', function() {
+      gsUtils.log('background', 'Internet is offline.');
+      setIconStatusForActiveTab();
+    });
+  }
+
+  function startNoticeCheckerJob() {
+    //start job to check for notices (twice a day)
+    var noticeCheckInterval = 1000 * 60 * 60 * 12;
+    checkForNotices();
+    window.setInterval(checkForNotices, noticeCheckInterval);
+  }
 
   return {
-    TEMP_WHITELIST_ON_RELOAD: TEMP_WHITELIST_ON_RELOAD,
-    UNSUSPEND_ON_RELOAD_URL: UNSUSPEND_ON_RELOAD_URL,
-    DISCARD_ON_LOAD: DISCARD_ON_LOAD,
-    SCROLL_POS: SCROLL_POS,
-    CREATE_TIMESTAMP: SPAWNED_TAB_CREATE_TIMESTAMP,
-    getTabFlagForTabId: getTabFlagForTabId,
-    setTabFlagForTabId: setTabFlagForTabId,
+    TEMP_WHITELIST_ON_RELOAD,
+    UNSUSPEND_ON_RELOAD_URL,
+    DISCARD_ON_LOAD,
+    SCROLL_POS,
+    getTabFlagForTabId,
+    setTabFlagForTabId,
 
-    init: init,
-    requestNotice: requestNotice,
-    clearNotice: clearNotice,
-    buildContextMenu: buildContextMenu,
-    resuspendSuspendedTab: resuspendSuspendedTab,
-    getActiveTabStatus: getActiveTabStatus,
-    getDebugInfo: getDebugInfo,
-    calculateTabStatus: calculateTabStatus,
-    isCharging: isCharging,
-    isCurrentStationaryTab: isCurrentStationaryTab,
-    isCurrentFocusedTab: isCurrentFocusedTab,
+    backgroundScriptsReadyAsPromsied,
+    initAsPromised,
+    requestNotice,
+    clearNotice,
+    buildContextMenu,
+    resuspendSuspendedTab,
+    getActiveTabStatus,
+    getDebugInfo,
+    calculateTabStatus,
+    isCharging,
+    isCurrentStationaryTab,
+    isCurrentFocusedTab,
 
-    initialiseUnsuspendedTab: initialiseUnsuspendedTab,
-    initialiseSuspendedTab: initialiseSuspendedTab,
-    unsuspendTab: unsuspendTab,
-    unsuspendHighlightedTab: unsuspendHighlightedTab,
-    unwhitelistHighlightedTab: unwhitelistHighlightedTab,
-    undoTemporarilyWhitelistHighlightedTab: undoTemporarilyWhitelistHighlightedTab,
-    suspendHighlightedTab: suspendHighlightedTab,
-    suspendAllTabs: suspendAllTabs,
-    unsuspendAllTabs: unsuspendAllTabs,
-    suspendSelectedTabs: suspendSelectedTabs,
-    unsuspendSelectedTabs: unsuspendSelectedTabs,
-    whitelistHighlightedTab: whitelistHighlightedTab,
-    temporarilyWhitelistHighlightedTab: temporarilyWhitelistHighlightedTab,
-    unsuspendAllTabsInAllWindows: unsuspendAllTabsInAllWindows,
+    initialiseUnsuspendedTab,
+    initialiseSuspendedTab,
+    unsuspendTab,
+    unsuspendHighlightedTab,
+    unwhitelistHighlightedTab,
+    undoTemporarilyWhitelistHighlightedTab,
+    suspendHighlightedTab,
+    suspendAllTabs,
+    unsuspendAllTabs,
+    suspendSelectedTabs,
+    unsuspendSelectedTabs,
+    whitelistHighlightedTab,
+    temporarilyWhitelistHighlightedTab,
+    unsuspendAllTabsInAllWindows,
   };
 })();
+
+tgs
+  .backgroundScriptsReadyAsPromsied()
+  .then(() => gsStorage.initSettingsAsPromised())
+  .then(() => tgs.initAsPromised())
+  .then(function() {
+    gsAnalytics.init();
+    gsAnalytics.updateDimensions();
+    gsAnalytics.reportPageView('background.html');
+    gsSuspendManager.init();
+    gsSession.init();
+    gsSession.runStartupChecks(); //async
+  })
+  .catch(error => {
+    gsUtils.error('background', error);
+    chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
+  });

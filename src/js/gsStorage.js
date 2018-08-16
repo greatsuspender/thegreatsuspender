@@ -72,84 +72,99 @@ var gsStorage = {
    */
 
   //populate localstorage settings with sync settings where undefined
-  initSettings: function() {
+  initSettingsAsPromised: function() {
     var self = this;
-    var rawLocalSettings;
-    try {
-      rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings'));
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'Failed to parse gsSettings: ',
-        localStorage.getItem('gsSettings')
-      );
-    }
-    rawLocalSettings = rawLocalSettings || {};
 
-    var defaultSettings = gsStorage.getSettingsDefaults();
-    var defaultKeys = Object.keys(defaultSettings);
-    var unprocessedRawKeys = Object.keys(rawLocalSettings);
+    return new Promise(function(resolve) {
+      var defaultSettings = gsStorage.getSettingsDefaults();
+      var defaultKeys = Object.keys(defaultSettings);
+      chrome.storage.sync.get(defaultKeys, function(syncedSettings) {
+        gsUtils.log('gsStorage', 'syncedSettings on init: ', syncedSettings);
 
-    var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
-    chrome.storage.sync.get(defaultKeys, function(syncedSettings) {
-      gsUtils.log('gsStorage', 'syncedSettings on init: ', syncedSettings);
-
-      var mergedSettings = {};
-      for (const key of defaultKeys) {
-        // if synced setting exists and local setting does not exist or syncing is turned on
-        // then overwrite with synced value
-        if (
-          key !== self.SYNC_SETTINGS &&
-          syncedSettings.hasOwnProperty(key) &&
-          (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)
-        ) {
-          mergedSettings[key] = syncedSettings[key];
-        }
-        //fallback on rawLocalSettings
-        if (!mergedSettings.hasOwnProperty(key)) {
-          mergedSettings[key] = rawLocalSettings[key];
-        }
-        //fallback on defaultSettings
-        if (
-          typeof mergedSettings[key] === 'undefined' ||
-          mergedSettings[key] === null
-        ) {
+        var rawLocalSettings;
+        try {
+          rawLocalSettings = JSON.parse(localStorage.getItem('gsSettings'));
+        } catch (e) {
           gsUtils.error(
             'gsStorage',
-            'Missing key: ' + key + '! Will init with default.'
+            'Failed to parse gsSettings: ',
+            localStorage.getItem('gsSettings')
           );
-          mergedSettings[key] = defaultSettings[key];
         }
-        unprocessedRawKeys.splice(unprocessedRawKeys.indexOf(key), 1);
-      }
-      self.saveSettings(mergedSettings);
-
-      // test for settings that don't exist in defaults
-      for (var unprocessedRawKey of unprocessedRawKeys) {
-        gsUtils.error(
-          'gsStorage',
-          'Settings contain unused key: ' +
-            unprocessedRawKey +
-            '! Should this be in defaults?'
-        );
-      }
-
-      // if any of the new settings are different to those in sync, then trigger a resync
-      var triggerResync = false;
-      for (const key of defaultKeys) {
-        if (
-          key !== self.SYNC_SETTINGS &&
-          syncedSettings[key] !== mergedSettings[key]
-        ) {
-          triggerResync = true;
+        if (!rawLocalSettings) {
+          rawLocalSettings = {};
+        } else {
+          //if we have some rawLocalSettings but SYNC_SETTINGS is not defined
+          //then define it as FALSE (as opposed to default of TRUE)
+          rawLocalSettings[self.SYNC_SETTINGS] =
+            rawLocalSettings[self.SYNC_SETTINGS] || false;
         }
-      }
-      if (triggerResync) {
-        self.syncSettings(mergedSettings);
-      }
+        var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
+        var unprocessedRawKeys = Object.keys(rawLocalSettings);
+
+        var mergedSettings = {};
+        for (const key of defaultKeys) {
+          // if synced setting exists and local setting does not exist or syncing is turned on
+          // then overwrite with synced value
+          if (
+            key !== self.SYNC_SETTINGS &&
+            syncedSettings.hasOwnProperty(key) &&
+            (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)
+          ) {
+            mergedSettings[key] = syncedSettings[key];
+          }
+          //fallback on rawLocalSettings
+          if (!mergedSettings.hasOwnProperty(key)) {
+            mergedSettings[key] = rawLocalSettings[key];
+          }
+          //fallback on defaultSettings
+          if (
+            typeof mergedSettings[key] === 'undefined' ||
+            mergedSettings[key] === null
+          ) {
+            gsUtils.error(
+              'gsStorage',
+              'Missing key: ' + key + '! Will init with default.'
+            );
+            mergedSettings[key] = defaultSettings[key];
+          }
+          unprocessedRawKeys.splice(unprocessedRawKeys.indexOf(key), 1);
+        }
+        self.saveSettings(mergedSettings);
+
+        // test for settings that don't exist in defaults
+        for (var unprocessedRawKey of unprocessedRawKeys) {
+          gsUtils.error(
+            'gsStorage',
+            'Settings contain unused key: ' +
+              unprocessedRawKey +
+              '! Should this be in defaults?'
+          );
+        }
+
+        // if any of the new settings are different to those in sync, then trigger a resync
+        var triggerResync = false;
+        for (const key of defaultKeys) {
+          if (
+            key !== self.SYNC_SETTINGS &&
+            syncedSettings[key] !== mergedSettings[key]
+          ) {
+            triggerResync = true;
+          }
+        }
+        if (triggerResync) {
+          self.syncSettings();
+        }
+
+        self.addSettingsSyncListener();
+        resolve();
+      });
     });
+  },
 
-    // Listen for changes to synced settings
+  // Listen for changes to synced settings
+  addSettingsSyncListener: function() {
+    var self = this;
     chrome.storage.onChanged.addListener(function(remoteSettings, namespace) {
       if (namespace !== 'sync' || !remoteSettings) {
         return;
@@ -191,7 +206,12 @@ var gsStorage = {
   //due to migration issues and new settings being added, i have built in some redundancy
   //here so that getOption will always return a valid value.
   getOption: function(prop) {
-    return this.getSettings()[prop];
+    var settings = this.getSettings();
+    if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
+      settings[prop] = this.getSettingsDefaults()[prop];
+      this.saveSettings(settings);
+    }
+    return settings[prop];
   },
 
   setOption: function(prop, value) {
@@ -212,7 +232,6 @@ var gsStorage = {
         localStorage.getItem('gsSettings')
       );
     }
-
     if (!settings) {
       settings = this.getSettingsDefaults();
       this.saveSettings(settings);
@@ -276,6 +295,7 @@ var gsStorage = {
       );
     }
   },
+  isNewInstall: function() {},
 
   fetchNoticeVersion: function() {
     var lastNoticeVersion;
@@ -596,7 +616,7 @@ var gsStorage = {
           return gsStorage.addToSavedSessions(currentSession);
         }
       })
-      .then(function() {
+      .finally(function() {
         return currentSession;
       });
   },
@@ -815,8 +835,11 @@ var gsStorage = {
     var self = this,
       server;
 
+    var extensionName = chrome.runtime.getManifest().name || '';
+
     var major = parseInt(oldVersion.split('.')[0] || 0),
-      minor = parseInt(oldVersion.split('.')[1] || 0);
+      minor = parseInt(oldVersion.split('.')[1] || 0),
+      testMode = extensionName.includes('Test');
     // patch = parseInt(oldVersion.split('.')[2] || 0);
 
     //perform migrated history fixup
@@ -858,12 +881,8 @@ var gsStorage = {
         this.setOption(this.SCREEN_CAPTURE, '0');
       }
     }
-    if (major < 6 || (major === 6 && minor < 31)) {
+    if (major < 6 || (major === 6 && minor < 31) || testMode) {
       // if (oldVersion < 6.31)
-      // When migrating old settings, disable sync by default.
-      // For new installs, we want this to default to on.
-      this.setOption(this.SYNC_SETTINGS, false);
-
       chrome.cookies.getAll({}, function(cookies) {
         var scrollPosByTabId = {};
         cookies.forEach(function(cookie) {

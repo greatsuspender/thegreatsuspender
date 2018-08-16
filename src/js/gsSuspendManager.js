@@ -5,10 +5,18 @@ var gsSuspendManager = (function() {
 
   var MAX_TABS_IN_PROGRESS = 10;
   var IMAGE_RENDER_TIMEOUT = 60 * 1000;
-  updateQueueParameters();
 
   var processSuspensionQueueTimer;
   var tabToSuspendDetailsByTabId = {};
+
+  function init() {
+    var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    var forceScreenCapture = gsStorage.getOption(
+      gsStorage.SCREEN_CAPTURE_FORCE
+    );
+    MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
+    IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
+  }
 
   function queueTabForSuspension(tab, forceLevel) {
     if (typeof tab === 'undefined') return;
@@ -107,15 +115,6 @@ var gsSuspendManager = (function() {
 
   function markTabAsSuspended(tab) {
     delete tabToSuspendDetailsByTabId[tab.id];
-  }
-
-  function updateQueueParameters() {
-    var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-    var forceScreenCapture = gsStorage.getOption(
-      gsStorage.SCREEN_CAPTURE_FORCE
-    );
-    MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
-    IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
   }
 
   function processRequestTabSuspensionQueue() {
@@ -405,6 +404,7 @@ var gsSuspendManager = (function() {
       });
   }
   return {
+    init,
     queueTabForSuspension,
     unqueueTabForSuspension,
     markTabAsSuspended,
@@ -412,6 +412,5 @@ var gsSuspendManager = (function() {
     forceTabSuspension,
     forceTabDiscardation,
     undiscardTab,
-    updateQueueParameters,
   };
 })();

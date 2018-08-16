@@ -4,6 +4,12 @@ var gsAnalytics = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
 
+  function init() {
+    ga('create', 'UA-52338347-1', 'auto');
+    ga('set', 'checkProtocolTask', function() {});
+    ga('require', 'displayfeatures');
+  }
+
   function reportPageView(pageName) {
     ga('send', 'pageview', pageName);
   }
@@ -19,9 +25,10 @@ var gsAnalytics = (function() {
   }
 
   return {
-    reportPageView: reportPageView,
-    reportEvent: reportEvent,
-    updateDimensions: updateDimensions,
+    init,
+    reportPageView,
+    reportEvent,
+    updateDimensions,
   };
 })();
 
@@ -44,10 +51,3 @@ var gsAnalytics = (function() {
   'https://www.google-analytics.com/analytics.js',
   'ga'
 );
-
-ga('create', 'UA-52338347-1', 'auto');
-ga('set', 'checkProtocolTask', function() {});
-ga('require', 'displayfeatures');
-
-gsAnalytics.updateDimensions();
-gsAnalytics.reportPageView('background.html');
