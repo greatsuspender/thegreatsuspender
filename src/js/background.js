@@ -157,56 +157,70 @@ var tgs = (function() {
     });
   }
 
-  function unwhitelistHighlightedTab() {
+  function unwhitelistHighlightedTab(callback) {
     getCurrentlyActiveTab(function(activeTab) {
       if (activeTab) {
         gsUtils.removeFromWhitelist(activeTab.url);
         calculateTabStatus(activeTab, null, function(status) {
           setIconStatus(status, activeTab.id);
+          if (callback) callback(status);
         });
+      } else {
+        if (callback) callback(gsUtils.STATUS_UNKNOWN);
       }
     });
   }
 
-  function temporarilyWhitelistHighlightedTab() {
+  function toggleTempWhitelistStateOfHighlightedTab(callback) {
     getCurrentlyActiveTab(function(activeTab) {
-      if (activeTab) {
-        if (gsUtils.isSuspendedTab(activeTab)) {
-          gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id);
-        } else {
+      if (!activeTab) {
+        if (callback) callback(status);
+        return;
+      }
+      if (gsUtils.isSuspendedTab(activeTab)) {
+        gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id);
+        if (callback) callback(gsUtils.STATUS_UNKNOWN);
+        return;
+      }
+      calculateTabStatus(activeTab, null, function(status) {
+        if (
+          status === gsUtils.STATUS_ACTIVE ||
+          status === gsUtils.STATUS_NORMAL
+        ) {
           gsMessages.sendTemporaryWhitelistToContentScript(
             activeTab.id,
             function(response) {
               var contentScriptStatus =
                 response && response.status ? response.status : null;
               calculateTabStatus(activeTab, contentScriptStatus, function(
-                status
+                newStatus
               ) {
-                setIconStatus(status, activeTab.id);
+                setIconStatus(newStatus, activeTab.id);
+                if (callback) callback(newStatus);
               });
             }
           );
+        } else if (
+          status === gsUtils.STATUS_TEMPWHITELIST ||
+          status === gsUtils.STATUS_FORMINPUT
+        ) {
+          gsMessages.sendUndoTemporaryWhitelistToContentScript(
+            activeTab.id,
+            function(response) {
+              var contentScriptStatus =
+                response && response.status ? response.status : null;
+              calculateTabStatus(activeTab, contentScriptStatus, function(
+                newStatus
+              ) {
+                setIconStatus(newStatus, activeTab.id);
+                if (callback) callback(newStatus);
+              });
+            }
+          );
+        } else {
+          if (callback) callback(status);
         }
-      }
-    });
-  }
-
-  function undoTemporarilyWhitelistHighlightedTab() {
-    getCurrentlyActiveTab(function(activeTab) {
-      if (activeTab) {
-        gsMessages.sendUndoTemporaryWhitelistToContentScript(
-          activeTab.id,
-          function(response) {
-            var contentScriptStatus =
-              response && response.status ? response.status : null;
-            calculateTabStatus(activeTab, contentScriptStatus, function(
-              status
-            ) {
-              setIconStatus(status, activeTab.id);
-            });
-          }
-        );
-      }
+      });
     });
   }
 
@@ -1022,9 +1036,7 @@ var tgs = (function() {
       chrome.contextMenus.removeAll();
     } else {
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_background_open_link_in_suspended_tab'
-        ),
+        title: chrome.i18n.getMessage('js_context_open_link_in_suspended_tab'),
         contexts: ['link'],
         onclick: function(info, tab) {
           openLinkInSuspendedTab(tab, info.linkUrl);
@@ -1032,22 +1044,22 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_suspend_tab'),
+        title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
         contexts: allContexts,
-        onclick: suspendHighlightedTab,
+        onclick: toggleSuspendedStateOfHighlightedTab,
       });
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_dont_suspend_now'),
+        title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
         contexts: allContexts,
-        onclick: temporarilyWhitelistHighlightedTab,
+        onclick: toggleTempWhitelistStateOfHighlightedTab,
       });
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_never_suspend_page'),
+        title: chrome.i18n.getMessage('js_context_never_suspend_page'),
         contexts: allContexts,
         onclick: () => whitelistHighlightedTab(true),
       });
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_never_suspend_domain'),
+        title: chrome.i18n.getMessage('js_context_never_suspend_domain'),
         contexts: allContexts,
         onclick: () => whitelistHighlightedTab(false),
       });
@@ -1059,14 +1071,14 @@ var tgs = (function() {
 
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
-          'js_background_suspend_other_tabs_in_window'
+          'js_context_suspend_other_tabs_in_window'
         ),
         contexts: allContexts,
         onclick: suspendAllTabs,
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
-          'js_background_unsuspend_all_tabs_in_window'
+          'js_context_unsuspend_all_tabs_in_window'
         ),
         contexts: allContexts,
         onclick: unsuspendAllTabs,
@@ -1078,12 +1090,12 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_force_suspend_all_tabs'),
+        title: chrome.i18n.getMessage('js_context_force_suspend_all_tabs'),
         contexts: allContexts,
         onclick: suspendAllTabsInAllWindows,
       });
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_background_unsuspend_all_tabs'),
+        title: chrome.i18n.getMessage('js_context_unsuspend_all_tabs'),
         contexts: allContexts,
         onclick: unsuspendAllTabsInAllWindows,
       });
@@ -1094,12 +1106,10 @@ var tgs = (function() {
 
   function addCommandListeners() {
     chrome.commands.onCommand.addListener(function(command) {
-      if (command === '1-suspend-tab') {
+      if (command === '1-toggle-suspend-tab') {
         toggleSuspendedStateOfHighlightedTab();
-      } else if (command === '1b-pause-tab') {
-        temporarilyWhitelistHighlightedTab();
-      } else if (command === '2-unsuspend-tab') {
-        unsuspendHighlightedTab();
+      } else if (command === '2-toggle-temp-whitelist-tab') {
+        toggleTempWhitelistStateOfHighlightedTab();
       } else if (command === '3-suspend-active-window') {
         suspendAllTabs();
       } else if (command === '4-unsuspend-active-window') {
@@ -1325,14 +1335,13 @@ var tgs = (function() {
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,
-    undoTemporarilyWhitelistHighlightedTab,
+    toggleTempWhitelistStateOfHighlightedTab,
     suspendHighlightedTab,
     suspendAllTabs,
     unsuspendAllTabs,
     suspendSelectedTabs,
     unsuspendSelectedTabs,
     whitelistHighlightedTab,
-    temporarilyWhitelistHighlightedTab,
     unsuspendAllTabsInAllWindows,
   };
 })();

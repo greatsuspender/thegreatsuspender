@@ -1,7 +1,7 @@
 {
   "name": "__MSG_ext_extension_name__",
   "description": "__MSG_ext_extension_description__",
-  "version": "7.0.98",
+  "version": "7.0.99",
   "default_locale": "en",
   "permissions": [
     "tabs",
@@ -48,15 +48,14 @@
   "minimum_chrome_version": "55",
 
   "commands": {
-    "1-suspend-tab": {
-      "description": "__MSG_ext_cmd_suspend_tab_description__",
+    "1-toggle-suspend-tab": {
+      "description": "__MSG_ext_cmd_toggle_tab_suspension_description__",
+      "tooltip": "aaaaaa",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
-    "1b-pause-tab": {
-      "description": "__MSG_ext_cmd_pause_tab_description__"
-    },
-    "2-unsuspend-tab": {
-      "description": "__MSG_ext_cmd_unsuspend_tab_description__"
+    "2-toggle-temp-whitelist-tab": {
+      "description": "__MSG_ext_cmd_toggle_tab_pause_description__",
+      "tooltip": "bbbbbb"
     },
     "3-suspend-active-window": {
       "description": "__MSG_ext_cmd_suspend_active_window_description__"

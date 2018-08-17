@@ -13,10 +13,7 @@
     //populate keyboard shortcuts
     chrome.commands.getAll(function(commands) {
       commands.forEach(function(command) {
-        if (
-          command.name !== '_execute_browser_action' &&
-          command.name !== '2-unsuspend-tab'
-        ) {
+        if (command.name !== '_execute_browser_action') {
           var shortcut =
             command.shortcut !== ''
               ? command.shortcut

@@ -221,16 +221,16 @@
         status === gsUtils.STATUS_NORMAL ||
         status === gsUtils.STATUS_ACTIVE
       ) {
-        tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_SUSPENDED) {
-        tgsHanderFunc = tgs.temporarilyWhitelistHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
       } else if (
         status === gsUtils.STATUS_FORMINPUT ||
         status === gsUtils.STATUS_TEMPWHITELIST
       ) {
-        tgsHanderFunc = tgs.undoTemporarilyWhitelistHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       }
 
       if (globalActionElListener) {
@@ -238,8 +238,7 @@
       }
       if (tgsHanderFunc) {
         globalActionElListener = function(e) {
-          tgsHanderFunc();
-          getTabStatusAsPromise(0, false).then(function(newTabStatus) {
+          tgsHanderFunc(function(newTabStatus) {
             setStatus(newTabStatus);
           });
           // window.close();

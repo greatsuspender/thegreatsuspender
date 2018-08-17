@@ -3,13 +3,12 @@
     "ext_extension_name": { "message": "The Great Suspender" },
     "ext_extension_description": { "message": "冻结暂时用不到的分页，达到系统资源释放。" }, //Frozen temporary useless paging, to release system resources.
     "ext_default_title": { "message": "The Great Suspender" },
-    "ext_cmd_suspend_tab_description": { "message": "冻结/恢复當前分页" }, //Freeze / resume the current page
-    "ext_cmd_unsuspend_tab_description": { "message": "恢复目前的分页" }, //Recover the current tab
+    "ext_cmd_toggle_tab_suspension_description": { "message": "冻结/恢复當前分页" }, //Freeze/resume the current page
+    "ext_cmd_toggle_tab_pause_description": { "message": "暂停/取消暂停当前页面的冻结" }, //? Pause/unpause the freeze of the current page
     "ext_cmd_suspend_active_window_description": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
     "ext_cmd_unsuspend_active_window_description": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
     "ext_cmd_suspend_all_windows_description": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
     "ext_cmd_unsuspend_all_windows_description": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
-    "ext_cmd_pause_tab_description": { "message": "现在不要冻结當前分页" }, //? Do not freeze current page now
 
     // About page
     "html_about_title": { "message": "支援" }, //support
@@ -198,15 +197,15 @@
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
 
     // Contextual menu (Javascript code)
-    "js_background_open_link_in_suspended_tab": { "message": "在新的冻结分页打開連結" }, //Open the link in the new Frozen tab
-    "js_background_suspend_tab": { "message": "冻结此分页" }, //Freeze this tab
-    "js_background_dont_suspend_now": { "message": "現在还不要冻结" }, //Do not freeze now
-    "js_background_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
-    "js_background_never_suspend_page": { "message": "永远不要冻结此網页" }, //Never freeze this web page
-    "js_background_suspend_other_tabs_in_window": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
-    "js_background_unsuspend_all_tabs_in_window": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
-    "js_background_force_suspend_all_tabs": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
-    "js_background_unsuspend_all_tabs": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
+    "js_context_open_link_in_suspended_tab": { "message": "在新的冻结分页打開連結" }, //Open the link in the new Frozen tab
+    "js_context_toggle_suspend_state": { "message": "冻结/恢复此页面" }, //? Freeze/restore this page
+    "js_context_toggle_pause_suspension": { "message": "暂停/取消暂停此页面的冻结" }, //? Pause/unpause the freezing of this page
+    "js_context_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
+    "js_context_never_suspend_page": { "message": "永远不要冻结此網页" }, //Never freeze this web page
+    "js_context_suspend_other_tabs_in_window": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "js_context_unsuspend_all_tabs_in_window": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
+    "js_context_force_suspend_all_tabs": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
+    "js_context_unsuspend_all_tabs": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "分页将会自动被冻结" }, //Paging will be automatically frozen
