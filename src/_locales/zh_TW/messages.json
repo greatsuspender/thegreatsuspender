@@ -247,7 +247,7 @@
     "js_suspended_hotkey_to_reload": { "message": "設置鍵盤快捷鍵" }, //? Set keyboard shortcuts
 
     // Options page (Javascript code)
-    "js_options_incognito_warning": { "message": "您處於隱身模式。當記錄關閉時，對無痕記錄內的設置進行的任何更改都將被重置" }, //? You are in incognito mode. When the record is closed, any changes made to the settings in the traceless will be reset
+    "js_options_incognito_warning": { "message": "您处于隐身模式。我们已从Chrome同步中填充了扩展程序设置" }, //? You are in incognito mode. We have populated the extension settings from Chrome sync.
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "您尚未匯出備份。更新擴充功能？" }, //? You have not exported the backup yet. Update extension?

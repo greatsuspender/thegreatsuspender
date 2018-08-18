@@ -100,14 +100,22 @@ var gsStorage = {
             rawLocalSettings[self.SYNC_SETTINGS] || false;
         }
         var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
-        var unprocessedRawKeys = Object.keys(rawLocalSettings);
 
         var mergedSettings = {};
         for (const key of defaultKeys) {
-          // if synced setting exists and local setting does not exist or syncing is turned on
-          // then overwrite with synced value
+          if (key === self.SYNC_SETTINGS) {
+            if (chrome.extension.inIncognitoContext) {
+              mergedSettings[key] = false;
+            } else {
+              mergedSettings[key] = rawLocalSettings.hasOwnProperty(key)
+                ? rawLocalSettings[key]
+                : defaultSettings[key];
+            }
+            continue;
+          }
+          // if synced setting exists and local setting does not exist or
+          // syncing is enabled locally then overwrite with synced value
           if (
-            key !== self.SYNC_SETTINGS &&
             syncedSettings.hasOwnProperty(key) &&
             (!rawLocalSettings.hasOwnProperty(key) || shouldSyncSettings)
           ) {
@@ -128,19 +136,8 @@ var gsStorage = {
             );
             mergedSettings[key] = defaultSettings[key];
           }
-          unprocessedRawKeys.splice(unprocessedRawKeys.indexOf(key), 1);
         }
         self.saveSettings(mergedSettings);
-
-        // test for settings that don't exist in defaults
-        for (var unprocessedRawKey of unprocessedRawKeys) {
-          gsUtils.error(
-            'gsStorage',
-            'Settings contain unused key: ' +
-              unprocessedRawKey +
-              '! Should this be in defaults?'
-          );
-        }
 
         // if any of the new settings are different to those in sync, then trigger a resync
         var triggerResync = false;

@@ -247,7 +247,7 @@
     "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
 
     // Options page (Javascript code)
-    "js_options_incognito_warning": { "message": "You are in incognito mode. Any changes to settings from within an incognito session will be reset when this session is closed." },
+    "js_options_incognito_warning": { "message": "You are in incognito mode. Extension options will be populated from Chrome Sync if they exist." },
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "You have not saved a backup yet. Update the extension anyway?" },
