@@ -76,9 +76,11 @@ var tgs = (function() {
       startNoticeCheckerJob();
 
       //add context menu items
-      buildContextMenu(false);
-      var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
-      buildContextMenu(contextMenus);
+      if (!chrome.extension.inIncognitoContext) {
+        buildContextMenu(false);
+        var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
+        buildContextMenu(contextMenus);
+      }
 
       //initialise lastStationary and lastFocused vars
       getCurrentlyActiveTab(function(activeTab) {
