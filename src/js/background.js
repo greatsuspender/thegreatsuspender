@@ -339,27 +339,25 @@ var tgs = (function() {
   }
 
   function suspendSelectedTabs() {
-    chrome.tabs.query(
-      { highlighted: true, lastStationaryWindow: true },
-      function(selectedTabs) {
-        selectedTabs.forEach(function(tab) {
-          gsSuspendManager.queueTabForSuspension(tab, 1);
-        });
-      }
-    );
+    chrome.tabs.query({ highlighted: true, lastFocusedWindow: true }, function(
+      selectedTabs
+    ) {
+      selectedTabs.forEach(function(tab) {
+        gsSuspendManager.queueTabForSuspension(tab, 1);
+      });
+    });
   }
 
   function unsuspendSelectedTabs() {
-    chrome.tabs.query(
-      { highlighted: true, lastStationaryWindow: true },
-      function(selectedTabs) {
-        selectedTabs.forEach(function(tab) {
-          if (gsUtils.isSuspendedTab(tab)) {
-            unsuspendTab(tab);
-          }
-        });
-      }
-    );
+    chrome.tabs.query({ highlighted: true, lastFocusedWindow: true }, function(
+      selectedTabs
+    ) {
+      selectedTabs.forEach(function(tab) {
+        if (gsUtils.isSuspendedTab(tab)) {
+          unsuspendTab(tab);
+        }
+      });
+    });
   }
 
   function resuspendSuspendedTab(tab) {
