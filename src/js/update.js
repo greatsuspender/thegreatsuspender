@@ -7,13 +7,13 @@
 
   function setRestartExtensionClickHandler(warnFirst) {
     document.getElementById('restartExtensionBtn').onclick = function(e) {
-      var result = true;
-      if (warnFirst) {
-        result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
-      }
-      if (result) {
-        chrome.runtime.reload();
-      }
+      // var result = true;
+      // if (warnFirst) {
+      //   result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
+      // }
+      // if (result) {
+      chrome.runtime.reload();
+      // }
     };
   }
 
