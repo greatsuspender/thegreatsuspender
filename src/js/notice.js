@@ -9,14 +9,19 @@
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var notice = tgs.requestNotice();
-    var noticeContentEl = document.getElementById('gsNotice');
-    noticeContentEl.innerHTML = notice.text;
+    if (
+      notice &&
+      notice.hasOwnProperty('text') &&
+      notice.hasOwnProperty('version')
+    ) {
+      var noticeContentEl = document.getElementById('gsNotice');
+      noticeContentEl.innerHTML = notice.text;
+      //update local notice version
+      gsStorage.setNoticeVersion(notice.version);
+    }
 
     //clear notice (to prevent it showing again)
     tgs.clearNotice();
-
-    //update local notice version
-    gsStorage.setNoticeVersion(notice.version);
   });
   gsAnalytics.reportPageView('notice.html');
 })();
