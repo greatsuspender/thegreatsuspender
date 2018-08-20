@@ -161,6 +161,19 @@ var gsUtils = {
     }
   },
 
+  removeTabsByUrlAsPromised: function(url) {
+    return new Promise(resolve => {
+      chrome.tabs.query({ url }, function(tabs) {
+        chrome.tabs.remove(
+          tabs.map(function(tab) {
+            return tab.id;
+          })
+        );
+        resolve();
+      });
+    });
+  },
+
   checkWhiteList: function(url) {
     return gsUtils.checkSpecificWhiteList(
       url,
@@ -400,14 +413,6 @@ var gsUtils = {
       }
     });
     return suspendedTabCount;
-  },
-  isExtensionTabOpen: function(tabName) {
-    var tabFound = chrome.extension
-      .getViews({ type: 'tab' })
-      .some(function(window) {
-        return window.location.href.indexOf(tabName + '.html') > 0;
-      });
-    return tabFound;
   },
 
   htmlEncode: function(text) {

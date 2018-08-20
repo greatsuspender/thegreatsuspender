@@ -29,9 +29,17 @@ var gsSession = (function() {
       .createSessionRestorePoint(currentVersion, newVersion)
       .then(function(session) {
         if (!session || gsUtils.getSuspendedTabCount() > 0) {
-          if (!gsUtils.isExtensionTabOpen('update')) {
-            chrome.tabs.create({ url: chrome.extension.getURL('update.html') });
-          }
+          let updateUrl = chrome.extension.getURL('update.html');
+          let updatedUrl = chrome.extension.getURL('updated.html');
+          Promise.all([
+            gsUtils.removeTabsByUrlAsPromised(updateUrl),
+            gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+          ]).then(() => {
+            //show update screen
+            chrome.tabs.create({
+              url: updateUrl,
+            });
+          });
           // if there are no suspended tabs then simply install the update immediately
         } else {
           chrome.runtime.reload();
@@ -90,36 +98,19 @@ var gsSession = (function() {
           gsStorage.performMigration(lastVersion);
           gsStorage.setNoticeVersion('0');
           checkForCrashRecovery(tabs, true);
-
-          //close any 'update' and 'updated' tabs that may be open
-          chrome.tabs.query(
-            { url: chrome.extension.getURL('update.html') },
-            function(tabs) {
-              chrome.tabs.remove(
-                tabs.map(function(tab) {
-                  return tab.id;
-                })
-              );
-            }
-          );
-          chrome.tabs.query(
-            { url: chrome.extension.getURL('updated.html') },
-            function(tabs) {
-              chrome.tabs.remove(
-                tabs.map(function(tab) {
-                  return tab.id;
-                })
-              );
-
-              //show updated screen
-              chrome.tabs.create({
-                url: chrome.extension.getURL('updated.html'),
-              });
-            }
-          );
+          let updateUrl = chrome.extension.getURL('update.html');
+          let updatedUrl = chrome.extension.getURL('updated.html');
+          Promise.all([
+            gsUtils.removeTabsByUrlAsPromised(updateUrl),
+            gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+          ]).then(() => {
+            //show updated screen
+            chrome.tabs.create({
+              url: updatedUrl,
+            });
+          });
         });
       }
-
       if (tabs) {
         checkTabsForResponsiveness(tabs);
       }
@@ -678,5 +669,6 @@ var gsSession = (function() {
     isInitialising,
     isRecoveryMode,
     recoverLostTabs,
+    prepareForUpdate,
   };
 })();
