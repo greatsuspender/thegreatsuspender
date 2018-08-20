@@ -15,6 +15,12 @@ var gsAnalytics = (function() {
   function reportEvent(category, action, value) {
     ga('send', 'event', category, action, value);
   }
+  function reportException(errorMessage) {
+    ga('send', 'exception', {
+      exDescription: errorMessage,
+      exFatal: false,
+    });
+  }
   function updateDimensions() {
     ga('set', 'dimension1', chrome.runtime.getManifest().version + '');
     ga('set', 'dimension2', gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '');
@@ -27,6 +33,7 @@ var gsAnalytics = (function() {
     init,
     reportPageView,
     reportEvent,
+    reportException,
     updateDimensions,
   };
 })();

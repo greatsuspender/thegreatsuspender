@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, gsAnalytics, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -52,10 +52,15 @@ var gsUtils = {
       stackString
     );
   },
-  error: function(id, text, ...args) {
+  error: function(id, errorObj, ...args) {
     if (debugError) {
       args = args || [];
-      console.error(id, (new Date() + '').split(' ')[4], text, ...args);
+      console.error(id, (new Date() + '').split(' ')[4], errorObj, ...args);
+    } else {
+      // var logString = errorObj.hasOwnProperty('stack')
+      //   ? errorObj.stack
+      //   : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
+      // gsAnalytics.reportException(logString, false);
     }
   },
   errorIfInitialised: function(id, text, ...args) {

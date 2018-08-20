@@ -39,7 +39,7 @@ var tgs = (function() {
     _suspendUnsuspendHotkey,
     _tabFlagsByTabId = {};
 
-  function backgroundScriptsReadyAsPromsied(retries) {
+  function backgroundScriptsReadyAsPromised(retries) {
     retries = retries || 0;
     if (retries > 300) {
       // allow 30 seconds :scream:
@@ -63,7 +63,7 @@ var tgs = (function() {
         window.setTimeout(resolve, 100);
       }).then(function() {
         retries += 1;
-        return backgroundScriptsReadyAsPromsied(retries);
+        return backgroundScriptsReadyAsPromised(retries);
       });
     });
   }
@@ -1317,7 +1317,7 @@ var tgs = (function() {
     getTabFlagForTabId,
     setTabFlagForTabId,
 
-    backgroundScriptsReadyAsPromsied,
+    backgroundScriptsReadyAsPromised,
     initAsPromised,
     requestNotice,
     clearNotice,
@@ -1347,7 +1347,7 @@ var tgs = (function() {
 })();
 
 tgs
-  .backgroundScriptsReadyAsPromsied()
+  .backgroundScriptsReadyAsPromised()
   .then(() => gsStorage.initSettingsAsPromised())
   .then(() => tgs.initAsPromised())
   .then(function() {
