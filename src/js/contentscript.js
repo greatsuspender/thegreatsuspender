@@ -103,6 +103,7 @@
       if (isIgnoreForms) {
         initFormInputListener();
       }
+      isReceivingFormInput = isReceivingFormInput && isIgnoreForms;
     }
     if (request.hasOwnProperty('tempWhitelist')) {
       if (isReceivingFormInput && !request.tempWhitelist) {
