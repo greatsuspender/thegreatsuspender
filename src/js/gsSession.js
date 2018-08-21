@@ -4,6 +4,7 @@ var gsSession = (function() {
   'use strict';
 
   var initialisationMode = false;
+  var initialisationTimeout = 5 * 60 * 1000;
   var isProbablyBrowserRestart = false;
   var recoveryMode = false;
   var sessionId;
@@ -128,6 +129,16 @@ var gsSession = (function() {
         `Extension initialization started. isProbablyBrowserRestart: ${isProbablyBrowserRestart}\n` +
         '------------------------------------------------\n\n'
     );
+    //increase max time allowed for initialisation if dealing with a large number of tabs
+    //every extra 50 tabs past 100 adds an extra allowed minute for init
+    if (tabs.length > 100) {
+      var extraMinutes = parseInt((tabs.length - 100) / 50, 10) + 1;
+      initialisationTimeout += extraMinutes * 60 * 1000;
+      gsUtils.log(
+        'gsSession',
+        `Increasing init timeout to ${initialisationTimeout / 1000 / 60}mins`
+      );
+    }
     for (const currentTab of tabs) {
       const timeoutRandomiser = Math.random() * 1000 * (tabs.length / 2);
       tabCheckPromises.push(
@@ -298,7 +309,7 @@ var gsSession = (function() {
     if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
       return;
     }
-    if (totalTimeQueued >= 5 * 60 * 1000) {
+    if (totalTimeQueued >= initialisationTimeout) {
       gsUtils.error(
         tab.id,
         `Failed to initialize tab. Tab may not behave as expected.`
