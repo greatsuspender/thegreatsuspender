@@ -357,11 +357,13 @@ var gsSession = (function() {
         if (response) {
           if (gsUtils.isSuspendedTab(tab)) {
             tgs.initialiseSuspendedTab(tab, function() {
-              pingTabScript(tab, totalTimeQueued).then(resolve);
+              resolve(false);
+              return;
             });
           } else {
             tgs.initialiseUnsuspendedTab(tab, function() {
-              pingTabScript(tab, totalTimeQueued).then(resolve);
+              resolve(false);
+              return;
             });
           }
           return;
@@ -372,7 +374,7 @@ var gsSession = (function() {
           return;
         }
 
-        // If tab has loaded but returns no response after 30 seconds then try to reload / reinject tab
+        // If tab has loaded but returns no response after 60 seconds then try to reload / reinject tab
         if (gsUtils.isSuspendedTab(tab)) {
           // resuspend unresponsive suspended tabs
           gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
@@ -388,11 +390,7 @@ var gsSession = (function() {
           gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function(
             err
           ) {
-            if (err) {
-              resolve(false);
-            } else {
-              pingTabScript(tab, totalTimeQueued).then(resolve);
-            }
+            resolve(false);
           });
         }
       });
