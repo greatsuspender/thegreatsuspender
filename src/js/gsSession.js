@@ -5,7 +5,7 @@ var gsSession = (function() {
 
   var initialisationMode = false;
   var initialisationTimeout = 5 * 60 * 1000;
-  var isProbablyBrowserRestart = false;
+  var isProbablyProfileRestart = false;
   var recoveryMode = false;
   var sessionId;
   var tabsUrlsToRecover = [];
@@ -126,7 +126,7 @@ var gsSession = (function() {
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        `Extension initialization started. isProbablyBrowserRestart: ${isProbablyBrowserRestart}\n` +
+        `Extension initialization started. isProbablyProfileRestart: ${isProbablyProfileRestart}\n` +
         '------------------------------------------------\n\n'
     );
     //increase max time allowed for initialisation if dealing with a large number of tabs
@@ -197,7 +197,7 @@ var gsSession = (function() {
       }
     }
     if (suspendedTabs.length > 0) {
-      isProbablyBrowserRestart = true;
+      isProbablyProfileRestart = true;
     }
   }
 
@@ -217,7 +217,7 @@ var gsSession = (function() {
 
     gsUtils.log('gsSession', 'Checking for crash recovery');
 
-    if (isProbablyBrowserRestart) {
+    if (isProbablyProfileRestart) {
       gsUtils.log(
         'gsSession',
         'Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)'
@@ -380,7 +380,7 @@ var gsSession = (function() {
           return;
         }
 
-        if (isProbablyBrowserRestart && totalTimeQueued < 60 * 1000) {
+        if (isProbablyProfileRestart && totalTimeQueued < 60 * 1000) {
           resolve(false);
           return;
         }
