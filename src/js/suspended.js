@@ -327,6 +327,7 @@
       .setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
     document.getElementById('bitcoinBtn').onclick = function() {
       try {
+        hideNag();
         chrome.extension
           .getBackgroundPage()
           .gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
@@ -336,6 +337,7 @@
     };
     document.getElementById('patreonBtn').onclick = function() {
       try {
+        hideNag();
         chrome.extension
           .getBackgroundPage()
           .gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
@@ -352,6 +354,10 @@
         console.error(error);
       }
     };
+  }
+
+  function hideNag() {
+    chrome.extension.getBackgroundPage().gsStorage.setOption('gsNoNag', true);
   }
 
   function loadDonationPopupTemplate() {
