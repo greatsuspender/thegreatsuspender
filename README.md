@@ -1,9 +1,7 @@
 # The Great Suspender
 
 ### New release!
-I am currently rolling out a new chrome webstore release.
-
-**If you have lost tabs from your browser:** I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
+I am currently rolling out a new chrome webstore release. **If you have lost tabs from your browser:** I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
 ).
 
 <img src="/src/img/suspendy-guy.png" width="100px" />
