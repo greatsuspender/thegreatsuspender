@@ -4,8 +4,6 @@
 
 I have written a guide for how to recover your lost tabs here: https://github.com/deanoemcke/thegreatsuspender/issues/526
 
-Please contribute if you have any extra insight on alternative methods for tab recovery.
-
 ### Welcome
 
 <img src="/src/img/suspendy-guy.png" width="100px" />
@@ -13,6 +11,7 @@ Please contribute if you have any extra insight on alternative methods for tab r
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/).
+For other enquiries you can email me at greatsuspender@gmail.com.
 
 
 ### Chrome Web Store
