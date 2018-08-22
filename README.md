@@ -2,7 +2,8 @@
 
 ### Read this if you have lost tabs from your browser
 
-I have written a guide for how to recover your lost tabs here: https://github.com/deanoemcke/thegreatsuspender/issues/526
+I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
+).
 
 ### Welcome
 
