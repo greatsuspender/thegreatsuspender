@@ -1,11 +1,12 @@
 # The Great Suspender
-<img src="/src/img/suspendy-guy.png" width="100px" />
 
 ### New release!
 I am currently rolling out a new chrome webstore release.
 
 **If you have lost tabs from your browser:** I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
 ).
+
+<img src="/src/img/suspendy-guy.png" width="100px" />
 
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
