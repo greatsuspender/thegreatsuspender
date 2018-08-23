@@ -4,7 +4,7 @@
     "ext_extension_description": { "message": "凍結暫時用不到的分頁，達到系統資源釋放。" }, //Frozen temporary useless paging, to release system resources.
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "凍結/恢復目前分頁" }, //Freeze/resume the current page
-    "ext_cmd_toggle_tab_pause_description": { "message": "暂停/取消暂停当前页面的冻结" }, //? Pause/unpause the freeze of the current page
+    "ext_cmd_toggle_tab_pause_description": { "message": "暫停/取消暫停目前頁面的凍結" }, //? Pause/unpause the freeze of the current page
     "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
     "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
     "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
@@ -14,9 +14,9 @@
     "html_about_title": { "message": "支援" }, //support
     "html_about_github_title": { "message": "GitHub" },
     "html_about_twitter_title": { "message": "Twitter" },
-    "html_about_report_issues_prefix": { "message": "如果您有反饋意見或想報告問題，可以在" }, //? If you have feedback or want to report a problem, you can
-    "html_about_report_issues_suffix": { "message": ". 在創建新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" }, //? Before creating a new idea or question, check that your idea or question exists. Thank you!
-    "html_about_the_github_issues_page": { "message": "GitHub上進行" }, //? github on
+    "html_about_report_issues_prefix": { "message": "如果您有回饋意見或想報告問題，可以在" }, //? If you have feedback or want to report a problem, you can
+    "html_about_report_issues_suffix": { "message": ". 在建立新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" }, //? Before creating a new idea or question, check that your idea or question exists. Thank you!
+    "html_about_the_github_issues_page": { "message": "GitHub 上進行" }, //? github on
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "這個擴充功能使用 Niklas von Hertzen 撰寫的" }, //This extension is written using Niklas von Hertzen
     "html_about_html2canvas_suffix": { "message": "資源。" }, //Resources.
@@ -40,13 +40,13 @@
 
     // Important notice page
     "html_notice_title": { "message": "通知" }, //Notice
-    "html_notice_important_notice": { "message": "來自 The Great Suspender的 重要通知" }, //Important Notice from The Great Suspender
+    "html_notice_important_notice": { "message": "來自 The Great Suspender 的 重要通知" }, //Important Notice from The Great Suspender
 
     // Options page
     "html_options_title": { "message": "設定" }, //set up
     "html_options_suspend_title": { "message": "自動分頁凍結" }, //? Automatic page freeze
     "html_options_suspended_title": { "message": "凍結的分頁" }, //? Frozen page
-    "html_options_other_title": { "message": "其他设置" }, //? Other settings
+    "html_options_other_title": { "message": "其他設定" }, //? Other settings
     "html_options_suspend_automatically_after": { "message": "多久後自動凍結" }, //How long after freezing automatically
     "html_options_suspend_never": { "message": "永不" }, //Never
     "html_options_suspend_seconds": { "message": "秒" }, //second
@@ -58,7 +58,7 @@
     "html_options_suspend_days": { "message": "天" }, //day
     "html_options_suspend_week": { "message": "週" }, //week
     "html_options_suspend_weeks": { "message": "週" }, //week
-    "html_options_suspend_on_low_memory": { "message": "当系统内存变得非常低时凍結分頁" }, //Freeze page when system memory becomes very low
+    "html_options_suspend_on_low_memory": { "message": "當系統記憶體非常少時凍結分頁" }, //Freeze page when system memory becomes very low
     "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" }, //Do not freeze a fixed page
     "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" }, //Do not freeze pages that have text in the input box and have not been saved yet
     "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound
@@ -73,36 +73,36 @@
     "html_options_suspend_screen_capturing_disabled": { "message": "停用" }, //Disabled
     "html_options_suspend_screen_capturing_screen_only": { "message": "只擷取可見的畫面" }, //Only capture the visible picture
     "html_options_suspend_screen_capturing_entire_page": { "message": "擷取整個頁面" }, //Capture the entire page
-    "html_options_suspend_screen_capturing_tooltip_line1a": { "message": "在暫停的分頁上，擴充功能可以在掛起之前顯示該選項卡的圖像預覽。" }, //? On the paused tab, the extension can display an image preview of the tab before it is suspended
+    "html_options_suspend_screen_capturing_tooltip_line1a": { "message": "在暫停的分頁上，擴充功能可以在分頁被暫停前顯示圖片預覽。" }, //? On the paused tab, the extension can display an image preview of the tab before it is suspended
     "html_options_suspend_screen_capturing_tooltip_line1b": { "message": "" },
-    "html_options_suspend_screen_capturing_tooltip_line2a": { "message": "屏幕捕獲功能是實驗性的，可能會導致顯著的CPU使用率以及稍微增加的內存使用量。" }, //? Screen capture is experimental and can result in significant CPU usage and slightly increased memory usage
+    "html_options_suspend_screen_capturing_tooltip_line2a": { "message": "螢幕擷取功能是實驗性的，可能會讓 CPU 使用率以及記憶體使用量明顯地提高。" }, //? Screen capture is experimental and can result in significant CPU usage and slightly increased memory usage
     "html_options_suspend_screen_capturing_tooltip_line2b": { "message": "" },
-    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "如果您注意到奇怪的行為，如分頁需要很長時間才能掛起，或者Chrome意外崩潰，請嘗試關閉此功能。" }, //? If you notice weird behavior, such as if the tag takes a long time to hang or Chrome crashes unexpectedly, try turning the feature off
+    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "如果您注意到奇怪的行為，如分頁需要很長時間才能掛起，或者 Chrome 意外崩潰，請嘗試關閉此功能。" }, //? If you notice weird behavior, such as if the tag takes a long time to hang or Chrome crashes unexpectedly, try turning the feature off
     "html_options_suspend_screen_capturing_tooltip_line3b": { "message": "" },
-    "html_options_suspend_force_screen_capture": { "message": "啟用高質量的螢幕擷取模式" }, //? Enable high quality screen capture mode
-    "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "禁用時，螢幕擷取具有以下限制以幫助提高性能：" }, //? When disabled, screen captures have the following limitations to aid in performance:
-    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "- 低質量的螢幕擷取" }, //? - Low quality screen capture
-    "html_options_suspend_force_screen_capture_tooltip_line4": { "message": "- 如果生成圖像需要1分鐘以上，將不會螢幕擷取" }, //? - Will not capture screen if it takes more than 1 minute to generate image
-    "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 圖片的最大高度限制為5000像素" }, //? - Maximum height of image limited to 5000px
-    "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "啟用高質量的畫面捕捉模式可能會顯著增加CPU負載和內存使用量。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
+    "html_options_suspend_force_screen_capture": { "message": "啟用高畫質的螢幕擷取模式" }, //? Enable high quality screen capture mode
+    "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "禁用時，螢幕擷取具有以下限制以幫助提高效能：" }, //? When disabled, screen captures have the following limitations to aid in performance:
+    "html_options_suspend_force_screen_capture_tooltip_line2": { "message": "- 低品質的螢幕擷取" }, //? - Low quality screen capture
+    "html_options_suspend_force_screen_capture_tooltip_line4": { "message": "- 如果產生圖片需要 1 分鐘以上，將不會螢幕擷取" }, //? - Will not capture screen if it takes more than 1 minute to generate image
+    "html_options_suspend_force_screen_capture_tooltip_line5": { "message": "- 圖片的最大高度限制為 5000 像素" }, //? - Maximum height of image limited to 5000px
+    "html_options_suspend_force_screen_capture_tooltip_line6": { "message": "啟用高品質的畫面捕捉模式可能會讓 CPU 使用率和記憶體使用量明顯提高。" }, //? Enabling high quality screen capture mode may significantly increase CPU load and memory usage.
     "html_options_suspend_force_screen_capture_tooltip_line7": { "message": "" },
     "html_options_whitelist_title": { "message": "例外清單" }, //Exception list
-    "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名單的每個頁面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
-    "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
+    "html_options_whitelist_tooltip_line1": { "message": "在新行上增加要列入白名單的每個頁面的 URL。例如：" }, //? Add the URL of each page to be whitelisted on the new line. E.g
+    "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分：" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
     "html_options_whitelist_tooltip_line3": { "message": "您還可以通過以正規表示式來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
     "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu u
-    "html_options_other_enable_sync": { "message": "在不同系統之間同步設置" }, //? Set synchronization between different systems
-    "html_options_other_enable_sync_tooltip_line1a": { "message": "擴充功能將在所有使用相同配置文件登錄的Chrome瀏覽器中同步" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
+    "html_options_other_enable_sync": { "message": "在不同系統之間同步設定" }, //? Set synchronization between different systems
+    "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chorme 後，擴充功能將同步相同的設定" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
-    "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設置同步。" }, //? This will also synchronize the settings in incognito mode
-    "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設置" }, //? Opening this item overrides the settings on all synced systems
+    "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設定同步。" }, //? This will also synchronize the settings in incognito mode
+    "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設定" }, //? Opening this item overrides the settings on all synced systems
 
     // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "恢復目前分頁" }, //? Restore this tab
     "html_popup_suspend_tab": { "message": "凍結此分頁" }, //Freeze this tab
     "html_popup_dont_suspend_now": { "message": "現在還不要凍結" }, //Do not freeze now
-    "html_popup_never_suspend_domain": { "message": "永远不要凍結此域名" }, //Never freeze this domain name
-    "html_popup_never_suspend_page": { "message": "永遠不要凍結此網页" }, //Never freeze this web page
+    "html_popup_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
+    "html_popup_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
     "html_popup_suspend_other_tabs": { "message": "凍結其他分頁" }, //Freeze other tabs
     "html_popup_unsuspend_all_tabs": { "message": "恢復所有分頁" }, //Recover all pages
     "html_popup_suspend_selected_tabs": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
@@ -147,44 +147,44 @@
     "html_suspended_tab_reload": { "message": "重新載入" }, //? Reload
     "html_suspended_tab_whitelist_prefix": { "message": "永遠不要凍結" }, //Don't freeze
     "html_suspended_tab_whitelist_suffix": { "message": "" },
-    "html_suspended_click_to_reload": { "message": "點擊此處重新载入" }, //? Click here to reload
+    "html_suspended_click_to_reload": { "message": "點擊此處重新載入" }, //? Click here to reload
     "html_suspended_toast_not_connected": { "message": "您沒有連接到網絡" }, //? You are not connected to the network
-    "html_suspended_toast_reload_disabled": { "message": "禁用自動重新载入。" }, //? Disable automatic reload.
-    "html_suspended_modal_header": { "message": "你想要什麼白名單?" }, //? What white list do you want?
+    "html_suspended_toast_reload_disabled": { "message": "禁用自動重新載入。" }, //? Disable automatic reload.
+    "html_suspended_modal_header": { "message": "你想要什麼白名單？" }, //? What white list do you want?
     "html_suspended_modal_this_domain": { "message": "這個域名" }, //? This domain name
     "html_suspended_modal_this_page": { "message": "這一頁" }, //? This page
     "html_suspended_modal_temp_whitelist": { "message": "只是這個頁面，僅為目前記錄" }, //? Only this page, only for the current record
     "html_suspended_modal_temp_whitelist_notice": { "message": "白名單網站不會自動暫停。" }, //? Whitelisted sites will not be suspended automatically.
     "html_suspended_modal_ok": { "message": "送出" }, //Send
     "html_suspended_modal_cancel": { "message": "取消" }, //cancel
-    "html_suspended_donation_question": { "message": "你喜歡這個擴充功能嗎?<br>通过捐赠表明你的支持" }, //Do you like this extension? Show your support by donating
+    "html_suspended_donation_question": { "message": "你喜歡這個擴充功能嗎？<br>可以通過捐贈表達你的支持" }, //Do you like this extension? Show your support by donating
 
     // Update page
     "html_update_title": { "message": "更新" }, //? Updated
     "html_update_heading2": { "message": "即將變得更好" }, //? It is about to get better
-    "html_update_info_line1": { "message": "一個新版本的The Great Suspender已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
-    "html_update_info_line2": { "message": "请注意：冻结页面将在更新过程中暂时消失。" }, //? Please note: The frozen page will temporarily disappear during the update process.
-    "html_update_info_withbackup": { "message": "請在繼續之前保存目前瀏覽階段的備份。" }, //? Please save the backup of the current tab session before proceeding.
+    "html_update_info_line1": { "message": "一個新版本的 The Great Suspender 已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
+    "html_update_info_line2": { "message": "請注意：凍結頁面將在更新過程中暫時消失。" }, //? Please note: The frozen page will temporarily disappear during the update process.
+    "html_update_info_withbackup": { "message": "請在繼續之前儲存目前瀏覽階段的備份。" }, //? Please save the backup of the current tab session before proceeding.
     "html_update_info_nobackup_prefix": { "message": "強烈建議您在繼續之前從" }, //? We strongly recommend that you save a backup of your current session from
-    "html_update_info_nobackup_suffix": { "message": " 保存目前瀏覽階段的備份。" }, //? before proceeding.
+    "html_update_info_nobackup_suffix": { "message": " 儲存目前瀏覽階段的備份。" }, //? before proceeding.
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //? Updated
     "html_updated_great_suspender_updated": { "message": "已更新" }, //? updated
-    "html_updated_info_line1": { "message": "更新之前，您的標簽頁已被自動保存。" }, //? Your tab has been saved automatically before updating
+    "html_updated_info_line1": { "message": "更新之前，您的標簽頁已被自動儲存。" }, //? Your tab has been saved automatically before updating
     "html_updated_info_line2_prefix": { "message": "如果在更新過程中遇到任何問題，可以從 " }, //? If you have any problems during the update, you can recover the missing tabs from the
     "html_updated_info_line2_suffix": { "message": " 頁面中恢復丟失的標簽頁。" }, //? page.
     "html_updated_detail_header_prefix": { "message": "在 " }, //? What's new in
-    "html_updated_detail_header_suffix": { "message": "有甚麼新功能?" }, //? ?
+    "html_updated_detail_header_suffix": { "message": "有甚麼新功能？" }, //? ?
     "html_updated_new_features_header": { "message": "新的功能：" }, //? New features:
     "html_updated_bug_fixes_header": { "message": "錯誤修復：" }, //? Bugfixes:
-    "html_updated_release_notes": { "message": "請瀏覽GitHub獲取完整的發行說明: " }, //? Please visit gitHub for the complete release notes:
+    "html_updated_release_notes": { "message": "請瀏覽 GitHub 取得完整的發行說明：" }, //? Please visit gitHub for the complete release notes:
 
     // Welcome message
     "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to
     "html_welcome_text_line1": { "message": "謝謝你安裝" }, //Thank you for installing
-    "html_welcome_text_line2": { "message": "通过暂停您不使用的标签，我可以让您的计算机更快。" }, //I make your computer faster by pausing tabs you aren't using.
-    "html_welcome_text_line3": { "message": "您可以在下面更改设置" }, //? You can change the following settings
+    "html_welcome_text_line2": { "message": "通過暫停不使用的標籤，可以讓您的電腦減少記憶體的使用。" }, //I make your computer faster by pausing tabs you aren't using.
+    "html_welcome_text_line3": { "message": "您可以在下面更改設定" }, //? You can change the following settings
 
     // Thanks page
     "html_thanks_title": { "message": "謝謝" }, //? Thank you
@@ -198,10 +198,10 @@
 
     // Contextual menu (Javascript code)
     "js_context_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
-    "js_context_toggle_suspend_state": { "message": "冻结/恢复此页面" }, //? Freeze/restore this page
-    "js_context_toggle_pause_suspension": { "message": "暂停/取消暂停此页面的冻结" }, //? Pause/unpause the freezing of this page
-    "js_context_never_suspend_domain": { "message": "永远不要凍結此域名" }, //Never freeze this domain name
-    "js_context_never_suspend_page": { "message": "永遠不要凍結此網页" }, //Never freeze this web page
+    "js_context_toggle_suspend_state": { "message": "凍結/恢復此頁面" }, //? Freeze/restore this page
+    "js_context_toggle_pause_suspension": { "message": "暫停/取消暫停此頁面的凍結" }, //? Pause/unpause the freezing of this page
+    "js_context_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
+    "js_context_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
     "js_context_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
     "js_context_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
     "js_context_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
@@ -224,7 +224,7 @@
     "js_popup_never": { "message": "禁止自動凍結分頁" }, //Freezing of pages is forbidden
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
     "js_popup_charging": { "message": "已接上電源" }, //Connected to the power
-    "js_popup_unknown": { "message": "等待頁面加載..." }, //? Waiting for page to load..
+    "js_popup_unknown": { "message": "等待頁面載入..." }, //? Waiting for page to load..
     "js_popup_initialising": { "message": "等待擴充功能初始化..." }, //? Wait for the extension to be initialized..
     "js_popup_error": { "message": "自動凍結在此頁面上不可用" }, //? Auto-freeze is not available on this page.
 
@@ -240,14 +240,14 @@
     "js_history_enter_name_for_session": { "message": "對這個記錄命名" }, //Name this record
     "js_history_confirm_delete": { "message": "您確定要刪除此記錄嗎？" }, //? Are you sure you want to delete this record?
     "js_history_confirm_session_overwrite": { "message": "已經有保存的名稱的記錄。要覆蓋現有記錄嗎？" }, //? There is already a record of the saved name. Overwrite existing records?
-    "js_history_import_fail": { "message": "無法匯入文件。確保文件是純文本，並且每行只有一條URL。" }, //? Unable to load the file. Make sure the files are plain text and contain a single URL per line.
+    "js_history_import_fail": { "message": "無法匯入文件。確保文件是純文本，並且每行只有一條 URL。" }, //? Unable to load the file. Make sure the files are plain text and contain a single URL per line.
 
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" }, //Remove from the exception list
-    "js_suspended_hotkey_to_reload": { "message": "設置鍵盤快捷鍵" }, //? Set keyboard shortcuts
+    "js_suspended_hotkey_to_reload": { "message": "設定鍵盤快捷鍵" }, //? Set keyboard shortcuts
 
     // Options page (Javascript code)
-    "js_options_incognito_warning": { "message": "您处于隐身模式。我们已从Chrome同步中填充了扩展程序设置" }, //? You are in incognito mode. We have populated the extension settings from Chrome sync.
+    "js_options_incognito_warning": { "message": "你目前使用隱私模式。我们已經從 Chrome 同步擴充插件的設定" }, //? You are in incognito mode. We have populated the extension settings from Chrome sync.
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "您尚未匯出備份。更新擴充功能？" }, //? You have not exported the backup yet. Update extension?
@@ -255,5 +255,5 @@
     "js_update_button_reload": { "message": "現在更新擴充功能" }, //? Now update the extension
 
     // Keyboard shortcuts page (Javascript code)
-    "js_shortcuts_not_set": { "message": "沒有設置" } //? Not set
+    "js_shortcuts_not_set": { "message": "沒有設定" } //? Not set
 }
