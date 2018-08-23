@@ -1,0 +1,272 @@
+/*
+
+                - - /|_/|      .-------------------.
+  - _______________| @.@|     /      Styles by      )
+-- (______         >\_C/< ---/    Liam Johnston    /
+  -  -   / ______  _/____)  (   @liamjohnstonnz   /
+ -  -   / /\ \   \ \         `-------------------'
+   - (_/  \_) - \_)
+
+*/
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-size: 10px;
+}
+html {
+    box-sizing: border-box;
+    height: 100vh;
+}
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+body {
+    min-height: 100%;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+    font-size: 1.5rem;
+    line-height: 1.5em;
+    background: #fafafa;
+    font-weight: 300;
+    color: #444;
+}
+h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+p {
+    margin: 0 0 15px;
+}
+a {
+    color: #3477db;
+    text-decoration: none;
+    cursor: pointer;
+}
+a:hover {
+    text-decoration: underline;
+}
+a.active {
+    cursor: default;
+    color: #444;
+    pointer-events: none;
+}
+body.suspended-page:not(.img-preview-mode) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+.watermark {
+    display: none; /* show only if not image preview mode */
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    font-weight: bold;
+    color: #b6b6b6;
+    cursor: pointer;
+}
+.suspended-page:not(.img-preview-mode) .watermark {
+    display: block;
+}
+.gsTopBar {
+    position: fixed;
+    background: #fafafa;
+    top: 0;
+    padding: 30px 40px 20px;
+    width: 100%;
+    display: grid;
+    grid-template:
+            'i t'
+            'i u';
+    grid-template-columns: auto 1fr;
+    grid-gap: 2px 20px;
+}
+.faviconWrap {
+    grid-area: i;
+    padding-top: 3px;
+}
+.dark .faviconWrapLowContrast {
+    filter: invert(1) grayscale(1);
+}
+.gsTopBarImg {
+    height: 16px;
+    width: 16px;
+}
+.gsTopBarTitle {
+    color: #444;
+    font-weight: bold;
+    display: block;
+    grid-area: t;
+}
+.gsTopBarUrl {
+    grid-area: u;
+    color: #444;
+}
+.gsTopBarUrl,
+.gsTopBarTitle {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+.hideOverflow {
+    overflow: hidden;
+}
+.gsPreview {
+    width: 90%;
+    margin: 30px auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    transition: all 0.2s ease;
+}
+.gsPreview:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+.dark .gsPreview {
+    filter: brightness(70%);
+    opacity: 0.7;
+}
+.dark .gsPreview:hover {
+    opacity: 1;
+}
+.gsPreviewImg {
+    display: block;
+    max-width: 100%;
+    margin: 0;
+}
+body.img-preview-mode .gsTopBar {
+    position: relative;
+}
+.suspended-page {
+    cursor: pointer;
+}
+.suspendedMsg {
+    width: 100vw;
+    height: 100vh;
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+.suspendedMsg img {
+    width: 180px;
+    margin-bottom: 30px;
+}
+.suspendedMsg-instr {
+    font-weight: bold;
+    font-size: 20px;
+}
+.suspendedMsg-shortcut {
+    font-size: 15px;
+}
+
+.spinner:before {
+    content: '';
+    box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    margin-top: -40px;
+    margin-left: -40px;
+    border-radius: 50%;
+    border: 8px solid transparent;
+    border-top-color: #3477db;
+    animation: spinner 0.6s linear infinite;
+    z-index: 100;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* dark theme for night lurkers */
+.dark,
+.dark .gsTopBar,
+.dark .suspendedMsg {
+    background: #222;
+}
+.dark .suspendedMsg img {
+    filter: brightness(150%);
+}
+.dark .gsTopBar,
+.dark .gsTopBarTitle,
+.dark .gsTopBar a,
+.dark .suspendedMsg,
+.dark .watermark {
+    color: #b8b8b8;
+}
+.dark #setKeyboardShortcut {
+    text-decoration: underline;
+    color: #b8b8b8;
+}
+
+/* end suspended tab styles */
+
+.toast-wrapper {
+    display: none;
+    text-align: center;
+    position: fixed;
+    z-index: 9999999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: fadeinout 4s linear forwards;
+}
+.toast-content {
+    display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fefefe;
+    margin: auto;
+    padding: 10px 20px 20px 20px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.toast-content p {
+    font-size: 16px;
+}
+
+@keyframes fadeinout {
+    0%,
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+    5%,
+    90% {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
