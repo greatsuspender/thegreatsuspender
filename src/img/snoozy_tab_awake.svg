@@ -1,0 +1,18 @@
+<svg width="180" height="180" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="182" width="182" y="-1" x="-1"/>
+ </g>
+
+ <g>
+  <title>Layer 1</title>
+  <rect rx="4" height="127" width="177" y="44.56248" x="1.5" fill="#D8D8D8" fill-opacity="0" stroke-width="3" stroke="#4A4A4A" id="Rectangle-30"/>
+  <circle r="9" cy="98" cx="51" fill="#4A4A4A" id="Oval-6"/>
+  <circle r="9" cy="98" cx="137" fill="#4A4A4A" id="Oval-6-Copy"/>
+  <path stroke-linecap="square" stroke-width="3" stroke="#4A4A4A" id="Line" d="m1.5,66.25l177,0"/>
+  <circle r="3.5" cy="55.5" cx="38.5" fill="#4A4A4A" id="Oval"/>
+  <circle r="3.5" cy="55.5" cx="25.5" fill="#4A4A4A" id="Oval-Copy"/>
+  <circle r="3.5" cy="55.5" cx="12.5" fill="#4A4A4A" id="Oval-Copy-2"/>
+  <path stroke="null" fill="#4A4A4A" id="Shape" d="m104.4408,105.68511l-16.00891,0c-0.8259,0 -1.49548,0.52135 -1.49548,1.16442l0,1.24654c0.99974,4.07874 3.39041,7.291 7.19183,7.291c3.80142,0 1.91695,-0.00865 5.32398,-0.04338c3.40703,-0.03473 5.91877,-2.75134 6.48426,-7.24762l0,-1.24654c0,-0.64308 -0.66957,-1.16442 -1.49568,-1.16442z"/>
+ </g>
+</svg>

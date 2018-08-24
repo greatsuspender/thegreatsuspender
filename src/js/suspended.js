@@ -292,7 +292,7 @@
     } else {
       document.body.classList.add('waking');
       document.getElementById('snoozyImg').src = chrome.extension.getURL(
-        'img/snoozy_tab_awake.png'
+        'img/snoozy_tab_awake.svg'
       );
     }
     window.location.replace(currentUrl);

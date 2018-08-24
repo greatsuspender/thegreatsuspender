@@ -163,7 +163,7 @@ body.img-preview-mode .gsTopBar {
     text-align: center;
 }
 .suspendedMsg img {
-    width: 180px;
+    height: 180px;
     margin-bottom: 30px;
 }
 .suspendedMsg-instr {
