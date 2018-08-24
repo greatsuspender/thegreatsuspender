@@ -1,11 +1,5 @@
 <svg width="180" height="180" xmlns="http://www.w3.org/2000/svg">
  <g>
-  <title>background</title>
-  <rect x="-1" y="-1" width="46.99983" height="46.99983" id="canvas_background" fill="none"/>
- </g>
-
- <g>
-  <title>Layer 1</title>
   <rect id="Rectangle-30" stroke="#4A4A4A" stroke-width="3" fill-opacity="0" fill="#D8D8D8" x="1.75" y="45.06248" width="177" height="127" rx="4"/>
   <circle id="Oval-6" fill="#4A4A4A" cx="51" cy="98" r="9"/>
   <circle id="Oval-6-Copy" fill="#4A4A4A" cx="137" cy="98" r="9"/>
