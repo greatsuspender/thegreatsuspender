@@ -88,7 +88,8 @@ body.suspended-page:not(.img-preview-mode) {
 }
 .faviconWrap {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: bottom;
+    margin-bottom: -1px;
     margin-right: 15px;
 }
 .dark .faviconWrapLowContrast {
@@ -101,9 +102,11 @@ body.suspended-page:not(.img-preview-mode) {
 .gsTopBarTitle {
     color: #444;
     font-size: 20px;
+    cursor: default;
 }
 .gsTopBarUrl {
     color: #444;
+    cursor: pointer;
 }
 .gsTopBarUrl,
 .gsTopBarTitleWrap {
