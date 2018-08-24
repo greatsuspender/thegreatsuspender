@@ -449,7 +449,7 @@ var gsUtils = {
     var printableHotkey = '';
     chrome.commands.getAll(function(commands) {
       var toggleCommand = commands.find(function(command) {
-        return command.name === '1-toggle-suspend-tab';
+        return command.name === '1-suspend-tab';
       });
       if (toggleCommand && toggleCommand.shortcut !== '') {
         printableHotkey = toggleCommand.shortcut

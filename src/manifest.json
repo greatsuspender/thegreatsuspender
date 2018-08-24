@@ -48,11 +48,11 @@
   "minimum_chrome_version": "55",
 
   "commands": {
-    "1-toggle-suspend-tab": {
+    "1-suspend-tab": {
       "description": "__MSG_ext_cmd_toggle_tab_suspension_description__",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
-    "2-toggle-temp-whitelist-tab": {
+    "1b-pause-tab": {
       "description": "__MSG_ext_cmd_toggle_tab_pause_description__"
     },
     "3-suspend-active-window": {
