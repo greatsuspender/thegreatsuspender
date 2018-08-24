@@ -294,6 +294,7 @@
       document.getElementById('snoozyImg').src = chrome.extension.getURL(
         'img/snoozy_tab_awake.svg'
       );
+      document.getElementById('snoozySpinner').classList.add('spinner');
     }
     window.location.replace(currentUrl);
   }

@@ -190,6 +190,22 @@ body.img-preview-mode .gsTopBar {
     animation: spinner 0.6s linear infinite;
     z-index: 100;
 }
+#snoozySpinner.spinner:before {
+    border: 2px solid transparent;
+    border-right-color: #4a4a4a;
+    border-top-color: #4a4a4a;
+    animation: spinner 0.6s linear infinite;
+    margin: 0;
+    position: absolute;
+    top: 49px;
+    right: 7px;
+    left: auto;
+    width: 12px;
+    height: 12px;
+}
+.suspendedTextWrap {
+    height: 60px; /* stops slight jump when suspending */
+}
 .waking .suspendedTextWrap {
     opacity: 0;
 }
