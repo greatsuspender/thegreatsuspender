@@ -84,16 +84,12 @@ body.suspended-page:not(.img-preview-mode) {
     top: 0;
     padding: 30px 40px 20px;
     width: 100%;
-    display: grid;
-    grid-template:
-            'i t'
-            'i u';
-    grid-template-columns: auto 1fr;
-    grid-gap: 2px 20px;
+    text-align: center;
 }
 .faviconWrap {
-    grid-area: i;
-    padding-top: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 15px;
 }
 .dark .faviconWrapLowContrast {
     filter: invert(1) grayscale(1);
@@ -104,21 +100,19 @@ body.suspended-page:not(.img-preview-mode) {
 }
 .gsTopBarTitle {
     color: #444;
-    font-weight: bold;
-    display: block;
-    grid-area: t;
+    font-size: 20px;
 }
 .gsTopBarUrl {
-    grid-area: u;
     color: #444;
 }
 .gsTopBarUrl,
-.gsTopBarTitle {
+.gsTopBarTitleWrap {
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     display: inline-block;
+    margin-bottom: 8px;
 }
 .hideOverflow {
     overflow: hidden;
@@ -167,7 +161,6 @@ body.img-preview-mode .gsTopBar {
     margin-bottom: 30px;
 }
 .suspendedMsg-instr {
-    font-weight: bold;
     font-size: 20px;
 }
 .suspendedMsg-shortcut {
