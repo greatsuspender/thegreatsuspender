@@ -291,6 +291,9 @@
       document.getElementById('refreshSpinner').classList.add('spinner');
     } else {
       document.body.classList.add('waking');
+      document.getElementById('snoozyImg').src = chrome.extension.getURL(
+        'img/snoozy_tab_awake.svg'
+      );
     }
     window.location.replace(currentUrl);
   }
@@ -544,18 +547,6 @@
       isInitialised,
       tabId,
       requestUnsuspendOnReload,
-      // previewUri,
-      // scrollPosition,
-      // showingWhitelisted,
-      // showingNag,
-      // builtImagePreview,
-      // currentPreviewMode,
-      // currentTitle,
-      // currentUrl,
-      // currentFaviconUrl,
-      // currentTheme,
-      // currentHideNag,
-      // currentCommand,
     };
   }
 
