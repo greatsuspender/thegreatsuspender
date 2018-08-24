@@ -1254,7 +1254,10 @@ var tgs = (function() {
           chrome.tabs.update(tabId, {
             url: chrome.extension.getURL('thanks.html'),
           });
-          return;
+
+          // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
+        } else if (changeInfo.url === 'chrome://extensions/shortcuts') {
+          _triggerHotkeyUpdate = true;
         }
         queueSessionTimer();
       }
