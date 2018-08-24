@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsUtils, gsMessages */
+/*global chrome, localStorage, tgs, gsStorage, gsUtils, gsMessages, gsAnalytics */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -80,6 +80,7 @@ var gsSession = (function() {
       } else if (lastVersion === curVersion) {
         checkForCrashRecovery(tabs, false);
         gsStorage.trimDbItems();
+        gsAnalytics.reportEvent('System', 'Restart', curVersion + '');
 
         //else if they are installing for the first time
       } else if (newInstall) {
@@ -89,6 +90,7 @@ var gsSession = (function() {
         chrome.tabs.create({
           url: chrome.extension.getURL('options.html?firstTime'),
         });
+        gsAnalytics.reportEvent('System', 'Install', curVersion + '');
 
         //else if they are upgrading to a new version
       } else {
@@ -111,6 +113,11 @@ var gsSession = (function() {
             });
           });
         });
+        gsAnalytics.reportEvent(
+          'System',
+          'Update',
+          lastVersion + ' -> ' + curVersion
+        );
       }
       if (tabs) {
         checkTabsForResponsiveness(tabs);

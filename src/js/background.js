@@ -848,6 +848,11 @@ var tgs = (function() {
         ) {
           //set global notice field (so that it can be trigger to show later)
           _noticeToDisplay = resp;
+          gsAnalytics.reportEvent(
+            'Notice',
+            'Prep',
+            resp.target + ':' + resp.version
+          );
         }
       }
     };
@@ -1269,8 +1274,14 @@ var tgs = (function() {
       gsUtils.log(window.id, 'window created.');
       queueSessionTimer();
 
-      if (requestNotice()) {
+      var noticeToDisplay = requestNotice();
+      if (noticeToDisplay) {
         chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
+        gsAnalytics.reportEvent(
+          'Notice',
+          'Display',
+          noticeToDisplay.target + ':' + noticeToDisplay.version
+        );
       }
     });
     chrome.windows.onRemoved.addListener(function() {
