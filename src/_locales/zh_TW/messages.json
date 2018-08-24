@@ -179,6 +179,7 @@
     "html_updated_new_features_header": { "message": "新的功能：" }, //? New features:
     "html_updated_bug_fixes_header": { "message": "錯誤修復：" }, //? Bugfixes:
     "html_updated_release_notes": { "message": "請瀏覽 GitHub 取得完整的發行說明：" }, //? Please visit gitHub for the complete release notes:
+    "html_updated_patch_message": { "message": "很抱歉打扰你。我们做了一些维护。" }, //? Sorry to bother you. We did some maintenance.
 
     // Welcome message
     "html_welcome_title": { "message": "歡迎來到" }, //? Welcome to

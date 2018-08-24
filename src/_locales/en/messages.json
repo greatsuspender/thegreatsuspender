@@ -179,6 +179,7 @@
     "html_updated_new_features_header": { "message": "New features:" },
     "html_updated_bug_fixes_header": { "message": "Bug fixes:" },
     "html_updated_release_notes": { "message": "Visit GitHub for full release notes: " },
+    "html_updated_patch_message": { "message": "Sorry for the disturbance. We just needed to perform a little maintenance." },
 
     // Welcome message
     "html_welcome_title": { "message": "Welcome" },

@@ -9,6 +9,7 @@ var gsSession = (function() {
   var recoveryMode = false;
   var sessionId;
   var tabsUrlsToRecover = [];
+  var updateType = null;
 
   function init() {
     //handle special event where an extension update is available
@@ -65,6 +66,10 @@ var gsSession = (function() {
     return initialisationMode;
   }
 
+  function getUpdateType() {
+    return updateType;
+  }
+
   function runStartupChecks() {
     initialisationMode = true;
     chrome.tabs.query({}, function(tabs) {
@@ -95,6 +100,20 @@ var gsSession = (function() {
         //else if they are upgrading to a new version
       } else {
         gsStorage.setLastVersion(curVersion);
+        var lastVersionParts = lastVersion.split('.');
+        var curVersionParts = curVersion.split('.');
+        if (lastVersionParts.length === 3 && curVersionParts.length === 3) {
+          if (parseInt(curVersionParts[0]) > parseInt(lastVersionParts[0])) {
+            updateType = 'major';
+          } else if (
+            parseInt(curVersionParts[1]) > parseInt(lastVersionParts[1])
+          ) {
+            updateType = 'minor';
+          } else {
+            updateType = 'patch';
+          }
+        }
+
         findOrCreateSessionRestorePoint(lastVersion, curVersion).then(function(
           session
         ) {
@@ -686,5 +705,6 @@ var gsSession = (function() {
     isRecoveryMode,
     recoverLostTabs,
     prepareForUpdate,
+    getUpdateType,
   };
 })();
