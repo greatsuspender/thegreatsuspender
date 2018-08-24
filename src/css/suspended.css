@@ -90,7 +90,7 @@ body.suspended-page:not(.img-preview-mode) {
     display: inline-block;
     vertical-align: bottom;
     margin-bottom: -1px;
-    margin-right: 15px;
+    margin-right: 10px;
 }
 .dark .faviconWrapLowContrast {
     filter: invert(1) grayscale(1);
