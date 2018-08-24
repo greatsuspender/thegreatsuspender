@@ -23,6 +23,7 @@ var tgs = (function() {
   var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var DISCARD_ON_LOAD = 'discardOnLoad';
   var SCROLL_POS = 'scrollPos';
+  var FORM_INPUT = 'formInput';
   var TEMP_WHITELISTED = 'tempWhitelist';
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var FOCUS_DELAY = 500;
