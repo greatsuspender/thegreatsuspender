@@ -23,6 +23,7 @@ var tgs = (function() {
   var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var DISCARD_ON_LOAD = 'discardOnLoad';
   var SCROLL_POS = 'scrollPos';
+  var TEMP_WHITELISTED = 'tempWhitelist';
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var FOCUS_DELAY = 500;
 
@@ -198,6 +199,10 @@ var tgs = (function() {
                 newStatus
               ) {
                 setIconStatus(newStatus, activeTab.id);
+                //This is a hotfix for issue #723
+                if (newStatus === 'tempWhitelist') {
+                  setTabFlagForTabId(activeTab.id, TEMP_WHITELISTED, true);
+                }
                 if (callback) callback(newStatus);
               });
             }
@@ -215,6 +220,13 @@ var tgs = (function() {
                 newStatus
               ) {
                 setIconStatus(newStatus, activeTab.id);
+                //This is a hotfix for issue #723
+                if (
+                  newStatus === 'tempWhitelist' &&
+                  getTabFlagForTabId(activeTab.id, TEMP_WHITELISTED)
+                ) {
+                  setTabFlagForTabId(activeTab.id, TEMP_WHITELISTED, null);
+                }
                 if (callback) callback(newStatus);
               });
             }
@@ -458,10 +470,24 @@ var tgs = (function() {
       var discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
-      if (suspendInPlaceOfDiscard && !discardInPlaceOfSuspend) {
-        var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
+      var isReceivingFormInput = getTabFlagForTabId(tab.id, FORM_INPUT);
+      var isTempWhitelisted = getTabFlagForTabId(tab.id, TEMP_WHITELISTED);
+      var isIgnoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+      //This is a hotfix for issue #723
+      //TODO: Migrate formInput management over from contentScript to backgroundScript
+      //Ideally when isIgnoreForms gets set to false it would clear the tab flags
+      //Perhaps this could be tied in with setIconStatus refactor
+      //The same thing applies to tempWhitelist. Both only get updated when they have focus
+      if (
+        suspendInPlaceOfDiscard &&
+        !discardInPlaceOfSuspend &&
+        !isTempWhitelisted &&
+        (!isReceivingFormInput || !isIgnoreForms)
+      ) {
+        gsSuspendManager.queueTabForSuspension(tab, 3);
         return;
+      } else if (isTempWhitelisted) {
+        setTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD, true);
       }
     }
 
@@ -1133,10 +1159,15 @@ var tgs = (function() {
 
     switch (request.action) {
       case 'reportTabState':
+        var contentScriptStatus =
+          request && request.status ? request.status : null;
+        if (contentScriptStatus === 'formInput') {
+          setTabFlagForTabId(sender.tab.id, FORM_INPUT, true);
+        } else if (contentScriptStatus === 'tempWhitelist') {
+          setTabFlagForTabId(sender.tab.id, TEMP_WHITELISTED, true);
+        }
         // If tab is currently visible then update popup icon
         if (sender.tab && isCurrentFocusedTab(sender.tab)) {
-          var contentScriptStatus =
-            request && request.status ? request.status : null;
           calculateTabStatus(sender.tab, contentScriptStatus, function(status) {
             setIconStatus(status, sender.tab.id);
           });
