@@ -29,7 +29,7 @@ For more information on the permissions required for the extension, please refer
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
-Please read the [Installing beta version](https://github.com/deanoemcke/thegreatsuspender/wiki/Installing-beta-version) wiki to get started. 
+Be sure to unsuspend all suspended tabs before removing any other version of the extension or they will disappear forever!
 
 ### Build from github
 
