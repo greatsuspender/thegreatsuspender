@@ -25,7 +25,8 @@ For more information on the permissions required for the extension, please refer
 1. Download the **[latest available version](https://github.com/deanoemcke/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
 3. Click on the <kbd>Load unpacked extension...</kbd> button.
-4. Browse to the src directory of the downloaded, unarchived release and confirm.
+4. Browse to the src directory of the unarchived folder and confirm.
+5. Please read the [Installing beta version](https://github.com/deanoemcke/thegreatsuspender/wiki/Installing-beta-version) guide to get started. 
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
