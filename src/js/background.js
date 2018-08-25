@@ -1130,7 +1130,7 @@ var tgs = (function() {
     chrome.commands.onCommand.addListener(function(command) {
       if (command === '1-suspend-tab') {
         toggleSuspendedStateOfHighlightedTab();
-      } else if (command === '1b-pause-tab') {
+      } else if (command === '2-toggle-temp-whitelist-tab') {
         toggleTempWhitelistStateOfHighlightedTab();
       } else if (command === '3-suspend-active-window') {
         suspendAllTabs();

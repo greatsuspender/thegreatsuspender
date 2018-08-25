@@ -52,7 +52,7 @@
       "description": "__MSG_ext_cmd_toggle_tab_suspension_description__",
       "suggested_key": { "default": "Ctrl+Shift+S" }
     },
-    "1b-pause-tab": {
+    "2-toggle-temp-whitelist-tab": {
       "description": "__MSG_ext_cmd_toggle_tab_pause_description__"
     },
     "3-suspend-active-window": {
