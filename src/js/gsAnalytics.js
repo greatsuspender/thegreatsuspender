@@ -28,7 +28,12 @@ var gsAnalytics = (function() {
       dimension3: gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
       dimension4: gsStorage.getOption(gsStorage.NO_NAG) + '',
     });
-    ga('send', 'pageview');
+    ga('send', 'pageview', {
+      dimension1: chrome.runtime.getManifest().version + '',
+      dimension2: gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '',
+      dimension3: gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
+      dimension4: gsStorage.getOption(gsStorage.NO_NAG) + '',
+    });
   }
 
   return {

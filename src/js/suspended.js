@@ -358,10 +358,6 @@
     };
   }
 
-  function hideNag() {
-    chrome.extension.getBackgroundPage().gsStorage.setOption('gsNoNag', true);
-  }
-
   function loadDonationPopupTemplate() {
     showingNag = true;
 
