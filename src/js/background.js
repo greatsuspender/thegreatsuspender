@@ -23,8 +23,6 @@ var tgs = (function() {
   var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var DISCARD_ON_LOAD = 'discardOnLoad';
   var SCROLL_POS = 'scrollPos';
-  var FORM_INPUT = 'formInput';
-  var TEMP_WHITELISTED = 'tempWhitelist';
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var FOCUS_DELAY = 500;
 
@@ -201,8 +199,13 @@ var tgs = (function() {
               ) {
                 setIconStatus(newStatus, activeTab.id);
                 //This is a hotfix for issue #723
-                if (newStatus === 'tempWhitelist') {
-                  setTabFlagForTabId(activeTab.id, TEMP_WHITELISTED, true);
+                if (
+                  newStatus === 'tempWhitelist' &&
+                  activeTab.autoDiscardable
+                ) {
+                  chrome.tabs.update(activeTab.id, {
+                    autoDiscardable: false,
+                  });
                 }
                 if (callback) callback(newStatus);
               });
@@ -223,10 +226,12 @@ var tgs = (function() {
                 setIconStatus(newStatus, activeTab.id);
                 //This is a hotfix for issue #723
                 if (
-                  newStatus === 'tempWhitelist' &&
-                  getTabFlagForTabId(activeTab.id, TEMP_WHITELISTED)
+                  newStatus !== 'tempWhitelist' &&
+                  !activeTab.autoDiscardable
                 ) {
-                  setTabFlagForTabId(activeTab.id, TEMP_WHITELISTED, null);
+                  chrome.tabs.update(activeTab.id, {
+                    autoDiscardable: true,
+                  });
                 }
                 if (callback) callback(newStatus);
               });
@@ -471,24 +476,9 @@ var tgs = (function() {
       var discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
-      var isReceivingFormInput = getTabFlagForTabId(tab.id, FORM_INPUT);
-      var isTempWhitelisted = getTabFlagForTabId(tab.id, TEMP_WHITELISTED);
-      var isIgnoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-      //This is a hotfix for issue #723
-      //TODO: Migrate formInput management over from contentScript to backgroundScript
-      //Ideally when isIgnoreForms gets set to false it would clear the tab flags
-      //Perhaps this could be tied in with setIconStatus refactor
-      //The same thing applies to tempWhitelist. Both only get updated when they have focus
-      if (
-        suspendInPlaceOfDiscard &&
-        !discardInPlaceOfSuspend &&
-        !isTempWhitelisted &&
-        (!isReceivingFormInput || !isIgnoreForms)
-      ) {
+      if (suspendInPlaceOfDiscard && !discardInPlaceOfSuspend) {
         gsSuspendManager.queueTabForSuspension(tab, 3);
         return;
-      } else if (isTempWhitelisted) {
-        setTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD, true);
       }
     }
 
@@ -1167,10 +1157,13 @@ var tgs = (function() {
       case 'reportTabState':
         var contentScriptStatus =
           request && request.status ? request.status : null;
-        if (contentScriptStatus === 'formInput') {
-          setTabFlagForTabId(sender.tab.id, FORM_INPUT, true);
-        } else if (contentScriptStatus === 'tempWhitelist') {
-          setTabFlagForTabId(sender.tab.id, TEMP_WHITELISTED, true);
+        if (
+          contentScriptStatus === 'formInput' ||
+          contentScriptStatus === 'tempWhitelist'
+        ) {
+          chrome.tabs.update(sender.tab.id, { autoDiscardable: false });
+        } else if (!sender.tab.autoDiscardable) {
+          chrome.tabs.update(sender.tab.id, { autoDiscardable: true });
         }
         // If tab is currently visible then update popup icon
         if (sender.tab && isCurrentFocusedTab(sender.tab)) {
