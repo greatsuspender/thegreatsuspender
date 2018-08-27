@@ -30,62 +30,65 @@ var historyUtils = (function() {
   function handleImport(sessionName, textContents, callback) {
     callback = typeof callback !== 'function' ? noop : callback;
 
-    var sessionId = '_' + gsUtils.generateHashCode(sessionName);
-    var windows = [];
-
-    var createNextWindow = function() {
-      return {
-        id: sessionId + '_' + windows.length,
-        tabs: [],
-      };
-    };
-    var curWindow = createNextWindow();
-
-    textContents.split('\n').forEach(function(line) {
-      if (typeof line !== 'string') {
-        return;
-      }
-      if (line === '') {
-        if (curWindow.tabs.length > 0) {
-          windows.push(curWindow);
-          curWindow = createNextWindow();
-        }
-        return;
-      }
-      if (line.indexOf('://') < 0) {
-        return;
-      }
-      curWindow.tabs.push({
-        windowId: curWindow.id,
-        sessionId: sessionId,
-        id: curWindow.id + '_' + curWindow.tabs.length,
-        url: line,
-        title: line,
-        index: curWindow.tabs.length,
-        pinned: false,
-      });
-    });
-    if (curWindow.tabs.length > 0) {
-      windows.push(curWindow);
-    }
-
     sessionName = window.prompt(
       chrome.i18n.getMessage('js_history_enter_name_for_session'),
       sessionName
     );
     if (sessionName) {
       validateNewSessionName(sessionName, function(shouldSave) {
-        if (shouldSave) {
-          var session = {
-            name: sessionName,
-            sessionId: sessionId,
-            windows: windows,
-            date: new Date().toISOString(),
-          };
-          gsStorage.updateSession(session, function() {
-            callback();
-          });
+        if (!shouldSave) {
+          callback();
+          return;
         }
+
+        var sessionId = '_' + gsUtils.generateHashCode(sessionName);
+        var windows = [];
+
+        var createNextWindow = function() {
+          return {
+            id: sessionId + '_' + windows.length,
+            tabs: [],
+          };
+        };
+        var curWindow = createNextWindow();
+
+        textContents.split('\n').forEach(function(line) {
+          if (typeof line !== 'string') {
+            return;
+          }
+          if (line === '') {
+            if (curWindow.tabs.length > 0) {
+              windows.push(curWindow);
+              curWindow = createNextWindow();
+            }
+            return;
+          }
+          if (line.indexOf('://') < 0) {
+            return;
+          }
+          curWindow.tabs.push({
+            windowId: curWindow.id,
+            sessionId: sessionId,
+            id: curWindow.id + '_' + curWindow.tabs.length,
+            url: line,
+            title: line,
+            index: curWindow.tabs.length,
+            pinned: false,
+          });
+        });
+        if (curWindow.tabs.length > 0) {
+          windows.push(curWindow);
+        }
+
+        var session = {
+          name: sessionName,
+          sessionId: sessionId,
+          windows: windows,
+          date: new Date().toISOString(),
+        };
+        gsStorage.updateSession(session, function() {
+          callback();
+        });
       });
     }
   }
