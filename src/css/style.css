@@ -32,7 +32,6 @@ body {
   font-size: 1.5rem;
   line-height: 1.5em;
   background: #fafafa;
-  font-weight: 300;
   color: #444;
 }
 /* 'content' pages alignment (suspended tabs have their own overrides) */
@@ -124,7 +123,6 @@ textarea {
   width: 100%;
   border-color: #c3c3c3;
   font-size: 14px;
-  font-weight: 300;
   padding: 3px 5px;
   white-space: nowrap;
   margin-top: 9px;
