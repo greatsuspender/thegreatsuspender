@@ -15,7 +15,7 @@ module.exports = function(grunt) {
     copy: {
       main: {
         expand: true,
-        src: 'src/**',
+        src: ['src/**', '!src/tests.html', '!src/js/tests/**'],
         dest: '<%= config.tempDir %>',
       },
     },

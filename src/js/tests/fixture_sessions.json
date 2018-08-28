@@ -1,0 +1,11 @@
+{
+  "currentSession1": {
+    "sessionId": "123456",
+    "windows": [
+      {
+        "tabs": [{ "id": 7777, "title": "testTab1", "url": "https://test.com" }]
+      }
+    ],
+    "date": "2018-08-28T18:56:49.345Z"
+  }
+}
