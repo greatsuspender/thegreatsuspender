@@ -33,6 +33,12 @@ body {
   font-size: 15px;
   background: #fff;
 }
+@media (min-resolution: 192dpi) {
+  body {
+    font-weight: 300;
+  }
+}
+
 a {
   outline: none;
   color: #3477db;

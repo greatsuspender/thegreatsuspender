@@ -34,6 +34,11 @@ body {
   background: #fafafa;
   color: #444;
 }
+@media (min-resolution: 192dpi) {
+  body {
+    font-weight: 300;
+  }
+}
 /* 'content' pages alignment (suspended tabs have their own overrides) */
 /* apply to body tag */
 .splash-wrap {
