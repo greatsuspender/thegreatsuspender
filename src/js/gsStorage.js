@@ -610,6 +610,7 @@ var gsStorage = {
           currentSession.name = 'Automatic save point for v' + currentVersion;
           currentSession[gsStorage.DB_SESSION_PRE_UPGRADE_KEY] = currentVersion;
           currentSession[gsStorage.DB_SESSION_POST_UPGRADE_KEY] = newVersion;
+          //TODO: addToSavedSessions does not return a promise!!!
           return gsStorage.addToSavedSessions(currentSession);
         }
       })
@@ -632,6 +633,8 @@ var gsStorage = {
     });
   },
 
+  // Returns most recent session in DB_CURRENT_SESSIONS
+  // EXCLUDING the current session
   fetchLastSession: function() {
     var self = this,
       currentSessionId,
@@ -685,12 +688,18 @@ var gsStorage = {
     this.updateSession(session, callback);
   },
 
-  clearGsSessions: function() {
-    var self = this;
+  clearGsDatabase: function() {
+    var self = this,
+      server;
 
-    this.getDb().then(function(s) {
-      s.clear(self.DB_CURRENT_SESSIONS);
-    });
+    this.getDb()
+      .then(function(s) {
+        server = s;
+        return server.clear(self.DB_CURRENT_SESSIONS);
+      })
+      .then(function() {
+        return server.clear(self.DB_SAVED_SESSIONS);
+      });
   },
 
   removeTabFromSessionHistory: function(sessionId, windowId, tabId, callback) {

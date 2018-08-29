@@ -1,4 +1,4 @@
-/*global gsStorage, testSuite0,  */
+/*global gsStorage, testSuites */
 function loadJsFile(fileName) {
   return new Promise(resolve => {
     const script = document.createElement('script');
@@ -33,7 +33,7 @@ function assertTrue(testResult) {
 }
 
 async function runTests() {
-  for (let [i, testSuite] of testSuites.entries()) {
+  for (let testSuite of testSuites) {
     // loads/reset required libs
     await Promise.all(testSuite.requiredLibs.map(loadJsFile));
     // if testSuite requires gsStorage, then clear indexedDb contents
@@ -42,8 +42,12 @@ async function runTests() {
       await gsStorage.clearGsDatabase();
     }
 
+    const resultEl = document.createElement('div');
+    resultEl.innerHTML = `Testing ${testSuite.name}...`;
+    document.getElementById('results').appendChild(resultEl);
+
     let allTestsPassed = true;
-    console.log(`Running testSuite ${i}..`);
+    console.log(`Running testSuite: ${testSuite.name}..`);
     for (let [j, test] of testSuite.tests.entries()) {
       console.log(`  Running test ${j}..`);
       // reset fixtures before each test
@@ -64,21 +68,18 @@ async function runTests() {
     }
 
     //update test.html with testSuite result
-    const resultEl = document.createElement('div');
     if (allTestsPassed) {
-      resultEl.innerHTML = `TestSuite ${i}: PASSED.`;
+      resultEl.innerHTML = `Testing ${testSuite.name}: PASSED`;
       resultEl.style = 'color: green;';
     } else {
-      resultEl.innerHTML = `TestSuite ${i}: FAILED.`;
+      resultEl.innerHTML = `Testing ${testSuite.name}: FAILED`;
       resultEl.style = 'color: red;';
     }
-    document.getElementById('results').appendChild(resultEl);
   }
-  document.getElementById('inProgress').classList.add('reallyHidden');
-  document.getElementById('completed').classList.remove('reallyHidden');
+  document.getElementById('suspendy-guy-inprogress').style.display = 'none'
+  document.getElementById('suspendy-guy-complete').style.display = 'inline-block';
 }
 
-const testSuites = [testSuite0];
 const fixtures = {};
 
 runTests();

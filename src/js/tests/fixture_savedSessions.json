@@ -1,0 +1,134 @@
+{
+  "savedSession1": {
+    "sessionId": "_111111",
+    "windows": [
+      {
+        "alwaysOnTop": false,
+        "focused": true,
+        "height": 1027,
+        "id": 3628,
+        "incognito": false,
+        "left": 0,
+        "state": "maximized",
+        "tabs": [
+          {
+            "active": true,
+            "audible": false,
+            "autoDiscardable": true,
+            "discarded": false,
+            "favIconUrl": "https://ssl.gstatic.com/ui/v1/icons/mail/images/favicon5.ico",
+            "height": 953,
+            "highlighted": true,
+            "id": 3630,
+            "incognito": false,
+            "index": 0,
+            "mutedInfo": {
+              "muted": false
+            },
+            "pinned": false,
+            "selected": true,
+            "status": "loading",
+            "title": "Gmail",
+            "url": "https://mail.google.com/mail/u/0/#inbox",
+            "width": 1680,
+            "windowId": 3628
+          },
+          {
+            "active": false,
+            "audible": false,
+            "autoDiscardable": true,
+            "discarded": false,
+            "favIconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEnklEQVRYR+2XT2xUVRTGf+9yO47jY5zUOpmURiwYMYQgmki0ykI2GAUUbYxRQkB3xIVKUDZ00i5MjOHfXo00xKAQiEKaqCRoAE20ERaVVAxUQksmFSdjeT7H6e195r4/05lpi9MyiS68SZO2771zvvvd75z7HYtorXntQe5sX8Vtd9zO/LSHbBLlZ434RY1rro9a/PHb7/w6dIrP9/5gwlr+z4au9Sx5fAWxOCgFWjUi5dQYQoKUUCrCTyfPcbTnMwuz8wc2rEM2acZdC2ueAYUQAmE+8JcuB9NKVfxVncNQJkyC8gpI1FqhdRjDm/BoSnioccHZo8csNu55g/ZHbEoOUXJMYseFolOZO0BvJyEmTNSa7AJKGpyxgMVoGQxxG+zEJLMGRMyGoW8di60fZ0llwoAmqCThXuWZhZK7mxNIE8AkE1DUkq8uFvjOSUHCBAxBCAGuy8pEnsfak9gxn8MQguCXQpHDF4u4iTagFDwzmyxcxeLNEzsR8wSW52E1WUlnmC+3LGPliqUVQSY3pJwCW947wYHLSUTCZBJot8jmxS7vv7wakUhOq5/T/ed4av8gY8k2mBj3sCwLPaEtdnydBeWftx5z2bSkxP5X16N0cHaivBPzliYuJQODF7h/Xz+6+S5fHyI/zI/bHua+exZRUtXfaPNcSJ/Jl/Ye4aMhG2HHQ00ILHaczBpViZhE50bpWpUgu/EJlFbEqgRlAJlggnw+z8K3DuO0GJbAzg9y5Z1OUqlUeFzVFWxASSHZ2dvH22eKiEwaXVL+SQQAzMnLGCp3la5H43RvXuvvpBZAxO1YocCCbQdxMssCALkBRnY9TzLV7FdIbQOJYmV7j9NzqojMtKKU0UIFAFM+AQNxujc9iVIa6StwckUMjBXyLNj+CU46BDB6npF3OwMAIUuV30Wxsh/20RMxEFZKBQMS9Q8AqhjYfrAGgGEgNa0AywB6+0IG0qj/ATSMAQ32NaOBOo4g1IDMNPoIcucZ2VWPCI/Tc6YUlGFDGRg1ZfjCjCKcLEMjQheZyTRIhC2mDDXxwiUud6+luaXZ7wGmWUXLlKXS2u8p2z7oY/f3CtGSChtR1An9RjS3MhRodOEah57L0Lm6Y9oy9P9Zcnkoe4R+1Wbuu/K6yT6wHKGLaC1p1aPsW9NKx7JF2PHgkjLsaASXhnPs+WKAA1fs6lu0shPOlQFMSzWUawFOnoQuIFSxwg9IXGGj482QiIeeYPKIbpoBtEkWBiw7qMoWHngG/6hqTUxD7gIdGozqW6NGCzP72xoGcrO8DZdTxcDMEpzxSegHNCIWm70fSC+FaRmoH0mZAVO7lY7I+EtjzysdkdG0qecqRxSJsP6cVW+Gliwyl5JJTxjc9bWr5BR4pewJI2s1x+yYRhSZUs/ysDzL6NV2czy7OEZbMoYUxhwGQneNK/75Gv1uy5R6nhUEy/LwvNCUbj2UJZWu9vk3mguSSXyHOU1J1Q3Cd/8CCqNYvLj7de7tmM+f0WASdLBgMppaPjeajOoGYAaTW2248M31cDR7eh3ylqrRrO5gs32xPJr9JTj76bH/wHAa7eBfGs//Bo/rCZjlAhJQAAAAAElFTkSuQmCC",
+            "height": 914,
+            "highlighted": false,
+            "id": 3631,
+            "incognito": false,
+            "index": 1,
+            "mutedInfo": {
+              "muted": false
+            },
+            "pinned": false,
+            "selected": false,
+            "status": "complete",
+            "title": "the great suspender | Trello",
+            "url": "chrome-extension://jmhiginckkdplecbbnnfcapnpofhmgbb/suspended.html#ttl=https%3A%2F%2Ftrello.com%2Fb%2FCNT09XJg%2Fthe-great-suspender&pos=0&uri=https://trello.com/b/CNT09XJg/the-great-suspender",
+            "width": 1680,
+            "windowId": 3628
+          },
+          {
+            "active": false,
+            "audible": false,
+            "autoDiscardable": true,
+            "discarded": false,
+            "favIconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACR0lEQVQ4T42Tv2sUQRTH35udvdwl8W72Zk6DRBILtdGAprS2MkgUFKwURWwUBQUL/wI7C1FBFK3URhRsRNDCxkIt1EJBMMFgkczu7cWQvbudnSez7OkS5HCreb8+b9737SBs+IQQU5zz3US0HQA2FeFfiPjdGPM5juPFcgmWDJRCzHucz2yElu3MmI9hHD8FAHL+AQCbzeYpztjksOJBzFi7FEXRPQfJAVKIIx7nezJjFtd7vZdJkuyo1+szvu9bF2cAjZUwfF2r1RZHR0YOeJxPZcZ8CuP4ies8yRk77RLTLHvfbrefA0CluGJadHV2352DIJjzPW/WnY21d93chwdzW4A7Wuufw8YQQkxXOD/hcpwe2Gq1LiCRIKIszbIbcRzHwwBBEDQ4Y+cR0SPEGFtSXkVEbgE6Wuvr/yOiUuqi04WIzB9ARtQLw/DaYD1DQCilvOIhjuQAKeU5D1G6AgvwSGv9ddgtlFI7GcDxXAOiCJVShwBgr9aaRL1OLE3vR0ny41+QZq22jY2NHWMA48XWPjgRJ3pJ7+zq2mrmVsUYq7kNCSEeRFG05BKr1ep0v98/qprN0TJ4vdu9lf9ISqk5BjDrHL7vTxDRPiJ61ul02kV8qzHmTIXzv/WMvV1eXn7x5y1IIU6C522x1t5uNBq9hYWFbqlbpSXlZUT0nY+s/bISRY/LbyHPVUodBGtnCbEbhuFNAFgrIOOblbqUC5emb8JO59UAXn6NuS8Igv2IuCuKoocAkBSJVRUE8+B537TW78o6/AYZcu5hODEeGgAAAABJRU5ErkJggg==",
+            "height": 914,
+            "highlighted": false,
+            "id": 3632,
+            "incognito": false,
+            "index": 2,
+            "mutedInfo": {
+              "muted": false
+            },
+            "pinned": false,
+            "selected": false,
+            "status": "complete",
+            "title": "https://github.com/deanoemcke/thegreatsuspender/issues/266",
+            "url": "chrome-extension://jmhiginckkdplecbbnnfcapnpofhmgbb/suspended.html#ttl=https%3A%2F%2Fgithub.com%2Fdeanoemcke%2Fthegreatsuspender%2Fissues%2F266&pos=0&uri=https://github.com/deanoemcke/thegreatsuspender/issues/266",
+            "width": 1680,
+            "windowId": 3628
+          },
+          {
+            "active": false,
+            "audible": false,
+            "autoDiscardable": true,
+            "discarded": false,
+            "favIconUrl": "data:image/png;base64,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",
+            "height": 914,
+            "highlighted": false,
+            "id": 3633,
+            "incognito": false,
+            "index": 3,
+            "mutedInfo": {
+              "muted": false
+            },
+            "pinned": false,
+            "selected": false,
+            "status": "complete",
+            "title": "chrome.i18n - Google Chrome",
+            "url": "chrome-extension://jmhiginckkdplecbbnnfcapnpofhmgbb/suspended.html#ttl=https%3A%2F%2Fdeveloper.chrome.com%2Fextensions%2Fi18n&pos=0&uri=https://developer.chrome.com/extensions/i18n",
+            "width": 1680,
+            "windowId": 3628
+          },
+          {
+            "active": false,
+            "audible": false,
+            "autoDiscardable": true,
+            "discarded": false,
+            "favIconUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB4klEQVRYR+1XPUgcQRT+3o6rHkg8JChyIVUKo0Uqr4hFFASx0O5AEEJMfcKdB6mUrIiNoCd4jSB2doKChaU/WF2dgFU6IQlKjCieuDMvzK6nrtzdHriwKXaq95jvvffNt28es4SQF4VcHxGBSAHiVErs73wbMIjfKUZL3U2ZGT9wsMsbH6rFEITiRAeLoSShNU4sJSmWEoTzJtPYej8/fUJ7zW8HAe6ru3AZmB53rcKGb2hj9xvEsxMOzi6VcPnzN+y/lzAlrdFBrCvnnHy0H3id8E12X/ApgbL/OEPpBljbBIwGtK/OenJrEle/zv7QXnPXV2ennEApQEnAtgGlN7R/F2sAWN92nWcSUErh7PuxeiDgf3YvwucTaK5l3lV75FUn01FLd8+tVCNgNLlBJAkkQSwZpAyAGYoBwQwWxMoEhMmZscNaTahzMQRrDEN6rjvDZKOzzebB3h/RHKCPnz67TRjSCp9AOpcbhuSkRwBBxcLi4m4lUYLGUza7FJN8MqnAMV3QAF0LSqzk81PXlQgEjXduwWT2S5LZHtY2UcPuSn6hWKslgsQ7BCzLMk7PL2a0/TL+Ys6yrJozJEj8/RxIZ6ac21BYXvIO7SpSBIWPCEQKRApECvw/CoT0HAj/5/QffopgMc7Z6fsAAAAASUVORK5CYII=",
+            "height": 914,
+            "highlighted": false,
+            "id": 3634,
+            "incognito": false,
+            "index": 4,
+            "mutedInfo": {
+              "muted": false
+            },
+            "pinned": false,
+            "selected": false,
+            "status": "complete",
+            "title": "447856 - Feature Request: Ability for an extension to change the URL in the omnibox - chromium - Monorail",
+            "url": "chrome-extension://jmhiginckkdplecbbnnfcapnpofhmgbb/suspended.html#ttl=https%3A%2F%2Fbugs.chromium.org%2Fp%2Fchromium%2Fissues%2Fdetail%3Fid%3D447856&pos=0&uri=https://bugs.chromium.org/p/chromium/issues/detail?id=447856",
+            "width": 1680,
+            "windowId": 3628
+          }
+        ],
+        "top": 23,
+        "type": "normal",
+        "width": 1680
+      }
+    ],
+    "date": "2018-08-29T14:07:04.041Z",
+    "name": "savedSession1",
+    "id": 33
+  }
+}

@@ -83,6 +83,7 @@ var gsSession = (function() {
       if (chrome.extension.inIncognitoContext) {
         //else if restarting the same version
       } else if (lastVersion === curVersion) {
+        //TODO: Should probably wait on this before trimming DB items?
         checkForCrashRecovery(tabs, false);
         gsStorage.trimDbItems();
         gsAnalytics.reportEvent('System', 'Restart', curVersion + '');
