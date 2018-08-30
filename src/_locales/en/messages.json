@@ -91,11 +91,11 @@
     "html_options_whitelist_tooltip_line2": { "message": "To whitelist multiple sites in one line you can specify part of the url instead:" },
     "html_options_whitelist_tooltip_line3": { "message": "You can also specify regular expressions by enclosing the text in forward slashes:" },
     "html_options_other_enable_context_menu": { "message": "Add The Great Suspender to right-click context menu" },
-    "html_options_other_enable_sync": { "message": "Sync settings between different systems" },
+    "html_options_other_enable_sync": { "message": "Sync settings with your Chrome profile" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are logged in" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "with the same profile." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
-    "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all synced systems" },
+    "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile" },
 
     // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "Unsuspend this tab" },
