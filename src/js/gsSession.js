@@ -282,10 +282,10 @@ var gsSession = (function() {
       }
 
       //check to see if they still exist in current session
-      gsUtils.log('gsSession', 'Tabs in current session: ', currentTabs);
+      gsUtils.log('gsSession', 'currentTabs: ', currentTabs);
       gsUtils.log(
         'gsSession',
-        'Unsuspended session tabs: ',
+        'lastSessionUnsuspendedTabs: ',
         lastSessionUnsuspendedTabs
       );
 

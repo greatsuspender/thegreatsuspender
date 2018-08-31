@@ -216,7 +216,7 @@ var gsSuspendManager = (function() {
   // forceLevel indicates which users preferences to respect when attempting to suspend the tab
   // 1: Suspend if at all possible
   // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude current active tab
-  // 3: Same as above (2), plus also respect internet connectivity and running on battery preferences.
+  // 3: Same as above (2), plus also respect internet connectivity, running on battery, and time to suspend=never preferences.
   function checkTabEligibilityForSuspension(tab, forceLevel) {
     if (forceLevel >= 1) {
       if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
@@ -244,6 +244,9 @@ var gsSuspendManager = (function() {
         gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) &&
         tgs.isCharging()
       ) {
+        return false;
+      }
+      if (gsStorage.getOption(gsStorage.SUSPEND_TIME) === '0') {
         return false;
       }
     }

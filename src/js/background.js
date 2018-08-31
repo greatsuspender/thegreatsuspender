@@ -1235,7 +1235,7 @@ var tgs = (function() {
         return;
       }
 
-      gsUtils.log(tabId, 'tab updated. tabUrl: ' + tab.url, changeInfo);
+      gsUtils.log(tabId, 'tab updated. changeInfo: ', changeInfo);
 
       // if url has changed
       if (changeInfo.url) {
