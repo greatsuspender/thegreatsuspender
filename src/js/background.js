@@ -1259,7 +1259,9 @@ var tgs = (function() {
         tab.id,
         UNSUSPEND_ON_RELOAD_URL
       );
-      setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
+      if (unsuspendOnReloadUrl) {
+        setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
+      }
       if (gsUtils.isSuspendedTab(tab, true)) {
         handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl);
       } else if (gsUtils.isNormalTab(tab)) {
