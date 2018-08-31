@@ -344,20 +344,11 @@ var gsSession = (function() {
       return;
     }
     await new Promise(resolve => setTimeout(resolve, timeout));
-    let _tab = await new Promise(resolve =>
-      chrome.tabs.get(tab.id, function(newTab) {
-        if (chrome.runtime.lastError) {
-          gsUtils.log(tab.id, chrome.runtime.lastError);
-          resolve();
-          return;
-        }
-        resolve(newTab);
-      })
-    );
+    let _tab = await getCurrentStateOfTab();
     if (!_tab) {
       gsUtils.log(
         tab.id,
-        `Failed to initialize tab. Tab may have been removed.`
+        `Failed to initialize tab. Tab may have been removed or discarded.`
       );
       return;
     } else {
@@ -375,6 +366,65 @@ var gsSession = (function() {
       const nextTimeout = timeout * 2;
       await queueTabScriptCheck(tab, nextTimeout, totalTimeQueued);
     }
+  }
+
+  function getCurrentStateOfTab(tab) {
+    new Promise(resolve =>
+      chrome.tabs.get(tab.id, function(newTab) {
+        if (chrome.runtime.lastError) {
+          gsUtils.log(tab.id, chrome.runtime.lastError);
+        }
+        if (newTab) {
+          resolve(newTab);
+          return;
+        }
+        if (!gsUtils.isSuspendedTab(tab)) {
+          resolve();
+          return;
+        }
+        // If suspended tab has been discarded before init then it may stay in 'blockhead' state
+        // Therefore we want to reload this tab to make sure it can be suspended properly
+        findPotentialDiscardedSuspendedTab(tab, function(discardedTab) {
+          if (!discardedTab) {
+            resolve();
+            return;
+          }
+          gsUtils.log(
+            discardedTab.id,
+            `Suspended tab with id: ${tab.id} was discarded before init. Will reload..`
+          );
+          chrome.tabs.update(
+            discardedTab.id,
+            { url: discardedTab.url },
+            function() {
+              resolve(discardedTab);
+            }
+          );
+        });
+      })
+    );
+  }
+
+  function findPotentialDiscardedSuspendedTab(suspendedTab, callback) {
+    // NOTE: For some reason querying by url doesn't work here??
+    chrome.tabs.query(
+      {
+        discarded: true,
+        windowId: suspendedTab.windowId,
+      },
+      function(tabs) {
+        tabs = tabs.filter(o => o.url === suspendedTab.url);
+        if (tabs.length === 1) {
+          callback(tabs[0]);
+        } else if (tabs.length > 1) {
+          let matchingTab = tabs.find(o => o.index === suspendedTab.index);
+          matchingTab = matchingTab || tabs[0];
+          callback(matchingTab);
+        } else {
+          callback(null);
+        }
+      }
+    );
   }
 
   function pingTabScript(tab, totalTimeQueued) {
