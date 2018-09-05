@@ -54,7 +54,7 @@
       gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
     );
     setAutoSuspendOptionsVisibility(
-      parseInt(gsStorage.getOption(gsStorage.SUSPEND_TIME)) > 0
+      parseFloat(gsStorage.getOption(gsStorage.SUSPEND_TIME)) > 0
     );
     setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
 

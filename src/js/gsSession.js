@@ -344,7 +344,7 @@ var gsSession = (function() {
       return;
     }
     await new Promise(resolve => setTimeout(resolve, timeout));
-    let _tab = await getCurrentStateOfTab();
+    let _tab = await getCurrentStateOfTab(tab);
     if (!_tab) {
       gsUtils.log(
         tab.id,
