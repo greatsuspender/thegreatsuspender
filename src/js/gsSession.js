@@ -378,7 +378,7 @@ var gsSession = (function() {
           resolve(newTab);
           return;
         }
-        if (!gsUtils.isSuspendedTab(tab)) {
+        if (!gsUtils.isSuspendedTab(tab, true)) {
           resolve();
           return;
         }
