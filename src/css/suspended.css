@@ -163,7 +163,7 @@ body.img-preview-mode .gsTopBar {
     justify-content: center;
     flex-direction: column;
     text-align: center;
-    padding-top: 130px;
+    padding: 130px 0;
 }
 .suspendedMsg-snoozy {
     position: relative;
