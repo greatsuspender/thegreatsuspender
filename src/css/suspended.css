@@ -168,16 +168,14 @@ body.img-preview-mode .gsTopBar {
 .suspendedMsg-snoozy {
     position: relative;
     flex: 1 1 100%;
-    max-height: 180px;
+    max-height: 210px;
     min-height: 80px;
-    width: 100%;
+    width: 180px;
     padding-bottom: 30px;
 }
 .suspendedMsg-snoozy img {
     height: 100%;
-}
-.suspendedTextWrap {
-    flex-shrink: 0;
+    max-height: 180px;
 }
 .suspendedMsg-instr {
     font-size: 20px;
