@@ -89,6 +89,7 @@ body.suspended-page:not(.img-preview-mode) {
     padding: 30px 40px 20px;
     width: 100%;
     text-align: center;
+    z-index: 101;
 }
 .faviconWrap {
     display: inline-block;
