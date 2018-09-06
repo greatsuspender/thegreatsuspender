@@ -89,7 +89,7 @@ body.suspended-page:not(.img-preview-mode) {
     padding: 30px 40px 20px;
     width: 100%;
     text-align: center;
-    z-index: 10;
+    z-index: 101;
 }
 .faviconWrap {
     display: inline-block;
@@ -163,19 +163,10 @@ body.img-preview-mode .gsTopBar {
     justify-content: center;
     flex-direction: column;
     text-align: center;
-    padding: 130px 0;
 }
-.suspendedMsg-snoozy {
-    position: relative;
-    flex: 1 1 100%;
-    max-height: 210px;
-    min-height: 80px;
-    width: 180px;
-    padding-bottom: 30px;
-}
-.suspendedMsg-snoozy img {
-    height: 100%;
-    max-height: 180px;
+.suspendedMsg img {
+    height: 180px;
+    margin-bottom: 30px;
 }
 .suspendedMsg-instr {
     font-size: 20px;
