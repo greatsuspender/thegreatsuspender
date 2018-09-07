@@ -86,7 +86,7 @@ var historyUtils = (function() {
           windows: windows,
           date: new Date().toISOString(),
         };
-        gsStorage.updateSession(session, function() {
+        gsStorage.updateSession(session).then(function() {
           callback();
         });
       });
@@ -153,7 +153,7 @@ var historyUtils = (function() {
         historyUtils.validateNewSessionName(sessionName, function(shouldSave) {
           if (shouldSave) {
             session.name = sessionName;
-            gsStorage.addToSavedSessions(session, function() {
+            gsStorage.addToSavedSessions(session).then(function () {
               window.location.reload();
             });
           }

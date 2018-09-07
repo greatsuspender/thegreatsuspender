@@ -11,9 +11,7 @@ testSuites.push(
         const wasCurrentSessionsEmpty = currentSessionsBefore.length === 0;
 
         const session1 = fixtures.currentSessions.currentSession1;
-        const dbSession = await new Promise(resolve =>
-          gsStorage.updateSession(session1, resolve)
-        );
+        const dbSession = await gsStorage.updateSession(session1);
 
         const isSessionValid =
           dbSession.id === session1.id &&
@@ -44,9 +42,7 @@ testSuites.push(
           url: 'https://test.com',
         });
 
-        const dbSession = await new Promise(resolve =>
-          gsStorage.updateSession(session1, resolve)
-        );
+        const dbSession = await gsStorage.updateSession(session1);
         const isSessionValid =
           dbSession.sessionId === session1.sessionId &&
           dbSession.windows.length === 1 &&
@@ -64,7 +60,7 @@ testSuites.push(
 
     return {
       name: 'Current Sessions',
-      requiredLibs: ['db', 'gsStorage', 'gsSession'],
+      requiredLibs: ['db', 'gsStorage', 'gsSession', 'gsUtils'],
       requiredFixtures: ['currentSessions'],
       tests,
     };

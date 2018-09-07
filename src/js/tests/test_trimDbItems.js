@@ -18,9 +18,7 @@ testSuites.push(
           sessionTemplate.sessionId = i + '';
           const previousDateInMs = Date.now() - 1000 * 60 * 60 * i;
           sessionTemplate.date = new Date(previousDateInMs).toISOString();
-          await new Promise(resolve =>
-            gsStorage.updateSession(sessionTemplate, resolve)
-          );
+          await gsStorage.updateSession(sessionTemplate);
         }
 
         // Add a current session
@@ -31,9 +29,7 @@ testSuites.push(
         delete sessionTemplate.id;
         sessionTemplate.sessionId = currentSessionId;
         sessionTemplate.date = new Date().toISOString();
-        await new Promise(resolve =>
-          gsStorage.updateSession(sessionTemplate, resolve)
-        );
+        await gsStorage.updateSession(sessionTemplate);
 
         const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
         const areCurrentSessionsBeforeValid =
@@ -43,9 +39,6 @@ testSuites.push(
         const isLastSessionBeforeValid = lastSessionBefore.sessionId === '1';
 
         await gsStorage.trimDbItems();
-
-        //TODO: Fix bug where the above does not wait for actual trim to finish
-        await new Promise(r => setTimeout(r, 50));
 
         // Ensure current session still exists
         const currentSession = await gsStorage.fetchSessionBySessionId(

@@ -636,13 +636,13 @@ var gsUtils = {
     return window;
   },
 
-  saveWindowsToSessionHistory: function(sessionId, windowsArray) {
+  saveWindowsToSessionHistory: async function(sessionId, windowsArray) {
     var session = {
       sessionId: sessionId,
       windows: windowsArray,
       date: new Date().toISOString(),
     };
-    gsStorage.updateSession(session);
+    await gsStorage.updateSession(session);
   },
 
   removeInternalUrlsFromSession: function(session) {

@@ -76,22 +76,22 @@
   function removeTab(element, sessionId, windowId, tabId) {
     var sessionEl, newSessionEl;
 
-    gsStorage.removeTabFromSessionHistory(sessionId, windowId, tabId, function(
-      session
-    ) {
-      gsUtils.removeInternalUrlsFromSession(session);
-      //if we have a valid session returned
-      if (session) {
-        sessionEl = element.parentElement.parentElement;
-        newSessionEl = createSessionElement(session);
-        sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-        toggleSession(newSessionEl, session.sessionId);
+    gsStorage
+      .removeTabFromSessionHistory(sessionId, windowId, tabId)
+      .then(function(session) {
+        gsUtils.removeInternalUrlsFromSession(session);
+        //if we have a valid session returned
+        if (session) {
+          sessionEl = element.parentElement.parentElement;
+          newSessionEl = createSessionElement(session);
+          sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
+          toggleSession(newSessionEl, session.sessionId);
 
-        //otherwise assume it was the last tab in session and session has been removed
-      } else {
-        window.location.reload();
-      }
-    });
+          //otherwise assume it was the last tab in session and session has been removed
+        } else {
+          window.location.reload();
+        }
+      });
   }
 
   function toggleSession(element, sessionId) {

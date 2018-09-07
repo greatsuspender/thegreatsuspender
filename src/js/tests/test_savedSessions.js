@@ -13,10 +13,7 @@ testSuites.push(
         const wasSavedSessionsEmpty = savedSessionsBefore.length === 0;
 
         const session1 = fixtures.savedSessions.savedSession1;
-        session1.sessionId = '_' + session1;
-        const dbSession = await new Promise(resolve =>
-          gsStorage.updateSession(session1, resolve)
-        );
+        const dbSession = await gsStorage.updateSession(session1);
         const isSessionValid =
           dbSession.id === session1.id &&
           dbSession.sessionId === session1.sessionId &&
@@ -43,7 +40,7 @@ testSuites.push(
 
     return {
       name: 'Saved Sessions',
-      requiredLibs: ['db', 'gsStorage', 'gsSession'],
+      requiredLibs: ['db', 'gsStorage', 'gsSession', 'gsUtils'],
       requiredFixtures: ['savedSessions'],
       tests,
     };

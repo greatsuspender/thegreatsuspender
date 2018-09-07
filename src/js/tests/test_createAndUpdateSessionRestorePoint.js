@@ -18,24 +18,13 @@ testSuites.push(
           oldVersion,
           newVersion
         );
-        // const sessionRestoreMatchesCurrentSession =
-        //   sessionRestorePointAfter.windows[0].tabs.length === 5;
-
-        // For now, there is a bug where createSessionRestorePoint does not actually
-        // return the newly created session. So we have to fetch it again.
-        // return assertTrue(sessionRestoreMatchesCurrentSession);
-        await new Promise(r => setTimeout(r, 50));
-        const sessionRestorePointAfter2 = await gsStorage.fetchSessionRestorePoint(
-          gsStorage.DB_SESSION_POST_UPGRADE_KEY,
-          newVersion
-        );
-        // const sessionRestore2MatchesCurrentSession =
-        //   sessionRestorePointAfter2.windows[0].tabs.length === 5;
 
         //TODO: For now, this is unimplemented functionality. If there is no existing current
         // session, then createSessionRestorePoint will not be able to create a session.
-        // return assertTrue(sessionRestore2MatchesCurrentSession);
-        return assertTrue(sessionRestorePointAfter2 === null);
+        // const sessionRestoreMatchesCurrentSession =
+        //   sessionRestorePointAfter.windows[0].tabs.length === 5;
+        // return assertTrue(sessionRestoreMatchesCurrentSession);
+        return assertTrue(sessionRestorePointAfter === null);
       },
 
       // Test create session restore point when current sessions exists
@@ -46,30 +35,16 @@ testSuites.push(
         // Create a current session from fixtures
         const session1 = fixtures.currentSessions.currentSession1;
         session1.sessionId = gsSession.getSessionId();
-        await new Promise(resolve =>
-          gsStorage.updateSession(session1, resolve)
-        );
+        await gsStorage.updateSession(session1);
 
         // Simulate gsSession.prepareForUpdate
         const sessionRestorePointAfter = await gsStorage.createSessionRestorePoint(
           oldVersion,
           newVersion
         );
-        // const sessionRestoreMatchesCurrentSession = sessionRestorePointAfter.windows[0].tabs.length === 5;
-
-        //TODO: For now, there is a bug where createSessionRestorePoint does not
-        // return a promise, so it always returns null.
-        // Therefore, for this test, we have to fetch it again.
-        // return assertTrue(sessionRestoreMatchesCurrentSession);
-        await new Promise(r => setTimeout(r, 50));
-        const sessionRestorePointAfter2 = await gsStorage.fetchSessionRestorePoint(
-          gsStorage.DB_SESSION_POST_UPGRADE_KEY,
-          newVersion
-        );
-        const sessionRestore2MatchesCurrentSession =
-          sessionRestorePointAfter2.windows[0].tabs.length === 5;
-
-        return assertTrue(sessionRestore2MatchesCurrentSession);
+        const sessionRestoreMatchesCurrentSession =
+          sessionRestorePointAfter.windows[0].tabs.length === 5;
+        return assertTrue(sessionRestoreMatchesCurrentSession);
       },
 
       // Test create session restore point when session restore point already exists
@@ -83,9 +58,7 @@ testSuites.push(
         const newId = '_777777';
         sessionRestorePointBefore.id = newId;
         sessionRestorePointBefore.sessionId = newId;
-        await new Promise(resolve =>
-          gsStorage.updateSession(sessionRestorePointBefore, resolve)
-        );
+        await gsStorage.updateSession(sessionRestorePointBefore);
         const newSessionRestorePointBefore = await gsStorage.fetchSessionBySessionId(
           newId
         );
@@ -101,9 +74,7 @@ testSuites.push(
           title: 'testTab',
           url: 'https://test.com',
         });
-        await new Promise(resolve =>
-          gsStorage.updateSession(session1, resolve)
-        );
+        await gsStorage.updateSession(session1);
         const newCurrentSession = await gsStorage.fetchSessionBySessionId(
           currentSessionId
         );
@@ -116,19 +87,8 @@ testSuites.push(
           oldVersion,
           newVersion
         );
-        // const sessionRestorePointAfterValid = sessionRestorePointAfter.windows[0].tabs.length === 6;
-
-        //TODO: For now, there is a bug where createSessionRestorePoint does not
-        // return a promise, so it always returns null.
-        // Therefore, for this test, we have to fetch it again.
-        // return assertTrue(sessionRestorePointAfterValid);
-        await new Promise(r => setTimeout(r, 50));
-        const sessionRestorePointAfter2 = await gsStorage.fetchSessionRestorePoint(
-          gsStorage.DB_SESSION_POST_UPGRADE_KEY,
-          newVersion
-        );
-        const sessionRestorePointAfter2Valid =
-          sessionRestorePointAfter2.windows[0].tabs.length === 6;
+        const sessionRestorePointAfterValid =
+          sessionRestorePointAfter.windows[0].tabs.length === 6;
 
         //TODO: Fix bug where calling createSessionRestorePoint a second time for same versions
         // causes two sessions to exists with these version numbers (it should update existing one)
@@ -143,7 +103,7 @@ testSuites.push(
         return assertTrue(
           sessionRestorePointBeforeValid &&
             currentSessionUpdated &&
-            sessionRestorePointAfter2Valid &&
+            sessionRestorePointAfterValid &&
             sessionRestoreCount === 2 //should be 1
         );
       },

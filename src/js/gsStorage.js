@@ -517,36 +517,35 @@ var gsStorage = {
     });
   },
 
-  updateSession: function(session, callback) {
-    var self = this;
-    //if it's a saved session (prefixed with an underscore)
-    var tableName =
-      session.sessionId.indexOf('_') === 0
-        ? self.DB_SAVED_SESSIONS
-        : self.DB_CURRENT_SESSIONS;
-    callback = typeof callback !== 'function' ? self.noop : callback;
+  updateSession: async function(session) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
 
-    //first check to see if session id already exists
-    self
-      .fetchSessionBySessionId(session.sessionId)
-      .then(function(matchingSession) {
-        if (matchingSession) {
-          session.id = matchingSession.id; //copy across id from matching session
-          session.date = new Date().toISOString();
-          return self.getDb().then(function(s) {
-            return s.update(tableName, session); //then update based on that id
-          });
-        } else {
-          return self.getDb().then(function(s) {
-            return s.add(tableName, session);
-          });
-        }
-      })
-      .then(function(result) {
-        if (result.length > 0) {
-          callback(result[0]);
-        }
-      });
+      //if it's a saved session (prefixed with an underscore)
+      var tableName =
+        session.sessionId.indexOf('_') === 0
+          ? this.DB_SAVED_SESSIONS
+          : this.DB_CURRENT_SESSIONS;
+
+      //first check to see if session id already exists
+      const matchingSession = await this.fetchSessionBySessionId(
+        session.sessionId
+      );
+      if (matchingSession) {
+        session.id = matchingSession.id; //copy across id from matching session
+        session.date = new Date().toISOString();
+        results = await gsDb.update(tableName, session); //then update based on that id
+      } else {
+        results = await gsDb.add(tableName, session);
+      }
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    if (results && results.length > 0) {
+      return results[0];
+    }
+    return null;
   },
 
   fetchCurrentSessions: function() {
@@ -560,77 +559,77 @@ var gsStorage = {
     });
   },
 
-  fetchSessionBySessionId: function(sessionId) {
-    //if it's a saved session (prefixed with an underscore)
-    var tableName =
-      sessionId.indexOf('_') === 0
-        ? this.DB_SAVED_SESSIONS
-        : this.DB_CURRENT_SESSIONS;
+  fetchSessionBySessionId: async function(sessionId) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
 
-    return this.getDb().then(function(s) {
-      return s
+      //if it's a saved session (prefixed with an underscore)
+      const tableName =
+        sessionId.indexOf('_') === 0
+          ? this.DB_SAVED_SESSIONS
+          : this.DB_CURRENT_SESSIONS;
+      results = await gsDb
         .query(tableName, 'sessionId')
         .only(sessionId)
         .desc()
-        .execute()
-        .then(function(results) {
-          if (results.length > 0) {
-            // Remove any duplicates!!!
-            if (results.length > 1) {
-              gsUtils.error(
-                'Duplicate sessions found for sessionId: ' +
-                  sessionId +
-                  '! Removing older ones..'
-              );
-              for (var session of results.slice(1)) {
-                s.remove(tableName, session.id).then(res => {});
-              }
-            }
-            return results[0];
-          } else {
-            return null;
-          }
-        });
-    });
+        .execute();
+
+      if (results.length > 1) {
+        gsUtils.log(
+          'gsStorage',
+          'Duplicate sessions found for sessionId: ' +
+            sessionId +
+            '! Removing older ones..'
+        );
+        for (var session of results.slice(1)) {
+          await gsDb.remove(tableName, session.id);
+        }
+      }
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    if (results && results.length > 0) {
+      return results[0];
+    }
+    return null;
   },
 
-  createSessionRestorePoint: function(currentVersion, newVersion) {
-    var currentSession;
-    var currentSessionId = gsSession.getSessionId();
-    return this.fetchSessionBySessionId(currentSessionId)
-      .then(function(session) {
-        currentSession = session;
-        return gsStorage.fetchCurrentSessions();
-      })
-      .then(function(sessions) {
-        if (!currentSession && sessions && sessions.length > 0) {
-          currentSession = sessions[0];
-        }
-        if (currentSession) {
-          currentSession.name = 'Automatic save point for v' + currentVersion;
-          currentSession[gsStorage.DB_SESSION_PRE_UPGRADE_KEY] = currentVersion;
-          currentSession[gsStorage.DB_SESSION_POST_UPGRADE_KEY] = newVersion;
-          //TODO: addToSavedSessions does not return a promise!!!
-          return gsStorage.addToSavedSessions(currentSession);
-        }
-      })
-      .finally(function() {
-        return currentSession;
-      });
+  createSessionRestorePoint: async function(currentVersion, newVersion) {
+    const currentSessionId = gsSession.getSessionId();
+    let currentSession = await this.fetchSessionBySessionId(currentSessionId);
+    if (!currentSession) {
+      const allCurrentSessions = await this.fetchCurrentSessions();
+      if (allCurrentSessions && allCurrentSessions.length > 0) {
+        currentSession = allCurrentSessions[0];
+      } else {
+        return null;
+      }
+    }
+    currentSession.name = 'Automatic save point for v' + currentVersion;
+    currentSession[gsStorage.DB_SESSION_PRE_UPGRADE_KEY] = currentVersion;
+    currentSession[gsStorage.DB_SESSION_POST_UPGRADE_KEY] = newVersion;
+    const savedSession = await this.addToSavedSessions(currentSession);
+    return savedSession;
   },
 
-  fetchSessionRestorePoint: function(versionKey, versionValue) {
-    var tableName = this.DB_SAVED_SESSIONS;
-    return this.getDb().then(function(s) {
-      return s
+  fetchSessionRestorePoint: async function(versionKey, versionValue) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      var tableName = this.DB_SAVED_SESSIONS;
+      results = await gsDb
         .query(tableName)
         .filter(versionKey, versionValue)
         .distinct()
-        .execute()
-        .then(function(results) {
-          return results.length > 0 ? results[0] : null;
-        });
-    });
+        .execute();
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    if (results && results.length > 0) {
+      return results[0];
+    }
+    return null;
   },
 
   // Returns most recent session in DB_CURRENT_SESSIONS
@@ -674,9 +673,7 @@ var gsStorage = {
     });
   },
 
-  addToSavedSessions: function(session, callback) {
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
+  addToSavedSessions: async function(session) {
     //if sessionId does not already have an underscore prefix then generate a new unique sessionId for this saved session
     if (session.sessionId.indexOf('_') < 0) {
       session.sessionId = '_' + gsUtils.generateHashCode(session.name);
@@ -684,15 +681,15 @@ var gsStorage = {
 
     //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
     delete session.id;
-
-    this.updateSession(session, callback);
+    const updatedSession = await this.updateSession(session);
+    return updatedSession;
   },
 
   clearGsDatabase: function() {
     var self = this,
       server;
 
-    this.getDb()
+    return this.getDb()
       .then(function(s) {
         server = s;
         return server.clear(self.DB_CURRENT_SESSIONS);
@@ -702,44 +699,35 @@ var gsStorage = {
       });
   },
 
-  removeTabFromSessionHistory: function(sessionId, windowId, tabId, callback) {
-    var self = this,
-      matched;
-
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
-    this.fetchSessionBySessionId(sessionId).then(function(gsSession) {
-      gsSession.windows.some(function(curWindow, windowIndex) {
-        matched = curWindow.tabs.some(function(curTab, tabIndex) {
-          //leave this as a loose matching as sometimes it is comparing strings. other times ints
-          if (curTab.id == tabId || curTab.url == tabId) {
-            // eslint-disable-line eqeqeq
-            curWindow.tabs.splice(tabIndex, 1);
-            return true;
-          }
-        });
-        if (matched) {
-          //remove window if it no longer contains any tabs
-          if (curWindow.tabs.length === 0) {
-            gsSession.windows.splice(windowIndex, 1);
-          }
+  removeTabFromSessionHistory: async function(sessionId, windowId, tabId) {
+    const gsSession = await this.fetchSessionBySessionId(sessionId);
+    gsSession.windows.some(function(curWindow, windowIndex) {
+      const matched = curWindow.tabs.some(function(curTab, tabIndex) {
+        //leave this as a loose matching as sometimes it is comparing strings. other times ints
+        if (curTab.id == tabId || curTab.url == tabId) {
+          // eslint-disable-line eqeqeq
+          curWindow.tabs.splice(tabIndex, 1);
           return true;
         }
       });
-
-      //update session
-      if (gsSession.windows.length > 0) {
-        self.updateSession(gsSession, function(session) {
-          callback(session);
-        });
-
-        //or remove session if it no longer contains any windows
-      } else {
-        self.removeSessionFromHistory(sessionId, function(session) {
-          callback();
-        });
+      if (matched) {
+        //remove window if it no longer contains any tabs
+        if (curWindow.tabs.length === 0) {
+          gsSession.windows.splice(windowIndex, 1);
+        }
+        return true;
       }
     });
+
+    //update session
+    let session;
+    if (gsSession.windows.length > 0) {
+      session = await this.updateSession(gsSession);
+      //or remove session if it no longer contains any windows
+    } else {
+      session = await this.removeSessionFromHistory(sessionId);
+    }
+    return session;
   },
 
   removeSessionFromHistory: function(sessionId, callback) {
@@ -769,68 +757,52 @@ var gsStorage = {
       .then(callback);
   },
 
-  trimDbItems: function() {
-    var self = this,
-      server,
-      maxTabItems = 1000,
-      maxHistories = 5,
-      itemsToRemove,
-      i;
+  trimDbItems: async function() {
+    const maxTabItems = 1000;
+    const maxHistories = 5;
 
-    this.getDb()
-      .then(function(s) {
-        server = s;
-        return server
-          .query(self.DB_SUSPENDED_TABINFO, 'id')
+    try {
+      const gsDb = await this.getDb();
+
+      //trim suspendedTabInfo. if there are more than maxTabItems items, then remove the oldest ones
+      const suspendedTabInfos = await gsDb.query(this.DB_SUSPENDED_TABINFO, 'id')
+        .all()
+        .keys()
+        .execute();
+      if (suspendedTabInfos.length > maxTabItems) {
+        const itemsToRemove = suspendedTabInfos.length - maxTabItems;
+        for (let i = 0; i < itemsToRemove; i++) {
+          await gsDb.remove(this.DB_SUSPENDED_TABINFO, suspendedTabInfos[i]);
+        }
+      }
+
+      //trim imagePreviews. if there are more than maxTabItems items, then remove the oldest ones
+      const previews = await gsDb.query(this.DB_PREVIEWS, 'id')
+          .all()
+          .keys()
+          .execute();
+      if (previews.length > maxTabItems) {
+        const itemsToRemove = previews.length - maxTabItems;
+        for (let i = 0; i < itemsToRemove; i++) {
+          await gsDb.remove(this.DB_PREVIEWS, previews[i]);
+        }
+      }
+
+      //trim currentSessions. if there are more than maxHistories items, then remove the oldest ones
+      const currentSessions = await gsDb.query(this.DB_CURRENT_SESSIONS, 'id')
           .all()
           .keys()
           .execute();
 
-        //trim suspendedTabInfo
-      })
-      .then(function(results) {
-        //if there are more than maxTabItems items, then remove the oldest ones
-        if (results.length > maxTabItems) {
-          itemsToRemove = results.length - maxTabItems;
-          for (i = 0; i < itemsToRemove; i++) {
-            server.remove(self.DB_SUSPENDED_TABINFO, results[i]);
-          }
+      if (currentSessions.length > maxHistories) {
+        const itemsToRemove = currentSessions.length - maxHistories;
+        for (let i = 0; i < itemsToRemove; i++) {
+          await gsDb.remove(this.DB_CURRENT_SESSIONS, currentSessions[i]);
         }
-
-        return server
-          .query(self.DB_PREVIEWS, 'id')
-          .all()
-          .keys()
-          .execute();
-
-        //trim imagePreviews
-      })
-      .then(function(results) {
-        //if there are more than maxTabItems items, then remove the oldest ones
-        if (results.length > maxTabItems) {
-          itemsToRemove = results.length - maxTabItems;
-          for (i = 0; i < itemsToRemove; i++) {
-            server.remove(self.DB_PREVIEWS, results[i]);
-          }
-        }
-
-        return server
-          .query(self.DB_CURRENT_SESSIONS, 'id')
-          .all()
-          .keys()
-          .execute();
-
-        //trim currentSessions
-      })
-      .then(function(results) {
-        //if there are more than maxHistories items, then remove the oldest ones
-        if (results.length > maxHistories) {
-          itemsToRemove = results.length - maxHistories;
-          for (i = 0; i < itemsToRemove; i++) {
-            server.remove(self.DB_CURRENT_SESSIONS, results[i]);
-          }
-        }
-      });
+      }
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
   },
 
   /**
@@ -853,7 +825,7 @@ var gsStorage = {
       // if (oldVersion < 6.13)
 
       //fix up migrated saved session and newly saved session sessionIds
-      this.getDb()
+      return this.getDb()
         .then(function(s) {
           server = s;
           return s

@@ -194,24 +194,22 @@ var gsSession = (function() {
       });
   }
 
-  function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
-    return gsStorage
-      .fetchSessionRestorePoint(
-        gsStorage.DB_SESSION_POST_UPGRADE_KEY,
-        curVersion
-      )
-      .then(function(session) {
-        if (session) {
-          return session;
-        } else {
-          return gsStorage.createSessionRestorePoint(lastVersion, curVersion);
-        }
-      });
+  async function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
+    const session = await gsStorage.fetchSessionRestorePoint(
+      gsStorage.DB_SESSION_POST_UPGRADE_KEY,
+      curVersion
+    );
+    if (session) {
+      return session;
+    } else {
+      const newSession = await gsStorage.createSessionRestorePoint(lastVersion, curVersion);
+      return newSession;
+    }
   }
 
   //TODO: Improve this function to determine browser startup with 100% certainty
   //NOTE: Current implementation leans towards conservatively saying it's not a browser startup
-  function checkForBrowserStartup(currentTabs) {
+  async function checkForBrowserStartup(currentTabs) {
     //check for suspended tabs in current session
     //if found, then we can probably assume that this is a browser startup which is restoring previously open tabs
     const suspendedTabs = [];
@@ -391,7 +389,9 @@ var gsSession = (function() {
           }
           gsUtils.log(
             discardedTab.id,
-            `Suspended tab with id: ${tab.id} was discarded before init. Will reload..`
+            `Suspended tab with id: ${
+              tab.id
+            } was discarded before init. Will reload..`
           );
           chrome.tabs.update(
             discardedTab.id,

@@ -10,33 +10,33 @@ testSuites.push(
         const currentSessionWindows = [];
         const currentSessionId = gsSession.getSessionId();
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 100; i++) {
             let windowTemplate = JSON.parse(
               JSON.stringify(fixtures.currentSessions.currentSession1.windows[0])
           );
           windowTemplate.id = i;
           currentSessionWindows.push(windowTemplate);
 
-          //TODO: This should probably return a promise
-          // await new Promise(resolve =>
-          //   gsUtils.saveWindowsToSessionHistory(currentSessionId, currentSessionWindows)
-          // );
-          gsUtils.saveWindowsToSessionHistory(
-            currentSessionId,
-            currentSessionWindows
-          );
-          // For now, add a timeout
+          // Purposely don't await on this call
+          gsUtils.saveWindowsToSessionHistory(currentSessionId, currentSessionWindows);
           await new Promise(r => setTimeout(r, 1));
         }
+
+        //if it's a saved session (prefixed with an underscore)
+        const gsTestDb = await gsStorage.getDb();
+        const results = await gsTestDb
+          .query(gsStorage.DB_CURRENT_SESSIONS, 'sessionId')
+          .only(currentSessionId)
+          .desc()
+          .execute();
+        const onlySingleSessionForIdExists = results.length === 1;
 
         const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
         const isCurrentSessionValid =
           currentSessionsAfter[0].windows.length === 100;
-        console.log(currentSessionsAfter.length);
-        console.log(currentSessionsAfter[0].windows.length);
 
-        return assertTrue(isCurrentSessionsPopulated && isCurrentSessionValid);
+        return assertTrue(onlySingleSessionForIdExists && isCurrentSessionsPopulated && isCurrentSessionValid);
       },
     ];
 
