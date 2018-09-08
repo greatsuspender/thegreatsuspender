@@ -661,7 +661,6 @@ var gsUtils = {
         session.windows.splice(i, 1);
       }
     }
-    return session;
   },
 
   getSimpleDate: function(date) {

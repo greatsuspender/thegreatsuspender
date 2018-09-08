@@ -632,35 +632,26 @@ var gsStorage = {
     return null;
   },
 
-  // Returns most recent session in DB_CURRENT_SESSIONS
-  // EXCLUDING the current session
-  fetchLastSession: function() {
-    var self = this,
-      currentSessionId,
-      lastSession = null;
-
-    currentSessionId = gsSession.getSessionId();
-    return this.getDb().then(function(s) {
-      return s
-        .query(self.DB_CURRENT_SESSIONS, 'id')
+  // Returns most recent session in DB_CURRENT_SESSIONS EXCLUDING the current session
+  fetchLastSession: async function() {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_CURRENT_SESSIONS, 'id')
         .all()
         .desc()
-        .execute()
-        .then(function(results) {
-          if (results.length > 0) {
-            results.some(function(curSession) {
-              //don't want to match on current session
-              if (curSession.sessionId !== currentSessionId) {
-                lastSession = curSession;
-                return true;
-              }
-            });
-            return lastSession;
-          } else {
-            return null;
-          }
-        });
-    });
+        .execute();
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    if (results && results.length > 0) {
+      //don't want to match on current session
+      const currentSessionId = gsSession.getSessionId();
+      const lastSession = results.find(o => o.sessionId !== currentSessionId);
+      return lastSession;
+    }
+    return null;
   },
 
   fetchSavedSessions: function() {
@@ -765,7 +756,8 @@ var gsStorage = {
       const gsDb = await this.getDb();
 
       //trim suspendedTabInfo. if there are more than maxTabItems items, then remove the oldest ones
-      const suspendedTabInfos = await gsDb.query(this.DB_SUSPENDED_TABINFO, 'id')
+      const suspendedTabInfos = await gsDb
+        .query(this.DB_SUSPENDED_TABINFO, 'id')
         .all()
         .keys()
         .execute();
@@ -777,10 +769,11 @@ var gsStorage = {
       }
 
       //trim imagePreviews. if there are more than maxTabItems items, then remove the oldest ones
-      const previews = await gsDb.query(this.DB_PREVIEWS, 'id')
-          .all()
-          .keys()
-          .execute();
+      const previews = await gsDb
+        .query(this.DB_PREVIEWS, 'id')
+        .all()
+        .keys()
+        .execute();
       if (previews.length > maxTabItems) {
         const itemsToRemove = previews.length - maxTabItems;
         for (let i = 0; i < itemsToRemove; i++) {
@@ -789,10 +782,11 @@ var gsStorage = {
       }
 
       //trim currentSessions. if there are more than maxHistories items, then remove the oldest ones
-      const currentSessions = await gsDb.query(this.DB_CURRENT_SESSIONS, 'id')
-          .all()
-          .keys()
-          .execute();
+      const currentSessions = await gsDb
+        .query(this.DB_CURRENT_SESSIONS, 'id')
+        .all()
+        .keys()
+        .execute();
 
       if (currentSessions.length > maxHistories) {
         const itemsToRemove = currentSessions.length - maxHistories;
@@ -809,61 +803,53 @@ var gsStorage = {
    * MIGRATIONS
    */
 
-  performMigration: function(oldVersion) {
-    var self = this,
-      server;
+  performMigration: async function(oldVersion) {
+    try {
+      const gsDb = await this.getDb();
+      const extensionName = chrome.runtime.getManifest().name || '';
 
-    var extensionName = chrome.runtime.getManifest().name || '';
+      const major = parseInt(oldVersion.split('.')[0] || 0);
+      const minor = parseInt(oldVersion.split('.')[1] || 0);
+      const testMode = extensionName.includes('Test');
+      // patch = parseInt(oldVersion.split('.')[2] || 0);
 
-    var major = parseInt(oldVersion.split('.')[0] || 0),
-      minor = parseInt(oldVersion.split('.')[1] || 0),
-      testMode = extensionName.includes('Test');
-    // patch = parseInt(oldVersion.split('.')[2] || 0);
+      //perform migrated history fixup
+      if (major < 6 || (major === 6 && minor < 13)) {
+        // if (oldVersion < 6.13)
 
-    //perform migrated history fixup
-    if (major < 6 || (major === 6 && minor < 13)) {
-      // if (oldVersion < 6.13)
-
-      //fix up migrated saved session and newly saved session sessionIds
-      return this.getDb()
-        .then(function(s) {
-          server = s;
-          return s
-            .query(self.DB_SAVED_SESSIONS)
-            .all()
-            .execute();
-        })
-        .then(function(savedSessions) {
-          savedSessions.forEach(function(session, index) {
-            if (session.id === 7777) {
-              session.sessionId = '_7777';
-              session.name = 'Recovered tabs';
-              session.date = new Date(session.date).toISOString();
-            } else {
-              session.sessionId = '_' + gsUtils.generateHashCode(session.name);
-            }
-            server.update(self.DB_SAVED_SESSIONS, session);
-          });
-        });
-    }
-    if (major < 6 || (major === 6 && minor < 30)) {
-      // if (oldVersion < 6.30)
-
-      if (this.getOption('preview')) {
-        if (this.getOption('previewQuality') === '0.1') {
-          this.setOption(this.SCREEN_CAPTURE, '1');
-        } else {
-          this.setOption(this.SCREEN_CAPTURE, '2');
+        //fix up migrated saved session and newly saved session sessionIds
+        const savedSessions = await gsDb.query(this.DB_SAVED_SESSIONS)
+              .all()
+              .execute();
+        for (const session of savedSessions) {
+          if (session.id === 7777) {
+            session.sessionId = '_7777';
+            session.name = 'Recovered tabs';
+            session.date = new Date(session.date).toISOString();
+          } else {
+            session.sessionId = '_' + gsUtils.generateHashCode(session.name);
+          }
+          await gsDb.update(this.DB_SAVED_SESSIONS, session);
         }
-      } else {
-        this.setOption(this.SCREEN_CAPTURE, '0');
       }
-    }
-    if (major < 6 || (major === 6 && minor < 31) || testMode) {
-      // if (oldVersion < 6.31)
-      chrome.cookies.getAll({}, function(cookies) {
+      if (major < 6 || (major === 6 && minor < 30)) {
+        // if (oldVersion < 6.30)
+
+        if (this.getOption('preview')) {
+          if (this.getOption('previewQuality') === '0.1') {
+            this.setOption(this.SCREEN_CAPTURE, '1');
+          } else {
+            this.setOption(this.SCREEN_CAPTURE, '2');
+          }
+        } else {
+          this.setOption(this.SCREEN_CAPTURE, '0');
+        }
+      }
+      if (major < 6 || (major === 6 && minor < 31) || testMode) {
+        // if (oldVersion < 6.31)
+        const cookies = await new Promise(r => chrome.cookies.getAll({}, r));
         var scrollPosByTabId = {};
-        cookies.forEach(function(cookie) {
+        for (const cookie of cookies) {
           if (cookie.name.indexOf('gsScrollPos') === 0) {
             if (cookie.value && cookie.value !== '0') {
               var tabId = cookie.name.substr(12);
@@ -874,11 +860,13 @@ var gsStorage = {
               prefix += 'www';
             }
             var url = prefix + cookie.domain + cookie.path;
-            chrome.cookies.remove({ url: url, name: cookie.name });
+            await new Promise(r => chrome.cookies.remove({ url: url, name: cookie.name }, r));
           }
-        });
+        }
         tgs.scrollPosByTabId = scrollPosByTabId;
-      });
+      }
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
     }
   },
 };
