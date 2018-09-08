@@ -601,7 +601,7 @@ var tgs = (function() {
         // Encode any raw html tags that might be used in the title
         title = gsUtils.htmlEncode(title);
       }
-      gsStorage.fetchPreviewImage(originalUrl, function(preview) {
+      gsStorage.fetchPreviewImage(originalUrl).then(function(preview) {
         var previewUri = null;
         if (
           preview &&
@@ -1179,13 +1179,9 @@ var tgs = (function() {
 
       case 'savePreviewData':
         if (request.previewUrl) {
-          gsStorage.addPreviewImage(
-            sender.tab.url,
-            request.previewUrl,
-            function() {
-              gsSuspendManager.executeTabSuspension(sender.tab);
-            }
-          );
+          gsStorage
+            .addPreviewImage(sender.tab.url, request.previewUrl)
+            .then(() => gsSuspendManager.executeTabSuspension(sender.tab));
         } else {
           gsUtils.log('savePreviewData reported an error: ' + request.errorMsg);
           gsSuspendManager.executeTabSuspension(sender.tab);

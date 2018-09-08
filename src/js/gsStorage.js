@@ -411,103 +411,80 @@ var gsStorage = {
     };
   },
 
-  fetchPreviewImage: function(tabUrl, callback) {
-    var self = this;
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
-    this.getDb()
-      .then(function(s) {
-        return s
-          .query(self.DB_PREVIEWS, 'url')
-          .only(tabUrl)
-          .execute();
-      })
-      .then(function(results) {
-        if (results.length > 0) {
-          callback(results[0]);
-        } else {
-          callback(null);
-        }
-      })
-      .catch(function(err) {
-        gsUtils.error('gsStorage', err);
-        callback(null);
-      });
-  },
-
-  addPreviewImage: function(tabUrl, previewUrl, callback) {
-    var self = this,
-      server;
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
-    this.getDb()
-      .then(function(s) {
-        server = s;
-        return server
-          .query(self.DB_PREVIEWS, 'url')
-          .only(tabUrl)
-          .execute();
-      })
-      .then(function(results) {
-        if (results.length > 0) {
-          return server.remove(self.DB_PREVIEWS, results[0].id);
-        } else {
-          return Promise.resolve();
-        }
-      })
-      .then(function() {
-        server.add(self.DB_PREVIEWS, { url: tabUrl, img: previewUrl });
-        callback();
-      });
-  },
-
-  addSuspendedTabInfo: function(tabProperties, callback) {
-    var self = this,
-      server;
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
-    if (!tabProperties.url) {
-      gsUtils.log('gsStorage', 'tabProperties.url not set.');
-      callback();
-      return;
+  fetchPreviewImage: async function(tabUrl) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_PREVIEWS, 'url')
+        .only(tabUrl)
+        .execute();
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
     }
-
-    //first check to see if tabProperties already exists
-    this.getDb()
-      .then(function(s) {
-        server = s;
-        return server
-          .query(self.DB_SUSPENDED_TABINFO)
-          .filter('url', tabProperties.url)
-          .execute();
-      })
-      .then(function(results) {
-        if (results.length > 0) {
-          return server.remove(self.DB_SUSPENDED_TABINFO, results[0].id);
-        } else {
-          return Promise.resolve();
-        }
-      })
-      .then(function() {
-        server.add(self.DB_SUSPENDED_TABINFO, tabProperties).then(function() {
-          callback();
-        });
-      });
+    if (results && results.length > 0) {
+      return results[0];
+    }
+    return null;
   },
 
-  fetchTabInfo: function(tabUrl) {
-    var self = this;
-    return this.getDb().then(function(s) {
-      return s
-        .query(self.DB_SUSPENDED_TABINFO, 'url')
+  addPreviewImage: async function(tabUrl, previewUrl) {
+    try {
+      const gsDb = await this.getDb();
+      const results = await gsDb
+        .query(this.DB_PREVIEWS, 'url')
+        .only(tabUrl)
+        .execute();
+      if (results.length > 0) {
+        for (const result of results) {
+          await gsDb.remove(this.DB_PREVIEWS, result.id);
+        }
+      }
+      await gsDb.add(this.DB_PREVIEWS, { url: tabUrl, img: previewUrl });
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+  },
+
+  addSuspendedTabInfo: async function(tabProperties, callback) {
+    try {
+      if (!tabProperties.url) {
+        gsUtils.error('gsStorage', 'tabProperties.url not set.');
+        return;
+      }
+      const gsDb = await this.getDb();
+      const results = await gsDb
+        .query(this.DB_SUSPENDED_TABINFO)
+        .filter('url', tabProperties.url)
+        .execute();
+      if (results.length > 0) {
+        for (const result of results) {
+          await gsDb.remove(this.DB_SUSPENDED_TABINFO, result.id);
+        }
+      }
+      await gsDb.add(this.DB_SUSPENDED_TABINFO, tabProperties);
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+  },
+
+  fetchTabInfo: async function(tabUrl) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_SUSPENDED_TABINFO, 'url')
         .only(tabUrl)
         .distinct()
         .desc()
-        .execute()
-        .then(function(results) {
-          return results.length > 0 ? results[0] : null;
-        });
-    });
+        .execute();
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    if (results && results.length > 0) {
+      return results[0];
+    }
+    return null;
   },
 
   updateSession: async function(session) {
@@ -718,7 +695,7 @@ var gsStorage = {
     return session;
   },
 
-  removeSessionFromHistory: function(sessionId, callback) {
+  removeSessionFromHistory: async function(sessionId, callback) {
     var server,
       session,
       tableName =
