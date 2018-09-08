@@ -72,7 +72,9 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
-      checkForBrowserStartup(tabs);
+    const tabs = (await new Promise(r => chrome.tabs.query({}, r))) || [];
+    await checkForBrowserStartup(tabs);
+    queueCheckTabsForResponsiveness(tabs);
 
     var lastVersion = gsStorage.fetchLastVersion();
     var curVersion = chrome.runtime.getManifest().version;
