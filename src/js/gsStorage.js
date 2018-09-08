@@ -354,22 +354,15 @@ var gsStorage = {
    * INDEXEDDB FUNCTIONS
    */
 
-  getDb: function() {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      if (self.server) {
-        resolve(self.server);
-      } else {
-        db.open({
-          server: self.DB_SERVER,
-          version: self.DB_VERSION,
-          schema: self.getSchema,
-        }).then(function(s) {
-          self.server = s;
-          resolve(s);
-        });
-      }
-    });
+  getDb: async function() {
+    if (!this.server) {
+      this.server = await db.open({
+        server: this.DB_SERVER,
+        version: this.DB_VERSION,
+        schema: this.getSchema,
+      });
+    }
+    return this.server;
   },
 
   getSchema: function() {
@@ -548,15 +541,19 @@ var gsStorage = {
     return null;
   },
 
-  fetchCurrentSessions: function() {
-    var self = this;
-    return self.getDb().then(function(s) {
-      return s
-        .query(self.DB_CURRENT_SESSIONS)
+  fetchCurrentSessions: async function() {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_CURRENT_SESSIONS)
         .all()
         .desc()
         .execute();
-    });
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    return results;
   },
 
   fetchSessionBySessionId: async function(sessionId) {
@@ -654,14 +651,18 @@ var gsStorage = {
     return null;
   },
 
-  fetchSavedSessions: function() {
-    var self = this;
-    return this.getDb().then(function(s) {
-      return s
-        .query(self.DB_SAVED_SESSIONS)
+  fetchSavedSessions: async function() {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_SAVED_SESSIONS)
         .all()
         .execute();
-    });
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
+    return results;
   },
 
   addToSavedSessions: async function(session) {
@@ -676,18 +677,14 @@ var gsStorage = {
     return updatedSession;
   },
 
-  clearGsDatabase: function() {
-    var self = this,
-      server;
-
-    return this.getDb()
-      .then(function(s) {
-        server = s;
-        return server.clear(self.DB_CURRENT_SESSIONS);
-      })
-      .then(function() {
-        return server.clear(self.DB_SAVED_SESSIONS);
-      });
+  clearGsDatabase: async function() {
+    try {
+      const gsDb = await this.getDb();
+      await gsDb.clear(this.DB_CURRENT_SESSIONS);
+      await gsDb.clear(this.DB_SAVED_SESSIONS);
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
   },
 
   removeTabFromSessionHistory: async function(sessionId, windowId, tabId) {
@@ -818,9 +815,10 @@ var gsStorage = {
         // if (oldVersion < 6.13)
 
         //fix up migrated saved session and newly saved session sessionIds
-        const savedSessions = await gsDb.query(this.DB_SAVED_SESSIONS)
-              .all()
-              .execute();
+        const savedSessions = await gsDb
+          .query(this.DB_SAVED_SESSIONS)
+          .all()
+          .execute();
         for (const session of savedSessions) {
           if (session.id === 7777) {
             session.sessionId = '_7777';
@@ -860,7 +858,9 @@ var gsStorage = {
               prefix += 'www';
             }
             var url = prefix + cookie.domain + cookie.path;
-            await new Promise(r => chrome.cookies.remove({ url: url, name: cookie.name }, r));
+            await new Promise(r =>
+              chrome.cookies.remove({ url: url, name: cookie.name }, r)
+            );
           }
         }
         tgs.scrollPosByTabId = scrollPosByTabId;
