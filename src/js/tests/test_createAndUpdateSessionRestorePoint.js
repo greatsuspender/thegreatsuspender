@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsIndexedDb, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -12,7 +12,7 @@ testSuites.push(
       // Should create a session from the currently open windows
       async () => {
         // Simulate gsSession.prepareForUpdate
-        const sessionRestorePointAfter = await gsStorage.createSessionRestorePoint(
+        const sessionRestorePointAfter = await gsIndexedDb.createSessionRestorePoint(
           oldVersion,
           newVersion
         );
@@ -31,10 +31,10 @@ testSuites.push(
         // Create a current session from fixtures
         const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
         session1.sessionId = gsSession.getSessionId();
-        await gsStorage.updateSession(session1);
+        await gsIndexedDb.updateSession(session1);
 
         // Simulate gsSession.prepareForUpdate
-        const sessionRestorePointAfter = await gsStorage.createSessionRestorePoint(
+        const sessionRestorePointAfter = await gsIndexedDb.createSessionRestorePoint(
           oldVersion,
           newVersion
         );
@@ -51,20 +51,20 @@ testSuites.push(
         const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
         delete session1.id;
         session1.sessionId = gsSession.getSessionId();
-        await gsStorage.updateSession(session1);
-        await gsStorage.createSessionRestorePoint(
+        await gsIndexedDb.updateSession(session1);
+        await gsIndexedDb.createSessionRestorePoint(
           oldVersion,
           newVersion
         );
-        const sessionRestorePointBefore = await gsStorage.fetchSessionRestorePoint(
-          gsStorage.DB_SESSION_POST_UPGRADE_KEY,
+        const sessionRestorePointBefore = await gsIndexedDb.fetchSessionRestorePoint(
+          gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY,
           newVersion
         );
         const newId = '_777777';
         sessionRestorePointBefore.id = newId;
         sessionRestorePointBefore.sessionId = newId;
-        await gsStorage.updateSession(sessionRestorePointBefore);
-        const newSessionRestorePointBefore = await gsStorage.fetchSessionBySessionId(
+        await gsIndexedDb.updateSession(sessionRestorePointBefore);
+        const newSessionRestorePointBefore = await gsIndexedDb.fetchSessionBySessionId(
           newId
         );
         const isSessionRestorePointBeforeValid =
@@ -79,8 +79,8 @@ testSuites.push(
           title: 'testTab',
           url: 'https://test.com',
         });
-        await gsStorage.updateSession(session2);
-        const newCurrentSession = await gsStorage.fetchSessionBySessionId(
+        await gsIndexedDb.updateSession(session2);
+        const newCurrentSession = await gsIndexedDb.fetchSessionBySessionId(
           currentSessionId
         );
         const currentSessionUpdated =
@@ -88,7 +88,7 @@ testSuites.push(
 
         // Simulate gsSession.prepareForUpdate
         //TODO: I think ideally we'd just change this function to createOrUpdateSessionRestorePoint
-        const sessionRestorePointAfter = await gsStorage.createSessionRestorePoint(
+        const sessionRestorePointAfter = await gsIndexedDb.createSessionRestorePoint(
           oldVersion,
           newVersion
         );
@@ -98,10 +98,10 @@ testSuites.push(
         //TODO: Fix bug where calling createSessionRestorePoint a second time for same versions
         // causes two sessions to exists with these version numbers (it should update existing one)
         // Conveniently for this current release, it always returns the most recently created one.
-        const gsTestDb = await gsStorage.getDb();
+        const gsTestDb = await gsIndexedDb.getDb();
         const sessionRestoreCount = await gsTestDb
-          .query(gsStorage.DB_SAVED_SESSIONS)
-          .filter(gsStorage.DB_SESSION_POST_UPGRADE_KEY, newVersion)
+          .query(gsIndexedDb.DB_SAVED_SESSIONS)
+          .filter(gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY, newVersion)
           .execute()
           .then(o => o.length);
 

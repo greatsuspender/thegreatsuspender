@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsUtils, gsMessages, gsAnalytics */
+/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsMessages, gsAnalytics */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -27,7 +27,7 @@ var gsSession = (function() {
       'A new version is available: ' + currentVersion + ' -> ' + newVersion
     );
 
-    gsStorage
+    gsIndexedDb
       .createSessionRestorePoint(currentVersion, newVersion)
       .then(function(session) {
         if (!session || gsUtils.getSuspendedTabCount() > 0) {
@@ -108,7 +108,7 @@ var gsSession = (function() {
         await new Promise(r => chrome.tabs.create({ url: recoveryUrl }, r));
       }
     } else {
-      await gsStorage.trimDbItems();
+      await gsIndexedDb.trimDbItems();
     }
     gsAnalytics.reportEvent('System', 'Restart', curVersion + '');
   }
@@ -137,7 +137,7 @@ var gsSession = (function() {
     }
 
     await findOrCreateSessionRestorePoint(lastVersion, curVersion);
-    await gsStorage.performMigration(lastVersion);
+    await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(tabs);
     if (shouldRecoverTabs) {
@@ -209,14 +209,14 @@ var gsSession = (function() {
   }
 
   async function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
-    const session = await gsStorage.fetchSessionRestorePoint(
-      gsStorage.DB_SESSION_POST_UPGRADE_KEY,
+    const session = await gsIndexedDb.fetchSessionRestorePoint(
+      gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY,
       curVersion
     );
     if (session) {
       return session;
     } else {
-      const newSession = await gsStorage.createSessionRestorePoint(
+      const newSession = await gsIndexedDb.createSessionRestorePoint(
         lastVersion,
         curVersion
       );
@@ -264,7 +264,7 @@ var gsSession = (function() {
       lastSessionUnsuspendedTabCount = 0,
       lastSessionUnsuspendedTabs = [];
 
-    const lastSession = await gsStorage.fetchLastSession();
+    const lastSession = await gsIndexedDb.fetchLastSession();
     if (!lastSession) {
       return false;
     }
@@ -469,7 +469,7 @@ var gsSession = (function() {
   }
 
   async function recoverLostTabs() {
-    const lastSession = await gsStorage.fetchLastSession();
+    const lastSession = await gsIndexedDb.fetchLastSession();
     if (!lastSession) {
       return;
     }

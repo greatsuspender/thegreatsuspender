@@ -6,13 +6,14 @@
   var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   var restoreAttempted = false;
   var tabsToRecover = [];
 
   async function getRecoverableTabs(currentTabs) {
-    const lastSession = await gsStorage.fetchLastSession();
+    const lastSession = await gsIndexedDb.fetchLastSession();
     //check to see if they still exist in current session
     if (lastSession) {
       gsUtils.removeInternalUrlsFromSession(lastSession);

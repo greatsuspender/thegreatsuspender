@@ -1,4 +1,4 @@
-/*global chrome, gsSession, gsStorage, gsUtils, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsSession, gsIndexedDb, gsUtils, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -22,15 +22,15 @@ testSuites.push(
         }
 
         //if it's a saved session (prefixed with an underscore)
-        const gsTestDb = await gsStorage.getDb();
+        const gsTestDb = await gsIndexedDb.getDb();
         const results = await gsTestDb
-          .query(gsStorage.DB_CURRENT_SESSIONS, 'sessionId')
+          .query(gsIndexedDb.DB_CURRENT_SESSIONS, 'sessionId')
           .only(currentSessionId)
           .desc()
           .execute();
         const onlySingleSessionForIdExists = results.length === 1;
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
         const isCurrentSessionValid =
           currentSessionsAfter[0].windows.length === 100;

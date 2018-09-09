@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsIndexedDb, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -7,11 +7,11 @@ testSuites.push(
     const tests = [
       // Test saving new currentSession
       async () => {
-        const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
+        const currentSessionsBefore = await gsIndexedDb.fetchCurrentSessions();
         const wasCurrentSessionsEmpty = currentSessionsBefore.length === 0;
 
         const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
-        const dbSession = await gsStorage.updateSession(session1);
+        const dbSession = await gsIndexedDb.updateSession(session1);
 
         const isSessionValid =
           dbSession.id === session1.id &&
@@ -20,7 +20,7 @@ testSuites.push(
           dbSession.windows[0].tabs.length === 5 &&
           dbSession.windows[0].tabs[0].id === 3630;
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
 
         return assertTrue(
@@ -33,7 +33,7 @@ testSuites.push(
       // Test updating existing currentSession
       async () => {
         const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
-        const dbSession1 = await gsStorage.updateSession(session1);
+        const dbSession1 = await gsIndexedDb.updateSession(session1);
         const oldId = dbSession1.id;
         const oldSessionDate = dbSession1.date;
         dbSession1.windows[0].tabs.push({
@@ -42,7 +42,7 @@ testSuites.push(
           url: 'https://test.com',
         });
 
-        const dbSession2 = await gsStorage.updateSession(dbSession1);
+        const dbSession2 = await gsIndexedDb.updateSession(dbSession1);
         const isSessionValid =
           dbSession2.sessionId === dbSession1.sessionId &&
           dbSession2.windows.length === 1 &&
@@ -51,7 +51,7 @@ testSuites.push(
           oldId === dbSession2.id &&
           oldSessionDate < dbSession2.date;
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
 
         return assertTrue(isCurrentSessionsPopulated && isSessionValid);

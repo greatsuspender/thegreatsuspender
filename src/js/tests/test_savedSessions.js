@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, getFixture, assertTrue, FIXTURE_SAVED_SESSIONS */
+/*global chrome, gsIndexedDb, getFixture, assertTrue, FIXTURE_SAVED_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -7,13 +7,13 @@ testSuites.push(
     const tests = [
       // Test saving new savedSession
       async () => {
-        const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
+        const currentSessionsBefore = await gsIndexedDb.fetchCurrentSessions();
         const wasCurrentSessionsEmpty = currentSessionsBefore.length === 0;
-        const savedSessionsBefore = await gsStorage.fetchSavedSessions();
+        const savedSessionsBefore = await gsIndexedDb.fetchSavedSessions();
         const wasSavedSessionsEmpty = savedSessionsBefore.length === 0;
 
         const session1 = await getFixture(FIXTURE_SAVED_SESSIONS, 'savedSession1');
-        const dbSession = await gsStorage.updateSession(session1);
+        const dbSession = await gsIndexedDb.updateSession(session1);
         const isSessionValid =
           dbSession.id === session1.id &&
           dbSession.sessionId === session1.sessionId &&
@@ -22,10 +22,10 @@ testSuites.push(
           dbSession.windows[0].tabs.length === 5 &&
           dbSession.windows[0].tabs[0].id === 3630;
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsEmpty = currentSessionsAfter.length === 0;
 
-        const savedSessionsAfter = await gsStorage.fetchSavedSessions();
+        const savedSessionsAfter = await gsIndexedDb.fetchSavedSessions();
         const isSavedSessionsPopulated = savedSessionsAfter.length === 1;
 
         return assertTrue(
@@ -40,13 +40,13 @@ testSuites.push(
       // Test removing savedSession
       async () => {
         const session1 = await getFixture(FIXTURE_SAVED_SESSIONS, 'savedSession1');
-        await gsStorage.updateSession(session1);
-        const savedSessionsBefore = await gsStorage.fetchSavedSessions();
+        await gsIndexedDb.updateSession(session1);
+        const savedSessionsBefore = await gsIndexedDb.fetchSavedSessions();
         const isSavedSessionsBeforeValid = savedSessionsBefore.length === 1;
 
-        await gsStorage.removeSessionFromHistory(savedSessionsBefore[0].sessionId);
+        await gsIndexedDb.removeSessionFromHistory(savedSessionsBefore[0].sessionId);
 
-        const savedSessionsAfter = await gsStorage.fetchSavedSessions();
+        const savedSessionsAfter = await gsIndexedDb.fetchSavedSessions();
         const isSavedSessionsAfterValid = savedSessionsAfter.length === 0;
 
         return assertTrue(

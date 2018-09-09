@@ -2,7 +2,7 @@
 (function() {
   'use strict';
 
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
@@ -17,9 +17,9 @@
 
     var currentVersion = chrome.runtime.getManifest().version;
     var updateType = gsSession.getUpdateType();
-    gsStorage
+    gsIndexedDb
       .fetchSessionRestorePoint(
-        gsStorage.DB_SESSION_POST_UPGRADE_KEY,
+        gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY,
         currentVersion
       )
       .then(function(sessionRestorePoint) {

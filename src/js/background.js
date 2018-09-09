@@ -1,4 +1,4 @@
-/* global gsStorage, gsUtils, gsSession, gsMessages, gsSuspendManager, gsAnalytics, chrome, XMLHttpRequest */
+/* global gsStorage, gsIndexedDb, gsUtils, gsSession, gsMessages, gsSuspendManager, gsAnalytics, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -590,7 +590,7 @@ var tgs = (function() {
     var originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
     var scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
     var whitelisted = gsUtils.checkWhiteList(originalUrl);
-    gsStorage.fetchTabInfo(originalUrl).then(function(tabProperties) {
+    gsIndexedDb.fetchTabInfo(originalUrl).then(function(tabProperties) {
       var favicon =
         (tabProperties && tabProperties.favicon) ||
         'chrome://favicon/' + originalUrl;
@@ -601,7 +601,7 @@ var tgs = (function() {
         // Encode any raw html tags that might be used in the title
         title = gsUtils.htmlEncode(title);
       }
-      gsStorage.fetchPreviewImage(originalUrl).then(function(preview) {
+      gsIndexedDb.fetchPreviewImage(originalUrl).then(function(preview) {
         var previewUri = null;
         if (
           preview &&
@@ -1179,7 +1179,7 @@ var tgs = (function() {
 
       case 'savePreviewData':
         if (request.previewUrl) {
-          gsStorage
+          gsIndexedDb
             .addPreviewImage(sender.tab.url, request.previewUrl)
             .then(() => gsSuspendManager.executeTabSuspension(sender.tab));
         } else {

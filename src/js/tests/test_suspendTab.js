@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
+/*global chrome, gsIndexedDb, gsSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -12,14 +12,14 @@ testSuites.push(
         const previewUrl = await getFixture(FIXTURE_PREVIEW_URLS, 'previewUrl1');
 
         await new Promise(r => gsSuspendManager.saveSuspendData(tab, r));
-        const tabProperties = await gsStorage.fetchTabInfo(tab.url);
+        const tabProperties = await gsIndexedDb.fetchTabInfo(tab.url);
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&
           tabProperties.title === tab.title &&
-          tabProperties.favicon === 'chrome://favicon/size/16@2x/' + tab.url;;
+          tabProperties.favicon === 'chrome://favicon/size/16@2x/' + tab.url;
 
-        await gsStorage.addPreviewImage(tab.url, previewUrl);
-        const preview = await gsStorage.fetchPreviewImage(tab.url);
+        await gsIndexedDb.addPreviewImage(tab.url, previewUrl);
+        const preview = await gsIndexedDb.fetchPreviewImage(tab.url);
         const isPreviewValid = preview.img === previewUrl;
 
         return assertTrue(isTabPropertiesValid && isPreviewValid);

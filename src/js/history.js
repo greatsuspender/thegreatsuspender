@@ -4,14 +4,14 @@
 
   var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   function reloadTabs(sessionId, windowId, suspendMode) {
     var windows = [],
       curUrl;
 
-    gsStorage.fetchSessionBySessionId(sessionId).then(function(session) {
+    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       if (!session || !session.windows) {
         return;
       }
@@ -67,7 +67,7 @@
       chrome.i18n.getMessage('js_history_confirm_delete')
     );
     if (result) {
-      gsStorage.removeSessionFromHistory(sessionId).then(function() {
+      gsIndexedDb.removeSessionFromHistory(sessionId).then(function() {
         window.location.reload();
       });
     }
@@ -76,7 +76,7 @@
   function removeTab(element, sessionId, windowId, tabId) {
     var sessionEl, newSessionEl;
 
-    gsStorage
+    gsIndexedDb
       .removeTabFromSessionHistory(sessionId, windowId, tabId)
       .then(function(session) {
         gsUtils.removeInternalUrlsFromSession(session);
@@ -113,7 +113,7 @@
       return;
     }
 
-    gsStorage.fetchSessionBySessionId(sessionId).then(function(curSession) {
+    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(curSession) {
       if (!curSession || !curSession.windows) {
         return;
       }
@@ -234,7 +234,7 @@
     sessionsDiv.innerHTML = '';
     historyDiv.innerHTML = '';
 
-    gsStorage.fetchCurrentSessions().then(function(currentSessions) {
+    gsIndexedDb.fetchCurrentSessions().then(function(currentSessions) {
       currentSessions.forEach(function(session, index) {
         gsUtils.removeInternalUrlsFromSession(session);
         var sessionEl = createSessionElement(session);
@@ -247,7 +247,7 @@
       });
     });
 
-    gsStorage.fetchSavedSessions().then(function(savedSessions) {
+    gsIndexedDb.fetchSavedSessions().then(function(savedSessions) {
       savedSessions.forEach(function(session, index) {
         gsUtils.removeInternalUrlsFromSession(session);
         var sessionEl = createSessionElement(session);

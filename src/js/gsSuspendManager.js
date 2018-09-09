@@ -319,7 +319,7 @@ var gsSuspendManager = (function() {
     };
 
     //add suspend information to suspendedTabInfo
-    gsStorage.addSuspendedTabInfo(tabProperties).then(function() {
+    gsIndexedDb.addSuspendedTabInfo(tabProperties).then(function() {
       if (typeof callback === 'function') callback();
     });
   }

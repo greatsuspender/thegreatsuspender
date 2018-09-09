@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsIndexedDb, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -14,7 +14,7 @@ testSuites.push(
           oldSession.sessionId = i + '';
           const previousDateInMs = Date.now() - 1000 * 60 * 60 * i;
           oldSession.date = new Date(previousDateInMs).toISOString();
-          await gsStorage.updateSession(oldSession);
+          await gsIndexedDb.updateSession(oldSession);
         }
 
         // Add a current session
@@ -23,29 +23,29 @@ testSuites.push(
         delete session1.id;
         session1.sessionId = currentSessionId;
         session1.date = new Date().toISOString();
-        await gsStorage.updateSession(session1);
+        await gsIndexedDb.updateSession(session1);
 
-        const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
+        const currentSessionsBefore = await gsIndexedDb.fetchCurrentSessions();
         const areCurrentSessionsBeforeValid =
           currentSessionsBefore.length === 11;
 
-        const lastSessionBefore = await gsStorage.fetchLastSession();
+        const lastSessionBefore = await gsIndexedDb.fetchLastSession();
         const isLastSessionBeforeValid = lastSessionBefore.sessionId === '1';
 
-        await gsStorage.trimDbItems();
+        await gsIndexedDb.trimDbItems();
 
         // Ensure current session still exists
-        const currentSession = await gsStorage.fetchSessionBySessionId(
+        const currentSession = await gsIndexedDb.fetchSessionBySessionId(
           currentSessionId
         );
         const isCurrentSessionValid = currentSession !== null;
 
         // Ensure correct DB_CURRENT_SESSIONS items were trimmed
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const areCurrentSessionsAfterValid = currentSessionsAfter.length === 5;
 
         // Ensure fetchLastSession returns correct session
-        const lastSessionAfter = await gsStorage.fetchLastSession();
+        const lastSessionAfter = await gsIndexedDb.fetchLastSession();
         const isLastSessionAfterValid = lastSessionAfter.sessionId === '1';
 
         return assertTrue(

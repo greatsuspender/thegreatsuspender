@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, gsAnalytics, tgs */
+/*global chrome, localStorage, gsStorage, gsIndexedDb, gsMessages, gsSession, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -642,7 +642,7 @@ var gsUtils = {
       windows: windowsArray,
       date: new Date().toISOString(),
     };
-    await gsStorage.updateSession(session);
+    await gsIndexedDb.updateSession(session);
   },
 
   removeInternalUrlsFromSession: function(session) {

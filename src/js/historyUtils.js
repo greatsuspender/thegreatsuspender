@@ -1,9 +1,9 @@
-/*global chrome */
+/* global chrome */
 var historyUtils = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
 
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
   var noop = function() {};
 
@@ -86,7 +86,7 @@ var historyUtils = (function() {
           windows: windows,
           date: new Date().toISOString(),
         };
-        gsStorage.updateSession(session).then(function() {
+        gsIndexedDb.updateSession(session).then(function() {
           callback();
         });
       });
@@ -99,7 +99,7 @@ var historyUtils = (function() {
     var content = 'data:text/plain;charset=utf-8,',
       dataString = '';
 
-    gsStorage.fetchSessionBySessionId(sessionId).then(function(session) {
+    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       if (!session || !session.windows) {
         callback();
       }
@@ -127,7 +127,7 @@ var historyUtils = (function() {
   }
 
   function validateNewSessionName(sessionName, callback) {
-    gsStorage.fetchSavedSessions().then(function(savedSessions) {
+    gsIndexedDb.fetchSavedSessions().then(function(savedSessions) {
       var nameExists = savedSessions.some(function(savedSession, index) {
         return savedSession.name === sessionName;
       });
@@ -145,7 +145,7 @@ var historyUtils = (function() {
   }
 
   function saveSession(sessionId) {
-    gsStorage.fetchSessionBySessionId(sessionId).then(function(session) {
+    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       var sessionName = window.prompt(
         chrome.i18n.getMessage('js_history_enter_name_for_session')
       );
@@ -153,7 +153,7 @@ var historyUtils = (function() {
         historyUtils.validateNewSessionName(sessionName, function(shouldSave) {
           if (shouldSave) {
             session.name = sessionName;
-            gsStorage.addToSavedSessions(session).then(function () {
+            gsIndexedDb.addToSavedSessions(session).then(function () {
               window.location.reload();
             });
           }

@@ -1,4 +1,4 @@
-/*global gsStorage, testSuites */
+/* global gsIndexedDb, testSuites */
 /* eslint-disable no-unused-vars */
 
 const FIXTURE_CURRENT_SESSIONS = 'currentSessions';
@@ -11,6 +11,7 @@ const requiredLibs = [
   'gsStorage',
   'gsUtils',
   'gsSuspendManager',
+  'gsIndexedDb',
 ];
 
 function loadJsFile(fileName) {
@@ -65,8 +66,8 @@ async function runTests() {
       await Promise.all(requiredLibs.map(loadJsFile));
 
       // clear indexedDb contents
-      gsStorage.DB_SERVER = 'tgsTest';
-      await gsStorage.clearGsDatabase();
+      gsIndexedDb.DB_SERVER = 'tgsTest';
+      await gsIndexedDb.clearGsDatabase();
 
       // run test
       try {
