@@ -446,7 +446,7 @@ var gsStorage = {
     }
   },
 
-  addSuspendedTabInfo: async function(tabProperties, callback) {
+  addSuspendedTabInfo: async function(tabProperties) {
     try {
       if (!tabProperties.url) {
         gsUtils.error('gsStorage', 'tabProperties.url not set.');
@@ -695,31 +695,25 @@ var gsStorage = {
     return session;
   },
 
-  removeSessionFromHistory: async function(sessionId, callback) {
-    var server,
-      session,
-      tableName =
+  removeSessionFromHistory: async function(sessionId) {
+    const tableName =
         sessionId.indexOf('_') === 0
           ? this.DB_SAVED_SESSIONS
           : this.DB_CURRENT_SESSIONS;
 
-    callback = typeof callback !== 'function' ? this.noop : callback;
-
-    this.getDb()
-      .then(function(s) {
-        server = s;
-        return server
+    try {
+      const gsDb = await this.getDb();
+      const result = await gsDb
           .query(tableName)
           .filter('sessionId', sessionId)
           .execute();
-      })
-      .then(function(result) {
-        if (result.length > 0) {
-          session = result[0];
-          server.remove(tableName, session.id);
-        }
-      })
-      .then(callback);
+      if (result.length > 0) {
+        const session = result[0];
+        await gsDb.remove(tableName, session.id);
+      }
+    } catch (e) {
+      gsUtils.error('gsStorage', e);
+    }
   },
 
   trimDbItems: async function() {

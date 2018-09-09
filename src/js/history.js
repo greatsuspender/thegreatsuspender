@@ -67,7 +67,7 @@
       chrome.i18n.getMessage('js_history_confirm_delete')
     );
     if (result) {
-      gsStorage.removeSessionFromHistory(sessionId, function() {
+      gsStorage.removeSessionFromHistory(sessionId).then(function() {
         window.location.reload();
       });
     }

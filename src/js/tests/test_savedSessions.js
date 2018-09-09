@@ -39,33 +39,19 @@ testSuites.push(
 
       // Test removing savedSession
       async () => {
-        const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
-        const wasCurrentSessionsEmpty = currentSessionsBefore.length === 0;
-        const savedSessionsBefore = await gsStorage.fetchSavedSessions();
-        const wasSavedSessionsEmpty = savedSessionsBefore.length === 0;
-
         const session1 = await getFixture(FIXTURE_SAVED_SESSIONS, 'savedSession1');
-        const dbSession = await gsStorage.updateSession(session1);
-        const isSessionValid =
-          dbSession.id === session1.id &&
-          dbSession.sessionId === session1.sessionId &&
-          dbSession.sessionId.indexOf('_') === 0 &&
-          dbSession.windows.length === 1 &&
-          dbSession.windows[0].tabs.length === 5 &&
-          dbSession.windows[0].tabs[0].id === 3630;
+        await gsStorage.updateSession(session1);
+        const savedSessionsBefore = await gsStorage.fetchSavedSessions();
+        const isSavedSessionsBeforeValid = savedSessionsBefore.length === 1;
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
-        const isCurrentSessionsEmpty = currentSessionsAfter.length === 0;
+        await gsStorage.removeSessionFromHistory(savedSessionsBefore[0].sessionId);
 
         const savedSessionsAfter = await gsStorage.fetchSavedSessions();
-        const isSavedSessionsPopulated = savedSessionsAfter.length === 1;
+        const isSavedSessionsAfterValid = savedSessionsAfter.length === 0;
 
         return assertTrue(
-          wasCurrentSessionsEmpty &&
-          wasSavedSessionsEmpty &&
-          isCurrentSessionsEmpty &&
-          isSavedSessionsPopulated &&
-          isSessionValid
+          isSavedSessionsBeforeValid &&
+          isSavedSessionsAfterValid
         );
       },
 
