@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSession, fixtures, assertTrue */
+/*global chrome, gsStorage, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -11,8 +11,6 @@ testSuites.push(
       // Test create session restore point when no current sessions exist
       // Should create a session from the currently open windows
       async () => {
-        await gsStorage.clearGsDatabase();
-
         // Simulate gsSession.prepareForUpdate
         const sessionRestorePointAfter = await gsStorage.createSessionRestorePoint(
           oldVersion,
@@ -30,10 +28,8 @@ testSuites.push(
       // Test create session restore point when current sessions exists
       // Should create a session from the currently open windows
       async () => {
-        await gsStorage.clearGsDatabase();
-
         // Create a current session from fixtures
-        const session1 = fixtures.currentSessions.currentSession1;
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
         session1.sessionId = gsSession.getSessionId();
         await gsStorage.updateSession(session1);
 
@@ -51,6 +47,15 @@ testSuites.push(
       // NOTE: Existing session restore point should have different id for this test
       // Should update the current session restore point
       async () => {
+        // Create a session restore point and updated the id after it's been created
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+        delete session1.id;
+        session1.sessionId = gsSession.getSessionId();
+        await gsStorage.updateSession(session1);
+        await gsStorage.createSessionRestorePoint(
+          oldVersion,
+          newVersion
+        );
         const sessionRestorePointBefore = await gsStorage.fetchSessionRestorePoint(
           gsStorage.DB_SESSION_POST_UPGRADE_KEY,
           newVersion
@@ -62,19 +67,19 @@ testSuites.push(
         const newSessionRestorePointBefore = await gsStorage.fetchSessionBySessionId(
           newId
         );
-        const sessionRestorePointBeforeValid =
+        const isSessionRestorePointBeforeValid =
           newSessionRestorePointBefore.windows[0].tabs.length === 5;
 
         // Update current session from fixtures
-        const session1 = fixtures.currentSessions.currentSession1;
+        const session2 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
         const currentSessionId = gsSession.getSessionId();
-        session1.sessionId = currentSessionId;
-        session1.windows[0].tabs.push({
+        session2.sessionId = currentSessionId;
+        session2.windows[0].tabs.push({
           id: 7777,
           title: 'testTab',
           url: 'https://test.com',
         });
-        await gsStorage.updateSession(session1);
+        await gsStorage.updateSession(session2);
         const newCurrentSession = await gsStorage.fetchSessionBySessionId(
           currentSessionId
         );
@@ -101,7 +106,7 @@ testSuites.push(
           .then(o => o.length);
 
         return assertTrue(
-          sessionRestorePointBeforeValid &&
+          isSessionRestorePointBeforeValid &&
             currentSessionUpdated &&
             sessionRestorePointAfterValid &&
             sessionRestoreCount === 2 //should be 1
@@ -111,8 +116,6 @@ testSuites.push(
 
     return {
       name: 'Session Restore Points',
-      requiredLibs: ['db', 'gsStorage', 'gsSession', 'gsUtils'],
-      requiredFixtures: ['currentSessions', 'savedSessions'],
       tests,
     };
   })()

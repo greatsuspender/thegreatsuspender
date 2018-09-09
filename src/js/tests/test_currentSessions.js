@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, fixtures, assertTrue */
+/*global chrome, gsStorage, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -10,7 +10,7 @@ testSuites.push(
         const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
         const wasCurrentSessionsEmpty = currentSessionsBefore.length === 0;
 
-        const session1 = fixtures.currentSessions.currentSession1;
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
         const dbSession = await gsStorage.updateSession(session1);
 
         const isSessionValid =
@@ -32,24 +32,24 @@ testSuites.push(
 
       // Test updating existing currentSession
       async () => {
-        const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
-        const session1 = currentSessionsBefore[0];
-        const oldId = session1.id;
-        const oldSessionDate = session1.date;
-        session1.windows[0].tabs.push({
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+        const dbSession1 = await gsStorage.updateSession(session1);
+        const oldId = dbSession1.id;
+        const oldSessionDate = dbSession1.date;
+        dbSession1.windows[0].tabs.push({
           id: 7777,
           title: 'testTab',
           url: 'https://test.com',
         });
 
-        const dbSession = await gsStorage.updateSession(session1);
+        const dbSession2 = await gsStorage.updateSession(dbSession1);
         const isSessionValid =
-          dbSession.sessionId === session1.sessionId &&
-          dbSession.windows.length === 1 &&
-          dbSession.windows[0].tabs.length === 6 &&
-          dbSession.windows[0].tabs[5].id === 7777 &&
-          oldId === dbSession.id &&
-          oldSessionDate < dbSession.date;
+          dbSession2.sessionId === dbSession1.sessionId &&
+          dbSession2.windows.length === 1 &&
+          dbSession2.windows[0].tabs.length === 6 &&
+          dbSession2.windows[0].tabs[5].id === 7777 &&
+          oldId === dbSession2.id &&
+          oldSessionDate < dbSession2.date;
 
         const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
@@ -60,8 +60,6 @@ testSuites.push(
 
     return {
       name: 'Current Sessions',
-      requiredLibs: ['db', 'gsStorage', 'gsSession', 'gsUtils'],
-      requiredFixtures: ['currentSessions'],
       tests,
     };
   })()

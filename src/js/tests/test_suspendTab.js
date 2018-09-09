@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSuspendManager, fixtures, assertTrue */
+/*global chrome, gsStorage, gsSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -7,8 +7,9 @@ testSuites.push(
     const tests = [
       // Test functions associated with suspending a tab
       async () => {
-        const tab = fixtures.currentSessions.currentSession1.windows[0].tabs[0];
-        const previewUrl = fixtures.previewUrls.previewUrl1;
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+        const tab = session1.windows[0].tabs[0];
+        const previewUrl = await getFixture(FIXTURE_PREVIEW_URLS, 'previewUrl1');
 
         await new Promise(r => gsSuspendManager.saveSuspendData(tab, r));
         const tabProperties = await gsStorage.fetchTabInfo(tab.url);
@@ -27,14 +28,6 @@ testSuites.push(
 
     return {
       name: 'Suspend Tab',
-      requiredLibs: [
-        'db',
-        'gsStorage',
-        'gsSession',
-        'gsUtils',
-        'gsSuspendManager',
-      ],
-      requiredFixtures: ['currentSessions', 'previewUrls'],
       tests,
     };
   })()

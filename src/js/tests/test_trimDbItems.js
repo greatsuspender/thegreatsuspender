@@ -1,4 +1,4 @@
-/*global chrome, gsStorage, gsSession, fixtures, assertTrue */
+/*global chrome, gsStorage, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -7,29 +7,23 @@ testSuites.push(
     const tests = [
       // Test trim currentSessions
       async () => {
-        await gsStorage.clearGsDatabase();
-
         // Simulate adding 10 older sessions in DB_CURRENT_SESSIONS
         for (let i = 10; i > 0; i--) {
-          let sessionTemplate = JSON.parse(
-            JSON.stringify(fixtures.currentSessions.currentSession1)
-          );
-          delete sessionTemplate.id;
-          sessionTemplate.sessionId = i + '';
+          const oldSession = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+          delete oldSession.id;
+          oldSession.sessionId = i + '';
           const previousDateInMs = Date.now() - 1000 * 60 * 60 * i;
-          sessionTemplate.date = new Date(previousDateInMs).toISOString();
-          await gsStorage.updateSession(sessionTemplate);
+          oldSession.date = new Date(previousDateInMs).toISOString();
+          await gsStorage.updateSession(oldSession);
         }
 
         // Add a current session
         const currentSessionId = gsSession.getSessionId();
-        let sessionTemplate = JSON.parse(
-          JSON.stringify(fixtures.currentSessions.currentSession1)
-        );
-        delete sessionTemplate.id;
-        sessionTemplate.sessionId = currentSessionId;
-        sessionTemplate.date = new Date().toISOString();
-        await gsStorage.updateSession(sessionTemplate);
+        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+        delete session1.id;
+        session1.sessionId = currentSessionId;
+        session1.date = new Date().toISOString();
+        await gsStorage.updateSession(session1);
 
         const currentSessionsBefore = await gsStorage.fetchCurrentSessions();
         const areCurrentSessionsBeforeValid =
@@ -66,8 +60,6 @@ testSuites.push(
 
     return {
       name: 'Trim Db Items',
-      requiredLibs: ['db', 'gsStorage', 'gsSession', 'gsUtils'],
-      requiredFixtures: ['currentSessions'],
       tests,
     };
   })()

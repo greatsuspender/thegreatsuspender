@@ -1,4 +1,4 @@
-/*global chrome, gsSession, gsStorage, gsUtils, fixtures, assertTrue */
+/*global chrome, gsSession, gsStorage, gsUtils, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -11,9 +11,8 @@ testSuites.push(
         const currentSessionId = gsSession.getSessionId();
 
         for (let i = 0; i < 100; i++) {
-            let windowTemplate = JSON.parse(
-              JSON.stringify(fixtures.currentSessions.currentSession1.windows[0])
-          );
+          const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+          let windowTemplate = session1.windows[0];
           windowTemplate.id = i;
           currentSessionWindows.push(windowTemplate);
 
@@ -42,8 +41,6 @@ testSuites.push(
 
     return {
       name: 'Update current session',
-      requiredLibs: ['db', 'gsSession', 'gsStorage', 'gsUtils'],
-      requiredFixtures: ['currentSessions'],
       tests,
     };
   })()
