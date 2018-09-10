@@ -7,6 +7,7 @@ testSuites.push(
     const tests = [
       // Test trim currentSessions
       async () => {
+        const currentSessionId = gsSession.getSessionId();
         // Simulate adding 10 older sessions in DB_CURRENT_SESSIONS
         for (let i = 10; i > 0; i--) {
           const oldSession = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
@@ -18,12 +19,10 @@ testSuites.push(
         }
 
         // Add a current session
-        const currentSessionId = gsSession.getSessionId();
         const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
-        delete session1.id;
-        session1.sessionId = currentSessionId;
-        session1.date = new Date().toISOString();
-        await gsIndexedDb.updateSession(session1);
+        const currentSession1 = await gsSession.buildCurrentSession();
+        currentSession1.windows = session1.windows;
+        await gsIndexedDb.updateSession(currentSession1);
 
         const currentSessionsBefore = await gsIndexedDb.fetchCurrentSessions();
         const areCurrentSessionsBeforeValid =

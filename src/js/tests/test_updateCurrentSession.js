@@ -16,8 +16,11 @@ testSuites.push(
           windowTemplate.id = i;
           currentSessionWindows.push(windowTemplate);
 
+          const currentSession = await gsSession.buildCurrentSession();
+          currentSession.windows = currentSessionWindows;
+
           // Purposely don't await on this call
-          gsUtils.saveWindowsToSessionHistory(currentSessionId, currentSessionWindows);
+          gsIndexedDb.updateSession(currentSession);
           await new Promise(r => setTimeout(r, 1));
         }
 

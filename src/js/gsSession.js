@@ -14,11 +14,11 @@ var gsSession = (function() {
   function init() {
     //handle special event where an extension update is available
     chrome.runtime.onUpdateAvailable.addListener(function(details) {
-      prepareForUpdate(details);
+      prepareForUpdate(details); //async
     });
   }
 
-  function prepareForUpdate(newVersionDetails) {
+  async function prepareForUpdate(newVersionDetails) {
     var currentVersion = chrome.runtime.getManifest().version;
     var newVersion = newVersionDetails.version;
 
@@ -27,26 +27,28 @@ var gsSession = (function() {
       'A new version is available: ' + currentVersion + ' -> ' + newVersion
     );
 
-    gsIndexedDb
-      .createSessionRestorePoint(currentVersion, newVersion)
-      .then(function(session) {
-        if (!session || gsUtils.getSuspendedTabCount() > 0) {
-          let updateUrl = chrome.extension.getURL('update.html');
-          let updatedUrl = chrome.extension.getURL('updated.html');
-          Promise.all([
-            gsUtils.removeTabsByUrlAsPromised(updateUrl),
-            gsUtils.removeTabsByUrlAsPromised(updatedUrl),
-          ]).then(() => {
-            //show update screen
-            chrome.tabs.create({
-              url: updateUrl,
-            });
-          });
-          // if there are no suspended tabs then simply install the update immediately
-        } else {
-          chrome.runtime.reload();
-        }
-      });
+    let sessionRestorePoint;
+    const currentSession = await buildCurrentSession();
+    if (currentSession) {
+      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(
+        currentSession,
+        currentVersion
+      );
+    }
+
+    if (!sessionRestorePoint || gsUtils.getSuspendedTabCount() > 0) {
+      let updateUrl = chrome.extension.getURL('update.html');
+      let updatedUrl = chrome.extension.getURL('updated.html');
+      await Promise.all([
+        gsUtils.removeTabsByUrlAsPromised(updateUrl),
+        gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+      ]);
+      //show update screen
+      await new Promise(r => chrome.tabs.create({ url: updateUrl }));
+    } else {
+      // if there are no suspended tabs then simply install the update immediately
+      chrome.runtime.reload();
+    }
   }
 
   function getSessionId() {
@@ -56,6 +58,33 @@ var gsSession = (function() {
       gsUtils.log('gsSession', 'sessionId: ', sessionId);
     }
     return sessionId;
+  }
+
+  async function buildCurrentSession() {
+    const currentWindows = await new Promise(r =>
+      chrome.windows.getAll({ populate: true }, r)
+    );
+    var tabsExist = currentWindows.some(
+      window => window.tabs && window.tabs.length
+    );
+    if (tabsExist) {
+      const currentSession = {
+        sessionId: getSessionId(),
+        windows: currentWindows,
+        date: new Date().toISOString(),
+      };
+      return currentSession;
+    }
+    return null;
+  }
+
+  async function updateCurrentSession() {
+    const currentSession = await buildCurrentSession();
+    if (currentSession) {
+      await gsIndexedDb.updateSession(currentSession);
+    } else {
+      gsUtils.error('gsSession', 'Failed to update current session!');
+    }
   }
 
   function isRecoveryMode() {
@@ -136,7 +165,24 @@ var gsSession = (function() {
       }
     }
 
-    await findOrCreateSessionRestorePoint(lastVersion, curVersion);
+    const sessionRestorePoint = await gsIndexedDb.fetchSessionRestorePoint(
+      lastVersion
+    );
+    if (!sessionRestorePoint) {
+      const lastSession = await gsIndexedDb.fetchLastSession();
+      if (lastSession) {
+        await gsIndexedDb.createOrUpdateSessionRestorePoint(
+          lastSession,
+          lastVersion
+        );
+      } else {
+        gsUtils.error(
+          'gsSession',
+          'No session restore point found, and no lastSession exists!'
+        );
+      }
+    }
+
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(tabs);
@@ -206,22 +252,6 @@ var gsSession = (function() {
             '------------------------------------------------\n\n'
         );
       });
-  }
-
-  async function findOrCreateSessionRestorePoint(lastVersion, curVersion) {
-    const session = await gsIndexedDb.fetchSessionRestorePoint(
-      gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY,
-      curVersion
-    );
-    if (session) {
-      return session;
-    } else {
-      const newSession = await gsIndexedDb.createSessionRestorePoint(
-        lastVersion,
-        curVersion
-      );
-      return newSession;
-    }
   }
 
   //TODO: Improve this function to determine browser startup with 100% certainty
@@ -385,19 +415,23 @@ var gsSession = (function() {
         tab.id
       } was discarded before init. Will reload..`
     );
-    await new Promise(r => chrome.tabs.update(
-      discardedTab.id,
-      { url: discardedTab.url }, r));
+    await new Promise(r =>
+      chrome.tabs.update(discardedTab.id, { url: discardedTab.url }, r)
+    );
     return discardedTab;
   }
 
   async function findPotentialDiscardedSuspendedTab(suspendedTab) {
     // NOTE: For some reason querying by url doesn't work here??
-    let tabs = new Promise(r => chrome.tabs.query(
-      {
-        discarded: true,
-        windowId: suspendedTab.windowId,
-      }, r));
+    let tabs = new Promise(r =>
+      chrome.tabs.query(
+        {
+          discarded: true,
+          windowId: suspendedTab.windowId,
+        },
+        r
+      )
+    );
     tabs = tabs.filter(o => o.url === suspendedTab.url);
     if (tabs.length === 1) {
       return tabs[0];
@@ -675,16 +709,19 @@ var gsSession = (function() {
           !currentTabIds.includes(sessionTab.id)
         ) {
           tabsUrlsToRecover.push(sessionTab.url);
-          recoverSessionPromises.push(new Promise(r =>
-            chrome.tabs.create(
-              {
-                windowId: currentWindow.id,
-                url: sessionTab.url,
-                index: sessionTab.index,
-                pinned: sessionTab.pinned,
-                active: false,
-              }, r
-            ))
+          recoverSessionPromises.push(
+            new Promise(r =>
+              chrome.tabs.create(
+                {
+                  windowId: currentWindow.id,
+                  url: sessionTab.url,
+                  index: sessionTab.index,
+                  pinned: sessionTab.pinned,
+                  active: false,
+                },
+                r
+              )
+            )
           );
         }
       }
@@ -703,9 +740,11 @@ var gsSession = (function() {
         tabUrls.push(sessionTab.url);
         tabsUrlsToRecover.push(sessionTab.url);
       }
-      recoverSessionPromises.push(new Promise(r =>
-        chrome.windows.create({ url: tabUrls, focused: false }, r)
-      ));
+      recoverSessionPromises.push(
+        new Promise(r =>
+          chrome.windows.create({ url: tabUrls, focused: false }, r)
+        )
+      );
     }
     await Promise.all(recoverSessionPromises);
   }
@@ -739,6 +778,8 @@ var gsSession = (function() {
     init,
     runStartupChecks,
     getSessionId,
+    buildCurrentSession,
+    updateCurrentSession,
     handleTabRecovered,
     isInitialising,
     isRecoveryMode,

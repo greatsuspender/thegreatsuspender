@@ -390,18 +390,8 @@ var tgs = (function() {
     clearTimeout(_sessionSaveTimer);
     _sessionSaveTimer = setTimeout(function() {
       gsUtils.log('background', 'savingWindowHistory');
-      saveWindowHistory();
+      gsSession.updateCurrentSession(); //async
     }, 1000);
-  }
-
-  function saveWindowHistory() {
-    chrome.windows.getAll({ populate: true }, function(windows) {
-      var tabsExist = windows.some(window => window.tabs && window.tabs.length);
-      if (tabsExist) {
-        //uses global sessionId
-        gsUtils.saveWindowsToSessionHistory(gsSession.getSessionId(), windows);
-      }
-    });
   }
 
   //tab flags allow us to flag a tab id to execute specific behaviour on load/reload

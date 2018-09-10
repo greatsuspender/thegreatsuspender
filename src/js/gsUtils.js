@@ -636,15 +636,6 @@ var gsUtils = {
     return window;
   },
 
-  saveWindowsToSessionHistory: async function(sessionId, windowsArray) {
-    var session = {
-      sessionId: sessionId,
-      windows: windowsArray,
-      date: new Date().toISOString(),
-    };
-    await gsIndexedDb.updateSession(session);
-  },
-
   removeInternalUrlsFromSession: function(session) {
     if (!session || !session.windows) {
       return;

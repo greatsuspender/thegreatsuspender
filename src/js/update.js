@@ -39,10 +39,7 @@
 
     var currentVersion = chrome.runtime.getManifest().version;
     gsIndexedDb
-      .fetchSessionRestorePoint(
-        gsIndexedDb.DB_SESSION_PRE_UPGRADE_KEY,
-        currentVersion
-      )
+      .fetchSessionRestorePoint(currentVersion)
       .then(function(sessionRestorePoint) {
         if (!sessionRestorePoint) {
           gsUtils.log(

@@ -9,7 +9,6 @@ var gsIndexedDb = {
   DB_CURRENT_SESSIONS: 'gsCurrentSessions',
   DB_SAVED_SESSIONS: 'gsSavedSessions',
   DB_SESSION_PRE_UPGRADE_KEY: 'preUpgradeVersion',
-  DB_SESSION_POST_UPGRADE_KEY: 'postUpgradeVersion',
 
   server: null,
 
@@ -147,7 +146,6 @@ var gsIndexedDb = {
   },
 
   updateSession: async function(session) {
-    let results;
     try {
       const gsDb = await this.getDb();
 
@@ -164,17 +162,13 @@ var gsIndexedDb = {
       if (matchingSession) {
         session.id = matchingSession.id; //copy across id from matching session
         session.date = new Date().toISOString();
-        results = await gsDb.update(tableName, session); //then update based on that id
+        await gsDb.update(tableName, session); //then update based on that id
       } else {
-        results = await gsDb.add(tableName, session);
+        await gsDb.add(tableName, session);
       }
     } catch (e) {
       gsUtils.error('gsIndexedDb', e);
     }
-    if (results && results.length > 0) {
-      return results[0];
-    }
-    return null;
   },
 
   fetchCurrentSessions: async function() {
@@ -212,8 +206,8 @@ var gsIndexedDb = {
         gsUtils.log(
           'gsIndexedDb',
           'Duplicate sessions found for sessionId: ' +
-          sessionId +
-          '! Removing older ones..'
+            sessionId +
+            '! Removing older ones..'
         );
         for (var session of results.slice(1)) {
           await gsDb.remove(tableName, session.id);
@@ -228,32 +222,41 @@ var gsIndexedDb = {
     return null;
   },
 
-  createSessionRestorePoint: async function(currentVersion, newVersion) {
-    const currentSessionId = gsSession.getSessionId();
-    let currentSession = await this.fetchSessionBySessionId(currentSessionId);
-    if (!currentSession) {
-      const allCurrentSessions = await this.fetchCurrentSessions();
-      if (allCurrentSessions && allCurrentSessions.length > 0) {
-        currentSession = allCurrentSessions[0];
-      } else {
-        return null;
-      }
+  createOrUpdateSessionRestorePoint: async function(session, version) {
+    const existingSessionRestorePoint = await this.fetchSessionRestorePoint(version);
+    if (existingSessionRestorePoint) {
+      existingSessionRestorePoint.windows = session.windows;
+      await this.updateSession(existingSessionRestorePoint);
+      gsUtils.log(
+        'gsIndexedDb',
+        'Updated automatic session restore point'
+      );
+    } else {
+      session.name = 'Automatic save point for v' + version;
+      session[gsIndexedDb.DB_SESSION_PRE_UPGRADE_KEY] = version;
+      await this.addToSavedSessions(session);
+      gsUtils.log(
+        'gsIndexedDb',
+        'Created automatic session restore point'
+      );
     }
-    currentSession.name = 'Automatic save point for v' + currentVersion;
-    currentSession[gsIndexedDb.DB_SESSION_PRE_UPGRADE_KEY] = currentVersion;
-    currentSession[gsIndexedDb.DB_SESSION_POST_UPGRADE_KEY] = newVersion;
-    const savedSession = await this.addToSavedSessions(currentSession);
-    return savedSession;
+    const newSessionRestorePoint = await this.fetchSessionRestorePoint(version);
+    gsUtils.log(
+      'gsIndexedDb',
+      'New session restore point:',
+      newSessionRestorePoint
+    );
+    return newSessionRestorePoint;
   },
 
-  fetchSessionRestorePoint: async function(versionKey, versionValue) {
+  fetchSessionRestorePoint: async function(versionValue) {
     let results;
     try {
       const gsDb = await this.getDb();
       var tableName = this.DB_SAVED_SESSIONS;
       results = await gsDb
         .query(tableName)
-        .filter(versionKey, versionValue)
+        .filter(this.DB_SESSION_PRE_UPGRADE_KEY, versionValue)
         .distinct()
         .execute();
     } catch (e) {
@@ -309,8 +312,7 @@ var gsIndexedDb = {
 
     //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
     delete session.id;
-    const updatedSession = await this.updateSession(session);
-    return updatedSession;
+    await this.updateSession(session);
   },
 
   clearGsDatabase: async function() {
@@ -344,14 +346,14 @@ var gsIndexedDb = {
     });
 
     //update session
-    let session;
     if (gsSession.windows.length > 0) {
-      session = await this.updateSession(gsSession);
+      await this.updateSession(gsSession);
       //or remove session if it no longer contains any windows
     } else {
-      session = await this.removeSessionFromHistory(sessionId);
+      await this.removeSessionFromHistory(sessionId);
     }
-    return session;
+    const updatedSession = await this.fetchSessionBySessionId(sessionId);;
+    return updatedSession;
   },
 
   removeSessionFromHistory: async function(sessionId) {
