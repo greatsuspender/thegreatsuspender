@@ -160,7 +160,7 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('exportLink')[0],
       function() {
-        historyUtils.exportSession(session.sessionId);
+        historyUtils.exportSessionWithId(session.sessionId);
       }
     );
     addClickListenerToElement(

@@ -2,26 +2,38 @@
 (function() {
   'use strict';
 
+  var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   function setRestartExtensionClickHandler(warnFirst) {
-    document.getElementById('restartExtensionBtn').onclick = function(e) {
+    document.getElementById('restartExtensionBtn').onclick = async function(e) {
       // var result = true;
       // if (warnFirst) {
       //   result = window.confirm(chrome.i18n.getMessage('js_update_confirm'));
       // }
       // if (result) {
+
+      const currentSession = await gsSession.buildCurrentSession();
+      if (currentSession) {
+        var currentVersion = chrome.runtime.getManifest().version;
+        await gsIndexedDb.createOrUpdateSessionRestorePoint(
+          currentSession,
+          currentVersion
+        );
+      }
       chrome.runtime.reload();
       // }
     };
   }
 
-  function setExportBackupClickHandler(sessionRestorePoint) {
-    document.getElementById('exportBackupBtn').onclick = function(e) {
-      historyUtils.exportSession(sessionRestorePoint.sessionId);
-      document.getElementById('exportBackupBtn').style.display = 'none';
-      setRestartExtensionClickHandler(false);
+  function setExportBackupClickHandler() {
+    document.getElementById('exportBackupBtn').onclick = async function(e) {
+      const currentSession = await gsSession.buildCurrentSession();
+      historyUtils.exportSession(currentSession, function () {
+        document.getElementById('exportBackupBtn').style.display = 'none';
+        setRestartExtensionClickHandler(false);
+      });
     };
   }
 
@@ -36,6 +48,7 @@
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     setSessionManagerClickHandler();
     setRestartExtensionClickHandler(true);
+    setExportBackupClickHandler();
 
     var currentVersion = chrome.runtime.getManifest().version;
     gsIndexedDb
@@ -49,8 +62,6 @@
           document.getElementById('noBackupInfo').style.display = 'block';
           document.getElementById('backupInfo').style.display = 'none';
           document.getElementById('exportBackupBtn').style.display = 'none';
-        } else {
-          setExportBackupClickHandler(sessionRestorePoint);
         }
       });
   });

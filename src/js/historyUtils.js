@@ -93,37 +93,41 @@ var historyUtils = (function() {
     }
   }
 
-  function exportSession(sessionId, callback) {
+  function exportSessionWithId(sessionId, callback) {
     callback = typeof callback !== 'function' ? noop : callback;
-
-    var content = 'data:text/plain;charset=utf-8,',
-      dataString = '';
 
     gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       if (!session || !session.windows) {
         callback();
+      } else {
+        exportSession(session, callback);
       }
-
-      session.windows.forEach(function(curWindow, index) {
-        curWindow.tabs.forEach(function(curTab, tabIndex) {
-          if (gsUtils.isSuspendedTab(curTab)) {
-            dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
-          } else {
-            dataString += curTab.url + '\n';
-          }
-        });
-        //add an extra newline to separate windows
-        dataString += '\n';
-      });
-      content += dataString;
-
-      var encodedUri = encodeURI(content);
-      var link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', 'session.txt');
-      link.click();
-      callback();
     });
+  }
+
+  function exportSession(session, callback) {
+    var content = 'data:text/plain;charset=utf-8,',
+      dataString = '';
+
+    session.windows.forEach(function(curWindow, index) {
+      curWindow.tabs.forEach(function(curTab, tabIndex) {
+        if (gsUtils.isSuspendedTab(curTab)) {
+          dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
+        } else {
+          dataString += curTab.url + '\n';
+        }
+      });
+      //add an extra newline to separate windows
+      dataString += '\n';
+    });
+    content += dataString;
+
+    var encodedUri = encodeURI(content);
+    var link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'session.txt');
+    link.click();
+    callback();
   }
 
   function validateNewSessionName(sessionName, callback) {
@@ -163,9 +167,10 @@ var historyUtils = (function() {
   }
 
   return {
-    importSession: importSession,
-    exportSession: exportSession,
-    validateNewSessionName: validateNewSessionName,
-    saveSession: saveSession,
+    importSession,
+    exportSession,
+    exportSessionWithId,
+    validateNewSessionName,
+    saveSession,
   };
 })();
