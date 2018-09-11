@@ -53,7 +53,6 @@ var tgs = (function() {
         typeof gsMessages !== 'undefined' &&
         typeof gsUtils !== 'undefined' &&
         typeof gsAnalytics !== 'undefined';
-      // console.log('isReady',isReady);
       resolve(isReady);
     }).then(function(isReady) {
       if (isReady) {
