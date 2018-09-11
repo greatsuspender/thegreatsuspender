@@ -11,7 +11,11 @@ testSuites.push(
         const tab = session1.windows[0].tabs[0];
         const previewUrl = await getFixture(FIXTURE_PREVIEW_URLS, 'previewUrl1');
 
-        await new Promise(r => gsSuspendManager.saveSuspendData(tab, r));
+        await new Promise((resolve, reject) => {
+          gsSuspendManager.saveSuspendData(tab, function () {
+            resolve();
+          });
+        });
         const tabProperties = await gsIndexedDb.fetchTabInfo(tab.url);
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&

@@ -33,9 +33,11 @@ var historyUtils = (function() {
       sessionName
     );
     if (sessionName) {
-      const shouldSave = await new Promise(r =>
-        validateNewSessionName(sessionName, r)
-      );
+      const shouldSave = await new Promise((resolve, reject) => {
+        validateNewSessionName(sessionName, function(result) {
+          resolve(result);
+        });
+      });
       if (!shouldSave) {
         return;
       }
