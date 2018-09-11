@@ -388,7 +388,7 @@ var tgs = (function() {
   function queueSessionTimer() {
     clearTimeout(_sessionSaveTimer);
     _sessionSaveTimer = setTimeout(function() {
-      gsUtils.log('background', 'savingWindowHistory');
+      gsUtils.log('background', 'updating current session');
       gsSession.updateCurrentSession(); //async
     }, 1000);
   }

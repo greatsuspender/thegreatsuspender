@@ -1,4 +1,4 @@
-/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils */
+/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsIndexedDb */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendManager = (function() {
   'use strict';
