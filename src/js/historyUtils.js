@@ -16,7 +16,7 @@ var historyUtils = (function() {
         if (f.type !== 'text/plain') {
           alert(chrome.i18n.getMessage('js_history_import_fail'));
         } else {
-          handleImport(f.name, contents, function() {
+          handleImport(f.name, contents).then(function() {
             window.location.reload();
           });
         }
@@ -27,69 +27,71 @@ var historyUtils = (function() {
     }
   }
 
-  function handleImport(sessionName, textContents, callback) {
-    callback = typeof callback !== 'function' ? noop : callback;
-
+  async function handleImport(sessionName, textContents) {
     sessionName = window.prompt(
       chrome.i18n.getMessage('js_history_enter_name_for_session'),
       sessionName
     );
     if (sessionName) {
-      validateNewSessionName(sessionName, function(shouldSave) {
-        if (!shouldSave) {
-          callback();
-          return;
-        }
+      const shouldSave = await new Promise(r =>
+        validateNewSessionName(sessionName, r)
+      );
+      if (!shouldSave) {
+        return;
+      }
 
-        var sessionId = '_' + gsUtils.generateHashCode(sessionName);
-        var windows = [];
+      var sessionId = '_' + gsUtils.generateHashCode(sessionName);
+      var windows = [];
 
-        var createNextWindow = function() {
-          return {
-            id: sessionId + '_' + windows.length,
-            tabs: [],
-          };
+      var createNextWindow = function() {
+        return {
+          id: sessionId + '_' + windows.length,
+          tabs: [],
         };
-        var curWindow = createNextWindow();
+      };
+      var curWindow = createNextWindow();
 
-        textContents.split('\n').forEach(function(line) {
-          if (typeof line !== 'string') {
-            return;
-          }
-          if (line === '') {
-            if (curWindow.tabs.length > 0) {
-              windows.push(curWindow);
-              curWindow = createNextWindow();
-            }
-            return;
-          }
-          if (line.indexOf('://') < 0) {
-            return;
-          }
-          curWindow.tabs.push({
-            windowId: curWindow.id,
-            sessionId: sessionId,
-            id: curWindow.id + '_' + curWindow.tabs.length,
-            url: line,
-            title: line,
-            index: curWindow.tabs.length,
-            pinned: false,
-          });
-        });
-        if (curWindow.tabs.length > 0) {
-          windows.push(curWindow);
+      for (const line of textContents.split('\n')) {
+        if (typeof line !== 'string') {
+          continue;
         }
-
-        var session = {
-          name: sessionName,
+        if (line === '') {
+          if (curWindow.tabs.length > 0) {
+            windows.push(curWindow);
+            curWindow = createNextWindow();
+          }
+          continue;
+        }
+        if (line.indexOf('://') < 0) {
+          continue;
+        }
+        const tabInfo = {
+          windowId: curWindow.id,
           sessionId: sessionId,
-          windows: windows,
-          date: new Date().toISOString(),
-        };
-        gsIndexedDb.updateSession(session).then(function() {
-          callback();
-        });
-      });
+          id: curWindow.id + '_' + curWindow.tabs.length,
+          url: line,
+          title: line,
+          index: curWindow.tabs.length,
+          pinned: false,
+        }
+        const savedTabInfo = await gsIndexedDb.fetchTabInfo(line);
+        if (savedTabInfo) {
+          tabInfo.title = savedTabInfo.title;
+          tabInfo.favicon = savedTabInfo.favicon;
+        }
+        curWindow.tabs.push(tabInfo);
+      }
+      if (curWindow.tabs.length > 0) {
+        windows.push(curWindow);
+      }
+
+      var session = {
+        name: sessionName,
+        sessionId: sessionId,
+        windows: windows,
+        date: new Date().toISOString(),
+      };
+      await gsIndexedDb.updateSession(session);
     }
   }
 
@@ -157,7 +159,7 @@ var historyUtils = (function() {
         historyUtils.validateNewSessionName(sessionName, function(shouldSave) {
           if (shouldSave) {
             session.name = sessionName;
-            gsIndexedDb.addToSavedSessions(session).then(function () {
+            gsIndexedDb.addToSavedSessions(session).then(function() {
               window.location.reload();
             });
           }
