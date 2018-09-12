@@ -227,9 +227,11 @@ var gsSession = (function() {
       );
     }
     for (const currentTab of tabs) {
-      const timeoutRandomiser = Math.random() * 1000 * (tabs.length / 2);
+      const timeoutRandomiser = parseInt(Math.random() * 1000 * (tabs.length / 2));
+      const timeout = 4 * 1000 + timeoutRandomiser;
+      gsUtils.log(currentTab.id, `Queuing tab for initialisation check in ${timeout/1000} seconds.`);
       tabCheckPromises.push(
-        queueTabScriptCheck(currentTab, 4 * 1000 + timeoutRandomiser)
+        queueTabScriptCheck(currentTab, timeout)
       );
     }
     Promise.all(tabCheckPromises)
@@ -388,6 +390,11 @@ var gsSession = (function() {
     const result = await pingTabScript(tab, totalTimeQueued);
     if (!result) {
       const nextTimeout = timeout * 2;
+      gsUtils.log(
+        tab.id,
+        `Tab has still not initialised after ${totalTimeQueued /
+          1000}. Re-queuing in another ${nextTimeout / 1000} seconds.`
+      );
       await queueTabScriptCheck(tab, nextTimeout, totalTimeQueued);
     }
   }
@@ -461,15 +468,23 @@ var gsSession = (function() {
         // If tab returned a response (but is not initialised or loading) then initialise
         if (response) {
           if (gsUtils.isSuspendedTab(tab)) {
-            tgs.initialiseSuspendedTab(tab, function() {
-              resolve(false);
-              return;
-            });
+            tgs
+              .initialiseSuspendedTabAsPromised(tab)
+              .then(response => {
+                resolve(response && response.isInitialised);
+              })
+              .catch(error => {
+                resolve(false);
+              });
           } else {
-            tgs.initialiseUnsuspendedTab(tab, function() {
-              resolve(false);
-              return;
-            });
+            tgs
+              .initialiseUnsuspendedTabAsPromised(tab)
+              .then(response => {
+                resolve(response && response.isInitialised);
+              })
+              .catch(error => {
+                resolve(false);
+              });
           }
           return;
         }
@@ -484,8 +499,9 @@ var gsSession = (function() {
           // resuspend unresponsive suspended tabs
           gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
           tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
-          chrome.tabs.reload(tab.id);
-          resolve(false);
+          chrome.tabs.reload(tab.id, function() {
+            resolve(false);
+          });
         } else {
           // reinject content script on non-suspended tabs
           gsUtils.log(

@@ -53,6 +53,7 @@ var gsUtils = {
     );
   },
   error: function(id, errorObj, ...args) {
+    //NOTE: errorObj may be just a string :/
     if (debugError) {
       args = args || [];
       console.error(id, (new Date() + '').split(' ')[4], errorObj, ...args);
