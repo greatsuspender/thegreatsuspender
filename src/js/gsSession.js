@@ -3,6 +3,7 @@
 var gsSession = (function() {
   'use strict';
 
+  var startupChecksComplete = false;
   var initialisationMode = false;
   var initialisationTimeout = 5 * 60 * 1000;
   var isProbablyProfileRestart = false;
@@ -87,6 +88,10 @@ var gsSession = (function() {
     }
   }
 
+  function isStartupChecksComplete() {
+    return startupChecksComplete;
+  }
+
   function isRecoveryMode() {
     return recoveryMode;
   }
@@ -117,6 +122,7 @@ var gsSession = (function() {
     } else {
       await handleUpdate(curVersion, lastVersion, tabs);
     }
+    startupChecksComplete = true;
   }
 
   async function handleNormalStartup(curVersion, tabs) {
@@ -134,7 +140,12 @@ var gsSession = (function() {
       } else {
         //otherwise show the recovery page
         const recoveryUrl = chrome.extension.getURL('recovery.html');
-        await new Promise(r => chrome.tabs.create({ url: recoveryUrl }, r));
+        await new Promise(r => chrome.tabs.create({ url: recoveryUrl }, (updateTab) => {
+          //hax0r: wait for recovery tab to finish loading before returning
+          //this is so we remain in 'recoveryMode' for a bit longer, preventing
+          //the sessionUpdate code from running when this tab gains focus
+          setTimeout(r, 2000);
+        }));
       }
     } else {
       await gsIndexedDb.trimDbItems();
@@ -227,8 +238,9 @@ var gsSession = (function() {
       );
     }
     for (const currentTab of tabs) {
-      const timeoutRandomiser = parseInt(Math.random() * 1000 * (tabs.length / 2));
-      const timeout = 4 * 1000 + timeoutRandomiser;
+      const tabsToInitPerSecond = 10;
+      const timeoutRandomiser = parseInt(Math.random() * tabs.length / tabsToInitPerSecond * 1000);
+      const timeout = timeoutRandomiser + 1000; //minimum timeout of 1 second
       gsUtils.log(currentTab.id, `Queuing tab for initialisation check in ${timeout/1000} seconds.`);
       tabCheckPromises.push(
         queueTabScriptCheck(currentTab, timeout)
@@ -271,6 +283,7 @@ var gsSession = (function() {
       }
     }
     if (suspendedTabs.length > 0) {
+      gsUtils.log('gsSession', 'isProbablyProfileRestart: true', suspendedTabs);
       isProbablyProfileRestart = true;
     }
   }
@@ -777,6 +790,8 @@ var gsSession = (function() {
           'Recovery mode finished.\n' +
           '------------------------------------------------\n\n'
       );
+      gsUtils.log('gsSession', 'updating current session');
+      updateCurrentSession(); //async
     }
 
     // Update recovery view (if it exists)
@@ -798,6 +813,7 @@ var gsSession = (function() {
     updateCurrentSession,
     handleTabRecovered,
     isInitialising,
+    isStartupChecksComplete,
     isRecoveryMode,
     recoverLostTabs,
     prepareForUpdate,

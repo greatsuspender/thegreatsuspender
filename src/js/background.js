@@ -388,8 +388,15 @@ var tgs = (function() {
   function queueSessionTimer() {
     clearTimeout(_sessionSaveTimer);
     _sessionSaveTimer = setTimeout(function() {
-      gsUtils.log('background', 'updating current session');
-      gsSession.updateCurrentSession(); //async
+      if (gsSession.isRecoveryMode() || !gsSession.isStartupChecksComplete()) {
+        gsUtils.log(
+          'background',
+          'ignoring current session update while starting up'
+        );
+      } else {
+        gsUtils.log('background', 'updating current session');
+        gsSession.updateCurrentSession(); //async
+      }
     }, 1000);
   }
 
@@ -560,6 +567,10 @@ var tgs = (function() {
       if (discardAfterSuspend) {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
+
+      if (gsSession.isRecoveryMode()) {
+        gsSession.handleTabRecovered(tab);
+      }
     } else if (changeInfo.status === 'complete') {
       initialiseSuspendedTabAsPromised(tab).then(function() {
         let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
@@ -568,10 +579,6 @@ var tgs = (function() {
 
         if (isCurrentFocusedTab(tab)) {
           setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-        }
-
-        if (gsSession.isRecoveryMode()) {
-          gsSession.handleTabRecovered(tab);
         }
 
         // If we want to discard tabs after suspending them
