@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, gsAnalytics, tgs */
+/*global chrome, localStorage, gsStorage, gsIndexedDb, gsMessages, gsSession, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -53,6 +53,7 @@ var gsUtils = {
     );
   },
   error: function(id, errorObj, ...args) {
+    //NOTE: errorObj may be just a string :/
     if (debugError) {
       args = args || [];
       console.error(id, (new Date() + '').split(' ')[4], errorObj, ...args);
@@ -636,15 +637,6 @@ var gsUtils = {
     return window;
   },
 
-  saveWindowsToSessionHistory: function(sessionId, windowsArray) {
-    var session = {
-      sessionId: sessionId,
-      windows: windowsArray,
-      date: new Date().toISOString(),
-    };
-    gsStorage.updateSession(session);
-  },
-
   removeInternalUrlsFromSession: function(session) {
     if (!session || !session.windows) {
       return;
@@ -661,7 +653,6 @@ var gsUtils = {
         session.windows.splice(i, 1);
       }
     }
-    return session;
   },
 
   getSimpleDate: function(date) {

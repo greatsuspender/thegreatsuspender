@@ -1,4 +1,4 @@
-/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils */
+/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsIndexedDb */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendManager = (function() {
   'use strict';
@@ -319,7 +319,7 @@ var gsSuspendManager = (function() {
     };
 
     //add suspend information to suspendedTabInfo
-    gsStorage.addSuspendedTabInfo(tabProperties, function() {
+    gsIndexedDb.addSuspendedTabInfo(tabProperties).then(function() {
       if (typeof callback === 'function') callback();
     });
   }
@@ -415,5 +415,6 @@ var gsSuspendManager = (function() {
     forceTabSuspension,
     forceTabDiscardation,
     undiscardTab,
+    saveSuspendData,
   };
 })();

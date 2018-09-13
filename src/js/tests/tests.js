@@ -1,4 +1,19 @@
-/*global gsStorage, testSuites */
+/* global gsIndexedDb, testSuites */
+/* eslint-disable no-unused-vars */
+
+const FIXTURE_CURRENT_SESSIONS = 'currentSessions';
+const FIXTURE_SAVED_SESSIONS = 'savedSessions';
+const FIXTURE_PREVIEW_URLS = 'previewUrls';
+
+const requiredLibs = [
+  'db',
+  'gsSession',
+  'gsStorage',
+  'gsUtils',
+  'gsSuspendManager',
+  'gsIndexedDb',
+];
+
 function loadJsFile(fileName) {
   return new Promise(resolve => {
     const script = document.createElement('script');
@@ -23,7 +38,6 @@ function loadJsonFixture(fileName) {
   });
 }
 
-// eslint-disable-next-line no-unused-vars
 function assertTrue(testResult) {
   if (testResult) {
     return Promise.resolve(true);
@@ -32,16 +46,13 @@ function assertTrue(testResult) {
   }
 }
 
+async function getFixture(fixtureName, itemName) {
+  const fixtures = await loadJsonFixture(fixtureName);
+  return JSON.parse(JSON.stringify(fixtures[itemName]));
+}
+
 async function runTests() {
   for (let testSuite of testSuites) {
-    // loads/reset required libs
-    await Promise.all(testSuite.requiredLibs.map(loadJsFile));
-    // if testSuite requires gsStorage, then clear indexedDb contents
-    if (gsStorage) {
-      gsStorage.DB_SERVER = 'tgsTest';
-      await gsStorage.clearGsDatabase();
-    }
-
     const resultEl = document.createElement('div');
     resultEl.innerHTML = `Testing ${testSuite.name}...`;
     document.getElementById('results').appendChild(resultEl);
@@ -50,12 +61,14 @@ async function runTests() {
     console.log(`Running testSuite: ${testSuite.name}..`);
     for (let [j, test] of testSuite.tests.entries()) {
       console.log(`  Running test ${j}..`);
-      // reset fixtures before each test
-      await Promise.all(
-        testSuite.requiredFixtures.map(async fixtureName => {
-          fixtures[fixtureName] = await loadJsonFixture(fixtureName);
-        })
-      );
+
+      // loads/reset required libs
+      await Promise.all(requiredLibs.map(loadJsFile));
+
+      // clear indexedDb contents
+      gsIndexedDb.DB_SERVER = 'tgsTest';
+      await gsIndexedDb.clearGsDatabase();
+
       // run test
       try {
         const result = await test();
@@ -76,10 +89,15 @@ async function runTests() {
       resultEl.style = 'color: red;';
     }
   }
-  document.getElementById('suspendy-guy-inprogress').style.display = 'none'
-  document.getElementById('suspendy-guy-complete').style.display = 'inline-block';
+  document.getElementById('suspendy-guy-inprogress').style.display = 'none';
+  document.getElementById('suspendy-guy-complete').style.display =
+    'inline-block';
 }
 
-const fixtures = {};
-
-runTests();
+if (document.readyState !== 'loading') {
+  runTests();
+} else {
+  document.addEventListener('DOMContentLoaded', function() {
+    runTests();
+  });
+}

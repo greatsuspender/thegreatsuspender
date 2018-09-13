@@ -1,4 +1,4 @@
-/* global gsStorage, gsUtils, gsSession, gsMessages, gsSuspendManager, gsAnalytics, chrome, XMLHttpRequest */
+/* global gsStorage, gsIndexedDb, gsUtils, gsSession, gsMessages, gsSuspendManager, gsAnalytics, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -53,7 +53,6 @@ var tgs = (function() {
         typeof gsMessages !== 'undefined' &&
         typeof gsUtils !== 'undefined' &&
         typeof gsAnalytics !== 'undefined';
-      // console.log('isReady',isReady);
       resolve(isReady);
     }).then(function(isReady) {
       if (isReady) {
@@ -389,19 +388,16 @@ var tgs = (function() {
   function queueSessionTimer() {
     clearTimeout(_sessionSaveTimer);
     _sessionSaveTimer = setTimeout(function() {
-      gsUtils.log('background', 'savingWindowHistory');
-      saveWindowHistory();
-    }, 1000);
-  }
-
-  function saveWindowHistory() {
-    chrome.windows.getAll({ populate: true }, function(windows) {
-      var tabsExist = windows.some(window => window.tabs && window.tabs.length);
-      if (tabsExist) {
-        //uses global sessionId
-        gsUtils.saveWindowsToSessionHistory(gsSession.getSessionId(), windows);
+      if (gsSession.isRecoveryMode() || !gsSession.isStartupChecksComplete()) {
+        gsUtils.log(
+          'background',
+          'ignoring current session update while starting up'
+        );
+      } else {
+        gsUtils.log('background', 'updating current session');
+        gsSession.updateCurrentSession(); //async
       }
-    });
+    }, 1000);
   }
 
   //tab flags allow us to flag a tab id to execute specific behaviour on load/reload
@@ -514,7 +510,7 @@ var tgs = (function() {
       }
 
       //init loaded tab
-      initialiseUnsuspendedTab(tab);
+      initialiseUnsuspendedTabAsPromised(tab); // unhandled async (could use returned tab status here below)
       clearTabFlagsForTabId(tab.id);
       hasTabStatusChanged = true;
     }
@@ -527,21 +523,32 @@ var tgs = (function() {
     }
   }
 
-  function initialiseUnsuspendedTab(tab, callback) {
-    var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-    var isTempWhitelist = getTabFlagForTabId(tab.id, TEMP_WHITELIST_ON_RELOAD);
-    var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
-    var suspendTime = gsUtils.isProtectedActiveTab(tab)
-      ? '0'
-      : gsStorage.getOption(gsStorage.SUSPEND_TIME);
-    gsMessages.sendInitTabToContentScript(
-      tab.id,
-      ignoreForms,
-      isTempWhitelist,
-      scrollPos,
-      suspendTime,
-      callback
-    );
+  function initialiseUnsuspendedTabAsPromised(tab) {
+    return new Promise((resolve, reject) => {
+      var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+      var isTempWhitelist = getTabFlagForTabId(
+        tab.id,
+        TEMP_WHITELIST_ON_RELOAD
+      );
+      var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
+      var suspendTime = gsUtils.isProtectedActiveTab(tab)
+        ? '0'
+        : gsStorage.getOption(gsStorage.SUSPEND_TIME);
+      gsMessages.sendInitTabToContentScript(
+        tab.id,
+        ignoreForms,
+        isTempWhitelist,
+        scrollPos,
+        suspendTime,
+        function(error, response) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
   }
 
   function handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl) {
@@ -549,7 +556,7 @@ var tgs = (function() {
     //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
     if (changeInfo.status === 'loading') {
       if (unsuspendOnReloadUrl && unsuspendOnReloadUrl === tab.url) {
-        //TODO: Somehow update suspended tab with correct theme and preview?
+        //TODO: Somehow temporarily update suspended tab with correct theme and preview?
         unsuspendTab(tab);
       }
 
@@ -560,18 +567,18 @@ var tgs = (function() {
       if (discardAfterSuspend) {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
+
+      if (gsSession.isRecoveryMode()) {
+        gsSession.handleTabRecovered(tab);
+      }
     } else if (changeInfo.status === 'complete') {
-      initialiseSuspendedTab(tab, function() {
+      initialiseSuspendedTabAsPromised(tab).then(function() {
         let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
         clearTabFlagsForTabId(tab.id);
         gsSuspendManager.markTabAsSuspended(tab);
 
         if (isCurrentFocusedTab(tab)) {
           setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-        }
-
-        if (gsSession.isRecoveryMode()) {
-          gsSession.handleTabRecovered(tab);
         }
 
         // If we want to discard tabs after suspending them
@@ -585,50 +592,59 @@ var tgs = (function() {
     }
   }
 
-  function initialiseSuspendedTab(tab, callback) {
-    var suspendedUrl = tab.url;
-    var originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
-    var scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
-    var whitelisted = gsUtils.checkWhiteList(originalUrl);
-    gsStorage.fetchTabInfo(originalUrl).then(function(tabProperties) {
-      var favicon =
+  function initialiseSuspendedTabAsPromised(tab) {
+    return new Promise(async (resolve, reject) => {
+      const suspendedUrl = tab.url;
+      const originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
+      const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
+      const whitelisted = gsUtils.checkWhiteList(originalUrl);
+      const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
+      const favicon =
         (tabProperties && tabProperties.favicon) ||
         'chrome://favicon/' + originalUrl;
-      var title =
+      let title =
         (tabProperties && tabProperties.title) ||
         gsUtils.getSuspendedTitle(suspendedUrl);
       if (title.indexOf('<') >= 0) {
         // Encode any raw html tags that might be used in the title
         title = gsUtils.htmlEncode(title);
       }
-      gsStorage.fetchPreviewImage(originalUrl, function(preview) {
-        var previewUri = null;
-        if (
-          preview &&
-          preview.img &&
-          preview.img !== null &&
-          preview.img !== 'data:,' &&
-          preview.img.length > 10000
+      const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
+      let previewUri = null;
+      if (
+        preview &&
+        preview.img &&
+        preview.img !== null &&
+        preview.img !== 'data:,' &&
+        preview.img.length > 10000
+      ) {
+        previewUri = preview.img;
+      }
+      const options = gsStorage.getSettings();
+      getSuspendUnsuspendHotkey(function(hotkey) {
+        var payload = {
+          tabId: tab.id,
+          requestUnsuspendOnReload: true,
+          url: originalUrl,
+          scrollPosition: scrollPosition,
+          favicon: favicon,
+          title: title,
+          whitelisted: whitelisted,
+          theme: options[gsStorage.THEME],
+          hideNag: options[gsStorage.NO_NAG],
+          previewMode: options[gsStorage.SCREEN_CAPTURE],
+          previewUri: previewUri,
+          command: hotkey,
+        };
+        gsMessages.sendInitSuspendedTab(tab.id, payload, function(
+          error,
+          response
         ) {
-          previewUri = preview.img;
-        }
-        var options = gsStorage.getSettings();
-        getSuspendUnsuspendHotkey(function(hotkey) {
-          var payload = {
-            tabId: tab.id,
-            requestUnsuspendOnReload: true,
-            url: originalUrl,
-            scrollPosition: scrollPosition,
-            favicon: favicon,
-            title: title,
-            whitelisted: whitelisted,
-            theme: options[gsStorage.THEME],
-            hideNag: options[gsStorage.NO_NAG],
-            previewMode: options[gsStorage.SCREEN_CAPTURE],
-            previewUri: previewUri,
-            command: hotkey,
-          };
-          gsMessages.sendInitSuspendedTab(tab.id, payload, callback);
+          if (error) {
+            reject(error);
+          } else {
+            resolve(response);
+          }
         });
       });
     });
@@ -1179,13 +1195,9 @@ var tgs = (function() {
 
       case 'savePreviewData':
         if (request.previewUrl) {
-          gsStorage.addPreviewImage(
-            sender.tab.url,
-            request.previewUrl,
-            function() {
-              gsSuspendManager.executeTabSuspension(sender.tab);
-            }
-          );
+          gsIndexedDb
+            .addPreviewImage(sender.tab.url, request.previewUrl)
+            .then(() => gsSuspendManager.executeTabSuspension(sender.tab));
         } else {
           gsUtils.log('savePreviewData reported an error: ' + request.errorMsg);
           gsSuspendManager.executeTabSuspension(sender.tab);
@@ -1371,8 +1383,8 @@ var tgs = (function() {
     isCurrentStationaryTab,
     isCurrentFocusedTab,
 
-    initialiseUnsuspendedTab,
-    initialiseSuspendedTab,
+    initialiseUnsuspendedTabAsPromised,
+    initialiseSuspendedTabAsPromised,
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,

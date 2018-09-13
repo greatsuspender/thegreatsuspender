@@ -6,50 +6,33 @@
   var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   var restoreAttempted = false;
   var tabsToRecover = [];
 
-  function populateRecoverableTabs() {
-    return new Promise(function(resolve) {
-      gsStorage.fetchLastSession().then(function(lastSession) {
-        //check to see if they still exist in current session
-        chrome.tabs.query({}, function(currentTabs) {
-          if (lastSession) {
-            gsUtils.removeInternalUrlsFromSession(lastSession);
-            lastSession.windows.forEach(function(window, index) {
-              window.tabs.forEach(function(tabProperties) {
-                if (gsUtils.isSuspendedTab(tabProperties)) {
-                  var originalUrl = gsUtils.getSuspendedUrl(tabProperties.url);
-                  // Ignore suspended tabs from previous session that exist unsuspended now
-                  if (
-                    !currentTabs.find(function(o) {
-                      return o.url === originalUrl;
-                    })
-                  ) {
-                    tabProperties.windowId = window.id;
-                    tabProperties.sessionId = lastSession.sessionId;
-                    tabsToRecover.push(tabProperties);
-                  }
-                }
-              });
-            });
-            var currentSuspendedTabs = currentTabs.filter(function(o) {
-              return gsUtils.isSuspendedTab(o, true);
-            });
-            currentSuspendedTabs.forEach(function(suspendedTab) {
-              gsMessages.sendPingToTab(suspendedTab.id, function(err) {
-                if (!err) {
-                  removeSuspendedTabFromList(suspendedTab);
-                }
-              });
-            });
+  async function getRecoverableTabs(currentTabs) {
+    const lastSession = await gsIndexedDb.fetchLastSession();
+    //check to see if they still exist in current session
+    if (lastSession) {
+      gsUtils.removeInternalUrlsFromSession(lastSession);
+      for (const window of lastSession.windows) {
+        for (const tabProperties of window.tabs) {
+          if (gsUtils.isSuspendedTab(tabProperties)) {
+            var originalUrl = gsUtils.getSuspendedUrl(tabProperties.url);
+            // Ignore suspended tabs from previous session that exist unsuspended now
+            const originalTab = currentTabs.find(o => o.url === originalUrl);
+            if (!originalTab) {
+              tabProperties.windowId = window.id;
+              tabProperties.sessionId = lastSession.sessionId;
+              tabsToRecover.push(tabProperties);
+            }
           }
-          resolve();
-        });
-      });
-    });
+        }
+      }
+      return tabsToRecover;
+    }
   }
 
   function removeSuspendedTabFromList(tabToRemove) {
@@ -93,7 +76,7 @@
     }
   });
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
     var restoreEl = document.getElementById('restoreSession'),
       manageEl = document.getElementById('manageManuallyLink'),
       previewsEl = document.getElementById('previewsOffBtn'),
@@ -119,34 +102,46 @@
       //TODO: Potentially show warning here if SUSPEND_IN_PLACE_OF_DISCARD enabled?
     }
 
-    var performRestore = function() {
+    var performRestore = async function() {
       restoreAttempted = true;
       restoreEl.className += ' btnDisabled';
       restoreEl.removeEventListener('click', performRestore);
-      gsSession.recoverLostTabs();
+      await gsSession.recoverLostTabs();
     };
 
     restoreEl.addEventListener('click', performRestore);
 
-    populateRecoverableTabs().then(function() {
-      if (tabsToRecover.length === 0) {
-        hideRecoverySection();
-        return;
-      }
-      for (var tabToRecover of tabsToRecover) {
-        if (!gsUtils.isInternalTab(tabToRecover)) {
-          tabEl = historyItems.createTabHtml(tabToRecover, false);
-          tabEl.onclick = function() {
-            return function(e) {
-              e.preventDefault();
-              chrome.tabs.create({ url: tabToRecover.url, active: false });
-              removeSuspendedTabFromList(tabToRecover);
-            };
+    const currentTabs = await new Promise(r => chrome.tabs.query({}, r));
+    const tabsToRecover = await getRecoverableTabs(currentTabs);
+    if (tabsToRecover.length === 0) {
+      hideRecoverySection();
+      return;
+    }
+
+    for (var tabToRecover of tabsToRecover) {
+      if (!gsUtils.isInternalTab(tabToRecover)) {
+        tabEl = historyItems.createTabHtml(tabToRecover, false);
+        tabEl.onclick = function() {
+          return function(e) {
+            e.preventDefault();
+            chrome.tabs.create({ url: tabToRecover.url, active: false });
+            removeSuspendedTabFromList(tabToRecover);
           };
-          recoveryEl.appendChild(tabEl);
-        }
+        };
+        recoveryEl.appendChild(tabEl);
       }
-    });
+    }
+
+    var currentSuspendedTabs = currentTabs.filter(o =>
+      gsUtils.isSuspendedTab(o, true)
+    );
+    for (const suspendedTab of currentSuspendedTabs) {
+      gsMessages.sendPingToTab(suspendedTab.id, function(err) {
+        if (!err) {
+          removeSuspendedTabFromList(suspendedTab);
+        }
+      });
+    }
   });
 
   gsAnalytics.reportPageView('recovery.html');

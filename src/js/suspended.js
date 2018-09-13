@@ -71,7 +71,7 @@
         .getBackgroundPage()
         .gsAnalytics.reportPageView('suspended.html');
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   }
 
@@ -283,7 +283,7 @@
             );
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     }
 
@@ -335,7 +335,7 @@
           .getBackgroundPage()
           .gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     };
     document.getElementById('patreonBtn').onclick = function() {
@@ -344,7 +344,7 @@
           .getBackgroundPage()
           .gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     };
     document.getElementById('paypalBtn').onclick = function() {
@@ -353,7 +353,7 @@
           .getBackgroundPage()
           .gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     };
   }

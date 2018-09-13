@@ -1,4 +1,4 @@
-/*global chrome, gsSession, gsStorage, gsUtils, fixtures, assertTrue */
+/*global chrome, gsSession, gsIndexedDb, gsUtils, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -10,40 +10,40 @@ testSuites.push(
         const currentSessionWindows = [];
         const currentSessionId = gsSession.getSessionId();
 
-        for (let i = 0; i < 1000; i++) {
-            let windowTemplate = JSON.parse(
-              JSON.stringify(fixtures.currentSessions.currentSession1.windows[0])
-          );
+        for (let i = 0; i < 100; i++) {
+          const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+          let windowTemplate = session1.windows[0];
           windowTemplate.id = i;
           currentSessionWindows.push(windowTemplate);
 
-          //TODO: This should probably return a promise
-          // await new Promise(resolve =>
-          //   gsUtils.saveWindowsToSessionHistory(currentSessionId, currentSessionWindows)
-          // );
-          gsUtils.saveWindowsToSessionHistory(
-            currentSessionId,
-            currentSessionWindows
-          );
-          // For now, add a timeout
+          const currentSession = await gsSession.buildCurrentSession();
+          currentSession.windows = currentSessionWindows;
+
+          // Purposely don't await on this call
+          gsIndexedDb.updateSession(currentSession);
           await new Promise(r => setTimeout(r, 1));
         }
 
-        const currentSessionsAfter = await gsStorage.fetchCurrentSessions();
+        //if it's a saved session (prefixed with an underscore)
+        const gsTestDb = await gsIndexedDb.getDb();
+        const results = await gsTestDb
+          .query(gsIndexedDb.DB_CURRENT_SESSIONS, 'sessionId')
+          .only(currentSessionId)
+          .desc()
+          .execute();
+        const onlySingleSessionForIdExists = results.length === 1;
+
+        const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsPopulated = currentSessionsAfter.length === 1;
         const isCurrentSessionValid =
           currentSessionsAfter[0].windows.length === 100;
-        console.log(currentSessionsAfter.length);
-        console.log(currentSessionsAfter[0].windows.length);
 
-        return assertTrue(isCurrentSessionsPopulated && isCurrentSessionValid);
+        return assertTrue(onlySingleSessionForIdExists && isCurrentSessionsPopulated && isCurrentSessionValid);
       },
     ];
 
     return {
       name: 'Update current session',
-      requiredLibs: ['db', 'gsSession', 'gsStorage', 'gsUtils'],
-      requiredFixtures: ['currentSessions'],
       tests,
     };
   })()
