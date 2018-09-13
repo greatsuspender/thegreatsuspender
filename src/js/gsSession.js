@@ -166,7 +166,7 @@ var gsSession = (function() {
     gsStorage.setLastVersion(curVersion);
     var lastVersionParts = lastVersion.split('.');
     var curVersionParts = curVersion.split('.');
-    if (lastVersionParts.length === 3 && curVersionParts.length === 3) {
+    if (lastVersionParts.length >= 2 && curVersionParts.length >= 2) {
       if (parseInt(curVersionParts[0]) > parseInt(lastVersionParts[0])) {
         updateType = 'major';
       } else if (parseInt(curVersionParts[1]) > parseInt(lastVersionParts[1])) {
