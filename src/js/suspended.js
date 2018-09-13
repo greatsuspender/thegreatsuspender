@@ -21,6 +21,7 @@
   let currentTheme;
   let currentHideNag;
   let currentCommand;
+  let currentReason;
 
   function preInit() {
     const href = window.location.href;
@@ -140,6 +141,15 @@
       document.querySelector('body').classList.remove('dark');
     }
     setContrast();
+  }
+
+  function setReason(reason) {
+    if (currentReason === reason) {
+      return;
+    }
+    currentReason = reason;
+    var reasonMsgEl = document.getElementById('reasonMsg');
+    reasonMsgEl.innerHTML = reason + '<br />';
   }
 
   function handleDonationPopup(hideNag) {
@@ -578,6 +588,9 @@
     }
     if (request.hasOwnProperty('url')) {
       setUrl(request.url);
+    }
+    if (request.hasOwnProperty('reason')) {
+      setReason(request.reason);
     }
   }
 
