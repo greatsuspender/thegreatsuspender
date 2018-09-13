@@ -63,6 +63,19 @@
     }
   }
 
+  function showTabSpinners() {
+    var recoveryTabsEl = document.getElementById('recoveryTabs'),
+      childLinks = recoveryTabsEl.children;
+
+    for (var i = 0; i < childLinks.length; i++) {
+      var tabContainerEl = childLinks[i];
+      tabContainerEl.removeChild(tabContainerEl.firstChild);
+      var spinnerEl = document.createElement('span');
+      spinnerEl.classList.add('faviconSpinner');
+      tabContainerEl.insertBefore(spinnerEl, tabContainerEl.firstChild);
+    }
+  }
+
   function hideRecoverySection() {
     var recoverySectionEls = document.getElementsByClassName('recoverySection');
     for (var i = 0; i < recoverySectionEls.length; i++) {
@@ -106,6 +119,7 @@
       restoreAttempted = true;
       restoreEl.className += ' btnDisabled';
       restoreEl.removeEventListener('click', performRestore);
+      showTabSpinners();
       await gsSession.recoverLostTabs();
     };
 
