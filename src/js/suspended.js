@@ -149,7 +149,8 @@
     }
     currentReason = reason;
     var reasonMsgEl = document.getElementById('reasonMsg');
-    reasonMsgEl.innerHTML = reason + '<br />';
+    reasonMsgEl.innerHTML = reason;
+    reasonMsgEl.classList.remove('reallyHidden');
   }
 
   function handleDonationPopup(hideNag) {
