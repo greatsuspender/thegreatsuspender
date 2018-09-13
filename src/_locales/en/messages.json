@@ -58,7 +58,6 @@
     "html_options_suspend_days": { "message": "days" },
     "html_options_suspend_week": { "message": "week" },
     "html_options_suspend_weeks": { "message": "weeks" },
-    "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
     "html_options_suspend_no_pinned": { "message": "Never suspend pinned tabs" },
     "html_options_suspend_no_forms": { "message": "Never suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Never suspend tabs that are playing audio" },
@@ -96,6 +95,14 @@
     "html_options_other_enable_sync_tooltip_line1b": { "message": "with the same profile." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
     "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile" },
+    "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
+    "html_options_suspend_on_low_memory_tooltip_line1": { "message": "This option is will override Chrome's automatic tab discarding functionality." },
+    "html_options_suspend_on_low_memory_tooltip_line2": { "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome." },
+    "html_options_suspend_on_low_memory_tooltip_line3": { "message": "Typically, Chrome will only discard tabs once system memory gets very low." },
+    "html_options_suspend_on_low_memory_tooltip_line4": { "message": "Please note: This may cause tabs to suspend earlier than the time you have" },
+    "html_options_suspend_on_low_memory_tooltip_line5": { "message": "specified in the Automatic tab suspension options." },
+    "html_options_suspend_on_low_memory_tooltip_line6": { "message": "For more information on Chrome discarding refer to:" },
+    "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
 
     // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "Unsuspend this tab" },
