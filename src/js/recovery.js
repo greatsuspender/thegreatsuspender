@@ -54,7 +54,12 @@
     if (document.getElementById('recoveryTabs').children.length === 0) {
       //if we have already clicked the restore button then redirect to success page
       if (restoreAttempted) {
-        window.location.href = chrome.extension.getURL('success.html');
+        document.getElementById('suspendy-guy-inprogress').style.display = 'none';
+        document.getElementById('recovery-inprogress').style.display =
+          'none';
+        document.getElementById('suspendy-guy-complete').style.display = 'inline-block';
+        document.getElementById('recovery-complete').style.display =
+          'inline-block';
 
         //otherwise we have no tabs to recover so just hide references to recovery
       } else {
@@ -81,6 +86,7 @@
     for (var i = 0; i < recoverySectionEls.length; i++) {
       recoverySectionEls[i].style.display = 'none';
     }
+    document.getElementById('restoreSession').style.display = 'none'  ;
   }
 
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
