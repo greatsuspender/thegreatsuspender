@@ -109,9 +109,12 @@
     "html_options_whitelist_tooltip_line1": { "message": "在新行上增加要列入白名單的每個頁面的 URL。例如：" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分：" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
     "html_options_whitelist_tooltip_line3": { "message": "您還可以通過以正規表示式來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
-    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu u
+    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "將控件添加到網頁的右鍵單擊菜單。" }, //? Add a control to the right-click menu of the web page.
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "這樣，您就可以訪問程序中其他位置無法使用的高級凍結操作。" }, //? This way, you can access advanced freeze operations that are not available elsewhere in the program.
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
     "html_options_other_enable_sync": { "message": "在不同系統之間同步設定" }, //? Set synchronization between different systems
-    "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chorme 後，擴充功能將同步相同的設定" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
+    "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chrome 後，擴充功能將同步相同的設定" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
     "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設定同步。" }, //? This will also synchronize the settings in incognito mode
     "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設定" }, //? Opening this item overrides the settings on all synced systems

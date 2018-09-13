@@ -109,7 +109,10 @@
     "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名单的每个页面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中将多个网站列入白名单，可以指定网址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
     "html_options_whitelist_tooltip_line3": { "message": "您还可以通過以正规表示式來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
-    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右键选单" }, //Add The Great Suspender to the right-click menu u
+    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右键选单" }, //Add The Great Suspender to the right-click menu
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "将控件添加到网页的右键单击菜单。" }, //? Add a control to the right-click menu of the web page.
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "这样，您就可以访问程序中其他位置无法使用的高级冻结操作。" }, //? This way, you can access advanced freeze operations that are not available elsewhere in the program.
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
     "html_options_other_enable_sync": { "message": "在不同系统之间同步设置" }, //? Set synchronization between different systems
     "html_options_other_enable_sync_tooltip_line1a": { "message": "扩充元件将在所有使用相同配置文件登录的Chrome浏览器中同步" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
