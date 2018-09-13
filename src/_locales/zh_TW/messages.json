@@ -5,10 +5,29 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "凍結/恢復目前分頁" }, //Freeze/resume the current page
     "ext_cmd_toggle_tab_pause_description": { "message": "暫停/取消暫停目前頁面的凍結" }, //? Pause/unpause the freeze of the current page
-    "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
-    "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
-    "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "ext_cmd_suspend_selected_tabs_description": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
+    "ext_cmd_soft_suspend_active_window_description": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "ext_cmd_force_suspend_active_window_description": { "message": "強制凍結當前窗口中的所有選項卡" }, //? Force freeze all tabs in the current window
+    "ext_cmd_unsuspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "ext_cmd_soft_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "ext_cmd_force_suspend_all_windows_description": { "message": "強制凍結所有窗口的所有選項卡" }, //? Force all tabs of all windows to be frozen
     "ext_cmd_unsuspend_all_windows_description": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
+
+    // Contextual menu (Javascript code)
+    "js_context_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
+    "js_context_toggle_suspend_state": { "message": "凍結/恢復此頁面" }, //? Freeze/restore this page
+    "js_context_toggle_pause_suspension": { "message": "暫停/取消暫停此頁面的凍結" }, //? Pause/unpause the freezing of this page
+    "js_context_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
+    "js_context_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
+    "js_context_suspend_selected_tabs": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
+    "js_context_unsuspend_selected_tabs": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
+    "js_context_soft_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
+    "js_context_force_suspend_other_tabs_in_window": { "message": "強制凍結當前窗口中的所有選項卡" }, //? Force freeze all tabs in the current window
+    "js_context_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "js_context_soft_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "js_context_force_suspend_all_tabs": { "message": "強制凍結所有窗口的所有選項卡" }, //? Force all tabs of all windows to be frozen
+    "js_context_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // About page
     "html_about_title": { "message": "支援" }, //support
@@ -196,17 +215,6 @@
     "js_donate_paypal": { "message": "PayPal" }, // PayPal
     "js_donate_bitcoin": { "message": "比特幣" }, //Bitcoin
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
-
-    // Contextual menu (Javascript code)
-    "js_context_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
-    "js_context_toggle_suspend_state": { "message": "凍結/恢復此頁面" }, //? Freeze/restore this page
-    "js_context_toggle_pause_suspension": { "message": "暫停/取消暫停此頁面的凍結" }, //? Pause/unpause the freezing of this page
-    "js_context_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
-    "js_context_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
-    "js_context_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
-    "js_context_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
-    "js_context_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
-    "js_context_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "分頁將會自動被凍結" }, //Paging will be automatically frozen

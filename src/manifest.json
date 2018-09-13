@@ -55,14 +55,26 @@
     "2-toggle-temp-whitelist-tab": {
       "description": "__MSG_ext_cmd_toggle_tab_pause_description__"
     },
+    "2a-suspend-selected-tabs": {
+      "description": "__MSG_ext_cmd_suspend_selected_tabs_description__"
+    },
+    "2b-unsuspend-selected-tabs": {
+      "description": "__MSG_ext_cmd_unsuspend_selected_tabs_description__"
+    },
     "3-suspend-active-window": {
-      "description": "__MSG_ext_cmd_suspend_active_window_description__"
+      "description": "__MSG_ext_cmd_soft_suspend_active_window_description__"
+    },
+    "3b-force-suspend-active-window": {
+      "description": "__MSG_ext_cmd_force_suspend_active_window_description__"
     },
     "4-unsuspend-active-window": {
       "description": "__MSG_ext_cmd_unsuspend_active_window_description__"
     },
+    "4b-soft-suspend-all-windows": {
+      "description": "__MSG_ext_cmd_soft_suspend_all_windows_description__"
+    },
     "5-suspend-all-windows": {
-      "description": "__MSG_ext_cmd_suspend_all_windows_description__"
+      "description": "__MSG_ext_cmd_force_suspend_all_windows_description__"
     },
     "6-unsuspend-all-windows": {
       "description": "__MSG_ext_cmd_unsuspend_all_windows_description__"
