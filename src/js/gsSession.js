@@ -468,75 +468,97 @@ var gsSession = (function() {
     }
   }
 
-  function pingTabScript(tab, totalTimeQueued) {
-    return new Promise((resolve, reject) => {
-      // If tab has a state of loading, then requeue for checking later
-      if (tab.status === 'loading') {
-        resolve(false);
-        return;
-      }
-      gsMessages.sendPingToTab(tab.id, function(error, response) {
+  async function pingTabScript(tab, totalTimeQueued) {
+    // If tab has a state of loading, then requeue for checking later
+    if (tab.status === 'loading') {
+      gsUtils.log(tab.id, 'Tab is still loading');
+      return false;
+    }
+
+    let tabResponse = await new Promise((resolve, reject) => {
+      gsMessages.sendPingToTab(tab.id, function(error, _response) {
         if (error) {
           gsUtils.log(tab.id, 'Failed to sendPingToTab', error);
         }
+        resolve(_response);
+      });
+    });
 
-        // If tab is initialised then return true
-        if (response && response.isInitialised) {
-          resolve(true);
-          return;
-        }
+    if (!tabResponse) {
+      // If it is a suspended tab then try reloading the tab and requeue for checking later
+      if (gsUtils.isSuspendedTab(tab)) {
+        requestReloadSuspendedTab(tab);
+        return false;
+      }
 
-        // If tab returned a response (but is not initialised or loading) then initialise
-        if (response) {
-          if (gsUtils.isSuspendedTab(tab)) {
-            tgs
-              .initialiseSuspendedTabAsPromised(tab)
-              .then(response => {
-                resolve(response && response.isInitialised);
-              })
-              .catch(error => {
-                resolve(false);
-              });
-          } else {
-            tgs
-              .initialiseUnsuspendedTabAsPromised(tab)
-              .then(response => {
-                resolve(response && response.isInitialised);
-              })
-              .catch(error => {
-                resolve(false);
-              });
-          }
-          return;
-        }
+      // If it is a normal tab then try to reinject content script
+      const result = await reinjectContentScriptOnTab(tab);
+      if (!result) {
+        gsUtils.log(
+          tab.id,
+          'Failed to initialize tab. Tab may not behave as expected.'
+        );
+        // Give up on this tab
+        return true;
+      }
 
-        if (isProbablyProfileRestart && totalTimeQueued < 60 * 1000) {
-          resolve(false);
-          return;
-        }
+      // If we have successfull injected content script, then try to ping again
+      tabResponse = await new Promise((resolve, reject) => {
+        gsMessages.sendPingToTab(tab.id, function(error, _response) {
+          resolve(_response);
+        });
+      });
+    }
 
-        // If tab has loaded but returns no response after 60 seconds then try to reload / reinject tab
-        if (gsUtils.isSuspendedTab(tab)) {
-          // resuspend unresponsive suspended tabs
-          gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
-          tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
-          chrome.tabs.reload(tab.id, function() {
-            resolve(false);
-          });
-        } else {
-          // reinject content script on non-suspended tabs
+    // If tab still doesn't respond to ping, then requeue for checking later
+    if (!tabResponse) {
+      return false;
+    }
+
+    // If tab returned a response but is not initialised, then try to initialise
+    if (!tabResponse.isInitialised) {
+      if (gsUtils.isSuspendedTab(tab)) {
+        tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+      } else {
+        tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+      }
+    }
+
+    // If tab is initialised then return true
+    if (tabResponse.isInitialised) {
+      gsUtils.log(tab.id, 'Tab has initialised successfully.');
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function requestReloadSuspendedTab(tab) {
+    // resuspend unresponsive suspended tabs
+    gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
+    tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
+    chrome.tabs.reload(tab.id, function() {
+      // Ignore callback here as we need to wait for the suspended tab
+      // to finish reloading before we can check again
+    });
+  }
+
+  async function reinjectContentScriptOnTab(tab) {
+    return new Promise((resolve, reject) => {
+      gsUtils.log(
+        tab.id,
+        'Reinjecting contentscript into unresponsive active tab.'
+      );
+      gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
+        if (error) {
           gsUtils.log(
             tab.id,
-            `Reinjecting contentscript into unresponsive active tab.`
-          );
-          gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function(
+            'Failed to execute js/contentscript.js on tab',
             error
-          ) {
-            if (error) {
-              gsUtils.log(tab.id, 'Failed to executeScriptOnTab', error);
-            }
-            resolve(false);
-          });
+          );
+          resolve(false);
+        } else {
+          resolve(true);
         }
       });
     });
