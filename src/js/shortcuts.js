@@ -25,7 +25,7 @@
               ? command.shortcut
               : '(' + notSetMessage + ')';
           var removeMargin = !groupingKeys.includes(command.name);
-          var style = removeMargin ? '"margin: 0 0 2px;"' : '';
+          var style = removeMargin ? '"margin: 0 0 2px;"' : '"margin: 0 0 20px;"';
           shortcutsEl.innerHTML +=
             '<p style=' +
             style +

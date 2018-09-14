@@ -249,6 +249,11 @@ ul.unorderedList li {
   font-weight: bold;
   margin: 0 0 30px;
 }
+.heading-note {
+  font-style: italic;
+  margin-top: -25px;
+  margin-bottom: 25px;
+}
 .welcome-message {
   border-radius: 6px;
   background: #fff;

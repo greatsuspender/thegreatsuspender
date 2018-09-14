@@ -145,7 +145,8 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_shortcuts_remap_keys": { "message": "Edit shortcuts" },
+    "html_shortcuts_context_menu_note": { "message": "Note: These actions are also available via the right-click context menu." },
+    "html_shortcuts_remap_keys": { "message": "Change shortcuts" },
 
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "Settings" },

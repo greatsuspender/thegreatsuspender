@@ -145,6 +145,7 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
     "html_shortcuts_keyboard_shortcuts": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
+    "html_shortcuts_context_menu_note": { "message": "注意：您也可以通過右鍵單擊上下文菜單來使用這些操作。" }, //? Note: You can also use these actions by right-clicking on the context menu.
     "html_shortcuts_remap_keys": { "message": "修改鍵盤快速鍵" }, //Modify the keyboard shortcut
 
     // Sidebar from the configuration section (common to all settings)
