@@ -272,10 +272,6 @@ body.img-preview-mode .gsTopBar {
     font-size: 16px;
 }
 
-.reallyHidden {
-    display: none!important;
-}
-
 @keyframes fadeinout {
     0%,
     100% {

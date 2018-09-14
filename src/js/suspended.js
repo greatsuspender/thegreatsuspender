@@ -148,9 +148,15 @@
       return;
     }
     currentReason = reason;
-    var reasonMsgEl = document.getElementById('reasonMsg');
+    let reasonMsgEl = document.getElementById('reasonMsg');
+    if (!reasonMsgEl) {
+      reasonMsgEl = document.createElement('div');
+      reasonMsgEl.setAttribute('id', 'reasonMsg');
+      reasonMsgEl.classList.add('reasonMsg');
+      const containerEl = document.getElementById('suspendedMsg-instr');
+      containerEl.insertBefore(reasonMsgEl, containerEl.firstChild);
+    }
     reasonMsgEl.innerHTML = reason;
-    reasonMsgEl.classList.remove('reallyHidden');
   }
 
   function handleDonationPopup(hideNag) {
