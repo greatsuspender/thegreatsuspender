@@ -737,9 +737,10 @@ var gsUtils = {
 
   setTimeout: async function(timeout) {
     return new Promise((resolve, reject) => {
-      setTimeout(resolve, timeout);
+      window.setTimeout(resolve, timeout);
     });
   },
+
   chromeCookiesGetAll: async function() {
     return new Promise((resolve, reject) => {
       chrome.cookies.getAll({}, cookies => {
