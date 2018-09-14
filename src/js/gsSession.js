@@ -3,14 +3,17 @@
 var gsSession = (function() {
   'use strict';
 
-  var startupChecksComplete = false;
-  var initialisationMode = false;
-  var initialisationTimeout = 5 * 60 * 1000;
-  var isProbablyProfileRestart = false;
-  var recoveryMode = false;
-  var sessionId;
-  var tabsUrlsToRecover = [];
-  var updateType = null;
+  const tabsToInitPerSecond = 8;
+
+  let startupChecksComplete = false;
+  let initialisationMode = false;
+  let initPeriodInSeconds;
+  let initTimeoutInSeconds;
+  let extensionRestartContainsSuspendedTabs = false;
+  let recoveryMode = false;
+  let sessionId;
+  let tabsUrlsToRecover = [];
+  let updateType = null;
 
   function init() {
     //handle special event where an extension update is available
@@ -114,10 +117,13 @@ var gsSession = (function() {
     if (chrome.extension.inIncognitoContext) {
       // do nothing if in incognito context
     } else if (lastVersion === curVersion) {
+      gsUtils.log('gsSession', 'HANDLING NORMAL STARTUP');
       await handleNormalStartup(curVersion, tabs);
     } else if (!lastVersion || lastVersion === '0.0.0') {
+      gsUtils.log('gsSession', 'HANDLING NEW INSTALL');
       await handleNewInstall(curVersion);
     } else {
+      gsUtils.log('gsSession', 'HANDLING UPDATE');
       await handleUpdate(curVersion, lastVersion, tabs);
     }
     startupChecksComplete = true;
@@ -221,27 +227,21 @@ var gsSession = (function() {
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        `Extension initialization started. isProbablyProfileRestart: ${isProbablyProfileRestart}\n` +
+        `Extension initialization started. extensionRestartContainsSuspendedTabs: ${extensionRestartContainsSuspendedTabs}\n` +
         '------------------------------------------------\n\n'
     );
-    //increase max time allowed for initialisation if dealing with a large number of tabs
-    //every extra 50 tabs past 100 adds an extra allowed minute for init
-    if (tabs.length > 100) {
-      var extraMinutes = parseInt((tabs.length - 100) / 50, 10) + 1;
-      initialisationTimeout += extraMinutes * 60 * 1000;
-      gsUtils.log(
-        'gsSession',
-        `Increasing init timeout to ${initialisationTimeout / 1000 / 60}mins`
-      );
-    }
+    initPeriodInSeconds = tabs.length / tabsToInitPerSecond;
+    initTimeoutInSeconds = initPeriodInSeconds * 15;
+    gsUtils.log('gsSession', `initPeriodInSeconds: ${initPeriodInSeconds}`);
+    gsUtils.log('gsSession', `initTimeoutInSeconds: ${initTimeoutInSeconds}`);
+
     for (const currentTab of tabs) {
-      const tabsToInitPerSecond = 10;
-      const timeoutRandomiser = parseInt(Math.random() * tabs.length / tabsToInitPerSecond * 1000);
-      const timeout = timeoutRandomiser + 1000; //minimum timeout of 1 second
-      gsUtils.log(currentTab.id, `Queuing tab for initialisation check in ${timeout/1000} seconds.`);
-      tabCheckPromises.push(
-        queueTabScriptCheck(currentTab, timeout)
+      const timeout = getRandomTimeoutInMilliseconds(1000);
+      gsUtils.log(
+        currentTab.id,
+        `Queuing tab for initialisation check in ${timeout / 1000} seconds.`
       );
+      tabCheckPromises.push(queueTabScriptCheck(currentTab, timeout));
     }
     Promise.all(tabCheckPromises)
       .then(() => {
@@ -265,6 +265,14 @@ var gsSession = (function() {
       });
   }
 
+  function getRandomTimeoutInMilliseconds(minimumTimeout) {
+    minimumTimeout = minimumTimeout || 1000;
+    const timeoutRandomiser = parseInt(
+      Math.random() * initPeriodInSeconds * 1000
+    );
+    return timeoutRandomiser + minimumTimeout;
+  }
+
   //TODO: Improve this function to determine browser startup with 100% certainty
   //NOTE: Current implementation leans towards conservatively saying it's not a browser startup
   async function checkForBrowserStartup(currentTabs) {
@@ -280,8 +288,12 @@ var gsSession = (function() {
       }
     }
     if (suspendedTabs.length > 0) {
-      gsUtils.log('gsSession', 'isProbablyProfileRestart: true', suspendedTabs);
-      isProbablyProfileRestart = true;
+      gsUtils.log(
+        'gsSession',
+        'extensionRestartContainsSuspendedTabs: true',
+        suspendedTabs
+      );
+      extensionRestartContainsSuspendedTabs = true;
     }
   }
 
@@ -291,7 +303,7 @@ var gsSession = (function() {
       'Checking for crash recovery: ' + new Date().toISOString()
     );
 
-    if (isProbablyProfileRestart) {
+    if (extensionRestartContainsSuspendedTabs) {
       gsUtils.log(
         'gsSession',
         'Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)'
@@ -372,7 +384,7 @@ var gsSession = (function() {
     if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
       return;
     }
-    if (totalTimeQueued >= initialisationTimeout) {
+    if (totalTimeQueued >= initTimeoutInSeconds * 1000) {
       gsUtils.error(
         tab.id,
         `Failed to initialize tab. Tab may not behave as expected.`
@@ -399,7 +411,7 @@ var gsSession = (function() {
     );
     const result = await pingTabScript(tab, totalTimeQueued);
     if (!result) {
-      const nextTimeout = timeout * 2;
+      const nextTimeout = getRandomTimeoutInMilliseconds(5000);
       gsUtils.log(
         tab.id,
         `Tab has still not initialised after ${totalTimeQueued /
