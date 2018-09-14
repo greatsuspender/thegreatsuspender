@@ -56,9 +56,13 @@ var gsUtils = {
     //NOTE: errorObj may be just a string :/
     if (debugError) {
       args = args || [];
+      const logString = errorObj.hasOwnProperty('stack')
+        ? errorObj.stack
+        : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
+      args.push(logString);
       console.error(id, (new Date() + '').split(' ')[4], errorObj, ...args);
     } else {
-      // var logString = errorObj.hasOwnProperty('stack')
+      // const logString = errorObj.hasOwnProperty('stack')
       //   ? errorObj.stack
       //   : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
       // gsAnalytics.reportException(logString, false);
@@ -477,9 +481,16 @@ var gsUtils = {
           checkTabExpiryPromises.push(
             new Promise(function(resolve) {
               gsMessages.sendRequestInfoToContentScript(currentTab.id, function(
-                err,
+                error,
                 tabInfo
               ) {
+                if (error) {
+                  gsUtils.log(
+                    currentTab.id,
+                    'Failed to sendRequestInfoToContentScript in getAllExpiredTabs',
+                    error
+                  );
+                }
                 if (
                   tabInfo &&
                   tabInfo.timerUp &&
@@ -531,7 +542,7 @@ var gsUtils = {
             payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
           }
           if (Object.keys(payload).length > 0) {
-            gsMessages.sendUpdateSuspendedTab(tab.id, payload); //async
+            gsMessages.sendUpdateSuspendedTab(tab.id, payload); //async. unhandled error
           }
           return;
         }
@@ -587,7 +598,8 @@ var gsUtils = {
               )));
 
         if (updateSuspendTime || updateIgnoreForms) {
-          gsMessages.sendUpdateToContentScriptOfTab( //async
+          gsMessages.sendUpdateToContentScriptOfTab(
+            //async. unhandled error
             tab,
             updateSuspendTime,
             updateIgnoreForms
@@ -597,11 +609,11 @@ var gsUtils = {
         //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer
         //should always be caught by tests above, but we'll check all tabs anyway just in case
         // if (!updateSuspendTime) {
-        //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) {
+        //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) { // unhandled error
         //         tgs.calculateTabStatus(tab, tabInfo, function (tabStatus) {
         //             if (tabStatus === STATUS_NORMAL && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
         //                 gsUtils.error(tab.id, 'Tab has an expired timer!', tabInfo);
-        //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false);
+        //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false); // async. unhandled error
         //             }
         //         });
         //     });

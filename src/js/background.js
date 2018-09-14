@@ -185,7 +185,7 @@ var tgs = (function() {
         return;
       }
       if (gsUtils.isSuspendedTab(activeTab)) {
-        gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id); //async
+        gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id); //async. unhandled error
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -197,6 +197,13 @@ var tgs = (function() {
           gsMessages.sendTemporaryWhitelistToContentScript(
             activeTab.id,
             function(error, response) {
+              if (error) {
+                gsUtils.log(
+                  activeTab.id,
+                  'Failed to sendTemporaryWhitelistToContentScript',
+                  error
+                );
+              }
               var contentScriptStatus =
                 response && response.status ? response.status : null;
               calculateTabStatus(activeTab, contentScriptStatus, function(
@@ -223,6 +230,13 @@ var tgs = (function() {
           gsMessages.sendUndoTemporaryWhitelistToContentScript(
             activeTab.id,
             function(error, response) {
+              if (error) {
+                gsUtils.log(
+                  activeTab.id,
+                  'Failed to sendUndoTemporaryWhitelistToContentScript',
+                  error
+                );
+              }
               var contentScriptStatus =
                 response && response.status ? response.status : null;
               calculateTabStatus(activeTab, contentScriptStatus, function(
@@ -234,7 +248,8 @@ var tgs = (function() {
                   newStatus !== 'tempWhitelist' &&
                   !activeTab.autoDiscardable
                 ) {
-                  chrome.tabs.update(activeTab.id, { //async
+                  chrome.tabs.update(activeTab.id, {
+                    //async
                     autoDiscardable: true,
                   });
                 }
@@ -334,7 +349,7 @@ var tgs = (function() {
             gsUtils.isNormalTab(currentTab) &&
             !gsUtils.isDiscardedTab(currentTab)
           ) {
-            gsMessages.sendRestartTimerToContentScript(currentTab.id); //async
+            gsMessages.sendRestartTimerToContentScript(currentTab.id); //async. unhandled error
           }
         });
       });
@@ -355,7 +370,7 @@ var tgs = (function() {
               unsuspendTab(tab);
             }
           } else if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
-            gsMessages.sendRestartTimerToContentScript(tab.id); //async
+            gsMessages.sendRestartTimerToContentScript(tab.id); //async. unhandled error
           }
         });
         deferredTabs.forEach(function(tab) {
@@ -389,9 +404,17 @@ var tgs = (function() {
 
   function resuspendSuspendedTab(tab) {
     gsMessages.sendDisableUnsuspendOnReloadToSuspendedTab(tab.id, function(
-      err
+      error
     ) {
-      if (!err) chrome.tabs.reload(tab.id);
+      if (error) {
+        gsUtils.log(
+          tab.id,
+          'Failed to sendDisableUnsuspendOnReloadToSuspendedTab',
+          error
+        );
+      } else {
+        chrome.tabs.reload(tab.id);
+      }
     });
   }
 
@@ -430,12 +453,19 @@ var tgs = (function() {
   function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
 
-    gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function(err) {
-      //if we failed to find the tab with the above method then try to reload the tab directly
-      var url = gsUtils.getSuspendedUrl(tab.url);
-      if (err && url) {
-        gsUtils.log(tab.id, 'Will reload directly.');
-        chrome.tabs.update(tab.id, { url: url });
+    gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function(error) {
+      if (error) {
+        //if we failed to find the tab with the above method then try to reload the tab directly
+        gsUtils.log(
+          tab.id,
+          'Failed to sendUnsuspendRequestToSuspendedTab',
+          error
+        );
+        var url = gsUtils.getSuspendedUrl(tab.url);
+        if (url) {
+          gsUtils.log(tab.id, 'Will reload directly.');
+          chrome.tabs.update(tab.id, { url: url });
+        }
       }
     });
   }
@@ -462,7 +492,8 @@ var tgs = (function() {
     resetSuspendUnsuspendHotkey(function(hotkeyChanged) {
       if (hotkeyChanged) {
         getSuspendUnsuspendHotkey(function(hotkey) {
-          gsMessages.sendRefreshToAllSuspendedTabs({ //async
+          gsMessages.sendRefreshToAllSuspendedTabs({
+            //async
             command: hotkey,
           });
         });
@@ -510,14 +541,14 @@ var tgs = (function() {
     if (changeInfo.hasOwnProperty('audible')) {
       //reset tab timer if tab has just finished playing audio
       if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-        gsMessages.sendRestartTimerToContentScript(tab.id); //async
+        gsMessages.sendRestartTimerToContentScript(tab.id); //async. unhandled error
       }
       hasTabStatusChanged = true;
     }
     if (changeInfo.hasOwnProperty('pinned')) {
       //reset tab timer if tab has become unpinned
       if (!changeInfo.pinned && gsStorage.getOption(gsStorage.IGNORE_PINNED)) {
-        gsMessages.sendRestartTimerToContentScript(tab.id); //async
+        gsMessages.sendRestartTimerToContentScript(tab.id); //async. unhandled error
       }
       hasTabStatusChanged = true;
     }
@@ -533,12 +564,19 @@ var tgs = (function() {
         spawnedTabCreateTimestamp &&
         (Date.now() - spawnedTabCreateTimestamp) / 1000 < 300
       ) {
+        gsUtils.log(tab.id, 'Suspending tab with a spawnedTabCreateTimestamp');
         gsSuspendManager.queueTabForSuspension(tab, 1);
         return;
       }
 
       //init loaded tab
-      initialiseUnsuspendedTabAsPromised(tab); // unhandled async (could use returned tab status here below)
+      initialiseUnsuspendedTabAsPromised(tab)
+        .then(() => {
+          // unhandled async (could use returned tab status here below)
+        })
+        .catch(error => {
+          gsUtils.error(tab.id, 'Failed to send init to content script');
+        });
       clearTabFlagsForTabId(tab.id);
       hasTabStatusChanged = true;
     }
@@ -600,23 +638,31 @@ var tgs = (function() {
         gsSession.handleTabRecovered(tab);
       }
     } else if (changeInfo.status === 'complete') {
-      initialiseSuspendedTabAsPromised(tab).then(function() {
-        let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
-        clearTabFlagsForTabId(tab.id);
-        gsSuspendManager.markTabAsSuspended(tab);
+      initialiseSuspendedTabAsPromised(tab)
+        .then(function() {
+          let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
+          clearTabFlagsForTabId(tab.id);
+          gsSuspendManager.markTabAsSuspended(tab);
 
-        if (isCurrentFocusedTab(tab)) {
-          setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-        }
+          if (isCurrentFocusedTab(tab)) {
+            setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+          }
 
-        // If we want to discard tabs after suspending them
-        let discardAfterSuspend = gsStorage.getOption(
-          gsStorage.DISCARD_AFTER_SUSPEND
-        );
-        if (discardAfterSuspend && !tab.active && discardOnLoad) {
-          gsSuspendManager.forceTabDiscardation(tab);
-        }
-      });
+          // If we want to discard tabs after suspending them
+          let discardAfterSuspend = gsStorage.getOption(
+            gsStorage.DISCARD_AFTER_SUSPEND
+          );
+          if (discardAfterSuspend && !tab.active && discardOnLoad) {
+            gsSuspendManager.forceTabDiscardation(tab);
+          }
+        })
+        .catch(error => {
+          gsUtils.log(
+            tab.id,
+            'Failed to initialiseSuspendedTabAsPromised',
+            error
+          );
+        });
     }
   }
 
@@ -722,9 +768,9 @@ var tgs = (function() {
         }
       }
       if (!newTab) {
-        gsUtils.error(
+        gsUtils.log(
           'background',
-          'Couldnt find active tab with windowId: ' + windowId
+          `Couldnt find active tab with windowId: ${windowId}. Window may have been closed.`
         );
         return;
       }
@@ -752,7 +798,11 @@ var tgs = (function() {
 
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        gsUtils.error(tabId, chrome.runtime.lastError);
+        gsUtils.log(
+          tabId,
+          chrome.runtime.lastError,
+          `Failed find newly focused tab with id: ${tabId}. Tab may have been closed.`
+        );
         return;
       }
 
@@ -802,19 +852,19 @@ var tgs = (function() {
         if (navigator.onLine) {
           unsuspendTab(newTab);
         } else {
-          gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id); //async
+          gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id); //async. unhandled error
         }
       }
     } else if (gsUtils.isNormalTab(newTab)) {
       //clear timer on newly focused tab
       if (newTab.status === 'complete' && !gsUtils.isDiscardedTab(newTab)) {
-        gsMessages.sendClearTimerToContentScript(tabId); //async
+        gsMessages.sendClearTimerToContentScript(tabId); //async. unhandled error
       }
 
       //if tab is already in the queue for suspension then remove it
       gsSuspendManager.unqueueTabForSuspension(newTab);
     } else if (newTab.url === chrome.extension.getURL('options.html')) {
-      gsMessages.sendReloadOptionsToOptionsTab(newTab.id); //async
+      gsMessages.sendReloadOptionsToOptionsTab(newTab.id); //async. unhandled error
     }
 
     if (lastStationaryTabId && lastStationaryTabId !== tabId) {
@@ -832,7 +882,7 @@ var tgs = (function() {
           !gsUtils.isProtectedActiveTab(lastStationaryTab) &&
           !gsUtils.isDiscardedTab(lastStationaryTab)
         ) {
-          gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id); //async
+          gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id); //async. unhandled error
         }
 
         //if discarding strategy is to discard tabs after suspending them, and the lastFocusedTab
@@ -927,9 +977,12 @@ var tgs = (function() {
       info.tabId = tab.id;
       if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
         gsMessages.sendRequestInfoToContentScript(tab.id, function(
-          err,
+          error,
           tabInfo
         ) {
+          if (error) {
+            gsUtils.log(tab.id, 'Failed to getDebugInfo', error);
+          }
           if (tabInfo) {
             info.timerUp = tabInfo.timerUp;
             calculateTabStatus(tab, tabInfo.status, function(status) {
@@ -955,9 +1008,12 @@ var tgs = (function() {
         resolve(knownContentScriptStatus);
       } else {
         gsMessages.sendRequestInfoToContentScript(tabId, function(
-          err,
+          error,
           tabInfo
         ) {
+          if (error) {
+            gsUtils.log(tabId, 'Failed to getContentScriptStatus', error);
+          }
           if (tabInfo) {
             resolve(tabInfo.status);
           } else {
@@ -1082,7 +1138,11 @@ var tgs = (function() {
       : ICON_SUSPENSION_ACTIVE;
     chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {
       if (chrome.runtime.lastError) {
-        gsUtils.error('background', chrome.runtime.lastError);
+        gsUtils.log(
+          'background',
+          chrome.runtime.lastError,
+          `Failed to set icon for tabId: ${tabId}. Tab may have been closed.`
+        );
       }
     });
   }
@@ -1141,16 +1201,12 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_context_suspend_selected_tabs'
-        ),
+        title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
         contexts: allContexts,
         onclick: suspendSelectedTabs,
       });
       chrome.contextMenus.create({
-        title: chrome.i18n.getMessage(
-          'js_context_unsuspend_selected_tabs'
-        ),
+        title: chrome.i18n.getMessage('js_context_unsuspend_selected_tabs'),
         contexts: allContexts,
         onclick: unsuspendSelectedTabs,
       });
@@ -1406,7 +1462,7 @@ var tgs = (function() {
             !_isCharging &&
             gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)
           ) {
-            gsMessages.sendResetTimerToAllContentScripts(); //async
+            gsMessages.sendResetTimerToAllContentScripts(); //async. unhandled error
           }
         };
       });
@@ -1418,7 +1474,7 @@ var tgs = (function() {
       //restart timer on all normal tabs
       //NOTE: some tabs may have been prevented from suspending when internet was offline
       if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
-        gsMessages.sendResetTimerToAllContentScripts(); //async
+        gsMessages.sendResetTimerToAllContentScripts(); //async. unhandled error
       }
       setIconStatusForActiveTab();
     });

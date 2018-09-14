@@ -153,14 +153,6 @@ var gsMessages = {
     var self = this;
     self.sendMessageToTab(tabId, message, severity, function(error, response) {
       if (error) {
-        if (severity === gsMessages.ERROR && !gsSession.isInitialising()) {
-          gsUtils.error(
-            tabId,
-            '\n\n------------------------------------------------\n' +
-              'Failed to communicate with contentScript!\n' +
-              '------------------------------------------------\n\n'
-          );
-        }
         if (callback) callback(error);
       } else {
         if (callback) callback(null, response);
@@ -268,11 +260,6 @@ var gsMessages = {
     var responseHandler = function(response) {
       gsUtils.log(tabId, 'response from tab', response);
       if (chrome.runtime.lastError) {
-        if (severity === gsMessages.ERROR) {
-          gsUtils.errorIfInitialised(tabId, chrome.runtime.lastError, message);
-        } else if (severity === gsMessages.WARNING) {
-          gsUtils.log(tabId, chrome.runtime.lastError.message, message);
-        }
         if (callback) callback(chrome.runtime.lastError);
       } else {
         if (callback) callback(null, response);

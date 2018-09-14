@@ -463,7 +463,11 @@ var gsSession = (function() {
         resolve(false);
         return;
       }
-      gsMessages.sendPingToTab(tab.id, function(err, response) {
+      gsMessages.sendPingToTab(tab.id, function(error, response) {
+        if (error) {
+          gsUtils.log(tab.id, 'Failed to sendPingToTab', error);
+        }
+
         // If tab is initialised then return true
         if (response && response.isInitialised) {
           resolve(true);
@@ -514,8 +518,11 @@ var gsSession = (function() {
             `Reinjecting contentscript into unresponsive active tab.`
           );
           gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function(
-            err
+            error
           ) {
+            if (error) {
+              gsUtils.log(tab.id, 'Failed to executeScriptOnTab', error);
+            }
             resolve(false);
           });
         }
@@ -787,7 +794,7 @@ var gsSession = (function() {
       { url: chrome.extension.getURL('recovery.html') },
       function(recoveryTabs) {
         for (var recoveryTab of recoveryTabs) {
-          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab); //async
+          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab); //async. unhandled error
         }
       }
     );

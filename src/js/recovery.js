@@ -156,8 +156,10 @@
       gsUtils.isSuspendedTab(o, true)
     );
     for (const suspendedTab of currentSuspendedTabs) {
-      gsMessages.sendPingToTab(suspendedTab.id, function(err) {
-        if (!err) {
+      gsMessages.sendPingToTab(suspendedTab.id, function(error) {
+        if (error) {
+          gsUtils.log(suspendedTab.id, 'Failed to sendPingToTab', error);
+        } else {
           removeSuspendedTabFromList(suspendedTab);
         }
       });

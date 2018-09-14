@@ -65,8 +65,15 @@ var gsSuspendManager = (function() {
       gsMessages.sendConfirmSuspendToContentScript(
         tab.id,
         suspendedUrl,
-        function(err) {
-          if (err) forceTabSuspension(tab, suspendedUrl);
+        function(error) {
+          if (error) {
+            gsUtils.log(
+              tab.id,
+              'Failed to sendConfirmSuspendToContentScript',
+              error
+            );
+            forceTabSuspension(tab, suspendedUrl);
+          }
         }
       );
     }
@@ -172,9 +179,10 @@ var gsSuspendManager = (function() {
     var tab = suspensionDetails.tab;
     var forceLevel = suspensionDetails.forceLevel;
 
-    gsMessages.sendRequestInfoToContentScript(tab.id, function(err, tabInfo) {
+    gsMessages.sendRequestInfoToContentScript(tab.id, function(error, tabInfo) {
       //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
-      if (err) {
+      if (error) {
+        gsUtils.log(tab.id, 'Failed to requestTabSuspension', error);
         // assume tab is still loading
         tabInfo = {
           status: 'loading',
@@ -278,6 +286,7 @@ var gsSuspendManager = (function() {
       `(${fetchYouTubeTimestampContentScript})();`,
       function(error, response) {
         if (error) {
+          gsUtils.log(tab.id, 'Failed to updateYouTubeUrlWithTimestamp', error);
           callback();
           return;
         }
@@ -333,7 +342,7 @@ var gsSuspendManager = (function() {
       error
     ) {
       if (error) {
-        gsUtils.error('gsSuspendManager', error);
+        gsUtils.log(tab.id, 'Failed to executeScriptOnTab: html2canvas', error);
         executeTabSuspension(tab);
         return;
       }
@@ -342,7 +351,11 @@ var gsSuspendManager = (function() {
         `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
         function(error) {
           if (error) {
-            gsUtils.error('gsSuspendManager', error);
+            gsUtils.log(
+              tab.id,
+              'Failed to executeCodeOnTab: generatePreviewImgContentScript',
+              error
+            );
             executeTabSuspension(tab);
           }
         }
