@@ -245,7 +245,7 @@ var gsStorage = {
     if (settings[this.SYNC_SETTINGS]) {
       // Since sync is a local setting, delete it to simplify things.
       delete settings[this.SYNC_SETTINGS];
-      // gsUtils.log('gsStorage', 'gsStorage', 'Pushing local settings to sync', settings);
+      gsUtils.log('gsStorage', 'gsStorage', 'Pushing local settings to sync', settings);
       chrome.storage.sync.set(settings, () => {
         if (chrome.runtime.lastError) {
           gsUtils.error(
