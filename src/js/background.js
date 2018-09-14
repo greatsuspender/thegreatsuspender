@@ -22,6 +22,7 @@ var tgs = (function() {
   var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
   var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var DISCARD_ON_LOAD = 'discardOnLoad';
+  var SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   var SCROLL_POS = 'scrollPos';
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var FOCUS_DELAY = 500;
@@ -299,21 +300,25 @@ var tgs = (function() {
     });
   }
 
-  function suspendAllTabs() {
+  function suspendAllTabs(force) {
+    const forceLevel = force ? 1 : 2;
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       var curWindowId = tabs[0].windowId;
       chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
         curWindow.tabs.forEach(function(tab) {
-          gsSuspendManager.queueTabForSuspension(tab, 2);
+          if (!tab.active) {
+            gsSuspendManager.queueTabForSuspension(tab, forceLevel);
+          }
         });
       });
     });
   }
 
-  function suspendAllTabsInAllWindows() {
+  function suspendAllTabsInAllWindows(force) {
+    const forceLevel = force ? 1 : 2;
     chrome.tabs.query({}, function(tabs) {
       tabs.forEach(function(currentTab) {
-        gsSuspendManager.queueTabForSuspension(currentTab, 1);
+        gsSuspendManager.queueTabForSuspension(currentTab, forceLevel);
       });
     });
   }
@@ -469,7 +474,15 @@ var tgs = (function() {
     var hasTabStatusChanged = false;
 
     //check if tab has just been discarded
-    if (changeInfo.hasOwnProperty('discarded')) {
+    if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
+      const existingSuspendReason = getTabFlagForTabId(tab.id, SUSPEND_REASON);
+      if (existingSuspendReason && existingSuspendReason === 3) {
+        // For some reason the discarded changeInfo gets called twice (chrome bug?)
+        // As a workaround we use the suspend reason to determine if we've already
+        // handled this discard
+        return;
+      }
+      gsUtils.log(tab.id, 'Tab has been discarded. Url: ' + tab.url);
       // If we want to force tabs to be suspended instead of discarding them
       var suspendInPlaceOfDiscard = gsStorage.getOption(
         gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
@@ -477,8 +490,18 @@ var tgs = (function() {
       var discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
-      if (suspendInPlaceOfDiscard && !discardInPlaceOfSuspend) {
-        gsSuspendManager.queueTabForSuspension(tab, 3);
+      var tabEligibleForSuspension = gsSuspendManager.checkTabEligibilityForSuspension(
+        tab,
+        3
+      );
+      if (
+        suspendInPlaceOfDiscard &&
+        !discardInPlaceOfSuspend &&
+        tabEligibleForSuspension
+      ) {
+        setTabFlagForTabId(tab.id, SUSPEND_REASON, 3);
+        var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+        gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
         return;
       }
     }
@@ -641,6 +664,10 @@ var tgs = (function() {
           previewUri: previewUri,
           command: hotkey,
         };
+        const suspendReason = getTabFlagForTabId(tab.id, SUSPEND_REASON);
+        if (suspendReason === 3) {
+          payload.reason = chrome.i18n.getMessage('js_suspended_low_memory');
+        }
         gsMessages.sendInitSuspendedTab(tab.id, payload, function(
           error,
           response
@@ -1115,10 +1142,37 @@ var tgs = (function() {
 
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
-          'js_context_suspend_other_tabs_in_window'
+          'js_context_suspend_selected_tabs'
         ),
         contexts: allContexts,
-        onclick: suspendAllTabs,
+        onclick: suspendSelectedTabs,
+      });
+      chrome.contextMenus.create({
+        title: chrome.i18n.getMessage(
+          'js_context_unsuspend_selected_tabs'
+        ),
+        contexts: allContexts,
+        onclick: unsuspendSelectedTabs,
+      });
+
+      chrome.contextMenus.create({
+        contexts: allContexts,
+        type: 'separator',
+      });
+
+      chrome.contextMenus.create({
+        title: chrome.i18n.getMessage(
+          'js_context_soft_suspend_other_tabs_in_window'
+        ),
+        contexts: allContexts,
+        onclick: () => suspendAllTabs(false),
+      });
+      chrome.contextMenus.create({
+        title: chrome.i18n.getMessage(
+          'js_context_force_suspend_other_tabs_in_window'
+        ),
+        contexts: allContexts,
+        onclick: () => suspendAllTabs(true),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
@@ -1134,9 +1188,14 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
+        title: chrome.i18n.getMessage('js_context_soft_suspend_all_tabs'),
+        contexts: allContexts,
+        onclick: () => suspendAllTabsInAllWindows(false),
+      });
+      chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_force_suspend_all_tabs'),
         contexts: allContexts,
-        onclick: suspendAllTabsInAllWindows,
+        onclick: () => suspendAllTabsInAllWindows(true),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_unsuspend_all_tabs'),
@@ -1154,12 +1213,20 @@ var tgs = (function() {
         toggleSuspendedStateOfHighlightedTab();
       } else if (command === '2-toggle-temp-whitelist-tab') {
         toggleTempWhitelistStateOfHighlightedTab();
+      } else if (command === '2a-suspend-selected-tabs') {
+        suspendSelectedTabs();
+      } else if (command === '2b-unsuspend-selected-tabs') {
+        unsuspendSelectedTabs();
       } else if (command === '3-suspend-active-window') {
-        suspendAllTabs();
+        suspendAllTabs(false);
+      } else if (command === '3b-force-suspend-active-window') {
+        suspendAllTabs(true);
       } else if (command === '4-unsuspend-active-window') {
         unsuspendAllTabs();
+      } else if (command === '4b-soft-suspend-all-windows') {
+        suspendAllTabsInAllWindows(false);
       } else if (command === '5-suspend-all-windows') {
-        suspendAllTabsInAllWindows();
+        suspendAllTabsInAllWindows(true);
       } else if (command === '6-unsuspend-all-windows') {
         unsuspendAllTabsInAllWindows();
       }

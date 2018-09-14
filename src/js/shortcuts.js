@@ -6,28 +6,29 @@
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
-    var shortcutsEl = document.getElementById('keyboardShortcuts'),
-      configureShortcutsEl = document.getElementById('configureShortcuts'),
-      count = 0;
+    var shortcutsEl = document.getElementById('keyboardShortcuts');
+    var configureShortcutsEl = document.getElementById('configureShortcuts');
+
+    var notSetMessage = chrome.i18n.getMessage('js_shortcuts_not_set');
+    var groupingKeys = [
+      '2-toggle-temp-whitelist-tab',
+      '2b-unsuspend-selected-tabs',
+      '4-unsuspend-active-window',
+    ];
 
     //populate keyboard shortcuts
-    chrome.commands.getAll(function(commands) {
-      commands.forEach(function(command) {
+    chrome.commands.getAll((commands) => {
+      commands.forEach((command) => {
         if (command.name !== '_execute_browser_action') {
-          var shortcut =
+          const shortcut =
             command.shortcut !== ''
               ? command.shortcut
-              : '(' + chrome.i18n.getMessage('js_shortcuts_not_set') + ')';
-          var style = count % 2 === 0 ? '"margin: 0 0 2px;"' : '';
+              : '(' + notSetMessage + ')';
+          var removeMargin = !groupingKeys.includes(command.name);
+          var style = removeMargin ? '"margin: 0 0 2px;"' : '"margin: 0 0 20px;"';
           shortcutsEl.innerHTML +=
-            '<p style=' +
-            style +
-            '>' +
-            command.description +
-            ': ' +
-            shortcut +
-            '</p>';
-          count++;
+            `<div style=${style}>${command.description}</div>
+            <div${!command.shortcut && ' class="lesserText"'}>${shortcut}</div>`
         }
       });
     });

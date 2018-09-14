@@ -412,6 +412,7 @@ var gsSuspendManager = (function() {
     unqueueTabForSuspension,
     markTabAsSuspended,
     executeTabSuspension,
+    checkTabEligibilityForSuspension,
     forceTabSuspension,
     forceTabDiscardation,
     undiscardTab,

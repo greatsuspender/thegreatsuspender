@@ -267,7 +267,7 @@
     document
       .getElementById('suspendAll')
       .addEventListener('click', function(e) {
-        tgs.suspendAllTabs();
+        tgs.suspendAllTabs(false);
         window.close();
       });
     document

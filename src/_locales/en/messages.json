@@ -5,10 +5,29 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Suspend/Unsuspend active tab" },
     "ext_cmd_toggle_tab_pause_description": { "message": "Pause/Unpause suspension of active tab" },
-    "ext_cmd_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "Suspend selected tabs" },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Unsuspend selected tabs" },
+    "ext_cmd_soft_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
+    "ext_cmd_force_suspend_active_window_description": { "message": "Force suspend all other tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },
-    "ext_cmd_suspend_all_windows_description": { "message": "Force suspend all tabs in all windows" },
+    "ext_cmd_soft_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
+    "ext_cmd_force_suspend_all_windows_description": { "message": "Force suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
+
+    // Contextual menu (Javascript code)
+    "js_context_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
+    "js_context_toggle_suspend_state": { "message": "Suspend/Unsuspend this tab" },
+    "js_context_toggle_pause_suspension": { "message": "Pause/Unpause suspension of this tab" },
+    "js_context_never_suspend_domain": { "message": "Never suspend this domain" },
+    "js_context_never_suspend_page": { "message": "Never suspend this URL" },
+    "js_context_suspend_selected_tabs": { "message": "Suspend selected tabs" },
+    "js_context_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
+    "js_context_soft_suspend_other_tabs_in_window": { "message": "Suspend all other tabs in this window" },
+    "js_context_force_suspend_other_tabs_in_window": { "message": "Force suspend all other tabs in this window" },
+    "js_context_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
+    "js_context_soft_suspend_all_tabs": { "message": "Suspend all tabs in all windows" },
+    "js_context_force_suspend_all_tabs": { "message": "Force suspend all tabs in all windows" },
+    "js_context_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
 
     // About page
     "html_about_title": { "message": "About" },
@@ -58,7 +77,6 @@
     "html_options_suspend_days": { "message": "days" },
     "html_options_suspend_week": { "message": "week" },
     "html_options_suspend_weeks": { "message": "weeks" },
-    "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
     "html_options_suspend_no_pinned": { "message": "Never suspend pinned tabs" },
     "html_options_suspend_no_forms": { "message": "Never suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Never suspend tabs that are playing audio" },
@@ -91,11 +109,22 @@
     "html_options_whitelist_tooltip_line2": { "message": "To whitelist multiple sites in one line you can specify part of the url instead:" },
     "html_options_whitelist_tooltip_line3": { "message": "You can also specify regular expressions by enclosing the text in forward slashes:" },
     "html_options_other_enable_context_menu": { "message": "Add The Great Suspender to right-click context menu" },
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "Add controls for this extension to the right-click menu of a web page." },
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "This will give you access to advanced suspending actions not available" },
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "elsewhere in the extension." },
     "html_options_other_enable_sync": { "message": "Sync settings with your Chrome profile" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are logged in" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "with the same profile." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
     "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile" },
+    "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
+    "html_options_suspend_on_low_memory_tooltip_line1": { "message": "This option is will override Chrome's automatic tab discarding functionality." },
+    "html_options_suspend_on_low_memory_tooltip_line2": { "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome." },
+    "html_options_suspend_on_low_memory_tooltip_line3": { "message": "Typically, Chrome will only discard tabs once system memory gets very low." },
+    "html_options_suspend_on_low_memory_tooltip_line4": { "message": "Please note: This may cause tabs to suspend earlier than the time you have" },
+    "html_options_suspend_on_low_memory_tooltip_line5": { "message": "specified in the Automatic tab suspension options." },
+    "html_options_suspend_on_low_memory_tooltip_line6": { "message": "For more information on Chrome discarding refer to:" },
+    "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
 
     // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "Unsuspend this tab" },
@@ -123,7 +152,8 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_shortcuts_remap_keys": { "message": "Edit shortcuts" },
+    "html_shortcuts_context_menu_note": { "message": "Note: These actions are also available via the right-click context menu." },
+    "html_shortcuts_remap_keys": { "message": "Change shortcuts" },
 
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "Settings" },
@@ -197,17 +227,6 @@
     "js_donate_bitcoin": { "message": "Crypto" },
     "js_donate_patreon": { "message": "Patreon" },
 
-    // Contextual menu (Javascript code)
-    "js_context_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
-    "js_context_toggle_suspend_state": { "message": "Suspend/Unsuspend this tab" },
-    "js_context_toggle_pause_suspension": { "message": "Pause/Unpause suspension of this tab" },
-    "js_context_never_suspend_domain": { "message": "Never suspend this domain" },
-    "js_context_never_suspend_page": { "message": "Never suspend this URL" },
-    "js_context_suspend_other_tabs_in_window": { "message": "Suspend all other tabs in this window" },
-    "js_context_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
-    "js_context_force_suspend_all_tabs": { "message": "Force suspend all tabs in all windows" },
-    "js_context_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
-
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Tab will suspend automatically." },
     "js_popup_normal_pause": { "message": "Not now" },
@@ -246,6 +265,7 @@
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
     "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
+    "js_suspended_low_memory": { "message": "Tab suspended due to low system memory" },
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "You are in incognito mode. Extension options will be populated from Chrome Sync if they exist." },

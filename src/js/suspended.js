@@ -21,6 +21,7 @@
   let currentTheme;
   let currentHideNag;
   let currentCommand;
+  let currentReason;
 
   function preInit() {
     const href = window.location.href;
@@ -140,6 +141,22 @@
       document.querySelector('body').classList.remove('dark');
     }
     setContrast();
+  }
+
+  function setReason(reason) {
+    if (currentReason === reason) {
+      return;
+    }
+    currentReason = reason;
+    let reasonMsgEl = document.getElementById('reasonMsg');
+    if (!reasonMsgEl) {
+      reasonMsgEl = document.createElement('div');
+      reasonMsgEl.setAttribute('id', 'reasonMsg');
+      reasonMsgEl.classList.add('reasonMsg');
+      const containerEl = document.getElementById('suspendedMsg-instr');
+      containerEl.insertBefore(reasonMsgEl, containerEl.firstChild);
+    }
+    reasonMsgEl.innerHTML = reason;
   }
 
   function handleDonationPopup(hideNag) {
@@ -578,6 +595,9 @@
     }
     if (request.hasOwnProperty('url')) {
       setUrl(request.url);
+    }
+    if (request.hasOwnProperty('reason')) {
+      setReason(request.reason);
     }
   }
 
