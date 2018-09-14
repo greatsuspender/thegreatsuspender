@@ -193,8 +193,7 @@ ul.unorderedList li {
   color: #888;
 }
 .lesserText {
-  color: #929292;
-  font-size: 0.8em;
+  color: #999;
 }
 /* oh dear. well, too late now... */
 .hidden {
@@ -344,6 +343,10 @@ a.historyLink:hover {
   margin-top: 30px;
   background: rgb(255, 247, 202);
   padding: 10px 0 10px 10px;
+}
+.keyboardShortcuts {
+  display: grid;
+  grid-template-columns: auto auto;
 }
 
 /* custom checkboxes */

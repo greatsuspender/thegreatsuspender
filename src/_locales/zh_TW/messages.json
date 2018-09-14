@@ -58,7 +58,6 @@
     "html_options_suspend_days": { "message": "天" }, //day
     "html_options_suspend_week": { "message": "週" }, //week
     "html_options_suspend_weeks": { "message": "週" }, //week
-    "html_options_suspend_on_low_memory": { "message": "當系統記憶體非常少時凍結分頁" }, //Freeze page when system memory becomes very low
     "html_options_suspend_no_pinned": { "message": "不要凍結已固定的分頁" }, //Do not freeze a fixed page
     "html_options_suspend_no_forms": { "message": "不要凍結輸入框有文字且尚未儲存的分頁" }, //Do not freeze pages that have text in the input box and have not been saved yet
     "html_options_suspend_no_audio": { "message": "不要凍結正在播放聲音的分頁" }, //Do not freeze the page that is playing the sound
@@ -96,6 +95,14 @@
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
     "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設定同步。" }, //? This will also synchronize the settings in incognito mode
     "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設定" }, //? Opening this item overrides the settings on all synced systems
+    "html_options_suspend_on_low_memory": { "message": "當系統記憶體非常少時凍結分頁" }, //Freeze page when system memory becomes very low
+    "html_options_suspend_on_low_memory_tooltip_line1": { "message": "此選項會覆蓋Chrome的automatic tab discarding功能。" }, //? This option overrides Chrome's automatic tab discarding feature.
+    "html_options_suspend_on_low_memory_tooltip_line2": { "message": "如果啟用，該頁面將被強制凍結，而不是被Chrome刪除。" }, //? If enabled, the page will be forced to freeze instead of being deleted by Chrome.
+    "html_options_suspend_on_low_memory_tooltip_line3": { "message": "通常，Chrome僅在系統內存非常低時刪除頁面。" }, //? Typically, Chrome only deletes pages when system memory is very low.
+    "html_options_suspend_on_low_memory_tooltip_line4": { "message": "注意：這可能導致選項卡在“自動頁面凍結”選項中指定的時間之前凍結。" }, //? Note: This may cause the tab to freeze before the time specified in the Automatic Page Freeze option.
+    "html_options_suspend_on_low_memory_tooltip_line5": { "message": "" },
+    "html_options_suspend_on_low_memory_tooltip_line6": { "message": "有關automatic tab discarding的更多信息，請參閱：" }, //? For more information on automatic tab discarding, please see:
+    "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
 
     // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "恢復目前分頁" }, //? Restore this tab
@@ -246,6 +253,7 @@
     // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "從例外清單移除" }, //Remove from the exception list
     "js_suspended_hotkey_to_reload": { "message": "設定鍵盤快捷鍵" }, //? Set keyboard shortcuts
+    "js_suspended_low_memory": { "message": "由於系統內存不足而凍結的頁面" }, //? Frozen page due to insufficient system memory
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "你目前使用隱私模式。我们已經從 Chrome 同步擴充插件的設定" }, //? You are in incognito mode. We have populated the extension settings from Chrome sync.
