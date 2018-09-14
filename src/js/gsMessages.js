@@ -182,12 +182,12 @@ var gsMessages = {
     this.sendMessageToTab(tabId, payload, this.ERROR, callback);
   },
 
-  sendRefreshToAllSuspendedTabs: function(payload, callback) {
+  sendRefreshToAllSuspendedTabs: function(payload) {
     var self = this;
     chrome.tabs.query({}, function(tabs) {
       tabs.forEach(function(tab) {
         if (gsUtils.isSuspendedTab(tab)) {
-          self.sendUpdateSuspendedTab(tab.id, payload, callback);
+          self.sendUpdateSuspendedTab(tab.id, payload); //async
         }
       });
     });

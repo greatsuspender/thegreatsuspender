@@ -246,14 +246,15 @@ var gsStorage = {
       // Since sync is a local setting, delete it to simplify things.
       delete settings[this.SYNC_SETTINGS];
       // gsUtils.log('gsStorage', 'gsStorage', 'Pushing local settings to sync', settings);
-      chrome.storage.sync.set(settings, this.noop);
-      if (chrome.runtime.lastError) {
-        gsUtils.error(
-          'gsStorage',
-          'failed to save to chrome.storage.sync: ',
-          chrome.runtime.lastError
-        );
-      }
+      chrome.storage.sync.set(settings, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.error(
+            'gsStorage',
+            'failed to save to chrome.storage.sync: ',
+            chrome.runtime.lastError
+          );
+        }
+      });
     }
   },
 

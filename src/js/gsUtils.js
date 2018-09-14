@@ -531,7 +531,7 @@ var gsUtils = {
             payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
           }
           if (Object.keys(payload).length > 0) {
-            gsMessages.sendUpdateSuspendedTab(tab.id, payload);
+            gsMessages.sendUpdateSuspendedTab(tab.id, payload); //async
           }
           return;
         }
@@ -587,7 +587,7 @@ var gsUtils = {
               )));
 
         if (updateSuspendTime || updateIgnoreForms) {
-          gsMessages.sendUpdateToContentScriptOfTab(
+          gsMessages.sendUpdateToContentScriptOfTab( //async
             tab,
             updateSuspendTime,
             updateIgnoreForms
@@ -733,5 +733,124 @@ var gsUtils = {
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
     };
+  },
+
+  setTimeout: async function(timeout) {
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, timeout);
+    });
+  },
+  chromeCookiesGetAll: async function() {
+    return new Promise((resolve, reject) => {
+      chrome.cookies.getAll({}, cookies => {
+        if (chrome.runtime.lastError) {
+          gsUtils.error('chromeCookies', chrome.runtime.lastError);
+          cookies = [];
+        }
+        resolve(cookies);
+      });
+    });
+  },
+  chromeCookiesRemove: async function(url, name) {
+    return new Promise((resolve, reject) => {
+      if (!url || !name) {
+        gsUtils.error('chromeCookies', 'url or name not specified');
+        resolve(null);
+        return;
+      }
+      chrome.cookies.remove({ url, name }, details => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeCookies', chrome.runtime.lastError);
+          details = null;
+        }
+        resolve(details);
+      });
+    });
+  },
+  chromeTabsCreate: async function(url) {
+    return new Promise((resolve, reject) => {
+      if (!url) {
+        gsUtils.error('chromeTabs', 'url not specified');
+        resolve(null);
+        return;
+      }
+      chrome.tabs.create({ url }, tab => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeTabs', chrome.runtime.lastError);
+          tab = null;
+        }
+        resolve(tab);
+      });
+    });
+  },
+  chromeTabsUpdate: async function(tabId, updateProperties) {
+    return new Promise((resolve, reject) => {
+      if (!tabId || !updateProperties) {
+        gsUtils.error('chromeTabs', 'tabId or updateProperties not specified');
+        resolve(null);
+        return;
+      }
+      chrome.tabs.update(tabId, updateProperties, tab => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeTabs', chrome.runtime.lastError);
+          tab = null;
+        }
+        resolve(tab);
+      });
+    });
+  },
+  chromeTabsGet: async function(tabId) {
+    return new Promise((resolve, reject) => {
+      if (!tabId) {
+        gsUtils.error('chromeTabs', 'tabId not specified');
+        resolve(null);
+        return;
+      }
+      chrome.tabs.get(tabId, tab => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeTabs', chrome.runtime.lastError);
+          tab = null;
+        }
+        resolve(tab);
+      });
+    });
+  },
+  chromeTabsQuery: async function() {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.query({}, tabs => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeTabs', chrome.runtime.lastError);
+          tabs = [];
+        }
+        resolve(tabs);
+      });
+    });
+  },
+  chromeWindowsGetAll: async function() {
+    return new Promise((resolve, reject) => {
+      chrome.windows.getAll({ populate: true }, windows => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeWindows', chrome.runtime.lastError);
+          windows = [];
+        }
+        resolve(windows);
+      });
+    });
+  },
+  chromeWindowsUpdate: async function(windowId, updateInfo) {
+    return new Promise((resolve, reject) => {
+      if (!windowId || !updateInfo) {
+        gsUtils.error('chromeTabs', 'windowId or updateInfo not specified');
+        resolve(null);
+        return;
+      }
+      chrome.windows.update(windowId, updateInfo, window => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeWindows', chrome.runtime.lastError);
+          window = null;
+        }
+        resolve(window);
+      });
+    });
   },
 };

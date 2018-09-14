@@ -96,14 +96,19 @@ var tgs = (function() {
 
   function getCurrentlyActiveTab(callback) {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (chrome.runtime.lastError) {
+        gsUtils.error('background', chrome.runtime.lastError);
+        callback(null);
+        return;
+      }
       if (tabs.length > 0) {
         callback(tabs[0]);
-      } else {
-        //TODO: Possibly fallback on _lastStationaryWindowId and _lastStationaryTabIdByWindowId here?
-        //except during initialization!!
-        //see https://github.com/deanoemcke/thegreatsuspender/issues/574
-        callback(null);
+        return;
       }
+      //TODO: Possibly fallback on _lastStationaryWindowId and _lastStationaryTabIdByWindowId here?
+      //except during initialization!!
+      //see https://github.com/deanoemcke/thegreatsuspender/issues/574
+      callback(null);
     });
   }
 
@@ -179,7 +184,7 @@ var tgs = (function() {
         return;
       }
       if (gsUtils.isSuspendedTab(activeTab)) {
-        gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id);
+        gsMessages.sendTemporaryWhitelistToSuspendedTab(activeTab.id); //async
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -190,7 +195,7 @@ var tgs = (function() {
         ) {
           gsMessages.sendTemporaryWhitelistToContentScript(
             activeTab.id,
-            function(response) {
+            function(error, response) {
               var contentScriptStatus =
                 response && response.status ? response.status : null;
               calculateTabStatus(activeTab, contentScriptStatus, function(
@@ -216,7 +221,7 @@ var tgs = (function() {
         ) {
           gsMessages.sendUndoTemporaryWhitelistToContentScript(
             activeTab.id,
-            function(response) {
+            function(error, response) {
               var contentScriptStatus =
                 response && response.status ? response.status : null;
               calculateTabStatus(activeTab, contentScriptStatus, function(
@@ -228,7 +233,7 @@ var tgs = (function() {
                   newStatus !== 'tempWhitelist' &&
                   !activeTab.autoDiscardable
                 ) {
-                  chrome.tabs.update(activeTab.id, {
+                  chrome.tabs.update(activeTab.id, { //async
                     autoDiscardable: true,
                   });
                 }
@@ -324,7 +329,7 @@ var tgs = (function() {
             gsUtils.isNormalTab(currentTab) &&
             !gsUtils.isDiscardedTab(currentTab)
           ) {
-            gsMessages.sendRestartTimerToContentScript(currentTab.id);
+            gsMessages.sendRestartTimerToContentScript(currentTab.id); //async
           }
         });
       });
@@ -345,7 +350,7 @@ var tgs = (function() {
               unsuspendTab(tab);
             }
           } else if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
-            gsMessages.sendRestartTimerToContentScript(tab.id);
+            gsMessages.sendRestartTimerToContentScript(tab.id); //async
           }
         });
         deferredTabs.forEach(function(tab) {
@@ -452,7 +457,7 @@ var tgs = (function() {
     resetSuspendUnsuspendHotkey(function(hotkeyChanged) {
       if (hotkeyChanged) {
         getSuspendUnsuspendHotkey(function(hotkey) {
-          gsMessages.sendRefreshToAllSuspendedTabs({
+          gsMessages.sendRefreshToAllSuspendedTabs({ //async
             command: hotkey,
           });
         });
@@ -482,14 +487,14 @@ var tgs = (function() {
     if (changeInfo.hasOwnProperty('audible')) {
       //reset tab timer if tab has just finished playing audio
       if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
-        gsMessages.sendRestartTimerToContentScript(tab.id);
+        gsMessages.sendRestartTimerToContentScript(tab.id); //async
       }
       hasTabStatusChanged = true;
     }
     if (changeInfo.hasOwnProperty('pinned')) {
       //reset tab timer if tab has become unpinned
       if (!changeInfo.pinned && gsStorage.getOption(gsStorage.IGNORE_PINNED)) {
-        gsMessages.sendRestartTimerToContentScript(tab.id);
+        gsMessages.sendRestartTimerToContentScript(tab.id); //async
       }
       hasTabStatusChanged = true;
     }
@@ -770,19 +775,19 @@ var tgs = (function() {
         if (navigator.onLine) {
           unsuspendTab(newTab);
         } else {
-          gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id);
+          gsMessages.sendNoConnectivityMessageToSuspendedTab(newTab.id); //async
         }
       }
     } else if (gsUtils.isNormalTab(newTab)) {
       //clear timer on newly focused tab
       if (newTab.status === 'complete' && !gsUtils.isDiscardedTab(newTab)) {
-        gsMessages.sendClearTimerToContentScript(tabId);
+        gsMessages.sendClearTimerToContentScript(tabId); //async
       }
 
       //if tab is already in the queue for suspension then remove it
       gsSuspendManager.unqueueTabForSuspension(newTab);
     } else if (newTab.url === chrome.extension.getURL('options.html')) {
-      gsMessages.sendReloadOptionsToOptionsTab(newTab.id);
+      gsMessages.sendReloadOptionsToOptionsTab(newTab.id); //async
     }
 
     if (lastStationaryTabId && lastStationaryTabId !== tabId) {
@@ -800,7 +805,7 @@ var tgs = (function() {
           !gsUtils.isProtectedActiveTab(lastStationaryTab) &&
           !gsUtils.isDiscardedTab(lastStationaryTab)
         ) {
-          gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id);
+          gsMessages.sendRestartTimerToContentScript(lastStationaryTab.id); //async
         }
 
         //if discarding strategy is to discard tabs after suspending them, and the lastFocusedTab
@@ -888,30 +893,31 @@ var tgs = (function() {
       if (chrome.runtime.lastError) {
         gsUtils.error(tabId, chrome.runtime.lastError);
         callback(info);
-      } else {
-        info.windowId = tab.windowId;
-        info.tabId = tab.id;
-        if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
-          gsMessages.sendRequestInfoToContentScript(tab.id, function(
-            err,
-            tabInfo
-          ) {
-            if (tabInfo) {
-              info.timerUp = tabInfo.timerUp;
-              calculateTabStatus(tab, tabInfo.status, function(status) {
-                info.status = status;
-                callback(info);
-              });
-            } else {
+        return;
+      }
+
+      info.windowId = tab.windowId;
+      info.tabId = tab.id;
+      if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
+        gsMessages.sendRequestInfoToContentScript(tab.id, function(
+          err,
+          tabInfo
+        ) {
+          if (tabInfo) {
+            info.timerUp = tabInfo.timerUp;
+            calculateTabStatus(tab, tabInfo.status, function(status) {
+              info.status = status;
               callback(info);
-            }
-          });
-        } else {
-          calculateTabStatus(tab, null, function(status) {
-            info.status = status;
+            });
+          } else {
             callback(info);
-          });
-        }
+          }
+        });
+      } else {
+        calculateTabStatus(tab, null, function(status) {
+          info.status = status;
+          callback(info);
+        });
       }
     });
   }
@@ -1333,7 +1339,7 @@ var tgs = (function() {
             !_isCharging &&
             gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)
           ) {
-            gsMessages.sendResetTimerToAllContentScripts();
+            gsMessages.sendResetTimerToAllContentScripts(); //async
           }
         };
       });
@@ -1345,7 +1351,7 @@ var tgs = (function() {
       //restart timer on all normal tabs
       //NOTE: some tabs may have been prevented from suspending when internet was offline
       if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
-        gsMessages.sendResetTimerToAllContentScripts();
+        gsMessages.sendResetTimerToAllContentScripts(); //async
       }
       setIconStatusForActiveTab();
     });

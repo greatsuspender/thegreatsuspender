@@ -9,9 +9,6 @@
 
   var getTabStatus = function(retriesRemaining, callback) {
     tgs.getActiveTabStatus(function(status) {
-      if (chrome.runtime.lastError) {
-        gsUtils.error('popup', chrome.runtime.lastError);
-      }
       if (
         status !== gsUtils.STATUS_UNKNOWN &&
         status !== gsUtils.STATUS_LOADING

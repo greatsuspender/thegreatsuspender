@@ -45,7 +45,7 @@ var gsSession = (function() {
         gsUtils.removeTabsByUrlAsPromised(updatedUrl),
       ]);
       //show update screen
-      await new Promise(r => chrome.tabs.create({ url: updateUrl }));
+      await gsUtils.chromeTabsCreate(updateUrl);
     } else {
       // if there are no suspended tabs then simply install the update immediately
       chrome.runtime.reload();
@@ -62,9 +62,7 @@ var gsSession = (function() {
   }
 
   async function buildCurrentSession() {
-    const currentWindows = await new Promise(r =>
-      chrome.windows.getAll({ populate: true }, r)
-    );
+    const currentWindows = await gsUtils.chromeWindowsGetAll();
     var tabsExist = currentWindows.some(
       window => window.tabs && window.tabs.length
     );
@@ -106,7 +104,7 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
-    const tabs = (await new Promise(r => chrome.tabs.query({}, r))) || [];
+    const tabs = await gsUtils.chromeTabsQuery();
     await checkForBrowserStartup(tabs);
     queueCheckTabsForResponsiveness(tabs);
 
@@ -140,12 +138,11 @@ var gsSession = (function() {
       } else {
         //otherwise show the recovery page
         const recoveryUrl = chrome.extension.getURL('recovery.html');
-        await new Promise(r => chrome.tabs.create({ url: recoveryUrl }, (updateTab) => {
-          //hax0r: wait for recovery tab to finish loading before returning
-          //this is so we remain in 'recoveryMode' for a bit longer, preventing
-          //the sessionUpdate code from running when this tab gains focus
-          setTimeout(r, 2000);
-        }));
+        await gsUtils.chromeTabsCreate(recoveryUrl);
+        //hax0r: wait for recovery tab to finish loading before returning
+        //this is so we remain in 'recoveryMode' for a bit longer, preventing
+        //the sessionUpdate code from running when this tab gains focus
+        await gsUtils.setTimeout(2000);
       }
     } else {
       await gsIndexedDb.trimDbItems();
@@ -158,7 +155,7 @@ var gsSession = (function() {
 
     //show welcome message
     const optionsUrl = chrome.extension.getURL('options.html?firstTime');
-    await new Promise(r => chrome.tabs.create({ url: optionsUrl }, r));
+    await gsUtils.chromeTabsCreate(optionsUrl);
     gsAnalytics.reportEvent('System', 'Install', curVersion + '');
   }
 
@@ -207,7 +204,7 @@ var gsSession = (function() {
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
 
     //show updated screen
-    await new Promise(r => chrome.tabs.create({ url: updatedUrl }, r));
+    await gsUtils.chromeTabsCreate(updatedUrl);
 
     gsAnalytics.reportEvent(
       'System',
@@ -382,8 +379,8 @@ var gsSession = (function() {
       );
       return;
     }
-    await new Promise(resolve => setTimeout(resolve, timeout));
-    let _tab = await getCurrentStateOfTab(tab);
+    await gsUtils.setTimeout(timeout);
+    let _tab = await fetchUpdatedTab(tab);
     if (!_tab) {
       gsUtils.log(
         tab.id,
@@ -412,11 +409,8 @@ var gsSession = (function() {
     }
   }
 
-  async function getCurrentStateOfTab(tab) {
-    const newTab = await new Promise(r => chrome.tabs.get(tab.id, r));
-    if (chrome.runtime.lastError) {
-      gsUtils.log(tab.id, chrome.runtime.lastError);
-    }
+  async function fetchUpdatedTab(tab) {
+    const newTab = await gsUtils.chromeTabsGet(tab.id);
     if (newTab) {
       return newTab;
     }
@@ -435,9 +429,7 @@ var gsSession = (function() {
         tab.id
       } was discarded before init. Will reload..`
     );
-    await new Promise(r =>
-      chrome.tabs.update(discardedTab.id, { url: discardedTab.url }, r)
-    );
+    await gsUtils.chromeTabsUpdate(discardedTab.id, { url: discardedTab.url });
     return discardedTab;
   }
 
@@ -547,9 +539,7 @@ var gsSession = (function() {
     recoveryMode = true;
     gsUtils.removeInternalUrlsFromSession(lastSession);
 
-    const currentWindows = await new Promise(r =>
-      chrome.windows.getAll({ populate: true }, r)
-    );
+    const currentWindows = await gsUtils.chromeWindowsGetAll();
     var matchedCurrentWindowBySessionWindowId = matchCurrentWindowsWithLastSessionWindows(
       lastSession.windows,
       currentWindows
@@ -563,9 +553,7 @@ var gsSession = (function() {
     }
     var focusedWindow = currentWindows.find(o => o.focused);
     if (focusedWindow) {
-      await new Promise(r =>
-        chrome.windows.update(focusedWindow.id, { focused: true }, r)
-      );
+      await gsUtils.chromeWindowsUpdate(focusedWindow.id, { focused: true });
     }
   }
 
@@ -799,7 +787,7 @@ var gsSession = (function() {
       { url: chrome.extension.getURL('recovery.html') },
       function(recoveryTabs) {
         for (var recoveryTab of recoveryTabs) {
-          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab);
+          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab); //async
         }
       }
     );
