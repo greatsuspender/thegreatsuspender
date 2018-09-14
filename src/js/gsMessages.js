@@ -271,7 +271,7 @@ var gsMessages = {
       gsUtils.log(tabId, 'send message to tab', message);
       chrome.tabs.sendMessage(tabId, message, { frameId: 0 }, responseHandler);
     } catch (e) {
-      gsUtils.error(tabId, e);
+      // gsUtils.error(tabId, e);
       chrome.tabs.sendMessage(tabId, message, responseHandler);
     }
   },
@@ -279,11 +279,6 @@ var gsMessages = {
   executeScriptOnTab: function(tabId, scriptPath, callback) {
     chrome.tabs.executeScript(tabId, { file: scriptPath }, function(response) {
       if (chrome.runtime.lastError) {
-        gsUtils.errorIfInitialised(
-          tabId,
-          'Could not inject ' + scriptPath + ' into tab.',
-          chrome.runtime.lastError
-        );
         if (callback) callback(chrome.runtime.lastError);
       } else {
         if (callback) callback(null, response);
@@ -294,11 +289,6 @@ var gsMessages = {
   executeCodeOnTab: function(tabId, codeString, callback) {
     chrome.tabs.executeScript(tabId, { code: codeString }, function(response) {
       if (chrome.runtime.lastError) {
-        gsUtils.error(
-          tabId,
-          'Could not inject code into tab.',
-          chrome.runtime.lastError
-        );
         if (callback) callback(chrome.runtime.lastError);
       } else {
         if (callback) callback(null, response);
