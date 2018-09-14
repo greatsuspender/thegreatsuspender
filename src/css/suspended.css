@@ -164,6 +164,10 @@ body.img-preview-mode .gsTopBar {
     flex-direction: column;
     text-align: center;
 }
+.reasonMsg {
+    font-size: 15px;
+    margin-bottom: 25px;
+}
 .suspendedMsg img {
     height: 180px;
     margin-bottom: 30px;
