@@ -5,10 +5,29 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "冻结/恢复當前分页" }, //Freeze/resume the current page
     "ext_cmd_toggle_tab_pause_description": { "message": "暂停/取消暂停当前页面的冻结" }, //? Pause/unpause the freeze of the current page
-    "ext_cmd_suspend_active_window_description": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "ext_cmd_suspend_selected_tabs_description": { "message": "冻结已選擇分页" }, //Frozen Selected Paging
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "恢复已選擇分页" }, //Revert Selected Paging
+    "ext_cmd_soft_suspend_active_window_description": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "ext_cmd_force_suspend_active_window_description": { "message": "强制冻结当前窗口中的所有选项卡" }, //? Force freeze all tabs in the current window
     "ext_cmd_unsuspend_active_window_description": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
-    "ext_cmd_suspend_all_windows_description": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
+    "ext_cmd_soft_suspend_all_windows_description": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
+    "ext_cmd_force_suspend_all_windows_description": { "message": "强制冻结所有窗口的所有选项卡" }, //? Force all tabs of all windows to be frozen
     "ext_cmd_unsuspend_all_windows_description": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
+
+    // Contextual menu (Javascript code)
+    "js_context_open_link_in_suspended_tab": { "message": "在新的冻结分页打開連結" }, //Open the link in the new Frozen tab
+    "js_context_toggle_suspend_state": { "message": "冻结/恢复此页面" }, //? Freeze/restore this page
+    "js_context_toggle_pause_suspension": { "message": "暂停/取消暂停此页面的冻结" }, //? Pause/unpause the freezing of this page
+    "js_context_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
+    "js_context_never_suspend_page": { "message": "永远不要冻结此網页" }, //Never freeze this web page
+    "js_context_suspend_selected_tabs": { "message": "冻结已選擇分页" }, //Frozen Selected Paging
+    "js_context_unsuspend_selected_tabs": { "message": "恢复已選擇分页" }, //Revert Selected Paging
+    "js_context_soft_suspend_other_tabs_in_window": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "js_context_force_suspend_other_tabs_in_window": { "message": "强制冻结当前窗口中的所有选项卡" }, //? Force freeze all tabs in the current window
+    "js_context_unsuspend_all_tabs_in_window": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
+    "js_context_soft_suspend_all_tabs": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
+    "js_context_force_suspend_all_tabs": { "message": "强制冻结所有窗口的所有选项卡" }, //? Force all tabs of all windows to be frozen
+    "js_context_unsuspend_all_tabs": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
 
     // About page
     "html_about_title": { "message": "支援" }, //support
@@ -89,7 +108,10 @@
     "html_options_whitelist_tooltip_line1": { "message": "在新行上添加要列入白名单的每个页面的URL。例如:" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中将多个网站列入白名单，可以指定网址的一部分:" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
     "html_options_whitelist_tooltip_line3": { "message": "您还可以通過以正规表示式來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
-    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右键选单" }, //Add The Great Suspender to the right-click menu u
+    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右键选单" }, //Add The Great Suspender to the right-click menu
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "将控件添加到网页的右键单击菜单。" }, //? Add a control to the right-click menu of the web page.
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "这样，您就可以访问程序中其他位置无法使用的高级冻结操作。" }, //? This way, you can access advanced freeze operations that are not available elsewhere in the program.
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
     "html_options_other_enable_sync": { "message": "在不同系统之间同步设置" }, //? Set synchronization between different systems
     "html_options_other_enable_sync_tooltip_line1a": { "message": "扩充元件将在所有使用相同配置文件登录的Chrome浏览器中同步" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
@@ -130,6 +152,7 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "键盘快速键" }, //Keyboard shortcut
     "html_shortcuts_keyboard_shortcuts": { "message": "键盘快速键" }, //Keyboard shortcut
+    "html_shortcuts_context_menu_note": { "message": "注意：您也可以通过右键单击上下文菜单来使用这些操作。" }, //? Note: You can also use these actions by right-clicking on the context menu.
     "html_shortcuts_remap_keys": { "message": "修改键盘快速键" }, //Modify the keyboard shortcut
 
     // Sidebar from the configuration section (common to all settings)
@@ -203,17 +226,6 @@
     "js_donate_paypal": { "message": "PayPal" }, // PayPal
     "js_donate_bitcoin": { "message": "比特币" }, //Bitcoin
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
-
-    // Contextual menu (Javascript code)
-    "js_context_open_link_in_suspended_tab": { "message": "在新的冻结分页打開連結" }, //Open the link in the new Frozen tab
-    "js_context_toggle_suspend_state": { "message": "冻结/恢复此页面" }, //? Freeze/restore this page
-    "js_context_toggle_pause_suspension": { "message": "暂停/取消暂停此页面的冻结" }, //? Pause/unpause the freezing of this page
-    "js_context_never_suspend_domain": { "message": "永远不要冻结此域名" }, //Never freeze this domain name
-    "js_context_never_suspend_page": { "message": "永远不要冻结此網页" }, //Never freeze this web page
-    "js_context_suspend_other_tabs_in_window": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
-    "js_context_unsuspend_all_tabs_in_window": { "message": "恢复目前视窗中所有的分页" }, //Restore all the tabs in the current window
-    "js_context_force_suspend_all_tabs": { "message": "冻结所有视窗的所有分页" }, //Freeze all tabs in all windows
-    "js_context_unsuspend_all_tabs": { "message": "恢复所有视窗的所有分页" }, //Restore all the tabs in all windows
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "分页将会自动被冻结" }, //Paging will be automatically frozen

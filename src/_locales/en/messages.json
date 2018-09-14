@@ -5,10 +5,29 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Suspend/Unsuspend active tab" },
     "ext_cmd_toggle_tab_pause_description": { "message": "Pause/Unpause suspension of active tab" },
-    "ext_cmd_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "Suspend selected tabs" },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Unsuspend selected tabs" },
+    "ext_cmd_soft_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
+    "ext_cmd_force_suspend_active_window_description": { "message": "Force suspend all other tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },
-    "ext_cmd_suspend_all_windows_description": { "message": "Force suspend all tabs in all windows" },
+    "ext_cmd_soft_suspend_all_windows_description": { "message": "Suspend all tabs in all windows" },
+    "ext_cmd_force_suspend_all_windows_description": { "message": "Force suspend all tabs in all windows" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Unsuspend all tabs in all windows" },
+
+    // Contextual menu (Javascript code)
+    "js_context_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
+    "js_context_toggle_suspend_state": { "message": "Suspend/Unsuspend this tab" },
+    "js_context_toggle_pause_suspension": { "message": "Pause/Unpause suspension of this tab" },
+    "js_context_never_suspend_domain": { "message": "Never suspend this domain" },
+    "js_context_never_suspend_page": { "message": "Never suspend this URL" },
+    "js_context_suspend_selected_tabs": { "message": "Suspend selected tabs" },
+    "js_context_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
+    "js_context_soft_suspend_other_tabs_in_window": { "message": "Suspend all other tabs in this window" },
+    "js_context_force_suspend_other_tabs_in_window": { "message": "Force suspend all other tabs in this window" },
+    "js_context_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
+    "js_context_soft_suspend_all_tabs": { "message": "Suspend all tabs in all windows" },
+    "js_context_force_suspend_all_tabs": { "message": "Force suspend all tabs in all windows" },
+    "js_context_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
 
     // About page
     "html_about_title": { "message": "About" },
@@ -90,6 +109,9 @@
     "html_options_whitelist_tooltip_line2": { "message": "To whitelist multiple sites in one line you can specify part of the url instead:" },
     "html_options_whitelist_tooltip_line3": { "message": "You can also specify regular expressions by enclosing the text in forward slashes:" },
     "html_options_other_enable_context_menu": { "message": "Add The Great Suspender to right-click context menu" },
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "Add controls for this extension to the right-click menu of a web page." },
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "This will give you access to advanced suspending actions not available" },
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "elsewhere in the extension." },
     "html_options_other_enable_sync": { "message": "Sync settings with your Chrome profile" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are logged in" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "with the same profile." },
@@ -130,7 +152,8 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Keyboard shortcuts" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Keyboard shortcuts" },
-    "html_shortcuts_remap_keys": { "message": "Edit shortcuts" },
+    "html_shortcuts_context_menu_note": { "message": "Note: These actions are also available via the right-click context menu." },
+    "html_shortcuts_remap_keys": { "message": "Change shortcuts" },
 
     // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "Settings" },
@@ -203,17 +226,6 @@
     "js_donate_paypal": { "message": "PayPal" },
     "js_donate_bitcoin": { "message": "Crypto" },
     "js_donate_patreon": { "message": "Patreon" },
-
-    // Contextual menu (Javascript code)
-    "js_context_open_link_in_suspended_tab": { "message": "Open Link in New Suspended Tab" },
-    "js_context_toggle_suspend_state": { "message": "Suspend/Unsuspend this tab" },
-    "js_context_toggle_pause_suspension": { "message": "Pause/Unpause suspension of this tab" },
-    "js_context_never_suspend_domain": { "message": "Never suspend this domain" },
-    "js_context_never_suspend_page": { "message": "Never suspend this URL" },
-    "js_context_suspend_other_tabs_in_window": { "message": "Suspend all other tabs in this window" },
-    "js_context_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
-    "js_context_force_suspend_all_tabs": { "message": "Force suspend all tabs in all windows" },
-    "js_context_unsuspend_all_tabs": { "message": "Unsuspend all tabs in all windows" },
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Tab will suspend automatically." },

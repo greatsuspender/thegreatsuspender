@@ -5,10 +5,29 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "凍結/恢復目前分頁" }, //Freeze/resume the current page
     "ext_cmd_toggle_tab_pause_description": { "message": "暫停/取消暫停目前頁面的凍結" }, //? Pause/unpause the freeze of the current page
-    "ext_cmd_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
-    "ext_cmd_unsuspend_active_window_description": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
-    "ext_cmd_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "ext_cmd_suspend_selected_tabs_description": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
+    "ext_cmd_soft_suspend_active_window_description": { "message": "冻结目前视窗中所有的分页" }, //Freeze all the tabs in the current window
+    "ext_cmd_force_suspend_active_window_description": { "message": "強制凍結當前窗口中的所有選項卡" }, //? Force freeze all tabs in the current window
+    "ext_cmd_unsuspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "ext_cmd_soft_suspend_all_windows_description": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "ext_cmd_force_suspend_all_windows_description": { "message": "強制凍結所有窗口的所有選項卡" }, //? Force all tabs of all windows to be frozen
     "ext_cmd_unsuspend_all_windows_description": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
+
+    // Contextual menu (Javascript code)
+    "js_context_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
+    "js_context_toggle_suspend_state": { "message": "凍結/恢復此頁面" }, //? Freeze/restore this page
+    "js_context_toggle_pause_suspension": { "message": "暫停/取消暫停此頁面的凍結" }, //? Pause/unpause the freezing of this page
+    "js_context_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
+    "js_context_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
+    "js_context_suspend_selected_tabs": { "message": "凍結已選擇分頁" }, //Frozen Selected Paging
+    "js_context_unsuspend_selected_tabs": { "message": "恢復已選擇分頁" }, //Revert Selected Paging
+    "js_context_soft_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
+    "js_context_force_suspend_other_tabs_in_window": { "message": "強制凍結當前窗口中的所有選項卡" }, //? Force freeze all tabs in the current window
+    "js_context_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
+    "js_context_soft_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
+    "js_context_force_suspend_all_tabs": { "message": "強制凍結所有窗口的所有選項卡" }, //? Force all tabs of all windows to be frozen
+    "js_context_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // About page
     "html_about_title": { "message": "支援" }, //support
@@ -89,9 +108,12 @@
     "html_options_whitelist_tooltip_line1": { "message": "在新行上增加要列入白名單的每個頁面的 URL。例如：" }, //? Add the URL of each page to be whitelisted on the new line. E.g
     "html_options_whitelist_tooltip_line2": { "message": "要在一行中將多個網站列入白名單，可以指定網址的一部分：" }, //? To whitelist multiple sites on a single line, you can specify a portion of the URL:
     "html_options_whitelist_tooltip_line3": { "message": "您還可以通過以正規表示式來指定正則表達式:" }, //? You can also specify a regular expression by enclosing the text with a forward slash
-    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu u
+    "html_options_other_enable_context_menu": { "message": "把 The Great Suspender 加到右鍵選單" }, //Add The Great Suspender to the right-click menu
+    "html_options_other_enable_context_menu_tooltip_line1": { "message": "將控件添加到網頁的右鍵單擊菜單。" }, //? Add a control to the right-click menu of the web page.
+    "html_options_other_enable_context_menu_tooltip_line2": { "message": "這樣，您就可以訪問程序中其他位置無法使用的高級凍結操作。" }, //? This way, you can access advanced freeze operations that are not available elsewhere in the program.
+    "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
     "html_options_other_enable_sync": { "message": "在不同系統之間同步設定" }, //? Set synchronization between different systems
-    "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chorme 後，擴充功能將同步相同的設定" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
+    "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chrome 後，擴充功能將同步相同的設定" }, //? Extensions will be synced in all Chrome sign-ins that use the same profile
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
     "html_options_other_enable_sync_tooltip_line2": { "message": "這也將使無痕模式下的設定同步。" }, //? This will also synchronize the settings in incognito mode
     "html_options_other_enable_sync_warning": { "message": "打開此項將覆蓋所有同步系統上的設定" }, //? Opening this item overrides the settings on all synced systems
@@ -130,6 +152,7 @@
     // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
     "html_shortcuts_keyboard_shortcuts": { "message": "鍵盤快速鍵" }, //Keyboard shortcut
+    "html_shortcuts_context_menu_note": { "message": "注意：您也可以通過右鍵單擊上下文菜單來使用這些操作。" }, //? Note: You can also use these actions by right-clicking on the context menu.
     "html_shortcuts_remap_keys": { "message": "修改鍵盤快速鍵" }, //Modify the keyboard shortcut
 
     // Sidebar from the configuration section (common to all settings)
@@ -203,17 +226,6 @@
     "js_donate_paypal": { "message": "PayPal" }, // PayPal
     "js_donate_bitcoin": { "message": "比特幣" }, //Bitcoin
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
-
-    // Contextual menu (Javascript code)
-    "js_context_open_link_in_suspended_tab": { "message": "在新的凍結分頁打開連結" }, //Open the link in the new Frozen tab
-    "js_context_toggle_suspend_state": { "message": "凍結/恢復此頁面" }, //? Freeze/restore this page
-    "js_context_toggle_pause_suspension": { "message": "暫停/取消暫停此頁面的凍結" }, //? Pause/unpause the freezing of this page
-    "js_context_never_suspend_domain": { "message": "永遠不要凍結此域名" }, //Never freeze this domain name
-    "js_context_never_suspend_page": { "message": "永遠不要凍結此網頁" }, //Never freeze this web page
-    "js_context_suspend_other_tabs_in_window": { "message": "凍結目前視窗中所有的分頁" }, //Freeze all the tabs in the current window
-    "js_context_unsuspend_all_tabs_in_window": { "message": "恢復目前視窗中所有的分頁" }, //Restore all the tabs in the current window
-    "js_context_force_suspend_all_tabs": { "message": "凍結所有視窗的所有分頁" }, //Freeze all tabs in all windows
-    "js_context_unsuspend_all_tabs": { "message": "恢復所有視窗的所有分頁" }, //Restore all the tabs in all windows
 
     // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "分頁將會自動被凍結" }, //Paging will be automatically frozen
