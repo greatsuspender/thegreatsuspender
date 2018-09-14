@@ -255,8 +255,8 @@ var gsSession = (function() {
       })
       .catch(error => {
         initialisationMode = false;
-        gsUtils.error('gsSession', error);
-        gsUtils.error(
+        gsUtils.warning('gsSession', error);
+        gsUtils.warning(
           'gsSession',
           '\n\n------------------------------------------------\n' +
             'Extension initialization FAILED.\n' +
@@ -385,7 +385,7 @@ var gsSession = (function() {
       return;
     }
     if (totalTimeQueued >= initTimeoutInSeconds * 1000) {
-      gsUtils.error(
+      gsUtils.warning(
         tab.id,
         `Failed to initialize tab. Tab may not behave as expected.`
       );
@@ -394,7 +394,7 @@ var gsSession = (function() {
     await gsUtils.setTimeout(timeout);
     let _tab = await fetchUpdatedTab(tab);
     if (!_tab) {
-      gsUtils.log(
+      gsUtils.warning(
         tab.id,
         `Failed to initialize tab. Tab may have been removed or discarded.`
       );
@@ -412,7 +412,7 @@ var gsSession = (function() {
     const result = await pingTabScript(tab, totalTimeQueued);
     if (!result) {
       const nextTimeout = getRandomTimeoutInMilliseconds(5000);
-      gsUtils.log(
+      gsUtils.warning(
         tab.id,
         `Tab has still not initialised after ${totalTimeQueued /
           1000}. Re-queuing in another ${nextTimeout / 1000} seconds.`
@@ -435,7 +435,7 @@ var gsSession = (function() {
     if (!discardedTab) {
       return null;
     }
-    gsUtils.log(
+    gsUtils.warning(
       discardedTab.id,
       `Suspended tab with id: ${
         tab.id
@@ -478,7 +478,7 @@ var gsSession = (function() {
     let tabResponse = await new Promise((resolve, reject) => {
       gsMessages.sendPingToTab(tab.id, function(error, _response) {
         if (error) {
-          gsUtils.log(tab.id, 'Failed to sendPingToTab', error);
+          gsUtils.warning(tab.id, 'Failed to sendPingToTab', error);
         }
         resolve(_response);
       });
@@ -494,7 +494,7 @@ var gsSession = (function() {
       // If it is a normal tab then try to reinject content script
       const result = await reinjectContentScriptOnTab(tab);
       if (!result) {
-        gsUtils.log(
+        gsUtils.warning(
           tab.id,
           'Failed to initialize tab. Tab may not behave as expected.'
         );
@@ -551,7 +551,7 @@ var gsSession = (function() {
       );
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
         if (error) {
-          gsUtils.log(
+          gsUtils.warning(
             tab.id,
             'Failed to execute js/contentscript.js on tab',
             error

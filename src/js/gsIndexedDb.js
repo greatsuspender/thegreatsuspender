@@ -203,7 +203,7 @@ var gsIndexedDb = {
         .execute();
 
       if (results.length > 1) {
-        gsUtils.log(
+        gsUtils.warning(
           'gsIndexedDb',
           'Duplicate sessions found for sessionId: ' +
             sessionId +

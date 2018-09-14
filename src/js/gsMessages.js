@@ -39,7 +39,7 @@ var gsMessages = {
           this.WARNING,
           function(err) {
             if (err) {
-              gsUtils.log(
+              gsUtils.warning(
                 currentTab.id,
                 'Failed to resetContentScript. Tab is probably loading?',
                 err

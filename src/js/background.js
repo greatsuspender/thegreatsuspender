@@ -198,7 +198,7 @@ var tgs = (function() {
             activeTab.id,
             function(error, response) {
               if (error) {
-                gsUtils.log(
+                gsUtils.warning(
                   activeTab.id,
                   'Failed to sendTemporaryWhitelistToContentScript',
                   error
@@ -231,7 +231,7 @@ var tgs = (function() {
             activeTab.id,
             function(error, response) {
               if (error) {
-                gsUtils.log(
+                gsUtils.warning(
                   activeTab.id,
                   'Failed to sendUndoTemporaryWhitelistToContentScript',
                   error
@@ -407,7 +407,7 @@ var tgs = (function() {
       error
     ) {
       if (error) {
-        gsUtils.log(
+        gsUtils.warning(
           tab.id,
           'Failed to sendDisableUnsuspendOnReloadToSuspendedTab',
           error
@@ -456,7 +456,7 @@ var tgs = (function() {
     gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function(error) {
       if (error) {
         //if we failed to find the tab with the above method then try to reload the tab directly
-        gsUtils.log(
+        gsUtils.warning(
           tab.id,
           'Failed to sendUnsuspendRequestToSuspendedTab',
           error
@@ -657,7 +657,7 @@ var tgs = (function() {
           }
         })
         .catch(error => {
-          gsUtils.log(
+          gsUtils.warning(
             tab.id,
             'Failed to initialiseSuspendedTabAsPromised',
             error
@@ -768,7 +768,7 @@ var tgs = (function() {
         }
       }
       if (!newTab) {
-        gsUtils.log(
+        gsUtils.warning(
           'background',
           `Couldnt find active tab with windowId: ${windowId}. Window may have been closed.`
         );
@@ -798,7 +798,7 @@ var tgs = (function() {
 
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        gsUtils.log(
+        gsUtils.warning(
           tabId,
           chrome.runtime.lastError,
           `Failed find newly focused tab with id: ${tabId}. Tab may have been closed.`
@@ -981,7 +981,7 @@ var tgs = (function() {
           tabInfo
         ) {
           if (error) {
-            gsUtils.log(tab.id, 'Failed to getDebugInfo', error);
+            gsUtils.warning(tab.id, 'Failed to getDebugInfo', error);
           }
           if (tabInfo) {
             info.timerUp = tabInfo.timerUp;
@@ -1012,7 +1012,7 @@ var tgs = (function() {
           tabInfo
         ) {
           if (error) {
-            gsUtils.log(tabId, 'Failed to getContentScriptStatus', error);
+            gsUtils.warning(tabId, 'Failed to getContentScriptStatus', error);
           }
           if (tabInfo) {
             resolve(tabInfo.status);
@@ -1138,7 +1138,7 @@ var tgs = (function() {
       : ICON_SUSPENSION_ACTIVE;
     chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {
       if (chrome.runtime.lastError) {
-        gsUtils.log(
+        gsUtils.warning(
           'background',
           chrome.runtime.lastError,
           `Failed to set icon for tabId: ${tabId}. Tab may have been closed.`
@@ -1328,7 +1328,7 @@ var tgs = (function() {
             .addPreviewImage(sender.tab.url, request.previewUrl)
             .then(() => gsSuspendManager.executeTabSuspension(sender.tab));
         } else {
-          gsUtils.log('savePreviewData reported an error: ' + request.errorMsg);
+          gsUtils.warning('savePreviewData reported an error: ' + request.errorMsg);
           gsSuspendManager.executeTabSuspension(sender.tab);
         }
         break;

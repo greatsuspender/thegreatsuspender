@@ -67,7 +67,7 @@ var gsSuspendManager = (function() {
         suspendedUrl,
         function(error) {
           if (error) {
-            gsUtils.log(
+            gsUtils.warning(
               tab.id,
               'Failed to sendConfirmSuspendToContentScript',
               error
@@ -134,7 +134,7 @@ var gsSuspendManager = (function() {
           new Date() - suspensionDetails.startDateTime >
           IMAGE_RENDER_TIMEOUT
         ) {
-          gsUtils.log(
+          gsUtils.warning(
             'gsSuspendManager',
             `Tab took more than ${IMAGE_RENDER_TIMEOUT /
               1000} seconds to suspend`
@@ -182,7 +182,7 @@ var gsSuspendManager = (function() {
     gsMessages.sendRequestInfoToContentScript(tab.id, function(error, tabInfo) {
       //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
       if (error) {
-        gsUtils.log(tab.id, 'Failed to requestTabSuspension', error);
+        gsUtils.warning(tab.id, 'Failed to requestTabSuspension', error);
         // assume tab is still loading
         tabInfo = {
           status: 'loading',
@@ -286,7 +286,7 @@ var gsSuspendManager = (function() {
       `(${fetchYouTubeTimestampContentScript})();`,
       function(error, response) {
         if (error) {
-          gsUtils.log(tab.id, 'Failed to updateYouTubeUrlWithTimestamp', error);
+          gsUtils.warning(tab.id, 'Failed to updateYouTubeUrlWithTimestamp', error);
           callback();
           return;
         }
@@ -342,7 +342,7 @@ var gsSuspendManager = (function() {
       error
     ) {
       if (error) {
-        gsUtils.log(tab.id, 'Failed to executeScriptOnTab: html2canvas', error);
+        gsUtils.warning(tab.id, 'Failed to executeScriptOnTab: html2canvas', error);
         executeTabSuspension(tab);
         return;
       }
@@ -351,7 +351,7 @@ var gsSuspendManager = (function() {
         `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
         function(error) {
           if (error) {
-            gsUtils.log(
+            gsUtils.warning(
               tab.id,
               'Failed to executeCodeOnTab: generatePreviewImgContentScript',
               error

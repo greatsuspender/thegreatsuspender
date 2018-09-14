@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsIndexedDb, gsMessages, gsSession, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -35,22 +35,11 @@ var gsUtils = {
       console.log(id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },
-  debug: function(id, text, ...args) {
-    args = args || [];
-    const stackStrings = gsUtils.getStackTrace().split('\n');
-    const stackString = (
-      stackStrings[3] ||
-      stackStrings[2] ||
-      stackStrings[1]
-    ).replace(/.*\/(.*):.*/, '$1');
-    console.log(
-      id,
-      (new Date() + '').split(' ')[4],
-      text,
-      ...args,
-      ' -> ',
-      stackString
-    );
+  warning: function(id, text, ...args) {
+    if (debugError) {
+      args = args || [];
+      console.log(id, (new Date() + '').split(' ')[4], text, ...args);
+    }
   },
   error: function(id, errorObj, ...args) {
     //NOTE: errorObj may be just a string :/
@@ -485,7 +474,7 @@ var gsUtils = {
                 tabInfo
               ) {
                 if (error) {
-                  gsUtils.log(
+                  gsUtils.warning(
                     currentTab.id,
                     'Failed to sendRequestInfoToContentScript in getAllExpiredTabs',
                     error

@@ -197,7 +197,7 @@
       statusDetail = chrome.i18n.getMessage('js_popup_error');
       //    statusIconClass = 'fa fa-exclamation-triangle';
     } else {
-      gsUtils.log('popup', 'Could not process tab status of: ' + status);
+      gsUtils.warning('popup', 'Could not process tab status of: ' + status);
     }
     document.getElementById('statusDetail').innerHTML = statusDetail;
     //  document.getElementById('statusIcon').className = statusIconClass;
