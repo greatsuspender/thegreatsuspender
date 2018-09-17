@@ -200,7 +200,7 @@ var gsSuspendManager = (function() {
       }
 
       updateYouTubeUrlWithTimestamp(tab, function() {
-        var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+        var suspensionDetails = tabToSuspendDetailsByTabId[tab.id] || {};
         suspensionDetails.scrollPos = tabInfo.scrollPos;
         suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(
           tab.url,
