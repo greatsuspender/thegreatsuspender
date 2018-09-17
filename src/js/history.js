@@ -166,13 +166,13 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('resuspendLink')[0],
       function() {
-        reloadTabs(session.sessionId, null, true);
+        reloadTabs(session.sessionId, null, true); // async
       }
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('reloadLink')[0],
       function() {
-        reloadTabs(session.sessionId, null, false);
+        reloadTabs(session.sessionId, null, false); // async
       }
     );
     addClickListenerToElement(
@@ -197,13 +197,13 @@
     addClickListenerToElement(
       windowEl.getElementsByClassName('resuspendLink')[0],
       function() {
-        reloadTabs(session.sessionId, window.id, true);
+        reloadTabs(session.sessionId, window.id, true); // async
       }
     );
     addClickListenerToElement(
       windowEl.getElementsByClassName('reloadLink')[0],
       function() {
-        reloadTabs(session.sessionId, window.id, false);
+        reloadTabs(session.sessionId, window.id, false); // async
       }
     );
     return windowEl;

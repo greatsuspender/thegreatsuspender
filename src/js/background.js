@@ -575,7 +575,10 @@ var tgs = (function() {
           // unhandled async (could use returned tab status here below)
         })
         .catch(error => {
-          gsUtils.error(tab.id, 'Failed to send init to content script');
+          gsUtils.warning(
+            tab.id,
+            'Failed to send init to content script. Tab may not behave as expected.'
+          );
         });
       clearTabFlagsForTabId(tab.id);
       hasTabStatusChanged = true;
@@ -659,7 +662,7 @@ var tgs = (function() {
         .catch(error => {
           gsUtils.warning(
             tab.id,
-            'Failed to initialiseSuspendedTabAsPromised',
+            'Failed to initialiseSuspendedTabAsPromise. Suspended tab may not behave as expected.',
             error
           );
         });
@@ -1328,7 +1331,9 @@ var tgs = (function() {
             .addPreviewImage(sender.tab.url, request.previewUrl)
             .then(() => gsSuspendManager.executeTabSuspension(sender.tab));
         } else {
-          gsUtils.warning('savePreviewData reported an error: ' + request.errorMsg);
+          gsUtils.warning(
+            'savePreviewData reported an error: ' + request.errorMsg
+          );
           gsSuspendManager.executeTabSuspension(sender.tab);
         }
         break;
