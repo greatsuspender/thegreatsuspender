@@ -12,7 +12,7 @@ var gsSession = (function() {
   let extensionRestartContainsSuspendedTabs = false;
   let recoveryMode = false;
   let sessionId;
-  let tabsUrlsToRecover = [];
+  let recoveryTabId;
   let updateType = null;
 
   function init() {
@@ -144,7 +144,8 @@ var gsSession = (function() {
       } else {
         //otherwise show the recovery page
         const recoveryUrl = chrome.extension.getURL('recovery.html');
-        await gsChrome.tabsCreate(recoveryUrl);
+        const recoveryTab = await gsChrome.tabsCreate(recoveryUrl);
+        recoveryTabId = recoveryTab.id;
         //hax0r: wait for recovery tab to finish loading before returning
         //this is so we remain in 'recoveryMode' for a bit longer, preventing
         //the sessionUpdate code from running when this tab gains focus
@@ -362,8 +363,9 @@ var gsSession = (function() {
         'gsSession',
         'Aborting tab recovery. Last session contained ' +
           lastSessionUnsuspendedTabCount +
-          'tabs. Current session only contains ' +
-          currentTabs.length
+          'unsuspended tabs. Current session only contains ' +
+          currentTabs.length +
+        '. Assuming this is New Tab with a restore? prompt.'
       );
       return false;
     }
@@ -587,15 +589,23 @@ var gsSession = (function() {
     );
 
     //attempt to automatically restore any lost tabs/windows in their proper positions
+    const lastFocusedWindow = await gsChrome.windowsGetLastFocused();
+    const lastFocusedWindowId = lastFocusedWindow ? lastFocusedWindow.id : null;
     for (var sessionWindow of lastSession.windows) {
       var matchedCurrentWindow =
         matchedCurrentWindowBySessionWindowId[sessionWindow.id];
-      await recoverWindow(sessionWindow, matchedCurrentWindow);
+      await restoreSessionWindow(sessionWindow, matchedCurrentWindow, lastFocusedWindowId, 0);
     }
-    var focusedWindow = currentWindows.find(o => o.focused);
-    if (focusedWindow) {
-      await gsChrome.windowsUpdate(focusedWindow.id, { focused: true });
-    }
+
+    recoveryMode = false;
+    gsUtils.log(
+      'gsSession',
+      '\n\n------------------------------------------------\n' +
+      'Recovery mode finished.\n' +
+      '------------------------------------------------\n\n'
+    );
+    gsUtils.log('gsSession', 'updating current session');
+    updateCurrentSession(); //async
   }
 
   //try to match session windows with currently open windows
@@ -747,14 +757,27 @@ var gsSession = (function() {
     return tabMatchingObjects;
   }
 
-  async function recoverWindow(sessionWindow, currentWindow) {
-    const currentTabIds = [];
-    const currentTabUrls = [];
-    const recoverSessionPromises = [];
+  // suspendMode controls whether the tabs are restored as suspended or unsuspended
+  // 0: Leave the urls as they are (suspended stay suspended, ussuspended stay unsuspended)
+  // 1: Open all unsuspended tabs as suspended
+  // 2: Open all suspended tabs as unsuspended
+  async function restoreSessionWindow(
+    sessionWindow,
+    existingWindow,
+    lastFocusedWindowId,
+    suspendMode
+  ) {
+    if (sessionWindow.tabs.length === 0) {
+      gsUtils.log('gsUtils', 'SessionWindow contains no tabs to restore');
+      return;
+    }
 
-    //if we have been provided with a current window to recover into
-    if (currentWindow) {
-      for (const currentTab of currentWindow.tabs) {
+    // if we have been provided with a current window to recover into
+    if (existingWindow) {
+      const currentTabIds = [];
+      const currentTabUrls = [];
+      const tabPromises = [];
+      for (const currentTab of existingWindow.tabs) {
         currentTabIds.push(currentTab.id);
         currentTabUrls.push(currentTab.url);
       }
@@ -766,72 +789,73 @@ var gsSession = (function() {
           !currentTabUrls.includes(sessionTab.url) &&
           !currentTabIds.includes(sessionTab.id)
         ) {
-          tabsUrlsToRecover.push(sessionTab.url);
-          recoverSessionPromises.push(
-            new Promise(r =>
-              chrome.tabs.create(
-                {
-                  windowId: currentWindow.id,
-                  url: sessionTab.url,
-                  index: sessionTab.index,
-                  pinned: sessionTab.pinned,
-                  active: false,
-                },
-                r
-              )
+          tabPromises.push(
+            createNewTabFromSessionTab(
+              sessionTab,
+              existingWindow.id,
+              suspendMode
             )
           );
         }
       }
+      await Promise.all(tabPromises);
+      return;
+    }
 
-      //else restore entire window
-    } else if (sessionWindow.tabs.length > 0) {
-      gsUtils.log(
-        'gsUtils',
-        'Could not find match for sessionWindow: ',
-        sessionWindow
-      );
+    // else restore entire window
+    gsUtils.log(
+      'gsUtils',
+      'Could not find match for sessionWindow: ',
+      sessionWindow
+    );
 
-      //create list of urls to open
-      var tabUrls = [];
-      for (const sessionTab of sessionWindow.tabs) {
-        tabUrls.push(sessionTab.url);
-        tabsUrlsToRecover.push(sessionTab.url);
-      }
-      recoverSessionPromises.push(
-        new Promise(r =>
-          chrome.windows.create({ url: tabUrls, focused: false }, r)
+    const newWindow = await gsChrome.windowsCreate({ focused: false });
+    if (lastFocusedWindowId) {
+      await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
+    }
+    const placeholderTab = newWindow.tabs[0];
+    const tabPromises = [];
+    for (const sessionTab of sessionWindow.tabs) {
+      tabPromises.push(
+        createNewTabFromSessionTab(
+          sessionTab,
+          newWindow.id,
+          suspendMode
         )
       );
     }
-    await Promise.all(recoverSessionPromises);
+    await Promise.all(tabPromises);
+    await gsChrome.tabsRemove(placeholderTab.id);
+    return;
   }
 
-  function handleTabRecovered(tab) {
-    if (tabsUrlsToRecover.indexOf(tab.url) >= 0) {
-      tabsUrlsToRecover.splice(tabsUrlsToRecover.indexOf(tab.url), 1);
+  async function createNewTabFromSessionTab(
+    sessionTab,
+    windowId,
+    suspendMode
+  ) {
+    let url = sessionTab.url;
+    if (
+      suspendMode === 1 &&
+      !gsUtils.isSuspendedTab(sessionTab) &&
+      !gsUtils.isSpecialTab(sessionTab)
+    ) {
+      url = gsUtils.generateSuspendedUrl(sessionTab.url, sessionTab.title);
+    } else if (suspendMode === 2 && gsUtils.isSuspendedTab(sessionTab)) {
+      url = gsUtils.getSuspendedUrl(sessionTab.url);
     }
-    if (tabsUrlsToRecover.length === 0) {
-      recoveryMode = false;
-      gsUtils.log(
-        'gsSession',
-        '\n\n------------------------------------------------\n' +
-          'Recovery mode finished.\n' +
-          '------------------------------------------------\n\n'
-      );
-      gsUtils.log('gsSession', 'updating current session');
-      updateCurrentSession(); //async
-    }
+    const newTab = await gsChrome.tabsCreate({
+      windowId: windowId,
+      url: url,
+      index: sessionTab.index,
+      pinned: sessionTab.pinned,
+      active: false,
+    });
 
     // Update recovery view (if it exists)
-    chrome.tabs.query(
-      { url: chrome.extension.getURL('recovery.html') },
-      function(recoveryTabs) {
-        for (var recoveryTab of recoveryTabs) {
-          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab); //async. unhandled error
-        }
-      }
-    );
+    if (recoveryTabId) {
+      gsMessages.sendTabInfoToRecoveryTab(recoveryTabId, newTab); //async. unhandled error
+    }
   }
 
   return {
@@ -840,11 +864,11 @@ var gsSession = (function() {
     getSessionId,
     buildCurrentSession,
     updateCurrentSession,
-    handleTabRecovered,
     isInitialising,
     isStartupChecksComplete,
     isRecoveryMode,
     recoverLostTabs,
+    restoreSessionWindow,
     prepareForUpdate,
     getUpdateType,
   };

@@ -637,9 +637,6 @@ var tgs = (function() {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
 
-      if (gsSession.isRecoveryMode()) {
-        gsSession.handleTabRecovered(tab);
-      }
     } else if (changeInfo.status === 'complete') {
       initialiseSuspendedTabAsPromised(tab)
         .then(function() {
