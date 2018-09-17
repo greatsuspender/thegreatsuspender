@@ -1,4 +1,4 @@
-/*global chrome, gsUtils, assertTrue */
+/*global chrome, gsUtils, gsChrome, assertTrue */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -45,7 +45,7 @@ testSuites.push(
         return assertTrue(isTimeAfterValid);
       },
 
-      // Test gsUtils.chromeCookiesGetAll and gsUtils.chromeCookiesRemove
+      // Test gsChrome.cookiesGetAll and gsChrome.cookiesRemove
       async () => {
         const cookieUrl = 'http://rabbits.com/';
         const cookieName = 'gsTest';
@@ -70,13 +70,13 @@ testSuites.push(
         );
         const isCookieBeforeValid = cookieBefore.value === cookieValue;
 
-        const cookiesBefore = await gsUtils.chromeCookiesGetAll();
+        const cookiesBefore = await gsChrome.cookiesGetAll();
         const isCookiePresentInGetAll = cookiesBefore.some(
           o => o.value.indexOf(cookieValue) === 0
         );
 
-        await gsUtils.chromeCookiesRemove(cookieUrl, cookieName);
-        const cookiesAfter = await gsUtils.chromeCookiesGetAll();
+        await gsChrome.cookiesRemove(cookieUrl, cookieName);
+        const cookiesAfter = await gsChrome.cookiesGetAll();
         const isCookieRemovedFromGetAll = cookiesAfter.every(
           o => o.value.indexOf(cookieValue) !== 0
         );
@@ -89,7 +89,7 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.chromeTabsCreate
+      // Test gsUtils.tabsCreate
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -97,11 +97,11 @@ testSuites.push(
           errorObj = _errorObj;
         };
 
-        const newTab1 = await gsUtils.chromeTabsCreate();
+        const newTab1 = await gsChrome.tabsCreate();
         const isNewTab1Valid =
           newTab1 === null && errorObj === 'url not specified';
 
-        const newTab2 = await gsUtils.chromeTabsCreate(testTabUrl);
+        const newTab2 = await gsChrome.tabsCreate(testTabUrl);
         const isNewTab2Valid = newTab2.url === testTabUrl;
 
         // cleanup
@@ -110,7 +110,7 @@ testSuites.push(
         return assertTrue(isNewTab1Valid && isNewTab2Valid);
       },
 
-      // Test gsUtils.chromeTabsUpdate
+      // Test gsUtils.tabsUpdate
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -124,22 +124,22 @@ testSuites.push(
         );
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
-        const updateTab1 = await gsUtils.chromeTabsUpdate();
+        const updateTab1 = await gsChrome.tabsUpdate();
         const isUpdateTab1Valid =
           updateTab1 === null &&
           errorObj === 'tabId or updateProperties not specified';
 
-        const updateTab2 = await gsUtils.chromeTabsUpdate(testTab1.id);
+        const updateTab2 = await gsChrome.tabsUpdate(testTab1.id);
         const isUpdateTab2Valid =
           updateTab2 === null &&
           errorObj === 'tabId or updateProperties not specified';
 
-        const updateTab3 = await gsUtils.chromeTabsUpdate(7777, {});
+        const updateTab3 = await gsChrome.tabsUpdate(7777, {});
         const isUpdateTab3Valid =
           updateTab3 === null && errorObj.message === 'No tab with id: 7777.';
 
         const isUpdateTab4BeforeValid = testTab1.pinned === false;
-        const updateTab4 = await gsUtils.chromeTabsUpdate(testTab1.id, {
+        const updateTab4 = await gsChrome.tabsUpdate(testTab1.id, {
           pinned: true,
         });
         const isUpdateTab4AfterValid = updateTab4.pinned === true;
@@ -157,7 +157,7 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.chromeTabsGet
+      // Test gsUtils.tabsGet
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -171,14 +171,14 @@ testSuites.push(
         );
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
-        const tab1 = await gsUtils.chromeTabsGet();
+        const tab1 = await gsChrome.tabsGet();
         const isTab1Valid = tab1 === null && errorObj === 'tabId not specified';
 
-        const tab2 = await gsUtils.chromeTabsGet(7777);
+        const tab2 = await gsChrome.tabsGet(7777);
         const isTab2Valid =
           tab2 === null && errorObj.message === 'No tab with id: 7777.';
 
-        const tab3 = await gsUtils.chromeTabsGet(testTab1.id);
+        const tab3 = await gsChrome.tabsGet(testTab1.id);
         const isTab3Valid = tab3.url === testTabUrl;
 
         // cleanup
@@ -189,9 +189,9 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.chromeTabsQuery
+      // Test gsChrome.tabsQuery
       async () => {
-        const tabsBefore = await gsUtils.chromeTabsQuery();
+        const tabsBefore = await gsChrome.tabsQuery();
 
         // create a test tab
         const testTab1 = await new Promise(r =>
@@ -199,7 +199,7 @@ testSuites.push(
         );
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
-        const tabsAfter = await gsUtils.chromeTabsQuery();
+        const tabsAfter = await gsChrome.tabsQuery();
         const areTabsAfterValid = tabsAfter.length === tabsBefore.length + 1;
 
         // cleanup
@@ -208,7 +208,7 @@ testSuites.push(
         return assertTrue(isTestTab1Valid && areTabsAfterValid);
       },
 
-      // Test gsUtils.chromeTabsRemove
+      // Test gsChrome.tabsRemove
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -222,15 +222,15 @@ testSuites.push(
         );
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
-        await gsUtils.chromeTabsRemove();
+        await gsChrome.tabsRemove();
         const isTabRemove1Valid = errorObj === 'tabId not specified';
 
-        await gsUtils.chromeTabsRemove(7777);
+        await gsChrome.tabsRemove(7777);
         const isTabRemove2Valid = errorObj.message === 'No tab with id: 7777.';
 
-        await gsUtils.chromeTabsRemove(testTab1.id);
+        await gsChrome.tabsRemove(testTab1.id);
 
-        const testTab1Removed = await gsUtils.chromeTabsGet(testTab1.id);
+        const testTab1Removed = await gsChrome.tabsGet(testTab1.id);
         const isTabRemove3Valid = testTab1Removed === null;
 
         return assertTrue(
@@ -241,14 +241,14 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.chromeWindowsCreate
+      // Test gsChrome.windowsCreate
       async () => {
         const windowsBefore = await new Promise(r =>
           chrome.windows.getAll({ populate: true }, r)
         );
 
         // create a test window
-        const testWindow1 = await gsUtils.chromeWindowsCreate({
+        const testWindow1 = await gsChrome.windowsCreate({
           focused: false,
         });
         const isTestWindow1Valid = testWindow1.tabs.length === 1;
@@ -266,9 +266,9 @@ testSuites.push(
         return assertTrue(isTestWindow1Valid && areWindowsAfterValid);
       },
 
-      // Test gsUtils.chromeWindowsGetAll
+      // Test gsUtils.windowsGetAll
       async () => {
-        const windowsBefore = await gsUtils.chromeWindowsGetAll();
+        const windowsBefore = await gsChrome.windowsGetAll();
 
         // create a test window
         const testWindow1 = await new Promise(r =>
@@ -276,7 +276,7 @@ testSuites.push(
         );
         const isTestWindow1Valid = testWindow1.tabs.length === 1;
 
-        const windowsAfter = await gsUtils.chromeWindowsGetAll();
+        const windowsAfter = await gsChrome.windowsGetAll();
         const areWindowsAfterValid =
           windowsAfter.length === windowsBefore.length + 1 &&
           windowsAfter[windowsBefore.length].tabs[0].title === 'New Tab';
@@ -287,7 +287,7 @@ testSuites.push(
         return assertTrue(isTestWindow1Valid && areWindowsAfterValid);
       },
 
-      // Test gsUtils.chromeWindowsUpdate
+      // Test gsChrome.windowsUpdate
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -301,24 +301,24 @@ testSuites.push(
         );
         const isTestWindow1Valid = testWindow1.tabs.length === 1;
 
-        const updateWindow1 = await gsUtils.chromeWindowsUpdate();
+        const updateWindow1 = await gsChrome.windowsUpdate();
         const isUpdateWindow1Valid =
           updateWindow1 === null &&
           errorObj === 'windowId or updateInfo not specified';
 
-        const updateWindow2 = await gsUtils.chromeWindowsUpdate(testWindow1.id);
+        const updateWindow2 = await gsChrome.windowsUpdate(testWindow1.id);
         const isUpdateWindow2Valid =
           updateWindow2 === null &&
           errorObj === 'windowId or updateInfo not specified';
 
-        const updateWindow3 = await gsUtils.chromeWindowsUpdate(7777, {});
+        const updateWindow3 = await gsChrome.windowsUpdate(7777, {});
         const isUpdateWindow3Valid =
           updateWindow3 === null &&
           errorObj.message === 'No window with id: 7777.';
 
         const testWidth = 500;
         const isUpdateWindow4BeforeValid = testWindow1.width !== testWidth;
-        const updateWindow4 = await gsUtils.chromeWindowsUpdate(
+        const updateWindow4 = await gsChrome.windowsUpdate(
           testWindow1.id,
           {
             width: testWidth,

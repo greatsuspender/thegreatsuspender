@@ -1,4 +1,4 @@
-/*global chrome, db, tgs, gsUtils, gsSession */
+/*global chrome, db, tgs, gsUtils, gsChrome, gsSession */
 'use strict';
 
 var gsIndexedDb = {
@@ -473,7 +473,7 @@ var gsIndexedDb = {
       }
       if (major < 6 || (major === 6 && minor < 31) || testMode) {
         // if (oldVersion < 6.31)
-        const cookies = await gsUtils.chromeCookiesGetAll();
+        const cookies = await gsChrome.cookiesGetAll();
         var scrollPosByTabId = {};
         for (const cookie of cookies) {
           if (cookie.name.indexOf('gsScrollPos') === 0) {
@@ -486,7 +486,7 @@ var gsIndexedDb = {
               prefix += 'www';
             }
             var url = prefix + cookie.domain + cookie.path;
-            await gsUtils.chromeCookiesRemove(url, cookie.name);
+            await gsChrome.cookiesRemove(url, cookie.name);
           }
         }
         tgs.scrollPosByTabId = scrollPosByTabId;

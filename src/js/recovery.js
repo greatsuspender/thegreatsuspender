@@ -131,7 +131,7 @@
 
     restoreEl.addEventListener('click', performRestore);
 
-    const currentTabs = await gsUtils.chromeTabsQuery();
+    const currentTabs = await gsChrome.tabsQuery();
     const tabsToRecover = await getRecoverableTabs(currentTabs);
     if (tabsToRecover.length === 0) {
       hideRecoverySection();

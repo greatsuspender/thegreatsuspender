@@ -10,6 +10,7 @@ const requiredLibs = [
   'gsSession',
   'gsStorage',
   'gsUtils',
+  'gsChrome',
   'gsSuspendManager',
   'gsIndexedDb',
 ];
