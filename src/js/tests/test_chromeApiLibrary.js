@@ -18,10 +18,17 @@ testSuites.push(
         chrome.windows.getCurrent(r)
       );
       await new Promise(r => chrome.windows.remove(windowId, r));
-      const removedWindow = await new Promise(r => chrome.windows.get(windowId, r));
-      if (removedWindow) {
-        await gsUtils.setTimeout(100);
-      }
+      await new Promise(resolve =>
+        chrome.windows.get(windowId, async window => {
+          if (chrome.runtime.lastError) {
+            // do nothing. window removed successfully
+          } else {
+            // if no error thrown, then window still exists. wait 100ms (hax0r)
+            await gsUtils.setTimeout(100);
+          }
+          resolve();
+        })
+      );
       if (retainFocus) {
         await new Promise(r =>
           chrome.windows.update(currentWindow.id, { focused: true }, r)
@@ -32,19 +39,6 @@ testSuites.push(
     const testTabUrl = 'http://rabbits.com/';
 
     const tests = [
-      // Test gsUtils.setTimeout
-      async () => {
-        const timeout = 500;
-        const timeBefore = new Date().getTime();
-        await gsUtils.setTimeout(timeout);
-        const timeAfter = new Date().getTime();
-        const isTimeAfterValid =
-          timeAfter > timeBefore + timeout &&
-          timeAfter < timeBefore + timeout + 200;
-
-        return assertTrue(isTimeAfterValid);
-      },
-
       // Test gsChrome.cookiesGetAll and gsChrome.cookiesRemove
       async () => {
         const cookieUrl = 'http://rabbits.com/';
@@ -266,6 +260,32 @@ testSuites.push(
         return assertTrue(isTestWindow1Valid && areWindowsAfterValid);
       },
 
+      // Test gsUtils.windowsGetLastFocused
+      async () => {
+        const testWindow1 = await gsChrome.windowsGetLastFocused();
+        const isTestWindow1Valid = testWindow1.focused === true;
+
+        // create a test window
+        const testWindow2a = await new Promise(r =>
+          chrome.windows.create({ focused: true }, r)
+        );
+        const testWindow2b = await gsChrome.windowsGetLastFocused();
+        const isTestWindow2Valid =
+          testWindow2b.focused === true &&
+          testWindow2b.id !== testWindow1.id &&
+          testWindow2b.id === testWindow2a.id;
+
+        await removeTestWindow(testWindow2a.id, false);
+
+        const testWindow3 = await gsChrome.windowsGetLastFocused();
+        const isTestWindow3Valid =
+          testWindow3.focused === true && testWindow3.id === testWindow1.id;
+
+        return assertTrue(
+          isTestWindow1Valid && isTestWindow2Valid && isTestWindow3Valid
+        );
+      },
+
       // Test gsUtils.windowsGetAll
       async () => {
         const windowsBefore = await gsChrome.windowsGetAll();
@@ -318,12 +338,9 @@ testSuites.push(
 
         const testWidth = 500;
         const isUpdateWindow4BeforeValid = testWindow1.width !== testWidth;
-        const updateWindow4 = await gsChrome.windowsUpdate(
-          testWindow1.id,
-          {
-            width: testWidth,
-          }
-        );
+        const updateWindow4 = await gsChrome.windowsUpdate(testWindow1.id, {
+          width: testWidth,
+        });
         const isUpdateWindow4AfterValid = updateWindow4.width === testWidth;
 
         // cleanup

@@ -30,7 +30,7 @@ var gsChrome = {
     });
   },
 
-  tabsCreate: async function(url) {
+  tabsCreate: async function(details) {
     return new Promise((resolve, reject) => {
       if (
         !details ||
@@ -109,6 +109,17 @@ var gsChrome = {
     });
   },
 
+  windowsGetLastFocused: async function() {
+    return new Promise((resolve, reject) => {
+      chrome.windows.getLastFocused({}, window => {
+        if (chrome.runtime.lastError) {
+          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          window = null;
+        }
+        resolve(window);
+      });
+    });
+  },
   windowsGetAll: async function() {
     return new Promise((resolve, reject) => {
       chrome.windows.getAll({ populate: true }, windows => {
@@ -120,10 +131,10 @@ var gsChrome = {
       });
     });
   },
-  windowsCreate: async function(details) {
-    details = details || {};
+  windowsCreate: async function(createData) {
+    createData = createData || {};
     return new Promise((resolve, reject) => {
-      chrome.windows.create(details, window => {
+      chrome.windows.create(createData, window => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeWindows', chrome.runtime.lastError);
           window = null;
