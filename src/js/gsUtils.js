@@ -828,6 +828,21 @@ var gsUtils = {
       });
     });
   },
+  chromeTabsRemove: async function(tabId) {
+    return new Promise((resolve, reject) => {
+      if (!tabId) {
+        gsUtils.error('chromeTabs', 'tabId not specified');
+        resolve(null);
+        return;
+      }
+      chrome.tabs.remove(tabId, () => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeTabs', chrome.runtime.lastError);
+        }
+        resolve();
+      });
+    });
+  },
   chromeWindowsGetAll: async function() {
     return new Promise((resolve, reject) => {
       chrome.windows.getAll({ populate: true }, windows => {
@@ -836,6 +851,18 @@ var gsUtils = {
           windows = [];
         }
         resolve(windows);
+      });
+    });
+  },
+  chromeWindowsCreate: async function(details) {
+    details = details || {};
+    return new Promise((resolve, reject) => {
+      chrome.windows.create(details, window => {
+        if (chrome.runtime.lastError) {
+          this.error('chromeWindows', chrome.runtime.lastError);
+          window = null;
+        }
+        resolve(window);
       });
     });
   },

@@ -18,6 +18,10 @@ testSuites.push(
         chrome.windows.getCurrent(r)
       );
       await new Promise(r => chrome.windows.remove(windowId, r));
+      const removedWindow = await new Promise(r => chrome.windows.get(windowId, r));
+      if (removedWindow) {
+        await gsUtils.setTimeout(100);
+      }
       if (retainFocus) {
         await new Promise(r =>
           chrome.windows.update(currentWindow.id, { focused: true }, r)
@@ -204,6 +208,64 @@ testSuites.push(
         return assertTrue(isTestTab1Valid && areTabsAfterValid);
       },
 
+      // Test gsUtils.chromeTabsRemove
+      async () => {
+        // stub gsUtils.error function
+        let errorObj;
+        gsUtils.error = (id, _errorObj, ...args) => {
+          errorObj = _errorObj;
+        };
+
+        // create a test tab
+        const testTab1 = await new Promise(r =>
+          chrome.tabs.create({ url: testTabUrl, active: false }, r)
+        );
+        const isTestTab1Valid = testTab1.url === testTabUrl;
+
+        await gsUtils.chromeTabsRemove();
+        const isTabRemove1Valid = errorObj === 'tabId not specified';
+
+        await gsUtils.chromeTabsRemove(7777);
+        const isTabRemove2Valid = errorObj.message === 'No tab with id: 7777.';
+
+        await gsUtils.chromeTabsRemove(testTab1.id);
+
+        const testTab1Removed = await gsUtils.chromeTabsGet(testTab1.id);
+        const isTabRemove3Valid = testTab1Removed === null;
+
+        return assertTrue(
+          isTestTab1Valid &&
+            isTabRemove1Valid &&
+            isTabRemove2Valid &&
+            isTabRemove3Valid
+        );
+      },
+
+      // Test gsUtils.chromeWindowsCreate
+      async () => {
+        const windowsBefore = await new Promise(r =>
+          chrome.windows.getAll({ populate: true }, r)
+        );
+
+        // create a test window
+        const testWindow1 = await gsUtils.chromeWindowsCreate({
+          focused: false,
+        });
+        const isTestWindow1Valid = testWindow1.tabs.length === 1;
+
+        const windowsAfter = await new Promise(r =>
+          chrome.windows.getAll({ populate: true }, r)
+        );
+        const areWindowsAfterValid =
+          windowsAfter.length === windowsBefore.length + 1 &&
+          windowsAfter[windowsBefore.length].tabs[0].title === 'New Tab';
+
+        // cleanup
+        await removeTestWindow(testWindow1.id, false);
+
+        return assertTrue(isTestWindow1Valid && areWindowsAfterValid);
+      },
+
       // Test gsUtils.chromeWindowsGetAll
       async () => {
         const windowsBefore = await gsUtils.chromeWindowsGetAll();
@@ -217,7 +279,7 @@ testSuites.push(
         const windowsAfter = await gsUtils.chromeWindowsGetAll();
         const areWindowsAfterValid =
           windowsAfter.length === windowsBefore.length + 1 &&
-          windowsAfter[1].tabs[0].title === 'New Tab';
+          windowsAfter[windowsBefore.length].tabs[0].title === 'New Tab';
 
         // cleanup
         await removeTestWindow(testWindow1.id, false);
