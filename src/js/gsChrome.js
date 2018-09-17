@@ -32,12 +32,16 @@ var gsChrome = {
 
   tabsCreate: async function(url) {
     return new Promise((resolve, reject) => {
-      if (!url) {
+      if (
+        !details ||
+        (typeof details !== 'string' && typeof details.url !== 'string')
+      ) {
         gsUtils.error('chromeTabs', 'url not specified');
         resolve(null);
         return;
       }
-      chrome.tabs.create({ url }, tab => {
+      details = typeof details === 'string' ? { url: details } : details;
+      chrome.tabs.create(details, tab => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeTabs', chrome.runtime.lastError);
           tab = null;
