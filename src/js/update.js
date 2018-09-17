@@ -55,7 +55,7 @@
       .fetchSessionRestorePoint(currentVersion)
       .then(function(sessionRestorePoint) {
         if (!sessionRestorePoint) {
-          gsUtils.log(
+          gsUtils.warning(
             'update',
             'Couldnt find session restore point. Something has gone horribly wrong!!'
           );

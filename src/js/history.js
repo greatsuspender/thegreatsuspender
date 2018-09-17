@@ -5,61 +5,32 @@
   var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
+  var gsChrome = chrome.extension.getBackgroundPage().gsChrome;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
-  function reloadTabs(sessionId, windowId, suspendMode) {
-    var windows = [],
-      curUrl;
+  async function reloadTabs(sessionId, windowId, openTabsAsSuspended) {
+    const session = await gsIndexedDb.fetchSessionBySessionId(sessionId);
+    if (!session || !session.windows) {
+      return;
+    }
 
-    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
-      if (!session || !session.windows) {
-        return;
-      }
+    gsUtils.removeInternalUrlsFromSession(session);
 
-      gsUtils.removeInternalUrlsFromSession(session);
+    //if loading a specific window
+    let sessionWindows = [];
+    if (windowId) {
+      sessionWindows.push(gsUtils.getWindowFromSession(windowId, session));
+      //else load all windows from session
+    } else {
+      sessionWindows = session.windows;
+    }
 
-      //if loading a specific window
-      if (windowId) {
-        windows.push(gsUtils.getWindowFromSession(windowId, session));
-
-        //else load all windows from session
-      } else {
-        windows = session.windows;
-      }
-
-      windows.forEach(function(window) {
-        chrome.windows.create(function(newWindow) {
-          chrome.tabs.query({ windowId: newWindow.id }, function(tabs) {
-            var initialNewTab = tabs[0];
-
-            window.tabs.forEach(function(curTab) {
-              curUrl = curTab.url;
-
-              if (
-                suspendMode &&
-                !gsUtils.isSuspendedTab(curTab) &&
-                !gsUtils.isSpecialTab(curTab)
-              ) {
-                curUrl = gsUtils.generateSuspendedUrl(curTab.url, curTab.title);
-              } else if (!suspendMode && gsUtils.isSuspendedTab(curTab)) {
-                curUrl = gsUtils.getSuspendedUrl(curTab.url);
-              }
-              chrome.tabs.create({
-                windowId: newWindow.id,
-                url: curUrl,
-                pinned: curTab.pinned,
-                active: false,
-              });
-            });
-
-            //remove initial new tab created with the window
-            if (initialNewTab) {
-              chrome.tabs.remove(initialNewTab.id);
-            }
-          });
-        });
-      });
-    });
+    const lastFocusedWindow = await gsChrome.windowsGetLastFocused();
+    const lastFocusedWindowId = lastFocusedWindow ? lastFocusedWindow.id : null;
+    for (let sessionWindow of sessionWindows) {
+      const suspendMode = openTabsAsSuspended ? 1 : 2;
+      await gsSession.restoreSessionWindow(sessionWindow, null, lastFocusedWindowId, suspendMode);
+    }
   }
 
   function deleteSession(sessionId) {
@@ -166,13 +137,13 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('resuspendLink')[0],
       function() {
-        reloadTabs(session.sessionId, null, true);
+        reloadTabs(session.sessionId, null, true); // async
       }
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('reloadLink')[0],
       function() {
-        reloadTabs(session.sessionId, null, false);
+        reloadTabs(session.sessionId, null, false); // async
       }
     );
     addClickListenerToElement(
@@ -197,13 +168,13 @@
     addClickListenerToElement(
       windowEl.getElementsByClassName('resuspendLink')[0],
       function() {
-        reloadTabs(session.sessionId, window.id, true);
+        reloadTabs(session.sessionId, window.id, true); // async
       }
     );
     addClickListenerToElement(
       windowEl.getElementsByClassName('reloadLink')[0],
       function() {
-        reloadTabs(session.sessionId, window.id, false);
+        reloadTabs(session.sessionId, window.id, false); // async
       }
     );
     return windowEl;

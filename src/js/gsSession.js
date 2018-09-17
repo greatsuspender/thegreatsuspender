@@ -1,16 +1,19 @@
-/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsMessages, gsAnalytics */
+/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsAnalytics */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
 
-  var startupChecksComplete = false;
-  var initialisationMode = false;
-  var initialisationTimeout = 5 * 60 * 1000;
-  var isProbablyProfileRestart = false;
-  var recoveryMode = false;
-  var sessionId;
-  var tabsUrlsToRecover = [];
-  var updateType = null;
+  const tabsToInitPerSecond = 8;
+
+  let startupChecksComplete = false;
+  let initialisationMode = false;
+  let initPeriodInSeconds;
+  let initTimeoutInSeconds;
+  let extensionRestartContainsSuspendedTabs = false;
+  let recoveryMode = false;
+  let sessionId;
+  let recoveryTabId;
+  let updateType = null;
 
   function init() {
     //handle special event where an extension update is available
@@ -45,7 +48,7 @@ var gsSession = (function() {
         gsUtils.removeTabsByUrlAsPromised(updatedUrl),
       ]);
       //show update screen
-      await new Promise(r => chrome.tabs.create({ url: updateUrl }));
+      await gsChrome.tabsCreate(updateUrl);
     } else {
       // if there are no suspended tabs then simply install the update immediately
       chrome.runtime.reload();
@@ -62,9 +65,7 @@ var gsSession = (function() {
   }
 
   async function buildCurrentSession() {
-    const currentWindows = await new Promise(r =>
-      chrome.windows.getAll({ populate: true }, r)
-    );
+    const currentWindows = await gsChrome.windowsGetAll();
     var tabsExist = currentWindows.some(
       window => window.tabs && window.tabs.length
     );
@@ -106,7 +107,7 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
-    const tabs = (await new Promise(r => chrome.tabs.query({}, r))) || [];
+    const tabs = await gsChrome.tabsQuery();
     await checkForBrowserStartup(tabs);
     queueCheckTabsForResponsiveness(tabs);
 
@@ -116,10 +117,13 @@ var gsSession = (function() {
     if (chrome.extension.inIncognitoContext) {
       // do nothing if in incognito context
     } else if (lastVersion === curVersion) {
+      gsUtils.log('gsSession', 'HANDLING NORMAL STARTUP');
       await handleNormalStartup(curVersion, tabs);
     } else if (!lastVersion || lastVersion === '0.0.0') {
+      gsUtils.log('gsSession', 'HANDLING NEW INSTALL');
       await handleNewInstall(curVersion);
     } else {
+      gsUtils.log('gsSession', 'HANDLING UPDATE');
       await handleUpdate(curVersion, lastVersion, tabs);
     }
     startupChecksComplete = true;
@@ -140,12 +144,12 @@ var gsSession = (function() {
       } else {
         //otherwise show the recovery page
         const recoveryUrl = chrome.extension.getURL('recovery.html');
-        await new Promise(r => chrome.tabs.create({ url: recoveryUrl }, (updateTab) => {
-          //hax0r: wait for recovery tab to finish loading before returning
-          //this is so we remain in 'recoveryMode' for a bit longer, preventing
-          //the sessionUpdate code from running when this tab gains focus
-          setTimeout(r, 2000);
-        }));
+        const recoveryTab = await gsChrome.tabsCreate(recoveryUrl);
+        recoveryTabId = recoveryTab.id;
+        //hax0r: wait for recovery tab to finish loading before returning
+        //this is so we remain in 'recoveryMode' for a bit longer, preventing
+        //the sessionUpdate code from running when this tab gains focus
+        await gsUtils.setTimeout(2000);
       }
     } else {
       await gsIndexedDb.trimDbItems();
@@ -158,7 +162,7 @@ var gsSession = (function() {
 
     //show welcome message
     const optionsUrl = chrome.extension.getURL('options.html?firstTime');
-    await new Promise(r => chrome.tabs.create({ url: optionsUrl }, r));
+    await gsChrome.tabsCreate(optionsUrl);
     gsAnalytics.reportEvent('System', 'Install', curVersion + '');
   }
 
@@ -207,7 +211,7 @@ var gsSession = (function() {
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
 
     //show updated screen
-    await new Promise(r => chrome.tabs.create({ url: updatedUrl }, r));
+    await gsChrome.tabsCreate(updatedUrl);
 
     gsAnalytics.reportEvent(
       'System',
@@ -224,27 +228,21 @@ var gsSession = (function() {
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        `Extension initialization started. isProbablyProfileRestart: ${isProbablyProfileRestart}\n` +
+        `Extension initialization started. extensionRestartContainsSuspendedTabs: ${extensionRestartContainsSuspendedTabs}\n` +
         '------------------------------------------------\n\n'
     );
-    //increase max time allowed for initialisation if dealing with a large number of tabs
-    //every extra 50 tabs past 100 adds an extra allowed minute for init
-    if (tabs.length > 100) {
-      var extraMinutes = parseInt((tabs.length - 100) / 50, 10) + 1;
-      initialisationTimeout += extraMinutes * 60 * 1000;
-      gsUtils.log(
-        'gsSession',
-        `Increasing init timeout to ${initialisationTimeout / 1000 / 60}mins`
-      );
-    }
+    initPeriodInSeconds = tabs.length / tabsToInitPerSecond;
+    initTimeoutInSeconds = initPeriodInSeconds * 15;
+    gsUtils.log('gsSession', `initPeriodInSeconds: ${initPeriodInSeconds}`);
+    gsUtils.log('gsSession', `initTimeoutInSeconds: ${initTimeoutInSeconds}`);
+
     for (const currentTab of tabs) {
-      const tabsToInitPerSecond = 10;
-      const timeoutRandomiser = parseInt(Math.random() * tabs.length / tabsToInitPerSecond * 1000);
-      const timeout = timeoutRandomiser + 1000; //minimum timeout of 1 second
-      gsUtils.log(currentTab.id, `Queuing tab for initialisation check in ${timeout/1000} seconds.`);
-      tabCheckPromises.push(
-        queueTabScriptCheck(currentTab, timeout)
+      const timeout = getRandomTimeoutInMilliseconds(1000);
+      gsUtils.log(
+        currentTab.id,
+        `Queuing tab for initialisation check in ${timeout / 1000} seconds.`
       );
+      tabCheckPromises.push(queueTabScriptCheck(currentTab, timeout));
     }
     Promise.all(tabCheckPromises)
       .then(() => {
@@ -258,14 +256,22 @@ var gsSession = (function() {
       })
       .catch(error => {
         initialisationMode = false;
-        gsUtils.error('gsSession', error);
-        gsUtils.error(
+        gsUtils.warning('gsSession', error);
+        gsUtils.warning(
           'gsSession',
           '\n\n------------------------------------------------\n' +
             'Extension initialization FAILED.\n' +
             '------------------------------------------------\n\n'
         );
       });
+  }
+
+  function getRandomTimeoutInMilliseconds(minimumTimeout) {
+    minimumTimeout = minimumTimeout || 1000;
+    const timeoutRandomiser = parseInt(
+      Math.random() * initPeriodInSeconds * 1000
+    );
+    return timeoutRandomiser + minimumTimeout;
   }
 
   //TODO: Improve this function to determine browser startup with 100% certainty
@@ -283,8 +289,12 @@ var gsSession = (function() {
       }
     }
     if (suspendedTabs.length > 0) {
-      gsUtils.log('gsSession', 'isProbablyProfileRestart: true', suspendedTabs);
-      isProbablyProfileRestart = true;
+      gsUtils.log(
+        'gsSession',
+        'extensionRestartContainsSuspendedTabs: true',
+        suspendedTabs
+      );
+      extensionRestartContainsSuspendedTabs = true;
     }
   }
 
@@ -294,7 +304,7 @@ var gsSession = (function() {
       'Checking for crash recovery: ' + new Date().toISOString()
     );
 
-    if (isProbablyProfileRestart) {
+    if (extensionRestartContainsSuspendedTabs) {
       gsUtils.log(
         'gsSession',
         'Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)'
@@ -353,8 +363,9 @@ var gsSession = (function() {
         'gsSession',
         'Aborting tab recovery. Last session contained ' +
           lastSessionUnsuspendedTabCount +
-          'tabs. Current session only contains ' +
-          currentTabs.length
+          'unsuspended tabs. Current session only contains ' +
+          currentTabs.length +
+        '. Assuming this is New Tab with a restore? prompt.'
       );
       return false;
     }
@@ -375,17 +386,17 @@ var gsSession = (function() {
     if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
       return;
     }
-    if (totalTimeQueued >= initialisationTimeout) {
-      gsUtils.error(
+    if (totalTimeQueued >= initTimeoutInSeconds * 1000) {
+      gsUtils.warning(
         tab.id,
         `Failed to initialize tab. Tab may not behave as expected.`
       );
       return;
     }
-    await new Promise(resolve => setTimeout(resolve, timeout));
-    let _tab = await getCurrentStateOfTab(tab);
+    await gsUtils.setTimeout(timeout);
+    let _tab = await fetchUpdatedTab(tab);
     if (!_tab) {
-      gsUtils.log(
+      gsUtils.warning(
         tab.id,
         `Failed to initialize tab. Tab may have been removed or discarded.`
       );
@@ -402,8 +413,8 @@ var gsSession = (function() {
     );
     const result = await pingTabScript(tab, totalTimeQueued);
     if (!result) {
-      const nextTimeout = timeout * 2;
-      gsUtils.log(
+      const nextTimeout = getRandomTimeoutInMilliseconds(5000);
+      gsUtils.warning(
         tab.id,
         `Tab has still not initialised after ${totalTimeQueued /
           1000}. Re-queuing in another ${nextTimeout / 1000} seconds.`
@@ -412,11 +423,8 @@ var gsSession = (function() {
     }
   }
 
-  async function getCurrentStateOfTab(tab) {
-    const newTab = await new Promise(r => chrome.tabs.get(tab.id, r));
-    if (chrome.runtime.lastError) {
-      gsUtils.log(tab.id, chrome.runtime.lastError);
-    }
+  async function fetchUpdatedTab(tab) {
+    const newTab = await gsChrome.tabsGet(tab.id);
     if (newTab) {
       return newTab;
     }
@@ -429,15 +437,13 @@ var gsSession = (function() {
     if (!discardedTab) {
       return null;
     }
-    gsUtils.log(
+    gsUtils.warning(
       discardedTab.id,
       `Suspended tab with id: ${
         tab.id
       } was discarded before init. Will reload..`
     );
-    await new Promise(r =>
-      chrome.tabs.update(discardedTab.id, { url: discardedTab.url }, r)
-    );
+    await gsChrome.tabsUpdate(discardedTab.id, { url: discardedTab.url });
     return discardedTab;
   }
 
@@ -464,68 +470,97 @@ var gsSession = (function() {
     }
   }
 
-  function pingTabScript(tab, totalTimeQueued) {
-    return new Promise((resolve, reject) => {
-      // If tab has a state of loading, then requeue for checking later
-      if (tab.status === 'loading') {
-        resolve(false);
-        return;
+  async function pingTabScript(tab, totalTimeQueued) {
+    // If tab has a state of loading, then requeue for checking later
+    if (tab.status === 'loading') {
+      gsUtils.log(tab.id, 'Tab is still loading');
+      return false;
+    }
+
+    let tabResponse = await new Promise((resolve, reject) => {
+      gsMessages.sendPingToTab(tab.id, function(error, _response) {
+        if (error) {
+          gsUtils.warning(tab.id, 'Failed to sendPingToTab', error);
+        }
+        resolve(_response);
+      });
+    });
+
+    if (!tabResponse) {
+      // If it is a suspended tab then try reloading the tab and requeue for checking later
+      if (gsUtils.isSuspendedTab(tab)) {
+        requestReloadSuspendedTab(tab);
+        return false;
       }
-      gsMessages.sendPingToTab(tab.id, function(err, response) {
-        // If tab is initialised then return true
-        if (response && response.isInitialised) {
-          resolve(true);
-          return;
-        }
 
-        // If tab returned a response (but is not initialised or loading) then initialise
-        if (response) {
-          if (gsUtils.isSuspendedTab(tab)) {
-            tgs
-              .initialiseSuspendedTabAsPromised(tab)
-              .then(response => {
-                resolve(response && response.isInitialised);
-              })
-              .catch(error => {
-                resolve(false);
-              });
-          } else {
-            tgs
-              .initialiseUnsuspendedTabAsPromised(tab)
-              .then(response => {
-                resolve(response && response.isInitialised);
-              })
-              .catch(error => {
-                resolve(false);
-              });
-          }
-          return;
-        }
+      // If it is a normal tab then try to reinject content script
+      const result = await reinjectContentScriptOnTab(tab);
+      if (!result) {
+        gsUtils.warning(
+          tab.id,
+          'Failed to initialize tab. Tab may not behave as expected.'
+        );
+        // Give up on this tab
+        return true;
+      }
 
-        if (isProbablyProfileRestart && totalTimeQueued < 60 * 1000) {
-          resolve(false);
-          return;
-        }
+      // If we have successfull injected content script, then try to ping again
+      tabResponse = await new Promise((resolve, reject) => {
+        gsMessages.sendPingToTab(tab.id, function(error, _response) {
+          resolve(_response);
+        });
+      });
+    }
 
-        // If tab has loaded but returns no response after 60 seconds then try to reload / reinject tab
-        if (gsUtils.isSuspendedTab(tab)) {
-          // resuspend unresponsive suspended tabs
-          gsUtils.log(tab.id, `Resuspending unresponsive suspended tab.`);
-          tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
-          chrome.tabs.reload(tab.id, function() {
-            resolve(false);
-          });
-        } else {
-          // reinject content script on non-suspended tabs
-          gsUtils.log(
+    // If tab still doesn't respond to ping, then requeue for checking later
+    if (!tabResponse) {
+      return false;
+    }
+
+    // If tab returned a response but is not initialised, then try to initialise
+    if (!tabResponse.isInitialised) {
+      if (gsUtils.isSuspendedTab(tab)) {
+        tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+      } else {
+        tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+      }
+    }
+
+    // If tab is initialised then return true
+    if (tabResponse.isInitialised) {
+      gsUtils.log(tab.id, 'Tab has initialised successfully.');
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function requestReloadSuspendedTab(tab) {
+    // resuspend unresponsive suspended tabs
+    gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
+    tgs.setTabFlagForTabId(tab.id, tgs.UNSUSPEND_ON_RELOAD_URL, null);
+    chrome.tabs.reload(tab.id, function() {
+      // Ignore callback here as we need to wait for the suspended tab
+      // to finish reloading before we can check again
+    });
+  }
+
+  async function reinjectContentScriptOnTab(tab) {
+    return new Promise((resolve, reject) => {
+      gsUtils.log(
+        tab.id,
+        'Reinjecting contentscript into unresponsive active tab.'
+      );
+      gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
+        if (error) {
+          gsUtils.warning(
             tab.id,
-            `Reinjecting contentscript into unresponsive active tab.`
+            'Failed to execute js/contentscript.js on tab',
+            error
           );
-          gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', function(
-            err
-          ) {
-            resolve(false);
-          });
+          resolve(false);
+        } else {
+          resolve(true);
         }
       });
     });
@@ -547,26 +582,30 @@ var gsSession = (function() {
     recoveryMode = true;
     gsUtils.removeInternalUrlsFromSession(lastSession);
 
-    const currentWindows = await new Promise(r =>
-      chrome.windows.getAll({ populate: true }, r)
-    );
+    const currentWindows = await gsChrome.windowsGetAll();
     var matchedCurrentWindowBySessionWindowId = matchCurrentWindowsWithLastSessionWindows(
       lastSession.windows,
       currentWindows
     );
 
     //attempt to automatically restore any lost tabs/windows in their proper positions
+    const lastFocusedWindow = await gsChrome.windowsGetLastFocused();
+    const lastFocusedWindowId = lastFocusedWindow ? lastFocusedWindow.id : null;
     for (var sessionWindow of lastSession.windows) {
       var matchedCurrentWindow =
         matchedCurrentWindowBySessionWindowId[sessionWindow.id];
-      await recoverWindow(sessionWindow, matchedCurrentWindow);
+      await restoreSessionWindow(sessionWindow, matchedCurrentWindow, lastFocusedWindowId, 0);
     }
-    var focusedWindow = currentWindows.find(o => o.focused);
-    if (focusedWindow) {
-      await new Promise(r =>
-        chrome.windows.update(focusedWindow.id, { focused: true }, r)
-      );
-    }
+
+    recoveryMode = false;
+    gsUtils.log(
+      'gsSession',
+      '\n\n------------------------------------------------\n' +
+      'Recovery mode finished.\n' +
+      '------------------------------------------------\n\n'
+    );
+    gsUtils.log('gsSession', 'updating current session');
+    updateCurrentSession(); //async
   }
 
   //try to match session windows with currently open windows
@@ -718,14 +757,27 @@ var gsSession = (function() {
     return tabMatchingObjects;
   }
 
-  async function recoverWindow(sessionWindow, currentWindow) {
-    const currentTabIds = [];
-    const currentTabUrls = [];
-    const recoverSessionPromises = [];
+  // suspendMode controls whether the tabs are restored as suspended or unsuspended
+  // 0: Leave the urls as they are (suspended stay suspended, ussuspended stay unsuspended)
+  // 1: Open all unsuspended tabs as suspended
+  // 2: Open all suspended tabs as unsuspended
+  async function restoreSessionWindow(
+    sessionWindow,
+    existingWindow,
+    lastFocusedWindowId,
+    suspendMode
+  ) {
+    if (sessionWindow.tabs.length === 0) {
+      gsUtils.log('gsUtils', 'SessionWindow contains no tabs to restore');
+      return;
+    }
 
-    //if we have been provided with a current window to recover into
-    if (currentWindow) {
-      for (const currentTab of currentWindow.tabs) {
+    // if we have been provided with a current window to recover into
+    if (existingWindow) {
+      const currentTabIds = [];
+      const currentTabUrls = [];
+      const tabPromises = [];
+      for (const currentTab of existingWindow.tabs) {
         currentTabIds.push(currentTab.id);
         currentTabUrls.push(currentTab.url);
       }
@@ -737,72 +789,73 @@ var gsSession = (function() {
           !currentTabUrls.includes(sessionTab.url) &&
           !currentTabIds.includes(sessionTab.id)
         ) {
-          tabsUrlsToRecover.push(sessionTab.url);
-          recoverSessionPromises.push(
-            new Promise(r =>
-              chrome.tabs.create(
-                {
-                  windowId: currentWindow.id,
-                  url: sessionTab.url,
-                  index: sessionTab.index,
-                  pinned: sessionTab.pinned,
-                  active: false,
-                },
-                r
-              )
+          tabPromises.push(
+            createNewTabFromSessionTab(
+              sessionTab,
+              existingWindow.id,
+              suspendMode
             )
           );
         }
       }
+      await Promise.all(tabPromises);
+      return;
+    }
 
-      //else restore entire window
-    } else if (sessionWindow.tabs.length > 0) {
-      gsUtils.log(
-        'gsUtils',
-        'Could not find match for sessionWindow: ',
-        sessionWindow
-      );
+    // else restore entire window
+    gsUtils.log(
+      'gsUtils',
+      'Could not find match for sessionWindow: ',
+      sessionWindow
+    );
 
-      //create list of urls to open
-      var tabUrls = [];
-      for (const sessionTab of sessionWindow.tabs) {
-        tabUrls.push(sessionTab.url);
-        tabsUrlsToRecover.push(sessionTab.url);
-      }
-      recoverSessionPromises.push(
-        new Promise(r =>
-          chrome.windows.create({ url: tabUrls, focused: false }, r)
+    const newWindow = await gsChrome.windowsCreate({ focused: false });
+    if (lastFocusedWindowId) {
+      await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
+    }
+    const placeholderTab = newWindow.tabs[0];
+    const tabPromises = [];
+    for (const sessionTab of sessionWindow.tabs) {
+      tabPromises.push(
+        createNewTabFromSessionTab(
+          sessionTab,
+          newWindow.id,
+          suspendMode
         )
       );
     }
-    await Promise.all(recoverSessionPromises);
+    await Promise.all(tabPromises);
+    await gsChrome.tabsRemove(placeholderTab.id);
+    return;
   }
 
-  function handleTabRecovered(tab) {
-    if (tabsUrlsToRecover.indexOf(tab.url) >= 0) {
-      tabsUrlsToRecover.splice(tabsUrlsToRecover.indexOf(tab.url), 1);
+  async function createNewTabFromSessionTab(
+    sessionTab,
+    windowId,
+    suspendMode
+  ) {
+    let url = sessionTab.url;
+    if (
+      suspendMode === 1 &&
+      !gsUtils.isSuspendedTab(sessionTab) &&
+      !gsUtils.isSpecialTab(sessionTab)
+    ) {
+      url = gsUtils.generateSuspendedUrl(sessionTab.url, sessionTab.title);
+    } else if (suspendMode === 2 && gsUtils.isSuspendedTab(sessionTab)) {
+      url = gsUtils.getSuspendedUrl(sessionTab.url);
     }
-    if (tabsUrlsToRecover.length === 0) {
-      recoveryMode = false;
-      gsUtils.log(
-        'gsSession',
-        '\n\n------------------------------------------------\n' +
-          'Recovery mode finished.\n' +
-          '------------------------------------------------\n\n'
-      );
-      gsUtils.log('gsSession', 'updating current session');
-      updateCurrentSession(); //async
-    }
+    const newTab = await gsChrome.tabsCreate({
+      windowId: windowId,
+      url: url,
+      index: sessionTab.index,
+      pinned: sessionTab.pinned,
+      active: false,
+    });
 
     // Update recovery view (if it exists)
-    chrome.tabs.query(
-      { url: chrome.extension.getURL('recovery.html') },
-      function(recoveryTabs) {
-        for (var recoveryTab of recoveryTabs) {
-          gsMessages.sendTabInfoToRecoveryTab(recoveryTab.id, tab);
-        }
-      }
-    );
+    if (recoveryTabId) {
+      gsMessages.sendTabInfoToRecoveryTab(recoveryTabId, newTab); //async. unhandled error
+    }
   }
 
   return {
@@ -811,11 +864,11 @@ var gsSession = (function() {
     getSessionId,
     buildCurrentSession,
     updateCurrentSession,
-    handleTabRecovered,
     isInitialising,
     isStartupChecksComplete,
     isRecoveryMode,
     recoverLostTabs,
+    restoreSessionWindow,
     prepareForUpdate,
     getUpdateType,
   };

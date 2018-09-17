@@ -21,7 +21,7 @@ testSuites.push(
 
           // Purposely don't await on this call
           gsIndexedDb.updateSession(currentSession);
-          await new Promise(r => setTimeout(r, 1));
+          await gsUtils.setTimeout(1);
         }
 
         //if it's a saved session (prefixed with an underscore)

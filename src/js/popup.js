@@ -9,9 +9,6 @@
 
   var getTabStatus = function(retriesRemaining, callback) {
     tgs.getActiveTabStatus(function(status) {
-      if (chrome.runtime.lastError) {
-        gsUtils.error('popup', chrome.runtime.lastError);
-      }
       if (
         status !== gsUtils.STATUS_UNKNOWN &&
         status !== gsUtils.STATUS_LOADING
@@ -200,7 +197,7 @@
       statusDetail = chrome.i18n.getMessage('js_popup_error');
       //    statusIconClass = 'fa fa-exclamation-triangle';
     } else {
-      gsUtils.log('popup', 'Could not process tab status of: ' + status);
+      gsUtils.warning('popup', 'Could not process tab status of: ' + status);
     }
     document.getElementById('statusDetail').innerHTML = statusDetail;
     //  document.getElementById('statusIcon').className = statusIconClass;

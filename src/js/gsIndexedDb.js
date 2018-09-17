@@ -1,4 +1,4 @@
-/*global chrome, db, tgs, gsUtils, gsSession */
+/*global chrome, db, tgs, gsUtils, gsChrome, gsSession */
 'use strict';
 
 var gsIndexedDb = {
@@ -203,7 +203,7 @@ var gsIndexedDb = {
         .execute();
 
       if (results.length > 1) {
-        gsUtils.log(
+        gsUtils.warning(
           'gsIndexedDb',
           'Duplicate sessions found for sessionId: ' +
             sessionId +
@@ -223,22 +223,18 @@ var gsIndexedDb = {
   },
 
   createOrUpdateSessionRestorePoint: async function(session, version) {
-    const existingSessionRestorePoint = await this.fetchSessionRestorePoint(version);
+    const existingSessionRestorePoint = await this.fetchSessionRestorePoint(
+      version
+    );
     if (existingSessionRestorePoint) {
       existingSessionRestorePoint.windows = session.windows;
       await this.updateSession(existingSessionRestorePoint);
-      gsUtils.log(
-        'gsIndexedDb',
-        'Updated automatic session restore point'
-      );
+      gsUtils.log('gsIndexedDb', 'Updated automatic session restore point');
     } else {
       session.name = 'Automatic save point for v' + version;
       session[gsIndexedDb.DB_SESSION_PRE_UPGRADE_KEY] = version;
       await this.addToSavedSessions(session);
-      gsUtils.log(
-        'gsIndexedDb',
-        'Created automatic session restore point'
-      );
+      gsUtils.log('gsIndexedDb', 'Created automatic session restore point');
     }
     const newSessionRestorePoint = await this.fetchSessionRestorePoint(version);
     gsUtils.log(
@@ -352,7 +348,7 @@ var gsIndexedDb = {
     } else {
       await this.removeSessionFromHistory(sessionId);
     }
-    const updatedSession = await this.fetchSessionBySessionId(sessionId);;
+    const updatedSession = await this.fetchSessionBySessionId(sessionId);
     return updatedSession;
   },
 
@@ -477,7 +473,7 @@ var gsIndexedDb = {
       }
       if (major < 6 || (major === 6 && minor < 31) || testMode) {
         // if (oldVersion < 6.31)
-        const cookies = await new Promise(r => chrome.cookies.getAll({}, r));
+        const cookies = await gsChrome.cookiesGetAll();
         var scrollPosByTabId = {};
         for (const cookie of cookies) {
           if (cookie.name.indexOf('gsScrollPos') === 0) {
@@ -490,9 +486,7 @@ var gsIndexedDb = {
               prefix += 'www';
             }
             var url = prefix + cookie.domain + cookie.path;
-            await new Promise(r =>
-              chrome.cookies.remove({ url: url, name: cookie.name }, r)
-            );
+            await gsChrome.cookiesRemove(url, cookie.name);
           }
         }
         tgs.scrollPosByTabId = scrollPosByTabId;
