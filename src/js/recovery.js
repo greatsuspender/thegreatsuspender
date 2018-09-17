@@ -7,6 +7,7 @@
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
   var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
+  var gsChrome = chrome.extension.getBackgroundPage().gsChrome;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   var restoreAttempted = false;
@@ -139,17 +140,15 @@
     }
 
     for (var tabToRecover of tabsToRecover) {
-      if (!gsUtils.isInternalTab(tabToRecover)) {
-        tabEl = historyItems.createTabHtml(tabToRecover, false);
-        tabEl.onclick = function() {
-          return function(e) {
-            e.preventDefault();
-            chrome.tabs.create({ url: tabToRecover.url, active: false });
-            removeSuspendedTabFromList(tabToRecover);
-          };
+      tabEl = historyItems.createTabHtml(tabToRecover, false);
+      tabEl.onclick = function() {
+        return function(e) {
+          e.preventDefault();
+          chrome.tabs.create({ url: tabToRecover.url, active: false });
+          removeSuspendedTabFromList(tabToRecover);
         };
-        recoveryEl.appendChild(tabEl);
-      }
+      };
+      recoveryEl.appendChild(tabEl);
     }
 
     var currentSuspendedTabs = currentTabs.filter(o =>
