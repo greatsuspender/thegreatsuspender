@@ -257,6 +257,10 @@ var gsMessages = {
   },
 
   sendMessageToTab: function(tabId, message, severity, callback) {
+    if (!tabId) {
+      if (callback) callback('tabId not specified');
+      return;
+    }
     var responseHandler = function(response) {
       gsUtils.log(tabId, 'response from tab', response);
       if (chrome.runtime.lastError) {
@@ -277,6 +281,10 @@ var gsMessages = {
   },
 
   executeScriptOnTab: function(tabId, scriptPath, callback) {
+    if (!tabId) {
+      if (callback) callback('tabId not specified');
+      return;
+    }
     chrome.tabs.executeScript(tabId, { file: scriptPath }, function(response) {
       if (chrome.runtime.lastError) {
         if (callback) callback(chrome.runtime.lastError);
@@ -287,6 +295,10 @@ var gsMessages = {
   },
 
   executeCodeOnTab: function(tabId, codeString, callback) {
+    if (!tabId) {
+      if (callback) callback('tabId not specified');
+      return;
+    }
     chrome.tabs.executeScript(tabId, { code: codeString }, function(response) {
       if (chrome.runtime.lastError) {
         if (callback) callback(chrome.runtime.lastError);
