@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsMessages, gsSession, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -170,6 +170,40 @@ var gsUtils = {
         );
         resolve();
       });
+    });
+  },
+
+  createTabAndWaitForFinishLoading: function(url, maxWaitTimeInMs) {
+    return new Promise(async resolve => {
+      let tab = await gsChrome.tabsCreate(url);
+      maxWaitTimeInMs = maxWaitTimeInMs || 1000;
+      const retryUntil = Date.now() + maxWaitTimeInMs;
+      let loaded = false;
+      while (!loaded && Date.now() < retryUntil) {
+        tab = await gsChrome.tabsGet(tab.id);
+        loaded = tab.status === 'complete';
+        if (!loaded) {
+          await gsUtils.setTimeout(200);
+        }
+      }
+      resolve(tab);
+    });
+  },
+
+  createWindowAndWaitForFinishLoading: function(createData, maxWaitTimeInMs) {
+    return new Promise(async resolve => {
+      let window = await gsChrome.windowsCreate(createData);
+      maxWaitTimeInMs = maxWaitTimeInMs || 1000;
+      const retryUntil = Date.now() + maxWaitTimeInMs;
+      let loaded = false;
+      while (!loaded && Date.now() < retryUntil) {
+        window = await gsChrome.windowsGet(window.id);
+        loaded = window.tabs.length > 0 && window.tabs[0].status === 'complete';
+        if (!loaded) {
+          await gsUtils.setTimeout(200);
+        }
+      }
+      resolve(window);
     });
   },
 
