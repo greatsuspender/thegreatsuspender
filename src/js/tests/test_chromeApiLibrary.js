@@ -83,7 +83,7 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.tabsCreate
+      // Test gsChrome.tabsCreate
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -104,7 +104,7 @@ testSuites.push(
         return assertTrue(isNewTab1Valid && isNewTab2Valid);
       },
 
-      // Test gsUtils.tabsUpdate
+      // Test gsChrome.tabsUpdate
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -151,7 +151,7 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.tabsGet
+      // Test gsChrome.tabsGet
       async () => {
         // stub gsUtils.error function
         let errorObj;
@@ -260,7 +260,39 @@ testSuites.push(
         return assertTrue(isTestWindow1Valid && areWindowsAfterValid);
       },
 
-      // Test gsUtils.windowsGetLastFocused
+      // Test gsChrome.windowsGet
+      async () => {
+        // stub gsUtils.error function
+        let errorObj;
+        gsUtils.error = (id, _errorObj, ...args) => {
+          errorObj = _errorObj;
+        };
+
+        // create a test window
+        const testWindow1 = await new Promise(r =>
+          chrome.windows.create({ focused: false }, r)
+        );
+        const isTestWindow1Valid = testWindow1.tabs.length === 1;
+
+        const window1 = await gsChrome.windowsGet();
+        const isWindow1Valid = window1 === null && errorObj === 'windowId not specified';
+
+        const window2 = await gsChrome.windowsGet(7777);
+        const isWindow2Valid =
+          window2 === null && errorObj.message === 'No window with id: 7777.';
+
+        const window3 = await gsChrome.windowsGet(testWindow1.id);
+        const isWindow3Valid = window3.id === testWindow1.id;
+
+        // cleanup
+        await removeTestWindow(testWindow1.id, false);
+
+        return assertTrue(
+          isTestWindow1Valid && isWindow1Valid && isWindow2Valid && isWindow3Valid
+        );
+      },
+
+      // Test gsChrome.windowsGetLastFocused
       async () => {
         const testWindow1 = await gsChrome.windowsGetLastFocused();
         const isTestWindow1Valid = testWindow1.focused === true;
@@ -286,7 +318,7 @@ testSuites.push(
         );
       },
 
-      // Test gsUtils.windowsGetAll
+      // Test gsChrome.windowsGetAll
       async () => {
         const windowsBefore = await gsChrome.windowsGetAll();
 

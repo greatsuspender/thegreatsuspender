@@ -120,6 +120,22 @@ var gsChrome = {
       });
     });
   },
+  windowsGet: async function(windowId) {
+    return new Promise((resolve, reject) => {
+      if (!windowId) {
+        gsUtils.error('chromeWindows', 'windowId not specified');
+        resolve(null);
+        return;
+      }
+      chrome.windows.get(windowId, { populate: true }, window => {
+        if (chrome.runtime.lastError) {
+          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          window = null;
+        }
+        resolve(window);
+      });
+    });
+  },
   windowsGetAll: async function() {
     return new Promise((resolve, reject) => {
       chrome.windows.getAll({ populate: true }, windows => {
