@@ -200,6 +200,8 @@
 
     // Updated page
     "html_updated_title": { "message": "Updated" },
+    "html_updating_heading": { "message": "is updating" },
+    "html_updating_message": { "message": "Please wait while I restore your suspended tabs..." },
     "html_updated_great_suspender_updated": { "message": "has been updated" },
     "html_updated_info_line1": { "message": "An automatic backup was made of your tabs before the update." },
     "html_updated_info_line2_prefix": { "message": "If you encountered any issues during the update, you can recover lost tabs from the " },
@@ -209,7 +211,7 @@
     "html_updated_new_features_header": { "message": "New features:" },
     "html_updated_bug_fixes_header": { "message": "Bug fixes:" },
     "html_updated_release_notes": { "message": "Visit GitHub for full release notes: " },
-    "html_updated_patch_message": { "message": "Sorry for the disturbance. We just needed to perform a little maintenance." },
+    "html_updated_patch_message": { "message": "Sorry for the disturbance. I just needed to perform a little maintenance." },
 
     // Welcome message
     "html_welcome_title": { "message": "Welcome" },

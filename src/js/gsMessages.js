@@ -251,7 +251,12 @@ var gsMessages = {
     );
   },
 
-  sendTabInfoToRecoveryTab: function(recoveryTabId, tab) {
+  sendUpdateCompleteToUpdatedTab: function(updatedTabId, callback) {
+    var payload = { updateComplete: true };
+    this.sendMessageToTab(updatedTabId, payload, this.INFO, callback);
+  },
+
+  sendTabInfoToRecoveryTab: function(recoveryTabId, tab, callback) {
     var payload = { recoveredTab: tab };
     this.sendMessageToTab(recoveryTabId, payload, this.INFO);
   },

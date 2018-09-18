@@ -198,6 +198,15 @@ var gsSession = (function() {
       }
     }
 
+    let updateUrl = chrome.extension.getURL('update.html');
+    let updatedUrl = chrome.extension.getURL('updated.html');
+    await gsUtils.removeTabsByUrlAsPromised(updateUrl);
+    await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
+    const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
+      updatedUrl,
+      1000
+    );
+
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(tabs);
@@ -205,13 +214,12 @@ var gsSession = (function() {
       await recoverLostTabs();
     }
 
-    let updateUrl = chrome.extension.getURL('update.html');
-    let updatedUrl = chrome.extension.getURL('updated.html');
-    await gsUtils.removeTabsByUrlAsPromised(updateUrl);
-    await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
-
-    //show updated screen
-    await gsChrome.tabsCreate(updatedUrl);
+    //update updated screen
+    gsMessages.sendUpdateCompleteToUpdatedTab(updatedTab.id, async error => {
+      if (error) {
+        await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
+      }
+    });
 
     gsAnalytics.reportEvent(
       'System',
@@ -365,7 +373,7 @@ var gsSession = (function() {
           lastSessionUnsuspendedTabCount +
           'unsuspended tabs. Current session only contains ' +
           currentTabs.length +
-        '. Assuming this is New Tab with a restore? prompt.'
+          '. Assuming this is New Tab with a restore? prompt.'
       );
       return false;
     }
@@ -604,8 +612,8 @@ var gsSession = (function() {
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-      'Recovery mode finished.\n' +
-      '------------------------------------------------\n\n'
+        'Recovery mode finished.\n' +
+        '------------------------------------------------\n\n'
     );
     gsUtils.log('gsSession', 'updating current session');
     updateCurrentSession(); //async
@@ -820,11 +828,7 @@ var gsSession = (function() {
     const tabPromises = [];
     for (const sessionTab of sessionWindow.tabs) {
       tabPromises.push(
-        createNewTabFromSessionTab(
-          sessionTab,
-          newWindow.id,
-          suspendMode
-        )
+        createNewTabFromSessionTab(sessionTab, newWindow.id, suspendMode)
       );
     }
     await Promise.all(tabPromises);
@@ -834,11 +838,7 @@ var gsSession = (function() {
     return;
   }
 
-  async function createNewTabFromSessionTab(
-    sessionTab,
-    windowId,
-    suspendMode
-  ) {
+  async function createNewTabFromSessionTab(sessionTab, windowId, suspendMode) {
     let url = sessionTab.url;
     if (
       suspendMode === 1 &&

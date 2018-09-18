@@ -200,6 +200,8 @@
 
     // Updated page
     "html_updated_title": { "message": "更新" }, //? Updated
+    "html_updating_heading": { "message": "正在更新" }, //? (is) updating
+    "html_updating_message": { "message": "请等我恢复暂停的页面..." }, //? Please wait for me to resume the suspended page...
     "html_updated_great_suspender_updated": { "message": "已更新" }, //? updated
     "html_updated_info_line1": { "message": "更新之前，您的标签页已被自动保存。" }, //? Your tab has been saved automatically before updating
     "html_updated_info_line2_prefix": { "message": "如果在更新过程中遇到任何问题，可以从 " }, //? If you have any problems during the update, you can recover the missing tabs from the
