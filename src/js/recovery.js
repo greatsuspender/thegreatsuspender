@@ -94,6 +94,8 @@
     if (request && request.recoveredTab) {
       removeSuspendedTabFromList(request.recoveredTab);
     }
+    sendResponse();
+    return false;
   });
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
