@@ -272,7 +272,7 @@
     e.preventDefault();
     e.stopPropagation();
     if (e.target.id === 'setKeyboardShortcut') {
-      chrome.tabs.create({ url: 'chrome://extensions/configureCommands' });
+      chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
     } else if (e.which === 1) {
       unsuspendTab();
     }

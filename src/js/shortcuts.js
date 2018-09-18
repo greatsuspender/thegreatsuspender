@@ -35,7 +35,7 @@
 
     //listener for configureShortcuts
     configureShortcutsEl.onclick = function(e) {
-      chrome.tabs.update({ url: 'chrome://extensions/configureCommands' });
+      chrome.tabs.update({ url: 'chrome://extensions/shortcuts' });
     };
   });
 
