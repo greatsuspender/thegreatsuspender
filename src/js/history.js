@@ -5,7 +5,6 @@
   var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
-  var gsChrome = chrome.extension.getBackgroundPage().gsChrome;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
 
   async function reloadTabs(sessionId, windowId, openTabsAsSuspended) {
@@ -25,11 +24,9 @@
       sessionWindows = session.windows;
     }
 
-    const lastFocusedWindow = await gsChrome.windowsGetLastFocused();
-    const lastFocusedWindowId = lastFocusedWindow ? lastFocusedWindow.id : null;
     for (let sessionWindow of sessionWindows) {
       const suspendMode = openTabsAsSuspended ? 1 : 2;
-      await gsSession.restoreSessionWindow(sessionWindow, null, lastFocusedWindowId, suspendMode);
+      await gsSession.restoreSessionWindow(sessionWindow, null, suspendMode);
     }
   }
 

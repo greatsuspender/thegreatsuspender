@@ -594,7 +594,10 @@ var gsSession = (function() {
     for (var sessionWindow of lastSession.windows) {
       var matchedCurrentWindow =
         matchedCurrentWindowBySessionWindowId[sessionWindow.id];
-      await restoreSessionWindow(sessionWindow, matchedCurrentWindow, lastFocusedWindowId, 0);
+      await restoreSessionWindow(sessionWindow, matchedCurrentWindow, 0);
+    }
+    if (lastFocusedWindowId) {
+      await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
     }
 
     recoveryMode = false;
@@ -764,7 +767,6 @@ var gsSession = (function() {
   async function restoreSessionWindow(
     sessionWindow,
     existingWindow,
-    lastFocusedWindowId,
     suspendMode
   ) {
     if (sessionWindow.tabs.length === 0) {
@@ -809,10 +811,11 @@ var gsSession = (function() {
       sessionWindow
     );
 
-    const newWindow = await gsChrome.windowsCreate({ focused: false });
-    if (lastFocusedWindowId) {
-      await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
-    }
+    const restoringUrl = chrome.extension.getURL('restoring-window.html');
+    const newWindow = await gsUtils.createWindowAndWaitForFinishLoading(
+      { url: restoringUrl, focused: false },
+      500 // dont actually wait
+    );
     const placeholderTab = newWindow.tabs[0];
     const tabPromises = [];
     for (const sessionTab of sessionWindow.tabs) {
@@ -825,7 +828,9 @@ var gsSession = (function() {
       );
     }
     await Promise.all(tabPromises);
-    await gsChrome.tabsRemove(placeholderTab.id);
+    if (placeholderTab) {
+      await gsChrome.tabsRemove(placeholderTab.id);
+    }
     return;
   }
 
