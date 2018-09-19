@@ -4,6 +4,8 @@ var gsSession = (function() {
   'use strict';
 
   const tabsToInitPerSecond = 8;
+  const updateUrl = chrome.extension.getURL('update.html');
+  const updatedUrl = chrome.extension.getURL('updated.html');
 
   let startupChecksComplete = false;
   let initialisationMode = false;
@@ -17,6 +19,12 @@ var gsSession = (function() {
   let updated = false;
 
   function init() {
+    //remove any update screens
+    Promise.all([
+      gsUtils.removeTabsByUrlAsPromised(updateUrl),
+      gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+    ]);
+
     //handle special event where an extension update is available
     chrome.runtime.onUpdateAvailable.addListener(function(details) {
       prepareForUpdate(details); //async
@@ -42,12 +50,6 @@ var gsSession = (function() {
     }
 
     if (!sessionRestorePoint || gsUtils.getSuspendedTabCount() > 0) {
-      let updateUrl = chrome.extension.getURL('update.html');
-      let updatedUrl = chrome.extension.getURL('updated.html');
-      await Promise.all([
-        gsUtils.removeTabsByUrlAsPromised(updateUrl),
-        gsUtils.removeTabsByUrlAsPromised(updatedUrl),
-      ]);
       //show update screen
       await gsChrome.tabsCreate(updateUrl);
     } else {
@@ -203,8 +205,6 @@ var gsSession = (function() {
       }
     }
 
-    let updateUrl = chrome.extension.getURL('update.html');
-    let updatedUrl = chrome.extension.getURL('updated.html');
     await gsUtils.removeTabsByUrlAsPromised(updateUrl);
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
 
