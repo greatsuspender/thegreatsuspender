@@ -21,13 +21,18 @@
       document.getElementById('majorUpdateDetail').style.display = 'none';
     }
 
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-      if (request && request.updateComplete) {
-        document.getElementById('updating').style.display = 'none';
-        document.getElementById('updated').style.display = 'block';
-      }
-      sendResponse();
-      return false;
-    });
+    if (gsSession.isUpdated()) {
+      document.getElementById('updating').style.display = 'none';
+      document.getElementById('updated').style.display = 'block';
+    } else {
+      chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request && request.updateComplete) {
+          document.getElementById('updating').style.display = 'none';
+          document.getElementById('updated').style.display = 'block';
+        }
+        sendResponse();
+        return false;
+      });
+    }
   });
 })();

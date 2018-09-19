@@ -14,6 +14,7 @@ var gsSession = (function() {
   let sessionId;
   let recoveryTabId;
   let updateType = null;
+  let updated = false;
 
   function init() {
     //handle special event where an extension update is available
@@ -95,6 +96,10 @@ var gsSession = (function() {
 
   function isRecoveryMode() {
     return recoveryMode;
+  }
+
+  function isUpdated() {
+    return updated;
   }
 
   function isInitialising() {
@@ -202,24 +207,33 @@ var gsSession = (function() {
     let updatedUrl = chrome.extension.getURL('updated.html');
     await gsUtils.removeTabsByUrlAsPromised(updateUrl);
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
-    const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
-      updatedUrl,
-      1000
-    );
 
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(tabs);
     if (shouldRecoverTabs) {
-      await recoverLostTabs();
-    }
+      const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
+        updatedUrl,
+        10000
+      );
 
-    //update updated screen
-    gsMessages.sendUpdateCompleteToUpdatedTab(updatedTab.id, async error => {
+      await recoverLostTabs();
+      updated = true;
+
+      //update updated screen
+      const error = await new Promise(resolve => {
+        gsMessages.sendUpdateCompleteToUpdatedTab(updatedTab.id, error => {
+          resolve(error);
+        });
+      });
       if (error) {
         await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
+        await gsChrome.tabsCreate({ url: updatedUrl });
       }
-    });
+    } else {
+      updated = true;
+      await gsChrome.tabsCreate({ url: updatedUrl });
+    }
 
     gsAnalytics.reportEvent(
       'System',
@@ -876,6 +890,7 @@ var gsSession = (function() {
     isInitialising,
     isStartupChecksComplete,
     isRecoveryMode,
+    isUpdated,
     recoverLostTabs,
     restoreSessionWindow,
     prepareForUpdate,
