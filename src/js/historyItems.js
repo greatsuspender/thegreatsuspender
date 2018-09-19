@@ -2,6 +2,9 @@
 var historyItems = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
+  if (!chrome.extension.getBackgroundPage()) {
+    return;
+  }
 
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;

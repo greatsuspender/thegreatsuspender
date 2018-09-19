@@ -1,6 +1,10 @@
 /*global chrome */
 (function() {
   'use strict';
+  if (!chrome.extension.getBackgroundPage()) {
+    window.setTimeout(() => location.replace(location.href), 1000);
+    return;
+  }
 
   var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
   var gsStorage = chrome.extension.getBackgroundPage().gsStorage;

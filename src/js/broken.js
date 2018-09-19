@@ -13,8 +13,12 @@
       .addEventListener('click', function() {
         chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
       });
-    var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-    gsAnalytics.reportPageView('broken.html');
+    try {
+      var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+      gsAnalytics.reportPageView('broken.html');
+    } catch (error) {
+      //do nothing
+    }
   }
   if (document.readyState !== 'loading') {
     init();
