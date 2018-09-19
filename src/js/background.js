@@ -44,7 +44,7 @@ var tgs = (function() {
     retries = retries || 0;
     if (retries > 300) {
       // allow 30 seconds :scream:
-      return Promise.reject();
+      return Promise.reject('Failed to initialise background scripts');
     }
     return new Promise(function(resolve) {
       var isReady =
@@ -636,7 +636,6 @@ var tgs = (function() {
       if (discardAfterSuspend) {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
-
     } else if (changeInfo.status === 'complete') {
       initialiseSuspendedTabAsPromised(tab)
         .then(function() {

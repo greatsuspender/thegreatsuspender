@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-unused-vars
 var gsChrome = {
   cookiesGetAll: async function() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       chrome.cookies.getAll({}, cookies => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeCookies', chrome.runtime.lastError);
@@ -14,7 +14,7 @@ var gsChrome = {
     });
   },
   cookiesRemove: async function(url, name) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!url || !name) {
         gsUtils.error('chromeCookies', 'url or name not specified');
         resolve(null);
@@ -31,7 +31,7 @@ var gsChrome = {
   },
 
   tabsCreate: async function(details) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (
         !details ||
         (typeof details !== 'string' && typeof details.url !== 'string')
@@ -51,7 +51,7 @@ var gsChrome = {
     });
   },
   tabsUpdate: async function(tabId, updateProperties) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!tabId || !updateProperties) {
         gsUtils.error('chromeTabs', 'tabId or updateProperties not specified');
         resolve(null);
@@ -67,7 +67,7 @@ var gsChrome = {
     });
   },
   tabsGet: async function(tabId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!tabId) {
         gsUtils.error('chromeTabs', 'tabId not specified');
         resolve(null);
@@ -83,7 +83,7 @@ var gsChrome = {
     });
   },
   tabsQuery: async function() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       chrome.tabs.query({}, tabs => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeTabs', chrome.runtime.lastError);
@@ -94,7 +94,7 @@ var gsChrome = {
     });
   },
   tabsRemove: async function(tabId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!tabId) {
         gsUtils.error('chromeTabs', 'tabId not specified');
         resolve(null);
@@ -110,7 +110,7 @@ var gsChrome = {
   },
 
   windowsGetLastFocused: async function() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       chrome.windows.getLastFocused({}, window => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeWindows', chrome.runtime.lastError);
@@ -121,7 +121,7 @@ var gsChrome = {
     });
   },
   windowsGet: async function(windowId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!windowId) {
         gsUtils.error('chromeWindows', 'windowId not specified');
         resolve(null);
@@ -137,7 +137,7 @@ var gsChrome = {
     });
   },
   windowsGetAll: async function() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       chrome.windows.getAll({ populate: true }, windows => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeWindows', chrome.runtime.lastError);
@@ -149,7 +149,7 @@ var gsChrome = {
   },
   windowsCreate: async function(createData) {
     createData = createData || {};
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       chrome.windows.create(createData, window => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeWindows', chrome.runtime.lastError);
@@ -160,7 +160,7 @@ var gsChrome = {
     });
   },
   windowsUpdate: async function(windowId, updateInfo) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!windowId || !updateInfo) {
         gsUtils.error('chromeTabs', 'windowId or updateInfo not specified');
         resolve(null);

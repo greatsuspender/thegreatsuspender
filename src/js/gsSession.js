@@ -485,7 +485,7 @@ var gsSession = (function() {
       return false;
     }
 
-    let tabResponse = await new Promise((resolve, reject) => {
+    let tabResponse = await new Promise(resolve => {
       gsMessages.sendPingToTab(tab.id, function(error, _response) {
         if (error) {
           gsUtils.warning(tab.id, 'Failed to sendPingToTab', error);
@@ -513,7 +513,7 @@ var gsSession = (function() {
       }
 
       // If we have successfull injected content script, then try to ping again
-      tabResponse = await new Promise((resolve, reject) => {
+      tabResponse = await new Promise(resolve => {
         gsMessages.sendPingToTab(tab.id, function(error, _response) {
           resolve(_response);
         });
@@ -527,15 +527,19 @@ var gsSession = (function() {
 
     // If tab returned a response but is not initialised, then try to initialise
     if (!tabResponse.isInitialised) {
-      if (gsUtils.isSuspendedTab(tab)) {
-        tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
-      } else {
-        tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+      try {
+        if (gsUtils.isSuspendedTab(tab)) {
+          tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+        } else {
+          tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+        }
+      } catch (error) {
+        gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
       }
     }
 
     // If tab is initialised then return true
-    if (tabResponse.isInitialised) {
+    if (tabResponse && tabResponse.isInitialised) {
       gsUtils.log(tab.id, 'Tab has initialised successfully.');
       return true;
     } else {
@@ -554,7 +558,7 @@ var gsSession = (function() {
   }
 
   async function reinjectContentScriptOnTab(tab) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       gsUtils.log(
         tab.id,
         'Reinjecting contentscript into unresponsive active tab.'

@@ -483,7 +483,7 @@
   }
 
   function documentReadyAsPromsied() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (document.readyState !== 'loading') {
         resolve();
       } else {

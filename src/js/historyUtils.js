@@ -33,7 +33,7 @@ var historyUtils = (function() {
       sessionName
     );
     if (sessionName) {
-      const shouldSave = await new Promise((resolve, reject) => {
+      const shouldSave = await new Promise(resolve => {
         validateNewSessionName(sessionName, function(result) {
           resolve(result);
         });
@@ -75,7 +75,7 @@ var historyUtils = (function() {
           title: line,
           index: curWindow.tabs.length,
           pinned: false,
-        }
+        };
         const savedTabInfo = await gsIndexedDb.fetchTabInfo(line);
         if (savedTabInfo) {
           tabInfo.title = savedTabInfo.title;

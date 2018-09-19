@@ -7,12 +7,18 @@ testSuites.push(
     const tests = [
       // Test functions associated with suspending a tab
       async () => {
-        const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+        const session1 = await getFixture(
+          FIXTURE_CURRENT_SESSIONS,
+          'currentSession1'
+        );
         const tab = session1.windows[0].tabs[0];
-        const previewUrl = await getFixture(FIXTURE_PREVIEW_URLS, 'previewUrl1');
+        const previewUrl = await getFixture(
+          FIXTURE_PREVIEW_URLS,
+          'previewUrl1'
+        );
 
-        await new Promise((resolve, reject) => {
-          gsSuspendManager.saveSuspendData(tab, function () {
+        await new Promise(resolve => {
+          gsSuspendManager.saveSuspendData(tab, function() {
             resolve();
           });
         });

@@ -45,6 +45,7 @@ var gsUtils = {
     //NOTE: errorObj may be just a string :/
     if (debugError) {
       args = args || [];
+      errorObj = errorObj || {};
       const logString = errorObj.hasOwnProperty('stack')
         ? errorObj.stack
         : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
@@ -309,7 +310,7 @@ var gsUtils = {
   },
 
   documentReadyAsPromsied: function(doc) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (doc.readyState !== 'loading') {
         resolve();
       } else {
@@ -771,7 +772,7 @@ var gsUtils = {
   },
 
   setTimeout: async function(timeout) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       window.setTimeout(resolve, timeout);
     });
   },

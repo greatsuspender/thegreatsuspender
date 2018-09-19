@@ -29,7 +29,7 @@
     });
   };
   function getTabStatusAsPromise(retries, allowTransientStates) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       getTabStatus(retries, function(status) {
         if (
           !allowTransientStates &&
@@ -43,7 +43,7 @@
     });
   }
   function getSelectedTabsAsPromise() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       chrome.tabs.query(
         { highlighted: true, lastFocusedWindow: true },
         function(tabs) {
