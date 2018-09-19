@@ -145,9 +145,9 @@ ul.unorderedList li {
   list-style: disc;
 }
 .splash {
-  max-width: 900px;
+  width: 900px;
   padding: 0 20px;
-  margin: 40px auto;
+  margin: 50px auto;
   display: grid;
   grid-template-columns: 150px 1fr;
   grid-gap: 30px;
