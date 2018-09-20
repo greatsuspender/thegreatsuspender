@@ -50,7 +50,6 @@
     for (i = 0; i < optionEls.length; i++) {
       element = optionEls[i];
       pref = elementPrefMap[element.id];
-      gsUtils.log('options', pref, gsStorage.getOption(pref));
       populateOption(element, gsStorage.getOption(pref));
     }
 
