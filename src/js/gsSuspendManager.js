@@ -9,13 +9,16 @@ var gsSuspendManager = (function() {
   var processSuspensionQueueTimer;
   var tabToSuspendDetailsByTabId = {};
 
-  function init() {
-    var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-    var forceScreenCapture = gsStorage.getOption(
-      gsStorage.SCREEN_CAPTURE_FORCE
-    );
-    MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
-    IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
+  function initAsPromised() {
+    return new Promise(function(resolve) {
+      var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+      var forceScreenCapture = gsStorage.getOption(
+        gsStorage.SCREEN_CAPTURE_FORCE
+      );
+      MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
+      IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
+      resolve();
+    });
   }
 
   function queueTabForSuspension(tab, forceLevel) {
@@ -420,7 +423,7 @@ var gsSuspendManager = (function() {
       });
   }
   return {
-    init,
+    initAsPromised,
     queueTabForSuspension,
     unqueueTabForSuspension,
     markTabAsSuspended,

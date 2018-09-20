@@ -1526,18 +1526,18 @@ var tgs = (function() {
 
 tgs
   .backgroundScriptsReadyAsPromised()
+  .then(() => gsAnalytics .initAsPromised())
   .then(() => gsStorage.initSettingsAsPromised())
+  .then(() => gsSuspendManager.initAsPromised())
+  .then(() => gsSession.initAsPromised())
+  .then(() => gsSession.runStartupChecks())
   .then(() => {
     return new Promise(resolve => {
-      gsAnalytics.init();
       gsAnalytics.updateDimensions();
       gsAnalytics.reportPageView('background.html');
-      gsSuspendManager.init();
-      gsSession.init();
       resolve();
     });
   })
-  .then(() => gsSession.runStartupChecks())
   .catch(error => {
     gsUtils.error('background', error);
   })

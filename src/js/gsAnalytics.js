@@ -3,10 +3,13 @@
 var gsAnalytics = (function() {
   'use strict';
 
-  function init() {
-    ga('create', 'UA-52338347-1', 'auto');
-    ga('set', 'checkProtocolTask', function() {});
-    ga('require', 'displayfeatures');
+  function initAsPromised() {
+    return new Promise(function(resolve) {
+      ga('create', 'UA-52338347-1', 'auto');
+      ga('set', 'checkProtocolTask', function() {});
+      ga('require', 'displayfeatures');
+      resolve();
+    });
   }
 
   function reportPageView(pageName) {
@@ -32,7 +35,7 @@ var gsAnalytics = (function() {
   }
 
   return {
-    init,
+    initAsPromised,
     reportPageView,
     reportEvent,
     reportException,

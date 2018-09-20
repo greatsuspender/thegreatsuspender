@@ -16,18 +16,21 @@ var gsSession = (function() {
   let updateType = null;
   let updated = false;
 
-  function init() {
-    //remove any update screens
-    Promise.all([
-      gsUtils.removeTabsByUrlAsPromised(updateUrl),
-      gsUtils.removeTabsByUrlAsPromised(updatedUrl),
-    ]);
+  function initAsPromised() {
+    return new Promise(async function(resolve) {
+      //remove any update screens
+      await Promise.all([
+        gsUtils.removeTabsByUrlAsPromised(updateUrl),
+        gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+      ]);
 
-    //handle special event where an extension update is available
-    chrome.runtime.onUpdateAvailable.addListener(function(details) {
-      prepareForUpdate(details); //async
+      //handle special event where an extension update is available
+      chrome.runtime.onUpdateAvailable.addListener(function(details) {
+        prepareForUpdate(details); //async
+      });
+      resolve();
     });
-  }
+}
 
   async function prepareForUpdate(newVersionDetails) {
     var currentVersion = chrome.runtime.getManifest().version;
@@ -868,7 +871,7 @@ var gsSession = (function() {
   }
 
   return {
-    init,
+    initAsPromised,
     runStartupChecks,
     getSessionId,
     buildCurrentSession,
