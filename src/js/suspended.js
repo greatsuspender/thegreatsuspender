@@ -66,14 +66,6 @@
           );
       }
     });
-
-    try {
-      chrome.extension
-        .getBackgroundPage()
-        .gsAnalytics.reportPageView('suspended.html');
-    } catch (error) {
-      // console.error(error);
-    }
   }
 
   function setTitle(title) {

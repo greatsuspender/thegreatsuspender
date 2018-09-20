@@ -12,6 +12,7 @@
 
   function toggleNag(hideNag) {
     gsStorage.setOption(gsStorage.NO_NAG, hideNag);
+    gsAnalytics.reportEvent('Donations', 'HidePopupManual', hideNag);
   }
 
   function loadDonateButtons() {

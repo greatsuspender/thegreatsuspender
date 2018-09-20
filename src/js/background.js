@@ -1378,9 +1378,8 @@ var tgs = (function() {
       if (changeInfo.url) {
         // test for special case of a successful donation
         if (changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
-          if (!gsStorage.getOption(gsStorage.NO_NAG)) {
-            gsStorage.setOption(gsStorage.NO_NAG, true);
-          }
+          gsStorage.setOption(gsStorage.NO_NAG, true);
+          gsAnalytics.reportEvent('Donations', 'HidePopupAuto', true);
           chrome.tabs.update(tabId, {
             url: chrome.extension.getURL('thanks.html'),
           });
@@ -1534,7 +1533,6 @@ tgs
   .then(() => {
     return new Promise(resolve => {
       gsAnalytics.updateDimensions();
-      gsAnalytics.reportPageView('background.html');
       resolve();
     });
   })
