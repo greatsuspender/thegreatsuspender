@@ -145,12 +145,14 @@ ul.unorderedList li {
   list-style: disc;
 }
 .splash {
-  width: 900px;
   padding: 0 20px;
   margin: 50px auto;
   display: grid;
   grid-template-columns: 150px 1fr;
   grid-gap: 30px;
+}
+.splash:not(.welcome-message) {
+  width: 900px;
 }
 .suspendy-guy {
   width: 100%;
@@ -260,6 +262,7 @@ ul.unorderedList li {
   margin-bottom: 20px;
   align-items: center;
   grid-gap: 40px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 .gsNote {
   font-style: italic;
