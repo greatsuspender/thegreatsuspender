@@ -7,12 +7,10 @@ var gsSession = (function() {
   const updateUrl = chrome.extension.getURL('update.html');
   const updatedUrl = chrome.extension.getURL('updated.html');
 
-  let startupChecksComplete = false;
   let initialisationMode = false;
   let initPeriodInSeconds;
   let initTimeoutInSeconds;
   let extensionRestartContainsSuspendedTabs = false;
-  let recoveryMode = false;
   let sessionId;
   let recoveryTabId;
   let updateType = null;
@@ -92,14 +90,6 @@ var gsSession = (function() {
     }
   }
 
-  function isStartupChecksComplete() {
-    return startupChecksComplete;
-  }
-
-  function isRecoveryMode() {
-    return recoveryMode;
-  }
-
   function isUpdated() {
     return updated;
   }
@@ -133,7 +123,6 @@ var gsSession = (function() {
       gsUtils.log('gsSession', 'HANDLING UPDATE');
       await handleUpdate(curVersion, lastVersion, tabs);
     }
-    startupChecksComplete = true;
   }
 
   async function handleNormalStartup(curVersion, tabs) {
@@ -250,7 +239,7 @@ var gsSession = (function() {
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        `Extension initialization started. extensionRestartContainsSuspendedTabs: ${extensionRestartContainsSuspendedTabs}\n` +
+        `Extension initialization started.\n` +
         '------------------------------------------------\n\n'
     );
     initPeriodInSeconds = tabs.length / tabsToInitPerSecond;
@@ -311,13 +300,13 @@ var gsSession = (function() {
       }
     }
     if (suspendedTabs.length > 0) {
-      gsUtils.log(
-        'gsSession',
-        'extensionRestartContainsSuspendedTabs: true',
-        suspendedTabs
-      );
       extensionRestartContainsSuspendedTabs = true;
     }
+    gsUtils.log(
+      'gsSession',
+      `extensionRestartContainsSuspendedTabs: ${extensionRestartContainsSuspendedTabs}`,
+      suspendedTabs
+    );
   }
 
   async function checkForCrashRecovery(currentTabs) {
@@ -604,8 +593,6 @@ var gsSession = (function() {
         'Recovery mode started.\n' +
         '------------------------------------------------\n\n'
     );
-
-    recoveryMode = true;
     gsUtils.removeInternalUrlsFromSession(lastSession);
 
     const currentWindows = await gsChrome.windowsGetAll();
@@ -626,7 +613,6 @@ var gsSession = (function() {
       await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
     }
 
-    recoveryMode = false;
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
@@ -888,8 +874,6 @@ var gsSession = (function() {
     buildCurrentSession,
     updateCurrentSession,
     isInitialising,
-    isStartupChecksComplete,
-    isRecoveryMode,
     isUpdated,
     recoverLostTabs,
     restoreSessionWindow,

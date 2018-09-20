@@ -44,6 +44,7 @@ var tgs = (function() {
     retries = retries || 0;
     if (retries > 300) {
       // allow 30 seconds :scream:
+      chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
       return Promise.reject('Failed to initialise background scripts');
     }
     return new Promise(function(resolve) {
@@ -70,6 +71,7 @@ var tgs = (function() {
 
   function initAsPromised() {
     return new Promise(function(resolve) {
+      gsUtils.log('background', 'PERFORMING BACKGROUND INIT...');
       addCommandListeners();
       addChromeListeners();
       addMiscListeners();
@@ -421,15 +423,8 @@ var tgs = (function() {
   function queueSessionTimer() {
     clearTimeout(_sessionSaveTimer);
     _sessionSaveTimer = setTimeout(function() {
-      if (gsSession.isRecoveryMode() || !gsSession.isStartupChecksComplete()) {
-        gsUtils.log(
-          'background',
-          'ignoring current session update while starting up'
-        );
-      } else {
-        gsUtils.log('background', 'updating current session');
-        gsSession.updateCurrentSession(); //async
-      }
+      gsUtils.log('background', 'updating current session');
+      gsSession.updateCurrentSession(); //async
     }, 1000);
   }
 
@@ -1532,16 +1527,18 @@ var tgs = (function() {
 tgs
   .backgroundScriptsReadyAsPromised()
   .then(() => gsStorage.initSettingsAsPromised())
-  .then(() => tgs.initAsPromised())
-  .then(function() {
-    gsAnalytics.init();
-    gsAnalytics.updateDimensions();
-    gsAnalytics.reportPageView('background.html');
-    gsSuspendManager.init();
-    gsSession.init();
-    gsSession.runStartupChecks(); //async
+  .then(() => {
+    return new Promise(resolve => {
+      gsAnalytics.init();
+      gsAnalytics.updateDimensions();
+      gsAnalytics.reportPageView('background.html');
+      gsSuspendManager.init();
+      gsSession.init();
+      resolve();
+    });
   })
+  .then(() => gsSession.runStartupChecks())
   .catch(error => {
     gsUtils.error('background', error);
-    chrome.tabs.create({ url: chrome.extension.getURL('broken.html') });
-  });
+  })
+  .finally(() => tgs.initAsPromised());
