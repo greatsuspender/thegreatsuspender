@@ -46,6 +46,9 @@
       const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
       setFavicon(preFaviconUrl);
     }
+    window.setTimeout(() => {
+      document.querySelector('body').classList.remove('hide-initially');
+    }, 1000);
   }
 
   function init(_tabId) {
@@ -133,6 +136,7 @@
       document.querySelector('body').classList.remove('dark');
     }
     setContrast();
+    document.querySelector('body').classList.remove('hide-initially');
   }
 
   function setReason(reason) {
@@ -372,8 +376,20 @@
 
     var popupEl = document.createElement('div');
     popupEl.innerHTML = document.getElementById('donateTemplate').innerHTML;
-    localiseHtml(popupEl);
-    document.getElementsByTagName('body')[0].appendChild(popupEl);
+
+    var cssEl = popupEl.querySelector('#donateCss');
+    var imgEl = popupEl.querySelector('#dudePopup');
+    var bubbleEl = popupEl.querySelector('#donateBubble');
+    // set display to 'none' to prevent TFOUC
+    imgEl.style.display = 'none';
+    bubbleEl.style.display = 'none';
+    localiseHtml(bubbleEl);
+
+    var headEl = document.getElementsByTagName('head')[0];
+    var bodyEl = document.getElementsByTagName('body')[0];
+    headEl.appendChild(cssEl);
+    bodyEl.appendChild(imgEl);
+    bodyEl.appendChild(bubbleEl);
 
     var request = new XMLHttpRequest();
     request.onload = loadDonateButtonsHtml;

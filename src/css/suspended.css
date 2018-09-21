@@ -59,6 +59,9 @@ a.active {
     color: #444;
     pointer-events: none;
 }
+body.hide-initially {
+    display: none !important;
+}
 body.suspended-page:not(.img-preview-mode) {
     display: flex;
     align-items: center;

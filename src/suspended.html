@@ -5,12 +5,11 @@
 	<!--should use the same as the default extension favicon-->
 	<link id="gsFavicon" rel="icon" href="img/icon128-suspendy.png" />
 	<link rel="stylesheet" type="text/css" href="css/suspended.css">
-	<link rel="stylesheet" type="text/css" href="css/donate.css">
 	<script type="text/javascript" src="js/suspended.js"></script>
 	<title id="gsTitle" data-i18n="__MSG_html_suspended_title__"></title>
 </head>
 
-<body class="suspended-page">
+<body class="suspended-page hide-initially">
 
 	<script type="text/html" id="previewTemplate">
 		<div id="gsPreview" class="gsPreview">
@@ -19,6 +18,7 @@
 	</script>
 
 	<script type="text/html" id="donateTemplate">
+		<link id="donateCss" rel="stylesheet" type="text/css" href="css/donate.css">
 		<img id="dudePopup" src="img/suspendy-guy.png">
 		<div id="donateBubble" class="donateBubble">
 			<p class="donate-text" data-i18n="__MSG_html_suspended_donation_question__"></p>
