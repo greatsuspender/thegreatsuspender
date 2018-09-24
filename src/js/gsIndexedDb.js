@@ -160,10 +160,18 @@ var gsIndexedDb = {
         session.sessionId
       );
       if (matchingSession) {
+        gsUtils.log(
+          'gsIndexedDb',
+          'Updating existing session: ' + session.sessionId
+        );
         session.id = matchingSession.id; //copy across id from matching session
         session.date = new Date().toISOString();
         await gsDb.update(tableName, session); //then update based on that id
       } else {
+        gsUtils.log(
+          'gsIndexedDb',
+          'Creating new session: ' + session.sessionId
+        );
         await gsDb.add(tableName, session);
       }
     } catch (e) {
