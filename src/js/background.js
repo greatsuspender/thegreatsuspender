@@ -27,6 +27,10 @@ var tgs = (function() {
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var FOCUS_DELAY = 500;
 
+  var noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
+  var sessionMetricsCheckInterval = 1000 * 60 * 15; // every 15 minutes
+  var analyticsCheckInterval = 1000 * 60 * 60 * 23.5; // every 23.5 hours
+
   var _lastFocusedTabIdByWindowId = {},
     _lastFocusedWindowId,
     _lastStationaryTabIdByWindowId = {},
@@ -75,7 +79,6 @@ var tgs = (function() {
       addCommandListeners();
       addChromeListeners();
       addMiscListeners();
-      startNoticeCheckerJob();
 
       //add context menu items
       if (!chrome.extension.inIncognitoContext) {
@@ -95,6 +98,12 @@ var tgs = (function() {
         resolve();
       });
     });
+  }
+
+  function startTimers() {
+    startNoticeCheckerJob();
+    startSessionMetricsJob();
+    startAnalyticsUpdateJob();
   }
 
   function getCurrentlyActiveTab(callback) {
@@ -1480,10 +1489,24 @@ var tgs = (function() {
   }
 
   function startNoticeCheckerJob() {
-    //start job to check for notices (twice a day)
-    var noticeCheckInterval = 1000 * 60 * 60 * 12;
     checkForNotices();
     window.setInterval(checkForNotices, noticeCheckInterval);
+  }
+
+  function startSessionMetricsJob() {
+    gsSession.updateSessionMetrics(true);
+    window.setInterval(
+      gsSession.updateSessionMetrics,
+      sessionMetricsCheckInterval
+    );
+  }
+
+  function startAnalyticsUpdateJob() {
+    window.setInterval(() => {
+      gsAnalytics.performPingReport();
+      const reset = true;
+      gsSession.updateSessionMetrics(reset);
+    }, analyticsCheckInterval);
   }
 
   return {
@@ -1496,6 +1519,7 @@ var tgs = (function() {
 
     backgroundScriptsReadyAsPromised,
     initAsPromised,
+    startTimers,
     requestNotice,
     clearNotice,
     buildContextMenu,
@@ -1525,18 +1549,21 @@ var tgs = (function() {
 
 tgs
   .backgroundScriptsReadyAsPromised()
-  .then(() => gsAnalytics .initAsPromised())
+  .then(() => gsAnalytics.initAsPromised())
   .then(() => gsStorage.initSettingsAsPromised())
   .then(() => gsSuspendManager.initAsPromised())
   .then(() => gsSession.initAsPromised())
   .then(() => gsSession.runStartupChecks())
-  .then(() => {
-    return new Promise(resolve => {
-      gsAnalytics.updateDimensions();
-      resolve();
-    });
-  })
   .catch(error => {
+    error = error || 'Unknown error occurred during background initialisation';
     gsUtils.error('background', error);
   })
-  .finally(() => tgs.initAsPromised());
+  .then(() => tgs.initAsPromised())
+  .then(() => gsSession.checkTabsForResponsiveness())
+  .then(() => {
+    return new Promise(resolve => {
+      gsAnalytics.performStartupReport();
+      tgs.startTimers();
+      resolve();
+    });
+  });

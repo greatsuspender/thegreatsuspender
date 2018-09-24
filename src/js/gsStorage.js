@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsUtils, gsAnalytics */
+/*global chrome, gsAnalytics, localStorage, gsUtils */
 'use strict';
 
 var gsStorage = {
@@ -26,9 +26,11 @@ var gsStorage = {
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
   LAST_EXTENSION_RECOVERY: 'gsExtensionRecovery',
-  HISTORY_OLD: 'gsHistory',
-  HISTORY: 'gsHistory2',
-  SESSION_HISTORY: 'gsSessionHistory',
+
+  SM_SESSION_METRICS: 'gsSessionMetrics',
+  SM_TIMESTAMP: 'sessionTimestamp',
+  SM_SUSPENDED_TAB_COUNT: 'suspendedTabCount',
+  SM_TOTAL_TAB_COUNT: 'totalTabCount',
 
   noop: function() {},
 
@@ -144,6 +146,7 @@ var gsStorage = {
         }
 
         self.addSettingsSyncListener();
+
         resolve();
       });
     });
@@ -229,7 +232,7 @@ var gsStorage = {
   saveSettings: function(settings) {
     try {
       localStorage.setItem('gsSettings', JSON.stringify(settings));
-      gsAnalytics.updateDimensions();
+      gsAnalytics.setUserDimensions();
     } catch (e) {
       gsUtils.error(
         'gsStorage',
@@ -336,6 +339,36 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'failed to save ' + this.LAST_EXTENSION_RECOVERY + ' to local storage',
+        e
+      );
+    }
+  },
+
+  fetchSessionMetrics: function() {
+    var sessionMetrics = {};
+    try {
+      sessionMetrics = JSON.parse(
+        localStorage.getItem(this.SM_SESSION_METRICS)
+      );
+    } catch (e) {
+      gsUtils.error(
+        'gsStorage',
+        'Failed to parse ' + this.SM_SESSION_METRICS + ': ',
+        localStorage.getItem(this.SM_SESSION_METRICS)
+      );
+    }
+    return sessionMetrics;
+  },
+  setSessionMetrics: function(sessionMetrics) {
+    try {
+      localStorage.setItem(
+        this.SM_SESSION_METRICS,
+        JSON.stringify(sessionMetrics)
+      );
+    } catch (e) {
+      gsUtils.error(
+        'gsStorage',
+        'failed to save ' + this.SM_SESSION_METRICS + ' to local storage',
         e
       );
     }

@@ -1,7 +1,17 @@
-/*global ga, gsStorage */
+/*global ga, gsStorage, gsSession, gsUtils */
 // eslint-disable-next-line no-unused-vars
 var gsAnalytics = (function() {
   'use strict';
+
+  const DIMENSION_VERSION = 'dimension1';
+  const DIMENSION_SCREEN_CAPTURE = 'dimension2';
+  const DIMENSION_SUSPEND_TIME = 'dimension3';
+  const DIMENSION_DONATED = 'dimension4';
+
+  const METRIC_SUSPENDED_TAB_COUNT = 'metric1';
+  const METRIC_TOTAL_TAB_COUNT = 'metric2';
+  const METRIC_TAB_CHECK_TIME_TAKEN = 'metric3';
+  const METRIC_TAB_RECOVER_TIME_TAKEN = 'metric4';
 
   function initAsPromised() {
     return new Promise(function(resolve) {
@@ -12,11 +22,72 @@ var gsAnalytics = (function() {
     });
   }
 
+  function setUserDimensions() {
+    const dimensions = {
+      [DIMENSION_VERSION]: chrome.runtime.getManifest().version + '',
+      [DIMENSION_SCREEN_CAPTURE]:
+        gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '',
+      [DIMENSION_SUSPEND_TIME]:
+        gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
+      [DIMENSION_DONATED]: gsStorage.getOption(gsStorage.NO_NAG) + '',
+    };
+    gsUtils.log('gsAnalytics', 'Setting dimensions', dimensions);
+    ga('set', dimensions);
+  }
+
+  function performStartupReport() {
+    const startupType = gsSession.getStartupType();
+    const startupLastVersion = gsSession.getStartupLastVersion();
+    const curVersion = chrome.runtime.getManifest().version;
+
+    const category = 'System';
+    const action = startupType;
+    const label = startupLastVersion !== curVersion
+      ? `${startupLastVersion} -> ${curVersion}`
+      : curVersion;
+
+    const metrics = {};
+    const sessionMetrics = gsStorage.fetchSessionMetrics();
+    if (sessionMetrics && sessionMetrics[gsStorage.SM_TIMESTAMP]) {
+      metrics[METRIC_SUSPENDED_TAB_COUNT] =
+        sessionMetrics[gsStorage.SM_SUSPENDED_TAB_COUNT];
+      metrics[METRIC_TOTAL_TAB_COUNT] =
+        sessionMetrics[gsStorage.SM_TOTAL_TAB_COUNT];
+    }
+    const tabCheckTimeTakenInSeconds = gsSession.getTabCheckTimeTakenInSeconds();
+    if (tabCheckTimeTakenInSeconds) {
+      metrics[METRIC_TAB_CHECK_TIME_TAKEN] = tabCheckTimeTakenInSeconds;
+    }
+    const recoveryTimeTakenInSeconds = gsSession.getRecoveryTimeTakenInSeconds();
+    if (recoveryTimeTakenInSeconds) {
+      metrics[METRIC_TAB_RECOVER_TIME_TAKEN] = recoveryTimeTakenInSeconds;
+    }
+    gsUtils.log('gsAnalytics', 'Event: ', category, action, label, metrics);
+    ga('send', 'event', category, action, label, metrics);
+  }
+
+  function performPingReport() {
+    const category = 'System';
+    const action = 'Ping';
+    const label = chrome.runtime.getManifest().version;
+
+    const metrics = {};
+    const sessionMetrics = gsStorage.fetchSessionMetrics();
+    if (sessionMetrics && sessionMetrics[gsStorage.SM_TIMESTAMP]) {
+      metrics[METRIC_SUSPENDED_TAB_COUNT] =
+        sessionMetrics[gsStorage.SM_SUSPENDED_TAB_COUNT];
+      metrics[METRIC_TOTAL_TAB_COUNT] =
+        sessionMetrics[gsStorage.SM_TOTAL_TAB_COUNT];
+    }
+    gsUtils.log('gsAnalytics', 'Event: ', category, action, label, metrics);
+    ga('send', 'event', category, action, label, metrics);
+  }
+
   function reportPageView(pageName) {
     ga('send', 'pageview', pageName);
   }
-  function reportEvent(category, action, value) {
-    ga('send', 'event', category, action, value);
+  function reportEvent(category, action, label) {
+    ga('send', 'event', category, action, label);
   }
   function reportException(errorMessage) {
     ga('send', 'exception', {
@@ -24,22 +95,15 @@ var gsAnalytics = (function() {
       exFatal: false,
     });
   }
-  function updateDimensions() {
-    ga('set', {
-      dimension1: chrome.runtime.getManifest().version + '',
-      dimension2: gsStorage.getOption(gsStorage.SCREEN_CAPTURE) + '',
-      dimension3: gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
-      dimension4: gsStorage.getOption(gsStorage.NO_NAG) + '',
-    });
-    ga('send', 'pageview');
-  }
 
   return {
     initAsPromised,
+    performStartupReport,
+    performPingReport,
+    setUserDimensions,
     reportPageView,
     reportEvent,
     reportException,
-    updateDimensions,
   };
 })();
 

@@ -10,11 +10,17 @@ var gsSession = (function() {
   let initialisationMode = false;
   let initPeriodInSeconds;
   let initTimeoutInSeconds;
-  let extensionRestartContainsSuspendedTabs = false;
+  let openTabsOnRestart = [];
+  let suspendedTabsOnRestart = [];
   let sessionId;
   let recoveryTabId;
   let updateType = null;
   let updated = false;
+
+  let startupTabCheckTimeTakenInSeconds;
+  let startupRecoveryTimeTakenInSeconds;
+  let startupType;
+  let startupLastVersion;
 
   function initAsPromised() {
     return new Promise(async function(resolve) {
@@ -30,7 +36,7 @@ var gsSession = (function() {
       });
       resolve();
     });
-}
+  }
 
   async function prepareForUpdate(newVersionDetails) {
     var currentVersion = chrome.runtime.getManifest().version;
@@ -62,7 +68,7 @@ var gsSession = (function() {
   function getSessionId() {
     if (!sessionId) {
       //turn this into a string to make comparisons easier further down the track
-      sessionId = Math.floor(Math.random() * 1000000) + '';
+      sessionId = Date.now() + '';
       gsUtils.log('gsSession', 'sessionId: ', sessionId);
     }
     return sessionId;
@@ -101,35 +107,63 @@ var gsSession = (function() {
     return initialisationMode;
   }
 
+  function getTabCheckTimeTakenInSeconds() {
+    return startupTabCheckTimeTakenInSeconds;
+  }
+
+  function getRecoveryTimeTakenInSeconds() {
+    return startupRecoveryTimeTakenInSeconds;
+  }
+
+  function getStartupType() {
+    return startupType;
+  }
+
+  function getStartupLastVersion() {
+    return startupLastVersion;
+  }
+
   function getUpdateType() {
     return updateType;
   }
 
   async function runStartupChecks() {
     initialisationMode = true;
-    const tabs = await gsChrome.tabsQuery();
-    await checkForBrowserStartup(tabs);
-    queueCheckTabsForResponsiveness(tabs);
+    openTabsOnRestart = await gsChrome.tabsQuery();
+    gsUtils.log('gsSession', 'openTabsOnRestart:', openTabsOnRestart);
 
-    var lastVersion = gsStorage.fetchLastVersion();
-    var curVersion = chrome.runtime.getManifest().version;
+    suspendedTabsOnRestart = openTabsOnRestart.filter(
+      tab => !gsUtils.isSpecialTab(tab) && gsUtils.isSuspendedTab(tab, true)
+    );
+    gsUtils.log(
+      'gsSession',
+      'suspendedTabsOnRestart: ',
+      suspendedTabsOnRestart
+    );
+
+    const curVersion = chrome.runtime.getManifest().version;
+    startupLastVersion = gsStorage.fetchLastVersion();
 
     if (chrome.extension.inIncognitoContext) {
       // do nothing if in incognito context
-    } else if (lastVersion === curVersion) {
+      startupType = 'Incognito';
+    } else if (startupLastVersion === curVersion) {
       gsUtils.log('gsSession', 'HANDLING NORMAL STARTUP');
-      await handleNormalStartup(curVersion, tabs);
-    } else if (!lastVersion || lastVersion === '0.0.0') {
+      startupType = 'Restart';
+      await handleNormalStartup(curVersion, openTabsOnRestart);
+    } else if (!startupLastVersion || startupLastVersion === '0.0.0') {
       gsUtils.log('gsSession', 'HANDLING NEW INSTALL');
+      startupType = 'Install';
       await handleNewInstall(curVersion);
     } else {
       gsUtils.log('gsSession', 'HANDLING UPDATE');
-      await handleUpdate(curVersion, lastVersion, tabs);
+      startupType = 'Update';
+      await handleUpdate(curVersion, startupLastVersion, openTabsOnRestart);
     }
   }
 
-  async function handleNormalStartup(curVersion, tabs) {
-    const shouldRecoverTabs = await checkForCrashRecovery(tabs);
+  async function handleNormalStartup(curVersion, openTabsOnRestart) {
+    const shouldRecoverTabs = await checkForCrashRecovery(openTabsOnRestart);
     if (shouldRecoverTabs) {
       var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
       var hasCrashedRecently =
@@ -153,7 +187,6 @@ var gsSession = (function() {
     } else {
       await gsIndexedDb.trimDbItems();
     }
-    gsAnalytics.reportEvent('System', 'Restart', curVersion + '');
   }
 
   async function handleNewInstall(curVersion) {
@@ -162,10 +195,9 @@ var gsSession = (function() {
     //show welcome message
     const optionsUrl = chrome.extension.getURL('options.html?firstTime');
     await gsChrome.tabsCreate(optionsUrl);
-    gsAnalytics.reportEvent('System', 'Install', curVersion + '');
   }
 
-  async function handleUpdate(curVersion, lastVersion, tabs) {
+  async function handleUpdate(curVersion, lastVersion, openTabsOnRestart) {
     gsStorage.setLastVersion(curVersion);
     var lastVersionParts = lastVersion.split('.');
     var curVersionParts = curVersion.split('.');
@@ -202,7 +234,7 @@ var gsSession = (function() {
 
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
-    const shouldRecoverTabs = await checkForCrashRecovery(tabs);
+    const shouldRecoverTabs = await checkForCrashRecovery(openTabsOnRestart);
     if (shouldRecoverTabs) {
       const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
         updatedUrl,
@@ -226,45 +258,46 @@ var gsSession = (function() {
       updated = true;
       await gsChrome.tabsCreate({ url: updatedUrl });
     }
-
-    gsAnalytics.reportEvent(
-      'System',
-      'Update',
-      lastVersion + ' -> ' + curVersion
-    );
   }
 
-  function queueCheckTabsForResponsiveness(tabs) {
+  // Assumes openTabsOnRestart has already been populated
+  async function checkTabsForResponsiveness() {
     //make sure the contentscript / suspended script of each tab is responsive
     //if we are in the process of a chrome restart (and session restore) then it might take a while
     //for the scripts to respond. we use progressive timeouts of 4, 8, 16, 32 ...
-    var tabCheckPromises = [];
+    const tabCheckPromises = [];
+    const initStartTime = Date.now();
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        `Extension initialization started.\n` +
+        `Checking tabs for responsiveness..\n` +
         '------------------------------------------------\n\n'
     );
-    initPeriodInSeconds = tabs.length / tabsToInitPerSecond;
+    initPeriodInSeconds = openTabsOnRestart.length / tabsToInitPerSecond;
     initTimeoutInSeconds = initPeriodInSeconds * 15;
     gsUtils.log('gsSession', `initPeriodInSeconds: ${initPeriodInSeconds}`);
     gsUtils.log('gsSession', `initTimeoutInSeconds: ${initTimeoutInSeconds}`);
 
-    for (const currentTab of tabs) {
+    for (const currentTab of openTabsOnRestart) {
       const timeout = getRandomTimeoutInMilliseconds(1000);
       gsUtils.log(
         currentTab.id,
-        `Queuing tab for initialisation check in ${timeout / 1000} seconds.`
+        `Queuing tab for responsiveness check in ${timeout / 1000} seconds.`
       );
       tabCheckPromises.push(queueTabScriptCheck(currentTab, timeout));
     }
-    Promise.all(tabCheckPromises)
+    return Promise.all(tabCheckPromises)
       .then(() => {
         initialisationMode = false;
+        startupTabCheckTimeTakenInSeconds = parseInt(
+          (Date.now() - initStartTime) / 1000
+        );
         gsUtils.log(
           'gsSession',
           '\n\n------------------------------------------------\n' +
-            'Extension initialization finished.\n' +
+            'Checking tabs finished. Time taken: ' +
+            startupTabCheckTimeTakenInSeconds +
+            ' sec\n' +
             '------------------------------------------------\n\n'
         );
       })
@@ -274,9 +307,10 @@ var gsSession = (function() {
         gsUtils.warning(
           'gsSession',
           '\n\n------------------------------------------------\n' +
-            'Extension initialization FAILED.\n' +
+            'Extension initialisation FAILED.\n' +
             '------------------------------------------------\n\n'
         );
+        gsAnalytics.reportException('Extension initialisation failed.');
       });
   }
 
@@ -288,37 +322,13 @@ var gsSession = (function() {
     return timeoutRandomiser + minimumTimeout;
   }
 
-  //TODO: Improve this function to determine browser startup with 100% certainty
-  //NOTE: Current implementation leans towards conservatively saying it's not a browser startup
-  async function checkForBrowserStartup(currentTabs) {
-    //check for suspended tabs in current session
-    //if found, then we can probably assume that this is a browser startup which is restoring previously open tabs
-    const suspendedTabs = [];
-    for (var curTab of currentTabs) {
-      if (
-        !gsUtils.isSpecialTab(curTab) &&
-        gsUtils.isSuspendedTab(curTab, true)
-      ) {
-        suspendedTabs.push(curTab);
-      }
-    }
-    if (suspendedTabs.length > 0) {
-      extensionRestartContainsSuspendedTabs = true;
-    }
-    gsUtils.log(
-      'gsSession',
-      `extensionRestartContainsSuspendedTabs: ${extensionRestartContainsSuspendedTabs}`,
-      suspendedTabs
-    );
-  }
-
   async function checkForCrashRecovery(currentTabs) {
     gsUtils.log(
       'gsSession',
       'Checking for crash recovery: ' + new Date().toISOString()
     );
 
-    if (extensionRestartContainsSuspendedTabs) {
+    if (suspendedTabsOnRestart.length > 0) {
       gsUtils.log(
         'gsSession',
         'Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)'
@@ -590,12 +600,14 @@ var gsSession = (function() {
       return;
     }
 
+    const recoveryStartTime = Date.now();
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
         'Recovery mode started.\n' +
         '------------------------------------------------\n\n'
     );
+    gsUtils.log('gsSession', 'lastSession: ', lastSession);
     gsUtils.removeInternalUrlsFromSession(lastSession);
 
     const currentWindows = await gsChrome.windowsGetAll();
@@ -616,10 +628,15 @@ var gsSession = (function() {
       await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
     }
 
+    startupRecoveryTimeTakenInSeconds = parseInt(
+      (Date.now() - recoveryStartTime) / 1000
+    );
     gsUtils.log(
       'gsSession',
       '\n\n------------------------------------------------\n' +
-        'Recovery mode finished.\n' +
+        'Recovery mode finished. Time taken: ' +
+        startupRecoveryTimeTakenInSeconds +
+        ' sec\n' +
         '------------------------------------------------\n\n'
     );
     gsUtils.log('gsSession', 'updating current session');
@@ -655,12 +672,6 @@ var gsSession = (function() {
         ) {
           return window.id !== matchingCurrentWindow.id;
         });
-        gsUtils.log(
-          'gsUtils',
-          'Matched with ids: ',
-          sessionWindow,
-          matchingCurrentWindow
-        );
       }
     });
 
@@ -786,11 +797,15 @@ var gsSession = (function() {
   ) {
     if (sessionWindow.tabs.length === 0) {
       gsUtils.log('gsUtils', 'SessionWindow contains no tabs to restore');
-      return;
     }
 
     // if we have been provided with a current window to recover into
     if (existingWindow) {
+      gsUtils.log(
+        'gsUtils',
+        'Matched sessionWindow with existingWindow: ',
+        sessionWindow, existingWindow
+      );
       const currentTabIds = [];
       const currentTabUrls = [];
       const tabPromises = [];
@@ -842,7 +857,6 @@ var gsSession = (function() {
     if (placeholderTab) {
       await gsChrome.tabsRemove(placeholderTab.id);
     }
-    return;
   }
 
   async function createNewTabFromSessionTab(sessionTab, windowId, suspendMode) {
@@ -870,6 +884,54 @@ var gsSession = (function() {
     }
   }
 
+  async function updateSessionMetrics(reset) {
+    reset = reset || false;
+
+    const tabs = await gsChrome.tabsQuery();
+    let curSuspendedTabCount = 0;
+    for (let tab of tabs) {
+      if (gsUtils.isSuspendedTab(tab, true)) {
+        curSuspendedTabCount += 1;
+      }
+    }
+    let sessionMetrics;
+    if (reset) {
+      gsUtils.log('gsSession', 'Resetting session metrics');
+    } else {
+      sessionMetrics = gsStorage.fetchSessionMetrics();
+    }
+
+    // If no session metrics exist then create a new one
+    if (!sessionMetrics || !sessionMetrics[gsStorage.SM_TIMESTAMP]) {
+      sessionMetrics = createNewSessionMetrics(
+        curSuspendedTabCount,
+        tabs.length
+      );
+      gsStorage.setSessionMetrics(sessionMetrics);
+      gsUtils.log('gsSession', 'Created new session metrics', sessionMetrics);
+      return;
+    }
+
+    // Else update metrics (if new max reached)
+    const lastSuspendedTabCount =
+      sessionMetrics[gsStorage.SM_SUSPENDED_TAB_COUNT];
+    if (lastSuspendedTabCount < curSuspendedTabCount) {
+      sessionMetrics[gsStorage.SM_SUSPENDED_TAB_COUNT] = curSuspendedTabCount;
+      sessionMetrics[gsStorage.SM_TOTAL_TAB_COUNT] = tabs.length;
+      gsStorage.setSessionMetrics(sessionMetrics);
+      gsUtils.log('gsSession', 'Updated session metrics', sessionMetrics);
+    }
+  }
+
+  function createNewSessionMetrics(suspendedTabCount, totalTabCount) {
+    const sessionMetrics = {
+      [gsStorage.SM_TIMESTAMP]: Date.now(),
+      [gsStorage.SM_SUSPENDED_TAB_COUNT]: suspendedTabCount,
+      [gsStorage.SM_TOTAL_TAB_COUNT]: totalTabCount,
+    };
+    return sessionMetrics;
+  }
+
   return {
     initAsPromised,
     runStartupChecks,
@@ -878,9 +940,15 @@ var gsSession = (function() {
     updateCurrentSession,
     isInitialising,
     isUpdated,
+    getTabCheckTimeTakenInSeconds,
+    getRecoveryTimeTakenInSeconds,
+    getStartupType,
+    getStartupLastVersion,
     recoverLostTabs,
+    checkTabsForResponsiveness,
     restoreSessionWindow,
     prepareForUpdate,
     getUpdateType,
+    updateSessionMetrics,
   };
 })();
