@@ -42,9 +42,10 @@ var gsAnalytics = (function() {
 
     const category = 'System';
     const action = startupType;
-    const label = startupLastVersion !== curVersion
-      ? `${startupLastVersion} -> ${curVersion}`
-      : curVersion;
+    const label =
+      startupLastVersion !== curVersion
+        ? `${startupLastVersion} -> ${curVersion}`
+        : curVersion;
 
     const metrics = {};
     const sessionMetrics = gsStorage.fetchSessionMetrics();
@@ -54,13 +55,13 @@ var gsAnalytics = (function() {
       metrics[METRIC_TOTAL_TAB_COUNT] =
         sessionMetrics[gsStorage.SM_TOTAL_TAB_COUNT];
     }
-    const tabCheckTimeTakenInSeconds = gsSession.getTabCheckTimeTakenInSeconds();
-    if (tabCheckTimeTakenInSeconds) {
-      metrics[METRIC_TAB_CHECK_TIME_TAKEN] = tabCheckTimeTakenInSeconds;
+    const tabCheckTimeTaken = gsSession.getTabCheckTimeTakenInSeconds();
+    if (!isNaN(tabCheckTimeTaken) && parseInt(tabCheckTimeTaken) >= 0) {
+      metrics[METRIC_TAB_CHECK_TIME_TAKEN] = tabCheckTimeTaken;
     }
-    const recoveryTimeTakenInSeconds = gsSession.getRecoveryTimeTakenInSeconds();
-    if (recoveryTimeTakenInSeconds) {
-      metrics[METRIC_TAB_RECOVER_TIME_TAKEN] = recoveryTimeTakenInSeconds;
+    const recoveryTimeTaken = gsSession.getRecoveryTimeTakenInSeconds();
+    if (!isNaN(recoveryTimeTaken) && parseInt(recoveryTimeTaken) >= 0) {
+      metrics[METRIC_TAB_RECOVER_TIME_TAKEN] = recoveryTimeTaken;
     }
     gsUtils.log('gsAnalytics', 'Event: ', category, action, label, metrics);
     ga('send', 'event', category, action, label, metrics);
