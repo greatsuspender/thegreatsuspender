@@ -87,6 +87,7 @@ var gsSession = (function() {
       };
       return currentSession;
     }
+    gsUtils.error('gsSession', 'Failed to build current session!');
     return null;
   }
 
@@ -94,8 +95,6 @@ var gsSession = (function() {
     const currentSession = await buildCurrentSession();
     if (currentSession) {
       await gsIndexedDb.updateSession(currentSession);
-    } else {
-      gsUtils.error('gsSession', 'Failed to update current session!');
     }
   }
 
