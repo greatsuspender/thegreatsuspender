@@ -82,9 +82,10 @@ var gsChrome = {
       });
     });
   },
-  tabsQuery: async function() {
+  tabsQuery: async function(queryInfo) {
+    queryInfo = queryInfo || {};
     return new Promise(resolve => {
-      chrome.tabs.query({}, tabs => {
+      chrome.tabs.query(queryInfo, tabs => {
         if (chrome.runtime.lastError) {
           gsUtils.error('chromeTabs', chrome.runtime.lastError);
           tabs = [];
