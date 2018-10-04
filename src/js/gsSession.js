@@ -803,7 +803,8 @@ var gsSession = (function() {
       gsUtils.log(
         'gsUtils',
         'Matched sessionWindow with existingWindow: ',
-        sessionWindow, existingWindow
+        sessionWindow,
+        existingWindow
       );
       const currentTabIds = [];
       const currentTabUrls = [];

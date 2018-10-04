@@ -137,7 +137,9 @@ var tgs = (function() {
         return;
       }
 
-      const currentStationaryTab = await gsChrome.tabsGet(currentStationaryTabId);
+      const currentStationaryTab = await gsChrome.tabsGet(
+        currentStationaryTabId
+      );
       if (currentStationaryTab !== null) {
         callback(currentStationaryTab);
         return;
@@ -166,7 +168,8 @@ var tgs = (function() {
     if (tab.windowId !== _currentFocusedWindowId) {
       return false;
     }
-    var currentFocusedTabIdForWindow = _currentFocusedTabIdByWindowId[tab.windowId];
+    var currentFocusedTabIdForWindow =
+      _currentFocusedTabIdByWindowId[tab.windowId];
     if (currentFocusedTabIdForWindow) {
       return tab.id === currentFocusedTabIdForWindow;
     } else {
@@ -848,7 +851,8 @@ var tgs = (function() {
     _newWindowFocusTimer = setTimeout(function() {
       var previousStationaryWindowId = _currentStationaryWindowId;
       _currentStationaryWindowId = windowId;
-      var previousStationaryTabId = _currentStationaryTabIdByWindowId[previousStationaryWindowId];
+      var previousStationaryTabId =
+        _currentStationaryTabIdByWindowId[previousStationaryWindowId];
       handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab);
     }, FOCUS_DELAY);
   }
@@ -862,7 +866,11 @@ var tgs = (function() {
     }, FOCUS_DELAY);
   }
 
-  function handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab) {
+  function handleNewStationaryTabFocus(
+    tabId,
+    previousStationaryTabId,
+    focusedTab
+  ) {
     gsUtils.log(tabId, 'new tab focus handled');
     //remove request to instantly suspend this tab id
     if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
@@ -880,7 +888,10 @@ var tgs = (function() {
       }
     } else if (gsUtils.isNormalTab(focusedTab)) {
       //clear timer on newly focused tab
-      if (focusedTab.status === 'complete' && !gsUtils.isDiscardedTab(focusedTab)) {
+      if (
+        focusedTab.status === 'complete' &&
+        !gsUtils.isDiscardedTab(focusedTab)
+      ) {
         gsMessages.sendClearTimerToContentScript(tabId); //async. unhandled error
       }
 
@@ -891,7 +902,10 @@ var tgs = (function() {
       if (previousStationaryTabId && previousStationaryTabId !== tabId) {
         gsSuspendManager.unqueueTabForSuspension(focusedTab);
       } else {
-        gsUtils.log(tabId, 'Will not abort suspension for this tab as it matches previousStationaryTabId');
+        gsUtils.log(
+          tabId,
+          'Will not abort suspension for this tab as it matches previousStationaryTabId'
+        );
       }
     } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
       gsMessages.sendReloadOptionsToOptionsTab(focusedTab.id); //async. unhandled error

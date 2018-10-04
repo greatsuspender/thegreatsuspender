@@ -1,4 +1,4 @@
-/*global gsUtils, gsSession, gsStorage */
+/*global gsUtils, gsStorage */
 // eslint-disable-next-line no-unused-vars
 var gsMessages = {
   INFO: 'info',

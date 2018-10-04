@@ -289,7 +289,11 @@ var gsSuspendManager = (function() {
       `(${fetchYouTubeTimestampContentScript})();`,
       function(error, response) {
         if (error) {
-          gsUtils.warning(tab.id, 'Failed to updateYouTubeUrlWithTimestamp', error);
+          gsUtils.warning(
+            tab.id,
+            'Failed to updateYouTubeUrlWithTimestamp',
+            error
+          );
           callback();
           return;
         }
@@ -345,7 +349,11 @@ var gsSuspendManager = (function() {
       error
     ) {
       if (error) {
-        gsUtils.warning(tab.id, 'Failed to executeScriptOnTab: html2canvas', error);
+        gsUtils.warning(
+          tab.id,
+          'Failed to executeScriptOnTab: html2canvas',
+          error
+        );
         executeTabSuspension(tab);
         return;
       }
