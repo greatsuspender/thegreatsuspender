@@ -656,7 +656,7 @@ var gsUtils = {
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
     ) {
-      gsSuspendManager.init();
+      gsSuspendManager.initAsPromised(); //async. unhandled promise
     }
   },
 
