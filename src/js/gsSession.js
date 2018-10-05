@@ -10,8 +10,7 @@ var gsSession = (function() {
   let initialisationMode = false;
   let initPeriodInSeconds;
   let initTimeoutInSeconds;
-  let openTabsOnRestart = [];
-  let suspendedTabsOnRestart = [];
+  let currentSessionTabs = [];
   let sessionId;
   let recoveryTabId;
   let updateType = null;
@@ -128,17 +127,8 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
-    openTabsOnRestart = await gsChrome.tabsQuery();
-    gsUtils.log('gsSession', 'openTabsOnRestart:', openTabsOnRestart);
-
-    suspendedTabsOnRestart = openTabsOnRestart.filter(
-      tab => !gsUtils.isSpecialTab(tab) && gsUtils.isSuspendedTab(tab, true)
-    );
-    gsUtils.log(
-      'gsSession',
-      'suspendedTabsOnRestart: ',
-      suspendedTabsOnRestart
-    );
+    currentSessionTabs = await gsChrome.tabsQuery();
+    gsUtils.log('gsSession', 'currentSessionTabs:', currentSessionTabs);
 
     const curVersion = chrome.runtime.getManifest().version;
     startupLastVersion = gsStorage.fetchLastVersion();
@@ -149,7 +139,7 @@ var gsSession = (function() {
     } else if (startupLastVersion === curVersion) {
       gsUtils.log('gsSession', 'HANDLING NORMAL STARTUP');
       startupType = 'Restart';
-      await handleNormalStartup(curVersion, openTabsOnRestart);
+      await handleNormalStartup(curVersion);
     } else if (!startupLastVersion || startupLastVersion === '0.0.0') {
       gsUtils.log('gsSession', 'HANDLING NEW INSTALL');
       startupType = 'Install';
@@ -157,12 +147,12 @@ var gsSession = (function() {
     } else {
       gsUtils.log('gsSession', 'HANDLING UPDATE');
       startupType = 'Update';
-      await handleUpdate(curVersion, startupLastVersion, openTabsOnRestart);
+      await handleUpdate(curVersion, startupLastVersion);
     }
   }
 
-  async function handleNormalStartup(curVersion, openTabsOnRestart) {
-    const shouldRecoverTabs = await checkForCrashRecovery(openTabsOnRestart);
+  async function handleNormalStartup(curVersion) {
+    const shouldRecoverTabs = await checkForCrashRecovery(false);
     if (shouldRecoverTabs) {
       var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
       var hasCrashedRecently =
@@ -196,7 +186,7 @@ var gsSession = (function() {
     await gsChrome.tabsCreate(optionsUrl);
   }
 
-  async function handleUpdate(curVersion, lastVersion, openTabsOnRestart) {
+  async function handleUpdate(curVersion, lastVersion) {
     gsStorage.setLastVersion(curVersion);
     var lastVersionParts = lastVersion.split('.');
     var curVersionParts = curVersion.split('.');
@@ -233,7 +223,7 @@ var gsSession = (function() {
 
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
-    const shouldRecoverTabs = await checkForCrashRecovery(openTabsOnRestart);
+    const shouldRecoverTabs = await checkForCrashRecovery(true);
     if (shouldRecoverTabs) {
       const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
         updatedUrl,
@@ -259,7 +249,7 @@ var gsSession = (function() {
     }
   }
 
-  // Assumes openTabsOnRestart has already been populated
+  // Assumes currentSessionTabs has already been populated
   async function checkTabsForResponsiveness() {
     //make sure the contentscript / suspended script of each tab is responsive
     //if we are in the process of a chrome restart (and session restore) then it might take a while
@@ -272,12 +262,12 @@ var gsSession = (function() {
         `Checking tabs for responsiveness..\n` +
         '------------------------------------------------\n\n'
     );
-    initPeriodInSeconds = openTabsOnRestart.length / tabsToInitPerSecond;
+    initPeriodInSeconds = currentSessionTabs.length / tabsToInitPerSecond;
     initTimeoutInSeconds = initPeriodInSeconds * 15;
     gsUtils.log('gsSession', `initPeriodInSeconds: ${initPeriodInSeconds}`);
     gsUtils.log('gsSession', `initTimeoutInSeconds: ${initTimeoutInSeconds}`);
 
-    for (const currentTab of openTabsOnRestart) {
+    for (const currentTab of currentSessionTabs) {
       const timeout = getRandomTimeoutInMilliseconds(1000);
       gsUtils.log(
         currentTab.id,
@@ -321,83 +311,47 @@ var gsSession = (function() {
     return timeoutRandomiser + minimumTimeout;
   }
 
-  async function checkForCrashRecovery(currentTabs) {
+  async function checkForCrashRecovery(isUpdate) {
     gsUtils.log(
       'gsSession',
       'Checking for crash recovery: ' + new Date().toISOString()
     );
 
-    if (suspendedTabsOnRestart.length > 0) {
+    //try to detect whether the extension has crashed as apposed to chrome restarting
+    //if it is an extension crash, then in theory all suspended tabs will be gone
+    //and all normal tabs will still exist with the same ids
+    const currentSessionSuspendedTabs = currentSessionTabs.filter(
+      tab => !gsUtils.isSpecialTab(tab) && gsUtils.isSuspendedTab(tab, true)
+    );
+    if (currentSessionSuspendedTabs.length > 0) {
       gsUtils.log(
         'gsSession',
-        'Aborting tab recovery. Browser is probably starting (as there are still suspended tabs open..)'
+        'Aborting tab recovery. Browser has open suspended tabs.' +
+        ' Assuming user has "On start-up -> Continue where you left off" set' +
+        ' or is restarting with suspended pinned tabs.'
       );
       return false;
     }
 
-    //try to detect whether the extension has crashed as separate to chrome crashing
-    //if it is just the extension that has crashed, then in theory all suspended tabs will be gone
-    //and all normal tabs will still exist with the same ids
-    var lastSessionSuspendedTabCount = 0,
-      lastSessionUnsuspendedTabCount = 0,
-      lastSessionUnsuspendedTabs = [];
-
     const lastSession = await gsIndexedDb.fetchLastSession();
     if (!lastSession) {
+      gsUtils.log(
+        'gsSession',
+        'Aborting tab recovery. Could not find last session.'
+      );
       return false;
     }
     gsUtils.log('gsSession', 'lastSession: ', lastSession);
 
-    //collect all nonspecial, unsuspended tabs from the last session
-    for (const sessionWindow of lastSession.windows) {
-      for (const sessionTab of sessionWindow.tabs) {
-        if (!gsUtils.isSpecialTab(sessionTab)) {
-          if (!gsUtils.isSuspendedTab(sessionTab, true)) {
-            lastSessionUnsuspendedTabs.push(sessionTab);
-            lastSessionUnsuspendedTabCount++;
-          } else {
-            lastSessionSuspendedTabCount++;
-          }
-        }
-      }
-    }
-
-    //don't attempt recovery if last session had no suspended tabs
-    if (lastSessionSuspendedTabCount === 0) {
+    const lastSessionTabs = lastSession.windows.reduce((a, o) => a.concat(o.tabs), []);
+    const expectedPostExtensionCrashTabs = lastSessionTabs.filter(o => o.url.indexOf(chrome.runtime.id) === -1);
+    const matchingTabIdsCount = currentSessionTabs.reduce((a, o) => expectedPostExtensionCrashTabs.some(p => p.id === o.id) ? a + 1 : a, 0);
+    const maxTabCount = Math.max(expectedPostExtensionCrashTabs.length, currentSessionTabs.length);
+    if (maxTabCount - matchingTabIdsCount > 1) {
       gsUtils.log(
         'gsSession',
-        'Aborting tab recovery. Last session has no suspended tabs.'
-      );
-      return false;
-    }
-
-    //check to see if they still exist in current session
-    gsUtils.log('gsSession', 'currentTabs: ', currentTabs);
-    gsUtils.log(
-      'gsSession',
-      'lastSessionUnsuspendedTabs: ',
-      lastSessionUnsuspendedTabs
-    );
-
-    //don't attempt recovery if there are less tabs in current session than there were
-    //unsuspended tabs in the last session
-    if (currentTabs.length < lastSessionUnsuspendedTabCount) {
-      gsUtils.log(
-        'gsSession',
-        'Aborting tab recovery. Last session contained ' +
-          lastSessionUnsuspendedTabCount +
-          'unsuspended tabs. Current session only contains ' +
-          currentTabs.length +
-          '. Assuming this is New Tab with a restore? prompt.'
-      );
-      return false;
-    }
-
-    //if there is only one currently open tab and it is the 'new tab' page then abort recovery
-    if (currentTabs.length === 1 && currentTabs[0].url === 'chrome://newtab/') {
-      gsUtils.log(
-        'gsSession',
-        'Aborting tab recovery. Current session only contains a single newtab page.'
+        'Aborting tab recovery. Only ' + matchingTabIdsCount + ' / ' + maxTabCount +
+        ' tabs have the same id between the last session and the current session. '
       );
       return false;
     }
