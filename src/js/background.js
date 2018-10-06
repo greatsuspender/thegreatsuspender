@@ -1602,13 +1602,13 @@ tgs
   .then(() => gsStorage.initSettingsAsPromised())
   .then(() => gsSuspendManager.initAsPromised())
   .then(() => gsSession.initAsPromised())
-  .then(() => gsSession.runStartupChecks())
+  .then(() => gsSession.runStartupChecks()) // performs crash check (and maybe recovery)
   .catch(error => {
     error = error || 'Unknown error occurred during background initialisation';
     gsUtils.error('background', error);
   })
-  .then(() => tgs.initAsPromised())
-  .then(() => gsSession.checkTabsForResponsiveness())
+  .then(() => tgs.initAsPromised()) // adds handle(Un)SuspendedTabChanged listeners!
+  .then(() => gsSession.checkTabsForResponsiveness()) // performs tab responsiveness checks
   .then(() => {
     return new Promise(resolve => {
       gsAnalytics.performStartupReport();
