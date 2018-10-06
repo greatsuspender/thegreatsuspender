@@ -152,7 +152,7 @@ var gsSession = (function() {
   }
 
   async function handleNormalStartup(curVersion) {
-    const shouldRecoverTabs = await checkForCrashRecovery(false);
+    const shouldRecoverTabs = await checkForCrashRecovery();
     if (shouldRecoverTabs) {
       var lastExtensionRecoveryTimestamp = gsStorage.fetchLastExtensionRecoveryTimestamp();
       var hasCrashedRecently =
@@ -223,7 +223,7 @@ var gsSession = (function() {
 
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
-    const shouldRecoverTabs = await checkForCrashRecovery(true);
+    const shouldRecoverTabs = await checkForCrashRecovery();
     if (shouldRecoverTabs) {
       const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
         updatedUrl,
@@ -311,7 +311,7 @@ var gsSession = (function() {
     return timeoutRandomiser + minimumTimeout;
   }
 
-  async function checkForCrashRecovery(isUpdate) {
+  async function checkForCrashRecovery() {
     gsUtils.log(
       'gsSession',
       'Checking for crash recovery: ' + new Date().toISOString()
