@@ -106,6 +106,24 @@ var gsSuspendManager = (function() {
     }
   }
 
+  function attemptSuspendOfDiscardedTab(tab) {
+    // If we want to force tabs to be suspended instead of discarding them
+    var tabEligibleForSuspension = checkTabEligibilityForSuspension(
+      tab,
+      3
+    );
+    if (!tabEligibleForSuspension) {
+      gsUtils.log(
+        'gsSuspendManager',
+        'Aborting suspendInPlaceOfDiscard as tab is not eligbable for suspension. Tab will remain discarded :('
+      );
+      return;
+    }
+    tgs.setTabFlagForTabId(tab.id, tgs.SUSPEND_REASON, 3);
+    var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+    forceTabSuspension(tab, suspendedUrl); //async. unhandled error
+  }
+
   function removeTabFromSuspensionQueue(tab, reason) {
     const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
     if (!suspensionDetails) {
@@ -440,6 +458,7 @@ var gsSuspendManager = (function() {
     forceTabSuspension,
     forceTabDiscardation,
     undiscardTab,
+    attemptSuspendOfDiscardedTab,
     saveSuspendData,
   };
 })();

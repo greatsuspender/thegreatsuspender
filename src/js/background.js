@@ -543,30 +543,13 @@ var tgs = (function() {
         return;
       }
       gsUtils.log(tab.id, 'Tab has been discarded. Url: ' + tab.url);
-      // If we want to force tabs to be suspended instead of discarding them
-      var suspendInPlaceOfDiscard = gsStorage.getOption(
-        gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
-      );
-      var discardInPlaceOfSuspend = gsStorage.getOption(
-        gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
-      );
-      var tabEligibleForSuspension = gsSuspendManager.checkTabEligibilityForSuspension(
-        tab,
-        3
-      );
-      if (
-        suspendInPlaceOfDiscard &&
-        !discardInPlaceOfSuspend &&
-        tabEligibleForSuspension
-      ) {
-        setTabFlagForTabId(tab.id, SUSPEND_REASON, 3);
-        var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
-        return;
       // When a tab is discarded the tab id changes. We need up-to-date ids
       // in the current session otherwise crash recovery will not work
       queueSessionTimer();
+      if (gsUtils.shouldSuspendDiscardedTabs()) {
+        gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
       }
+      return;
     }
 
     //check for change in tabs audible status
@@ -1578,6 +1561,7 @@ var tgs = (function() {
     TEMP_WHITELIST_ON_RELOAD,
     UNSUSPEND_ON_RELOAD_URL,
     DISCARD_ON_LOAD,
+    SUSPEND_REASON,
     SCROLL_POS,
     getTabFlagForTabId,
     setTabFlagForTabId,

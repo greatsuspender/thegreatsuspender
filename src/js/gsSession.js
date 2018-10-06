@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsAnalytics */
+/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsSuspendManager, gsChrome, gsMessages, gsAnalytics */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -360,7 +360,8 @@ var gsSession = (function() {
 
   async function queueTabScriptCheck(tab, timeout, totalTimeQueued) {
     totalTimeQueued = totalTimeQueued || 0;
-    if (gsUtils.isSpecialTab(tab) || gsUtils.isDiscardedTab(tab)) {
+    if (gsUtils.isSpecialTab(tab)) {
+      gsUtils.log(tab.id, 'Ignoring check for special tab.');
       return;
     }
     if (totalTimeQueued >= initTimeoutInSeconds * 1000) {
@@ -454,6 +455,19 @@ var gsSession = (function() {
       return false;
     }
 
+    // If tab is discarded abort tab check
+    if (gsUtils.isDiscardedTab(tab)) {
+      if (gsUtils.shouldSuspendDiscardedTabs()) {
+        gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
+      } else {
+        gsUtils.log(
+          tab.id,
+          'Tab is discarded. Tab may not behave as expected.'
+        );
+      }
+      return true;
+    }
+
     let tabResponse = await new Promise(resolve => {
       gsMessages.sendPingToTab(tab.id, function(error, _response) {
         if (error) {
@@ -509,7 +523,7 @@ var gsSession = (function() {
 
     // If tab is initialised then return true
     if (tabResponse && tabResponse.isInitialised) {
-      gsUtils.log(tab.id, 'Tab has initialised successfully.');
+      // Tab has initialised successfully
       return true;
     } else {
       return false;

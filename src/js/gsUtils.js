@@ -164,6 +164,16 @@ var gsUtils = {
     }
   },
 
+  shouldSuspendDiscardedTabs: function() {
+    var suspendInPlaceOfDiscard = gsStorage.getOption(
+      gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
+    );
+    var discardInPlaceOfSuspend = gsStorage.getOption(
+      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+    );
+    return suspendInPlaceOfDiscard && !discardInPlaceOfSuspend;
+  },
+
   removeTabsByUrlAsPromised: function(url) {
     return new Promise(resolve => {
       chrome.tabs.query({ url }, function(tabs) {
