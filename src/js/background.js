@@ -563,6 +563,9 @@ var tgs = (function() {
         var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
         gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
         return;
+      // When a tab is discarded the tab id changes. We need up-to-date ids
+      // in the current session otherwise crash recovery will not work
+      queueSessionTimer();
       }
     }
 
