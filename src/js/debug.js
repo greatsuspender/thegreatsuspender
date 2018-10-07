@@ -105,6 +105,7 @@
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
         !discardInPlaceOfSuspend
       );
+      gsStorage.syncSettings();
       document.getElementById(
         'toggleDiscardInPlaceOfSuspend'
       ).innerHTML = !discardInPlaceOfSuspend;
