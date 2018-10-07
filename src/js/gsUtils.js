@@ -62,15 +62,12 @@ var gsUtils = {
       // gsAnalytics.reportException(logString, false);
     }
   },
-  errorIfInitialised: function(id, text, ...args) {
-    if (!debugError) {
-      return;
-    }
+  errorIfInitialised: function(id, errorObj, ...args) {
     args = args || [];
     if (gsSession.isInitialising()) {
-      console.log(id, (new Date() + '').split(' ')[4], text, ...args);
+      gsUtils.warning(id, errorObj, args);
     } else {
-      console.error(id, (new Date() + '').split(' ')[4], text, ...args);
+      gsUtils.error(id, errorObj, args);
     }
   },
   dir: function(object) {
