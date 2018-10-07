@@ -2,7 +2,7 @@
 var historyUtils = (function() {
   // eslint-disable-line no-unused-vars
   'use strict';
-  if (!chrome.extension.getBackgroundPage()) {
+  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
     return;
   }
 
