@@ -543,12 +543,11 @@ var tgs = (function() {
         return;
       }
       gsUtils.log(tab.id, 'Tab has been discarded. Url: ' + tab.url);
+      gsSuspendManager.handleDiscardedUnsuspendedTab(tab, false); // async. unhandled promise.
+
       // When a tab is discarded the tab id changes. We need up-to-date ids
       // in the current session otherwise crash recovery will not work
       queueSessionTimer();
-      if (gsUtils.shouldSuspendDiscardedTabs()) {
-        gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
-      }
       return;
     }
 

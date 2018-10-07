@@ -381,7 +381,7 @@ var gsSession = (function() {
     if (!_tab) {
       gsUtils.warning(
         tab.id,
-        `Failed to initialize tab. Tab may have been removed or discarded.`
+        `Failed to initialize tab. Tab may have been removed.`
       );
       return;
     }
@@ -412,38 +412,35 @@ var gsSession = (function() {
       return newTab;
     }
     gsUtils.log(tab.id, 'Failed to get tab. It may have been discarded.');
-    if (!gsUtils.isSuspendedTab(tab, true)) {
-      return null;
-    }
-    const discardedTab = await findPotentialDiscardedSuspendedTab(tab);
+    const discardedTab = await findPotentialDiscardedTab(tab);
     if (!discardedTab) {
       return null;
     }
     return discardedTab;
   }
 
-  async function findPotentialDiscardedSuspendedTab(suspendedTab) {
+  async function findPotentialDiscardedTab(tab) {
     // NOTE: For some reason querying by url doesn't work here??
     // TODO: Report as chrome bug
     let tabs = await gsChrome.tabsQuery({
           discarded: true,
-          windowId: suspendedTab.windowId,
+          windowId: tab.windowId,
         });
-    tabs = tabs.filter(o => o.url === suspendedTab.url);
-    gsUtils.log('gsSession', 'Searching for discarded tab matching suspended tab: ', suspendedTab);
+    tabs = tabs.filter(o => o.url === tab.url);
+    gsUtils.log('gsSession', 'Searching for discarded tab matching tab: ', tab);
     let matchingTab = null;
     if (tabs.length === 1) {
       matchingTab = tabs[0];
     } else if (tabs.length > 1) {
-      matchingTab = tabs.find(o => o.index === suspendedTab.index);
+      matchingTab = tabs.find(o => o.index === tab.index);
       matchingTab = matchingTab || tabs[0];
     }
     if (matchingTab) {
-      gsUtils.log('gsSession', 'Potential discarded suspended tabs: ', tabs);
-      gsUtils.log(suspendedTab.id, 'Replacing suspended tab with discarded version with tabId: ' + matchingTab.id);
+      gsUtils.log('gsSession', 'Potential discarded tabs: ', tabs);
+      gsUtils.log(tab.id, 'Updating tab with discarded version: ' + matchingTab.id);
       return matchingTab;
     } else {
-      gsUtils.log('gsSession', 'Could not find any potential matching discarded suspended tabs.');
+      gsUtils.log('gsSession', 'Could not find any potential matching discarded tabs.');
       return null;
     }
   }
@@ -458,7 +455,6 @@ var gsSession = (function() {
     const isDiscardedTab = gsUtils.isDiscardedTab(tab);
     const isSuspendedTab = gsUtils.isSuspendedTab(tab);
 
-    // If tab is discarded abort tab check
     if (isDiscardedTab) {
       if (isSuspendedTab) {
         // If suspended tab has been discarded before init then it may stay in 'blockhead' state
@@ -469,18 +465,10 @@ var gsSession = (function() {
         );
         await gsChrome.tabsUpdate(tab.id, { url: tab.url });
       } else {
-        if (gsUtils.shouldSuspendDiscardedTabs()) {
-          gsUtils.log(tab.id, 'Tab has been discarded. Will suspend instead.');
-          gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
-        } else {
-          gsUtils.log(
-            tab.id,
-            'Tab is discarded. Tab may not behave as expected.'
-          );
-          // TODO: Should reload tab here??
-        }
-        return true;
+        gsUtils.log(tab.id, 'Tab has been discarded.');
+        gsSuspendManager.handleDiscardedUnsuspendedTab(tab, true);
       }
+      return false; // put it back in the tab check queue
     }
 
     let tabResponse = await new Promise(resolve => {
@@ -497,24 +485,23 @@ var gsSession = (function() {
     });
 
     if (!tabResponse) {
+      // It seems that if you use 'Continue where you left off' that any discarded
+      // tabs from the last session will be restored as discarded, but they will not
+      // have .discarded = false. This will cause ping and reinjection to fail
+      // TODO: Report chrome bug
+
       // If it is a suspended tab then try reloading the tab and requeue for checking later
       if (isSuspendedTab) {
         requestReloadSuspendedTab(tab);
         return false;
       }
 
-      // If it is a normal tab then try to reinject content script
+      // If it is a normal tab then first try to reinject content script
       const result = await reinjectContentScriptOnTab(tab);
       if (!result) {
-        gsUtils.warning(
-          tab.id,
-          'Failed to initialize tab. Perhaps it is discarded? Tab may not behave as expected.'
-        );
-        // TODO: Should reload tab here??? This seems to be caused by a discarded tab even
-        // though the tab has .discarded as false
-
-        // Give up on this tab
-        return true;
+        gsUtils.warning(tab.id, 'Assuming tab has been discarded.');
+        gsSuspendManager.handleDiscardedUnsuspendedTab(tab, true);
+        return false; // put it back in the tab check queue
       }
 
       // If we have successfull injected content script, then try to ping again
@@ -531,32 +518,32 @@ var gsSession = (function() {
     }
 
     // If tab returned a response but is not initialised, then try to initialise
+    let initialisationResponse;
     if (!tabResponse.isInitialised) {
       try {
         if (isSuspendedTab) {
-          tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+          initialisationResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
         } else {
-          tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+          initialisationResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
         }
       } catch (error) {
         gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
       }
     }
 
-    // If tab is initialised then return true
-    if (tabResponse && tabResponse.isInitialised) {
-      // Tab has initialised successfully
-      // If tab is suspended and discard after suspend is true, then also discard here
-      const discardAfterSuspend = gsStorage.getOption(
-        gsStorage.DISCARD_AFTER_SUSPEND
-      );
-      if (discardAfterSuspend && isSuspendedTab) {
-        gsSuspendManager.forceTabDiscardation(tab);
-      }
-      return true;
-    } else {
+    if (!initialisationResponse || !initialisationResponse.isInitialised) {
       return false;
     }
+
+    // Tab has initialised successfully
+    // If tab is suspended and discard after suspend is true, then also discard here
+    const discardAfterSuspend = gsStorage.getOption(
+      gsStorage.DISCARD_AFTER_SUSPEND
+    );
+    if (discardAfterSuspend && isSuspendedTab) {
+      gsSuspendManager.forceTabDiscardation(tab);
+    }
+    return true;
   }
 
   function requestReloadSuspendedTab(tab) {
