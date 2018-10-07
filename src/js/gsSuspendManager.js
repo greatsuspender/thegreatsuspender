@@ -84,7 +84,11 @@ var gsSuspendManager = (function() {
 
   function forceTabSuspension(tab, suspendedUrl) {
     if (!gsUtils.isSuspendedTab(tab)) {
-      chrome.tabs.update(tab.id, { url: suspendedUrl });
+      chrome.tabs.update(tab.id, { url: suspendedUrl }, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tab.id, chrome.runtime.lastError);
+        }
+      });
     } else {
       gsUtils.log(tab.id, 'Tab already suspended');
     }
@@ -92,7 +96,12 @@ var gsSuspendManager = (function() {
 
   function forceTabDiscardation(tab) {
     if (!gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.discard(tab.id);
+      gsUtils.log(tab.id, 'Forcing discarding of tab.');
+      chrome.tabs.discard(tab.id, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tab.id, chrome.runtime.lastError);
+        }
+      });
     } else {
       gsUtils.log(tab.id, 'Tab already discarded');
     }
@@ -100,7 +109,11 @@ var gsSuspendManager = (function() {
 
   function undiscardTab(tab) {
     if (gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.reload(tab.id);
+      chrome.tabs.reload(tab.id, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tab.id, chrome.runtime.lastError);
+        }
+      });
     } else {
       gsUtils.log(tab.id, 'Tab not discarded');
     }

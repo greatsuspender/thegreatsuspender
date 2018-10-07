@@ -274,7 +274,7 @@ var gsSession = (function() {
         currentTab.id,
         `Queuing tab for responsiveness check in ${timeout / 1000} seconds.`
       );
-      tabCheckPromises.push(queueTabScriptCheck(currentTab, timeout));
+      tabCheckPromises.push(queueTabInitialisation(currentTab, timeout));
     }
     return Promise.all(tabCheckPromises)
       .then(() => {
@@ -362,7 +362,7 @@ var gsSession = (function() {
     return true;
   }
 
-  async function queueTabScriptCheck(tab, timeout, totalTimeQueued) {
+  async function queueTabInitialisation(tab, timeout, totalTimeQueued) {
     totalTimeQueued = totalTimeQueued || 0;
     if (gsUtils.isSpecialTab(tab)) {
       gsUtils.log(tab.id, 'Ignoring check for special tab.');
@@ -376,6 +376,7 @@ var gsSession = (function() {
       return;
     }
     await gsUtils.setTimeout(timeout);
+
     let _tab = await fetchUpdatedTab(tab);
     if (!_tab) {
       gsUtils.warning(
@@ -383,9 +384,9 @@ var gsSession = (function() {
         `Failed to initialize tab. Tab may have been removed or discarded.`
       );
       return;
-    } else {
-      tab = _tab;
     }
+
+    tab = _tab;
     totalTimeQueued += timeout;
     gsUtils.log(
       tab.id,
@@ -393,15 +394,15 @@ var gsSession = (function() {
         totalTimeQueued / 1000
       )} seconds has elapsed. Pinging tab with state: ${tab.status}..`
     );
-    const result = await pingTabScript(tab, totalTimeQueued);
-    if (!result) {
+    const tabInitialised = await initialiseTab(tab, totalTimeQueued);
+    if (!tabInitialised) {
       const nextTimeout = getRandomTimeoutInMilliseconds(5000);
-      gsUtils.warning(
+      gsUtils.log(
         tab.id,
         `Tab has still not initialised after ${totalTimeQueued /
           1000}. Re-queuing in another ${nextTimeout / 1000} seconds.`
       );
-      await queueTabScriptCheck(tab, nextTimeout, totalTimeQueued);
+      await queueTabInitialisation(tab, nextTimeout, totalTimeQueued);
     }
   }
 
@@ -410,72 +411,86 @@ var gsSession = (function() {
     if (newTab) {
       return newTab;
     }
+    gsUtils.log(tab.id, 'Failed to get tab. It may have been discarded.');
     if (!gsUtils.isSuspendedTab(tab, true)) {
       return null;
     }
-    // If suspended tab has been discarded before init then it may stay in 'blockhead' state
-    // Therefore we want to reload this tab to make sure it can be suspended properly
     const discardedTab = await findPotentialDiscardedSuspendedTab(tab);
     if (!discardedTab) {
       return null;
     }
-    gsUtils.warning(
-      discardedTab.id,
-      `Suspended tab with id: ${
-        tab.id
-      } was discarded before init. Will reload..`
-    );
-    await gsChrome.tabsUpdate(discardedTab.id, { url: discardedTab.url });
     return discardedTab;
   }
 
   async function findPotentialDiscardedSuspendedTab(suspendedTab) {
     // NOTE: For some reason querying by url doesn't work here??
-    let tabs = new Promise(r =>
-      chrome.tabs.query(
-        {
+    // TODO: Report as chrome bug
+    let tabs = await gsChrome.tabsQuery({
           discarded: true,
           windowId: suspendedTab.windowId,
-        },
-        r
-      )
-    );
+        });
     tabs = tabs.filter(o => o.url === suspendedTab.url);
+    gsUtils.log('gsSession', 'Searching for discarded tab matching suspended tab: ', suspendedTab);
+    let matchingTab = null;
     if (tabs.length === 1) {
-      return tabs[0];
+      matchingTab = tabs[0];
     } else if (tabs.length > 1) {
-      let matchingTab = tabs.find(o => o.index === suspendedTab.index);
+      matchingTab = tabs.find(o => o.index === suspendedTab.index);
       matchingTab = matchingTab || tabs[0];
+    }
+    if (matchingTab) {
+      gsUtils.log('gsSession', 'Potential discarded suspended tabs: ', tabs);
+      gsUtils.log(suspendedTab.id, 'Replacing suspended tab with discarded version with tabId: ' + matchingTab.id);
       return matchingTab;
     } else {
+      gsUtils.log('gsSession', 'Could not find any potential matching discarded suspended tabs.');
       return null;
     }
   }
 
-  async function pingTabScript(tab, totalTimeQueued) {
+  async function initialiseTab(tab, totalTimeQueued) {
     // If tab has a state of loading, then requeue for checking later
     if (tab.status === 'loading') {
       gsUtils.log(tab.id, 'Tab is still loading');
       return false;
     }
 
+    const isDiscardedTab = gsUtils.isDiscardedTab(tab);
+    const isSuspendedTab = gsUtils.isSuspendedTab(tab);
+
     // If tab is discarded abort tab check
-    if (gsUtils.isDiscardedTab(tab)) {
-      if (gsUtils.shouldSuspendDiscardedTabs()) {
-        gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
-      } else {
-        gsUtils.log(
+    if (isDiscardedTab) {
+      if (isSuspendedTab) {
+        // If suspended tab has been discarded before init then it may stay in 'blockhead' state
+        // Therefore we want to reload this tab to make sure it can be suspended properly
+        gsUtils.warning(
           tab.id,
-          'Tab is discarded. Tab may not behave as expected.'
+          `Suspended tab was discarded before init. Will reload discarded version..`
         );
+        await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      } else {
+        if (gsUtils.shouldSuspendDiscardedTabs()) {
+          gsUtils.log(tab.id, 'Tab has been discarded. Will suspend instead.');
+          gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
+        } else {
+          gsUtils.log(
+            tab.id,
+            'Tab is discarded. Tab may not behave as expected.'
+          );
+          // TODO: Should reload tab here??
+        }
+        return true;
       }
-      return true;
     }
 
     let tabResponse = await new Promise(resolve => {
       gsMessages.sendPingToTab(tab.id, function(error, _response) {
         if (error) {
-          gsUtils.warning(tab.id, 'Failed to sendPingToTab', error);
+          if (isSuspendedTab) {
+            gsUtils.log(tab.id, 'Failed to sendPingToTab to suspended tab', error);
+          } else {
+            gsUtils.log(tab.id, 'Failed to sendPingToTab to unsuspended tab', error);
+          }
         }
         resolve(_response);
       });
@@ -483,7 +498,7 @@ var gsSession = (function() {
 
     if (!tabResponse) {
       // If it is a suspended tab then try reloading the tab and requeue for checking later
-      if (gsUtils.isSuspendedTab(tab)) {
+      if (isSuspendedTab) {
         requestReloadSuspendedTab(tab);
         return false;
       }
@@ -493,8 +508,11 @@ var gsSession = (function() {
       if (!result) {
         gsUtils.warning(
           tab.id,
-          'Failed to initialize tab. Tab may not behave as expected.'
+          'Failed to initialize tab. Perhaps it is discarded? Tab may not behave as expected.'
         );
+        // TODO: Should reload tab here??? This seems to be caused by a discarded tab even
+        // though the tab has .discarded as false
+
         // Give up on this tab
         return true;
       }
@@ -515,7 +533,7 @@ var gsSession = (function() {
     // If tab returned a response but is not initialised, then try to initialise
     if (!tabResponse.isInitialised) {
       try {
-        if (gsUtils.isSuspendedTab(tab)) {
+        if (isSuspendedTab) {
           tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
         } else {
           tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
@@ -528,6 +546,13 @@ var gsSession = (function() {
     // If tab is initialised then return true
     if (tabResponse && tabResponse.isInitialised) {
       // Tab has initialised successfully
+      // If tab is suspended and discard after suspend is true, then also discard here
+      const discardAfterSuspend = gsStorage.getOption(
+        gsStorage.DISCARD_AFTER_SUSPEND
+      );
+      if (discardAfterSuspend && isSuspendedTab) {
+        gsSuspendManager.forceTabDiscardation(tab);
+      }
       return true;
     } else {
       return false;
@@ -552,7 +577,7 @@ var gsSession = (function() {
       );
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
         if (error) {
-          gsUtils.warning(
+          gsUtils.log(
             tab.id,
             'Failed to execute js/contentscript.js on tab',
             error

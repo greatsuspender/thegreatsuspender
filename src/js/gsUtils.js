@@ -41,6 +41,7 @@ var gsUtils = {
   warning: function(id, text, ...args) {
     if (debugError) {
       args = args || [];
+      console.log('!!!WARNING!!!');
       console.log(id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },
