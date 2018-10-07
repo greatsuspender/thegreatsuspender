@@ -76,22 +76,6 @@
       ).innerHTML = gsUtils.isDebugError();
     };
 
-    let toggleDiscardAfterSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_AFTER_SUSPEND
-    );
-    document.getElementById(
-      'toggleDiscardAfterSuspend'
-    ).innerHTML = toggleDiscardAfterSuspend;
-    document.getElementById('toggleDiscardAfterSuspend').onclick = function(e) {
-      gsStorage.setOption(
-        gsStorage.DISCARD_AFTER_SUSPEND,
-        !toggleDiscardAfterSuspend
-      );
-      document.getElementById(
-        'toggleDiscardAfterSuspend'
-      ).innerHTML = !toggleDiscardAfterSuspend;
-    };
-
     let discardInPlaceOfSuspend = gsStorage.getOption(
       gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
     );
