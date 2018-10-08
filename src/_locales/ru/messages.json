@@ -84,12 +84,12 @@
     "html_options_suspend_only_on_battery": { "message": "Никогда не приостанавливать вкладки, когда подключен источник питания" },
     "html_options_suspend_no_active_tabs": { "message": "Никогда не приостанавливать вкладки активную вкладку окна" },
     "html_options_suspend_automatically_unsuspend": { "message": "Автоматически возобновлять вкладку при открытии" },
-    "html_options_suspend_discard_after_suspend": { "message": "Apply Chrome's built-in memory-saving when suspending" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "Reduces a suspended tab's memory usage even more, by utilizing" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "Chrome's built-in 'tab discarding' functionality. This can result in up" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "to 500% memory savings when working with large numbers of tabs." },
-    "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "However, it will also cause a slight rendering delay when selecting" },
-    "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "a suspended tab." },
+    "html_options_suspend_discard_after_suspend": { "message": "" }, //Apply Chrome's built-in memory-saving when suspending
+    "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "" }, //Reduces a suspended tab's memory usage even more, by utilizing Chrome's built-in 'tab discarding' functionality.
+    "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "" }, //This can result in up to 500% memory savings when working with large numbers of tabs.
+    "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "" },
+    "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "" }, //However, it will also cause a slight rendering delay when selecting a suspended tab.
+    "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "" },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {"message": "Для получения дополнительной информации об отказе Chrome см.:"},
     "html_options_suspend_discard_after_suspend_tooltip_line3b": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
     "html_options_suspend_theme": { "message": "Тема" },

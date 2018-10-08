@@ -84,12 +84,12 @@
     "html_options_suspend_only_on_battery": { "message": "只在电池模式下才自动冻结" }, //Frozen only in battery mode
     "html_options_suspend_no_active_tabs": { "message": "不要冻结每個视窗口中的正在使用中的分页" }, //? Do not freeze the active page in each window
     "html_options_suspend_automatically_unsuspend": { "message": "当分页被浏览就自动恢复分页" }, //Paging is automatically resumed when pagination is viewed
-    "html_options_suspend_discard_after_suspend": { "message": "Apply Chrome's built-in memory-saving when suspending" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "Reduces a suspended tab's memory usage even more, by utilizing" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "Chrome's built-in 'tab discarding' functionality. This can result in up" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "to 500% memory savings when working with large numbers of tabs." },
-    "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "However, it will also cause a slight rendering delay when selecting" },
-    "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "a suspended tab." },
+    "html_options_suspend_discard_after_suspend": { "message": "使用 Chrome 自带的冻结/暂停页签释放系统内存功能" }, //Apply Chrome's built-in memory-saving when suspending
+    "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "通过利用Chrome 自带的页签冻结/暂停功能，可以更多的降低内存使用。" }, //Reduces a suspended tab's memory usage even more, by utilizing Chrome's built-in 'tab discarding' functionality.
+    "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "当多个页签同时打开时，可以降低500%的系统内存消耗。" }, //This can result in up to 500% memory savings when working with large numbers of tabs.
+    "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "" },
+    "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "尽管如此，当重新打开一个的冻结/暂停页签时，将会有微小的页面加载延时。" }, //However, it will also cause a slight rendering delay when selecting a suspended tab.
+    "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "" },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": { "message": "有关automatic tab discarding的更多信息，请参阅：" }, //? For more information on automatic tab discarding, please see:
     "html_options_suspend_discard_after_suspend_tooltip_line3b": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
     "html_options_suspend_theme": { "message": "主題" }, //theme
