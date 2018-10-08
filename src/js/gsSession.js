@@ -54,7 +54,8 @@ var gsSession = (function() {
       );
     }
 
-    if (!sessionRestorePoint || gsUtils.getSuspendedTabCount() > 0) {
+    const suspendedTabCount = await gsUtils.getSuspendedTabCount();
+    if (!sessionRestorePoint || suspendedTabCount > 0) {
       //show update screen
       await gsChrome.tabsCreate(updateUrl);
     } else {

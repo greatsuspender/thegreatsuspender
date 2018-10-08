@@ -448,15 +448,12 @@ var gsUtils = {
     );
   },
 
-  getSuspendedTabCount: function() {
-    var suspendedTabCount = 0;
-    var self = this;
-    chrome.extension.getViews({ type: 'tab' }).forEach(function(window) {
-      if (self.isSuspendedUrl(window.location.href, true)) {
-        suspendedTabCount++;
-      }
-    });
-    return suspendedTabCount;
+  getSuspendedTabCount: async function() {
+    const currentTabs = await gsChrome.tabsQuery();
+    const currentSuspendedTabs = currentTabs.filter(
+      tab => gsUtils.isSuspendedTab(tab, true)
+    );
+    return currentSuspendedTabs.length;
   },
 
   htmlEncode: function(text) {
