@@ -41,7 +41,7 @@ var gsUtils = {
   warning: function(id, text, ...args) {
     if (debugError) {
       args = args || [];
-      console.log(id, (new Date() + '').split(' ')[4], text, ...args);
+      console.log('WARNING:', id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },
   error: function(id, errorObj, ...args) {
@@ -61,15 +61,12 @@ var gsUtils = {
       // gsAnalytics.reportException(logString, false);
     }
   },
-  errorIfInitialised: function(id, text, ...args) {
-    if (!debugError) {
-      return;
-    }
+  errorIfInitialised: function(id, errorObj, ...args) {
     args = args || [];
     if (gsSession.isInitialising()) {
-      console.log(id, (new Date() + '').split(' ')[4], text, ...args);
+      gsUtils.warning(id, errorObj, args);
     } else {
-      console.error(id, (new Date() + '').split(' ')[4], text, ...args);
+      gsUtils.error(id, errorObj, args);
     }
   },
   dir: function(object) {
@@ -598,7 +595,7 @@ var gsUtils = {
                 tab.title,
                 0
               );
-              gsSuspendManager.forceTabSuspension(tab, suspendedUrl);
+              gsSuspendManager.forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
             }
           }
           return;

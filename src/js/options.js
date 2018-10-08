@@ -1,7 +1,7 @@
 /*global chrome */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage()) {
+  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -16,6 +16,7 @@
     onlineCheck: gsStorage.IGNORE_WHEN_OFFLINE,
     batteryCheck: gsStorage.IGNORE_WHEN_CHARGING,
     unsuspendOnFocus: gsStorage.UNSUSPEND_ON_FOCUS,
+    discardAfterSuspend: gsStorage.DISCARD_AFTER_SUSPEND,
     dontSuspendPinned: gsStorage.IGNORE_PINNED,
     dontSuspendForms: gsStorage.IGNORE_FORMS,
     dontSuspendAudio: gsStorage.IGNORE_AUDIO,

@@ -6,7 +6,7 @@ var gsChrome = {
     return new Promise(resolve => {
       chrome.cookies.getAll({}, cookies => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeCookies', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeCookies', chrome.runtime.lastError);
           cookies = [];
         }
         resolve(cookies);
@@ -16,13 +16,13 @@ var gsChrome = {
   cookiesRemove: async function(url, name) {
     return new Promise(resolve => {
       if (!url || !name) {
-        gsUtils.error('chromeCookies', 'url or name not specified');
+        gsUtils.errorIfInitialised('chromeCookies', 'url or name not specified');
         resolve(null);
         return;
       }
       chrome.cookies.remove({ url, name }, details => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeCookies', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeCookies', chrome.runtime.lastError);
           details = null;
         }
         resolve(details);
@@ -36,14 +36,14 @@ var gsChrome = {
         !details ||
         (typeof details !== 'string' && typeof details.url !== 'string')
       ) {
-        gsUtils.error('chromeTabs', 'url not specified');
+        gsUtils.errorIfInitialised('chromeTabs', 'url not specified');
         resolve(null);
         return;
       }
       details = typeof details === 'string' ? { url: details } : details;
       chrome.tabs.create(details, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeTabs', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
@@ -53,13 +53,13 @@ var gsChrome = {
   tabsUpdate: async function(tabId, updateProperties) {
     return new Promise(resolve => {
       if (!tabId || !updateProperties) {
-        gsUtils.error('chromeTabs', 'tabId or updateProperties not specified');
+        gsUtils.errorIfInitialised('chromeTabs', 'tabId or updateProperties not specified');
         resolve(null);
         return;
       }
       chrome.tabs.update(tabId, updateProperties, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeTabs', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
@@ -69,13 +69,13 @@ var gsChrome = {
   tabsGet: async function(tabId) {
     return new Promise(resolve => {
       if (!tabId) {
-        gsUtils.error('chromeTabs', 'tabId not specified');
+        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
         resolve(null);
         return;
       }
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeTabs', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
@@ -87,7 +87,7 @@ var gsChrome = {
     return new Promise(resolve => {
       chrome.tabs.query(queryInfo, tabs => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeTabs', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
           tabs = [];
         }
         resolve(tabs);
@@ -97,13 +97,13 @@ var gsChrome = {
   tabsRemove: async function(tabId) {
     return new Promise(resolve => {
       if (!tabId) {
-        gsUtils.error('chromeTabs', 'tabId not specified');
+        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
         resolve(null);
         return;
       }
       chrome.tabs.remove(tabId, () => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeTabs', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
         }
         resolve();
       });
@@ -114,7 +114,7 @@ var gsChrome = {
     return new Promise(resolve => {
       chrome.windows.getLastFocused({}, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
@@ -124,13 +124,13 @@ var gsChrome = {
   windowsGet: async function(windowId) {
     return new Promise(resolve => {
       if (!windowId) {
-        gsUtils.error('chromeWindows', 'windowId not specified');
+        gsUtils.errorIfInitialised('chromeWindows', 'windowId not specified');
         resolve(null);
         return;
       }
       chrome.windows.get(windowId, { populate: true }, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
@@ -141,7 +141,7 @@ var gsChrome = {
     return new Promise(resolve => {
       chrome.windows.getAll({ populate: true }, windows => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
           windows = [];
         }
         resolve(windows);
@@ -153,7 +153,7 @@ var gsChrome = {
     return new Promise(resolve => {
       chrome.windows.create(createData, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
@@ -163,13 +163,13 @@ var gsChrome = {
   windowsUpdate: async function(windowId, updateInfo) {
     return new Promise(resolve => {
       if (!windowId || !updateInfo) {
-        gsUtils.error('chromeTabs', 'windowId or updateInfo not specified');
+        gsUtils.errorIfInitialised('chromeTabs', 'windowId or updateInfo not specified');
         resolve(null);
         return;
       }
       chrome.windows.update(windowId, updateInfo, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.error('chromeWindows', chrome.runtime.lastError);
+          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);

@@ -91,6 +91,7 @@ var gsStorage = {
           rawLocalSettings[self.SYNC_SETTINGS] =
             rawLocalSettings[self.SYNC_SETTINGS] || false;
         }
+        gsUtils.log('gsStorage', 'localSettings on init: ', rawLocalSettings);
         var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
 
         var mergedSettings = {};
@@ -130,6 +131,7 @@ var gsStorage = {
           }
         }
         self.saveSettings(mergedSettings);
+        gsUtils.log('gsStorage', 'mergedSettings: ', mergedSettings);
 
         // if any of the new settings are different to those in sync, then trigger a resync
         var triggerResync = false;

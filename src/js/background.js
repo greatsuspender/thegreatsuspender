@@ -543,12 +543,11 @@ var tgs = (function() {
         return;
       }
       gsUtils.log(tab.id, 'Tab has been discarded. Url: ' + tab.url);
+      gsSuspendManager.handleDiscardedUnsuspendedTab(tab, false); // async. unhandled promise.
+
       // When a tab is discarded the tab id changes. We need up-to-date ids
       // in the current session otherwise crash recovery will not work
       queueSessionTimer();
-      if (gsUtils.shouldSuspendDiscardedTabs()) {
-        gsSuspendManager.attemptSuspendOfDiscardedTab(tab);
-      }
       return;
     }
 
@@ -1603,12 +1602,12 @@ tgs
   .then(() => gsSuspendManager.initAsPromised())
   .then(() => gsSession.initAsPromised())
   .then(() => gsSession.runStartupChecks()) // performs crash check (and maybe recovery)
+  .then(() => gsSession.checkTabsForResponsiveness()) // performs tab responsiveness checks
   .catch(error => {
     error = error || 'Unknown error occurred during background initialisation';
     gsUtils.error('background', error);
   })
   .then(() => tgs.initAsPromised()) // adds handle(Un)SuspendedTabChanged listeners!
-  .then(() => gsSession.checkTabsForResponsiveness()) // performs tab responsiveness checks
   .then(() => {
     return new Promise(resolve => {
       gsAnalytics.performStartupReport();

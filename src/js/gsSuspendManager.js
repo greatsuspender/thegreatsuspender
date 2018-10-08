@@ -1,4 +1,4 @@
-/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsIndexedDb */
+/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendManager = (function() {
   'use strict';
@@ -75,16 +75,16 @@ var gsSuspendManager = (function() {
               'Failed to sendConfirmSuspendToContentScript',
               error
             );
-            forceTabSuspension(tab, suspendedUrl);
+            forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
           }
         }
       );
     }
   }
 
-  function forceTabSuspension(tab, suspendedUrl) {
+  async function forceTabSuspension(tab, suspendedUrl) {
     if (!gsUtils.isSuspendedTab(tab)) {
-      chrome.tabs.update(tab.id, { url: suspendedUrl });
+      await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl })
     } else {
       gsUtils.log(tab.id, 'Tab already suspended');
     }
@@ -92,7 +92,12 @@ var gsSuspendManager = (function() {
 
   function forceTabDiscardation(tab) {
     if (!gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.discard(tab.id);
+      gsUtils.log(tab.id, 'Forcing discarding of tab.');
+      chrome.tabs.discard(tab.id, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tab.id, chrome.runtime.lastError);
+        }
+      });
     } else {
       gsUtils.log(tab.id, 'Tab already discarded');
     }
@@ -100,28 +105,51 @@ var gsSuspendManager = (function() {
 
   function undiscardTab(tab) {
     if (gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.reload(tab.id);
+      chrome.tabs.reload(tab.id, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tab.id, chrome.runtime.lastError);
+        }
+      });
     } else {
       gsUtils.log(tab.id, 'Tab not discarded');
     }
   }
 
-  function attemptSuspendOfDiscardedTab(tab) {
+  async function handleDiscardedUnsuspendedTab(tab, forceRefresh) {
+    if (!gsUtils.shouldSuspendDiscardedTabs()) {
+      if (forceRefresh) {
+        gsUtils.log(tab.id, 'Forcing refresh of discarded unsuspended tab');
+        await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      } else {
+        gsUtils.log(
+          tab.id,
+          'Suspend discarded tabs not enabled. Tab will remain discarded :('
+        );
+      }
+      return;
+    }
+
     // If we want to force tabs to be suspended instead of discarding them
     var tabEligibleForSuspension = checkTabEligibilityForSuspension(
       tab,
       3
     );
     if (!tabEligibleForSuspension) {
-      gsUtils.log(
-        'gsSuspendManager',
-        'Aborting suspendInPlaceOfDiscard as tab is not eligbable for suspension. Tab will remain discarded :('
-      );
+      if (forceRefresh) {
+        gsUtils.log(tab.id, 'Forcing refresh of discarded unsuspended tab');
+        await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      } else {
+        gsUtils.log(
+          tab.id,
+          'Aborting suspendInPlaceOfDiscard as tab is not eligbable for suspension. Tab will remain discarded :('
+        );
+      }
       return;
     }
+
     tgs.setTabFlagForTabId(tab.id, tgs.SUSPEND_REASON, 3);
     var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-    forceTabSuspension(tab, suspendedUrl); //async. unhandled error
+    await forceTabSuspension(tab, suspendedUrl);
   }
 
   function removeTabFromSuspensionQueue(tab, reason) {
@@ -458,7 +486,7 @@ var gsSuspendManager = (function() {
     forceTabSuspension,
     forceTabDiscardation,
     undiscardTab,
-    attemptSuspendOfDiscardedTab,
+    handleDiscardedUnsuspendedTab,
     saveSuspendData,
   };
 })();

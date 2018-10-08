@@ -1,7 +1,7 @@
 /*global chrome */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage()) {
+  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -76,22 +76,6 @@
       ).innerHTML = gsUtils.isDebugError();
     };
 
-    let toggleDiscardAfterSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_AFTER_SUSPEND
-    );
-    document.getElementById(
-      'toggleDiscardAfterSuspend'
-    ).innerHTML = toggleDiscardAfterSuspend;
-    document.getElementById('toggleDiscardAfterSuspend').onclick = function(e) {
-      gsStorage.setOption(
-        gsStorage.DISCARD_AFTER_SUSPEND,
-        !toggleDiscardAfterSuspend
-      );
-      document.getElementById(
-        'toggleDiscardAfterSuspend'
-      ).innerHTML = !toggleDiscardAfterSuspend;
-    };
-
     let discardInPlaceOfSuspend = gsStorage.getOption(
       gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
     );
@@ -105,6 +89,7 @@
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
         !discardInPlaceOfSuspend
       );
+      gsStorage.syncSettings();
       document.getElementById(
         'toggleDiscardInPlaceOfSuspend'
       ).innerHTML = !discardInPlaceOfSuspend;
