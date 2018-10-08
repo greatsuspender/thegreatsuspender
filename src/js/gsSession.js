@@ -248,6 +248,21 @@ var gsSession = (function() {
     }
   }
 
+  // This function is used only for testing
+  async function triggerDiscardOfAllTabs() {
+    await new Promise((resolve) => {
+      chrome.tabs.query({active: false, discarded: false}, function (tabs) {
+        for (var i = 0; i < tabs.length; ++i) {
+          if (tabs[i] === undefined || gsUtils.isSpecialTab(tabs[i])) {
+            continue;
+          }
+          gsSuspendManager.forceTabDiscardation(tabs[i]);
+        }
+        resolve();
+      });
+    });
+  }
+
   async function checkTabsForResponsiveness() {
     //make sure the contentscript / suspended script of each tab is responsive
     //if we are in the process of a chrome restart (and session restore) then it might take a while
