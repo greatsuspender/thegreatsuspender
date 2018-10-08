@@ -19,10 +19,14 @@
     };
 
     var updateType = gsSession.getUpdateType();
-    if (updateType === 'major' || updateType === 'minor') {
+    if (updateType === 'major') {
       document.getElementById('patchMessage').style.display = 'none';
-    } else {
+      document.getElementById('minorUpdateDetail').style.display = 'none';
+    } else if (updateType === 'minor') {
+      document.getElementById('patchMessage').style.display = 'none';
       document.getElementById('majorUpdateDetail').style.display = 'none';
+    } else {
+      document.getElementById('updateDetail').style.display = 'none';
     }
 
     if (gsSession.isUpdated()) {
