@@ -86,7 +86,6 @@
   }
 
   function getOptionValue(element) {
-    // TODO switch statement?
     if (
       element.tagName === 'INPUT' &&
       element.hasAttribute('type') &&

@@ -841,6 +841,10 @@ var gsSession = (function() {
     );
 
     const restoringUrl = chrome.extension.getURL('restoring-window.html');
+    // Create new window. Important: do not pass in all urls to chrome.windows.create
+    // If you load too many windows (or tabs?) like this, then it seems to blow
+    // out the GPU memory in the chrome task manager
+    // TODO: Report chrome bug
     const newWindow = await gsUtils.createWindowAndWaitForFinishLoading(
       { url: restoringUrl, focused: false },
       500 // dont actually wait
