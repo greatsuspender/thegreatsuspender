@@ -540,6 +540,7 @@ var tgs = (function() {
         // For some reason the discarded changeInfo gets called twice (chrome bug?)
         // As a workaround we use the suspend reason to determine if we've already
         // handled this discard
+        //TODO: Report chrome bug
         return;
       }
       gsUtils.log(tab.id, 'Tab has been discarded. Url: ' + tab.url);

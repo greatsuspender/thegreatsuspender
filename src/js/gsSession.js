@@ -436,7 +436,7 @@ var gsSession = (function() {
 
   async function findPotentialDiscardedTab(tab) {
     // NOTE: For some reason querying by url doesn't work here??
-    // TODO: Report as chrome bug
+    // TODO: Report chrome bug
     let tabs = await gsChrome.tabsQuery({
           discarded: true,
           windowId: tab.windowId,
@@ -476,7 +476,7 @@ var gsSession = (function() {
         // Therefore we want to reload this tab to make sure it can be suspended properly
         gsUtils.warning(
           tab.id,
-          `Suspended tab was discarded before init. Will reload discarded version..`
+          `Suspended tab was discarded before init. Will reload discarded tab..`
         );
         await gsChrome.tabsUpdate(tab.id, { url: tab.url });
       } else {
