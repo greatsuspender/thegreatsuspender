@@ -46,6 +46,15 @@
       const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
       setFavicon(preFaviconUrl);
     }
+
+    try {
+      const gsStorage = chrome.extension.getBackgroundPage().gsStorage;
+      const theme = gsStorage.getOption(gsStorage.THEME);
+      setTheme(theme);
+    } catch (error) {
+      // console.error(error);
+    }
+
     window.setTimeout(() => {
       document.querySelector('body').classList.remove('hide-initially');
     }, 1000);
@@ -60,13 +69,16 @@
     // and that new url does not match the UNSUSPEND_ON_RELOAD_URL
     window.addEventListener('beforeunload', function(event) {
       if (requestUnsuspendOnReload) {
-        chrome.extension
-          .getBackgroundPage()
-          .tgs.setTabFlagForTabId(
+        try {
+          const tgs = chrome.extension.getBackgroundPage().tgs;
+          tgs.setTabFlagForTabId(
             _tabId,
-            chrome.extension.getBackgroundPage().tgs.UNSUSPEND_ON_RELOAD_URL,
+            tgs.UNSUSPEND_ON_RELOAD_URL,
             window.location.href
           );
+        } catch (error) {
+          // console.error(error);
+        }
       }
     });
   }
@@ -277,23 +289,12 @@
   function unsuspendTab(addToTemporaryWhitelist) {
     if (tabId) {
       try {
+        const tgs = chrome.extension.getBackgroundPage().tgs;
         if (addToTemporaryWhitelist) {
-          chrome.extension
-            .getBackgroundPage()
-            .tgs.setTabFlagForTabId(
-              tabId,
-              chrome.extension.getBackgroundPage().tgs.TEMP_WHITELIST_ON_RELOAD,
-              true
-            );
+          tgs.setTabFlagForTabId(tabId, tgs.TEMP_WHITELIST_ON_RELOAD, true);
         }
         if (scrollPosition) {
-          chrome.extension
-            .getBackgroundPage()
-            .tgs.setTabFlagForTabId(
-              tabId,
-              chrome.extension.getBackgroundPage().tgs.SCROLL_POS,
-              scrollPosition
-            );
+          tgs.setTabFlagForTabId(tabId, tgs.SCROLL_POS, scrollPosition);
         }
       } catch (error) {
         // console.error(error);
@@ -342,33 +343,20 @@
     document
       .getElementById('paypalBtn')
       .setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
-    document.getElementById('bitcoinBtn').onclick = function() {
-      try {
-        chrome.extension
-          .getBackgroundPage()
-          .gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
-      } catch (error) {
-        // console.error(error);
-      }
-    };
-    document.getElementById('patreonBtn').onclick = function() {
-      try {
-        chrome.extension
-          .getBackgroundPage()
-          .gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
-      } catch (error) {
-        // console.error(error);
-      }
-    };
-    document.getElementById('paypalBtn').onclick = function() {
-      try {
-        chrome.extension
-          .getBackgroundPage()
-          .gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
-      } catch (error) {
-        // console.error(error);
-      }
-    };
+    try {
+      const gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+      document.getElementById('bitcoinBtn').onclick = function() {
+        gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
+      };
+      document.getElementById('patreonBtn').onclick = function() {
+        gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
+      };
+      document.getElementById('paypalBtn').onclick = function() {
+        gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
+      };
+    } catch (error) {
+      // console.error(error);
+    }
   }
 
   function loadDonationPopupTemplate() {

@@ -639,7 +639,6 @@ var tgs = (function() {
     //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
     if (changeInfo.status === 'loading') {
       if (unsuspendOnReloadUrl && unsuspendOnReloadUrl === tab.url) {
-        //TODO: Somehow temporarily update suspended tab with correct theme and preview?
         unsuspendTab(tab);
       }
 
