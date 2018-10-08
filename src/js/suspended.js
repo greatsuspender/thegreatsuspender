@@ -548,7 +548,7 @@
           requestUnsuspendOnReload = false;
           break;
 
-        case 'tempWhitelist':
+        case 'tempWhitelist': //NOTE: This option is not currently available
           unsuspendTab(true);
           break;
 

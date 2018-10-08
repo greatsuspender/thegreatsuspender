@@ -484,7 +484,11 @@ var tgs = (function() {
 
     gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function(error) {
       if (error) {
-        //if we failed to find the tab with the above method then try to reload the tab directly
+        // If we failed to find the tab with the above method then try to reload the tab directly.
+        // This will happen if the 'discard suspended tabs' option is turned on and the tab
+        // is being unsuspended remotely.
+        // Reloading directly causes a history item for the suspended tab to be made in the tab history.
+        // It will also break temp whitelisting of a suspended tab (currently not implemented anyway)
         gsUtils.warning(
           tab.id,
           'Failed to sendUnsuspendRequestToSuspendedTab',
@@ -1482,19 +1486,12 @@ var tgs = (function() {
     });
 
     //tidy up history items as they are created
+    //NOTE: This only affects tab history, and has no effect on chrome://history
+    //It is also impossible to remove a the first tab history entry for a tab
     chrome.history.onVisited.addListener(function(historyItem) {
-      var url = historyItem.url;
-
-      if (gsUtils.isSuspendedUrl(url, true)) {
-        url = gsUtils.getSuspendedUrl(url);
-
+      if (gsUtils.isSuspendedUrl(historyItem.url, true)) {
         //remove suspended tab history item
         chrome.history.deleteUrl({ url: historyItem.url });
-        chrome.history.addUrl({ url: url }, function() {
-          if (chrome.runtime.lastError) {
-            gsUtils.error('background', chrome.runtime.lastError);
-          }
-        });
       }
     });
   }
