@@ -50,6 +50,21 @@ var gsChrome = {
       });
     });
   },
+  tabsReload: async function(tabId) {
+    return new Promise(resolve => {
+      if (!tabId) {
+        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
+        resolve();
+        return;
+      }
+      chrome.tabs.reload(tabId, () => {
+        if (chrome.runtime.lastError) {
+          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+        }
+        resolve();
+      });
+    });
+  },
   tabsUpdate: async function(tabId, updateProperties) {
     return new Promise(resolve => {
       if (!tabId || !updateProperties) {

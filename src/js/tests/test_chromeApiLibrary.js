@@ -104,6 +104,41 @@ testSuites.push(
         return assertTrue(isNewTab1Valid && isNewTab2Valid);
       },
 
+      // Test gsChrome.tabsReload
+      async () => {
+        // stub gsUtils.error function
+        let errorObj;
+        gsUtils.error = (id, _errorObj, ...args) => {
+          errorObj = _errorObj;
+        };
+
+        // create a test tab
+        const testTab1 = await new Promise(r =>
+          chrome.tabs.create({ url: testTabUrl, active: false }, r)
+        );
+        const isTestTab1Valid = testTab1.url === testTabUrl;
+
+        await gsChrome.tabsReload();
+        const isTabReload1Valid = errorObj === 'tabId not specified';
+
+        await gsChrome.tabsReload(7777);
+        const isTabReload2Valid = errorObj.message === 'No tab with id: 7777.';
+
+        errorObj = null;
+        await gsChrome.tabsReload(testTab1.id);
+        const isTabReload3Valid = errorObj === null;
+
+        // cleanup
+        await removeTestTab(testTab1.id, true);
+
+        return assertTrue(
+          isTestTab1Valid &&
+          isTabReload1Valid &&
+          isTabReload2Valid &&
+          isTabReload3Valid
+        );
+      },
+
       // Test gsChrome.tabsUpdate
       async () => {
         // stub gsUtils.error function
@@ -185,6 +220,17 @@ testSuites.push(
 
       // Test gsChrome.tabsQuery
       async () => {
+
+        //TODO: Add handing of bad property values to all gsChrome tests
+        // const errorTabs = await gsChrome.tabsQuery({badProperty: 'foo'});
+        // const isErrorTabsValid = errorTabs === null && errorObj === 'tabId not specified';
+
+        // stub gsUtils.error function
+        // let errorObj;
+        // gsUtils.error = (id, _errorObj, ...args) => {
+        //   errorObj = _errorObj;
+        // };
+
         const tabsBefore = await gsChrome.tabsQuery();
 
         // create a test tab
@@ -199,6 +245,7 @@ testSuites.push(
         // cleanup
         await removeTestTab(testTab1.id, false);
 
+        // return assertTrue(isErrorTabsValid && isTestTab1Valid && areTabsAfterValid);
         return assertTrue(isTestTab1Valid && areTabsAfterValid);
       },
 
