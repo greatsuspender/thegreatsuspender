@@ -26,6 +26,7 @@
   function preInit() {
     const href = window.location.href;
     const titleRegex = /ttl=([^&]*)/;
+    const scrollPosRegex = /pos=([^&]*)/;
     const urlRegex = /uri=(.*)/;
 
     const preTitleEncoded = href.match(titleRegex)
@@ -34,6 +35,12 @@
     if (preTitleEncoded) {
       const decodedPreTitle = decodeURIComponent(preTitleEncoded);
       setTitle(decodedPreTitle);
+    }
+    const preScrollPosition = href.match(scrollPosRegex)
+      ? href.match(scrollPosRegex)[1]
+      : null;
+    if (preScrollPosition) {
+      setScrollPosition(preScrollPosition);
     }
 
     const preUrlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
@@ -135,6 +142,13 @@
         .getElementById('faviconWrap')
         .classList.remove('faviconWrapLowContrast');
     }
+  }
+
+  function setScrollPosition(newScrollPosition) {
+    if (scrollPosition === newScrollPosition) {
+      return;
+    }
+    scrollPosition = newScrollPosition;
   }
 
   function setTheme(newTheme) {
@@ -292,9 +306,6 @@
         const tgs = chrome.extension.getBackgroundPage().tgs;
         if (addToTemporaryWhitelist) {
           tgs.setTabFlagForTabId(tabId, tgs.TEMP_WHITELIST_ON_RELOAD, true);
-        }
-        if (scrollPosition) {
-          tgs.setTabFlagForTabId(tabId, tgs.SCROLL_POS, scrollPosition);
         }
       } catch (error) {
         // console.error(error);
@@ -564,9 +575,6 @@
     }
     if (request.hasOwnProperty('requestUnsuspendOnReload')) {
       requestUnsuspendOnReload = request.requestUnsuspendOnReload;
-    }
-    if (request.hasOwnProperty('scrollPosition')) {
-      scrollPosition = request.scrollPosition;
     }
     if (request.hasOwnProperty('previewUri')) {
       previewUri = request.previewUri;

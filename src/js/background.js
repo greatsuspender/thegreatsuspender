@@ -661,6 +661,10 @@ var tgs = (function() {
             setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
           }
 
+          // Set scrollPosition tab flag
+          const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+          setTabFlagForTabId(tab.id, SCROLL_POS, scrollPosition);
+
           // If we want to discard tabs after suspending them
           let discardAfterSuspend = gsStorage.getOption(
             gsStorage.DISCARD_AFTER_SUSPEND
@@ -683,7 +687,6 @@ var tgs = (function() {
     return new Promise(async (resolve, reject) => {
       const suspendedUrl = tab.url;
       const originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
-      const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
       const whitelisted = gsUtils.checkWhiteList(originalUrl);
       const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
       const favicon =
@@ -713,7 +716,6 @@ var tgs = (function() {
           tabId: tab.id,
           requestUnsuspendOnReload: true,
           url: originalUrl,
-          scrollPosition: scrollPosition,
           favicon: favicon,
           title: title,
           whitelisted: whitelisted,
