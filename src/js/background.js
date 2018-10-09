@@ -491,19 +491,24 @@ var tgs = (function() {
   function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
 
+    // If the suspended tab is discarded then reload the tab directly.
+    // This will happen if the 'discard suspended tabs' option is turned on and the tab
+    // is being unsuspended remotely.
+    // Reloading directly causes a history item for the suspended tab to be made in the tab history.
+    // It will also break temp whitelisting of a suspended tab (currently not implemented anyway)
+    if (gsUtils.isDiscardedTab(tab)) {
+      chrome.tabs.update(tab.id, { url: gsUtils.getSuspendedUrl(tab.url) });
+      return;
+    }
+
     gsMessages.sendUnsuspendRequestToSuspendedTab(tab.id, function(error) {
       if (error) {
-        // If we failed to find the tab with the above method then try to reload the tab directly.
-        // This will happen if the 'discard suspended tabs' option is turned on and the tab
-        // is being unsuspended remotely.
-        // Reloading directly causes a history item for the suspended tab to be made in the tab history.
-        // It will also break temp whitelisting of a suspended tab (currently not implemented anyway)
         gsUtils.warning(
           tab.id,
           'Failed to sendUnsuspendRequestToSuspendedTab',
           error
         );
-        var url = gsUtils.getSuspendedUrl(tab.url);
+        let url = gsUtils.getSuspendedUrl(tab.url);
         if (url) {
           gsUtils.log(tab.id, 'Will reload directly.');
           chrome.tabs.update(tab.id, { url: url });
