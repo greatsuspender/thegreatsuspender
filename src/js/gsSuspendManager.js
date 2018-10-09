@@ -7,7 +7,7 @@ var gsSuspendManager = (function() {
   var IMAGE_RENDER_TIMEOUT = 60 * 1000;
 
   var processSuspensionQueueTimer;
-  var tabToSuspendDetailsByTabId = {};
+  var suspensionQueueDetailsByTabId = {};
 
   function initAsPromised() {
     return new Promise(function(resolve) {
@@ -32,7 +32,7 @@ var gsSuspendManager = (function() {
       return;
     }
 
-    tabToSuspendDetailsByTabId[tab.id] = { tab: tab, forceLevel: forceLevel };
+    suspensionQueueDetailsByTabId[tab.id] = { tab: tab, forceLevel: forceLevel };
     clearTimeout(processSuspensionQueueTimer);
     processSuspensionQueueTimer = setTimeout(function() {
       gsUtils.log('background', 'processRequestTabSuspensionQueue');
@@ -41,7 +41,7 @@ var gsSuspendManager = (function() {
   }
 
   function unqueueTabForSuspension(tab) {
-    const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+    const suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
     if (!suspensionDetails) {
       return;
     }
@@ -49,8 +49,8 @@ var gsSuspendManager = (function() {
   }
 
   function executeTabSuspension(tab) {
-    var suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
-    delete tabToSuspendDetailsByTabId[tab.id];
+    var suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
+    delete suspensionQueueDetailsByTabId[tab.id];
     if (suspensionDetails && suspensionDetails.cancelled) {
       return;
     }
@@ -153,12 +153,12 @@ var gsSuspendManager = (function() {
   }
 
   function removeTabFromSuspensionQueue(tab, reason) {
-    const suspensionDetails = tabToSuspendDetailsByTabId[tab.id];
+    const suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
     if (!suspensionDetails) {
       return;
     }
     if (!suspensionDetails.startDateTime) {
-      delete tabToSuspendDetailsByTabId[tab.id];
+      delete suspensionQueueDetailsByTabId[tab.id];
     } else {
       // Tab already being suspended. Mark to cancel instead
       suspensionDetails.cancelled = true;
@@ -170,14 +170,14 @@ var gsSuspendManager = (function() {
   }
 
   function markTabAsSuspended(tab) {
-    delete tabToSuspendDetailsByTabId[tab.id];
+    delete suspensionQueueDetailsByTabId[tab.id];
   }
 
   function processRequestTabSuspensionQueue() {
     var inProgressTabIds = [];
     var queuedTabIds = [];
-    for (var tabId of Object.keys(tabToSuspendDetailsByTabId)) {
-      var suspensionDetails = tabToSuspendDetailsByTabId[tabId];
+    for (var tabId of Object.keys(suspensionQueueDetailsByTabId)) {
+      const suspensionDetails = suspensionQueueDetailsByTabId[tabId];
       if (suspensionDetails.startDateTime) {
         if (
           new Date() - suspensionDetails.startDateTime >
@@ -210,13 +210,13 @@ var gsSuspendManager = (function() {
       queuedTabIds.length > 0 &&
       inProgressTabIds.length < MAX_TABS_IN_PROGRESS
     ) {
-      var tabIdToSuspend = queuedTabIds.splice(0, 1);
+      const tabIdToSuspend = queuedTabIds.splice(0, 1);
       inProgressTabIds.push(tabIdToSuspend);
-      var tabToSuspendDetails = tabToSuspendDetailsByTabId[tabIdToSuspend];
-      tabToSuspendDetails.startDateTime = new Date();
-      requestTabSuspension(tabToSuspendDetails);
+      const suspensionDetails = suspensionQueueDetailsByTabId[tabIdToSuspend];
+      suspensionDetails.startDateTime = new Date();
+      requestTabSuspension(suspensionDetails);
     }
-    if (Object.keys(tabToSuspendDetailsByTabId).length > 0) {
+    if (Object.keys(suspensionQueueDetailsByTabId).length > 0) {
       clearTimeout(processSuspensionQueueTimer);
       processSuspensionQueueTimer = setTimeout(function() {
         processRequestTabSuspensionQueue();
@@ -249,7 +249,7 @@ var gsSuspendManager = (function() {
       }
 
       updateYouTubeUrlWithTimestamp(tab, function() {
-        var suspensionDetails = tabToSuspendDetailsByTabId[tab.id] || {};
+        var suspensionDetails = suspensionQueueDetailsByTabId[tab.id] || {};
         suspensionDetails.scrollPos = tabInfo.scrollPos;
         suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(
           tab.url,
