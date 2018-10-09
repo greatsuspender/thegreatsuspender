@@ -354,6 +354,9 @@ var tgs = (function() {
   function suspendAllTabs(force) {
     const forceLevel = force ? 1 : 2;
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (tabs.length === 0) {
+        return;
+      }
       var curWindowId = tabs[0].windowId;
       chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
         curWindow.tabs.forEach(function(tab) {
@@ -376,6 +379,9 @@ var tgs = (function() {
 
   function unsuspendAllTabs() {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (tabs.length === 0) {
+        return;
+      }
       var curWindowId = tabs[0].windowId;
       chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
         curWindow.tabs.forEach(function(currentTab) {
