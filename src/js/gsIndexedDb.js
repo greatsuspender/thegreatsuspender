@@ -319,6 +319,7 @@ var gsIndexedDb = {
     await this.updateSession(session);
   },
 
+  // For testing only!
   clearGsDatabase: async function() {
     try {
       const gsDb = await this.getDb();

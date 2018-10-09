@@ -123,7 +123,7 @@ var gsStorage = {
             typeof mergedSettings[key] === 'undefined' ||
             mergedSettings[key] === null
           ) {
-            gsUtils.error(
+            gsUtils.errorIfInitialised(
               'gsStorage',
               'Missing key: ' + key + '! Will init with default.'
             );
