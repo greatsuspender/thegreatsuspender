@@ -385,6 +385,7 @@ var tgs = (function() {
       var curWindowId = tabs[0].windowId;
       chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
         curWindow.tabs.forEach(function(currentTab) {
+          gsSuspendManager.unqueueTabForSuspension(currentTab);
           if (gsUtils.isSuspendedTab(currentTab)) {
             unsuspendTab(currentTab);
           } else if (
@@ -405,6 +406,7 @@ var tgs = (function() {
         // current window until last
         var deferredTabs = [];
         tabs.forEach(function(tab) {
+          gsSuspendManager.unqueueTabForSuspension(tab);
           if (gsUtils.isSuspendedTab(tab)) {
             if (tab.windowId === currentWindow.id) {
               deferredTabs.push(tab);
@@ -437,6 +439,7 @@ var tgs = (function() {
       selectedTabs
     ) {
       selectedTabs.forEach(function(tab) {
+        gsSuspendManager.unqueueTabForSuspension(tab);
         if (gsUtils.isSuspendedTab(tab)) {
           unsuspendTab(tab);
         }
