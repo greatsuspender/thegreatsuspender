@@ -184,7 +184,7 @@ var gsSuspendManager = (function() {
           IMAGE_RENDER_TIMEOUT
         ) {
           gsUtils.warning(
-            'gsSuspendManager',
+            tabId,
             `Tab took more than ${IMAGE_RENDER_TIMEOUT /
               1000} seconds to suspend`
           );
@@ -467,7 +467,7 @@ var gsSuspendManager = (function() {
           dataUrl = canvas.toDataURL();
         }
         if (!dataUrl || dataUrl === 'data:,') {
-          sendResponse('Failed to generate dataUrl');
+          sendResponse('Bad dataUrl: ' + dataUrl);
         } else {
           sendResponse(null, dataUrl);
         }
