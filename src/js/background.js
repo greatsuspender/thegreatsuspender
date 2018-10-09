@@ -601,20 +601,20 @@ var tgs = (function() {
         gsSuspendManager.queueTabForSuspension(tab, 1);
         return;
       }
+      hasTabStatusChanged = true;
 
       //init loaded tab
       initialiseUnsuspendedTabAsPromised(tab)
-        .then(() => {
-          // unhandled async (could use returned tab status here below)
-        })
         .catch(error => {
           gsUtils.warning(
             tab.id,
             'Failed to send init to content script. Tab may not behave as expected.'
           );
+        })
+        .then(() => {
+          // could use returned tab status here below
+          clearTabFlagsForTabId(tab.id);
         });
-      clearTabFlagsForTabId(tab.id);
-      hasTabStatusChanged = true;
     }
 
     //if tab is currently visible then update popup icon
@@ -669,7 +669,15 @@ var tgs = (function() {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
     } else if (changeInfo.status === 'complete') {
+
       initialiseSuspendedTabAsPromised(tab)
+        .catch(error => {
+          gsUtils.warning(
+            tab.id,
+            'Failed to initialiseSuspendedTabAsPromise. Suspended tab may not behave as expected.',
+            error
+          );
+        })
         .then(function() {
           let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
           clearTabFlagsForTabId(tab.id);
@@ -690,13 +698,6 @@ var tgs = (function() {
           if (discardAfterSuspend && !tab.active && discardOnLoad) {
             gsSuspendManager.forceTabDiscardation(tab);
           }
-        })
-        .catch(error => {
-          gsUtils.warning(
-            tab.id,
-            'Failed to initialiseSuspendedTabAsPromise. Suspended tab may not behave as expected.',
-            error
-          );
         });
     }
   }
