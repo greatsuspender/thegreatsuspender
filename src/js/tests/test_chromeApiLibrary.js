@@ -15,7 +15,7 @@ testSuites.push(
     }
     async function removeTestWindow(windowId, retainFocus) {
       const currentWindow = await new Promise(r =>
-        chrome.windows.getCurrent(r)
+        chrome.windows.getLastFocused(r)
       );
       await new Promise(r => chrome.windows.remove(windowId, r));
       await new Promise(resolve =>

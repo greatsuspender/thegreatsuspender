@@ -400,7 +400,7 @@ var tgs = (function() {
   }
 
   function unsuspendAllTabsInAllWindows() {
-    chrome.windows.getCurrent({}, function(currentWindow) {
+    chrome.windows.getLastFocused({}, function(currentWindow) {
       chrome.tabs.query({}, function(tabs) {
         // Because of the way that unsuspending steals window focus, we defer the suspending of tabs in the
         // current window until last
