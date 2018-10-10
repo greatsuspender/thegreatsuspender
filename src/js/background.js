@@ -1625,6 +1625,7 @@ tgs
   .then(() => {
     return new Promise(resolve => {
       gsAnalytics.performStartupReport();
+      gsAnalytics.performVersionReport();
       tgs.startTimers();
       resolve();
     });

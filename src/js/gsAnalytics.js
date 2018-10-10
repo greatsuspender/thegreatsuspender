@@ -7,6 +7,7 @@ var gsAnalytics = (function() {
   const DIMENSION_SCREEN_CAPTURE = 'dimension2';
   const DIMENSION_SUSPEND_TIME = 'dimension3';
   const DIMENSION_DONATED = 'dimension4';
+  const DIMENSION_DISCARD_AFTER_SUSPEND = 'dimension5';
 
   const METRIC_SUSPENDED_TAB_COUNT = 'metric1';
   const METRIC_TOTAL_TAB_COUNT = 'metric2';
@@ -30,22 +31,15 @@ var gsAnalytics = (function() {
       [DIMENSION_SUSPEND_TIME]:
         gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
       [DIMENSION_DONATED]: gsStorage.getOption(gsStorage.NO_NAG) + '',
+      [DIMENSION_DISCARD_AFTER_SUSPEND]: gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) + '',
     };
     gsUtils.log('gsAnalytics', 'Setting dimensions', dimensions);
     ga('set', dimensions);
   }
 
   function performStartupReport() {
-    const startupType = gsSession.getStartupType();
-    const startupLastVersion = gsSession.getStartupLastVersion();
-    const curVersion = chrome.runtime.getManifest().version;
-
     const category = 'System';
-    const action = startupType;
-    const label =
-      startupLastVersion !== curVersion
-        ? `${startupLastVersion} -> ${curVersion}`
-        : curVersion;
+    const action = gsSession.getStartupType();
 
     const metrics = {};
     const sessionMetrics = gsStorage.fetchSessionMetrics();
@@ -63,14 +57,32 @@ var gsAnalytics = (function() {
     if (!isNaN(recoveryTimeTaken) && parseInt(recoveryTimeTaken) >= 0) {
       metrics[METRIC_TAB_RECOVER_TIME_TAKEN] = recoveryTimeTaken;
     }
-    gsUtils.log('gsAnalytics', 'Event: ', category, action, label, metrics);
-    ga('send', 'event', category, action, label, metrics);
+    gsUtils.log('gsAnalytics', 'Event: ', category, action, metrics);
+    ga('send', 'event', category, action, metrics);
+  }
+
+  function performVersionReport() {
+    const startupType = gsSession.getStartupType();
+    if (!(['Install', 'Update']).includes(startupType)) {
+      return;
+    }
+
+    const category = 'Version';
+    const action = startupType + 'Details';
+    const startupLastVersion = gsSession.getStartupLastVersion();
+    const curVersion = chrome.runtime.getManifest().version;
+    const label =
+      startupLastVersion !== curVersion
+        ? `${startupLastVersion} -> ${curVersion}`
+        : curVersion;
+
+    gsUtils.log('gsAnalytics', 'Event: ', category, action, label);
+    ga('send', 'event', category, action, label);
   }
 
   function performPingReport() {
     const category = 'System';
     const action = 'Ping';
-    const label = chrome.runtime.getManifest().version;
 
     const metrics = {};
     const sessionMetrics = gsStorage.fetchSessionMetrics();
@@ -80,8 +92,8 @@ var gsAnalytics = (function() {
       metrics[METRIC_TOTAL_TAB_COUNT] =
         sessionMetrics[gsStorage.SM_TOTAL_TAB_COUNT];
     }
-    gsUtils.log('gsAnalytics', 'Event: ', category, action, label, metrics);
-    ga('send', 'event', category, action, label, metrics);
+    gsUtils.log('gsAnalytics', 'Event: ', category, action, metrics);
+    ga('send', 'event', category, action, metrics);
   }
 
   function reportPageView(pageName) {
@@ -100,6 +112,7 @@ var gsAnalytics = (function() {
   return {
     initAsPromised,
     performStartupReport,
+    performVersionReport,
     performPingReport,
     setUserDimensions,
     reportPageView,
