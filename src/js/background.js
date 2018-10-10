@@ -74,7 +74,7 @@ var tgs = (function() {
   }
 
   function initAsPromised() {
-    return new Promise(function(resolve) {
+    return new Promise(async function(resolve) {
       gsUtils.log('background', 'PERFORMING BACKGROUND INIT...');
       addCommandListeners();
       addChromeListeners();
@@ -88,15 +88,17 @@ var tgs = (function() {
       }
 
       //initialise currentStationary and currentFocused vars
-      getCurrentlyActiveTab(function(activeTab) {
-        if (activeTab) {
+      const activeTabs = await gsChrome.tabsQuery({ active: true });
+      const currentWindow = await gsChrome.windowsGetLastFocused();
+      for (let activeTab of activeTabs) {
+        _currentStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
+        _currentFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
+        if (currentWindow && currentWindow.id === activeTab.windowId) {
           _currentStationaryWindowId = activeTab.windowId;
           _currentFocusedWindowId = activeTab.windowId;
-          _currentStationaryTabIdByWindowId[activeTab.windowId] = activeTab.id;
-          _currentFocusedTabIdByWindowId[activeTab.windowId] = activeTab.id;
         }
-        resolve();
-      });
+      }
+      resolve();
     });
   }
 
@@ -1503,6 +1505,7 @@ var tgs = (function() {
     //tidy up history items as they are created
     //NOTE: This only affects tab history, and has no effect on chrome://history
     //It is also impossible to remove a the first tab history entry for a tab
+    //Refer to: https://github.com/deanoemcke/thegreatsuspender/issues/717
     chrome.history.onVisited.addListener(function(historyItem) {
       if (gsUtils.isSuspendedUrl(historyItem.url, true)) {
         //remove suspended tab history item
