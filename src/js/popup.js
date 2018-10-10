@@ -77,13 +77,11 @@
     var suspendOneVisible = ![
         gsUtils.STATUS_SUSPENDED,
         gsUtils.STATUS_SPECIAL,
-        gsUtils.STATUS_LOADING,
         gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
       whitelistVisible = ![
         gsUtils.STATUS_WHITELISTED,
         gsUtils.STATUS_SPECIAL,
-        gsUtils.STATUS_LOADING,
         gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
       unsuspendVisible = false; //[gsUtils.STATUS_SUSPENDED].includes(tabStatus);
