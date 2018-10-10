@@ -534,20 +534,19 @@ var gsSession = (function() {
     }
 
     // If tab returned a response but is not initialised, then try to initialise
-    let initialisationResponse;
     if (!tabResponse.isInitialised) {
       try {
         if (isSuspendedTab) {
-          initialisationResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+          tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
         } else {
-          initialisationResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+          tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
         }
       } catch (error) {
         gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
       }
     }
 
-    if (!initialisationResponse || !initialisationResponse.isInitialised) {
+    if (!tabResponse || !tabResponse.isInitialised) {
       return false;
     }
 
@@ -949,6 +948,7 @@ var gsSession = (function() {
     getStartupType,
     getStartupLastVersion,
     recoverLostTabs,
+    triggerDiscardOfAllTabs,
     checkTabsForResponsiveness,
     restoreSessionWindow,
     prepareForUpdate,
