@@ -4,6 +4,7 @@ var gsSession = (function() {
   'use strict';
 
   const tabsToInitPerSecond = 8;
+  const tabsToRestorePerSecond = 12;
   const updateUrl = chrome.extension.getURL('update.html');
   const updatedUrl = chrome.extension.getURL('updated.html');
 
@@ -823,7 +824,7 @@ var gsSession = (function() {
         currentTabUrls.push(currentTab.url);
       }
 
-      for (const sessionTab of sessionWindow.tabs) {
+      for (const [i, sessionTab] of sessionWindow.tabs.entries()) {
         //if current tab does not exist then recreate it
         if (
           !gsUtils.isSpecialTab(sessionTab) &&
@@ -831,11 +832,17 @@ var gsSession = (function() {
           !currentTabIds.includes(sessionTab.id)
         ) {
           tabPromises.push(
-            createNewTabFromSessionTab(
-              sessionTab,
-              existingWindow.id,
-              suspendMode
-            )
+            new Promise(async resolve => {
+              await gsUtils.setTimeout(i * (1000/tabsToRestorePerSecond));
+              // dont await createNewTab as we want them to happen concurrently (but staggered)
+              createNewTabFromSessionTab(
+                sessionTab,
+                existingWindow.id,
+                sessionTab.index,
+                suspendMode
+              );
+              resolve();
+            })
           );
         }
       }
@@ -860,10 +867,17 @@ var gsSession = (function() {
       500 // dont actually wait
     );
     const placeholderTab = newWindow.tabs[0];
+    await gsChrome.tabsUpdate(placeholderTab.id, {pinned:true});
+
     const tabPromises = [];
-    for (const sessionTab of sessionWindow.tabs) {
+    for (const [i, sessionTab] of sessionWindow.tabs.entries()) {
       tabPromises.push(
-        createNewTabFromSessionTab(sessionTab, newWindow.id, suspendMode)
+        new Promise(async resolve => {
+          await gsUtils.setTimeout(i * (1000/tabsToRestorePerSecond));
+          // dont await createNewTab as we want them to happen concurrently (but staggered)
+          createNewTabFromSessionTab(sessionTab, newWindow.id, i+1, suspendMode);
+          resolve();
+        })
       );
     }
     await Promise.all(tabPromises);
@@ -872,7 +886,7 @@ var gsSession = (function() {
     }
   }
 
-  async function createNewTabFromSessionTab(sessionTab, windowId, suspendMode) {
+  async function createNewTabFromSessionTab(sessionTab, windowId, index, suspendMode) {
     let url = sessionTab.url;
     if (
       suspendMode === 1 &&
@@ -886,7 +900,7 @@ var gsSession = (function() {
     const newTab = await gsChrome.tabsCreate({
       windowId: windowId,
       url: url,
-      index: sessionTab.index,
+      index: index,
       pinned: sessionTab.pinned,
       active: false,
     });
