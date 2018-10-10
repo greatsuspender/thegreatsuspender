@@ -340,6 +340,7 @@ var gsSession = (function() {
     const currentSessionSuspendedTabs = currentSessionTabs.filter(
       tab => !gsUtils.isSpecialTab(tab) && gsUtils.isSuspendedTab(tab, true)
     );
+
     if (currentSessionSuspendedTabs.length > 0) {
       gsUtils.log(
         'gsSession',
@@ -361,9 +362,10 @@ var gsSession = (function() {
     gsUtils.log('gsSession', 'lastSession: ', lastSession);
 
     const lastSessionTabs = lastSession.windows.reduce((a, o) => a.concat(o.tabs), []);
-    const expectedPostExtensionCrashTabs = lastSessionTabs.filter(o => o.url.indexOf(chrome.runtime.id) === -1);
-    const matchingTabIdsCount = currentSessionTabs.reduce((a, o) => expectedPostExtensionCrashTabs.some(p => p.id === o.id) ? a + 1 : a, 0);
-    const maxTabCount = Math.max(expectedPostExtensionCrashTabs.length, currentSessionTabs.length);
+    const lastSessionSuspendedTabs = lastSessionTabs.filter(o => gsUtils.isSuspendedTab(o, true));
+    const lastSessionNonExtensionTabs = lastSessionTabs.filter(o => o.url.indexOf(chrome.runtime.id) === -1);
+    const matchingTabIdsCount = currentSessionTabs.reduce((a, o) => lastSessionNonExtensionTabs.some(p => p.id === o.id) ? a + 1 : a, 0);
+    const maxTabCount = Math.max(lastSessionNonExtensionTabs.length, currentSessionTabs.length);
     gsUtils.log('gsSession',
       matchingTabIdsCount + ' / ' + maxTabCount +
       ' tabs have the same id between the last session and the current session.'
@@ -372,6 +374,14 @@ var gsSession = (function() {
       gsUtils.log(
         'gsSession',
         'Aborting tab recovery. Tab IDs do not match.'
+      );
+      return false;
+    }
+    if (currentSessionTabs.length === (lastSessionNonExtensionTabs.length + lastSessionSuspendedTabs.length)) {
+      gsUtils.log(
+        'gsSession',
+        'Aborting tab recovery. Last session contains the same number of tabs' +
+        ' as the current session. Assuming last session contained no suspended tabs.'
       );
       return false;
     }
