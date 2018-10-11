@@ -833,7 +833,7 @@ var gsSession = (function() {
         ) {
           tabPromises.push(
             new Promise(async resolve => {
-              await gsUtils.setTimeout(i * (1000/tabsToRestorePerSecond));
+              await gsUtils.setTimeout(i * 20);
               // dont await createNewTab as we want them to happen concurrently (but staggered)
               createNewTabFromSessionTab(
                 sessionTab,
