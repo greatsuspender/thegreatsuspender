@@ -45,15 +45,19 @@ var gsSuspendManager = (function() {
     if (!suspensionDetails) {
       return;
     }
-    removeTabFromSuspensionQueue(tab, 'Tab unqueue requested externally.');
+    gsUtils.log(tab.id, 'Tab suspension cancelled externally for tab.');
+    removeTabFromSuspensionQueue(tab);
   }
 
   function executeTabSuspension(tab) {
     var suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
-    delete suspensionQueueDetailsByTabId[tab.id];
-    if (suspensionDetails && suspensionDetails.cancelled) {
+    // If suspensionDetails doesn't exist, then assume this tab suspension has been cancelled
+    if (!suspensionDetails) {
+      gsUtils.log(tab.id, 'Tab missing from suspensionQueue. Assuming suspension cancelled for this tab.');
       return;
     }
+    removeTabFromSuspensionQueue(tab);
+
     var suspendedUrl = suspensionDetails
       ? suspensionDetails.suspendedUrl
       : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
@@ -152,24 +156,7 @@ var gsSuspendManager = (function() {
     await forceTabSuspension(tab, suspendedUrl);
   }
 
-  function removeTabFromSuspensionQueue(tab, reason) {
-    const suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
-    if (!suspensionDetails) {
-      return;
-    }
-    if (!suspensionDetails.startDateTime) {
-      delete suspensionQueueDetailsByTabId[tab.id];
-    } else {
-      // Tab already being suspended. Mark to cancel instead
-      suspensionDetails.cancelled = true;
-    }
-    gsUtils.log(
-      'gsSuspendManager',
-      `Tab suspension cancelled for tab: ${tab.id}. Reason: ${reason}`
-    );
-  }
-
-  function markTabAsSuspended(tab) {
+  function removeTabFromSuspensionQueue(tab) {
     delete suspensionQueueDetailsByTabId[tab.id];
   }
 
@@ -241,10 +228,8 @@ var gsSuspendManager = (function() {
       if (
         !checkContentScriptEligibilityForSuspension(tabInfo.status, forceLevel)
       ) {
-        removeTabFromSuspensionQueue(
-          tab,
-          'Content script not eligible for suspension'
-        );
+        gsUtils.log(tab.id, `Content script status of ${tabInfo.status} not eligible for suspension. Removing tab from suspensionQueue.`);
+        removeTabFromSuspensionQueue(tab);
         return;
       }
 
@@ -480,7 +465,6 @@ var gsSuspendManager = (function() {
     initAsPromised,
     queueTabForSuspension,
     unqueueTabForSuspension,
-    markTabAsSuspended,
     executeTabSuspension,
     checkTabEligibilityForSuspension,
     forceTabSuspension,

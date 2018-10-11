@@ -683,7 +683,7 @@ var tgs = (function() {
         .then(function() {
           let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
           clearTabFlagsForTabId(tab.id);
-          gsSuspendManager.markTabAsSuspended(tab);
+          gsSuspendManager.unqueueTabForSuspension(tab);
 
           if (isCurrentFocusedTab(tab)) {
             setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
