@@ -447,6 +447,36 @@ var gsUtils = {
       decodeURIComponent(this.getHashVariable('url', urlStr) || '')
     );
   },
+  cleanTabMetadata(tab) {
+    let favicon = false;
+    if (tab.favicon) {
+      favicon = tab.favicon;
+    } else if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
+      favicon = tab.favIconUrl;
+    }
+    if (
+      !favicon ||
+      favicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')
+    ) {
+      const faviconPrefix = 'chrome://favicon/size/16@2x/';
+      if (gsUtils.isSuspendedTab(tab)) {
+        favicon = faviconPrefix + gsUtils.getSuspendedUrl(tab.url);
+      } else {
+        favicon = faviconPrefix + tab.url;
+      }
+    }
+    tab.favIconUrl = favicon;
+
+    let title = decodeURIComponent(tab.title);
+    if (!title || title === '' || title === decodeURIComponent(tab.url)) {
+      if (gsUtils.isSuspendedTab(tab)) {
+        title = gsUtils.getSuspendedTitle(tab.url) || gsUtils.getSuspendedUrl(tab.url);
+      } else {
+        title = tab.url;
+      }
+    }
+    tab.title = title;
+  },
 
   getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();

@@ -169,26 +169,9 @@ var historyItems = (function() {
     var linksSpan,
       listImg,
       listLink,
-      listHover,
-      favicon = false;
+      listHover;
 
-    //try to get best favicon url path
-    if (tab.favicon) {
-      favicon = tab.favicon;
-    } else if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
-      favicon = tab.favIconUrl;
-    }
-    if (
-      !favicon ||
-      favicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')
-    ) {
-      favicon = 'chrome://favicon/size/16@2x/';
-      if (gsUtils.isSuspendedTab(tab)) {
-        favicon += gsUtils.getSuspendedUrl(tab.url);
-      } else {
-        favicon += tab.url;
-      }
-    }
+    gsUtils.cleanTabMetadata(tab);
 
     if (tab.sessionId) {
       linksSpan = createEl('div', {
@@ -212,7 +195,7 @@ var historyItems = (function() {
     );
 
     listImg = createEl('img', {
-      src: favicon,
+      src: tab.favIconUrl,
       height: '16px',
       width: '16px',
     });
