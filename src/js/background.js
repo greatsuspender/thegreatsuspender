@@ -549,8 +549,31 @@ var tgs = (function() {
     });
   }
 
-  function handleUnsuspendedTabChanged(tab, changeInfo) {
-    var hasTabStatusChanged = false;
+  function checkForTriggerUrls(tab, url) {
+    // test for special case of a successful donation
+    if (url === 'https://greatsuspender.github.io/thanks.html') {
+      gsStorage.setOption(gsStorage.NO_NAG, true);
+      gsAnalytics.reportEvent('Donations', 'HidePopupAuto', true);
+      chrome.tabs.update(tab.id, {
+        url: chrome.extension.getURL('thanks.html'),
+      });
+
+      // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
+    } else if (url === 'chrome://extensions/shortcuts') {
+      _triggerHotkeyUpdate = true;
+    }
+  }
+
+  function handleUnsuspendedTabStateChanged(tab, changeInfo) {
+    if (
+      !changeInfo.hasOwnProperty('status') &&
+      !changeInfo.hasOwnProperty('audible') &&
+      !changeInfo.hasOwnProperty('pinned') &&
+      !changeInfo.hasOwnProperty('discarded')
+    ) {
+      return;
+    }
+    gsUtils.log(tab.id, 'unsuspended tab state changed. changeInfo: ', changeInfo);
 
     //check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
@@ -571,6 +594,8 @@ var tgs = (function() {
       return;
     }
 
+    var hasTabStatusChanged = false;
+
     //check for change in tabs audible status
     if (changeInfo.hasOwnProperty('audible')) {
       //reset tab timer if tab has just finished playing audio
@@ -588,7 +613,7 @@ var tgs = (function() {
     }
 
     //if page has finished loading
-    if (changeInfo.status === 'complete') {
+    if (changeInfo.hasOwnProperty('status') && changeInfo.status === 'complete') {
       var spawnedTabCreateTimestamp = getTabFlagForTabId(
         tab.id,
         SPAWNED_TAB_CREATE_TIMESTAMP
@@ -654,12 +679,25 @@ var tgs = (function() {
     });
   }
 
-  function handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl) {
-    //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
-    //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
+  function handleSuspendedTabStateChanged(tab, changeInfo) {
+    if (!changeInfo.hasOwnProperty('status')) {
+      return;
+    }
+
+    gsUtils.log(tab.id, 'suspended tab status changed. changeInfo: ', changeInfo);
+
     if (changeInfo.status === 'loading') {
-      if (unsuspendOnReloadUrl && unsuspendOnReloadUrl === tab.url) {
-        unsuspendTab(tab);
+      //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
+      //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
+      let unsuspendOnReloadUrl = getTabFlagForTabId(
+        tab.id,
+        UNSUSPEND_ON_RELOAD_URL
+      );
+      if (unsuspendOnReloadUrl) {
+        setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
+        if (unsuspendOnReloadUrl === tab.url) {
+          unsuspendTab(tab);
+        }
       }
 
       // If we want to force tabs to be discarded after suspending them
@@ -669,8 +707,10 @@ var tgs = (function() {
       if (discardAfterSuspend) {
         setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
-    } else if (changeInfo.status === 'complete') {
+      return;
+    }
 
+    if (changeInfo.status === 'complete') {
       initialiseSuspendedTabAsPromised(tab)
         .catch(error => {
           gsUtils.warning(
@@ -681,8 +721,8 @@ var tgs = (function() {
         })
         .then(function() {
           let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
-          clearTabFlagsForTabId(tab.id);
-          gsSuspendManager.unqueueTabForSuspension(tab);
+          clearTabFlagsForTabId(tab.id); //this stops SUSPENDED_TAB_INIT_PENDING from triggering (as well as other things)
+          gsSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
           if (isCurrentFocusedTab(tab)) {
             setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
@@ -1440,46 +1480,19 @@ var tgs = (function() {
     });
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       if (!changeInfo) return;
-      if (
-        !changeInfo.hasOwnProperty('url') &&
-        !changeInfo.hasOwnProperty('status') &&
-        !changeInfo.hasOwnProperty('audible') &&
-        !changeInfo.hasOwnProperty('pinned') &&
-        !changeInfo.hasOwnProperty('discarded')
-      ) {
-        return;
-      }
-
-      gsUtils.log(tabId, 'tab updated. changeInfo: ', changeInfo);
 
       // if url has changed
       if (changeInfo.url) {
-        // test for special case of a successful donation
-        if (changeInfo.url === 'https://greatsuspender.github.io/thanks.html') {
-          gsStorage.setOption(gsStorage.NO_NAG, true);
-          gsAnalytics.reportEvent('Donations', 'HidePopupAuto', true);
-          chrome.tabs.update(tabId, {
-            url: chrome.extension.getURL('thanks.html'),
-          });
-
-          // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
-        } else if (changeInfo.url === 'chrome://extensions/shortcuts') {
-          _triggerHotkeyUpdate = true;
-        }
+        gsUtils.log(tabId, 'tab url changed. changeInfo: ', changeInfo);
+        checkForTriggerUrls(tab, changeInfo.url);
         queueSessionTimer();
+        return;
       }
 
-      let unsuspendOnReloadUrl = getTabFlagForTabId(
-        tab.id,
-        UNSUSPEND_ON_RELOAD_URL
-      );
-      if (unsuspendOnReloadUrl) {
-        setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
-      }
       if (gsUtils.isSuspendedTab(tab, true)) {
-        handleSuspendedTabChanged(tab, changeInfo, unsuspendOnReloadUrl);
+        handleSuspendedTabStateChanged(tab, changeInfo);
       } else if (gsUtils.isNormalTab(tab)) {
-        handleUnsuspendedTabChanged(tab, changeInfo);
+        handleUnsuspendedTabStateChanged(tab, changeInfo);
       }
     });
     chrome.windows.onCreated.addListener(function(window) {
