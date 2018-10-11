@@ -41,7 +41,7 @@ var gsMessages = {
             if (err) {
               gsUtils.warning(
                 currentTab.id,
-                'Failed to resetContentScript. Tab is probably loading?',
+                'Failed to resetContentScript. Tab is probably discarded or loading.',
                 err
               );
             }

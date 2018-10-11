@@ -497,7 +497,6 @@ var tgs = (function() {
     // This will happen if the 'discard suspended tabs' option is turned on and the tab
     // is being unsuspended remotely.
     // Reloading directly causes a history item for the suspended tab to be made in the tab history.
-    // It will also break temp whitelisting of a suspended tab (currently not implemented anyway)
     if (gsUtils.isDiscardedTab(tab)) {
       chrome.tabs.update(tab.id, { url: gsUtils.getSuspendedUrl(tab.url) });
       return;
@@ -1242,7 +1241,7 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_open_link_in_suspended_tab'),
         contexts: ['link'],
-        onclick: function(info, tab) {
+        onclick: (info, tab) => {
           openLinkInSuspendedTab(tab, info.linkUrl);
         },
       });
@@ -1250,12 +1249,12 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
         contexts: allContexts,
-        onclick: toggleSuspendedStateOfHighlightedTab,
+        onclick: () => toggleSuspendedStateOfHighlightedTab(),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
         contexts: allContexts,
-        onclick: toggleTempWhitelistStateOfHighlightedTab,
+        onclick: () => toggleTempWhitelistStateOfHighlightedTab(),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_never_suspend_page'),
@@ -1276,12 +1275,12 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
         contexts: allContexts,
-        onclick: suspendSelectedTabs,
+        onclick: () => suspendSelectedTabs(),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_unsuspend_selected_tabs'),
         contexts: allContexts,
-        onclick: unsuspendSelectedTabs,
+        onclick: () => unsuspendSelectedTabs(),
       });
 
       chrome.contextMenus.create({
@@ -1308,7 +1307,7 @@ var tgs = (function() {
           'js_context_unsuspend_all_tabs_in_window'
         ),
         contexts: allContexts,
-        onclick: unsuspendAllTabs,
+        onclick: () => unsuspendAllTabs(),
       });
 
       chrome.contextMenus.create({
@@ -1329,7 +1328,7 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_unsuspend_all_tabs'),
         contexts: allContexts,
-        onclick: unsuspendAllTabsInAllWindows,
+        onclick: () => unsuspendAllTabsInAllWindows(),
       });
     }
   }
