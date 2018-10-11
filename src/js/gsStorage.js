@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, localStorage, gsUtils */
+/*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
 'use strict';
 
 var gsStorage = {
@@ -72,6 +72,7 @@ var gsStorage = {
       var defaultKeys = Object.keys(defaultSettings);
       chrome.storage.sync.get(defaultKeys, function(syncedSettings) {
         gsUtils.log('gsStorage', 'syncedSettings on init: ', syncedSettings);
+        gsSession.setSynchedSettingsOnInit(syncedSettings);
 
         var rawLocalSettings;
         try {
@@ -293,7 +294,6 @@ var gsStorage = {
       );
     }
   },
-  isNewInstall: function() {},
 
   fetchNoticeVersion: function() {
     var lastNoticeVersion;

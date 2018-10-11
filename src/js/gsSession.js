@@ -8,7 +8,7 @@ var gsSession = (function() {
   const updateUrl = chrome.extension.getURL('update.html');
   const updatedUrl = chrome.extension.getURL('updated.html');
 
-  let initialisationMode = false;
+  let initialisationMode = true;
   let initPeriodInSeconds;
   let initTimeoutInSeconds;
   let sessionId;
@@ -20,6 +20,7 @@ var gsSession = (function() {
   let startupRecoveryTimeTakenInSeconds;
   let startupType;
   let startupLastVersion;
+  let syncedSettingsOnInit;
 
   function initAsPromised() {
     return new Promise(async function(resolve) {
@@ -126,6 +127,10 @@ var gsSession = (function() {
     return updateType;
   }
 
+  function setSynchedSettingsOnInit(syncedSettings) {
+    syncedSettingsOnInit = syncedSettings;
+  }
+
   async function runStartupChecks() {
     initialisationMode = true;
     const currentSessionTabs = await gsChrome.tabsQuery();
@@ -182,9 +187,14 @@ var gsSession = (function() {
   async function handleNewInstall(curVersion) {
     gsStorage.setLastVersion(curVersion);
 
-    //show welcome message
-    const optionsUrl = chrome.extension.getURL('options.html?firstTime');
-    await gsChrome.tabsCreate(optionsUrl);
+    // Try to determine if this is a new install for the computer or for the whole profile
+    // If settings sync contains non-default options, then we can assume it's only
+    // a new install for this computer
+    if (!syncedSettingsOnInit || Object.keys(syncedSettingsOnInit).length === 0) {
+      //show welcome message
+      const optionsUrl = chrome.extension.getURL('options.html?firstTime');
+      await gsChrome.tabsCreate(optionsUrl);
+    }
   }
 
   async function handleUpdate(currentSessionTabs, curVersion, lastVersion) {
@@ -970,6 +980,7 @@ var gsSession = (function() {
     getTabCheckTimeTakenInSeconds,
     getRecoveryTimeTakenInSeconds,
     getStartupType,
+    setSynchedSettingsOnInit,
     getStartupLastVersion,
     recoverLostTabs,
     triggerDiscardOfAllTabs,
