@@ -9,6 +9,7 @@ var gsSession = (function() {
   const updatedUrl = chrome.extension.getURL('updated.html');
 
   let initialisationMode = true;
+  let recoveryMode = false;
   let initPeriodInSeconds;
   let initTimeoutInSeconds;
   let sessionId;
@@ -105,6 +106,10 @@ var gsSession = (function() {
 
   function isInitialising() {
     return initialisationMode;
+  }
+
+  function isRecovering() {
+    return recoveryMode;
   }
 
   function getTabCheckTimeTakenInSeconds() {
@@ -619,6 +624,7 @@ var gsSession = (function() {
       return;
     }
 
+    recoveryMode = true;
     const recoveryStartTime = Date.now();
     gsUtils.log(
       'gsSession',
@@ -647,6 +653,7 @@ var gsSession = (function() {
       await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
     }
 
+    recoveryMode = false;
     startupRecoveryTimeTakenInSeconds = parseInt(
       (Date.now() - recoveryStartTime) / 1000
     );
@@ -976,6 +983,7 @@ var gsSession = (function() {
     buildCurrentSession,
     updateCurrentSession,
     isInitialising,
+    isRecovering,
     isUpdated,
     getTabCheckTimeTakenInSeconds,
     getRecoveryTimeTakenInSeconds,

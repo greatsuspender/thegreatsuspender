@@ -25,6 +25,7 @@ var tgs = (function() {
   var SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   var SCROLL_POS = 'scrollPos';
   var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
+  var SUSPENDED_TAB_INIT_PENDING = 'suspendedTabInitPending';
   var FOCUS_DELAY = 500;
 
   var noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
@@ -471,6 +472,19 @@ var tgs = (function() {
       gsUtils.log('background', 'updating current session');
       gsSession.updateCurrentSession(); //async
     }, 1000);
+  }
+
+  function queueSuspendedTabInitCheckTimer(suspendedTab) {
+    setTimeout(function() {
+      const initPending = getTabFlagForTabId(suspendedTab.id, SUSPENDED_TAB_INIT_PENDING);
+      if (initPending) {
+        gsUtils.warning(
+          suspendedTab.id,
+          `Suspended tab failed to init after 5 secs. Will reload discarded tab..`
+        );
+        gsChrome.tabsUpdate(suspendedTab.id, { url: suspendedTab.url }); // async! unhandled promise
+      }
+    }, 5000);
   }
 
   //tab flags allow us to flag a tab id to execute specific behaviour on load/reload
@@ -1472,6 +1486,10 @@ var tgs = (function() {
     chrome.tabs.onCreated.addListener(function(tab) {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
+      if (!gsSession.isRecovering() && gsUtils.isSuspendedTab(tab, true)) {
+        setTabFlagForTabId(tab.id, SUSPENDED_TAB_INIT_PENDING, true);
+        queueSuspendedTabInitCheckTimer(tab);
+      }
     });
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
       gsUtils.log(tabId, 'tab removed.');
