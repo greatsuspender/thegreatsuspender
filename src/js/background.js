@@ -818,6 +818,7 @@ var tgs = (function() {
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
+    gsUtils.log(oldTabId, 'updateTabIdReferences to ' + newTabId);
     for (const windowId of Object.keys(_currentFocusedTabIdByWindowId)) {
       if (_currentFocusedTabIdByWindowId[windowId] === oldTabId) {
         _currentFocusedTabIdByWindowId[windowId] = newTabId;
@@ -1527,8 +1528,8 @@ var tgs = (function() {
         );
       }
     });
-    chrome.windows.onRemoved.addListener(function() {
-      gsUtils.log('background', 'window removed.');
+    chrome.windows.onRemoved.addListener(function(windowId) {
+      gsUtils.log(windowId, 'window removed.');
       queueSessionTimer();
     });
 
