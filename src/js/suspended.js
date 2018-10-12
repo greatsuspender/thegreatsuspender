@@ -457,7 +457,7 @@
       }
 
       //saftey check to make sure image is not completely transparent
-      if (maxRgb === 0) {
+      if (maxAlpha === 0) {
         getFaviconMetaData(DEFAULT_FAVICON, callback);
         return;
       }
