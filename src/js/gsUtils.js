@@ -32,15 +32,15 @@ var gsUtils = {
   log: function(id, text, ...args) {
     if (debugInfo) {
       args = args || [];
-      // const ignores = ['Error', 'gsUtils', 'gsMessages'];
-      // const errorLine = this.getStackTrace().split('\n').find(o => !ignores.find(p => o.indexOf(p) >= 0));
-      // args.push(errorLine);
       console.log(id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },
   warning: function(id, text, ...args) {
     if (debugError) {
       args = args || [];
+      const ignores = ['Error', 'gsUtils', 'gsMessages'];
+      const errorLine = this.getStackTrace().split('\n').find(o => !ignores.find(p => o.indexOf(p) >= 0));
+      args.push(errorLine);
       console.log('WARNING:', id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },

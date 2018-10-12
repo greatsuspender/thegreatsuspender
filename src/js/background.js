@@ -1264,10 +1264,9 @@ var tgs = (function() {
       : ICON_SUSPENSION_ACTIVE;
     chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {
       if (chrome.runtime.lastError) {
-        gsUtils.warning(
-          'background',
+        gsUtils.warning(tabId,
           chrome.runtime.lastError,
-          `Failed to set icon for tabId: ${tabId}. Tab may have been closed.`
+          `Failed to set icon for tab. Tab may have been closed.`
         );
       }
     });
