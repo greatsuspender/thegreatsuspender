@@ -1,7 +1,10 @@
 /*global chrome, historyUtils */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().gsUtils
+  ) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -34,7 +37,7 @@
   function setExportBackupClickHandler() {
     document.getElementById('exportBackupBtn').onclick = async function(e) {
       const currentSession = await gsSession.buildCurrentSession();
-      historyUtils.exportSession(currentSession, function () {
+      historyUtils.exportSession(currentSession, function() {
         document.getElementById('exportBackupBtn').style.display = 'none';
         setRestartExtensionClickHandler(false);
       });

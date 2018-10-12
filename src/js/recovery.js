@@ -1,7 +1,10 @@
 /*global chrome, historyItems */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().gsUtils
+  ) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -59,10 +62,11 @@
     if (document.getElementById('recoveryTabs').children.length === 0) {
       //if we have already clicked the restore button then redirect to success page
       if (restoreAttempted) {
-        document.getElementById('suspendy-guy-inprogress').style.display = 'none';
-        document.getElementById('recovery-inprogress').style.display =
+        document.getElementById('suspendy-guy-inprogress').style.display =
           'none';
-        document.getElementById('suspendy-guy-complete').style.display = 'inline-block';
+        document.getElementById('recovery-inprogress').style.display = 'none';
+        document.getElementById('suspendy-guy-complete').style.display =
+          'inline-block';
         document.getElementById('recovery-complete').style.display =
           'inline-block';
 
@@ -91,7 +95,7 @@
     for (var i = 0; i < recoverySectionEls.length; i++) {
       recoverySectionEls[i].style.display = 'none';
     }
-    document.getElementById('restoreSession').style.display = 'none'  ;
+    document.getElementById('restoreSession').style.display = 'none';
   }
 
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {

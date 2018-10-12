@@ -1,7 +1,10 @@
 /*global chrome */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().gsUtils
+  ) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -21,18 +24,22 @@
     ];
 
     //populate keyboard shortcuts
-    chrome.commands.getAll((commands) => {
-      commands.forEach((command) => {
+    chrome.commands.getAll(commands => {
+      commands.forEach(command => {
         if (command.name !== '_execute_browser_action') {
           const shortcut =
             command.shortcut !== ''
               ? command.shortcut
               : '(' + notSetMessage + ')';
           var removeMargin = !groupingKeys.includes(command.name);
-          var style = removeMargin ? '"margin: 0 0 2px;"' : '"margin: 0 0 20px;"';
-          shortcutsEl.innerHTML +=
-            `<div style=${style}>${command.description}</div>
-            <div${!command.shortcut && ' class="lesserText"'}>${shortcut}</div>`
+          var style = removeMargin
+            ? '"margin: 0 0 2px;"'
+            : '"margin: 0 0 20px;"';
+          shortcutsEl.innerHTML += `<div style=${style}>${
+            command.description
+          }</div>
+            <div${!command.shortcut &&
+              ' class="lesserText"'}>${shortcut}</div>`;
         }
       });
     });

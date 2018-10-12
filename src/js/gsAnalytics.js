@@ -31,7 +31,8 @@ var gsAnalytics = (function() {
       [DIMENSION_SUSPEND_TIME]:
         gsStorage.getOption(gsStorage.SUSPEND_TIME) + '',
       [DIMENSION_DONATED]: gsStorage.getOption(gsStorage.NO_NAG) + '',
-      [DIMENSION_DISCARD_AFTER_SUSPEND]: gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) + '',
+      [DIMENSION_DISCARD_AFTER_SUSPEND]:
+        gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) + '',
     };
     gsUtils.log('gsAnalytics', 'Setting dimensions', dimensions);
     ga('set', dimensions);
@@ -63,7 +64,7 @@ var gsAnalytics = (function() {
 
   function performVersionReport() {
     const startupType = gsSession.getStartupType();
-    if (!(['Install', 'Update']).includes(startupType)) {
+    if (!['Install', 'Update'].includes(startupType)) {
       return;
     }
 

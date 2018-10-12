@@ -358,10 +358,15 @@ var tgs = (function() {
     const forceLevel = force ? 1 : 2;
     getCurrentlyActiveTab(function(activeTab) {
       if (!activeTab) {
-        gsUtils.warning('background', 'Could not determine currently active window.');
+        gsUtils.warning(
+          'background',
+          'Could not determine currently active window.'
+        );
         return;
       }
-      chrome.windows.get(activeTab.windowId, { populate: true }, function(curWindow) {
+      chrome.windows.get(activeTab.windowId, { populate: true }, function(
+        curWindow
+      ) {
         curWindow.tabs.forEach(function(tab) {
           if (!tab.active) {
             gsSuspendManager.queueTabForSuspension(tab, forceLevel);
@@ -383,10 +388,15 @@ var tgs = (function() {
   function unsuspendAllTabs() {
     getCurrentlyActiveTab(function(activeTab) {
       if (!activeTab) {
-        gsUtils.warning('background', 'Could not determine currently active window.');
+        gsUtils.warning(
+          'background',
+          'Could not determine currently active window.'
+        );
         return;
       }
-      chrome.windows.get(activeTab.windowId, { populate: true }, function(curWindow) {
+      chrome.windows.get(activeTab.windowId, { populate: true }, function(
+        curWindow
+      ) {
         curWindow.tabs.forEach(function(tab) {
           gsSuspendManager.unqueueTabForSuspension(tab);
           if (gsUtils.isSuspendedTab(tab)) {
@@ -473,7 +483,10 @@ var tgs = (function() {
 
   function queueSuspendedTabInitCheckTimer(suspendedTab) {
     setTimeout(function() {
-      const initPending = getTabFlagForTabId(suspendedTab.id, SUSPENDED_TAB_INIT_PENDING);
+      const initPending = getTabFlagForTabId(
+        suspendedTab.id,
+        SUSPENDED_TAB_INIT_PENDING
+      );
       if (initPending) {
         gsUtils.warning(
           suspendedTab.id,
@@ -585,7 +598,11 @@ var tgs = (function() {
     ) {
       return;
     }
-    gsUtils.log(tab.id, 'unsuspended tab state changed. changeInfo: ', changeInfo);
+    gsUtils.log(
+      tab.id,
+      'unsuspended tab state changed. changeInfo: ',
+      changeInfo
+    );
 
     //check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
@@ -625,7 +642,10 @@ var tgs = (function() {
     }
 
     //if page has finished loading
-    if (changeInfo.hasOwnProperty('status') && changeInfo.status === 'complete') {
+    if (
+      changeInfo.hasOwnProperty('status') &&
+      changeInfo.status === 'complete'
+    ) {
       var spawnedTabCreateTimestamp = getTabFlagForTabId(
         tab.id,
         SPAWNED_TAB_CREATE_TIMESTAMP
@@ -696,7 +716,11 @@ var tgs = (function() {
       return;
     }
 
-    gsUtils.log(tab.id, 'suspended tab status changed. changeInfo: ', changeInfo);
+    gsUtils.log(
+      tab.id,
+      'suspended tab status changed. changeInfo: ',
+      changeInfo
+    );
     setTabFlagForTabId(tab.id, SUSPENDED_TAB_INIT_PENDING, false);
 
     if (changeInfo.status === 'loading') {
@@ -1264,7 +1288,8 @@ var tgs = (function() {
       : ICON_SUSPENSION_ACTIVE;
     chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {
       if (chrome.runtime.lastError) {
-        gsUtils.warning(tabId,
+        gsUtils.warning(
+          tabId,
           chrome.runtime.lastError,
           `Failed to set icon for tab. Tab may have been closed.`
         );

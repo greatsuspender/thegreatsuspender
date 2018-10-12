@@ -1,7 +1,10 @@
 /*global chrome */
 (function() {
   'use strict';
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().gsUtils
+  ) {
     window.setTimeout(() => location.replace(location.href), 1000);
     return;
   }
@@ -33,7 +36,11 @@
       document.getElementById('updating').style.display = 'none';
       document.getElementById('updated').style.display = 'block';
     } else {
-      chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      chrome.runtime.onMessage.addListener(function(
+        request,
+        sender,
+        sendResponse
+      ) {
         if (request && request.updateComplete) {
           document.getElementById('updating').style.display = 'none';
           document.getElementById('updated').style.display = 'block';

@@ -33,11 +33,17 @@ var gsMessages = {
 
     chrome.tabs.query({}, function(tabs) {
       tabs.forEach(function(currentTab) {
-        if (gsUtils.isSuspendedTab(currentTab) || gsUtils.isSpecialTab(currentTab)) {
+        if (
+          gsUtils.isSuspendedTab(currentTab) ||
+          gsUtils.isSpecialTab(currentTab)
+        ) {
           return;
         }
         if (gsUtils.isDiscardedTab(currentTab)) {
-          gsUtils.warning(currentTab.id, 'Cannot reset contentScript of discarded tab');
+          gsUtils.warning(
+            currentTab.id,
+            'Cannot reset contentScript of discarded tab'
+          );
           return;
         }
         self.sendMessageToContentScript(

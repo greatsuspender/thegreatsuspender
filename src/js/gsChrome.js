@@ -16,7 +16,10 @@ var gsChrome = {
   cookiesRemove: async function(url, name) {
     return new Promise(resolve => {
       if (!url || !name) {
-        gsUtils.errorIfInitialised('chromeCookies', 'url or name not specified');
+        gsUtils.errorIfInitialised(
+          'chromeCookies',
+          'url or name not specified'
+        );
         resolve(null);
         return;
       }
@@ -68,7 +71,10 @@ var gsChrome = {
   tabsUpdate: async function(tabId, updateProperties) {
     return new Promise(resolve => {
       if (!tabId || !updateProperties) {
-        gsUtils.errorIfInitialised('chromeTabs', 'tabId or updateProperties not specified');
+        gsUtils.errorIfInitialised(
+          'chromeTabs',
+          'tabId or updateProperties not specified'
+        );
         resolve(null);
         return;
       }
@@ -178,7 +184,10 @@ var gsChrome = {
   windowsUpdate: async function(windowId, updateInfo) {
     return new Promise(resolve => {
       if (!windowId || !updateInfo) {
-        gsUtils.errorIfInitialised('chromeTabs', 'windowId or updateInfo not specified');
+        gsUtils.errorIfInitialised(
+          'chromeTabs',
+          'windowId or updateInfo not specified'
+        );
         resolve(null);
         return;
       }

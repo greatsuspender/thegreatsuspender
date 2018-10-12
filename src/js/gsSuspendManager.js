@@ -31,7 +31,10 @@ var gsSuspendManager = (function() {
 
     gsUtils.log(tab.id, 'Queueing tab for suspension.');
 
-    suspensionQueueDetailsByTabId[tab.id] = { tab: tab, forceLevel: forceLevel };
+    suspensionQueueDetailsByTabId[tab.id] = {
+      tab: tab,
+      forceLevel: forceLevel,
+    };
     clearTimeout(processSuspensionQueueTimer);
     processSuspensionQueueTimer = setTimeout(function() {
       gsUtils.log('background', 'processRequestTabSuspensionQueue');
@@ -52,7 +55,10 @@ var gsSuspendManager = (function() {
     var suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
     // If suspensionDetails doesn't exist, then assume this tab suspension has been cancelled
     if (!suspensionDetails) {
-      gsUtils.log(tab.id, 'Tab missing from suspensionQueue. Assuming suspension cancelled for this tab.');
+      gsUtils.log(
+        tab.id,
+        'Tab missing from suspensionQueue. Assuming suspension cancelled for this tab.'
+      );
       return;
     }
     removeTabFromSuspensionQueue(tab);
@@ -87,7 +93,7 @@ var gsSuspendManager = (function() {
 
   async function forceTabSuspension(tab, suspendedUrl) {
     if (!gsUtils.isSuspendedTab(tab)) {
-      await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl })
+      await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
     } else {
       gsUtils.log(tab.id, 'Tab already suspended');
     }
@@ -137,10 +143,7 @@ var gsSuspendManager = (function() {
     }
 
     // If we want to force tabs to be suspended instead of discarding them
-    var tabEligibleForSuspension = checkTabEligibilityForSuspension(
-      tab,
-      3
-    );
+    var tabEligibleForSuspension = checkTabEligibilityForSuspension(tab, 3);
     if (!tabEligibleForSuspension) {
       if (forceRefresh) {
         gsUtils.log(tab.id, 'Forcing refresh of discarded unsuspended tab');
@@ -231,7 +234,12 @@ var gsSuspendManager = (function() {
       if (
         !checkContentScriptEligibilityForSuspension(tabInfo.status, forceLevel)
       ) {
-        gsUtils.log(tab.id, `Content script status of ${tabInfo.status} not eligible for suspension. Removing tab from suspensionQueue.`);
+        gsUtils.log(
+          tab.id,
+          `Content script status of ${
+            tabInfo.status
+          } not eligible for suspension. Removing tab from suspensionQueue.`
+        );
         removeTabFromSuspensionQueue(tab);
         return;
       }
