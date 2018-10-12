@@ -19,7 +19,7 @@
   let currentUrl;
   let currentFaviconUrl;
   let currentTheme;
-  let currentHideNag;
+  let currentShowNag;
   let currentCommand;
   let currentReason;
 
@@ -184,24 +184,27 @@
     reasonMsgEl.innerHTML = reason;
   }
 
-  function handleDonationPopup(hideNag) {
-    const queueNag = !hideNag && !showingNag && currentHideNag !== hideNag;
-    currentHideNag = hideNag;
+  function handleDonationPopup(showNag, tabActive) {
+    const queueNag = showNag && !showingNag && currentShowNag !== showNag;
+    currentShowNag = showNag;
 
     if (queueNag) {
-      //show dude and donate link (randomly 1 of 20 times)
-      if (Math.random() > 0.95) {
-        var donationPopupFocusListener = function(e) {
-          e.target.removeEventListener('focus', donationPopupFocusListener);
+      var donationPopupFocusListener = function(e) {
+        if (e) {
+          e.target.removeEventListener('visibilitychange', donationPopupFocusListener);
+        }
 
-          //if user has donated since this page was first generated then dont display popup
-          if (!currentHideNag) {
-            loadDonationPopupTemplate();
-          }
-        };
-        window.addEventListener('focus', donationPopupFocusListener);
+        //if user has donated since this page was first generated then dont display popup
+        if (currentShowNag) {
+          loadDonationPopupTemplate();
+        }
+      };
+      if (tabActive) {
+        donationPopupFocusListener();
+      } else {
+        window.addEventListener('visibilitychange', donationPopupFocusListener);
       }
-    } else if (hideNag && showingNag) {
+    } else if (showNag && showingNag) {
       showingNag = false;
       document.getElementById('dudePopup').classList.remove('poppedup');
       document.getElementById('donateBubble').classList.remove('fadeIn');
@@ -588,8 +591,8 @@
     if (request.hasOwnProperty('theme')) {
       setTheme(request.theme);
     }
-    if (request.hasOwnProperty('hideNag')) {
-      handleDonationPopup(request.hideNag);
+    if (request.hasOwnProperty('showNag')) {
+      handleDonationPopup(request.showNag, request.tabActive);
     }
     if (request.hasOwnProperty('command')) {
       setCommand(request.command);

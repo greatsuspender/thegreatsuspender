@@ -24,6 +24,7 @@ var tgs = (function() {
   var TF_UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var TF_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   var TF_SCROLL_POS = 'scrollPos';
+  var TF_SHOW_NAG = 'showNag';
   var TF_SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
   var TF_SUSPENDED_TAB_INIT_PENDING = 'suspendedTabInitPending';
 
@@ -798,17 +799,26 @@ var tgs = (function() {
       ) {
         previewUri = preview.img;
       }
+
       const options = gsStorage.getSettings();
+
+      //show dude and donate link (randomly 1 of 20 times)
+      let showNag = getTabFlagForTabId(tab.id, TF_SHOW_NAG);
+      if (showNag === undefined || showNag === null) {
+        showNag = !options[gsStorage.NO_NAG] && Math.random() > 0.95;
+        setTabFlagForTabId(tab.id, TF_SHOW_NAG, showNag);
+      }
       getSuspendUnsuspendHotkey(function(hotkey) {
         var payload = {
           tabId: tab.id,
+          tabActive: tab.active,
           requestUnsuspendOnReload: true,
           url: originalUrl,
           favicon: favicon,
           title: title,
           whitelisted: whitelisted,
           theme: options[gsStorage.THEME],
-          hideNag: options[gsStorage.NO_NAG],
+          showNag: showNag,
           previewMode: options[gsStorage.SCREEN_CAPTURE],
           previewUri: previewUri,
           command: hotkey,
