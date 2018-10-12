@@ -755,19 +755,20 @@ var tgs = (function() {
 
           if (isCurrentFocusedTab(tab)) {
             setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+          } else {
+            // If we want to discard tabs after suspending them
+            let discardAfterSuspend = gsStorage.getOption(
+              gsStorage.DISCARD_AFTER_SUSPEND
+            );
+            if (discardAfterSuspend) {
+              gsSuspendManager.forceTabDiscardation(tab);
+            }
           }
 
           // Set scrollPosition tab flag
           const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
           setTabFlagForTabId(tab.id, TF_SCROLL_POS, scrollPosition);
 
-          // If we want to discard tabs after suspending them
-          let discardAfterSuspend = gsStorage.getOption(
-            gsStorage.DISCARD_AFTER_SUSPEND
-          );
-          if (discardAfterSuspend) {
-            gsSuspendManager.forceTabDiscardation(tab);
-          }
         });
     }
   }
