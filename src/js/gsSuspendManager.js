@@ -25,12 +25,11 @@ var gsSuspendManager = (function() {
     if (typeof tab === 'undefined') return;
 
     if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
-      gsUtils.log(
-        'gsSuspendManager',
-        `Tab not eligible for suspension: ${tab.id}`
-      );
+      gsUtils.log(tab.id, 'Tab not eligible for suspension.');
       return;
     }
+
+    gsUtils.log(tab.id, 'Queueing tab for suspension.');
 
     suspensionQueueDetailsByTabId[tab.id] = { tab: tab, forceLevel: forceLevel };
     clearTimeout(processSuspensionQueueTimer);

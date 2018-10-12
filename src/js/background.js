@@ -503,6 +503,7 @@ var tgs = (function() {
 
   function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
+    gsUtils.log(tab.id, 'Unsuspending tab.');
 
     // If the suspended tab is discarded then reload the tab directly.
     // This will happen if the 'discard suspended tabs' option is turned on and the tab
