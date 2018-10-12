@@ -48,7 +48,7 @@
       const preUrlDecoded = decodeURIComponent(preUrlEncoded);
       setUrl(preUrlDecoded);
       document.getElementById('gsTopBar').onmousedown = handleUnsuspendTab;
-      document.getElementById('suspendedMsg').onmousedown = handleUnsuspendTab;
+      document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
 
       const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
       setFavicon(preFaviconUrl);
@@ -112,7 +112,10 @@
     currentUrl = url;
     document.getElementById('gsTopBarUrl').innerHTML = cleanUrl(currentUrl);
     document.getElementById('gsTopBarUrl').setAttribute('href', url);
-    document.getElementById('gsTopBarUrl').onmousedown = handleUnsuspendTab;
+    document.getElementById('gsTopBarUrl').onmousedown = function(e) {
+      e.stopPropagation();
+    };
+    document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
   }
 
   function setFavicon(faviconUrl) {
@@ -227,7 +230,7 @@
     const previewEl = document.createElement('div');
     previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
     localiseHtml(previewEl);
-    previewEl.onmousedown = handleUnsuspendTab;
+    previewEl.onclick = handleUnsuspendTab;
     document.getElementsByTagName('body')[0].appendChild(previewEl);
     builtImagePreview = true;
 
