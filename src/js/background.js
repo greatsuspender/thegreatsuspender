@@ -356,12 +356,12 @@ var tgs = (function() {
 
   function suspendAllTabs(force) {
     const forceLevel = force ? 1 : 2;
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      if (tabs.length === 0) {
+    getCurrentlyActiveTab(function(activeTab) {
+      if (!activeTab) {
+        gsUtils.warning('background', 'Could not determine currently active window.');
         return;
       }
-      var curWindowId = tabs[0].windowId;
-      chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
+      chrome.windows.get(activeTab.windowId, { populate: true }, function(curWindow) {
         curWindow.tabs.forEach(function(tab) {
           if (!tab.active) {
             gsSuspendManager.queueTabForSuspension(tab, forceLevel);
@@ -381,21 +381,18 @@ var tgs = (function() {
   }
 
   function unsuspendAllTabs() {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      if (tabs.length === 0) {
+    getCurrentlyActiveTab(function(activeTab) {
+      if (!activeTab) {
+        gsUtils.warning('background', 'Could not determine currently active window.');
         return;
       }
-      var curWindowId = tabs[0].windowId;
-      chrome.windows.get(curWindowId, { populate: true }, function(curWindow) {
-        curWindow.tabs.forEach(function(currentTab) {
-          gsSuspendManager.unqueueTabForSuspension(currentTab);
-          if (gsUtils.isSuspendedTab(currentTab)) {
-            unsuspendTab(currentTab);
-          } else if (
-            gsUtils.isNormalTab(currentTab) &&
-            !gsUtils.isDiscardedTab(currentTab)
-          ) {
-            gsMessages.sendRestartTimerToContentScript(currentTab.id); //async. unhandled error
+      chrome.windows.get(activeTab.windowId, { populate: true }, function(curWindow) {
+        curWindow.tabs.forEach(function(tab) {
+          gsSuspendManager.unqueueTabForSuspension(tab);
+          if (gsUtils.isSuspendedTab(tab)) {
+            unsuspendTab(tab);
+          } else if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
+            gsMessages.sendRestartTimerToContentScript(tab.id); //async. unhandled error
           }
         });
       });
