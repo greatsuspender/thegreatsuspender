@@ -157,7 +157,7 @@ var gsSuspendManager = (function() {
       return;
     }
 
-    tgs.setTabFlagForTabId(tab.id, tgs.SUSPEND_REASON, 3);
+    tgs.setTabFlagForTabId(tab.id, tgs.TF_SUSPEND_REASON, 3);
     var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
     await forceTabSuspension(tab, suspendedUrl);
   }

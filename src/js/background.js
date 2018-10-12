@@ -19,15 +19,15 @@ var tgs = (function() {
     '32': 'img/ic_suspendy_32x32_grey.png',
   };
 
-  var TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-  var UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
-  var DISCARD_ON_LOAD = 'discardOnLoad';
-  var SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
-  var SCROLL_POS = 'scrollPos';
-  var SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
-  var SUSPENDED_TAB_INIT_PENDING = 'suspendedTabInitPending';
-  var FOCUS_DELAY = 500;
+  // Tab flags
+  var TF_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
+  var TF_UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
+  var TF_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
+  var TF_SCROLL_POS = 'scrollPos';
+  var TF_SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
+  var TF_SUSPENDED_TAB_INIT_PENDING = 'suspendedTabInitPending';
 
+  var focusDelay = 500;
   var noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
   var sessionMetricsCheckInterval = 1000 * 60 * 15; // every 15 minutes
   var analyticsCheckInterval = 1000 * 60 * 60 * 23.5; // every 23.5 hours
@@ -151,7 +151,7 @@ var tgs = (function() {
     })();
   }
 
-  // NOTE: Stationary here means has had focus for more than FOCUS_DELAY ms
+  // NOTE: Stationary here means has had focus for more than focusDelay ms
   // So it may not necessarily have the tab.active flag set to true
   function isCurrentStationaryTab(tab) {
     if (tab.windowId !== _currentStationaryWindowId) {
@@ -321,7 +321,7 @@ var tgs = (function() {
         active: false,
       };
       chrome.tabs.create(newTabProperties, function(tab) {
-        setTabFlagForTabId(tab.id, SPAWNED_TAB_CREATE_TIMESTAMP, Date.now());
+        setTabFlagForTabId(tab.id, TF_SPAWNED_TAB_CREATE_TIMESTAMP, Date.now());
       });
     });
   }
@@ -485,7 +485,7 @@ var tgs = (function() {
     setTimeout(function() {
       const initPending = getTabFlagForTabId(
         suspendedTab.id,
-        SUSPENDED_TAB_INIT_PENDING
+        TF_SUSPENDED_TAB_INIT_PENDING
       );
       if (initPending) {
         gsUtils.warning(
@@ -606,7 +606,7 @@ var tgs = (function() {
 
     //check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
-      const existingSuspendReason = getTabFlagForTabId(tab.id, SUSPEND_REASON);
+      const existingSuspendReason = getTabFlagForTabId(tab.id, TF_SUSPEND_REASON);
       if (existingSuspendReason && existingSuspendReason === 3) {
         // For some reason the discarded changeInfo gets called twice (chrome bug?)
         // As a workaround we use the suspend reason to determine if we've already
@@ -648,7 +648,7 @@ var tgs = (function() {
     ) {
       var spawnedTabCreateTimestamp = getTabFlagForTabId(
         tab.id,
-        SPAWNED_TAB_CREATE_TIMESTAMP
+        TF_SPAWNED_TAB_CREATE_TIMESTAMP
       );
       //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
       if (
@@ -688,9 +688,9 @@ var tgs = (function() {
       var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
       var isTempWhitelist = getTabFlagForTabId(
         tab.id,
-        TEMP_WHITELIST_ON_RELOAD
+        TF_TEMP_WHITELIST_ON_RELOAD
       );
-      var scrollPos = getTabFlagForTabId(tab.id, SCROLL_POS) || null;
+      var scrollPos = getTabFlagForTabId(tab.id, TF_SCROLL_POS) || null;
       var suspendTime = gsUtils.isProtectedActiveTab(tab)
         ? '0'
         : gsStorage.getOption(gsStorage.SUSPEND_TIME);
@@ -721,28 +721,20 @@ var tgs = (function() {
       'suspended tab status changed. changeInfo: ',
       changeInfo
     );
-    setTabFlagForTabId(tab.id, SUSPENDED_TAB_INIT_PENDING, false);
+    setTabFlagForTabId(tab.id, TF_SUSPENDED_TAB_INIT_PENDING, false);
 
     if (changeInfo.status === 'loading') {
       //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
-      //if the UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
+      //if the TF_UNSUSPEND_ON_RELOAD flag is matches the current url, then unsuspend.
       let unsuspendOnReloadUrl = getTabFlagForTabId(
         tab.id,
-        UNSUSPEND_ON_RELOAD_URL
+        TF_UNSUSPEND_ON_RELOAD
       );
       if (unsuspendOnReloadUrl) {
-        setTabFlagForTabId(tab.id, UNSUSPEND_ON_RELOAD_URL, null);
+        setTabFlagForTabId(tab.id, TF_UNSUSPEND_ON_RELOAD, null);
         if (unsuspendOnReloadUrl === tab.url) {
           unsuspendTab(tab);
         }
-      }
-
-      // If we want to force tabs to be discarded after suspending them
-      let discardAfterSuspend = gsStorage.getOption(
-        gsStorage.DISCARD_AFTER_SUSPEND
-      );
-      if (discardAfterSuspend) {
-        setTabFlagForTabId(tab.id, DISCARD_ON_LOAD, true);
       }
       return;
     }
@@ -757,8 +749,6 @@ var tgs = (function() {
           );
         })
         .then(function() {
-          let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
-          clearTabFlagsForTabId(tab.id);
           gsSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
           if (isCurrentFocusedTab(tab)) {
@@ -767,13 +757,13 @@ var tgs = (function() {
 
           // Set scrollPosition tab flag
           const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-          setTabFlagForTabId(tab.id, SCROLL_POS, scrollPosition);
+          setTabFlagForTabId(tab.id, TF_SCROLL_POS, scrollPosition);
 
           // If we want to discard tabs after suspending them
           let discardAfterSuspend = gsStorage.getOption(
             gsStorage.DISCARD_AFTER_SUSPEND
           );
-          if (discardAfterSuspend && discardOnLoad) {
+          if (discardAfterSuspend) {
             gsSuspendManager.forceTabDiscardation(tab);
           }
         });
@@ -822,7 +812,7 @@ var tgs = (function() {
           previewUri: previewUri,
           command: hotkey,
         };
-        const suspendReason = getTabFlagForTabId(tab.id, SUSPEND_REASON);
+        const suspendReason = getTabFlagForTabId(tab.id, TF_SUSPEND_REASON);
         if (suspendReason === 3) {
           payload.reason = chrome.i18n.getMessage('js_suspended_low_memory');
         }
@@ -939,7 +929,7 @@ var tgs = (function() {
       var previousStationaryTabId =
         _currentStationaryTabIdByWindowId[previousStationaryWindowId];
       handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab);
-    }, FOCUS_DELAY);
+    }, focusDelay);
   }
 
   function queueNewTabFocusTimer(tabId, windowId, focusedTab) {
@@ -948,7 +938,7 @@ var tgs = (function() {
       var previousStationaryTabId = _currentStationaryTabIdByWindowId[windowId];
       _currentStationaryTabIdByWindowId[windowId] = focusedTab.id;
       handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab);
-    }, FOCUS_DELAY);
+    }, focusDelay);
   }
 
   function handleNewStationaryTabFocus(
@@ -958,8 +948,8 @@ var tgs = (function() {
   ) {
     gsUtils.log(tabId, 'new tab focus handled');
     //remove request to instantly suspend this tab id
-    if (getTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP)) {
-      setTabFlagForTabId(tabId, SPAWNED_TAB_CREATE_TIMESTAMP, false);
+    if (getTabFlagForTabId(tabId, TF_SPAWNED_TAB_CREATE_TIMESTAMP)) {
+      setTabFlagForTabId(tabId, TF_SPAWNED_TAB_CREATE_TIMESTAMP, false);
     }
 
     if (gsUtils.isSuspendedTab(focusedTab)) {
@@ -1021,11 +1011,7 @@ var tgs = (function() {
           let discardAfterSuspend = gsStorage.getOption(
             gsStorage.DISCARD_AFTER_SUSPEND
           );
-          var discardOnLoad = getTabFlagForTabId(
-            previousStationaryTabId,
-            DISCARD_ON_LOAD
-          );
-          if (discardAfterSuspend && !discardOnLoad) {
+          if (discardAfterSuspend) {
             gsSuspendManager.forceTabDiscardation(previousStationaryTab);
           }
         }
@@ -1511,7 +1497,7 @@ var tgs = (function() {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
       if (!gsSession.isRecovering() && gsUtils.isSuspendedTab(tab, true)) {
-        setTabFlagForTabId(tab.id, SUSPENDED_TAB_INIT_PENDING, true);
+        setTabFlagForTabId(tab.id, TF_SUSPENDED_TAB_INIT_PENDING, true);
         queueSuspendedTabInitCheckTimer(tab);
       }
     });
@@ -1627,11 +1613,9 @@ var tgs = (function() {
   }
 
   return {
-    TEMP_WHITELIST_ON_RELOAD,
-    UNSUSPEND_ON_RELOAD_URL,
-    DISCARD_ON_LOAD,
-    SUSPEND_REASON,
-    SCROLL_POS,
+    TF_TEMP_WHITELIST_ON_RELOAD,
+    TF_UNSUSPEND_ON_RELOAD,
+    TF_SUSPEND_REASON,
     getTabFlagForTabId,
     setTabFlagForTabId,
 
