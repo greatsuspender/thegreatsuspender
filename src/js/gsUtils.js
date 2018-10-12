@@ -41,8 +41,9 @@ var gsUtils = {
       const ignores = ['Error', 'gsUtils', 'gsMessages'];
       const errorLine = this.getStackTrace()
         .split('\n')
-        .find(o => !ignores.find(p => o.indexOf(p) >= 0));
-      args.push(errorLine);
+        .filter(o => !ignores.find(p => o.indexOf(p) >= 0))
+        .join('\n');
+      args.push(`\n${errorLine}`);
       console.log(
         'WARNING:',
         id,

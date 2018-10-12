@@ -846,7 +846,7 @@ var tgs = (function() {
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
-    gsUtils.log(oldTabId, 'updateTabIdReferences to ' + newTabId);
+    gsUtils.log(oldTabId, 'update tabId references to ' + newTabId);
     for (const windowId of Object.keys(_currentFocusedTabIdByWindowId)) {
       if (_currentFocusedTabIdByWindowId[windowId] === oldTabId) {
         _currentFocusedTabIdByWindowId[windowId] = newTabId;
