@@ -39,9 +39,17 @@ var gsUtils = {
     if (debugError) {
       args = args || [];
       const ignores = ['Error', 'gsUtils', 'gsMessages'];
-      const errorLine = this.getStackTrace().split('\n').find(o => !ignores.find(p => o.indexOf(p) >= 0));
+      const errorLine = this.getStackTrace()
+        .split('\n')
+        .find(o => !ignores.find(p => o.indexOf(p) >= 0));
       args.push(errorLine);
-      console.log('WARNING:', id, (new Date() + '').split(' ')[4], text, ...args);
+      console.log(
+        'WARNING:',
+        id,
+        (new Date() + '').split(' ')[4],
+        text,
+        ...args
+      );
     }
   },
   error: function(id, errorObj, ...args) {
@@ -470,7 +478,9 @@ var gsUtils = {
     let title = decodeURIComponent(tab.title);
     if (!title || title === '' || title === decodeURIComponent(tab.url)) {
       if (gsUtils.isSuspendedTab(tab)) {
-        title = gsUtils.getSuspendedTitle(tab.url) || gsUtils.getSuspendedUrl(tab.url);
+        title =
+          gsUtils.getSuspendedTitle(tab.url) ||
+          gsUtils.getSuspendedUrl(tab.url);
       } else {
         title = tab.url;
       }
@@ -480,8 +490,8 @@ var gsUtils = {
 
   getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();
-    const currentSuspendedTabs = currentTabs.filter(
-      tab => gsUtils.isSuspendedTab(tab, true)
+    const currentSuspendedTabs = currentTabs.filter(tab =>
+      gsUtils.isSuspendedTab(tab, true)
     );
     return currentSuspendedTabs.length;
   },
