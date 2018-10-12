@@ -697,6 +697,7 @@ var tgs = (function() {
     }
 
     gsUtils.log(tab.id, 'suspended tab status changed. changeInfo: ', changeInfo);
+    setTabFlagForTabId(tab.id, SUSPENDED_TAB_INIT_PENDING, false);
 
     if (changeInfo.status === 'loading') {
       //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
@@ -733,7 +734,7 @@ var tgs = (function() {
         })
         .then(function() {
           let discardOnLoad = getTabFlagForTabId(tab.id, DISCARD_ON_LOAD);
-          clearTabFlagsForTabId(tab.id); //this stops SUSPENDED_TAB_INIT_PENDING from triggering (as well as other things)
+          clearTabFlagsForTabId(tab.id);
           gsSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
           if (isCurrentFocusedTab(tab)) {
@@ -1503,7 +1504,6 @@ var tgs = (function() {
         gsUtils.log(tabId, 'tab url changed. changeInfo: ', changeInfo);
         checkForTriggerUrls(tab, changeInfo.url);
         queueSessionTimer();
-        return;
       }
 
       if (gsUtils.isSuspendedTab(tab, true)) {
