@@ -749,7 +749,7 @@ var tgs = (function() {
           let discardAfterSuspend = gsStorage.getOption(
             gsStorage.DISCARD_AFTER_SUSPEND
           );
-          if (discardAfterSuspend && !tab.active && discardOnLoad) {
+          if (discardAfterSuspend && discardOnLoad) {
             gsSuspendManager.forceTabDiscardation(tab);
           }
         });

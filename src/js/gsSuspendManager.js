@@ -94,6 +94,10 @@ var gsSuspendManager = (function() {
   }
 
   function forceTabDiscardation(tab) {
+    if (tab.active) {
+      gsUtils.log(tab.id, 'Tab is active. Aborting discard.');
+      return;
+    }
     if (!gsUtils.isDiscardedTab(tab)) {
       gsUtils.log(tab.id, 'Forcing discarding of tab.');
       chrome.tabs.discard(tab.id, () => {

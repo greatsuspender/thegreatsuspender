@@ -581,7 +581,7 @@ var gsSession = (function() {
     const discardAfterSuspend = gsStorage.getOption(
       gsStorage.DISCARD_AFTER_SUSPEND
     );
-    if (discardAfterSuspend && isSuspendedTab && !tab.active) {
+    if (discardAfterSuspend && isSuspendedTab) {
       gsSuspendManager.forceTabDiscardation(tab);
     }
     return true;
