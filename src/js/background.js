@@ -803,11 +803,14 @@ var tgs = (function() {
 
       const options = gsStorage.getSettings();
 
-      //show dude and donate link (randomly 1 of 20 times)
-      let showNag = getTabFlagForTabId(tab.id, TF_SHOW_NAG);
-      if (showNag === undefined || showNag === null) {
-        showNag = !options[gsStorage.NO_NAG] && Math.random() > 0.95;
-        setTabFlagForTabId(tab.id, TF_SHOW_NAG, showNag);
+      let showNag = false;
+      if (!options[gsStorage.NO_NAG]) {
+        showNag = getTabFlagForTabId(tab.id, TF_SHOW_NAG);
+        if (showNag === undefined || showNag === null) {
+          //show dude and donate link (randomly 1 of 20 times)
+          showNag = Math.random() > 0.95;
+          setTabFlagForTabId(tab.id, TF_SHOW_NAG, showNag);
+        }
       }
       getSuspendUnsuspendHotkey(function(hotkey) {
         var payload = {
