@@ -71,16 +71,16 @@
     tabId = _tabId;
 
     // beforeunload event will get fired if: the tab is refreshed, the url is changed, the tab is closed
-    // set the tabFlag TF_UNSUSPEND_ON_RELOAD so that a refresh will trigger an unsuspend
+    // set the tabFlag TF_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
     // this will be ignored if the tab is being closed or if the tab is navigating to a new url,
-    // and that new url does not match the TF_UNSUSPEND_ON_RELOAD
+    // and that new url does not match the TF_UNSUSPEND_ON_RELOAD_URL
     window.addEventListener('beforeunload', function(event) {
       if (requestUnsuspendOnReload) {
         try {
           const tgs = chrome.extension.getBackgroundPage().tgs;
           tgs.setTabFlagForTabId(
             _tabId,
-            tgs.TF_UNSUSPEND_ON_RELOAD,
+            tgs.TF_UNSUSPEND_ON_RELOAD_URL,
             window.location.href
           );
         } catch (error) {

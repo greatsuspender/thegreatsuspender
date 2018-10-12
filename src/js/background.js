@@ -21,7 +21,7 @@ var tgs = (function() {
 
   // Tab flags
   var TF_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-  var TF_UNSUSPEND_ON_RELOAD = 'unsuspendOnReload';
+  var TF_UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
   var TF_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   var TF_SCROLL_POS = 'scrollPos';
   var TF_SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
@@ -725,14 +725,15 @@ var tgs = (function() {
 
     if (changeInfo.status === 'loading') {
       //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
-      //if the TF_UNSUSPEND_ON_RELOAD flag is matches the current url, then unsuspend.
+      //if the TF_UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
       let unsuspendOnReloadUrl = getTabFlagForTabId(
         tab.id,
-        TF_UNSUSPEND_ON_RELOAD
+        TF_UNSUSPEND_ON_RELOAD_URL
       );
       if (unsuspendOnReloadUrl) {
-        setTabFlagForTabId(tab.id, TF_UNSUSPEND_ON_RELOAD, null);
+        setTabFlagForTabId(tab.id, TF_UNSUSPEND_ON_RELOAD_URL, null);
         if (unsuspendOnReloadUrl === tab.url) {
+          gsUtils.log(tab.id, 'Unsuspend on reload flag set. Will unsuspend tab.');
           unsuspendTab(tab);
         }
       }
@@ -1614,7 +1615,7 @@ var tgs = (function() {
 
   return {
     TF_TEMP_WHITELIST_ON_RELOAD,
-    TF_UNSUSPEND_ON_RELOAD,
+    TF_UNSUSPEND_ON_RELOAD_URL,
     TF_SUSPEND_REASON,
     getTabFlagForTabId,
     setTabFlagForTabId,

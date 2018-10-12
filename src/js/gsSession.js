@@ -624,7 +624,7 @@ var gsSession = (function() {
   function requestReloadSuspendedTab(tab) {
     // resuspend unresponsive suspended tabs
     gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
-    tgs.setTabFlagForTabId(tab.id, tgs.TF_UNSUSPEND_ON_RELOAD, null);
+    tgs.setTabFlagForTabId(tab.id, tgs.TF_UNSUSPEND_ON_RELOAD_URL, null);
     chrome.tabs.reload(tab.id, function() {
       // Ignore callback here as we need to wait for the suspended tab
       // to finish reloading before we can check again
