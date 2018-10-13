@@ -2,6 +2,7 @@
 (function() {
   'use strict';
 
+  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
   var gsSession = chrome.extension.getBackgroundPage().gsSession;
   var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
   var tgs = chrome.extension.getBackgroundPage().tgs;
@@ -244,6 +245,10 @@
   }
 
   function showPopupContents() {
+    const theme = gsStorage.getOption(gsStorage.THEME);
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+    }
     setTimeout(function() {
       document.getElementById('popupContent').style.opacity = 1;
     }, 200);
