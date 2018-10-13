@@ -62,9 +62,7 @@ a {
 .group {
   padding: 10px 0;
 }
-#optsCurrent,
-#optsAll,
-#optsSelected {
+.group:not(:last-of-type) {
   border-bottom: 1px solid #ccc;
 }
 
@@ -77,4 +75,12 @@ a {
 }
 .menuOption:hover .optionText {
   text-decoration: underline;
+}
+/* dark theme for night lurkers */
+.dark {
+  background: #222;
+  color: #b8b8b8;
+}
+.dark .group {
+  border-color: #444;
 }
