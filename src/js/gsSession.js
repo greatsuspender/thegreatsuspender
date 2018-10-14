@@ -489,7 +489,7 @@ var gsSession = (function() {
       windowId: tab.windowId,
     });
     tabs = tabs.filter(o => o.url === tab.url);
-    gsUtils.log('gsSession', 'Searching for discarded tab matching tab: ', tab);
+    gsUtils.log(tab.id, 'Searching for discarded tab matching tab: ', tab);
     let matchingTab = null;
     if (tabs.length === 1) {
       matchingTab = tabs[0];
@@ -506,7 +506,7 @@ var gsSession = (function() {
       return matchingTab;
     } else {
       gsUtils.log(
-        'gsSession',
+        tab.id,
         'Could not find any potential matching discarded tabs.'
       );
       return null;
