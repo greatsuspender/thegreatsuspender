@@ -28,7 +28,7 @@ body {
   color: #444;
   padding: 0;
   margin: 0;
-  min-width: 315px;
+  min-width: 325px;
   position: relative;
   font-size: 15px;
   background: #fff;
@@ -51,7 +51,7 @@ a {
   color: #ffffff;
 }
 #header {
-  padding: 15px 12px;
+  padding: 15px;
   background: #777;
   color: #fff;
 }
@@ -78,9 +78,9 @@ a {
 }
 /* dark theme for night lurkers */
 .dark {
-  background: #222;
+  background: #353535;
   color: #b8b8b8;
 }
 .dark .group {
-  border-color: #444;
+  border-color: #555;
 }
