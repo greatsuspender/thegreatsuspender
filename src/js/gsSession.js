@@ -631,13 +631,25 @@ var gsSession = (function() {
     });
   }
 
-  async function reinjectContentScriptOnTab(tab) {
+  // Careful with this function. It seems that these unresponsive tabs can sometimes
+  // not return any result after chrome.tabs.executeScript
+  // Try to mitigate this by wrapping in a setTimeout
+  // TODO: Report chrome bug
+  function reinjectContentScriptOnTab(tab) {
     return new Promise(resolve => {
       gsUtils.log(
         tab.id,
-        'Reinjecting contentscript into unresponsive active tab.'
+        'Reinjecting contentscript into unresponsive unsuspended tab.'
       );
+      const executeScriptTimeout = setTimeout(() => {
+        gsUtils.log(
+          tab.id,
+          'chrome.tabs.executeScript failed to trigger callback'
+        );
+        resolve(false);
+      }, 10000);
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
+        clearTimeout(executeScriptTimeout);
         if (error) {
           gsUtils.log(
             tab.id,
