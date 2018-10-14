@@ -171,8 +171,6 @@ var historyItems = (function() {
   function createTabHtml(tab, showLinks) {
     var linksSpan, listImg, listLink, listHover;
 
-    gsUtils.cleanTabMetadata(tab);
-
     if (tab.sessionId) {
       linksSpan = createEl('div', {
         class: 'tabContainer',

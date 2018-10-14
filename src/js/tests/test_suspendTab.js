@@ -26,7 +26,7 @@ testSuites.push(
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&
           tabProperties.title === tab.title &&
-          tabProperties.favicon === 'chrome://favicon/size/16@2x/' + tab.url;
+          tabProperties.favIconUrl === 'chrome://favicon/size/16@2x/' + tab.url;
 
         await gsIndexedDb.addPreviewImage(tab.url, previewUrl);
         const preview = await gsIndexedDb.fetchPreviewImage(tab.url);

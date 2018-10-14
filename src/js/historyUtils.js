@@ -85,7 +85,7 @@ var historyUtils = (function() {
         const savedTabInfo = await gsIndexedDb.fetchTabInfo(line);
         if (savedTabInfo) {
           tabInfo.title = savedTabInfo.title;
-          tabInfo.favicon = savedTabInfo.favicon;
+          tabInfo.favIconUrl = savedTabInfo.favIconUrl;
         }
         curWindow.tabs.push(tabInfo);
       }

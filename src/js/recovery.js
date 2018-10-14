@@ -152,6 +152,8 @@
     }
 
     for (var tabToRecover of tabsToRecover) {
+      tabToRecover.favIconUrl = gsUtils.getCleanTabFavicon(tabToRecover);
+      tabToRecover.title = gsUtils.getCleanTabTitle(tabToRecover);
       tabEl = historyItems.createTabHtml(tabToRecover, false);
       tabEl.onclick = function() {
         return function(e) {

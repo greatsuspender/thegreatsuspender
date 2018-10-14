@@ -780,8 +780,8 @@ var tgs = (function() {
       const whitelisted = gsUtils.checkWhiteList(originalUrl);
       const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
       const favicon =
-        (tabProperties && tabProperties.favicon) ||
-        'chrome://favicon/' + originalUrl;
+        (tabProperties && tabProperties.favIconUrl) ||
+        'chrome://favicon/size/16@2x/' + originalUrl;
       let title =
         (tabProperties && tabProperties.title) ||
         gsUtils.getSuspendedTitle(suspendedUrl);

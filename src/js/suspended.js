@@ -17,7 +17,7 @@
   let currentPreviewMode;
   let currentTitle;
   let currentUrl;
-  let currentFaviconUrl;
+  let currentFavicon;
   let currentTheme;
   let currentShowNag;
   let currentCommand;
@@ -63,8 +63,8 @@
     document.querySelector('body').classList.remove('hide-initially');
 
     if (preUrlDecoded) {
-      const preFaviconUrl = 'chrome://favicon/size/16@2x/' + preUrlDecoded;
-      await setFavicon(preFaviconUrl);
+      const preFavicon = 'chrome://favicon/size/16@2x/' + preUrlDecoded;
+      await setFavicon(preFavicon);
     }
 
     const preScrollPosition = href.match(scrollPosRegex)
@@ -126,12 +126,12 @@
     document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
   }
 
-  async function setFavicon(faviconUrl) {
-    if (currentFaviconUrl === faviconUrl) {
+  async function setFavicon(favicon) {
+    if (currentFavicon === favicon) {
       return;
     }
-    currentFaviconUrl = faviconUrl;
-    const faviconMetaData = await getFaviconMetaData(faviconUrl);
+    currentFavicon = favicon;
+    const faviconMetaData = await getFaviconMetaData(favicon);
     isLowContrastFavicon = faviconMetaData.isDark;
     setContrast();
     document

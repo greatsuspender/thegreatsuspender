@@ -140,7 +140,13 @@ var gsIndexedDb = {
       gsUtils.error('gsIndexedDb', e);
     }
     if (results && results.length > 0) {
-      return results[0];
+      const tabInfo = results[0];
+      //Temporary code
+      if (tabInfo.favicon) {
+        tabInfo.favIconUrl = tabInfo.favicon;
+        delete tabInfo.favicon;
+      }
+      return tabInfo;
     }
     return null;
   },

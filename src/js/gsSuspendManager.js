@@ -360,19 +360,19 @@ var gsSuspendManager = (function() {
 
   function saveSuspendData(tab, callback) {
     var tabProperties;
-    var favUrl;
+    var favIconUrl;
 
     if (tab.incognito) {
-      favUrl = tab.favIconUrl;
+      favIconUrl = tab.favIconUrl;
     } else {
-      favUrl = 'chrome://favicon/size/16@2x/' + tab.url;
+      favIconUrl = 'chrome://favicon/size/16@2x/' + tab.url;
     }
 
     tabProperties = {
       date: new Date(),
       title: tab.title,
       url: tab.url,
-      favicon: favUrl,
+      favIconUrl: favIconUrl,
       pinned: tab.pinned,
       index: tab.index,
       windowId: tab.windowId,

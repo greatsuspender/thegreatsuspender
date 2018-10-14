@@ -103,6 +103,9 @@
         curWindow.tabs.forEach(function(curTab) {
           curTab.windowId = curWindow.id;
           curTab.sessionId = curSession.sessionId;
+          curTab.favIconUrl = gsUtils.getCleanTabFavicon(curTab);
+          curTab.title = gsUtils.getCleanTabTitle(curTab);
+
           sessionContentsEl.appendChild(
             createTabElement(curSession, curWindow, curTab)
           );
