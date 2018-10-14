@@ -489,11 +489,20 @@ var tgs = (function() {
         TF_SUSPENDED_TAB_INIT_PENDING
       );
       if (initPending) {
-        gsUtils.warning(
+        setTabFlagForTabId(
           suspendedTab.id,
-          `Suspended tab failed to init after 5 secs. Will reload discarded tab..`
+          TF_SUSPENDED_TAB_INIT_PENDING,
+          null
         );
-        gsChrome.tabsUpdate(suspendedTab.id, { url: suspendedTab.url }); // async! unhandled promise
+        gsMessages.sendPingToTab(suspendedTab.id, function(error, response) {
+          if (!response || !response.isInitialised) {
+            gsUtils.warning(
+              suspendedTab.id,
+              `Suspended tab failed to init after 5 secs. Will reload tab..`
+            );
+            gsChrome.tabsUpdate(suspendedTab.id, { url: suspendedTab.url }); // async! unhandled promise
+          }
+        });
       }
     }, 5000);
   }
@@ -607,7 +616,10 @@ var tgs = (function() {
 
     //check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
-      const existingSuspendReason = getTabFlagForTabId(tab.id, TF_SUSPEND_REASON);
+      const existingSuspendReason = getTabFlagForTabId(
+        tab.id,
+        TF_SUSPEND_REASON
+      );
       if (existingSuspendReason && existingSuspendReason === 3) {
         // For some reason the discarded changeInfo gets called twice (chrome bug?)
         // As a workaround we use the suspend reason to determine if we've already
@@ -722,7 +734,7 @@ var tgs = (function() {
       'suspended tab status changed. changeInfo: ',
       changeInfo
     );
-    setTabFlagForTabId(tab.id, TF_SUSPENDED_TAB_INIT_PENDING, false);
+    setTabFlagForTabId(tab.id, TF_SUSPENDED_TAB_INIT_PENDING, null);
 
     if (changeInfo.status === 'loading') {
       //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
@@ -734,7 +746,10 @@ var tgs = (function() {
       if (unsuspendOnReloadUrl) {
         setTabFlagForTabId(tab.id, TF_UNSUSPEND_ON_RELOAD_URL, null);
         if (unsuspendOnReloadUrl === tab.url) {
-          gsUtils.log(tab.id, 'Unsuspend on reload flag set. Will unsuspend tab.');
+          gsUtils.log(
+            tab.id,
+            'Unsuspend on reload flag set. Will unsuspend tab.'
+          );
           unsuspendTab(tab);
         }
       }
@@ -742,6 +757,8 @@ var tgs = (function() {
     }
 
     if (changeInfo.status === 'complete') {
+      gsSuspendManager.unqueueTabForSuspension(tab); //safety precaution
+
       initialiseSuspendedTabAsPromised(tab)
         .catch(error => {
           gsUtils.warning(
@@ -751,24 +768,23 @@ var tgs = (function() {
           );
         })
         .then(function() {
-          gsSuspendManager.unqueueTabForSuspension(tab); //safety precaution
-
-          if (isCurrentFocusedTab(tab)) {
-            setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-          } else {
-            // If we want to discard tabs after suspending them
-            let discardAfterSuspend = gsStorage.getOption(
-              gsStorage.DISCARD_AFTER_SUSPEND
-            );
-            if (discardAfterSuspend) {
-              gsSuspendManager.forceTabDiscardation(tab);
+          performPostSuspensionTabChecks(tab.id).then(() => {
+            if (isCurrentFocusedTab(tab)) {
+              setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+            } else {
+              // If we want to discard tabs after suspending them
+              let discardAfterSuspend = gsStorage.getOption(
+                gsStorage.DISCARD_AFTER_SUSPEND
+              );
+              if (discardAfterSuspend) {
+                gsSuspendManager.forceTabDiscardation(tab);
+              }
             }
-          }
 
-          // Set scrollPosition tab flag
-          const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-          setTabFlagForTabId(tab.id, TF_SCROLL_POS, scrollPosition);
-
+            // Set scrollPosition tab flag
+            const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+            setTabFlagForTabId(tab.id, TF_SCROLL_POS, scrollPosition);
+          });
         });
     }
   }
@@ -843,6 +859,32 @@ var tgs = (function() {
         });
       });
     });
+  }
+
+  async function performPostSuspensionTabChecks(tabId) {
+    let tabOk = true;
+    const tab = await gsChrome.tabsGet(tabId);
+    if (!tab) {
+      gsUtils.warning(tabId, 'Could not find post suspended tab');
+      return;
+    }
+    if (!tab.title) {
+      gsUtils.warning(tabId, 'Failed to correctly set title', tab);
+      tabOk = false;
+    }
+    if (!tab.favIconUrl || tab.favIconUrl.indexOf('data:image') !== 0) {
+      gsUtils.warning(tabId, 'Failed to correctly set favIconUrl', tab);
+      tabOk = false;
+    }
+    if (!tabOk) {
+      var payload = {
+        favicon: gsUtils.getCleanTabFavicon(tab),
+        title: gsUtils.getCleanTabTitle(tab),
+      };
+      await new Promise((resolve) => {
+        gsMessages.sendInitSuspendedTab(tabId, payload, resolve); // async. unhandled callback error
+      });
+    }
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
