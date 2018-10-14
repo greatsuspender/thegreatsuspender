@@ -1310,6 +1310,8 @@ var tgs = (function() {
   }
 
   //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
+  //NOTE: In canary, the 'separator' elements do not currently display
+  //TODO: Report chrome bug
 
   function buildContextMenu(showContextMenu) {
     var allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',

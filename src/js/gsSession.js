@@ -489,7 +489,7 @@ var gsSession = (function() {
       windowId: tab.windowId,
     });
     tabs = tabs.filter(o => o.url === tab.url);
-    gsUtils.log('gsSession', 'Searching for discarded tab matching tab: ', tab);
+    gsUtils.log(tab.id, 'Searching for discarded tab matching tab: ', tab);
     let matchingTab = null;
     if (tabs.length === 1) {
       matchingTab = tabs[0];
@@ -506,7 +506,7 @@ var gsSession = (function() {
       return matchingTab;
     } else {
       gsUtils.log(
-        'gsSession',
+        tab.id,
         'Could not find any potential matching discarded tabs.'
       );
       return null;
@@ -631,13 +631,25 @@ var gsSession = (function() {
     });
   }
 
-  async function reinjectContentScriptOnTab(tab) {
+  // Careful with this function. It seems that these unresponsive tabs can sometimes
+  // not return any result after chrome.tabs.executeScript
+  // Try to mitigate this by wrapping in a setTimeout
+  // TODO: Report chrome bug
+  function reinjectContentScriptOnTab(tab) {
     return new Promise(resolve => {
       gsUtils.log(
         tab.id,
-        'Reinjecting contentscript into unresponsive active tab.'
+        'Reinjecting contentscript into unresponsive unsuspended tab.'
       );
+      const executeScriptTimeout = setTimeout(() => {
+        gsUtils.log(
+          tab.id,
+          'chrome.tabs.executeScript failed to trigger callback'
+        );
+        resolve(false);
+      }, 10000);
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
+        clearTimeout(executeScriptTimeout);
         if (error) {
           gsUtils.log(
             tab.id,

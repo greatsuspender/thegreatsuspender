@@ -84,6 +84,7 @@ var gsSuspendManager = (function() {
               'Failed to sendConfirmSuspendToContentScript',
               error
             );
+            // Will not be able to use window.replace when forcing suspension
             forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
           }
         }
@@ -224,8 +225,9 @@ var gsSuspendManager = (function() {
     gsMessages.sendRequestInfoToContentScript(tab.id, function(error, tabInfo) {
       //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
       if (error) {
-        gsUtils.warning(tab.id, 'Failed to requestTabSuspension', error);
-        // assume tab is still loading
+        gsUtils.warning(tab.id, 'Failed to request content script info', error);
+        // continue here but will lose information about scroll position,
+        // temp whitelist, and form input
         tabInfo = {
           status: 'loading',
           scrollPos: '0',
