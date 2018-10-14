@@ -23,11 +23,16 @@
   let currentCommand;
   let currentReason;
 
-  function preInit() {
+  async function preInit() {
     const href = window.location.href;
     const titleRegex = /ttl=([^&]*)/;
     const scrollPosRegex = /pos=([^&]*)/;
     const urlRegex = /uri=(.*)/;
+
+    // Show suspended tab contents after max 1 second regardless
+    window.setTimeout(() => {
+      document.querySelector('body').classList.remove('hide-initially');
+    }, 1000);
 
     const preTitleEncoded = href.match(titleRegex)
       ? href.match(titleRegex)[1]
@@ -36,22 +41,15 @@
       const decodedPreTitle = decodeURIComponent(preTitleEncoded);
       setTitle(decodedPreTitle);
     }
-    const preScrollPosition = href.match(scrollPosRegex)
-      ? href.match(scrollPosRegex)[1]
-      : null;
-    if (preScrollPosition) {
-      setScrollPosition(preScrollPosition);
-    }
 
     const preUrlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
-    if (preUrlEncoded) {
-      const preUrlDecoded = decodeURIComponent(preUrlEncoded);
+    const preUrlDecoded = preUrlEncoded
+      ? decodeURIComponent(preUrlEncoded)
+      : null;
+    if (preUrlDecoded) {
       setUrl(preUrlDecoded);
       document.getElementById('gsTopBar').onmousedown = handleUnsuspendTab;
       document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
-
-      const preFaviconUrl = 'chrome://favicon/' + preUrlDecoded;
-      setFavicon(preFaviconUrl);
     }
 
     try {
@@ -62,9 +60,19 @@
       // console.error(error);
     }
 
-    window.setTimeout(() => {
-      document.querySelector('body').classList.remove('hide-initially');
-    }, 1000);
+    document.querySelector('body').classList.remove('hide-initially');
+
+    if (preUrlDecoded) {
+      const preFaviconUrl = 'chrome://favicon/size/16@2x/' + preUrlDecoded;
+      await setFavicon(preFaviconUrl);
+    }
+
+    const preScrollPosition = href.match(scrollPosRegex)
+      ? href.match(scrollPosRegex)[1]
+      : null;
+    if (preScrollPosition) {
+      setScrollPosition(preScrollPosition);
+    }
   }
 
   function init(_tabId) {
@@ -118,21 +126,20 @@
     document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
   }
 
-  function setFavicon(faviconUrl) {
+  async function setFavicon(faviconUrl) {
     if (currentFaviconUrl === faviconUrl) {
       return;
     }
     currentFaviconUrl = faviconUrl;
-    getFaviconMetaData(faviconUrl, function(faviconMetaData) {
-      isLowContrastFavicon = faviconMetaData.isDark;
-      setContrast();
-      document
-        .getElementById('gsTopBarImg')
-        .setAttribute('src', faviconMetaData.normalisedDataUrl);
-      document
-        .getElementById('gsFavicon')
-        .setAttribute('href', faviconMetaData.transparentDataUrl);
-    });
+    const faviconMetaData = await getFaviconMetaData(faviconUrl);
+    isLowContrastFavicon = faviconMetaData.isDark;
+    setContrast();
+    document
+      .getElementById('gsTopBarImg')
+      .setAttribute('src', faviconMetaData.normalisedDataUrl);
+    document
+      .getElementById('gsFavicon')
+      .setAttribute('href', faviconMetaData.transparentDataUrl);
   }
 
   function setContrast() {
@@ -165,7 +172,6 @@
       document.querySelector('body').classList.remove('dark');
     }
     setContrast();
-    document.querySelector('body').classList.remove('hide-initially');
   }
 
   function setReason(reason) {
@@ -191,7 +197,10 @@
     if (queueNag) {
       var donationPopupFocusListener = function(e) {
         if (e) {
-          e.target.removeEventListener('visibilitychange', donationPopupFocusListener);
+          e.target.removeEventListener(
+            'visibilitychange',
+            donationPopupFocusListener
+          );
         }
 
         //if user has donated since this page was first generated then dont display popup
@@ -211,16 +220,15 @@
     }
   }
 
-  function setPreviewMode(previewMode) {
+  async function setPreviewMode(previewMode) {
     if (currentPreviewMode === previewMode) {
       return;
     }
     currentPreviewMode = previewMode;
 
     if (!builtImagePreview && previewMode !== '0' && previewUri) {
-      buildImagePreview(() => {
-        toggleImagePreviewVisibility();
-      });
+      await buildImagePreview();
+      toggleImagePreviewVisibility();
     } else {
       toggleImagePreviewVisibility();
       document.querySelector('.watermark').addEventListener('click', () => {
@@ -229,28 +237,32 @@
     }
   }
 
-  function buildImagePreview(callback) {
-    const previewEl = document.createElement('div');
-    previewEl.innerHTML = document.getElementById('previewTemplate').innerHTML;
-    localiseHtml(previewEl);
-    previewEl.onclick = handleUnsuspendTab;
-    document.getElementsByTagName('body')[0].appendChild(previewEl);
-    builtImagePreview = true;
+  function buildImagePreview() {
+    return new Promise(resolve => {
+      const previewEl = document.createElement('div');
+      previewEl.innerHTML = document.getElementById(
+        'previewTemplate'
+      ).innerHTML;
+      localiseHtml(previewEl);
+      previewEl.onclick = handleUnsuspendTab;
+      document.getElementsByTagName('body')[0].appendChild(previewEl);
+      builtImagePreview = true;
 
-    const previewImgEl = document.getElementById('gsPreviewImg');
-    const onLoadedHandler = function() {
-      previewImgEl.removeEventListener('load', onLoadedHandler);
-      previewImgEl.removeEventListener('error', onErrorHandler);
-      callback();
-    };
-    const onErrorHandler = function() {
-      previewImgEl.removeEventListener('load', onLoadedHandler);
-      previewImgEl.removeEventListener('error', onErrorHandler);
-      callback();
-    };
-    previewImgEl.setAttribute('src', previewUri);
-    previewImgEl.addEventListener('load', onLoadedHandler);
-    previewImgEl.addEventListener('error', onErrorHandler);
+      const previewImgEl = document.getElementById('gsPreviewImg');
+      const onLoadedHandler = function() {
+        previewImgEl.removeEventListener('load', onLoadedHandler);
+        previewImgEl.removeEventListener('error', onErrorHandler);
+        resolve();
+      };
+      const onErrorHandler = function() {
+        previewImgEl.removeEventListener('load', onLoadedHandler);
+        previewImgEl.removeEventListener('error', onErrorHandler);
+        resolve();
+      };
+      previewImgEl.setAttribute('src', previewUri);
+      previewImgEl.addEventListener('load', onLoadedHandler);
+      previewImgEl.addEventListener('error', onErrorHandler);
+    });
   }
 
   function toggleImagePreviewVisibility() {
@@ -423,79 +435,81 @@
     return urlStr;
   }
 
-  function getFaviconMetaData(url, callback) {
-    var img = new Image();
+  function getFaviconMetaData(url) {
+    return new Promise(resolve => {
+      var img = new Image();
 
-    img.onload = function() {
-      var canvas, context;
-      canvas = window.document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      context = canvas.getContext('2d');
-      context.drawImage(img, 0, 0);
+      img.onload = function() {
+        var canvas, context;
+        canvas = window.document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context = canvas.getContext('2d');
+        context.drawImage(img, 0, 0);
 
-      var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-      var origDataArray = imageData.data;
-      var normalisedDataArray = new Uint8ClampedArray(origDataArray);
-      var transparentDataArray = new Uint8ClampedArray(origDataArray);
-      var r, g, b, a;
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        var origDataArray = imageData.data;
+        var normalisedDataArray = new Uint8ClampedArray(origDataArray);
+        var transparentDataArray = new Uint8ClampedArray(origDataArray);
+        var r, g, b, a;
 
-      var fuzzy = 0.1;
-      var light = 0;
-      var dark = 0;
-      var maxAlpha = 0;
-      var maxRgb = 0;
+        var fuzzy = 0.1;
+        var light = 0;
+        var dark = 0;
+        var maxAlpha = 0;
+        var maxRgb = 0;
 
-      for (let x = 0; x < origDataArray.length; x += 4) {
-        r = origDataArray[x];
-        g = origDataArray[x + 1];
-        b = origDataArray[x + 2];
-        a = origDataArray[x + 3];
+        for (let x = 0; x < origDataArray.length; x += 4) {
+          r = origDataArray[x];
+          g = origDataArray[x + 1];
+          b = origDataArray[x + 2];
+          a = origDataArray[x + 3];
 
-        let localMaxRgb = Math.max(Math.max(r, g), b);
-        if (localMaxRgb < 128 || a < 128) dark++;
-        else light++;
-        maxAlpha = Math.max(a, maxAlpha);
-        maxRgb = Math.max(localMaxRgb, maxRgb);
-      }
+          let localMaxRgb = Math.max(Math.max(r, g), b);
+          if (localMaxRgb < 128 || a < 128) dark++;
+          else light++;
+          maxAlpha = Math.max(a, maxAlpha);
+          maxRgb = Math.max(localMaxRgb, maxRgb);
+        }
 
-      //saftey check to make sure image is not completely transparent
-      if (maxAlpha === 0) {
-        getFaviconMetaData(DEFAULT_FAVICON, callback);
-        return;
-      }
+        //saftey check to make sure image is not completely transparent
+        if (maxAlpha === 0) {
+          getFaviconMetaData(DEFAULT_FAVICON).then(resolve);
+          return;
+        }
 
-      var darkLightDiff = (light - dark) / (canvas.width * canvas.height);
-      var isDark = darkLightDiff + fuzzy < 0;
-      var normaliserMultiple = 1 / (maxAlpha / 255);
+        var darkLightDiff = (light - dark) / (canvas.width * canvas.height);
+        var isDark = darkLightDiff + fuzzy < 0;
+        var normaliserMultiple = 1 / (maxAlpha / 255);
 
-      for (let x = 0; x < origDataArray.length; x += 4) {
-        a = origDataArray[x + 3];
-        normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
-      }
-      for (let x = 0; x < normalisedDataArray.length; x += 4) {
-        a = normalisedDataArray[x + 3];
-        transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
-      }
+        for (let x = 0; x < origDataArray.length; x += 4) {
+          a = origDataArray[x + 3];
+          normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
+        }
+        for (let x = 0; x < normalisedDataArray.length; x += 4) {
+          a = normalisedDataArray[x + 3];
+          transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
+        }
 
-      imageData.data.set(normalisedDataArray);
-      context.putImageData(imageData, 0, 0);
-      var normalisedDataUrl = canvas.toDataURL('image/png');
+        imageData.data.set(normalisedDataArray);
+        context.putImageData(imageData, 0, 0);
+        var normalisedDataUrl = canvas.toDataURL('image/png');
 
-      imageData.data.set(transparentDataArray);
-      context.putImageData(imageData, 0, 0);
-      var transparentDataUrl = canvas.toDataURL('image/png');
+        imageData.data.set(transparentDataArray);
+        context.putImageData(imageData, 0, 0);
+        var transparentDataUrl = canvas.toDataURL('image/png');
 
-      callback({
-        isDark,
-        normalisedDataUrl,
-        transparentDataUrl,
-      });
-    };
-    img.src = url || DEFAULT_FAVICON;
+        resolve({
+          isDark,
+          normalisedDataUrl,
+          transparentDataUrl,
+        });
+      };
+      img.src = url || DEFAULT_FAVICON;
+    });
   }
 
-  function documentReadyAsPromsied() {
+  function waitForDocumentReady() {
     return new Promise(function(resolve) {
       if (document.readyState !== 'loading') {
         resolve();
@@ -511,9 +525,7 @@
     var replaceFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
-    Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), function(
-      el
-    ) {
+    Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), el => {
       if (el.hasAttribute('data-i18n')) {
         el.innerHTML = el
           .getAttribute('data-i18n')
@@ -531,39 +543,37 @@
   }
 
   function addMessageListeners() {
-    chrome.runtime.onMessage.addListener(function(
-      request,
-      sender,
-      sendResponse
-    ) {
-      switch (request.action) {
-        case 'initSuspendedTab':
-          handleInitRequest(request);
-          isInitialised = true;
-          break;
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      (async () => {
+        switch (request.action) {
+          case 'initSuspendedTab':
+            await handleInitRequest(request);
+            isInitialised = true;
+            break;
 
-        case 'updateSuspendedTab':
-          handleInitRequest(request);
-          break;
+          case 'updateSuspendedTab':
+            await handleInitRequest(request);
+            break;
 
-        case 'unsuspendTab':
-          unsuspendTab();
-          break;
+          case 'unsuspendTab':
+            unsuspendTab();
+            break;
 
-        case 'disableUnsuspendOnReload':
-          requestUnsuspendOnReload = false;
-          break;
+          case 'disableUnsuspendOnReload':
+            requestUnsuspendOnReload = false;
+            break;
 
-        case 'tempWhitelist': //NOTE: This option is not currently available
-          unsuspendTab(true);
-          break;
+          case 'tempWhitelist':
+            unsuspendTab(true);
+            break;
 
-        case 'showNoConnectivityMessage':
-          showNoConnectivityMessage();
-          break;
-      }
-      sendResponse(buildReportTabStatePayload());
-      return false;
+          case 'showNoConnectivityMessage':
+            showNoConnectivityMessage();
+            break;
+        }
+        sendResponse(buildReportTabStatePayload());
+      })();
+      return true; // force message sender to wait for sendResponse
     });
   }
 
@@ -575,7 +585,7 @@
     };
   }
 
-  function handleInitRequest(request) {
+  async function handleInitRequest(request) {
     if (request.tabId && !tabId) {
       init(request.tabId);
     }
@@ -586,7 +596,7 @@
       previewUri = request.previewUri;
     }
     if (request.hasOwnProperty('previewMode')) {
-      setPreviewMode(request.previewMode);
+      await setPreviewMode(request.previewMode);
     }
     if (request.hasOwnProperty('theme')) {
       setTheme(request.theme);
@@ -598,7 +608,7 @@
       setCommand(request.command);
     }
     if (request.hasOwnProperty('favicon')) {
-      setFavicon(request.favicon);
+      await setFavicon(request.favicon);
     }
     if (request.hasOwnProperty('title')) {
       setTitle(request.title);
@@ -611,9 +621,9 @@
     }
   }
 
-  documentReadyAsPromsied().then(function() {
+  waitForDocumentReady().then(async () => {
     localiseHtml(document);
-    preInit();
+    await preInit();
     addMessageListeners();
   });
 })();
