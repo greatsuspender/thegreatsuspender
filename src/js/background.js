@@ -44,7 +44,6 @@ var tgs = (function() {
     _isCharging = false,
     _triggerHotkeyUpdate = false,
     _suspendUnsuspendHotkey,
-    _fileUrlsAccessAllowed,
     _tabFlagsByTabId = {};
 
   function backgroundScriptsReadyAsPromised(retries) {

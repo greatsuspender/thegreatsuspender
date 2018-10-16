@@ -131,7 +131,7 @@ var gsUtils = {
   //tests if the page is a file:// page AND the user has not enabled access to
   //file URLs in extension settings
   isBlockedFileTab: function(tab) {
-    if (tab.url.indexOf('file') === 0 && !tgs._fileUrlsAccessAllowed) {
+    if (tab.url.indexOf('file') === 0 && !gsSession.isFileUrlsAccessAllowed()) {
       return true;
     }
     return false;

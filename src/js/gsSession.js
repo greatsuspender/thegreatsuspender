@@ -16,6 +16,7 @@ var gsSession = (function() {
   let recoveryTabId;
   let updateType = null;
   let updated = false;
+  let fileUrlsAccessAllowed = false;
 
   let startupTabCheckTimeTakenInSeconds;
   let startupRecoveryTimeTakenInSeconds;
@@ -25,6 +26,14 @@ var gsSession = (function() {
 
   function initAsPromised() {
     return new Promise(async function(resolve) {
+      // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
+      await new Promise((resolve) => {
+        chrome.extension.isAllowedFileSchemeAccess(isAllowedAccess => {
+          fileUrlsAccessAllowed = isAllowedAccess;
+          resolve();
+        });
+      });
+
       //remove any update screens
       await Promise.all([
         gsUtils.removeTabsByUrlAsPromised(updateUrl),
@@ -112,6 +121,10 @@ var gsSession = (function() {
     return recoveryMode;
   }
 
+  function isFileUrlsAccessAllowed() {
+    return fileUrlsAccessAllowed;
+  }
+
   function getTabCheckTimeTakenInSeconds() {
     return startupTabCheckTimeTakenInSeconds;
   }
@@ -138,11 +151,6 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
-
-    // Check if the extension can work on file:// URLs
-    chrome.extension.isAllowedFileSchemeAccess(function(isAllowedAccess) {
-      tgs._fileUrlsAccessAllowed = isAllowedAccess;
-    });
 
     const currentSessionTabs = await gsChrome.tabsQuery();
     gsUtils.log('gsSession', 'preRecoverySessionTabs:', currentSessionTabs);
@@ -1047,6 +1055,7 @@ var gsSession = (function() {
     isInitialising,
     isRecovering,
     isUpdated,
+    isFileUrlsAccessAllowed,
     getTabCheckTimeTakenInSeconds,
     getRecoveryTimeTakenInSeconds,
     getStartupType,
