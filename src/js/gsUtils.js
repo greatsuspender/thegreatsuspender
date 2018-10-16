@@ -8,6 +8,7 @@ var gsUtils = {
   STATUS_NORMAL: 'normal',
   STATUS_LOADING: 'loading',
   STATUS_SPECIAL: 'special',
+  STATUS_BLOCKED_FILE: 'blockedFile',
   STATUS_SUSPENDED: 'suspended',
   STATUS_DISCARDED: 'discarded',
   STATUS_NEVER: 'never',

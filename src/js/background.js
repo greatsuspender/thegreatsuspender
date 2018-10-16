@@ -1257,7 +1257,7 @@ var tgs = (function() {
     }
     //check if it is a blockedFile tab
     if (gsUtils.isBlockedFileTab(tab)) {
-      callback('blockedFile');
+      callback(gsUtils.STATUS_BLOCKED_FILE);
       return;
     }
     //check if tab has been discarded
