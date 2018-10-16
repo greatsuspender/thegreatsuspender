@@ -138,6 +138,12 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
+
+    // Check if the extension can work on file:// URLs
+    chrome.extension.isAllowedFileSchemeAccess(function(isAllowedAccess) {
+      tgs._fileUrlsAccessAllowed = isAllowedAccess;
+    });
+
     const currentSessionTabs = await gsChrome.tabsQuery();
     gsUtils.log('gsSession', 'preRecoverySessionTabs:', currentSessionTabs);
 

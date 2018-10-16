@@ -120,9 +120,17 @@ var gsUtils = {
     if (
       url.indexOf('about') === 0 ||
       url.indexOf('chrome') === 0 ||
-      url.indexOf('file') === 0 ||
       url.indexOf('chrome.google.com/webstore') >= 0
     ) {
+      return true;
+    }
+    return false;
+  },
+
+  //tests if the page is a file:// page AND the user has not enabled access to
+  //file URLs in extension settings
+  isBlockedFileTab: function(tab) {
+    if (tab.url.indexOf('file') === 0 && !tgs._fileUrlsAccessAllowed) {
       return true;
     }
     return false;

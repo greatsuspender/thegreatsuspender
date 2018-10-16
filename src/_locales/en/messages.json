@@ -254,6 +254,7 @@
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection" },
     "js_popup_charging": { "message": "Connected to power source" },
+    "js_popup_blockedFile": { "message": "Click to enable file access" },
     "js_popup_unknown": { "message": "Waiting for tab to load..." },
     "js_popup_initialising": { "message": "Waiting for extension to initialize..." },
     "js_popup_error": { "message": "Auto-suspend unavailable for this tab" },

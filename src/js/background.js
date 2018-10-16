@@ -44,6 +44,7 @@ var tgs = (function() {
     _isCharging = false,
     _triggerHotkeyUpdate = false,
     _suspendUnsuspendHotkey,
+    _fileUrlsAccessAllowed,
     _tabFlagsByTabId = {};
 
   function backgroundScriptsReadyAsPromised(retries) {
@@ -1076,6 +1077,15 @@ var tgs = (function() {
     }
   }
 
+  function promptForFilePermissions() {
+    var proceed = confirm('The Great Suspender requires access to file URLs in order to suspend URLs beginning with "file://".\nPlease turn on "Allow access to file URLs" on the next page in order to enable suspension of file URLs.');
+    if (proceed) {
+      getCurrentlyActiveTab(function (activeTab) {
+        chrome.tabs.create({url: 'chrome://extensions?id=' + chrome.runtime.id, index: activeTab.index + 1});
+      });
+    }
+  }
+
   function checkForNotices() {
     gsUtils.log('background', 'Checking for notices..');
     var xhr = new XMLHttpRequest();
@@ -1221,6 +1231,7 @@ var tgs = (function() {
   //loading: tab object has a state of 'loading'
   //normal: a tab that will be suspended
   //special: a tab that cannot be suspended
+  //blockedFile: a file:// tab that can theoretically be suspended but is being blocked by the user's settings
   //suspended: a tab that is suspended
   //discarded: a tab that has been discarded
   //never: suspension timer set to 'never suspend'
@@ -1242,6 +1253,11 @@ var tgs = (function() {
     //check if it is a special tab
     if (gsUtils.isSpecialTab(tab)) {
       callback(gsUtils.STATUS_SPECIAL);
+      return;
+    }
+    //check if it is a blockedFile tab
+    if (gsUtils.isBlockedFileTab(tab)) {
+      callback('blockedFile');
       return;
     }
     //check if tab has been discarded
@@ -1705,6 +1721,7 @@ var tgs = (function() {
     unsuspendSelectedTabs,
     whitelistHighlightedTab,
     unsuspendAllTabsInAllWindows,
+    promptForFilePermissions,
   };
 })();
 
