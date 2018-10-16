@@ -121,7 +121,8 @@ var gsUtils = {
     if (
       url.indexOf('about') === 0 ||
       url.indexOf('chrome') === 0 ||
-      url.indexOf('chrome.google.com/webstore') >= 0
+      url.indexOf('chrome.google.com/webstore') >= 0 ||
+      gsUtils.isBlockedFileTab(tab)
     ) {
       return true;
     }

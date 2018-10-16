@@ -1229,8 +1229,8 @@ var tgs = (function() {
   //possible suspension states are:
   //loading: tab object has a state of 'loading'
   //normal: a tab that will be suspended
-  //special: a tab that cannot be suspended
   //blockedFile: a file:// tab that can theoretically be suspended but is being blocked by the user's settings
+  //special: a tab that cannot be suspended
   //suspended: a tab that is suspended
   //discarded: a tab that has been discarded
   //never: suspension timer set to 'never suspend'
@@ -1249,14 +1249,14 @@ var tgs = (function() {
       callback(gsUtils.STATUS_LOADING);
       return;
     }
+    //check if it is a blockedFile tab (this needs to have precedence over isSpecialTab)
+    if (gsUtils.isBlockedFileTab(tab)) {
+      callback(gsUtils.STATUS_BLOCKED_FILE);
+      return;
+    }
     //check if it is a special tab
     if (gsUtils.isSpecialTab(tab)) {
       callback(gsUtils.STATUS_SPECIAL);
-      return;
-    }
-    //check if it is a blockedFile tab
-    if (gsUtils.isBlockedFileTab(tab)) {
-      callback(gsUtils.STATUS_BLOCKED_FILE);
       return;
     }
     //check if tab has been discarded
