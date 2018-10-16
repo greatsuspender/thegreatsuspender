@@ -624,6 +624,16 @@ var gsSession = (function() {
       return false;
     }
 
+    // If tab is suspended but it is a file:// tab and file is blocked
+    // then reload and requeue for checking later
+    if (isSuspendedTab && !isFileUrlsAccessAllowed()) {
+      const suspendedUrl = gsUtils.getSuspendedUrl(tab.url);
+      if (suspendedUrl && suspendedUrl.indexOf('file') === 0) {
+        await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
+        return false;
+      }
+    }
+
     // Tab has initialised successfully
     // If tab is suspended and discard after suspend is true, then also discard here
     const discardAfterSuspend = gsStorage.getOption(
