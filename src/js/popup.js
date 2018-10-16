@@ -185,7 +185,10 @@
       statusDetail = chrome.i18n.getMessage('js_popup_charging');
       //    statusIconClass = 'fa fa-plug';
     } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
-      statusDetail = '<a href="#">' + chrome.i18n.getMessage('js_popup_blockedFile') + '</a>';
+      statusDetail =
+        '<a href="#">' +
+        chrome.i18n.getMessage('js_popup_blockedFile') +
+        '</a>';
       //    statusIconClass = 'fa fa-exclamation-triangle';
     } else if (
       status === gsUtils.STATUS_LOADING ||
