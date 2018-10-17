@@ -197,12 +197,18 @@
     "html_suspended_modal_cancel": { "message": "Отмена" },
     "html_suspended_donation_question": { "message": "Вам понравилось это расширение?<br>Отправьте пожертвование:" },
 
+    // Permissions page
+    "html_permissions_title": { "message": "Разрешения" },
+    "html_permissions_heading": { "message": "Пожалуйста разрешите доступ к локальным файлам" },
+    "html_permissions_info": { "message": "У расширения в данный момент нет разрешения приостанавливать вкладки с URL, начинающимися со слова \"file\".\nЧтобы это изменить, включите \"Разрешить открывать локальные файлы по ссылкам\" со страницы настроек расширения." },
+    "html_permissions_backup": { "message": "Примечание: изменение этой опции приведет с временному исчезновению всех приостановленных вкладок.\nНа всякой случай рекомендуем сделать бэкап текущей сессии вкладок." },
+
     // Update page
     "html_update_title": { "message": "Обновление" },
     "html_update_heading2": { "message": "становится всё лучше" },
     "html_update_info_line1": { "message": "Новая версия The Great Suspender готова к установке." },
-    "html_update_info_line2": { "message": "Примечание: во время обновления вкладки могут временно пропадать." },
-    "html_update_info_withbackup": { "message": "На всякий случай, сейчас может быть подходящий момент, чтобы сделать бэкап текущей сессии." },
+    "html_update_info_line2": { "message": "Примечание: изменение этой опции приведет с временному исчезновению всех приостановленных вкладок." },
+    "html_update_info_withbackup": { "message": "На всякой случай рекомендуем сделать бэкап текущей сессии вкладок." },
     "html_update_info_nobackup_prefix": { "message": "Рекомендуем сделать экспорт текущей сессии" },
     "html_update_info_nobackup_suffix": { "message": " перед обновлением расширения." },
 
@@ -219,7 +225,7 @@
     "html_updated_new_features_header": { "message": "Новый функционал:" },
     "html_updated_bug_fixes_header": { "message": "Исправлены баги:" },
     "html_updated_release_notes": { "message": "Прочить на странице расширения в GitHub: " },
-    "html_updated_patch_message": { "message": "Извините за беспокойство. Мне просто нужно было выполнить небольшое обвновление." },
+    "html_updated_patch_message": { "message": "Извините за беспокойство. Мне просто нужно было выполнить небольшое обновление." },
 
     // Welcome message
     "html_welcome_title": { "message": "Добро пожаловать" },
@@ -254,6 +260,8 @@
     "js_popup_never": { "message": "Автоматическая приостановка вкладок отключена." },
     "js_popup_no_connectivity": { "message": "Нет соединения" },
     "js_popup_charging": { "message": "Подключено к источнику питания" },
+    "js_popup_blockedFile": { "message": "Локальные файлы не могут быть приостановлены." },
+    "js_popup_blockedFile_enable": { "message": "Разрешить" },
     "js_popup_unknown": { "message": "Вкладка загружается..." },
     "js_popup_initialising": { "message": "Расширение запускается..." },
     "js_popup_error": { "message": "Авто-приостановка недоступна для этой вкладки" },
@@ -279,6 +287,10 @@
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Настройки расширения будут заполнены из Chrome Sync." },
+
+    // Permissions page (Javascript code)
+    "js_permissions_button_export": { "message": "Сохранить резервную копию" },
+    "js_permissions_button_set": { "message": "Открыть настройки расширения" },
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "Вы еще не делали резервную копию. Всё равно обновить?" },
