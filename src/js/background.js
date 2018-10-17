@@ -881,7 +881,7 @@ var tgs = (function() {
         favicon: gsUtils.getCleanTabFavicon(tab),
         title: gsUtils.getCleanTabTitle(tab),
       };
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         gsMessages.sendInitSuspendedTab(tabId, payload, resolve); // async. unhandled callback error
       });
     }
@@ -1076,6 +1076,15 @@ var tgs = (function() {
     }
   }
 
+function promptForFilePermissions() {
+    getCurrentlyActiveTab(activeTab => {
+      chrome.tabs.create({
+        url: chrome.extension.getURL('permissions.html'),
+        index: activeTab.index + 1,
+      });
+    });
+  }
+
   function checkForNotices() {
     gsUtils.log('background', 'Checking for notices..');
     var xhr = new XMLHttpRequest();
@@ -1220,6 +1229,7 @@ var tgs = (function() {
   //possible suspension states are:
   //loading: tab object has a state of 'loading'
   //normal: a tab that will be suspended
+  //blockedFile: a file:// tab that can theoretically be suspended but is being blocked by the user's settings
   //special: a tab that cannot be suspended
   //suspended: a tab that is suspended
   //discarded: a tab that has been discarded
@@ -1237,6 +1247,11 @@ var tgs = (function() {
     //check for loading
     if (tab.status === 'loading') {
       callback(gsUtils.STATUS_LOADING);
+      return;
+    }
+    //check if it is a blockedFile tab (this needs to have precedence over isSpecialTab)
+    if (gsUtils.isBlockedFileTab(tab)) {
+      callback(gsUtils.STATUS_BLOCKED_FILE);
       return;
     }
     //check if it is a special tab
@@ -1705,6 +1720,7 @@ var tgs = (function() {
     unsuspendSelectedTabs,
     whitelistHighlightedTab,
     unsuspendAllTabsInAllWindows,
+    promptForFilePermissions,
   };
 })();
 

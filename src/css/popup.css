@@ -58,6 +58,9 @@ a {
 #header.willSuspend {
   background: #3477db;
 }
+#header.blockedFile {
+    background: #a70707;
+}
 
 .group {
   padding: 10px 0;

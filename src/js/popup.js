@@ -78,11 +78,13 @@
     var suspendOneVisible = ![
         gsUtils.STATUS_SUSPENDED,
         gsUtils.STATUS_SPECIAL,
+        gsUtils.STATUS_BLOCKED_FILE,
         gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
       whitelistVisible = ![
         gsUtils.STATUS_WHITELISTED,
         gsUtils.STATUS_SPECIAL,
+        gsUtils.STATUS_BLOCKED_FILE,
         gsUtils.STATUS_UNKNOWN,
       ].includes(tabStatus),
       unsuspendVisible = false; //[gsUtils.STATUS_SUSPENDED].includes(tabStatus);
@@ -182,6 +184,13 @@
     } else if (status === gsUtils.STATUS_CHARGING) {
       statusDetail = chrome.i18n.getMessage('js_popup_charging');
       //    statusIconClass = 'fa fa-plug';
+    } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
+      statusDetail =
+        chrome.i18n.getMessage('js_popup_blockedFile') +
+        " <a href='#'>" +
+        chrome.i18n.getMessage('js_popup_blockedFile_enable') +
+        "</a>";
+      //    statusIconClass = 'fa fa-exclamation-triangle';
     } else if (
       status === gsUtils.STATUS_LOADING ||
       status === gsUtils.STATUS_UNKNOWN
@@ -208,6 +217,9 @@
     if (status === gsUtils.STATUS_NORMAL || status === gsUtils.STATUS_ACTIVE) {
       document.getElementById('header').classList.add('willSuspend');
     }
+    if (status === gsUtils.STATUS_BLOCKED_FILE) {
+      document.getElementById('header').classList.add('blockedFile');
+    }
 
     // Update action handler
     var actionEl = document.getElementsByTagName('a')[0];
@@ -227,6 +239,8 @@
         status === gsUtils.STATUS_TEMPWHITELIST
       ) {
         tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
+      } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
+        tgsHanderFunc = tgs.promptForFilePermissions;
       }
 
       if (globalActionElListener) {

@@ -8,6 +8,7 @@ var gsUtils = {
   STATUS_NORMAL: 'normal',
   STATUS_LOADING: 'loading',
   STATUS_SPECIAL: 'special',
+  STATUS_BLOCKED_FILE: 'blockedFile',
   STATUS_SUSPENDED: 'suspended',
   STATUS_DISCARDED: 'discarded',
   STATUS_NEVER: 'never',
@@ -120,9 +121,18 @@ var gsUtils = {
     if (
       url.indexOf('about') === 0 ||
       url.indexOf('chrome') === 0 ||
-      url.indexOf('file') === 0 ||
-      url.indexOf('chrome.google.com/webstore') >= 0
+      url.indexOf('chrome.google.com/webstore') >= 0 ||
+      gsUtils.isBlockedFileTab(tab)
     ) {
+      return true;
+    }
+    return false;
+  },
+
+  //tests if the page is a file:// page AND the user has not enabled access to
+  //file URLs in extension settings
+  isBlockedFileTab: function(tab) {
+    if (tab.url.indexOf('file') === 0 && !gsSession.isFileUrlsAccessAllowed()) {
       return true;
     }
     return false;
@@ -341,26 +351,26 @@ var gsUtils = {
   },
 
   localiseHtml: function(parentEl) {
-    var replaceFunc = function(match, p1) {
+    var replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
-    Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), function(
-      el
-    ) {
+    for (let el of parentEl.getElementsByTagName('*')) {
       if (el.hasAttribute('data-i18n')) {
         el.innerHTML = el
           .getAttribute('data-i18n')
-          .replace(/__MSG_(\w+)__/g, replaceFunc);
+          .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+          .replace('\n', '<br />');
       }
       if (el.hasAttribute('data-i18n-tooltip')) {
         el.setAttribute(
           'data-i18n-tooltip',
           el
             .getAttribute('data-i18n-tooltip')
-            .replace(/__MSG_(\w+)__/g, replaceFunc)
+            .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+            .replace('\n', '<br />')
         );
       }
-    });
+    }
   },
 
   documentReadyAndLocalisedAsPromsied: function(doc) {
@@ -395,7 +405,11 @@ var gsUtils = {
 
     // remove path
     if (!includePath) {
-      rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+      if (url.indexOf('file://') === 0) {
+          rootUrlStr = rootUrlStr.replace(new RegExp('/[^/]*$','g'), '');
+      } else {
+          rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+      }
     } else {
       // remove query string
       var match = rootUrlStr.match(/\/?[?#]+/);

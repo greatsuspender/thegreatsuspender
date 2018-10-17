@@ -16,6 +16,7 @@ var gsSession = (function() {
   let recoveryTabId;
   let updateType = null;
   let updated = false;
+  let fileUrlsAccessAllowed = false;
 
   let startupTabCheckTimeTakenInSeconds;
   let startupRecoveryTimeTakenInSeconds;
@@ -25,6 +26,14 @@ var gsSession = (function() {
 
   function initAsPromised() {
     return new Promise(async function(resolve) {
+      // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
+      await new Promise((resolve) => {
+        chrome.extension.isAllowedFileSchemeAccess(isAllowedAccess => {
+          fileUrlsAccessAllowed = isAllowedAccess;
+          resolve();
+        });
+      });
+
       //remove any update screens
       await Promise.all([
         gsUtils.removeTabsByUrlAsPromised(updateUrl),
@@ -112,6 +121,10 @@ var gsSession = (function() {
     return recoveryMode;
   }
 
+  function isFileUrlsAccessAllowed() {
+    return fileUrlsAccessAllowed;
+  }
+
   function getTabCheckTimeTakenInSeconds() {
     return startupTabCheckTimeTakenInSeconds;
   }
@@ -138,6 +151,7 @@ var gsSession = (function() {
 
   async function runStartupChecks() {
     initialisationMode = true;
+
     const currentSessionTabs = await gsChrome.tabsQuery();
     gsUtils.log('gsSession', 'preRecoverySessionTabs:', currentSessionTabs);
 
@@ -610,6 +624,16 @@ var gsSession = (function() {
       return false;
     }
 
+    // If tab is suspended but it is a file:// tab and file is blocked
+    // then reload and requeue for checking later
+    if (isSuspendedTab && !isFileUrlsAccessAllowed()) {
+      const suspendedUrl = gsUtils.getSuspendedUrl(tab.url);
+      if (suspendedUrl && suspendedUrl.indexOf('file') === 0) {
+        await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
+        return false;
+      }
+    }
+
     // Tab has initialised successfully
     // If tab is suspended and discard after suspend is true, then also discard here
     const discardAfterSuspend = gsStorage.getOption(
@@ -1041,6 +1065,7 @@ var gsSession = (function() {
     isInitialising,
     isRecovering,
     isUpdated,
+    isFileUrlsAccessAllowed,
     getTabCheckTimeTakenInSeconds,
     getRecoveryTimeTakenInSeconds,
     getStartupType,
