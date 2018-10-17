@@ -405,7 +405,11 @@ var gsUtils = {
 
     // remove path
     if (!includePath) {
-      rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+      if (url.indexOf('file://') === 0) {
+          rootUrlStr = rootUrlStr.replace(new RegExp('/[^/]*$','g'), '');
+      } else {
+          rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+      }
     } else {
       // remove query string
       var match = rootUrlStr.match(/\/?[?#]+/);
