@@ -200,8 +200,7 @@
     // Update page
     "html_update_title": { "message": "Обновление" },
     "html_update_heading2": { "message": "становится всё лучше" },
-    "html_update_info_line1": { "message": "Новая версия The Great Suspender готова к установке." },
-    "html_update_info_line2": { "message": "Примечание: во время обновления вкладки могут временно пропадать." },
+    "html_update_info": { "message": "Новая версия The Great Suspender готова к установке.\nПримечание: во время обновления вкладки могут временно пропадать." },
     "html_update_info_withbackup": { "message": "На всякий случай, сейчас может быть подходящий момент, чтобы сделать бэкап текущей сессии." },
     "html_update_info_nobackup_prefix": { "message": "Рекомендуем сделать экспорт текущей сессии" },
     "html_update_info_nobackup_suffix": { "message": " перед обновлением расширения." },
