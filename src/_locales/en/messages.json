@@ -197,6 +197,12 @@
     "html_suspended_modal_cancel": { "message": "Cancel" },
     "html_suspended_donation_question": { "message": "Does this extension make you happy?<br>Show your support by donating:" },
 
+    // Permissions page
+    "html_permissions_title": { "message": "Permissions" },
+    "html_permissions_heading": { "message": "Please give me access to local file URLs" },
+    "html_permissions_info": { "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page." },
+    "html_permissions_backup": { "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session." },
+
     // Update page
     "html_update_title": { "message": "Update" },
     "html_update_heading2": { "message": "is about to get greater" },
@@ -254,7 +260,8 @@
     "js_popup_never": { "message": "Automatic tab suspension disabled." },
     "js_popup_no_connectivity": { "message": "No network connection" },
     "js_popup_charging": { "message": "Connected to power source" },
-    "js_popup_blockedFile": { "message": "Click to enable file access" },
+    "js_popup_blockedFile": { "message": "Local files cannot be suspended." },
+    "js_popup_blockedFile_enable": { "message": "Enable" },
     "js_popup_unknown": { "message": "Waiting for tab to load..." },
     "js_popup_initialising": { "message": "Waiting for extension to initialize..." },
     "js_popup_error": { "message": "Auto-suspend unavailable for this tab" },
@@ -280,6 +287,10 @@
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "You are in incognito mode. Extension options will be populated from Chrome Sync if they exist." },
+
+    // Permissions page (Javascript code)
+    "js_permissions_button_export": { "message": "Save backup" },
+    "js_permissions_button_set": { "message": "Open extension settings" },
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "You have not saved a backup yet. Update the extension anyway?" },

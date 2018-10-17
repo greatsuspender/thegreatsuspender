@@ -1076,18 +1076,13 @@ var tgs = (function() {
     }
   }
 
-  function promptForFilePermissions() {
-    var proceed = confirm(
-      'The Great Suspender requires access to file URLs in order to suspend URLs beginning with "file://".\nPlease turn on "Allow access to file URLs" on the next page in order to enable suspension of file URLs.'
-    );
-    if (proceed) {
-      getCurrentlyActiveTab(function(activeTab) {
-        chrome.tabs.create({
-          url: 'chrome://extensions?id=' + chrome.runtime.id,
-          index: activeTab.index + 1,
-        });
+function promptForFilePermissions() {
+    getCurrentlyActiveTab(activeTab => {
+      chrome.tabs.create({
+        url: chrome.extension.getURL('permissions.html'),
+        index: activeTab.index + 1,
       });
-    }
+    });
   }
 
   function checkForNotices() {

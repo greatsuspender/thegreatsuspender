@@ -186,9 +186,10 @@
       //    statusIconClass = 'fa fa-plug';
     } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
       statusDetail =
-        '<a href="#">' +
         chrome.i18n.getMessage('js_popup_blockedFile') +
-        '</a>';
+        " <a href='#'>" +
+        chrome.i18n.getMessage('js_popup_blockedFile_enable') +
+        "</a>";
       //    statusIconClass = 'fa fa-exclamation-triangle';
     } else if (
       status === gsUtils.STATUS_LOADING ||

@@ -351,26 +351,26 @@ var gsUtils = {
   },
 
   localiseHtml: function(parentEl) {
-    var replaceFunc = function(match, p1) {
+    var replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
-    Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), function(
-      el
-    ) {
+    for (let el of parentEl.getElementsByTagName('*')) {
       if (el.hasAttribute('data-i18n')) {
         el.innerHTML = el
           .getAttribute('data-i18n')
-          .replace(/__MSG_(\w+)__/g, replaceFunc);
+          .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+          .replace('\n', '<br />');
       }
       if (el.hasAttribute('data-i18n-tooltip')) {
         el.setAttribute(
           'data-i18n-tooltip',
           el
             .getAttribute('data-i18n-tooltip')
-            .replace(/__MSG_(\w+)__/g, replaceFunc)
+            .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+            .replace('\n', '<br />')
         );
       }
-    });
+    }
   },
 
   documentReadyAndLocalisedAsPromsied: function(doc) {
