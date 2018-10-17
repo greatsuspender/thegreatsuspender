@@ -404,9 +404,13 @@ var gsSession = (function() {
     const lastSessionNonExtensionTabs = lastSessionTabs.filter(
       o => o.url.indexOf(chrome.runtime.id) === -1
     );
+
+    // Match against all tabIds from last session here, not just non-extension tabs
+    // as there is a chance during tabInitialisation of a suspended tab getting reloaded
+    // directly and hence keeping its tabId (ie: file:// tabs)
     const matchingTabIdsCount = currentSessionTabs.reduce(
       (a, o) =>
-        lastSessionNonExtensionTabs.some(p => p.id === o.id) ? a + 1 : a,
+        lastSessionTabs.some(p => p.id === o.id) ? a + 1 : a,
       0
     );
     const maxTabCount = Math.max(
