@@ -5,26 +5,26 @@ testSuites.push(
     'use strict';
 
     function buildExecutorResolveTrue(executorDelay) {
-      return async (tab, resolve, reject, requeue) => {
+      return async (tab, executionProps, resolve, reject, requeue) => {
         await gsUtils.setTimeout(executorDelay);
         resolve(true);
       };
     }
 
     function buildExecutorRequeue(executorDelay, requeueDelay) {
-      return async (tab, resolve, reject, requeue) => {
+      return async (tab, executionProps, resolve, reject, requeue) => {
         await gsUtils.setTimeout(executorDelay);
         requeue(requeueDelay);
       };
     }
 
     function buildExceptionResolvesFalse() {
-      return (tab, resolve, reject, requeue) => {
+      return (tab, executionProps, exceptionType, resolve, reject, requeue) => {
         resolve(false);
       };
     }
     function buildExceptionRejects() {
-      return (tab, resolve, reject, requeue) => {
+      return (tab, executionProps, exceptionType, resolve, reject, requeue) => {
         reject('Test error');
       };
     }

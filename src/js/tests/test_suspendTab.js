@@ -17,11 +17,7 @@ testSuites.push(
           'previewUrl1'
         );
 
-        await new Promise(resolve => {
-          gsTabSuspendManager.saveSuspendData(tab, function() {
-            resolve();
-          });
-        });
+        await gsTabSuspendManager.saveSuspendData(tab);
         const tabProperties = await gsIndexedDb.fetchTabInfo(tab.url);
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&

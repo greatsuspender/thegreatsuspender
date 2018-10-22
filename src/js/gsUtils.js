@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -637,17 +637,7 @@ var gsUtils = {
           if (
             changedSettingKeys.includes(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)
           ) {
-            var suspendInPlaceOfDiscard = gsStorage.getOption(
-              gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
-            );
-            if (suspendInPlaceOfDiscard) {
-              var suspendedUrl = gsUtils.generateSuspendedUrl(
-                tab.url,
-                tab.title,
-                0
-              );
-              gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
-            }
+            gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, false); //async. unhandled promise.
           }
           return;
         }

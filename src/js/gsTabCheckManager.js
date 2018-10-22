@@ -1,11 +1,11 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabSuspendManager, gsTabDiscardManager, gsChrome, gsMessages, GsTabQueue */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsChrome, gsMessages, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 1;
   const DEFAULT_TAB_CHECK_TIMEOUT = 5 * 1000;
-  const DEFAULT_MAX_REQUEUE_ATTEMPTS = 3;
+  const DEFAULT_TAB_CHECK_REQUEUES = 3;
 
   let tabCheckQueue;
 
@@ -14,11 +14,11 @@ var gsTabCheckManager = (function() {
       const queueProps = {
         concurrentExecutors: DEFAULT_CONCURRENT_TAB_CHECKS,
         executorTimeout: DEFAULT_TAB_CHECK_TIMEOUT,
-        maxRequeueAttempts: DEFAULT_MAX_REQUEUE_ATTEMPTS,
+        maxRequeueAttempts: DEFAULT_TAB_CHECK_REQUEUES,
         executorFn: performTabCheck,
         exceptionFn: handleTabCheckException,
       };
-      tabCheckQueue = GsTabQueue('tabCheckQueue', queueProps);
+      tabCheckQueue = GsTabQueue('checkQueue', queueProps);
       resolve();
     });
   }
@@ -45,7 +45,7 @@ var gsTabCheckManager = (function() {
     const results = await Promise.all(tabCheckPromises);
 
     // Revert timeout
-    updateQueueProps(DEFAULT_TAB_CHECK_TIMEOUT, DEFAULT_MAX_REQUEUE_ATTEMPTS);
+    updateQueueProps(DEFAULT_TAB_CHECK_TIMEOUT, DEFAULT_TAB_CHECK_REQUEUES);
     return results;
   }
 
@@ -59,11 +59,6 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  function handleTabCheckException(tab, resolve, reject, requeue) {
-    gsUtils.warning(tab.id, 'Failed to initialise suspended tab :(');
-    resolve(false);
-  }
-
   function queueTabCheck(tab) {
     queueTabCheckAsPromise(tab);
   }
@@ -73,13 +68,19 @@ var gsTabCheckManager = (function() {
     return tabCheckQueue.queueTabAsPromise(tab);
   }
 
-  function getQueuedTabCheckAsPromise(tab) {
-    return tabCheckQueue.getQueuedTabAsPromise(tab);
+  function getQueuedTabCheckDetails(tab) {
+    return tabCheckQueue.getQueuedTabDetails(tab);
   }
 
   // This is called remotely by the tabCheckQueue
   // So we must first re-fetch the tab in case it has changed
-  async function performTabCheck(tab, resolve, reject, requeue) {
+  async function performTabCheck(
+    tab,
+    executionProps,
+    resolve,
+    reject,
+    requeue
+  ) {
     let _tab = await fetchUpdatedTab(tab);
     if (!_tab) {
       gsUtils.warning(
@@ -102,6 +103,21 @@ var gsTabCheckManager = (function() {
     } else {
       checkUnsuspendedTab(tab, resolve, reject, requeue);
     }
+  }
+
+  function handleTabCheckException(
+    tab,
+    executionProps,
+    exceptionType,
+    resolve,
+    reject,
+    requeue
+  ) {
+    gsUtils.warning(
+      tab.id,
+      `Failed to initialise suspended tab: ${exceptionType}`
+    );
+    resolve(false);
   }
 
   async function fetchUpdatedTab(tab) {
@@ -152,7 +168,7 @@ var gsTabCheckManager = (function() {
 
   async function checkUnsuspendedTab(tab, resolve, reject, requeue) {
     if (gsUtils.isDiscardedTab(tab)) {
-      handleDiscardedUnsuspendedTab(tab);
+      await gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, true);
       requeue();
       return;
     }
@@ -180,7 +196,7 @@ var gsTabCheckManager = (function() {
       const result = await reinjectContentScriptOnTab(tab);
       if (!result) {
         gsUtils.warning(tab.id, 'Assuming tab has been discarded.');
-        handleDiscardedUnsuspendedTab(tab);
+        await gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, true);
         requeue();
         return;
       }
@@ -215,22 +231,6 @@ var gsTabCheckManager = (function() {
       gsUtils.log(tab.id, 'Unsuspended tab initialised successfully');
       resolve(true);
     }
-  }
-
-  async function handleDiscardedUnsuspendedTab(tab) {
-    if (
-      !gsUtils.shouldSuspendDiscardedTabs() ||
-      !gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
-    ) {
-      gsUtils.log(tab.id, 'Forcing reload of discarded unsuspended tab');
-      await gsChrome.tabsUpdate(tab.id, { url: tab.url });
-      return;
-    }
-
-    tgs.setTabFlagForTabId(tab.id, tgs.TF_SUSPEND_REASON, 3);
-    var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-    gsUtils.log(tab.id, 'Suspending discarded unsuspended tab');
-    await gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl);
   }
 
   async function checkSuspendedTab(tab, resolve, reject, requeue) {
@@ -380,6 +380,6 @@ var gsTabCheckManager = (function() {
     performInitialisationTabChecks,
     queueTabCheck,
     queueTabCheckAsPromise,
-    getQueuedTabCheckAsPromise,
+    getQueuedTabCheckDetails,
   };
 })();

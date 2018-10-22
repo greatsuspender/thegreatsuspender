@@ -1,27 +1,40 @@
-/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager */
+/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
 
-  var MAX_TABS_IN_PROGRESS = 10;
-  var IMAGE_RENDER_TIMEOUT = 60 * 1000;
+  const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
+  const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
+  const DEFAULT_SUSPENSION_REQUEUES = 0;
 
-  var processSuspensionQueueTimer;
-  var suspensionQueueDetailsByTabId = {};
+  let suspensionQueue;
 
   function initAsPromised() {
     return new Promise(function(resolve) {
-      var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-      var forceScreenCapture = gsStorage.getOption(
+      const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+      const forceScreenCapture = gsStorage.getOption(
         gsStorage.SCREEN_CAPTURE_FORCE
       );
-      MAX_TABS_IN_PROGRESS = screenCaptureMode === '0' ? 5 : 3;
-      IMAGE_RENDER_TIMEOUT = forceScreenCapture ? 5 * 60 * 1000 : 60 * 1000;
+      const queueProps = {
+        concurrentExecutors:
+          screenCaptureMode === '0' ? 5 : DEFAULT_CONCURRENT_SUSPENSIONS,
+        executorTimeout: forceScreenCapture
+          ? 5 * 60 * 1000
+          : DEFAULT_SUSPENSION_TIMEOUT,
+        maxRequeueAttempts: DEFAULT_SUSPENSION_REQUEUES,
+        executorFn: performSuspension,
+        exceptionFn: handleSuspensionException,
+      };
+      suspensionQueue = GsTabQueue('suspensionQueue', queueProps);
       resolve();
     });
   }
 
   function queueTabForSuspension(tab, forceLevel) {
+    queueTabForSuspensionAsPromise(tab, forceLevel);
+  }
+
+  function queueTabForSuspensionAsPromise(tab, forceLevel) {
     if (typeof tab === 'undefined') return;
 
     if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
@@ -30,159 +43,130 @@ var gsTabSuspendManager = (function() {
     }
 
     gsUtils.log(tab.id, 'Queueing tab for suspension.');
-
-    suspensionQueueDetailsByTabId[tab.id] = {
-      tab: tab,
-      forceLevel: forceLevel,
-    };
-    clearTimeout(processSuspensionQueueTimer);
-    processSuspensionQueueTimer = setTimeout(function() {
-      gsUtils.log('gsTabSuspendManager', 'processRequestTabSuspensionQueue');
-      processRequestTabSuspensionQueue();
-    }, 100);
+    return suspensionQueue.queueTabAsPromise(tab, { forceLevel });
   }
 
   function unqueueTabForSuspension(tab) {
-    const suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
-    if (!suspensionDetails) {
+    const removed = suspensionQueue.unqueueTab(tab);
+    if (removed) {
+      gsUtils.log(tab.id, `Removed tab from suspension queue.`);
+    }
+  }
+
+  async function performSuspension(
+    tab,
+    executionProps,
+    resolve,
+    reject,
+    requeue
+  ) {
+    const tabInfo = await getContentScriptTabInfo(tab);
+    const isEligible = checkContentScriptEligibilityForSuspension(
+      tabInfo.status,
+      executionProps.forceLevel
+    );
+    if (!isEligible) {
+      gsUtils.log(
+        tab.id,
+        `Content script status of ${
+          tabInfo.status
+        } not eligible for suspension. Removing tab from suspensionQueue.`
+      );
+      resolve(false);
       return;
     }
-    gsUtils.log(tab.id, 'Tab suspension cancelled externally for tab.');
-    removeTabFromSuspensionQueue(tab);
-  }
 
-  function removeTabFromSuspensionQueue(tab) {
-    delete suspensionQueueDetailsByTabId[tab.id];
-  }
+    const updatedUrl = await generateUrlWithYouTubeTimestamp(tab);
+    tab.url = updatedUrl;
+    await saveSuspendData(tab);
 
-  function processRequestTabSuspensionQueue() {
-    var inProgressTabIds = [];
-    var queuedTabIds = [];
-    for (var tabId of Object.keys(suspensionQueueDetailsByTabId)) {
-      const suspensionDetails = suspensionQueueDetailsByTabId[tabId];
-      if (suspensionDetails.startDateTime) {
-        if (
-          new Date() - suspensionDetails.startDateTime >
-          IMAGE_RENDER_TIMEOUT
-        ) {
-          gsUtils.warning(
-            tabId,
-            `Tab took more than ${IMAGE_RENDER_TIMEOUT /
-              1000} seconds to suspend`
-          );
-          executeTabSuspension(suspensionDetails.tab);
-        } else {
-          inProgressTabIds.push(tabId);
-        }
-      } else {
-        queuedTabIds.push(tabId);
-      }
-    }
-    gsUtils.log(
-      'gsTabSuspendManager',
-      'inProgressTabIds: ' + inProgressTabIds.join(',')
+    const suspendedUrl = gsUtils.generateSuspendedUrl(
+      updatedUrl,
+      tab.title,
+      tabInfo.scrollPos
     );
-    gsUtils.log(
-      'gsTabSuspendManager',
-      'queuedTabIds size: ' + queuedTabIds.length
-    );
+    executionProps.suspendedUrl = suspendedUrl;
 
-    // Take tabs off the queue and ask them to suspend
-    while (
-      queuedTabIds.length > 0 &&
-      inProgressTabIds.length < MAX_TABS_IN_PROGRESS
-    ) {
-      const tabIdToSuspend = queuedTabIds.splice(0, 1);
-      inProgressTabIds.push(tabIdToSuspend);
-      const suspensionDetails = suspensionQueueDetailsByTabId[tabIdToSuspend];
-      suspensionDetails.startDateTime = new Date();
-      requestTabSuspension(suspensionDetails);
+    const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    if (screenCaptureMode === '0') {
+      await executeTabSuspension(tab, suspendedUrl);
+      resolve(true);
+      return;
     }
-    if (Object.keys(suspensionQueueDetailsByTabId).length > 0) {
-      clearTimeout(processSuspensionQueueTimer);
-      processSuspensionQueueTimer = setTimeout(function() {
-        processRequestTabSuspensionQueue();
-      }, 500);
+
+    try {
+      // Hack. Save handle to resolve function so we can call it later
+      executionProps.resolveFn = resolve;
+      await requestGeneratePreviewImg(tab);
+      // resumeQueuedTabSuspension is called on the 'savePreviewData' message response
+      // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
+    } catch (error) {
+      gsUtils.warning(tab.id, error);
+      await executeTabSuspension(tab, suspendedUrl);
+      resolve(true);
     }
   }
 
-  function requestTabSuspension(suspensionDetails) {
-    var tab = suspensionDetails.tab;
-    var forceLevel = suspensionDetails.forceLevel;
-
-    gsMessages.sendRequestInfoToContentScript(tab.id, function(error, tabInfo) {
-      //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
-      if (error) {
-        gsUtils.warning(tab.id, 'Failed to request content script info', error);
-        // continue here but will lose information about scroll position,
-        // temp whitelist, and form input
-        tabInfo = {
-          status: 'loading',
-          scrollPos: '0',
-        };
-      }
-      if (
-        !checkContentScriptEligibilityForSuspension(tabInfo.status, forceLevel)
-      ) {
-        gsUtils.log(
-          tab.id,
-          `Content script status of ${
-            tabInfo.status
-          } not eligible for suspension. Removing tab from suspensionQueue.`
-        );
-        removeTabFromSuspensionQueue(tab);
-        return;
-      }
-
-      updateYouTubeUrlWithTimestamp(tab, function() {
-        var suspensionDetails = suspensionQueueDetailsByTabId[tab.id] || {};
-        suspensionDetails.scrollPos = tabInfo.scrollPos;
-        suspensionDetails.suspendedUrl = gsUtils.generateSuspendedUrl(
-          tab.url,
-          tab.title,
-          suspensionDetails.scrollPos
-        );
-
-        saveSuspendData(tab, function() {
-          var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-          if (screenCaptureMode === '0') {
-            executeTabSuspension(tab);
-          } else {
-            generatePreviewImg(tab);
-            // executeTabSuspension is called on the 'savePreviewData' message response
-          }
-        });
-      });
-    });
-  }
-
-  function executeTabSuspension(tab) {
-    var suspensionDetails = suspensionQueueDetailsByTabId[tab.id];
-    // If suspensionDetails doesn't exist, then assume this tab suspension has been cancelled
-    if (!suspensionDetails) {
+  async function resumeQueuedTabSuspension(tab) {
+    const queuedTabDetails = suspensionQueue.getQueuedTabDetails(tab);
+    if (!queuedTabDetails) {
       gsUtils.log(
         tab.id,
         'Tab missing from suspensionQueue. Assuming suspension cancelled for this tab.'
       );
       return;
     }
-    removeTabFromSuspensionQueue(tab);
-
-    var suspendedUrl = suspensionDetails
-      ? suspensionDetails.suspendedUrl
-      : gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-    let discardInPlaceOfSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+    await executeTabSuspension(
+      tab,
+      queuedTabDetails.executionProps.suspendedUrl
     );
+    queuedTabDetails.executionProps.resolveFn(true);
+  }
 
-    // If we want to force tabs to be discarded instead of suspending them
-    if (discardInPlaceOfSuspend) {
-      gsTabDiscardManager.queueTabForDiscard(tab);
+  async function handleSuspensionException(
+    tab,
+    executionProps,
+    exceptionType,
+    resolve,
+    reject,
+    requeue
+  ) {
+    if (exceptionType === suspensionQueue.EXCEPTION_TIMEOUT) {
+      gsUtils.log(
+        tab.id,
+        `Tab took more than ${
+          suspensionQueue.getQueueProperties().executorTimeout
+        }ms to suspend. Will abort screen capture.`
+      );
+      await executeTabSuspension(tab, executionProps.suspendedUrl);
+      resolve(true);
     } else {
+      gsUtils.warning(tab.id, `Failed to suspend tab: ${exceptionType}`);
+      resolve(false);
+    }
+  }
+
+  function executeTabSuspension(tab, suspendedUrl) {
+    return new Promise(resolve => {
+      // If we want to force tabs to be discarded instead of suspending them
+      let discardInPlaceOfSuspend = gsStorage.getOption(
+        gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+      );
+      if (discardInPlaceOfSuspend) {
+        gsTabDiscardManager.queueTabForDiscard(tab);
+        resolve();
+        return;
+      }
+
+      if (!suspendedUrl) {
+        gsUtils.log('executionProps.suspendedUrl not set!');
+        suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+      }
+
       gsMessages.sendConfirmSuspendToContentScript(
         tab.id,
         suspendedUrl,
-        function(error) {
+        async error => {
           if (error) {
             gsUtils.warning(
               tab.id,
@@ -190,31 +174,20 @@ var gsTabSuspendManager = (function() {
               error
             );
             // Will not be able to use window.replace when forcing suspension
-            forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
+            await forceTabSuspension(tab, suspendedUrl);
           }
+          resolve();
         }
       );
-    }
+    });
   }
 
   async function forceTabSuspension(tab, suspendedUrl) {
-    if (!gsUtils.isSuspendedTab(tab)) {
-      await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
-    } else {
+    if (gsUtils.isSuspendedTab(tab)) {
       gsUtils.log(tab.id, 'Tab already suspended');
+      return;
     }
-  }
-
-  function undiscardTab(tab) {
-    if (gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.reload(tab.id, () => {
-        if (chrome.runtime.lastError) {
-          gsUtils.warning(tab.id, chrome.runtime.lastError);
-        }
-      });
-    } else {
-      gsUtils.log(tab.id, 'Tab not discarded');
-    }
+    await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
   }
 
   // forceLevel indicates which users preferences to respect when attempting to suspend the tab
@@ -271,53 +244,66 @@ var gsTabSuspendManager = (function() {
     return true;
   }
 
-  function updateYouTubeUrlWithTimestamp(tab, callback) {
-    if (tab.url.indexOf('https://www.youtube.com/watch') < 0) {
-      callback();
-      return;
-    }
-
-    gsMessages.executeCodeOnTab(
-      tab.id,
-      `(${fetchYouTubeTimestampContentScript})();`,
-      function(error, response) {
+  function getContentScriptTabInfo(tab) {
+    return new Promise(resolve => {
+      gsMessages.sendRequestInfoToContentScript(tab.id, (error, tabInfo) => {
+        //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
         if (error) {
-          gsUtils.warning(
-            tab.id,
-            'Failed to updateYouTubeUrlWithTimestamp',
-            error
-          );
-          callback();
-          return;
+          gsUtils.warning(tab.id, 'Failed to get content script info', error);
+          // continue here but will lose information about scroll position,
+          // temp whitelist, and form input
+          tabInfo = {
+            status: 'loading',
+            scrollPos: '0',
+          };
         }
-        var timestamp = response;
-        if (timestamp && timestamp > 0) {
-          var youTubeUrl = new URL(tab.url);
-          youTubeUrl.searchParams.set('t', timestamp + 's');
-          tab.url = youTubeUrl.href;
-        }
-        callback();
+        resolve(tabInfo);
+      });
+    });
+  }
+
+  function generateUrlWithYouTubeTimestamp(tab) {
+    return new Promise(resolve => {
+      if (tab.url.indexOf('https://www.youtube.com/watch') < 0) {
+        resolve(tab.url);
+        return;
       }
-    );
+
+      gsMessages.executeCodeOnTab(
+        tab.id,
+        `(${fetchYouTubeTimestampContentScript})();`,
+        (error, response) => {
+          if (error) {
+            gsUtils.warning(tab.id, 'Failed to fetch YouTube timestamp', error);
+          }
+          if (!response) {
+            resolve(tab.url);
+            return;
+          }
+
+          const timestamp = response;
+          const youTubeUrl = new URL(tab.url);
+          youTubeUrl.searchParams.set('t', timestamp + 's');
+          resolve(youTubeUrl.href);
+        }
+      );
+    });
   }
 
   function fetchYouTubeTimestampContentScript() {
-    var videoEl = document.querySelector('video.video-stream.html5-main-video');
-    var timestamp = videoEl ? videoEl.currentTime >> 0 : 0;
+    const videoEl = document.querySelector('video.video-stream.html5-main-video');
+    const timestamp = videoEl ? videoEl.currentTime >> 0 : 0;
     return timestamp;
   }
 
-  function saveSuspendData(tab, callback) {
-    var tabProperties;
-    var favIconUrl;
-
+  async function saveSuspendData(tab) {
+    let favIconUrl;
     if (tab.incognito) {
       favIconUrl = tab.favIconUrl;
     } else {
       favIconUrl = 'chrome://favicon/size/16@2x/' + tab.url;
     }
-
-    tabProperties = {
+    const tabProperties = {
       date: new Date(),
       title: tab.title,
       url: tab.url,
@@ -326,44 +312,34 @@ var gsTabSuspendManager = (function() {
       index: tab.index,
       windowId: tab.windowId,
     };
-
-    //add suspend information to suspendedTabInfo
-    gsIndexedDb.addSuspendedTabInfo(tabProperties).then(function() {
-      if (typeof callback === 'function') callback();
-    });
+    await gsIndexedDb.addSuspendedTabInfo(tabProperties);
   }
 
-  function generatePreviewImg(tab) {
-    var screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-    var forceScreenCapture = gsStorage.getOption(
-      gsStorage.SCREEN_CAPTURE_FORCE
-    );
-    gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', function(
-      error
-    ) {
-      if (error) {
-        gsUtils.warning(
-          tab.id,
-          'Failed to executeScriptOnTab: html2canvas',
-          error
-        );
-        executeTabSuspension(tab);
-        return;
-      }
-      gsMessages.executeCodeOnTab(
-        tab.id,
-        `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
-        function(error) {
-          if (error) {
-            gsUtils.warning(
-              tab.id,
-              'Failed to executeCodeOnTab: generatePreviewImgContentScript',
-              error
-            );
-            executeTabSuspension(tab);
-          }
-        }
+  function requestGeneratePreviewImg(tab) {
+    return new Promise((resolve, reject) => {
+      const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+      const forceScreenCapture = gsStorage.getOption(
+        gsStorage.SCREEN_CAPTURE_FORCE
       );
+      gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', error => {
+        if (error) {
+          reject('Failed to executeScriptOnTab: html2canvas');
+          return;
+        }
+        gsMessages.executeCodeOnTab(
+          tab.id,
+          `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
+          error => {
+            if (error) {
+              reject(
+                'Failed to executeCodeOnTab: generatePreviewImgContentScript'
+              );
+            } else {
+              resolve();
+            }
+          }
+        );
+      });
     });
   }
 
@@ -372,10 +348,11 @@ var gsTabSuspendManager = (function() {
     screenCaptureMode,
     forceScreenCapture
   ) {
-    var MAX_CANVAS_HEIGHT = forceScreenCapture ? 10000 : 5000;
-    var IMAGE_TYPE = 'image/webp';
-    var IMAGE_QUALITY = forceScreenCapture ? 0.92 : 0.5;
-    var height = 0;
+    const MAX_CANVAS_HEIGHT = forceScreenCapture ? 10000 : 5000;
+    const IMAGE_TYPE = 'image/webp';
+    const IMAGE_QUALITY = forceScreenCapture ? 0.92 : 0.5;
+
+    let height = 0;
 
     function sendResponse(errorMessage, dataUrl) {
       chrome.runtime.sendMessage({
@@ -409,7 +386,7 @@ var gsTabSuspendManager = (function() {
       removeContainer: false,
     })
       .then(function(canvas) {
-        var dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+        let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
         if (!dataUrl || dataUrl === 'data:,') {
           dataUrl = canvas.toDataURL();
         }
@@ -423,14 +400,15 @@ var gsTabSuspendManager = (function() {
         sendResponse(err.message);
       });
   }
+
   return {
     initAsPromised,
     queueTabForSuspension,
+    queueTabForSuspensionAsPromise,
     unqueueTabForSuspension,
-    executeTabSuspension,
+    resumeQueuedTabSuspension,
+    saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
-    undiscardTab,
-    saveSuspendData,
   };
 })();

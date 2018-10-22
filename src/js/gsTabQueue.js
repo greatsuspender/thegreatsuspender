@@ -8,6 +8,9 @@ function GsTabQueue(queueId, queueProps) {
     const STATUS_IN_PROGRESS = 'inProgress';
     const STATUS_SLEEPING = 'sleeping';
 
+    const EXCEPTION_TIMEOUT = 'timeout';
+    const EXCEPTION_MAX_REQUEUES = 'maxRequeues';
+
     const DEFAULT_CONCURRENT_EXECUTORS = 1;
     const DEFAULT_EXECUTOR_TIMEOUT = 1000;
     const DEFAULT_MAX_REQUEUE_ATTEMPTS = 5;
@@ -31,16 +34,16 @@ function GsTabQueue(queueId, queueProps) {
       for (const propName of Object.keys(queueProps)) {
         _queueProperties[propName] = queueProps[propName];
       }
-      if (!isValidInteger(_queueProperties.concurrentExecutors)) {
+      if (!isValidInteger(_queueProperties.concurrentExecutors, 1)) {
         throw new Error(
           'concurrentExecutors must be an integer greater than 0'
         );
       }
-      if (!isValidInteger(_queueProperties.executorTimeout)) {
+      if (!isValidInteger(_queueProperties.executorTimeout, 1)) {
         throw new Error('executorTimeout must be an integer greater than 0');
       }
-      if (!isValidInteger(_queueProperties.maxRequeueAttempts)) {
-        throw new Error('maxRequeueAttempts must be an integer greater than 0');
+      if (!isValidInteger(_queueProperties.maxRequeueAttempts, 0)) {
+        throw new Error('maxRequeueAttempts must be an integer of 0 or more');
       }
       if (!(typeof _queueProperties.executorFn === 'function')) {
         throw new Error('executorFn must be a function');
@@ -50,19 +53,25 @@ function GsTabQueue(queueId, queueProps) {
       }
     }
 
-    function isValidInteger(value) {
-      return value !== null && !isNaN(Number(value));
+    function getQueueProperties() {
+      return _queueProperties;
+    }
+
+    function isValidInteger(value, minimum) {
+      return value !== null && !isNaN(Number(value) && value >= minimum);
     }
 
     function getTotalQueueSize() {
       return Object.keys(_tabDetailsByTabId).length;
     }
 
-    function queueTabAsPromise(tab) {
+    function queueTabAsPromise(tab, executionProps) {
+      executionProps = executionProps || {};
       if (!_tabDetailsByTabId[tab.id]) {
         // gsUtils.log(tab.id, _queueId, 'Queuing new tab.');
         _tabDetailsByTabId[tab.id] = {
           tab,
+          executionProps,
           deferredPromise: createDeferredPromise(),
           status: STATUS_QUEUED,
           requeues: 0,
@@ -74,15 +83,19 @@ function GsTabQueue(queueId, queueProps) {
 
     function unqueueTab(tab) {
       if (_tabDetailsByTabId[tab.id]) {
-        gsUtils.log(tab.id, _queueId, 'Unqueuing tab.');
+        // gsUtils.log(tab.id, _queueId, 'Unqueueing tab.');
         delete _tabDetailsByTabId[tab.id];
+        gsUtils.log(
+          _queueId,
+          `total queue size: ${Object.keys(_tabDetailsByTabId).length}`
+        );
         return true;
       } else {
         return false;
       }
     }
 
-    function getQueuedTabAsPromise(tab) {
+    function getQueuedTabDetails(tab) {
       return _tabDetailsByTabId[tab.id];
     }
 
@@ -115,81 +128,103 @@ function GsTabQueue(queueId, queueProps) {
 
     function processQueue() {
       // gsUtils.log(_queueId, 'Processing queue...');
-      const queuedTabs = [];
-      const inProgressTabs = [];
-      const sleepingTabs = [];
+      const queuedTabDetails = [];
+      const inProgressTabDetails = [];
+      const sleepingTabDetails = [];
       for (let tabId of Object.keys(_tabDetailsByTabId)) {
         const tabsDetails = _tabDetailsByTabId[tabId];
         if (tabsDetails.status === STATUS_QUEUED) {
-          queuedTabs.push(tabsDetails);
+          queuedTabDetails.push(tabsDetails);
         } else if (tabsDetails.status === STATUS_IN_PROGRESS) {
-          inProgressTabs.push(tabsDetails);
+          inProgressTabDetails.push(tabsDetails);
         } else if (tabsDetails.status === STATUS_SLEEPING) {
-          sleepingTabs.push(tabsDetails);
+          sleepingTabDetails.push(tabsDetails);
         }
       }
-      if (queuedTabs.length === 0) {
+      if (queuedTabDetails.length === 0) {
         gsUtils.log(_queueId, 'aborting process queue as it is empty');
         return;
       }
-      if (inProgressTabs.length >= _queueProperties.concurrentExecutors) {
+      if (inProgressTabDetails.length >= _queueProperties.concurrentExecutors) {
         gsUtils.log(_queueId, 'aborting process queue as it is full');
         return;
       }
       while (
-        queuedTabs.length > 0 &&
-        inProgressTabs.length < _queueProperties.concurrentExecutors
+        queuedTabDetails.length > 0 &&
+        inProgressTabDetails.length < _queueProperties.concurrentExecutors
       ) {
-        const tabDetails = queuedTabs.splice(0, 1)[0];
+        const tabDetails = queuedTabDetails.splice(0, 1)[0];
         tabDetails.status = STATUS_IN_PROGRESS;
-        inProgressTabs.push(tabDetails);
+        inProgressTabDetails.push(tabDetails);
         gsUtils.log(
-          tabDetails.tab.id, _queueId,
+          tabDetails.tab.id,
+          _queueId,
           'Executing executorFn for tab.',
           tabDetails
         );
 
         let timer;
-        const _resolveTab = result => resolveTab(tabDetails, timer, result);
-        const _rejectTab = error => rejectTab(tabDetails, timer, error);
+        const _resolveTabPromise = r => resolveTabPromise(tabDetails, timer, r);
+        const _rejectTabPromise = e => rejectTabPromise(tabDetails, timer, e);
         const _requeueTab = requeueDelay => {
-          requeueTab(tabDetails, timer, _resolveTab, _rejectTab, requeueDelay);
-        }
+          requeueTab(
+            tabDetails,
+            timer,
+            _resolveTabPromise,
+            _rejectTabPromise,
+            requeueDelay
+          );
+        };
 
         timer = setTimeout(() => {
           gsUtils.log(tabDetails.tab.id, _queueId, 'ExecutorFn timed out');
           _queueProperties.exceptionFn(
             tabDetails.tab,
-            _resolveTab,
-            _rejectTab,
+            tabDetails.executionProps,
+            EXCEPTION_TIMEOUT,
+            _resolveTabPromise,
+            _rejectTabPromise,
             _requeueTab
           );
         }, _queueProperties.executorTimeout);
 
         _queueProperties.executorFn(
           tabDetails.tab,
-          _resolveTab,
-          _rejectTab,
+          tabDetails.executionProps,
+          _resolveTabPromise,
+          _rejectTabPromise,
           _requeueTab
         );
       }
-      gsUtils.log(_queueId, `queuedTabs.length: ${queuedTabs.length}`);
+      gsUtils.log(_queueId, `queuedTabs.length: ${queuedTabDetails.length}`);
       gsUtils.log(
         _queueId,
-        `inProgressTabs.length: ${inProgressTabs.length}`
+        `inProgress tabIds: ${inProgressTabDetails
+          .map(o => o.tab.id)
+          .join(',')}`
       );
     }
 
-    function resolveTab(tabDetails, timer, result) {
-      gsUtils.log(tabDetails.tab.id, _queueId, 'Queued tab resolved. Result: ', result);
+    function resolveTabPromise(tabDetails, timer, result) {
+      gsUtils.log(
+        tabDetails.tab.id,
+        _queueId,
+        'Queued tab resolved. Result: ',
+        result
+      );
       clearTimeout(timer);
       unqueueTab(tabDetails.tab);
       tabDetails.deferredPromise.resolve(result);
       processQueue();
     }
 
-    function rejectTab(tabDetails, timer, error) {
-      gsUtils.log(tabDetails.tab.id, _queueId, 'Queued tab rejected. Error: ', error);
+    function rejectTabPromise(tabDetails, timer, error) {
+      gsUtils.log(
+        tabDetails.tab.id,
+        _queueId,
+        'Queued tab rejected. Error: ',
+        error
+      );
       clearTimeout(timer);
       unqueueTab(tabDetails.tab);
       tabDetails.deferredPromise.reject(error);
@@ -201,8 +236,13 @@ function GsTabQueue(queueId, queueProps) {
       requeueDelay = requeueDelay || DEFAULT_REQUEUE_DELAY;
       if (tabDetails.requeues === _queueProperties.maxRequeueAttempts) {
         gsUtils.log(tabDetails.tab.id, _queueId, 'Max requeues exceeded.');
-        _queueProperties.exceptionFn(tabDetails.tab, resolve, reject, () =>
-          reject('Cannot requeue once max requeues has been reached')
+        _queueProperties.exceptionFn(
+          tabDetails.tab,
+          tabDetails.executionProps,
+          EXCEPTION_MAX_REQUEUES,
+          resolve,
+          reject,
+          () => reject('Cannot requeue once max requeues has been reached')
         );
         return;
       }
@@ -219,11 +259,15 @@ function GsTabQueue(queueId, queueProps) {
     }
 
     return {
+      EXCEPTION_TIMEOUT,
+      EXCEPTION_MAX_REQUEUES,
+
       setQueueProperties,
+      getQueueProperties,
       getTotalQueueSize,
       queueTabAsPromise,
       unqueueTab,
-      getQueuedTabAsPromise,
+      getQueuedTabDetails,
     };
   })();
 }

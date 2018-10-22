@@ -609,17 +609,7 @@ var tgs = (function() {
         tab.id,
         'Unsuspended tab has been discarded. Url: ' + tab.url
       );
-
-      var tabEligibleForSuspension = gsTabSuspendManager.checkTabEligibilityForSuspension(
-        tab,
-        3
-      );
-      if (gsUtils.shouldSuspendDiscardedTabs() && tabEligibleForSuspension) {
-        tgs.setTabFlagForTabId(tab.id, tgs.TF_SUSPEND_REASON, 3);
-        var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-        gsUtils.log(tab.id, 'Forcing suspension of discarded tab');
-        gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl); //async. unhandled promise
-      }
+      gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, false); //async. unhandled promise.
 
       // When a tab is discarded the tab id changes. We need up-to-date ids
       // in the current session otherwise crash recovery will not work
@@ -920,6 +910,7 @@ var tgs = (function() {
     }
 
     const focusedTab = await gsChrome.tabsGet(tabId);
+
     gsTabDiscardManager.unqueueTabForDiscard(focusedTab);
 
     //update icon
@@ -956,10 +947,10 @@ var tgs = (function() {
 
     await gsUtils.setTimeout(2000); // Allow time for tabCheck to initiate
 
-    const tabCheckPromise = gsTabCheckManager.getQueuedTabCheckAsPromise(
+    const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
       previouslyFocusedTab
     );
-    if (tabCheckPromise) {
+    if (tabCheckDetails) {
       gsUtils.log(
         previouslyFocusedTab.id,
         'Aborting tab discard queueing as tab in currently queued for tabCheck.'
@@ -1518,12 +1509,12 @@ var tgs = (function() {
         if (request.previewUrl) {
           gsIndexedDb
             .addPreviewImage(sender.tab.url, request.previewUrl)
-            .then(() => gsTabSuspendManager.executeTabSuspension(sender.tab));
+            .then(() => gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab)); //async. unhandled promise.
         } else {
           gsUtils.warning(
             'savePreviewData reported an error: ' + request.errorMsg
           );
-          gsTabSuspendManager.executeTabSuspension(sender.tab);
+          gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab); //async. unhandled promise.
         }
         break;
     }
