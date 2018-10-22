@@ -1,7 +1,7 @@
 /*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
 'use strict';
 
-var gsStorage = {
+const gsStorage = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
   SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',
@@ -35,7 +35,7 @@ var gsStorage = {
   noop: function() {},
 
   getSettingsDefaults: function() {
-    var defaults = {};
+    const defaults = {};
     defaults[this.SCREEN_CAPTURE] = '0';
     defaults[this.SCREEN_CAPTURE_FORCE] = false;
     defaults[this.SUSPEND_IN_PLACE_OF_DISCARD] = false;

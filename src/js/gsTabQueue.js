@@ -100,8 +100,9 @@ function GsTabQueue(queueId, queueProps) {
     }
 
     function createDeferredPromise() {
-      var res, rej;
-      var promise = new Promise((resolve, reject) => {
+      let res;
+      let rej;
+      const promise = new Promise((resolve, reject) => {
         res = resolve;
         rej = reject;
       });

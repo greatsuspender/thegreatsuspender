@@ -4,7 +4,7 @@
 var debugInfo = false;
 var debugError = false;
 
-var gsUtils = {
+const gsUtils = {
   STATUS_NORMAL: 'normal',
   STATUS_LOADING: 'loading',
   STATUS_SPECIAL: 'special',

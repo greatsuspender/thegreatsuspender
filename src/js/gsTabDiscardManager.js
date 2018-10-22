@@ -1,6 +1,6 @@
 /*global chrome, localStorage, tgs, gsUtils, gsChrome, GsTabQueue, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
-var gsTabDiscardManager = (function() {
+const gsTabDiscardManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_DISCARDS = 1;
@@ -102,7 +102,7 @@ var gsTabDiscardManager = (function() {
       gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
     ) {
       tgs.setTabFlagForTabId(tab.id, tgs.TF_SUSPEND_REASON, 3);
-      var suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
+      const suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       gsUtils.log(tab.id, 'Suspending discarded unsuspended tab');
 
       // Note: This bypasses the suspension tab queue and also prevents screenshots from being taken

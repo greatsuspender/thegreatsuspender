@@ -1,6 +1,6 @@
 /*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
-var gsTabSuspendManager = (function() {
+const gsTabSuspendManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
