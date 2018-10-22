@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -646,7 +646,7 @@ var gsUtils = {
                 tab.title,
                 0
               );
-              gsSuspendManager.forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
+              gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
             }
           }
           return;
@@ -717,7 +717,7 @@ var gsUtils = {
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
     ) {
-      gsSuspendManager.initAsPromised(); //async. unhandled promise
+      gsTabSuspendManager.initAsPromised(); //async. unhandled promise
     }
   },
 
