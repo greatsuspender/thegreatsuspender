@@ -413,7 +413,6 @@ const gsSession = (function() {
       return;
     }
 
-    recoveryMode = true;
     const recoveryStartTime = Date.now();
     gsUtils.log(
       'gsSession',
@@ -442,7 +441,6 @@ const gsSession = (function() {
       await gsChrome.windowsUpdate(lastFocusedWindowId, { focused: true });
     }
 
-    recoveryMode = false;
     startupRecoveryTimeTakenInSeconds = parseInt(
       (Date.now() - recoveryStartTime) / 1000
     );
@@ -498,7 +496,7 @@ const gsSession = (function() {
     }
 
     //if we still have session windows that haven't been matched to a current window then attempt matching based on tab urls
-    const tabMatchingObjects = generateTabMatchingObjects(
+    let tabMatchingObjects = generateTabMatchingObjects(
       unmatchedSessionWindows,
       unmatchedCurrentWindows
     );
