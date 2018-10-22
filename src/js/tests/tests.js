@@ -11,8 +11,9 @@ const requiredLibs = [
   'gsStorage',
   'gsUtils',
   'gsChrome',
-  'gsSuspendManager',
+  'gsTabSuspendManager',
   'gsIndexedDb',
+  'gsTabQueue',
 ];
 
 function loadJsFile(fileName) {
@@ -61,7 +62,7 @@ async function runTests() {
     let allTestsPassed = true;
     console.log(`Running testSuite: ${testSuite.name}..`);
     for (let [j, test] of testSuite.tests.entries()) {
-      console.log(`  Running test ${j}..`);
+      console.log(`  Running test ${j+1}..`);
 
       // loads/reset required libs
       await Promise.all(requiredLibs.map(loadJsFile));
