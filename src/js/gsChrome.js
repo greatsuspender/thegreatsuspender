@@ -2,21 +2,21 @@
 'use strict';
 // eslint-disable-next-line no-unused-vars
 var gsChrome = {
-  cookiesGetAll: async function() {
+  cookiesGetAll: function() {
     return new Promise(resolve => {
       chrome.cookies.getAll({}, cookies => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeCookies', chrome.runtime.lastError);
+          gsUtils.warning('chromeCookies', chrome.runtime.lastError);
           cookies = [];
         }
         resolve(cookies);
       });
     });
   },
-  cookiesRemove: async function(url, name) {
+  cookiesRemove: function(url, name) {
     return new Promise(resolve => {
       if (!url || !name) {
-        gsUtils.errorIfInitialised(
+        gsUtils.warning(
           'chromeCookies',
           'url or name not specified'
         );
@@ -25,7 +25,7 @@ var gsChrome = {
       }
       chrome.cookies.remove({ url, name }, details => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeCookies', chrome.runtime.lastError);
+          gsUtils.warning('chromeCookies', chrome.runtime.lastError);
           details = null;
         }
         resolve(details);
@@ -33,45 +33,45 @@ var gsChrome = {
     });
   },
 
-  tabsCreate: async function(details) {
+  tabsCreate: function(details) {
     return new Promise(resolve => {
       if (
         !details ||
         (typeof details !== 'string' && typeof details.url !== 'string')
       ) {
-        gsUtils.errorIfInitialised('chromeTabs', 'url not specified');
+        gsUtils.warning('chromeTabs', 'url not specified');
         resolve(null);
         return;
       }
       details = typeof details === 'string' ? { url: details } : details;
       chrome.tabs.create(details, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
       });
     });
   },
-  tabsReload: async function(tabId) {
+  tabsReload: function(tabId) {
     return new Promise(resolve => {
       if (!tabId) {
-        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
+        gsUtils.warning('chromeTabs', 'tabId not specified');
         resolve();
         return;
       }
       chrome.tabs.reload(tabId, () => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
         }
         resolve();
       });
     });
   },
-  tabsUpdate: async function(tabId, updateProperties) {
+  tabsUpdate: function(tabId, updateProperties) {
     return new Promise(resolve => {
       if (!tabId || !updateProperties) {
-        gsUtils.errorIfInitialised(
+        gsUtils.warning(
           'chromeTabs',
           'tabId or updateProperties not specified'
         );
@@ -80,111 +80,111 @@ var gsChrome = {
       }
       chrome.tabs.update(tabId, updateProperties, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
       });
     });
   },
-  tabsGet: async function(tabId) {
+  tabsGet: function(tabId) {
     return new Promise(resolve => {
       if (!tabId) {
-        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
+        gsUtils.warning('chromeTabs', 'tabId not specified');
         resolve(null);
         return;
       }
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
           tab = null;
         }
         resolve(tab);
       });
     });
   },
-  tabsQuery: async function(queryInfo) {
+  tabsQuery: function(queryInfo) {
     queryInfo = queryInfo || {};
     return new Promise(resolve => {
       chrome.tabs.query(queryInfo, tabs => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
           tabs = [];
         }
         resolve(tabs);
       });
     });
   },
-  tabsRemove: async function(tabId) {
+  tabsRemove: function(tabId) {
     return new Promise(resolve => {
       if (!tabId) {
-        gsUtils.errorIfInitialised('chromeTabs', 'tabId not specified');
+        gsUtils.warning('chromeTabs', 'tabId not specified');
         resolve(null);
         return;
       }
       chrome.tabs.remove(tabId, () => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeTabs', chrome.runtime.lastError);
+          gsUtils.warning('chromeTabs', chrome.runtime.lastError);
         }
         resolve();
       });
     });
   },
 
-  windowsGetLastFocused: async function() {
+  windowsGetLastFocused: function() {
     return new Promise(resolve => {
       chrome.windows.getLastFocused({}, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
+          gsUtils.warning('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
       });
     });
   },
-  windowsGet: async function(windowId) {
+  windowsGet: function(windowId) {
     return new Promise(resolve => {
       if (!windowId) {
-        gsUtils.errorIfInitialised('chromeWindows', 'windowId not specified');
+        gsUtils.warning('chromeWindows', 'windowId not specified');
         resolve(null);
         return;
       }
       chrome.windows.get(windowId, { populate: true }, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
+          gsUtils.warning('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
       });
     });
   },
-  windowsGetAll: async function() {
+  windowsGetAll: function() {
     return new Promise(resolve => {
       chrome.windows.getAll({ populate: true }, windows => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
+          gsUtils.warning('chromeWindows', chrome.runtime.lastError);
           windows = [];
         }
         resolve(windows);
       });
     });
   },
-  windowsCreate: async function(createData) {
+  windowsCreate: function(createData) {
     createData = createData || {};
     return new Promise(resolve => {
       chrome.windows.create(createData, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
+          gsUtils.warning('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
       });
     });
   },
-  windowsUpdate: async function(windowId, updateInfo) {
+  windowsUpdate: function(windowId, updateInfo) {
     return new Promise(resolve => {
       if (!windowId || !updateInfo) {
-        gsUtils.errorIfInitialised(
+        gsUtils.warning(
           'chromeTabs',
           'windowId or updateInfo not specified'
         );
@@ -193,7 +193,7 @@ var gsChrome = {
       }
       chrome.windows.update(windowId, updateInfo, window => {
         if (chrome.runtime.lastError) {
-          gsUtils.errorIfInitialised('chromeWindows', chrome.runtime.lastError);
+          gsUtils.warning('chromeWindows', chrome.runtime.lastError);
           window = null;
         }
         resolve(window);
