@@ -456,22 +456,15 @@
   }
 
   function localiseHtml(parentEl) {
-    var replaceFunc = function(match, p1) {
+    var replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
     Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), el => {
       if (el.hasAttribute('data-i18n')) {
         el.innerHTML = el
           .getAttribute('data-i18n')
-          .replace(/__MSG_(\w+)__/g, replaceFunc);
-      }
-      if (el.hasAttribute('data-i18n-tooltip')) {
-        el.setAttribute(
-          'data-i18n-tooltip',
-          el
-            .getAttribute('data-i18n-tooltip')
-            .replace(/__MSG_(\w+)__/g, replaceFunc)
-        );
+          .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+          .replace(/\n/g, '<br />');
       }
     });
   }

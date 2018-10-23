@@ -195,7 +195,7 @@
     "html_suspended_modal_temp_whitelist_notice": { "message": "вы всё ещё можете приостановить вручную." },
     "html_suspended_modal_ok": { "message": "OK" },
     "html_suspended_modal_cancel": { "message": "Отмена" },
-    "html_suspended_donation_question": { "message": "Вам понравилось это расширение?<br>Отправьте пожертвование:" },
+    "html_suspended_donation_question": { "message": "Вам понравилось это расширение?\nОтправьте пожертвование." },
 
     // Permissions page
     "html_permissions_title": { "message": "Разрешения" },

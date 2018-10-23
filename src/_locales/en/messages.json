@@ -195,7 +195,7 @@
     "html_suspended_modal_temp_whitelist_notice": { "message": "You will still be able to suspend manually." },
     "html_suspended_modal_ok": { "message": "OK" },
     "html_suspended_modal_cancel": { "message": "Cancel" },
-    "html_suspended_donation_question": { "message": "Does this extension make you happy?<br>Show your support by donating:" },
+    "html_suspended_donation_question": { "message": "Does this extension make you happy?\nShow your support by donating." },
 
     // Permissions page
     "html_permissions_title": { "message": "Permissions" },

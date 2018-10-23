@@ -195,7 +195,7 @@
     "html_suspended_modal_temp_whitelist_notice": { "message": "白名單網站不會自動暫停。" }, //? Whitelisted sites will not be suspended automatically.
     "html_suspended_modal_ok": { "message": "送出" }, //Send
     "html_suspended_modal_cancel": { "message": "取消" }, //cancel
-    "html_suspended_donation_question": { "message": "你喜歡這個擴充功能嗎？<br>可以通過捐贈表達你的支持" }, //Do you like this extension? Show your support by donating
+    "html_suspended_donation_question": { "message": "你喜歡這個擴充功能嗎？\n可以通過捐贈表達你的支持。" }, //Do you like this extension? Show your support by donating
 
     // Update page
     "html_update_title": { "message": "更新" }, //? Updated

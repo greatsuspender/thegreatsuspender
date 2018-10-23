@@ -359,7 +359,7 @@ var gsUtils = {
         el.innerHTML = el
           .getAttribute('data-i18n')
           .replace(/__MSG_(\w+)__/g, replaceTagFunc)
-          .replace('\n', '<br />');
+          .replace(/\n/g, '<br />');
       }
       if (el.hasAttribute('data-i18n-tooltip')) {
         el.setAttribute(
@@ -367,7 +367,6 @@ var gsUtils = {
           el
             .getAttribute('data-i18n-tooltip')
             .replace(/__MSG_(\w+)__/g, replaceTagFunc)
-            .replace('\n', '<br />')
         );
       }
     }
