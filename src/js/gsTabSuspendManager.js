@@ -6,6 +6,7 @@ var gsTabSuspendManager = (function() {
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
   const DEFAULT_SUSPENSION_REQUEUES = 0;
+  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
 
   let suspensionQueue;
 
@@ -401,6 +402,81 @@ var gsTabSuspendManager = (function() {
       });
   }
 
+  function getFaviconMetaData(url) {
+    return new Promise(resolve => {
+      const img = new Image();
+
+      img.onload = function() {
+        let canvas;
+        let context;
+        canvas = window.document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context = canvas.getContext('2d');
+        context.drawImage(img, 0, 0);
+
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const origDataArray = imageData.data;
+        const normalisedDataArray = new Uint8ClampedArray(origDataArray);
+        const transparentDataArray = new Uint8ClampedArray(origDataArray);
+
+        let r, g, b, a;
+        let fuzzy = 0.1;
+        let light = 0;
+        let dark = 0;
+        let maxAlpha = 0;
+        let maxRgb = 0;
+
+        for (let x = 0; x < origDataArray.length; x += 4) {
+          r = origDataArray[x];
+          g = origDataArray[x + 1];
+          b = origDataArray[x + 2];
+          a = origDataArray[x + 3];
+
+          let localMaxRgb = Math.max(Math.max(r, g), b);
+          if (localMaxRgb < 128 || a < 128) dark++;
+          else light++;
+          maxAlpha = Math.max(a, maxAlpha);
+          maxRgb = Math.max(localMaxRgb, maxRgb);
+        }
+
+        //saftey check to make sure image is not completely transparent
+        if (maxAlpha === 0) {
+          getFaviconMetaData(DEFAULT_FAVICON).then(resolve);
+          return;
+        }
+
+        const darkLightDiff = (light - dark) / (canvas.width * canvas.height);
+        const isDark = darkLightDiff + fuzzy < 0;
+        const normaliserMultiple = 1 / (maxAlpha / 255);
+
+        for (let x = 0; x < origDataArray.length; x += 4) {
+          a = origDataArray[x + 3];
+          normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
+        }
+        for (let x = 0; x < normalisedDataArray.length; x += 4) {
+          a = normalisedDataArray[x + 3];
+          transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
+        }
+
+        imageData.data.set(normalisedDataArray);
+        context.putImageData(imageData, 0, 0);
+        const normalisedDataUrl = canvas.toDataURL('image/png');
+
+        imageData.data.set(transparentDataArray);
+        context.putImageData(imageData, 0, 0);
+        const transparentDataUrl = canvas.toDataURL('image/png');
+
+        resolve({
+          isDark,
+          normalisedDataUrl,
+          transparentDataUrl,
+        });
+      };
+      img.src = url || DEFAULT_FAVICON;
+    });
+  }
+
   return {
     initAsPromised,
     queueTabForSuspension,
@@ -410,5 +486,6 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
+    getFaviconMetaData,
   };
 })();

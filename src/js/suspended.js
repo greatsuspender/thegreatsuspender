@@ -2,8 +2,6 @@
 (function() {
   'use strict';
 
-  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
-
   let isInitialised = false;
   let isLowContrastFavicon = false;
   let tabId;
@@ -17,7 +15,7 @@
   let currentPreviewMode;
   let currentTitle;
   let currentUrl;
-  let currentFavicon;
+  let currentFaviconMeta;
   let currentTheme;
   let currentShowNag;
   let currentCommand;
@@ -64,7 +62,12 @@
 
     if (preUrlDecoded) {
       const preFavicon = 'chrome://favicon/size/16@2x/' + preUrlDecoded;
-      await setFavicon(preFavicon);
+      const faviconMeta = {
+        isDark: false,
+        normalisedDataUrl: preFavicon,
+        transparentDataUrl: preFavicon,
+      };
+      await setFaviconMeta(faviconMeta);
     }
 
     const preScrollPosition = href.match(scrollPosRegex)
@@ -126,20 +129,25 @@
     document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
   }
 
-  async function setFavicon(favicon) {
-    if (currentFavicon === favicon) {
+  async function setFaviconMeta(faviconMeta) {
+    if (
+      currentFaviconMeta &&
+      currentFaviconMeta.isDark === faviconMeta.isDark &&
+      currentFaviconMeta.normalisedDataUrl === faviconMeta.normalisedDataUrl &&
+      currentFaviconMeta.transparentDataUrl === faviconMeta.transparentDataUrl
+    ) {
       return;
     }
-    currentFavicon = favicon;
-    const faviconMetaData = await getFaviconMetaData(favicon);
-    isLowContrastFavicon = faviconMetaData.isDark;
+    currentFaviconMeta = faviconMeta;
+
+    isLowContrastFavicon = faviconMeta.isDark;
     setContrast();
     document
       .getElementById('gsTopBarImg')
-      .setAttribute('src', faviconMetaData.normalisedDataUrl);
+      .setAttribute('src', faviconMeta.normalisedDataUrl);
     document
       .getElementById('gsFavicon')
-      .setAttribute('href', faviconMetaData.transparentDataUrl);
+      .setAttribute('href', faviconMeta.transparentDataUrl);
   }
 
   function setContrast() {
@@ -435,80 +443,6 @@
     return urlStr;
   }
 
-  function getFaviconMetaData(url) {
-    return new Promise(resolve => {
-      var img = new Image();
-
-      img.onload = function() {
-        var canvas, context;
-        canvas = window.document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        context = canvas.getContext('2d');
-        context.drawImage(img, 0, 0);
-
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        var origDataArray = imageData.data;
-        var normalisedDataArray = new Uint8ClampedArray(origDataArray);
-        var transparentDataArray = new Uint8ClampedArray(origDataArray);
-        var r, g, b, a;
-
-        var fuzzy = 0.1;
-        var light = 0;
-        var dark = 0;
-        var maxAlpha = 0;
-        var maxRgb = 0;
-
-        for (let x = 0; x < origDataArray.length; x += 4) {
-          r = origDataArray[x];
-          g = origDataArray[x + 1];
-          b = origDataArray[x + 2];
-          a = origDataArray[x + 3];
-
-          let localMaxRgb = Math.max(Math.max(r, g), b);
-          if (localMaxRgb < 128 || a < 128) dark++;
-          else light++;
-          maxAlpha = Math.max(a, maxAlpha);
-          maxRgb = Math.max(localMaxRgb, maxRgb);
-        }
-
-        //saftey check to make sure image is not completely transparent
-        if (maxAlpha === 0) {
-          getFaviconMetaData(DEFAULT_FAVICON).then(resolve);
-          return;
-        }
-
-        var darkLightDiff = (light - dark) / (canvas.width * canvas.height);
-        var isDark = darkLightDiff + fuzzy < 0;
-        var normaliserMultiple = 1 / (maxAlpha / 255);
-
-        for (let x = 0; x < origDataArray.length; x += 4) {
-          a = origDataArray[x + 3];
-          normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
-        }
-        for (let x = 0; x < normalisedDataArray.length; x += 4) {
-          a = normalisedDataArray[x + 3];
-          transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
-        }
-
-        imageData.data.set(normalisedDataArray);
-        context.putImageData(imageData, 0, 0);
-        var normalisedDataUrl = canvas.toDataURL('image/png');
-
-        imageData.data.set(transparentDataArray);
-        context.putImageData(imageData, 0, 0);
-        var transparentDataUrl = canvas.toDataURL('image/png');
-
-        resolve({
-          isDark,
-          normalisedDataUrl,
-          transparentDataUrl,
-        });
-      };
-      img.src = url || DEFAULT_FAVICON;
-    });
-  }
-
   function waitForDocumentReady() {
     return new Promise(function(resolve) {
       if (document.readyState !== 'loading') {
@@ -607,8 +541,8 @@
     if (request.hasOwnProperty('command')) {
       setCommand(request.command);
     }
-    if (request.hasOwnProperty('favicon')) {
-      await setFavicon(request.favicon);
+    if (request.hasOwnProperty('faviconMeta')) {
+      await setFaviconMeta(request.faviconMeta);
     }
     if (request.hasOwnProperty('title')) {
       setTitle(request.title);

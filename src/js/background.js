@@ -743,15 +743,17 @@ var tgs = (function() {
       const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
       setTabFlagForTabId(tab.id, TF_SCROLL_POS, scrollPosition);
 
-      initialiseSuspendedTabAsPromised(tab).then(response => {
-        if (isCurrentFocusedTab(tab)) {
-          setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-        } else {
-          gsTabCheckManager.queueTabCheck(tab);
-        }
-      }).catch(error => {
-        gsUtils.warning(tab.id, error);
-      });
+      initialiseSuspendedTabAsPromised(tab)
+        .then(response => {
+          if (isCurrentFocusedTab(tab)) {
+            setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+          } else {
+            gsTabCheckManager.queueTabCheck(tab);
+          }
+        })
+        .catch(error => {
+          gsUtils.warning(tab.id, error);
+        });
     }
   }
 
@@ -761,9 +763,9 @@ var tgs = (function() {
       const originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
       const whitelisted = gsUtils.checkWhiteList(originalUrl);
       const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
-      const favicon =
-        (tabProperties && tabProperties.favIconUrl) ||
-        'chrome://favicon/size/16@2x/' + originalUrl;
+      const faviconMeta = await gsTabSuspendManager.getFaviconMetaData(
+        tabProperties.favIconUrl
+      );
       let title =
         (tabProperties && tabProperties.title) ||
         gsUtils.getSuspendedTitle(suspendedUrl);
@@ -800,7 +802,7 @@ var tgs = (function() {
           tabActive: tab.active,
           requestUnsuspendOnReload: true,
           url: originalUrl,
-          favicon: favicon,
+          faviconMeta: faviconMeta,
           title: title,
           whitelisted: whitelisted,
           theme: options[gsStorage.THEME],
@@ -1509,7 +1511,9 @@ var tgs = (function() {
         if (request.previewUrl) {
           gsIndexedDb
             .addPreviewImage(sender.tab.url, request.previewUrl)
-            .then(() => gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab)); //async. unhandled promise.
+            .then(() =>
+              gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab)
+            ); //async. unhandled promise.
         } else {
           gsUtils.warning(
             'savePreviewData reported an error: ' + request.errorMsg
