@@ -168,6 +168,11 @@ var gsSession = (function() {
     }
 
     await performTabChecks();
+
+    gsUtils.log('gsSession', 'updating current session');
+    updateCurrentSession(); //async
+
+    initialisationMode = false;
   }
 
   //make sure the contentscript / suspended script of each tab is responsive
@@ -186,6 +191,7 @@ var gsSession = (function() {
       'postRecoverySessionTabs:',
       postRecoverySessionTabs
     );
+
     const tabCheckResults = await gsTabCheckManager.performInitialisationTabChecks(
       postRecoverySessionTabs
     );
@@ -203,7 +209,6 @@ var gsSession = (function() {
         `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
         '------------------------------------------------\n\n'
     );
-    initialisationMode = false;
   }
 
   async function handleNormalStartup(currentSessionTabs, curVersion) {
