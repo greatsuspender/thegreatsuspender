@@ -1,6 +1,6 @@
 /*global chrome, localStorage, tgs, gsUtils, gsChrome, GsTabQueue, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
-const gsTabDiscardManager = (function() {
+var gsTabDiscardManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_DISCARDS = 1;

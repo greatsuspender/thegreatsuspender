@@ -1,7 +1,7 @@
 /*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
 'use strict';
 
-const gsStorage = {
+var gsStorage = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
   SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',

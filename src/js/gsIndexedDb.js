@@ -1,7 +1,7 @@
 /*global chrome, db, tgs, gsUtils, gsChrome, gsSession */
 'use strict';
 
-const gsIndexedDb = {
+var gsIndexedDb = {
   DB_SERVER: 'tgs',
   DB_VERSION: '2',
   DB_PREVIEWS: 'gsPreviews',

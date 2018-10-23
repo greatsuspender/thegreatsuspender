@@ -1,6 +1,6 @@
 /*global chrome, localStorage, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsTabCheckManager, gsTabDiscardManager */
 // eslint-disable-next-line no-unused-vars
-const gsSession = (function() {
+var gsSession = (function() {
   'use strict';
 
   const tabsToRestorePerSecond = 12;

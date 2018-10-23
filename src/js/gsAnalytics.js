@@ -1,6 +1,6 @@
 /*global ga, gsStorage, gsSession, gsUtils */
 // eslint-disable-next-line no-unused-vars
-const gsAnalytics = (function() {
+var gsAnalytics = (function() {
   'use strict';
 
   const DIMENSION_VERSION = 'dimension1';
