@@ -200,8 +200,7 @@
     // Update page
     "html_update_title": { "message": "更新" }, //? Updated
     "html_update_heading2": { "message": "即將變得更好" }, //? It is about to get better
-    "html_update_info_line1": { "message": "一個新版本的 The Great Suspender 已準備好安裝。" }, //? A new version of The Great Suspender is ready for installation.
-    "html_update_info_line2": { "message": "請注意：凍結頁面將在更新過程中暫時消失。" }, //? Please note: The frozen page will temporarily disappear during the update process.
+    "html_update_info": { "message": "一個新版本的 The Great Suspender 已準備好安裝。\n請注意：凍結頁面將在更新過程中暫時消失。" }, //? A new version of The Great Suspender is ready for installation. Please note: The frozen page will temporarily disappear during the update process.
     "html_update_info_withbackup": { "message": "請在繼續之前儲存目前瀏覽階段的備份。" }, //? Please save the backup of the current tab session before proceeding.
     "html_update_info_nobackup_prefix": { "message": "強烈建議您在繼續之前從" }, //? We strongly recommend that you save a backup of your current session from
     "html_update_info_nobackup_suffix": { "message": " 儲存目前瀏覽階段的備份。" }, //? before proceeding.
