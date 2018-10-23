@@ -1,4 +1,4 @@
-/*global chrome, gsIndexedDb, gsSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
+/*global chrome, gsIndexedDb, gsTabSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -17,11 +17,7 @@ testSuites.push(
           'previewUrl1'
         );
 
-        await new Promise(resolve => {
-          gsSuspendManager.saveSuspendData(tab, function() {
-            resolve();
-          });
-        });
+        await gsTabSuspendManager.saveSuspendData(tab);
         const tabProperties = await gsIndexedDb.fetchTabInfo(tab.url);
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&

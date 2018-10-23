@@ -85,15 +85,15 @@ testSuites.push(
 
       // Test gsChrome.tabsCreate
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         const newTab1 = await gsChrome.tabsCreate();
         const isNewTab1Valid =
-          newTab1 === null && errorObj === 'url not specified';
+          newTab1 === null && warningString === 'url not specified';
 
         const newTab2 = await gsChrome.tabsCreate(testTabUrl);
         const isNewTab2Valid = newTab2.url === testTabUrl;
@@ -106,10 +106,10 @@ testSuites.push(
 
       // Test gsChrome.tabsReload
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test tab
@@ -119,32 +119,33 @@ testSuites.push(
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
         await gsChrome.tabsReload();
-        const isTabReload1Valid = errorObj === 'tabId not specified';
+        const isTabReload1Valid = warningString === 'tabId not specified';
 
         await gsChrome.tabsReload(7777);
-        const isTabReload2Valid = errorObj.message === 'No tab with id: 7777.';
+        const isTabReload2Valid =
+          warningString.message === 'No tab with id: 7777.';
 
-        errorObj = null;
+        warningString = null;
         await gsChrome.tabsReload(testTab1.id);
-        const isTabReload3Valid = errorObj === null;
+        const isTabReload3Valid = warningString === null;
 
         // cleanup
         await removeTestTab(testTab1.id, true);
 
         return assertTrue(
           isTestTab1Valid &&
-          isTabReload1Valid &&
-          isTabReload2Valid &&
-          isTabReload3Valid
+            isTabReload1Valid &&
+            isTabReload2Valid &&
+            isTabReload3Valid
         );
       },
 
       // Test gsChrome.tabsUpdate
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test tab to update
@@ -156,16 +157,17 @@ testSuites.push(
         const updateTab1 = await gsChrome.tabsUpdate();
         const isUpdateTab1Valid =
           updateTab1 === null &&
-          errorObj === 'tabId or updateProperties not specified';
+          warningString === 'tabId or updateProperties not specified';
 
         const updateTab2 = await gsChrome.tabsUpdate(testTab1.id);
         const isUpdateTab2Valid =
           updateTab2 === null &&
-          errorObj === 'tabId or updateProperties not specified';
+          warningString === 'tabId or updateProperties not specified';
 
         const updateTab3 = await gsChrome.tabsUpdate(7777, {});
         const isUpdateTab3Valid =
-          updateTab3 === null && errorObj.message === 'No tab with id: 7777.';
+          updateTab3 === null &&
+          warningString.message === 'No tab with id: 7777.';
 
         const isUpdateTab4BeforeValid = testTab1.pinned === false;
         const updateTab4 = await gsChrome.tabsUpdate(testTab1.id, {
@@ -188,10 +190,13 @@ testSuites.push(
 
       // Test gsChrome.tabsGet
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
+        };
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test tab
@@ -201,11 +206,12 @@ testSuites.push(
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
         const tab1 = await gsChrome.tabsGet();
-        const isTab1Valid = tab1 === null && errorObj === 'tabId not specified';
+        const isTab1Valid =
+          tab1 === null && warningString === 'tabId not specified';
 
         const tab2 = await gsChrome.tabsGet(7777);
         const isTab2Valid =
-          tab2 === null && errorObj.message === 'No tab with id: 7777.';
+          tab2 === null && warningString.message === 'No tab with id: 7777.';
 
         const tab3 = await gsChrome.tabsGet(testTab1.id);
         const isTab3Valid = tab3.url === testTabUrl;
@@ -220,15 +226,14 @@ testSuites.push(
 
       // Test gsChrome.tabsQuery
       async () => {
-
         //TODO: Add handing of bad property values to all gsChrome tests
         // const errorTabs = await gsChrome.tabsQuery({badProperty: 'foo'});
-        // const isErrorTabsValid = errorTabs === null && errorObj === 'tabId not specified';
+        // const isErrorTabsValid = errorTabs === null && warningString === 'tabId not specified';
 
-        // stub gsUtils.error function
-        // let errorObj;
-        // gsUtils.error = (id, _errorObj, ...args) => {
-        //   errorObj = _errorObj;
+        // stub gsUtils.warning function
+        // let warningString;
+        // gsUtils.warning = (id, _warningString, ...args) => {
+        //   warningString = _warningString;
         // };
 
         const tabsBefore = await gsChrome.tabsQuery();
@@ -251,10 +256,10 @@ testSuites.push(
 
       // Test gsChrome.tabsRemove
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test tab
@@ -264,10 +269,11 @@ testSuites.push(
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
         await gsChrome.tabsRemove();
-        const isTabRemove1Valid = errorObj === 'tabId not specified';
+        const isTabRemove1Valid = warningString === 'tabId not specified';
 
         await gsChrome.tabsRemove(7777);
-        const isTabRemove2Valid = errorObj.message === 'No tab with id: 7777.';
+        const isTabRemove2Valid =
+          warningString.message === 'No tab with id: 7777.';
 
         await gsChrome.tabsRemove(testTab1.id);
 
@@ -309,10 +315,10 @@ testSuites.push(
 
       // Test gsChrome.windowsGet
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test window
@@ -322,11 +328,13 @@ testSuites.push(
         const isTestWindow1Valid = testWindow1.tabs.length === 1;
 
         const window1 = await gsChrome.windowsGet();
-        const isWindow1Valid = window1 === null && errorObj === 'windowId not specified';
+        const isWindow1Valid =
+          window1 === null && warningString === 'windowId not specified';
 
         const window2 = await gsChrome.windowsGet(7777);
         const isWindow2Valid =
-          window2 === null && errorObj.message === 'No window with id: 7777.';
+          window2 === null &&
+          warningString.message === 'No window with id: 7777.';
 
         const window3 = await gsChrome.windowsGet(testWindow1.id);
         const isWindow3Valid = window3.id === testWindow1.id;
@@ -335,7 +343,10 @@ testSuites.push(
         await removeTestWindow(testWindow1.id, false);
 
         return assertTrue(
-          isTestWindow1Valid && isWindow1Valid && isWindow2Valid && isWindow3Valid
+          isTestWindow1Valid &&
+            isWindow1Valid &&
+            isWindow2Valid &&
+            isWindow3Valid
         );
       },
 
@@ -388,10 +399,10 @@ testSuites.push(
 
       // Test gsChrome.windowsUpdate
       async () => {
-        // stub gsUtils.error function
-        let errorObj;
-        gsUtils.error = (id, _errorObj, ...args) => {
-          errorObj = _errorObj;
+        // stub gsUtils.warning function
+        let warningString;
+        gsUtils.warning = (id, _warningString, ...args) => {
+          warningString = _warningString;
         };
 
         // create a test window to update
@@ -403,17 +414,17 @@ testSuites.push(
         const updateWindow1 = await gsChrome.windowsUpdate();
         const isUpdateWindow1Valid =
           updateWindow1 === null &&
-          errorObj === 'windowId or updateInfo not specified';
+          warningString === 'windowId or updateInfo not specified';
 
         const updateWindow2 = await gsChrome.windowsUpdate(testWindow1.id);
         const isUpdateWindow2Valid =
           updateWindow2 === null &&
-          errorObj === 'windowId or updateInfo not specified';
+          warningString === 'windowId or updateInfo not specified';
 
         const updateWindow3 = await gsChrome.windowsUpdate(7777, {});
         const isUpdateWindow3Valid =
           updateWindow3 === null &&
-          errorObj.message === 'No window with id: 7777.';
+          warningString.message === 'No window with id: 7777.';
 
         const testWidth = 500;
         const isUpdateWindow4BeforeValid = testWindow1.width !== testWidth;

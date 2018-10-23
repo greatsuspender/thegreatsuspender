@@ -1,7 +1,7 @@
 /*global chrome, db, tgs, gsUtils, gsChrome, gsSession */
 'use strict';
 
-var gsIndexedDb = {
+const gsIndexedDb = {
   DB_SERVER: 'tgs',
   DB_VERSION: '2',
   DB_PREVIEWS: 'gsPreviews',
@@ -156,7 +156,7 @@ var gsIndexedDb = {
       const gsDb = await this.getDb();
 
       //if it's a saved session (prefixed with an underscore)
-      var tableName =
+      const tableName =
         session.sessionId.indexOf('_') === 0
           ? this.DB_SAVED_SESSIONS
           : this.DB_CURRENT_SESSIONS;
@@ -223,7 +223,7 @@ var gsIndexedDb = {
             sessionId +
             '! Removing older ones..'
         );
-        for (var session of results.slice(1)) {
+        for (let session of results.slice(1)) {
           await gsDb.remove(tableName, session.id);
         }
       }
@@ -263,7 +263,7 @@ var gsIndexedDb = {
     let results;
     try {
       const gsDb = await this.getDb();
-      var tableName = this.DB_SAVED_SESSIONS;
+      const tableName = this.DB_SAVED_SESSIONS;
       results = await gsDb
         .query(tableName)
         .filter(this.DB_SESSION_PRE_UPGRADE_KEY, versionValue)
@@ -489,18 +489,18 @@ var gsIndexedDb = {
       if (major < 6 || (major === 6 && minor < 31) || testMode) {
         // if (oldVersion < 6.31)
         const cookies = await gsChrome.cookiesGetAll();
-        var scrollPosByTabId = {};
+        const scrollPosByTabId = {};
         for (const cookie of cookies) {
           if (cookie.name.indexOf('gsScrollPos') === 0) {
             if (cookie.value && cookie.value !== '0') {
-              var tabId = cookie.name.substr(12);
+              const tabId = cookie.name.substr(12);
               scrollPosByTabId[tabId] = cookie.value;
             }
-            var prefix = cookie.secure ? 'https://' : 'http://';
+            let prefix = cookie.secure ? 'https://' : 'http://';
             if (cookie.domain.charAt(0) === '.') {
               prefix += 'www';
             }
-            var url = prefix + cookie.domain + cookie.path;
+            const url = prefix + cookie.domain + cookie.path;
             await gsChrome.cookiesRemove(url, cookie.name);
           }
         }

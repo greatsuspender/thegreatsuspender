@@ -18,7 +18,8 @@
   ],
   "background": {
     "scripts": ["js/gsUtils.js", "js/gsChrome.js", "js/gsAnalytics.js", "js/gsStorage.js", "js/db.js", "js/gsIndexedDb.js",
-      "js/gsMessages.js", "js/gsSession.js", "js/gsSuspendManager.js", "js/background.js"],
+      "js/gsMessages.js", "js/gsSession.js", "js/gsTabQueue.js", "js/gsTabCheckManager.js", "js/gsTabSuspendManager.js",
+      "js/gsTabDiscardManager.js", "js/background.js"],
     "persistent": true
   },
   "content_scripts": [

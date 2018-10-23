@@ -1,10 +1,10 @@
-/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsSuspendManager, tgs */
+/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, tgs */
 'use strict';
 
 var debugInfo = false;
 var debugError = false;
 
-var gsUtils = {
+const gsUtils = {
   STATUS_NORMAL: 'normal',
   STATUS_LOADING: 'loading',
   STATUS_SPECIAL: 'special',
@@ -637,17 +637,7 @@ var gsUtils = {
           if (
             changedSettingKeys.includes(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)
           ) {
-            var suspendInPlaceOfDiscard = gsStorage.getOption(
-              gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
-            );
-            if (suspendInPlaceOfDiscard) {
-              var suspendedUrl = gsUtils.generateSuspendedUrl(
-                tab.url,
-                tab.title,
-                0
-              );
-              gsSuspendManager.forceTabSuspension(tab, suspendedUrl); // async. unhandled promise.
-            }
+            gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, false); //async. unhandled promise.
           }
           return;
         }
@@ -717,7 +707,7 @@ var gsUtils = {
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
       this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
     ) {
-      gsSuspendManager.initAsPromised(); //async. unhandled promise
+      gsTabSuspendManager.initAsPromised(); //async. unhandled promise
     }
   },
 
