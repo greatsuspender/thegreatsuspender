@@ -1,5 +1,4 @@
 {
-    // manifest.json
     "ext_extension_name": { "message": "The Great Suspender" },
     "ext_extension_description": { "message": "Заставь свой браузер работать быстрее, замораживая неактивные вкладки" },
     "ext_default_title": { "message": "The Great Suspender" },
@@ -13,8 +12,6 @@
     "ext_cmd_soft_suspend_all_windows_description": { "message": "Приостановить все вкладки во всех окнах" },
     "ext_cmd_force_suspend_all_windows_description": { "message": "Принудительно приостановить все вкладки во всех окнах" },
     "ext_cmd_unsuspend_all_windows_description": { "message": "Возобновить все вкладки во всех окнах" },
-
-    // Contextual menu (Javascript code)
     "js_context_open_link_in_suspended_tab": { "message": "Открыть ссылку в новой приостановленной вкладке" },
     "js_context_toggle_suspend_state": { "message": "Приостановить/Возобновить эту вкладку" },
     "js_context_toggle_pause_suspension": { "message": "Включить/выключить приостановку этой вкладки" },
@@ -28,8 +25,6 @@
     "js_context_soft_suspend_all_tabs": { "message": "Приостановить все вкладки во всех окнах" },
     "js_context_force_suspend_all_tabs": { "message": "Принудительно приостановить все вкладки во всех окнах" },
     "js_context_unsuspend_all_tabs": { "message": "Возобновить все вкладки во всех окнах" },
-
-    // About page
     "html_about_title": { "message": "О расширении" },
     "html_about_github_title": { "message": "GitHub" },
     "html_about_twitter_title": { "message": "Twitter" },
@@ -49,19 +44,13 @@
     "html_about_already_donated": { "message": "Уже пожертвовали?" },
     "html_about_thanks_for_your_donation": { "message": "Большое спасибо за пожертвование. Наш кот теперь доволен." },
     "html_about_want_to_donate_again": { "message": "Отправите еще пожертвование?" },
-
-    // Session management page
     "html_history_title": { "message": "Управление сессиями" },
     "html_history_current_session": { "message": "Текущая сессия" },
     "html_history_recent_sessions": { "message": "Предыдущие сессии" },
     "html_history_saved_sessions": { "message": "Сохраненные сессии" },
     "html_history_import_session": { "message": "Импорт сессии" },
-
-    // Important notice page
     "html_notice_title": { "message": "Уведомление" },
     "html_notice_important_notice": { "message": "Важное уведомление от The Great Suspender" },
-
-    // Options page
     "html_options_title": { "message": "Настройки" },
     "html_options_suspend_title": { "message": "Автоматическая приостановка вкладок" },
     "html_options_suspended_title": { "message": "Приостановленные вкладки" },
@@ -133,8 +122,6 @@
     "html_options_suspend_on_low_memory_tooltip_line5": {"message": "указано в параметрах автоматической приостановки табуляции." },
     "html_options_suspend_on_low_memory_tooltip_line6": {"message": "Для получения дополнительной информации об отбрасывании вкладок Chrome см.:"},
     "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
-
-    // Dropdown menu from button in the address bar
     "html_popup_unsuspend_tab": { "message": "Возобновить эту вкладку" },
     "html_popup_suspend_tab": { "message": "Приостановить Возобновить эту вкладку" },
     "html_popup_dont_suspend_now": { "message": "Не приостанавливать" },
@@ -145,8 +132,6 @@
     "html_popup_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
     "html_popup_unsuspend_selected_tabs": { "message": "Возобновить выбранные вкладки" },
     "html_popup_settings": { "message": "Настройки" },
-
-    // Recovery page (to recover from a crashed session)
     "html_recovery_title": { "message": "Восстановление" },
     "html_recovery_ruh_roh": { "message": "Ой-ой!" },
     "html_recovery_description_line1": { "message": "Кажется, расширение завершило работу некорректно." },
@@ -156,30 +141,20 @@
     "html_recovery_important_message": { "message": "У вас включен захват экрана. Рекомендуется отключить его, если наблюдаются проблемы с расширением." },
     "html_recovery_disable_screen_capturing": { "message": "Выключить захват экрана" },
     "html_recovery_tabs_to_restore": { "message": "Восстановить вкладки" },
-
-    // Keyboard shortcuts page
     "html_shortcuts_title": { "message": "Сочетания клавиш" },
     "html_shortcuts_keyboard_shortcuts": { "message": "Сочетания клавиш" },
     "html_shortcuts_context_menu_note": { "message": "Примечание: эти действия также доступны из контекстного меню правой кнопки мыши." },
     "html_shortcuts_remap_keys": { "message": "Изменить сочетания" },
-
-    // Sidebar from the configuration section (common to all settings)
     "html_sidebar_general_settings": { "message": "Настройки" },
     "html_sidebar_session_management": { "message": "Управление сессиями" },
     "html_sidebar_shortcuts": { "message": "Сочетания клавиш" },
     "html_sidebar_support": { "message": "О расширении" },
-
-    // Success page (after recovering from a crashed session)
     "html_success_title": { "message": "Восстановление" },
     "html_success_great_success": { "message": "Успешно!" },
     "html_success_all_tabs_restored": { "message": "Все вкладки были восстановлены." },
     "html_success_goto_advanced_prefix": { "message": "Более продвинутое управление сессиями доступно на странице: " },
     "html_success_goto_advanced_suffix": { "message": "" },
-
-    // Session manager link
     "html_session_manager": { "message": "управление сессиями" },
-
-    // Suspended page
     "html_suspended_title": { "message": "Приостановленная вкладка" },
     "html_suspended_tab_suspended": { "message": "Вкладка приостановлена" },
     "html_suspended_tab_reload": { "message": "Обновить вкладку" },
@@ -196,22 +171,16 @@
     "html_suspended_modal_ok": { "message": "OK" },
     "html_suspended_modal_cancel": { "message": "Отмена" },
     "html_suspended_donation_question": { "message": "Вам понравилось это расширение?\nОтправьте пожертвование." },
-
-    // Permissions page
     "html_permissions_title": { "message": "Разрешения" },
     "html_permissions_heading": { "message": "Пожалуйста разрешите доступ к локальным файлам" },
     "html_permissions_info": { "message": "У расширения в данный момент нет разрешения приостанавливать вкладки с URL, начинающимися со слова \"file\".\nЧтобы это изменить, включите \"Разрешить открывать локальные файлы по ссылкам\" со страницы настроек расширения." },
     "html_permissions_backup": { "message": "Примечание: изменение этой опции приведет с временному исчезновению всех приостановленных вкладок.\nНа всякой случай рекомендуем сделать бэкап текущей сессии вкладок." },
-
-    // Update page
     "html_update_title": { "message": "Обновление" },
     "html_update_heading2": { "message": "становится всё лучше" },
     "html_update_info": { "message": "Новая версия The Great Suspender готова к установке.\nПримечание: изменение этой опции приведет с временному исчезновению всех приостановленных вкладок." },
     "html_update_info_withbackup": { "message": "На всякой случай рекомендуем сделать бэкап текущей сессии вкладок." },
     "html_update_info_nobackup_prefix": { "message": "Рекомендуем сделать экспорт текущей сессии" },
     "html_update_info_nobackup_suffix": { "message": " перед обновлением расширения." },
-
-    // Updated page
     "html_updated_title": { "message": "Обновлено" },
     "html_updating_heading": { "message": "обновляется" },
     "html_updating_message": { "message": "Восстанавливаются приостановленные вкладки..." },
@@ -225,24 +194,16 @@
     "html_updated_bug_fixes_header": { "message": "Исправлены баги:" },
     "html_updated_release_notes": { "message": "Прочить на странице расширения в GitHub: " },
     "html_updated_patch_message": { "message": "Извините за беспокойство. Мне просто нужно было выполнить небольшое обновление." },
-
-    // Welcome message
     "html_welcome_title": { "message": "Добро пожаловать" },
     "html_welcome_text_line1": { "message": "Спасибо за использование" },
     "html_welcome_text_line2": { "message": "Я ускорю ваш компьютер, приостанавливая неиспользуемые вкладки." },
     "html_welcome_text_line3": { "message": "Вы можете настроить параметры ниже." },
-
-    // Thanks page
     "html_thanks_title": { "message": "Спасибо" },
     "html_thanks_header": { "message": "Спасибо за поддержку!" },
     "html_thanks_sub_header": { "message": "Пусть сегодня вам сопутствует удача." },
-
-    // Donate sub-view for suspended.js and about.js (Javascript code)
     "js_donate_paypal": { "message": "PayPal" },
     "js_donate_bitcoin": { "message": "Crypto" },
     "js_donate_patreon": { "message": "Patreon" },
-
-    // Dropdown menu from button in the address bar (Javascript code)
     "js_popup_normal": { "message": "Вкладка будет приостановлена автоматически." },
     "js_popup_normal_pause": { "message": "Не сейчас" },
     "js_popup_special": { "message": "Вкладка не может быть приостановлена" },
@@ -264,8 +225,6 @@
     "js_popup_unknown": { "message": "Вкладка загружается..." },
     "js_popup_initialising": { "message": "Расширение запускается..." },
     "js_popup_error": { "message": "Авто-приостановка недоступна для этой вкладки" },
-
-    // Session management page (Javascript code)
     "js_history_delete": { "message": "удалить" },
     "js_history_export": { "message": "экспорт" },
     "js_history_reload": { "message": "обновить" },
@@ -278,24 +237,14 @@
     "js_history_confirm_delete": { "message": "Вы точно хотите удалить сессию?" },
     "js_history_confirm_session_overwrite": { "message": "Сессия с таким именем уже существует. Перезаписать?" },
     "js_history_import_fail": { "message": "Ошибка при загрузке файла. Убедитесь, что файл в корректном формате." },
-
-    // Suspended page (Javascript code)
     "js_suspended_remove_from_whitelist": { "message": "Удалить сайт из белого списка" },
     "js_suspended_hotkey_to_reload": { "message": "Сохранить сочетания клавиш" },
     "js_suspended_low_memory": { "message": "Вкладка приостановлена из-за нехватки памяти" },
-
-    // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Настройки расширения будут заполнены из Chrome Sync." },
-
-    // Permissions page (Javascript code)
     "js_permissions_button_export": { "message": "Сохранить резервную копию" },
     "js_permissions_button_set": { "message": "Открыть настройки расширения" },
-
-    // Update page (Javascript code)
     "js_update_confirm": { "message": "Вы еще не делали резервную копию. Всё равно обновить?" },
     "js_update_button_export": { "message": "Сохранить резервную копию" },
     "js_update_button_reload": { "message": "Обновить расширение" },
-
-    // Keyboard shortcuts page (Javascript code)
     "js_shortcuts_not_set": { "message": "не задано" }
 }
