@@ -197,6 +197,12 @@
     "html_suspended_modal_cancel": { "message": "取消" }, //cancel
     "html_suspended_donation_question": { "message": "你喜欢这个扩充元件吗?\n通过捐赠表明你的支持。" }, //Do you like this extension? Show your support by donating
 
+    // Permissions page
+    "html_permissions_title": { "message": "许可权限" },
+    "html_permissions_heading": { "message": "请提供允许访问本地文件URL的权限" },
+    "html_permissions_info": { "message": "这个扩展目前不允许暂停那些 以file（文件）开头的URL链接。\n要想改变这个设置， 可以在扩展设置页面打开允许访问文件URL的设置。" },
+    "html_permissions_backup": { "message": "请注意：改变这个设置可能会使你当前所有的暂停页签短暂的消失。\n以防万一，最好对当前页签的会话的做备份。" },
+
     // Update page
     "html_update_title": { "message": "更新" }, //? Updated
     "html_update_heading2": { "message": "即将变得更好" }, //? It is about to get better
@@ -237,22 +243,24 @@
     "js_donate_patreon": { "message": "Patreon" }, //Patreon
 
     // Dropdown menu from button in the address bar (Javascript code)
-    "js_popup_normal": { "message": "分页将会自动被冻结" }, //Paging will be automatically frozen
+    "js_popup_normal": { "message": "分页将会自动被冻结。" }, //Paging will be automatically frozen
     "js_popup_normal_pause": { "message": "暂时不要冻结" }, //Do not freeze for now
     "js_popup_special": { "message": "分页無法被冻结" }, //Paging can not be frozen
     "js_popup_suspended": { "message": "分页已經被冻结" }, //Paging has been frozen
     "js_popup_suspended_pause": { "message": "暂时不要冻结" }, //Do not freeze for now
-    "js_popup_whitelisted": { "message": "例外清单" }, //Exception list
+    "js_popup_whitelisted": { "message": "例外清单。" }, //Exception list
     "js_popup_whitelisted_remove": { "message": "從例外清單移除" }, //Remove from the exception list
-    "js_popup_audible": { "message": "分页正在播放声音" }, //Paging is playing sound
-    "js_popup_form_input": { "message": "分页有文字还在輸入" }, //Pagination text is still input
+    "js_popup_audible": { "message": "分页正在播放声音。" }, //Paging is playing sound
+    "js_popup_form_input": { "message": "分页有文字还在輸入。" }, //Pagination text is still input
     "js_popup_form_input_unpause": { "message": "取消暂停" }, //Cancel pause
     "js_popup_pinned": { "message": "分页已經被固定" }, //Paging has been fixed
-    "js_popup_temp_whitelist": { "message": "页面冻结暂停" }, //Page freeze pause
+    "js_popup_temp_whitelist": { "message": "页面冻结暂停。" }, //Page freeze pause
     "js_popup_temp_whitelist_unpause": { "message": "取消暂停" }, //Cancel pause
-    "js_popup_never": { "message": "禁止自动冻结分页" }, //Freezing of pages is forbidden
+    "js_popup_never": { "message": "禁止自动冻结分页。" }, //Freezing of pages is forbidden
     "js_popup_no_connectivity": { "message": "未連接網路" }, //Not connected to the internet
     "js_popup_charging": { "message": "已接上电源" }, //Connected to the power
+    "js_popup_blockedFile": { "message": "本地文件无法暂停。" },
+    "js_popup_blockedFile_enable": { "message": "启用" },
     "js_popup_unknown": { "message": "等待页面加载..." }, //? Waiting for page to load..
     "js_popup_initialising": { "message": "等待扩充元件初始化..." }, //? Wait for the extension to be initialized..
     "js_popup_error": { "message": "自动冻结在此页面上不可用" }, //? Auto-freeze is not available on this page.
@@ -278,6 +286,10 @@
 
     // Options page (Javascript code)
     "js_options_incognito_warning": { "message": "您处于隐身模式。我们已从Chrome同步中填充了扩展程序设置" }, //? You are in incognito mode. We have populated the extension settings from Chrome sync.
+
+    // Permissions page (Javascript code)
+    "js_permissions_button_export": { "message": "保存备份" },
+    "js_permissions_button_set": { "message": "打开扩展设置" },
 
     // Update page (Javascript code)
     "js_update_confirm": { "message": "您尚未汇出备份。更新扩充元件？" }, //? You have not exported the backup yet. Update extension?
