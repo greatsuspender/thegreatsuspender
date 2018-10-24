@@ -249,16 +249,22 @@ var gsTabSuspendManager = (function() {
 
   function getContentScriptTabInfo(tab) {
     return new Promise(resolve => {
-      gsMessages.sendRequestInfoToContentScript(tab.id, (error, tabInfo) => {
+      let tabInfo = {
+        status: 'loading',
+        scrollPos: '0',
+      };
+      if (gsUtils.isDiscardedTab(tab)) {
+        resolve(tabInfo);
+        return;
+      }
+      gsMessages.sendRequestInfoToContentScript(tab.id, (error, _tabInfo) => {
         //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
         if (error) {
           gsUtils.warning(tab.id, 'Failed to get content script info', error);
           // continue here but will lose information about scroll position,
           // temp whitelist, and form input
-          tabInfo = {
-            status: 'loading',
-            scrollPos: '0',
-          };
+        } else {
+          tabInfo = _tabInfo;
         }
         resolve(tabInfo);
       });
