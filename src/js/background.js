@@ -1035,7 +1035,7 @@ var tgs = (function() {
       return;
     }
 
-    gsUtils.log(previouslyFocusedTabId.id, 'Discarding previously focused tab');
+    gsUtils.log(previouslyFocusedTabId, 'Discarding previously focused tab');
     gsTabDiscardManager.queueTabForDiscard(previouslyFocusedTab);
   }
 
