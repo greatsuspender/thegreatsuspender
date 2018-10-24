@@ -197,7 +197,13 @@ var tgs = (function() {
   }
 
   function isCurrentActiveTab(tab) {
-    return _currentFocusedTabIdByWindowId[tab.windowId] === tab.id;
+    const activeTabIdForWindow = _currentFocusedTabIdByWindowId[tab.windowId];
+    if (activeTabIdForWindow) {
+      return tab.id === activeTabIdForWindow;
+    } else {
+      // fallback on active flag
+      return tab.active;
+    }
   }
 
   function whitelistHighlightedTab(includePath) {
