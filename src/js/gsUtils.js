@@ -30,6 +30,11 @@ var gsUtils = {
     return false;
   },
 
+  dir: function(object) {
+    if (debugInfo) {
+      console.dir(object);
+    }
+  },
   log: function(id, text, ...args) {
     if (debugInfo) {
       args = args || [];
@@ -54,23 +59,6 @@ var gsUtils = {
       );
     }
   },
-  error: function(id, errorObj, ...args) {
-    //NOTE: errorObj may be just a string :/
-    if (debugError) {
-      args = args || [];
-      errorObj = errorObj || {};
-      const logString = errorObj.hasOwnProperty('stack')
-        ? errorObj.stack
-        : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
-      args.push(logString);
-      console.error(id, (new Date() + '').split(' ')[4], errorObj, ...args);
-    } else {
-      // const logString = errorObj.hasOwnProperty('stack')
-      //   ? errorObj.stack
-      //   : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
-      // gsAnalytics.reportException(logString, false);
-    }
-  },
   errorIfInitialised: function(id, errorObj, ...args) {
     args = args || [];
     if (gsSession.isInitialising()) {
@@ -79,10 +67,36 @@ var gsUtils = {
       gsUtils.error(id, errorObj, args);
     }
   },
-  dir: function(object) {
-    if (debugInfo) {
-      console.dir(object);
+  error: function(id, errorObj, ...args) {
+    //NOTE: errorObj may be just a string :/
+    if (debugError) {
+      const stackTrace = errorObj.hasOwnProperty('stack')
+        ? errorObj.stack
+        : gsUtils.getStackTrace();
+      const errorMessage = errorObj.hasOwnProperty('message')
+        ? errorObj.message
+        : typeof errorObj === 'string'
+          ? errorObj
+          : JSON.stringify(errorObj, null, 2);
+      errorObj = errorObj || {};
+      console.log(id, (new Date() + '').split(' ')[4], 'Error:');
+      console.error(
+        gsUtils.getPrintableError(errorMessage, stackTrace, ...args)
+      );
+    } else {
+      // const logString = errorObj.hasOwnProperty('stack')
+      //   ? errorObj.stack
+      //   : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
+      // gsAnalytics.reportException(logString, false);
     }
+  },
+  // Puts all the error args into a single printable string so that all the info
+  // is displayed in chrome://extensions error console
+  getPrintableError(errorMessage, stackTrace, ...args) {
+    let errorString = errorMessage;
+    errorString += `\n${args.map(o => JSON.stringify(o, null, 2)).join('\n')}`;
+    errorString += `\n${stackTrace}`;
+    return errorString;
   },
   getStackTrace: function() {
     var obj = {};
