@@ -143,11 +143,11 @@ function GsTabQueue(queueId, queueProps) {
         }
       }
       if (queuedTabDetails.length === 0) {
-        gsUtils.log(_queueId, 'aborting process queue as it is empty');
+        // gsUtils.log(_queueId, 'aborting process queue as it is empty');
         return;
       }
       if (inProgressTabDetails.length >= _queueProperties.concurrentExecutors) {
-        gsUtils.log(_queueId, 'aborting process queue as it is full');
+        // gsUtils.log(_queueId, 'aborting process queue as it is full');
         return;
       }
       while (
@@ -197,7 +197,8 @@ function GsTabQueue(queueId, queueProps) {
           _requeueTab
         );
       }
-      gsUtils.log(_queueId, `queuedTabs.length: ${queuedTabDetails.length}`);
+      gsUtils.log(_queueId, `sleepingTabs: ${sleepingTabDetails.length}`);
+      gsUtils.log(_queueId, `queuedTabs: ${queuedTabDetails.length}`);
       gsUtils.log(
         _queueId,
         `inProgress tabIds: ${inProgressTabDetails
