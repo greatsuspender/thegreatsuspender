@@ -440,7 +440,7 @@ var tgs = (function() {
             } else {
               unsuspendTab(tab);
             }
-          } else if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
+          } else if (gsUtils.isNormalTab(tab)) {
             resetAutoSuspendTimerForTab(tab);
           }
         }
