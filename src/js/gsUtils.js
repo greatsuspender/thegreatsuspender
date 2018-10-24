@@ -614,18 +614,8 @@ var gsUtils = {
           return;
         }
 
-        if (gsUtils.isDiscardedTab(tab)) {
-          //if discarding strategy has changed then updated discarded and suspended tabs
-          if (
-            changedSettingKeys.includes(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)
-          ) {
-            gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
-          }
-          return;
-        }
-
         //update content scripts of normal tabs
-        let updateIgnoreForms = changedSettingKeys.includes(
+        const updateIgnoreForms = changedSettingKeys.includes(
           gsStorage.IGNORE_FORMS
         );
         if (updateIgnoreForms) {
@@ -633,7 +623,7 @@ var gsUtils = {
         }
 
         //update suspend timers
-        let updateSuspendTime =
+        const updateSuspendTime =
           changedSettingKeys.includes(gsStorage.SUSPEND_TIME) ||
           (changedSettingKeys.includes(gsStorage.IGNORE_ACTIVE_TABS) &&
             tab.active) ||
@@ -658,9 +648,17 @@ var gsUtils = {
                 tab.url,
                 newValueBySettingKey[gsStorage.WHITELIST]
               )));
-
         if (updateSuspendTime) {
           tgs.resetAutoSuspendTimerForTab(tab);
+        }
+
+        //if discarding strategy has changed then updated discarded and suspended tabs
+        const updateSuspendInPlaceOfDiscard = changedSettingKeys.includes(
+          gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
+        );
+        if (updateSuspendInPlaceOfDiscard && gsUtils.isDiscardedTab(tab)) {
+          gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
+          //note: this may cause the tab to suspend
         }
 
         //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer
