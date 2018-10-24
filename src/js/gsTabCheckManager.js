@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsChrome, gsMessages, GsTabQueue */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsTabSuspendManager, gsChrome, gsMessages, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
@@ -168,8 +168,8 @@ var gsTabCheckManager = (function() {
 
   async function checkUnsuspendedTab(tab, resolve, reject, requeue) {
     if (gsUtils.isDiscardedTab(tab)) {
-      await gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, true);
-      requeue();
+      gsUtils.log(tab.id, 'Unsuspended tab is discarded :(');
+      resolve(false);
       return;
     }
 
@@ -187,17 +187,16 @@ var gsTabCheckManager = (function() {
     });
 
     if (!tabResponse) {
-      // It seems that if you use 'Continue where you left off' that any discarded
-      // tabs from the last session will be restored as discarded, but they will not
-      // have .discarded = false. This will cause ping and reinjection to fail
-      // TODO: Report chrome bug
-
       // Try to reinject content script
       const result = await reinjectContentScriptOnTab(tab);
       if (!result) {
-        gsUtils.warning(tab.id, 'Assuming tab has been discarded.');
-        await gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, true);
-        requeue();
+        // If you use 'Continue where you left off', tabs from the last session
+        // will be restored as if discarded, but they will not have .discarded = false.
+        // This will cause ping and reinjection to fail
+        // TODO: Report chrome bug
+        gsUtils.log(tab.id, 'Assuming tab is parked on startup. Will queue for proper discard.');
+        gsTabDiscardManager.queueTabForDiscard(tab);
+        resolve(false);
         return;
       }
 
@@ -218,7 +217,7 @@ var gsTabCheckManager = (function() {
     // If tab returned a response but is not initialised, then try to initialise
     if (!tabResponse.isInitialised) {
       try {
-        tabResponse = await tgs.initialiseUnsuspendedTabAsPromised(tab);
+        tabResponse = await tgs.initialiseUnsuspendedTabScriptAsPromised(tab);
       } catch (error) {
         gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
       }
@@ -270,10 +269,9 @@ var gsTabCheckManager = (function() {
     });
 
     if (!tabResponse) {
-      // It seems that if you use 'Continue where you left off' that any discarded
-      // tabs from the last session will be restored as discarded, but they will not
-      // have .discarded = false. This will cause ping and reinjection to fail
-      // Try reloading the tab and requeue for checking later
+      // If you use 'Continue where you left off', tabs from the last session
+      // will be restored as if discarded, but they will not have .discarded = false.
+      // This will cause ping and reinjection to fail
       requestReloadSuspendedTab(tab);
       requeue();
       return;
@@ -282,7 +280,7 @@ var gsTabCheckManager = (function() {
     // If tab returned a response but is not initialised, then try to initialise
     if (!tabResponse.isInitialised) {
       try {
-        tabResponse = await tgs.initialiseSuspendedTabAsPromised(tab);
+        tabResponse = await tgs.initialiseSuspendedTabScriptAsPromised(tab);
       } catch (error) {
         gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
       }

@@ -86,6 +86,16 @@ var tgs = (function() {
       addChromeListeners();
       addMiscListeners();
 
+      //initialise suspended and unsuspended tab props
+      const allTabs = await gsChrome.tabsQuery();
+      for (const tab of allTabs) {
+        if (gsUtils.isSuspendedTab(tab)) {
+          initialiseSuspendedTabProps(tab);
+        } else if (gsUtils.isNormalTab(tab)) {
+          initialiseUnsuspendedTabProps(tab);
+        }
+      }
+
       //add context menu items
       if (!chrome.extension.inIncognitoContext) {
         buildContextMenu(false);
@@ -505,7 +515,9 @@ var tgs = (function() {
 
     const timerDetails = {};
     timerDetails.tabId = tab.id;
-    timerDetails.suspendDateTime = new Date(new Date().getTime() + timeToSuspend);
+    timerDetails.suspendDateTime = new Date(
+      new Date().getTime() + timeToSuspend
+    );
     timerDetails.timer = setTimeout(async () => {
       const updatedTabId = timerDetails.tabId; // This may get updated via updateTabIdReferences
       const updatedTab = await gsChrome.tabsGet(updatedTabId);
@@ -527,7 +539,10 @@ var tgs = (function() {
   }
 
   function clearAutoSuspendTimerForTab(tab) {
-    const timerDetails = getUnsuspendedTabPropForTabId(tab.id, UTP_TIMER_DETAILS);
+    const timerDetails = getUnsuspendedTabPropForTabId(
+      tab.id,
+      UTP_TIMER_DETAILS
+    );
     if (!timerDetails) {
       return;
     }
@@ -541,7 +556,7 @@ var tgs = (function() {
       : undefined;
   }
   function setUnsuspendedTabPropForTabId(tabId, prop, value) {
-    gsUtils.log(tabId, `Setting unsuspended tab prop: ${prop}=${value}`);
+    gsUtils.log(tabId, `Setting unsuspended tab prop: ${prop}:`, value);
     var tabProps = _unsuspendedTabPropsByTabId[tabId] || {};
     tabProps[prop] = value;
     _unsuspendedTabPropsByTabId[tabId] = tabProps;
@@ -556,7 +571,7 @@ var tgs = (function() {
       : undefined;
   }
   function setSuspendedTabPropForTabId(tabId, prop, value) {
-    gsUtils.log(tabId, `Setting suspended tab prop: ${prop}=${value}`);
+    gsUtils.log(tabId, `Setting suspended tab prop: ${prop}:`, value);
     var tabProps = _suspendedTabPropsByTabId[tabId] || {};
     tabProps[prop] = value;
     _suspendedTabPropsByTabId[tabId] = tabProps;
@@ -672,7 +687,7 @@ var tgs = (function() {
         tab.id,
         'Unsuspended tab has been discarded. Url: ' + tab.url
       );
-      gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, false); //async. unhandled promise.
+      gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
 
       // When a tab is discarded the tab id changes. We need up-to-date ids
       // in the current session otherwise crash recovery will not work
@@ -719,7 +734,8 @@ var tgs = (function() {
       hasTabStatusChanged = true;
 
       //init loaded tab
-      initialiseUnsuspendedTabAsPromised(tab)
+      initialiseUnsuspendedTabProps(tab);
+      initialiseUnsuspendedTabScriptAsPromised(tab)
         .catch(error => {
           gsUtils.warning(
             tab.id,
@@ -740,9 +756,12 @@ var tgs = (function() {
     }
   }
 
-  function initialiseUnsuspendedTabAsPromised(tab) {
+  function initialiseUnsuspendedTabProps(tab) {
+    resetAutoSuspendTimerForTab(tab);
+  }
+
+  function initialiseUnsuspendedTabScriptAsPromised(tab) {
     return new Promise((resolve, reject) => {
-      resetAutoSuspendTimerForTab(tab);
       const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
       const isTempWhitelist = getSuspendedTabPropForTabId(
         tab.id,
@@ -800,11 +819,8 @@ var tgs = (function() {
     if (changeInfo.status === 'complete') {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
-      // Set scrollPosition tab flag
-      const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-      setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
-
-      initialiseSuspendedTabAsPromised(tab)
+      initialiseSuspendedTabProps(tab);
+      initialiseSuspendedTabScriptAsPromised(tab)
         .then(response => {
           if (isCurrentFocusedTab(tab)) {
             setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
@@ -819,7 +835,22 @@ var tgs = (function() {
     }
   }
 
-  function initialiseSuspendedTabAsPromised(tab) {
+  function initialiseSuspendedTabProps(tab) {
+    const options = gsStorage.getSettings();
+    if (!options[gsStorage.NO_NAG]) {
+      let showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
+      if (showNag === undefined || showNag === null) {
+        //show dude and donate link (randomly 1 of 20 times)
+        showNag = Math.random() > 0.95;
+        setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
+      }
+    }
+    // Set scrollPosition tab flag
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+    setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
+  }
+
+  function initialiseSuspendedTabScriptAsPromised(tab) {
     return new Promise(async (resolve, reject) => {
       const suspendedUrl = tab.url;
       const originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
@@ -846,18 +877,9 @@ var tgs = (function() {
       ) {
         previewUri = preview.img;
       }
+      const showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
 
       const options = gsStorage.getSettings();
-
-      let showNag = false;
-      if (!options[gsStorage.NO_NAG]) {
-        showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
-        if (showNag === undefined || showNag === null) {
-          //show dude and donate link (randomly 1 of 20 times)
-          showNag = Math.random() > 0.95;
-          setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
-        }
-      }
       getSuspendUnsuspendHotkey(function(hotkey) {
         var payload = {
           tabId: tab.id,
@@ -915,7 +937,10 @@ var tgs = (function() {
         _unsuspendedTabPropsByTabId[oldTabId];
       delete _unsuspendedTabPropsByTabId[oldTabId];
     }
-    const timerDetails = getUnsuspendedTabPropForTabId(newTabId, UTP_TIMER_DETAILS);
+    const timerDetails = getUnsuspendedTabPropForTabId(
+      newTabId,
+      UTP_TIMER_DETAILS
+    );
     if (timerDetails) {
       timerDetails.tabId = newTabId;
     }
@@ -1070,7 +1095,7 @@ var tgs = (function() {
       setSuspendedTabPropForTabId(
         tabId,
         STP_SPAWNED_TAB_CREATE_TIMESTAMP,
-        false
+        null
       );
     }
 
@@ -1211,7 +1236,10 @@ var tgs = (function() {
   }
 
   function getDebugInfo(tabId, callback) {
-    const timerDetails = getUnsuspendedTabPropForTabId(tabId, UTP_TIMER_DETAILS);
+    const timerDetails = getUnsuspendedTabPropForTabId(
+      tabId,
+      UTP_TIMER_DETAILS
+    );
     const info = {
       windowId: '',
       tabId: '',
@@ -1761,8 +1789,10 @@ var tgs = (function() {
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
 
-    initialiseUnsuspendedTabAsPromised,
-    initialiseSuspendedTabAsPromised,
+    initialiseUnsuspendedTabProps,
+    initialiseUnsuspendedTabScriptAsPromised,
+    initialiseSuspendedTabProps,
+    initialiseSuspendedTabScriptAsPromised,
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,

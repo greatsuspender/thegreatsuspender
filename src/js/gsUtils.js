@@ -619,7 +619,7 @@ var gsUtils = {
           if (
             changedSettingKeys.includes(gsStorage.SUSPEND_IN_PLACE_OF_DISCARD)
           ) {
-            gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab, false); //async. unhandled promise.
+            gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
           }
           return;
         }

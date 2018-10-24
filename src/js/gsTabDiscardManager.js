@@ -96,7 +96,7 @@ var gsTabDiscardManager = (function() {
     resolve(false);
   }
 
-  async function handleDiscardedUnsuspendedTab(tab, forceReload) {
+  async function handleDiscardedUnsuspendedTab(tab) {
     if (
       gsUtils.shouldSuspendDiscardedTabs() &&
       gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
@@ -107,9 +107,7 @@ var gsTabDiscardManager = (function() {
 
       // Note: This bypasses the suspension tab queue and also prevents screenshots from being taken
       await gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl);
-    } else if (forceReload) {
-      gsUtils.log(tab.id, 'Forcing reload of discarded unsuspended tab');
-      await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      return;
     }
   }
 
