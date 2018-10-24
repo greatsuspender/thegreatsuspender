@@ -5,7 +5,8 @@ var gsTabCheckManager = (function() {
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 1;
   const DEFAULT_TAB_CHECK_TIMEOUT = 5 * 1000;
-  const DEFAULT_TAB_CHECK_REQUEUES = 3;
+  const DEFAULT_TAB_CHECK_REQUEUES = 5;
+  const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 5 * 1000;
 
   let tabCheckQueue;
 
@@ -25,10 +26,12 @@ var gsTabCheckManager = (function() {
 
   async function performInitialisationTabChecks(tabs) {
     // Temporarily change maxRequeueAttempts while we are starting up
-    const defaultRequeueDelay = 5000; // from gsTabQueue
-    const totalInitTimeoutInSeconds = Math.max(tabs.length * 1000, 5000);
+    const totalInitTimeoutInSeconds = Math.max(
+      tabs.length * 1000,
+      DEFAULT_TAB_CHECK_REQUEUE_DELAY
+    );
     const maxRequeueAttempts = Math.max(
-      parseInt(totalInitTimeoutInSeconds / defaultRequeueDelay),
+      parseInt(totalInitTimeoutInSeconds / DEFAULT_TAB_CHECK_REQUEUE_DELAY),
       3
     );
     updateQueueProps(maxRequeueAttempts);
@@ -95,7 +98,7 @@ var gsTabCheckManager = (function() {
     // If tab has a state of loading, then requeue for checking later
     if (tab.status === 'loading') {
       gsUtils.log(tab.id, 'Tab is still loading');
-      requeue();
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
     if (gsUtils.isSuspendedTab(tab)) {
@@ -210,7 +213,7 @@ var gsTabCheckManager = (function() {
 
     // If tab still doesn't respond to ping, then requeue for checking later
     if (!tabResponse) {
-      requeue();
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
 
@@ -241,7 +244,7 @@ var gsTabCheckManager = (function() {
         `Suspended tab was discarded before check. Will reload discarded tab..`
       );
       requestReloadSuspendedTab(tab);
-      requeue();
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
 
@@ -250,7 +253,7 @@ var gsTabCheckManager = (function() {
       const suspendedUrl = gsUtils.getSuspendedUrl(tab.url);
       if (suspendedUrl && suspendedUrl.indexOf('file') === 0) {
         await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
-        requeue();
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
         return;
       }
     }
@@ -273,7 +276,7 @@ var gsTabCheckManager = (function() {
       // will be restored as if discarded, but they will not have .discarded = false.
       // This will cause ping and reinjection to fail
       requestReloadSuspendedTab(tab);
-      requeue();
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
 
@@ -288,20 +291,20 @@ var gsTabCheckManager = (function() {
     if (!tabResponse || !tabResponse.isInitialised) {
       gsUtils.log(tab.id, 'Failed to initialise suspended tab :(');
       resolve(false);
-    } else {
-      await performPostSuspensionTabChecks(tab.id);
-      gsUtils.log(tab.id, 'Suspended tab initialised successfully');
-
-      // If we want to discard tabs after suspending them
-      let discardAfterSuspend = gsStorage.getOption(
-        gsStorage.DISCARD_AFTER_SUSPEND
-      );
-      if (discardAfterSuspend) {
-        gsTabDiscardManager.queueTabForDiscard(tab);
-      }
-
-      resolve(true);
+      return;
     }
+
+    await performPostSuspensionTabChecks(tab.id);
+    gsUtils.log(tab.id, 'Suspended tab initialised successfully');
+
+    // If we want to discard tabs after suspending them
+    let discardAfterSuspend = gsStorage.getOption(
+      gsStorage.DISCARD_AFTER_SUSPEND
+    );
+    if (discardAfterSuspend) {
+      gsTabDiscardManager.queueTabForDiscard(tab);
+    }
+    resolve(true);
   }
 
   function requestReloadSuspendedTab(tab) {
