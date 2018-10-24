@@ -10,7 +10,6 @@ var gsMessages = {
     ignoreForms,
     tempWhitelist,
     scrollPos,
-    suspendTime,
     callback
   ) {
     var payload = {
@@ -21,58 +20,10 @@ var gsMessages = {
     if (scrollPos) {
       payload.scrollPos = scrollPos;
     }
-    if (suspendTime !== null && !isNaN(Number(suspendTime))) {
-      payload.suspendTime = suspendTime;
-    }
     this.sendMessageToContentScript(tabId, payload, this.ERROR, callback);
   },
 
-  sendResetTimerToAllContentScripts: function() {
-    var self = this;
-    var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-
-    chrome.tabs.query({}, function(tabs) {
-      tabs.forEach(function(currentTab) {
-        if (
-          gsUtils.isSuspendedTab(currentTab) ||
-          gsUtils.isSpecialTab(currentTab)
-        ) {
-          return;
-        }
-        if (gsUtils.isDiscardedTab(currentTab)) {
-          gsUtils.warning(
-            currentTab.id,
-            'Cannot reset contentScript of discarded tab'
-          );
-          return;
-        }
-        self.sendMessageToContentScript(
-          currentTab.id,
-          { suspendTime: suspendTime },
-          this.WARNING,
-          function(err) {
-            if (err) {
-              gsUtils.warning(
-                currentTab.id,
-                'Failed to resetContentScript. Tab is probably discarded or loading.',
-                err
-              );
-            }
-          }
-        );
-      });
-    });
-  },
-
-  sendUpdateToContentScriptOfTab: function(
-    tab,
-    updateSuspendTime,
-    updateIgnoreForms
-  ) {
-    var self = this;
-    var suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
-    var ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-
+  sendUpdateToContentScriptOfTab: function(tab) {
     if (
       gsUtils.isSpecialTab(tab) ||
       gsUtils.isSuspendedTab(tab) ||
@@ -81,40 +32,8 @@ var gsMessages = {
       return;
     }
 
-    let tabPayload = {};
-    let tabSuspendTime = gsUtils.isProtectedActiveTab(tab) ? '0' : suspendTime;
-    if (updateSuspendTime) {
-      tabPayload.suspendTime = tabSuspendTime;
-    }
-    if (updateIgnoreForms) {
-      tabPayload.ignoreForms = ignoreForms;
-      if (!ignoreForms) {
-        tabPayload.ignoredFormsSuspendTime = tabSuspendTime;
-      }
-    }
-    self.sendMessageToContentScript(tab.id, tabPayload, this.WARNING);
-  },
-
-  sendClearTimerToContentScript: function(tabId, callback) {
-    this.sendMessageToContentScript(
-      tabId,
-      {
-        suspendTime: '0',
-      },
-      this.WARNING,
-      callback
-    );
-  },
-
-  sendRestartTimerToContentScript: function(tabId, callback) {
-    this.sendMessageToContentScript(
-      tabId,
-      {
-        suspendTime: gsStorage.getOption(gsStorage.SUSPEND_TIME),
-      },
-      this.WARNING,
-      callback
-    );
+    const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
+    this.sendMessageToContentScript(tab.id, { ignoreForms }, this.WARNING);
   },
 
   sendTemporaryWhitelistToContentScript: function(tabId, callback) {

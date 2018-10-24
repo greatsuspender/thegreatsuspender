@@ -308,7 +308,7 @@ var gsTabCheckManager = (function() {
 
   function requestReloadSuspendedTab(tab) {
     gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
-    tgs.setTabFlagForTabId(tab.id, tgs.TF_UNSUSPEND_ON_RELOAD_URL, null);
+    tgs.setSuspendedTabPropForTabId(tab.id, tgs.STP_UNSUSPEND_ON_RELOAD_URL, null);
     chrome.tabs.reload(tab.id, function() {
       if (chrome.runtime.lastError) {
         gsUtils.warning(tab.id, chrome.runtime.lastError);

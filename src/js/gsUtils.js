@@ -405,9 +405,9 @@ var gsUtils = {
     // remove path
     if (!includePath) {
       if (url.indexOf('file://') === 0) {
-          rootUrlStr = rootUrlStr.replace(new RegExp('/[^/]*$','g'), '');
+        rootUrlStr = rootUrlStr.replace(new RegExp('/[^/]*$', 'g'), '');
       } else {
-          rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+        rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
       }
     } else {
       // remove query string
@@ -489,7 +489,11 @@ var gsUtils = {
   },
   getCleanTabTitle(tab) {
     let cleanedTitle = decodeURIComponent(tab.title);
-    if (!cleanedTitle || cleanedTitle === '' || cleanedTitle === decodeURIComponent(tab.url)) {
+    if (
+      !cleanedTitle ||
+      cleanedTitle === '' ||
+      cleanedTitle === decodeURIComponent(tab.url)
+    ) {
       if (gsUtils.isSuspendedTab(tab)) {
         cleanedTitle =
           gsUtils.getSuspendedTitle(tab.url) ||
@@ -555,42 +559,21 @@ var gsUtils = {
 
   getAllExpiredTabs: function(callback) {
     var expiredTabs = [];
-    var checkTabExpiryPromises = [];
-    chrome.tabs.query({}, function(tabs) {
-      tabs.forEach(function(currentTab) {
+    chrome.tabs.query({}, tabs => {
+      for (const tab of tabs) {
+        const timerDetails = tgs.getUnsuspendedTabPropForTabId(
+          tab.id,
+          tgs.UTP_TIMER_DETAILS
+        );
         if (
-          gsUtils.isNormalTab(currentTab) &&
-          !gsUtils.isDiscardedTab(currentTab)
+          timerDetails &&
+          timerDetails.suspendDateTime &&
+          new Date(timerDetails.suspendDateTime) < new Date()
         ) {
-          checkTabExpiryPromises.push(
-            new Promise(function(resolve) {
-              gsMessages.sendRequestInfoToContentScript(currentTab.id, function(
-                error,
-                tabInfo
-              ) {
-                if (error) {
-                  gsUtils.warning(
-                    currentTab.id,
-                    'Failed to sendRequestInfoToContentScript in getAllExpiredTabs',
-                    error
-                  );
-                }
-                if (
-                  tabInfo &&
-                  tabInfo.timerUp &&
-                  new Date(tabInfo.timerUp) < new Date()
-                ) {
-                  expiredTabs.push(currentTab);
-                }
-                resolve();
-              });
-            })
-          );
+          expiredTabs.push(tab);
         }
-      });
-      Promise.all(checkTabExpiryPromises).then(function() {
-        callback(expiredTabs);
-      });
+      }
+      callback(expiredTabs);
     });
   },
 
@@ -645,6 +628,11 @@ var gsUtils = {
         let updateIgnoreForms = changedSettingKeys.includes(
           gsStorage.IGNORE_FORMS
         );
+        if (updateIgnoreForms) {
+          gsMessages.sendUpdateToContentScriptOfTab(tab); //async. unhandled error
+        }
+
+        //update suspend timers
         let updateSuspendTime =
           changedSettingKeys.includes(gsStorage.SUSPEND_TIME) ||
           (changedSettingKeys.includes(gsStorage.IGNORE_ACTIVE_TABS) &&
@@ -671,13 +659,8 @@ var gsUtils = {
                 newValueBySettingKey[gsStorage.WHITELIST]
               )));
 
-        if (updateSuspendTime || updateIgnoreForms) {
-          gsMessages.sendUpdateToContentScriptOfTab(
-            //async. unhandled error
-            tab,
-            updateSuspendTime,
-            updateIgnoreForms
-          );
+        if (updateSuspendTime) {
+          tgs.resetAutoSuspendTimerForTab(tab);
         }
 
         //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer

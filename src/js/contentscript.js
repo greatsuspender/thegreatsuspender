@@ -13,23 +13,10 @@
     isFormListenerInitialised = false,
     isReceivingFormInput = false,
     isIgnoreForms = false,
-    tempWhitelist = false,
-    timerJob,
-    suspendDateTime = false;
+    tempWhitelist = false;
 
   function suspendTab(suspendedUrl) {
     window.location.replace(suspendedUrl);
-  }
-
-  function setTimerJob(timeToSuspend) {
-    suspendDateTime = new Date(new Date().getTime() + timeToSuspend);
-
-    return setTimeout(function() {
-      //request suspension
-      if (!isReceivingFormInput && !tempWhitelist) {
-        chrome.runtime.sendMessage({ action: 'suspendTab' });
-      }
-    }, timeToSuspend);
   }
 
   function initFormInputListener() {
@@ -83,21 +70,6 @@
         document.documentElement.scrollTop = request.scrollPos;
       }
     }
-    if (
-      request.hasOwnProperty('ignoredFormsSuspendTime') &&
-      isReceivingFormInput
-    ) {
-      request.suspendTime = request.ignoredFormsSuspendTime;
-    }
-    if (request.hasOwnProperty('suspendTime')) {
-      clearTimeout(timerJob);
-      var suspendTime = Number(request.suspendTime);
-      if (!isNaN(suspendTime) && suspendTime > 0) {
-        timerJob = setTimerJob(request.suspendTime * (1000 * 60));
-      } else {
-        suspendDateTime = false;
-      }
-    }
     if (request.hasOwnProperty('ignoreForms')) {
       isIgnoreForms = request.ignoreForms;
       if (isIgnoreForms) {
@@ -127,7 +99,6 @@
             : 'normal',
       scrollPos:
         document.body.scrollTop || document.documentElement.scrollTop || 0,
-      timerUp: suspendDateTime ? suspendDateTime + '' : false,
     };
   }
 })();

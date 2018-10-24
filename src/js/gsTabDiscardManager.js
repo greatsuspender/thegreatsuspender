@@ -101,7 +101,7 @@ var gsTabDiscardManager = (function() {
       gsUtils.shouldSuspendDiscardedTabs() &&
       gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
     ) {
-      tgs.setTabFlagForTabId(tab.id, tgs.TF_SUSPEND_REASON, 3);
+      tgs.setSuspendedTabPropForTabId(tab.id, tgs.STP_SUSPEND_REASON, 3);
       const suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       gsUtils.log(tab.id, 'Suspending discarded unsuspended tab');
 

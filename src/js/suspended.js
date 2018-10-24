@@ -82,16 +82,16 @@
     tabId = _tabId;
 
     // beforeunload event will get fired if: the tab is refreshed, the url is changed, the tab is closed
-    // set the tabFlag TF_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
+    // set the tabFlag STP_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
     // this will be ignored if the tab is being closed or if the tab is navigating to a new url,
-    // and that new url does not match the TF_UNSUSPEND_ON_RELOAD_URL
+    // and that new url does not match the STP_UNSUSPEND_ON_RELOAD_URL
     window.addEventListener('beforeunload', function(event) {
       if (requestUnsuspendOnReload) {
         try {
           const tgs = chrome.extension.getBackgroundPage().tgs;
-          tgs.setTabFlagForTabId(
+          tgs.setSuspendedTabPropForTabId(
             _tabId,
-            tgs.TF_UNSUSPEND_ON_RELOAD_URL,
+            tgs.STP_UNSUSPEND_ON_RELOAD_URL,
             window.location.href
           );
         } catch (error) {
@@ -331,7 +331,7 @@
       try {
         const tgs = chrome.extension.getBackgroundPage().tgs;
         if (addToTemporaryWhitelist) {
-          tgs.setTabFlagForTabId(tabId, tgs.TF_TEMP_WHITELIST_ON_RELOAD, true);
+          tgs.setSuspendedTabPropForTabId(tabId, tgs.STP_TEMP_WHITELIST_ON_RELOAD, true);
         }
       } catch (error) {
         // console.error(error);
