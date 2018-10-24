@@ -90,8 +90,8 @@ var gsTabSuspendManager = (function() {
 
     const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     if (screenCaptureMode === '0') {
-      await executeTabSuspension(tab, suspendedUrl);
-      resolve(true);
+      const success = await executeTabSuspension(tab, suspendedUrl);
+      resolve(success);
       return;
     }
 
@@ -103,8 +103,8 @@ var gsTabSuspendManager = (function() {
       // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
     } catch (error) {
       gsUtils.warning(tab.id, error);
-      await executeTabSuspension(tab, suspendedUrl);
-      resolve(true);
+      const success = await executeTabSuspension(tab, suspendedUrl);
+      resolve(success);
     }
   }
 
@@ -117,11 +117,11 @@ var gsTabSuspendManager = (function() {
       );
       return;
     }
-    await executeTabSuspension(
+    const success = await executeTabSuspension(
       tab,
       queuedTabDetails.executionProps.suspendedUrl
     );
-    queuedTabDetails.executionProps.resolveFn(true);
+    queuedTabDetails.executionProps.resolveFn(success);
   }
 
   async function handleSuspensionException(
@@ -139,8 +139,8 @@ var gsTabSuspendManager = (function() {
           suspensionQueue.getQueueProperties().executorTimeout
         }ms to suspend. Will abort screen capture.`
       );
-      await executeTabSuspension(tab, executionProps.suspendedUrl);
-      resolve(true);
+      const success = await executeTabSuspension(tab, executionProps.suspendedUrl);
+      resolve(success);
     } else {
       gsUtils.warning(tab.id, `Failed to suspend tab: ${exceptionType}`);
       resolve(false);
@@ -168,6 +168,7 @@ var gsTabSuspendManager = (function() {
         tab.id,
         suspendedUrl,
         async error => {
+          let success = true;
           if (error) {
             gsUtils.warning(
               tab.id,
@@ -175,9 +176,9 @@ var gsTabSuspendManager = (function() {
               error
             );
             // Will not be able to use window.replace when forcing suspension
-            await forceTabSuspension(tab, suspendedUrl);
+            success = await forceTabSuspension(tab, suspendedUrl);
           }
-          resolve();
+          resolve(success);
         }
       );
     });
@@ -188,7 +189,8 @@ var gsTabSuspendManager = (function() {
       gsUtils.log(tab.id, 'Tab already suspended');
       return;
     }
-    await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
+    const updatedTab = await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
+    return updatedTab !== null;
   }
 
   // forceLevel indicates which users preferences to respect when attempting to suspend the tab
