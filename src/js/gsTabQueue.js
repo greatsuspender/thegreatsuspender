@@ -249,9 +249,13 @@ function GsTabQueue(queueId, queueProps) {
         return;
       }
 
-      gsUtils.log(tabDetails.tab.id, _queueId, 'Requeueing tab.');
       tabDetails.requeues += 1;
       tabDetails.status = STATUS_SLEEPING;
+      gsUtils.log(
+        tabDetails.tab.id,
+        _queueId,
+        `Requeueing tab. Requeues: ${tabDetails.requeues}`
+      );
       processQueue();
 
       window.setTimeout(() => {
