@@ -21,6 +21,7 @@ var tgs = (function() {
 
   // Unsuspended tab props
   const UTP_TIMER_DETAILS = 'timerDetails';
+  const UTP_SUSPEND_ON_RELOAD_URL = 'suspendOnReloadUrl';
 
   // Suspended tab props
   const STP_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
@@ -28,7 +29,6 @@ var tgs = (function() {
   const STP_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   const STP_SCROLL_POS = 'scrollPos';
   const STP_SHOW_NAG = 'showNag';
-  const STP_SPAWNED_TAB_CREATE_TIMESTAMP = 'spawnedTabCreateTimestamp';
 
   const focusDelay = 500;
   const noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
@@ -344,10 +344,10 @@ var tgs = (function() {
         active: false,
       };
       chrome.tabs.create(newTabProperties, tab => {
-        setSuspendedTabPropForTabId(
+        setUnsuspendedTabPropForTabId(
           tab.id,
-          STP_SPAWNED_TAB_CREATE_TIMESTAMP,
-          Date.now()
+          UTP_SUSPEND_ON_RELOAD_URL,
+          tab.url
         );
       });
     });
@@ -527,6 +527,10 @@ var tgs = (function() {
     timerDetails.timer = setTimeout(async () => {
       const updatedTabId = timerDetails.tabId; // This may get updated via updateTabIdReferences
       const updatedTab = await gsChrome.tabsGet(updatedTabId);
+      if (!updatedTab) {
+        gsUtils.warning(updatedTabId, 'Couldnt find tab. Aborting suspension');
+        return;
+      }
       gsTabSuspendManager.queueTabForSuspension(updatedTab, 3);
     }, timeToSuspend);
 
@@ -701,7 +705,7 @@ var tgs = (function() {
       return;
     }
 
-    var hasTabStatusChanged = false;
+    let hasTabStatusChanged = false;
 
     //check for change in tabs audible status
     if (changeInfo.hasOwnProperty('audible')) {
@@ -724,19 +728,20 @@ var tgs = (function() {
       changeInfo.hasOwnProperty('status') &&
       changeInfo.status === 'complete'
     ) {
-      var spawnedTabCreateTimestamp = getSuspendedTabPropForTabId(
+      //check for suspend on reload
+      const suspendOnReloadUrl = getUnsuspendedTabPropForTabId(
         tab.id,
-        STP_SPAWNED_TAB_CREATE_TIMESTAMP
+        UTP_SUSPEND_ON_RELOAD_URL
       );
-      //safety check that only allows tab to auto suspend if it has been less than 300 seconds since spawned tab created
-      if (
-        spawnedTabCreateTimestamp &&
-        (Date.now() - spawnedTabCreateTimestamp) / 1000 < 300
-      ) {
-        gsUtils.log(tab.id, 'Suspending tab with a spawnedTabCreateTimestamp');
-        gsTabSuspendManager.queueTabForSuspension(tab, 1);
-        return;
+      if (suspendOnReloadUrl) {
+        setUnsuspendedTabPropForTabId(tab.id, UTP_SUSPEND_ON_RELOAD_URL, null);
+        if (suspendOnReloadUrl === tab.url) {
+          gsUtils.log(tab.id, 'Suspend on reload flag set. Will suspend tab.');
+          gsTabSuspendManager.queueTabForSuspension(tab, 1);
+          return;
+        }
       }
+
       hasTabStatusChanged = true;
 
       //init loaded tab
@@ -1091,16 +1096,16 @@ var tgs = (function() {
   }
 
   function handleNewStationaryTabFocus(
-    tabId,
+    focusedTabId,
     previousStationaryTabId,
     focusedTab
   ) {
-    gsUtils.log(tabId, 'new tab focus handled');
-    //remove request to instantly suspend this tab id
-    if (getSuspendedTabPropForTabId(tabId, STP_SPAWNED_TAB_CREATE_TIMESTAMP)) {
-      setSuspendedTabPropForTabId(
-        tabId,
-        STP_SPAWNED_TAB_CREATE_TIMESTAMP,
+    gsUtils.log(focusedTabId, 'new tab focus handled');
+    //remove request to suspend this tab id
+    if (getUnsuspendedTabPropForTabId(focusedTabId, UTP_SUSPEND_ON_RELOAD_URL)) {
+      setUnsuspendedTabPropForTabId(
+        focusedTabId,
+        UTP_SUSPEND_ON_RELOAD_URL,
         null
       );
     }
@@ -1120,24 +1125,19 @@ var tgs = (function() {
         clearAutoSuspendTimerForTab(focusedTab);
       }
 
-      //if tab is already in the queue for suspension then remove it.
+      //if focusedTab is already in the queue for suspension then remove it.
       //although sometimes it seems that this is a 'fake' tab focus resulting
       //from the popup menu disappearing. in these cases the previousStationaryTabId
       //should match the current tabId (fix for issue #735)
-      if (previousStationaryTabId && previousStationaryTabId !== tabId) {
+      if (previousStationaryTabId && previousStationaryTabId !== focusedTabId) {
         gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
-      } else {
-        gsUtils.log(
-          tabId,
-          'Will not abort suspension for this tab as it matches previousStationaryTabId'
-        );
       }
     } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
       gsMessages.sendReloadOptionsToOptionsTab(focusedTab.id); //async. unhandled error
     }
 
     //Perhaps this check could apply to the whole function?
-    if (previousStationaryTabId && previousStationaryTabId !== tabId) {
+    if (previousStationaryTabId && previousStationaryTabId !== focusedTabId) {
       chrome.tabs.get(previousStationaryTabId, function(previousStationaryTab) {
         if (chrome.runtime.lastError) {
           //Tab has probably been removed
@@ -1769,6 +1769,7 @@ var tgs = (function() {
 
   return {
     UTP_TIMER_DETAILS,
+    UTP_SUSPEND_ON_RELOAD_URL,
     getUnsuspendedTabPropForTabId,
     setUnsuspendedTabPropForTabId,
 

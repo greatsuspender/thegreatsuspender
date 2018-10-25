@@ -61,6 +61,21 @@ var gsTabSuspendManager = (function() {
     reject,
     requeue
   ) {
+    const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+
+    // If we need to make a screen capture and tab is discarded then reload it
+    if (screenCaptureMode !== '0' && gsUtils.isDiscardedTab(tab)) {
+      gsUtils.log(tab.id, 'Tab is discarded. Will reload for screen capture.');
+      tgs.setUnsuspendedTabPropForTabId(
+        tab.id,
+        tgs.UTP_SUSPEND_ON_RELOAD_URL,
+        tab.url
+      );
+      await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      resolve(false);
+      return;
+    }
+
     const tabInfo = await getContentScriptTabInfo(tab);
     const isEligible = checkContentScriptEligibilityForSuspension(
       tabInfo.status,
@@ -88,7 +103,6 @@ var gsTabSuspendManager = (function() {
     );
     executionProps.suspendedUrl = suspendedUrl;
 
-    const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     if (screenCaptureMode === '0') {
       const success = await executeTabSuspension(tab, suspendedUrl);
       resolve(success);
@@ -139,7 +153,10 @@ var gsTabSuspendManager = (function() {
           suspensionQueue.getQueueProperties().executorTimeout
         }ms to suspend. Will abort screen capture.`
       );
-      const success = await executeTabSuspension(tab, executionProps.suspendedUrl);
+      const success = await executeTabSuspension(
+        tab,
+        executionProps.suspendedUrl
+      );
       resolve(success);
     } else {
       gsUtils.warning(tab.id, `Failed to suspend tab: ${exceptionType}`);
@@ -300,7 +317,9 @@ var gsTabSuspendManager = (function() {
   }
 
   function fetchYouTubeTimestampContentScript() {
-    const videoEl = document.querySelector('video.video-stream.html5-main-video');
+    const videoEl = document.querySelector(
+      'video.video-stream.html5-main-video'
+    );
     const timestamp = videoEl ? videoEl.currentTime >> 0 : 0;
     return timestamp;
   }
@@ -423,7 +442,12 @@ var gsTabSuspendManager = (function() {
         context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
 
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
         const origDataArray = imageData.data;
         const normalisedDataArray = new Uint8ClampedArray(origDataArray);
         const transparentDataArray = new Uint8ClampedArray(origDataArray);
