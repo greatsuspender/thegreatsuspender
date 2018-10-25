@@ -135,32 +135,43 @@ var tgs = (function() {
         callback(currentWindowActiveTabs[0]);
         return;
       }
-      if (!_currentStationaryWindowId) {
-        callback(null);
-        return;
+
+      // Fallback on chrome.windows.getLastFocused
+      const lastFocusedWindow = await gsChrome.windowsGetLastFocused();
+      if (lastFocusedWindow) {
+        const lastFocusedWindowActiveTabs = await gsChrome.tabsQuery({
+          active: true,
+          windowId: lastFocusedWindow.id,
+        });
+        if (lastFocusedWindowActiveTabs.length > 0) {
+          callback(lastFocusedWindowActiveTabs[0]);
+          return;
+        }
       }
 
-      const currentStationaryWindowActiveTabs = await gsChrome.tabsQuery({
-        active: true,
-        windowId: _currentStationaryWindowId,
-      });
-      if (currentStationaryWindowActiveTabs.length > 0) {
-        callback(currentStationaryWindowActiveTabs[0]);
-        return;
-      }
-      const currentStationaryTabId =
-        _currentStationaryTabIdByWindowId[_currentStationaryWindowId];
-      if (!currentStationaryTabId) {
-        callback(null);
-        return;
-      }
+      // Fallback on _currentStationaryWindowId
+      if (_currentStationaryWindowId) {
+        const currentStationaryWindowActiveTabs = await gsChrome.tabsQuery({
+          active: true,
+          windowId: _currentStationaryWindowId,
+        });
+        if (currentStationaryWindowActiveTabs.length > 0) {
+          callback(currentStationaryWindowActiveTabs[0]);
+          return;
+        }
 
-      const currentStationaryTab = await gsChrome.tabsGet(
-        currentStationaryTabId
-      );
-      if (currentStationaryTab !== null) {
-        callback(currentStationaryTab);
-        return;
+        // Fallback on currentStationaryTabId
+        const currentStationaryTabId =
+          _currentStationaryTabIdByWindowId[_currentStationaryWindowId];
+        if (currentStationaryTabId) {
+          const currentStationaryTab = await gsChrome.tabsGet(
+            currentStationaryTabId
+          );
+          if (currentStationaryTab !== null) {
+            callback(currentStationaryTab);
+            return;
+          }
+        }
       }
       callback(null);
     })();
