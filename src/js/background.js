@@ -431,7 +431,7 @@ var tgs = (function() {
         return;
       }
       chrome.windows.get(activeTab.windowId, { populate: true }, curWindow => {
-        for (const tab of curWindow) {
+        for (const tab of curWindow.tabs) {
           gsTabSuspendManager.unqueueTabForSuspension(tab);
           if (gsUtils.isSuspendedTab(tab)) {
             unsuspendTab(tab);
