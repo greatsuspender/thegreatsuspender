@@ -867,16 +867,24 @@ var tgs = (function() {
       const originalUrl = gsUtils.getSuspendedUrl(suspendedUrl);
       const whitelisted = gsUtils.checkWhiteList(originalUrl);
       const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
+
+      const favIconUrl =
+        tabProperties && tabProperties.favIconUrl
+          ? tabProperties.favIconUrl
+          : gsUtils.generateFaviconFromUrl(originalUrl);
       const faviconMeta = await gsTabSuspendManager.getFaviconMetaData(
-        tabProperties.favIconUrl
+        favIconUrl
       );
+
       let title =
-        (tabProperties && tabProperties.title) ||
-        gsUtils.getSuspendedTitle(suspendedUrl);
+        tabProperties && tabProperties.title
+          ? tabProperties.title
+          : gsUtils.getSuspendedTitle(suspendedUrl);
       if (title.indexOf('<') >= 0) {
         // Encode any raw html tags that might be used in the title
         title = gsUtils.htmlEncode(title);
       }
+
       const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
       let previewUri = null;
       if (
@@ -1102,7 +1110,9 @@ var tgs = (function() {
   ) {
     gsUtils.log(focusedTabId, 'new tab focus handled');
     //remove request to suspend this tab id
-    if (getUnsuspendedTabPropForTabId(focusedTabId, UTP_SUSPEND_ON_RELOAD_URL)) {
+    if (
+      getUnsuspendedTabPropForTabId(focusedTabId, UTP_SUSPEND_ON_RELOAD_URL)
+    ) {
       setUnsuspendedTabPropForTabId(
         focusedTabId,
         UTP_SUSPEND_ON_RELOAD_URL,
