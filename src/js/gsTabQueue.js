@@ -9,18 +9,15 @@ function GsTabQueue(queueId, queueProps) {
     const STATUS_SLEEPING = 'sleeping';
 
     const EXCEPTION_TIMEOUT = 'timeout';
-    const EXCEPTION_MAX_REQUEUES = 'maxRequeues';
 
     const DEFAULT_CONCURRENT_EXECUTORS = 1;
-    const DEFAULT_EXECUTOR_TIMEOUT = 1000;
-    const DEFAULT_MAX_REQUEUE_ATTEMPTS = 5;
+    const DEFAULT_JOB_TIMEOUT = 1000;
     const DEFAULT_REQUEUE_DELAY = 5000;
     const PROCESSING_QUEUE_CHECK_INTERVAL = 50;
 
     const _queueProperties = {
       concurrentExecutors: DEFAULT_CONCURRENT_EXECUTORS,
-      executorTimeout: DEFAULT_EXECUTOR_TIMEOUT,
-      maxRequeueAttempts: DEFAULT_MAX_REQUEUE_ATTEMPTS,
+      jobTimeout: DEFAULT_JOB_TIMEOUT,
       executorFn: (tab, resolve, reject, requeue) => resolve(true),
       exceptionFn: (tab, resolve, reject, requeue) => resolve(false),
     };
@@ -39,11 +36,8 @@ function GsTabQueue(queueId, queueProps) {
           'concurrentExecutors must be an integer greater than 0'
         );
       }
-      if (!isValidInteger(_queueProperties.executorTimeout, 1)) {
-        throw new Error('executorTimeout must be an integer greater than 0');
-      }
-      if (!isValidInteger(_queueProperties.maxRequeueAttempts, 0)) {
-        throw new Error('maxRequeueAttempts must be an integer of 0 or more');
+      if (!isValidInteger(_queueProperties.jobTimeout, 1)) {
+        throw new Error('jobTimeout must be an integer greater than 0');
       }
       if (!(typeof _queueProperties.executorFn === 'function')) {
         throw new Error('executorFn must be a function');
@@ -82,17 +76,24 @@ function GsTabQueue(queueId, queueProps) {
     }
 
     function unqueueTab(tab) {
-      if (_tabDetailsByTabId[tab.id]) {
+      const tabDetails = _tabDetailsByTabId[tab.id];
+      if (tabDetails) {
         // gsUtils.log(tab.id, _queueId, 'Unqueueing tab.');
-        delete _tabDetailsByTabId[tab.id];
-        gsUtils.log(
-          _queueId,
-          `total queue size: ${Object.keys(_tabDetailsByTabId).length}`
-        );
+        clearTimeout(tabDetails.timeoutTimer);
+        removeTabFromQueue(tab);
+        rejectTabPromise(tabDetails, 'Queued tab job cancelled externally');
         return true;
       } else {
         return false;
       }
+    }
+
+    function removeTabFromQueue(tab) {
+      delete _tabDetailsByTabId[tab.id];
+      gsUtils.log(
+        _queueId,
+        `total queue size: ${Object.keys(_tabDetailsByTabId).length}`
+      );
     }
 
     function getQueuedTabDetails(tab) {
@@ -164,30 +165,31 @@ function GsTabQueue(queueId, queueProps) {
           tabDetails
         );
 
-        let timer;
-        const _resolveTabPromise = r => resolveTabPromise(tabDetails, timer, r);
-        const _rejectTabPromise = e => rejectTabPromise(tabDetails, timer, e);
+        const _resolveTabPromise = r => resolveTabPromise(tabDetails, r);
+        const _rejectTabPromise = e => rejectTabPromise(tabDetails, e);
         const _requeueTab = requeueDelay => {
           requeueTab(
             tabDetails,
-            timer,
             _resolveTabPromise,
             _rejectTabPromise,
             requeueDelay
           );
         };
 
-        timer = setTimeout(() => {
-          gsUtils.log(tabDetails.tab.id, _queueId, 'ExecutorFn timed out');
-          _queueProperties.exceptionFn(
-            tabDetails.tab,
-            tabDetails.executionProps,
-            EXCEPTION_TIMEOUT,
-            _resolveTabPromise,
-            _rejectTabPromise,
-            _requeueTab
-          );
-        }, _queueProperties.executorTimeout);
+        // If timeout timer has not yet been initiated, then start it now
+        if (!tabDetails.hasOwnProperty('timeoutTimer')) {
+          tabDetails.timeoutTimer = setTimeout(() => {
+            gsUtils.log(tabDetails.tab.id, _queueId, 'Tab job timed out');
+            _queueProperties.exceptionFn(
+              tabDetails.tab,
+              tabDetails.executionProps,
+              EXCEPTION_TIMEOUT,
+              _resolveTabPromise,
+              _rejectTabPromise,
+              _requeueTab
+            );
+          }, _queueProperties.jobTimeout);
+        }
 
         _queueProperties.executorFn(
           tabDetails.tab,
@@ -207,48 +209,34 @@ function GsTabQueue(queueId, queueProps) {
       );
     }
 
-    function resolveTabPromise(tabDetails, timer, result) {
+    function resolveTabPromise(tabDetails, result) {
       gsUtils.log(
         tabDetails.tab.id,
         _queueId,
         'Queued tab resolved. Result: ',
         result
       );
-      clearTimeout(timer);
-      unqueueTab(tabDetails.tab);
+      clearTimeout(tabDetails.timeoutTimer);
+      removeTabFromQueue(tabDetails.tab);
       tabDetails.deferredPromise.resolve(result);
       processQueue();
     }
 
-    function rejectTabPromise(tabDetails, timer, error) {
+    function rejectTabPromise(tabDetails, error) {
       gsUtils.log(
         tabDetails.tab.id,
         _queueId,
         'Queued tab rejected. Error: ',
         error
       );
-      clearTimeout(timer);
-      unqueueTab(tabDetails.tab);
+      clearTimeout(tabDetails.timeoutTimer);
+      removeTabFromQueue(tabDetails.tab);
       tabDetails.deferredPromise.reject(error);
       processQueue();
     }
 
-    function requeueTab(tabDetails, timer, resolve, reject, requeueDelay) {
-      clearTimeout(timer);
+    function requeueTab(tabDetails, resolve, reject, requeueDelay) {
       requeueDelay = requeueDelay || DEFAULT_REQUEUE_DELAY;
-      if (tabDetails.requeues === _queueProperties.maxRequeueAttempts) {
-        gsUtils.log(tabDetails.tab.id, _queueId, 'Max requeues exceeded.');
-        _queueProperties.exceptionFn(
-          tabDetails.tab,
-          tabDetails.executionProps,
-          EXCEPTION_MAX_REQUEUES,
-          resolve,
-          reject,
-          () => reject('Cannot requeue once max requeues has been reached')
-        );
-        return;
-      }
-
       tabDetails.requeues += 1;
       tabDetails.status = STATUS_SLEEPING;
       gsUtils.log(
@@ -266,8 +254,6 @@ function GsTabQueue(queueId, queueProps) {
 
     return {
       EXCEPTION_TIMEOUT,
-      EXCEPTION_MAX_REQUEUES,
-
       setQueueProperties,
       getQueueProperties,
       getTotalQueueSize,

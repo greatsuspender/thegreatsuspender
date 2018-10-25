@@ -5,7 +5,6 @@ var gsTabDiscardManager = (function() {
 
   const DEFAULT_CONCURRENT_DISCARDS = 1;
   const DEFAULT_DISCARD_TIMEOUT = 5 * 1000;
-  const DEFAULT_DISCARD_REQUEUES = 0;
 
   let discardQueue;
 
@@ -13,8 +12,7 @@ var gsTabDiscardManager = (function() {
     return new Promise(resolve => {
       const queueProps = {
         concurrentExecutors: DEFAULT_CONCURRENT_DISCARDS,
-        executorTimeout: DEFAULT_DISCARD_TIMEOUT,
-        maxRequeueAttempts: DEFAULT_DISCARD_REQUEUES,
+        jobTimeout: DEFAULT_DISCARD_TIMEOUT,
         executorFn: performDiscard,
         exceptionFn: handleDiscardException,
       };

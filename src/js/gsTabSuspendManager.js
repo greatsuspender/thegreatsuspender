@@ -5,7 +5,6 @@ var gsTabSuspendManager = (function() {
 
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
-  const DEFAULT_SUSPENSION_REQUEUES = 0;
   const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
 
   let suspensionQueue;
@@ -16,13 +15,15 @@ var gsTabSuspendManager = (function() {
       const forceScreenCapture = gsStorage.getOption(
         gsStorage.SCREEN_CAPTURE_FORCE
       );
+      //TODO: This should probably update when the screencapture mode changes
+      const concurrentSuspensions =
+        screenCaptureMode === '0' ? 5 : DEFAULT_CONCURRENT_SUSPENSIONS;
+      const suspensionTimeout = forceScreenCapture
+        ? 5 * 60 * 1000
+        : DEFAULT_SUSPENSION_TIMEOUT;
       const queueProps = {
-        concurrentExecutors:
-          screenCaptureMode === '0' ? 5 : DEFAULT_CONCURRENT_SUSPENSIONS,
-        executorTimeout: forceScreenCapture
-          ? 5 * 60 * 1000
-          : DEFAULT_SUSPENSION_TIMEOUT,
-        maxRequeueAttempts: DEFAULT_SUSPENSION_REQUEUES,
+        concurrentExecutors: concurrentSuspensions,
+        jobTimeout: suspensionTimeout,
         executorFn: performSuspension,
         exceptionFn: handleSuspensionException,
       };
@@ -150,7 +151,7 @@ var gsTabSuspendManager = (function() {
       gsUtils.log(
         tab.id,
         `Tab took more than ${
-          suspensionQueue.getQueueProperties().executorTimeout
+          suspensionQueue.getQueueProperties().jobTimeout
         }ms to suspend. Will abort screen capture.`
       );
       const success = await executeTabSuspension(

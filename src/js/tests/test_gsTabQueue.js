@@ -4,6 +4,8 @@ testSuites.push(
   (function() {
     'use strict';
 
+    const MAX_REQUEUES = 2;
+
     function buildExecutorResolveTrue(executorDelay) {
       return async (tab, executionProps, resolve, reject, requeue) => {
         await gsUtils.setTimeout(executorDelay);
@@ -13,8 +15,14 @@ testSuites.push(
 
     function buildExecutorRequeue(executorDelay, requeueDelay) {
       return async (tab, executionProps, resolve, reject, requeue) => {
+        executionProps.requeues = executionProps.requeues || 0;
         await gsUtils.setTimeout(executorDelay);
-        requeue(requeueDelay);
+        if (executionProps.requeues !== MAX_REQUEUES) {
+          executionProps.requeues += 1;
+          requeue(requeueDelay);
+        } else {
+          resolve(true);
+        }
       };
     }
 
@@ -38,7 +46,6 @@ testSuites.push(
       executorDelay,
       queueProps,
       allowRequeueing,
-      maxRequeueAttempts,
       requeueDelay
     ) {
       const requiredGroupRuns =
@@ -46,16 +53,12 @@ testSuites.push(
         (tabCount % queueProps.concurrentExecutors > 0 ? 1 : 0);
       let extraRequeueingTime = 0;
       if (allowRequeueing) {
-        extraRequeueingTime = Math.min(
-          executorDelay * maxRequeueAttempts +
-            requeueDelay * maxRequeueAttempts,
-          queueProps.executorTimeout
-        );
+        extraRequeueingTime =
+          executorDelay * MAX_REQUEUES + requeueDelay * MAX_REQUEUES;
       }
       return (
         requiredGroupRuns *
-          Math.min(executorDelay, queueProps.executorTimeout) +
-        extraRequeueingTime
+        Math.min(executorDelay + extraRequeueingTime, queueProps.jobTimeout)
       );
     }
 
@@ -85,12 +88,12 @@ testSuites.push(
     async function makeTest(
       tabCount,
       executorDelay,
+      requeueDelay,
       concurrentExecutors,
-      executorTimeout,
+      jobTimeout,
       executorFnType,
       exceptionFnType,
-      maxRequeueAttempts,
-      requeueDelay
+      shouldGenerateException
     ) {
       let allowRequeueing = false;
       let executorFn;
@@ -108,19 +111,15 @@ testSuites.push(
       }
       const queueProps = {
         concurrentExecutors,
-        executorTimeout,
+        jobTimeout,
         executorFn,
         exceptionFn,
       };
-      if (maxRequeueAttempts) {
-        queueProps.maxRequeueAttempts = maxRequeueAttempts;
-      }
       const expectedTimeTaken = calculateExpectedTimeTaken(
         tabCount,
         executorDelay,
         queueProps,
         allowRequeueing,
-        maxRequeueAttempts,
         requeueDelay
       );
 
@@ -132,13 +131,11 @@ testSuites.push(
         `timers. timeTaken: ${timeTaken}. expected: ${expectedTimeTaken}`
       );
 
-      const willGenerateException =
-        executorDelay > executorTimeout || executorFnType === 'requeue';
       let isResultsValid = false;
-      if (willGenerateException && exceptionFnType === 'resolveFalse') {
+      if (shouldGenerateException && exceptionFnType === 'resolveFalse') {
         isResultsValid =
           results.length === tabCount && results.every(o => o === false);
-      } else if (willGenerateException && exceptionFnType === 'reject') {
+      } else if (shouldGenerateException && exceptionFnType === 'reject') {
         isResultsValid = typeof results === 'undefined';
       } else {
         isResultsValid =
@@ -157,64 +154,71 @@ testSuites.push(
 
     const tests = [
       async () => {
-        // Test: 5 tabs. 100ms per tab. 1 at a time. 1000ms timeout.
+        // Test: 5 tabs. 100ms per tab. No requeue delay. 1 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
-        return await makeTest(5, 100, 1, 1000, 'resolveTrue', 'resolveFalse');
+        // Should resolveTrue.
+        return await makeTest(5, 100, 0,1, 1000, 'resolveTrue', 'resolveFalse', false);
       },
 
       async () => {
-        // Test: 5 tabs. 100ms per tab. 2 at a time. 1000ms timeout.
+        // Test: 5 tabs. 100ms per tab. No requeue delay. 2 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
-        return await makeTest(5, 100, 2, 1000, 'resolveTrue', 'resolveFalse');
+        // Should resolveTrue.
+        return await makeTest(5, 100, 0,2, 1000, 'resolveTrue', 'resolveFalse', false);
       },
 
       async () => {
-        // Test: 5 tabs. 100ms per tab. 50 at a time. 1000ms timeout.
+        // Test: 5 tabs. 100ms per tab. No requeue delay. 50 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
-        return await makeTest(5, 100, 50, 1000, 'resolveTrue', 'resolveFalse');
+        // Should resolveTrue.
+        return await makeTest(5, 100, 0,50, 1000, 'resolveTrue', 'resolveFalse', false);
       },
 
       async () => {
-        // Test: 50 tabs. 100ms per tab. 20 at a time. 1000ms timeout.
+        // Test: 50 tabs. 100ms per tab. No requeue delay. 20 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
-        return await makeTest(50, 100, 20, 1000, 'resolveTrue', 'resolveFalse');
+        // Should resolveTrue.
+        return await makeTest(50, 100, 0,20, 1000, 'resolveTrue', 'resolveFalse', false);
       },
 
       async () => {
-        // Test: 5 tabs. 100ms per tab. 1 at a time. 10ms timeout.
+        // Test: 5 tabs. 100ms per tab. No requeue delay. 1 at a time. 10ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should timeout on each execution.
-        return await makeTest(5, 100, 1, 10, 'resolveTrue', 'resolveFalse');
+        // Should resolveFalse.
+        return await makeTest(5, 100, 0,1, 10, 'resolveTrue', 'resolveFalse', true);
       },
 
       async () => {
-        // Test: 5 tabs. 100ms per tab. 1 at a time. 1000ms timeout.
+        // Test: 5 tabs. 100ms per tab. No requeue delay. 1 at a time. 10ms timeout.
         // Executor function resolvesTrue. Exception function rejects.
         // Results should be undefined as Promises.all rejects.
-        return await makeTest(5, 100, 1, 1000, 'resolveTrue', 'reject');
+        // Should reject.
+        return await makeTest(5, 100, 0,1, 10, 'resolveTrue', 'reject', true);
       },
 
       async () => {
-        // Test: 1 tab. 100ms per tab. 1 at a time. 200ms timeout.
-        // Executor function requeues. Exception function resolvesFalse.
-        // Should requeue up to 3 time on each iteration. 100ms requeue delay.
-        return await makeTest(
-          1,
-          100,
-          1,
-          1000,
-          'requeue',
-          'resolveFalse',
-          3,
-          100
-        );
+        // Test: 1 tab. 100ms per tab. 100ms requeue delay, 1 at a time. 1000ms timeout.
+        // Executor function requeues (up to 2 times).
+        // Exception function resolvesFalse.
+        // Should requeue 2 times then resolveTrue.
+        return await makeTest(1, 100, 100, 1, 1000, 'requeue', 'resolveFalse', false);
       },
 
       async () => {
-        // Test: 1 tab. 100ms per tab. 1 at a time. 1000ms timeout.
-        // Executor function requeues. Exception function rejects.
-        // Should requeue up to 2 times on each iteration. 50ms requeue delay.
-        return await makeTest(1, 100, 1, 1000, 'requeue', 'reject', 2, 50);
+        // Test: 1 tab. 100ms per tab. 100ms requeue delay, 1 at a time. 250ms timeout.
+        // Executor function requeues (up to 2 times).
+        // Exception function resolvesFalse.
+        // Should requeue up to 2 times then timeout.
+        return await makeTest(1, 100, 100, 1, 250, 'requeue', 'resolveFalse', true);
+      },
+
+      async () => {
+        // Test: 1 tab. 100ms per tab. 100ms requeue delay. 1 at a time. 250ms timeout.
+        // Executor function requeues (up to 2 times).
+        // Exception function rejects.
+        // Should requeue up to 2 times then timeout.
+        return await makeTest(1, 100, 100, 1, 250, 'requeue', 'reject', true);
       },
     ];
 

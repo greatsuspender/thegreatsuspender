@@ -1,11 +1,10 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsTabSuspendManager, gsChrome, gsMessages, GsTabQueue */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsChrome, gsMessages, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 1;
-  const DEFAULT_TAB_CHECK_TIMEOUT = 5 * 1000;
-  const DEFAULT_TAB_CHECK_REQUEUES = 5;
+  const DEFAULT_TAB_CHECK_TIMEOUT = 10 * 1000;
   const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 5 * 1000;
 
   let tabCheckQueue;
@@ -14,8 +13,7 @@ var gsTabCheckManager = (function() {
     return new Promise(resolve => {
       const queueProps = {
         concurrentExecutors: DEFAULT_CONCURRENT_TAB_CHECKS,
-        executorTimeout: DEFAULT_TAB_CHECK_TIMEOUT,
-        maxRequeueAttempts: DEFAULT_TAB_CHECK_REQUEUES,
+        jobTimeout: DEFAULT_TAB_CHECK_TIMEOUT,
         executorFn: performTabCheck,
         exceptionFn: handleTabCheckException,
       };
@@ -25,16 +23,12 @@ var gsTabCheckManager = (function() {
   }
 
   async function performInitialisationTabChecks(tabs) {
-    // Temporarily change maxRequeueAttempts while we are starting up
-    const totalInitTimeoutInSeconds = Math.max(
+    // Temporarily change jobTimeout while we are starting up
+    const initJobTimeout = Math.max(
       tabs.length * 1000,
-      DEFAULT_TAB_CHECK_REQUEUE_DELAY
+      DEFAULT_TAB_CHECK_TIMEOUT
     );
-    const maxRequeueAttempts = Math.max(
-      parseInt(totalInitTimeoutInSeconds / DEFAULT_TAB_CHECK_REQUEUE_DELAY),
-      3
-    );
-    updateQueueProps(maxRequeueAttempts);
+    updateQueueProps(initJobTimeout);
 
     const tabCheckPromises = [];
     for (const tab of tabs) {
@@ -48,17 +42,17 @@ var gsTabCheckManager = (function() {
     const results = await Promise.all(tabCheckPromises);
 
     // Revert timeout
-    updateQueueProps(DEFAULT_TAB_CHECK_TIMEOUT, DEFAULT_TAB_CHECK_REQUEUES);
+    updateQueueProps(DEFAULT_TAB_CHECK_TIMEOUT);
     return results;
   }
 
-  function updateQueueProps(maxRequeueAttempts) {
+  function updateQueueProps(jobTimeout) {
     gsUtils.log(
       'gsTabCheckManager',
-      `Setting tabCheckQueue maxRequeueAttempts to ${maxRequeueAttempts}`
+      `Setting tabCheckQueue jobTimeout to ${jobTimeout}`
     );
     tabCheckQueue.setQueueProperties({
-      maxRequeueAttempts,
+      jobTimeout,
     });
   }
 
@@ -197,7 +191,10 @@ var gsTabCheckManager = (function() {
         // will be restored as if discarded, but they will not have .discarded = false.
         // This will cause ping and reinjection to fail
         // TODO: Report chrome bug
-        gsUtils.log(tab.id, 'Assuming tab is parked on startup. Will queue for proper discard.');
+        gsUtils.log(
+          tab.id,
+          'Assuming tab is parked on startup. Will queue for proper discard.'
+        );
         gsTabDiscardManager.queueTabForDiscard(tab);
         resolve(false);
         return;
@@ -309,7 +306,11 @@ var gsTabCheckManager = (function() {
 
   function requestReloadSuspendedTab(tab) {
     gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
-    tgs.setSuspendedTabPropForTabId(tab.id, tgs.STP_UNSUSPEND_ON_RELOAD_URL, null);
+    tgs.setSuspendedTabPropForTabId(
+      tab.id,
+      tgs.STP_UNSUSPEND_ON_RELOAD_URL,
+      null
+    );
     chrome.tabs.reload(tab.id, function() {
       if (chrome.runtime.lastError) {
         gsUtils.warning(tab.id, chrome.runtime.lastError);
