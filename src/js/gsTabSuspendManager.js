@@ -1,4 +1,4 @@
-/*global html2canvas, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
@@ -135,6 +135,7 @@ var gsTabSuspendManager = (function() {
       );
       return;
     }
+
     const success = await executeTabSuspension(
       tab,
       queuedTabDetails.executionProps.suspendedUrl
@@ -343,15 +344,29 @@ var gsTabSuspendManager = (function() {
       const forceScreenCapture = gsStorage.getOption(
         gsStorage.SCREEN_CAPTURE_FORCE
       );
-      gsMessages.executeScriptOnTab(tab.id, 'js/html2canvas.min.js', error => {
+      const useAlternateScreenCaptureLib = gsStorage.getOption(
+        gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
+      );
+      const screenCaptureLib = useAlternateScreenCaptureLib
+        ? 'js/dom-to-image.js'
+        : 'js/html2canvas.min.js';
+      gsUtils.log(tab.id, `Injecting ${screenCaptureLib} into content script`);
+      const previewStartTime = Date.now();
+
+      gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
         if (error) {
-          reject('Failed to executeScriptOnTab: html2canvas');
+          reject('Failed to executeScriptOnTab');
           return;
         }
         gsMessages.executeCodeOnTab(
           tab.id,
-          `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture});`,
+          `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture}, ${useAlternateScreenCaptureLib});`,
           error => {
+            const timeTaken = parseInt((Date.now() - previewStartTime) / 1000);
+            gsUtils.log(
+              tab.id,
+              `Preview generation finished. Time taken: ${timeTaken}. Success: ${!error}`
+            );
             if (error) {
               reject(
                 'Failed to executeCodeOnTab: generatePreviewImgContentScript'
@@ -368,13 +383,15 @@ var gsTabSuspendManager = (function() {
   // eslint-disable-next-line no-unused-vars
   function generatePreviewImgContentScript(
     screenCaptureMode,
-    forceScreenCapture
+    forceScreenCapture,
+    useAlternateScreenCaptureLib
   ) {
     const MAX_CANVAS_HEIGHT = forceScreenCapture ? 10000 : 5000;
     const IMAGE_TYPE = 'image/webp';
     const IMAGE_QUALITY = forceScreenCapture ? 0.92 : 0.5;
 
     let height = 0;
+    let width = 0;
 
     function sendResponse(errorMessage, dataUrl) {
       chrome.runtime.sendMessage({
@@ -399,27 +416,51 @@ var gsTabSuspendManager = (function() {
     } else {
       height = window.innerHeight;
     }
+    width = document.body.clientWidth;
 
-    html2canvas(document.body, {
-      height: height,
-      width: document.body.clientWidth,
-      logging: false,
-      imageTimeout: 10000,
-      removeContainer: false,
-    })
+    let fetchCanvasAsPromise;
+    if (useAlternateScreenCaptureLib) {
+      fetchCanvasAsPromise = domtoimage
+        .toCanvas(document.body, {})
+        .then(canvas => {
+          const croppedCanvas = document.createElement('canvas');
+          const context = croppedCanvas.getContext('2d');
+          croppedCanvas.width = width;
+          croppedCanvas.height = height;
+          context.drawImage(canvas, 0, 0);
+          return croppedCanvas;
+        });
+    } else {
+      fetchCanvasAsPromise = html2canvas(document.body, {
+        height: height,
+        width: width,
+        // logging: true,
+        imageTimeout: 10000,
+        removeContainer: false,
+        async: true,
+      });
+    }
+
+    let dataUrl;
+    let errorMsg;
+    fetchCanvasAsPromise
       .then(function(canvas) {
-        let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
-        if (!dataUrl || dataUrl === 'data:,') {
-          dataUrl = canvas.toDataURL();
+        let _dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+        if (!_dataUrl || _dataUrl === 'data:,') {
+          _dataUrl = canvas.toDataURL();
         }
-        if (!dataUrl || dataUrl === 'data:,') {
-          sendResponse('Bad dataUrl: ' + dataUrl);
+        if (!_dataUrl || _dataUrl === 'data:,') {
+          errorMsg = 'Bad dataUrl: ' + _dataUrl;
         } else {
-          sendResponse(null, dataUrl);
+          dataUrl = _dataUrl;
         }
       })
       .catch(function(err) {
-        sendResponse(err.message);
+        errorMsg = err.message;
+      })
+      .finally(function() {
+        console.log('dataUrl:\n' + dataUrl);
+        sendResponse(errorMsg, dataUrl);
       });
   }
 

@@ -98,6 +98,26 @@
       ).innerHTML = !discardInPlaceOfSuspend;
     };
 
+
+    let useAlternateScreenCaptureLib = gsStorage.getOption(
+      gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
+    );
+    document.getElementById(
+      'toggleUseAlternateScreenCaptureLib'
+    ).innerHTML = useAlternateScreenCaptureLib;
+    document.getElementById('toggleUseAlternateScreenCaptureLib').onclick = function(
+      e
+    ) {
+      gsStorage.setOption(
+        gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
+        !useAlternateScreenCaptureLib
+      );
+      gsStorage.syncSettings();
+      document.getElementById(
+        'toggleUseAlternateScreenCaptureLib'
+      ).innerHTML = !useAlternateScreenCaptureLib;
+    };
+
     var extensionsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
     document
       .getElementById('backgroundPage')
