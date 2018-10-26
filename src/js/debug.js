@@ -17,18 +17,22 @@
 
   function generateTabInfo(info) {
     console.log(info.tabId, info);
+    var timerStr =
+      info && info.timerUp && info && info.timerUp !== '-'
+        ? new Date(info.timerUp).toLocaleString()
+        : '-';
     var html = '',
       windowId = info && info.windowId ? info.windowId : '?',
       tabId = info && info.tabId ? info.tabId : '?',
       tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : '?',
-      tabTimer = info && info.timerUp ? info.timerUp : '-',
+      tabTimer = timerStr,
       tabStatus = info ? info.status : '?';
 
     html += '<tr>';
     html += '<td>' + windowId + '</td>';
     html += '<td>' + tabId + '</td>';
     html +=
-      '<td style="max-width:800px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
+      '<td style="max-width:700px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
       tabTitle +
       '</td>';
     html += '<td>' + tabTimer + '</td>';
@@ -98,16 +102,15 @@
       ).innerHTML = !discardInPlaceOfSuspend;
     };
 
-
     let useAlternateScreenCaptureLib = gsStorage.getOption(
       gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
     );
     document.getElementById(
       'toggleUseAlternateScreenCaptureLib'
     ).innerHTML = useAlternateScreenCaptureLib;
-    document.getElementById('toggleUseAlternateScreenCaptureLib').onclick = function(
-      e
-    ) {
+    document.getElementById(
+      'toggleUseAlternateScreenCaptureLib'
+    ).onclick = function(e) {
       gsStorage.setOption(
         gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
         !useAlternateScreenCaptureLib
