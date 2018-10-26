@@ -712,8 +712,8 @@ var tgs = (function() {
       );
       gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
 
-      // When a tab is discarded the tab id changes. We need up-to-date ids
-      // in the current session otherwise crash recovery will not work
+      // When a tab is discarded the tab id changes. We need up-to-date UNSUSPENDED
+      // tabIds in the current session otherwise crash recovery will not work
       queueSessionTimer();
       return;
     }
@@ -1036,6 +1036,19 @@ var tgs = (function() {
   async function handleTabFocusChanged(tabId, windowId) {
     gsUtils.log(tabId, 'tab gained focus');
 
+    const focusedTab = await gsChrome.tabsGet(tabId);
+    if (!focusedTab) {
+      // If focusedTab is null then assume tab has been discarded between the
+      // time the chrome.tabs.onActivated event was activated and now.
+      // If so, then a subsequeunt chrome.tabs.onActivated event will be called
+      // with the new discarded id
+      gsUtils.log(
+        tabId,
+        'Could not find newly focused tab. Assuming it has been discarded'
+      );
+      return;
+    }
+
     const previouslyFocusedTabId = _currentFocusedTabIdByWindowId[windowId];
     _currentFocusedTabIdByWindowId[windowId] = tabId;
 
@@ -1044,8 +1057,6 @@ var tgs = (function() {
       updateSuspendUnsuspendHotkey();
       _triggerHotkeyUpdate = false;
     }
-
-    const focusedTab = await gsChrome.tabsGet(tabId);
 
     gsTabDiscardManager.unqueueTabForDiscard(focusedTab);
 
@@ -1070,26 +1081,27 @@ var tgs = (function() {
     if (!discardAfterSuspend) {
       return;
     }
-
+    await gsUtils.setTimeout(2000); // Allow time for tabCheck to initiate
     const previouslyFocusedTab = previouslyFocusedTabId
       ? await gsChrome.tabsGet(previouslyFocusedTabId)
       : null;
-    if (
-      !previouslyFocusedTab ||
-      !gsUtils.isSuspendedTab(previouslyFocusedTab, true)
-    ) {
+    if (!previouslyFocusedTab) {
+      gsUtils.log(
+        previouslyFocusedTabId,
+        'Could not find tab. Has probably already been discarded'
+      );
       return;
     }
-
-    await gsUtils.setTimeout(2000); // Allow time for tabCheck to initiate
-
+    if (!gsUtils.isSuspendedTab(previouslyFocusedTab, true)) {
+      return;
+    }
     const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
       previouslyFocusedTab
     );
     if (tabCheckDetails) {
       gsUtils.log(
         previouslyFocusedTab.id,
-        'Aborting tab discard queueing as tab in currently queued for tabCheck.'
+        'Aborting tab discard queueing as tab in currently queued for tabCheck and will discard after that.'
       );
       return;
     }
