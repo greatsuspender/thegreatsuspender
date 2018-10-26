@@ -71,6 +71,8 @@ function GsTabQueue(queueId, queueProps) {
           requeues: 0,
         };
         requestProcessQueue();
+      } else {
+        gsUtils.log(tab.id, _queueId, 'Tab already queued.');
       }
       return _tabDetailsByTabId[tab.id].deferredPromise;
     }
