@@ -605,12 +605,13 @@ var tgs = (function() {
     if (!gsUtils.isSuspendedTab(tab)) return;
     gsUtils.log(tab.id, 'Unsuspending tab.');
 
-    // If the suspended tab is discarded then reload the tab directly.
+    // If the suspended tab is discarded then reload the suspended tab and flag
+    // if for unsuspend on reload.
     // This will happen if the 'discard suspended tabs' option is turned on and the tab
     // is being unsuspended remotely.
-    // Reloading directly causes a history item for the suspended tab to be made in the tab history.
     if (gsUtils.isDiscardedTab(tab)) {
-      chrome.tabs.update(tab.id, { url: gsUtils.getSuspendedUrl(tab.url) });
+      setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, tab.url);
+      gsChrome.tabsReload(tab.id); //async. unhandled promise
       return;
     }
 
@@ -621,6 +622,7 @@ var tgs = (function() {
           'Failed to sendUnsuspendRequestToSuspendedTab',
           error
         );
+        // Reloading directly causes a history item for the suspended tab to be made in the tab history.
         let url = gsUtils.getSuspendedUrl(tab.url);
         if (url) {
           gsUtils.log(tab.id, 'Will reload directly.');
@@ -819,6 +821,12 @@ var tgs = (function() {
     );
 
     if (changeInfo.status === 'loading') {
+      return;
+    }
+
+    if (changeInfo.status === 'complete') {
+      gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
+
       //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
       //if the STP_UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
       let unsuspendOnReloadUrl = getSuspendedTabPropForTabId(
@@ -833,13 +841,9 @@ var tgs = (function() {
             'Unsuspend on reload flag set. Will unsuspend tab.'
           );
           unsuspendTab(tab);
+          return;
         }
       }
-      return;
-    }
-
-    if (changeInfo.status === 'complete') {
-      gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
       initialiseSuspendedTabProps(tab);
       initialiseSuspendedTabScriptAsPromised(tab)
