@@ -626,6 +626,18 @@ var gsUtils = {
           if (Object.keys(payload).length > 0) {
             gsMessages.sendUpdateSuspendedTab(tab.id, payload); //async. unhandled error
           }
+
+          //if discardAfterSuspend has changed then updated discarded tabs
+          const updateDiscardAfterSuspend = changedSettingKeys.includes(
+            gsStorage.DISCARD_AFTER_SUSPEND
+          );
+          if (
+            updateDiscardAfterSuspend &&
+            !gsUtils.isDiscardedTab(tab) &&
+            gsUtils.isSuspendedTab(tab)
+          ) {
+            gsTabDiscardManager.queueTabForDiscard(tab);
+          }
           return;
         }
 
@@ -667,7 +679,7 @@ var gsUtils = {
           tgs.resetAutoSuspendTimerForTab(tab);
         }
 
-        //if discarding strategy has changed then updated discarded and suspended tabs
+        //if SuspendInPlaceOfDiscard has changed then updated discarded tabs
         const updateSuspendInPlaceOfDiscard = changedSettingKeys.includes(
           gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
         );
