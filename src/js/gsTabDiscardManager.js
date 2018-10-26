@@ -22,7 +22,9 @@ var gsTabDiscardManager = (function() {
   }
 
   function queueTabForDiscard(tab) {
-    queueTabForDiscardAsPromise(tab);
+    queueTabForDiscardAsPromise(tab).catch(e => {
+      gsUtils.log(tab.id, e);
+    });;
   }
 
   function queueTabForDiscardAsPromise(tab) {

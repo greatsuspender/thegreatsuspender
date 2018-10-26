@@ -57,7 +57,9 @@ var gsTabCheckManager = (function() {
   }
 
   function queueTabCheck(tab) {
-    queueTabCheckAsPromise(tab);
+    queueTabCheckAsPromise(tab).catch(e => {
+      gsUtils.log(tab.id, e);
+    });
   }
 
   function queueTabCheckAsPromise(tab) {

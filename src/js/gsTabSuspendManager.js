@@ -33,15 +33,17 @@ var gsTabSuspendManager = (function() {
   }
 
   function queueTabForSuspension(tab, forceLevel) {
-    queueTabForSuspensionAsPromise(tab, forceLevel);
+    queueTabForSuspensionAsPromise(tab, forceLevel).catch(e => {
+      gsUtils.log(tab.id, e);
+    });
   }
 
   function queueTabForSuspensionAsPromise(tab, forceLevel) {
-    if (typeof tab === 'undefined') return;
+    if (typeof tab === 'undefined') return Promise.resolve();
 
     if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
       gsUtils.log(tab.id, 'Tab not eligible for suspension.');
-      return;
+      return Promise.resolve();
     }
 
     gsUtils.log(tab.id, 'Queueing tab for suspension.');
