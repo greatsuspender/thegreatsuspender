@@ -160,12 +160,12 @@ function GsTabQueue(queueId, queueProps) {
         const tabDetails = queuedTabDetails.splice(0, 1)[0];
         tabDetails.status = STATUS_IN_PROGRESS;
         inProgressTabDetails.push(tabDetails);
-        gsUtils.log(
-          tabDetails.tab.id,
-          _queueId,
-          'Executing executorFn for tab.',
-          tabDetails
-        );
+        // gsUtils.log(
+        //   tabDetails.tab.id,
+        //   _queueId,
+        //   'Executing executorFn for tab.',
+        //   tabDetails
+        // );
 
         const _resolveTabPromise = r => resolveTabPromise(tabDetails, r);
         const _rejectTabPromise = e => rejectTabPromise(tabDetails, e);
