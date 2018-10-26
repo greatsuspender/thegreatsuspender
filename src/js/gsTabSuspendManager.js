@@ -65,10 +65,12 @@ var gsTabSuspendManager = (function() {
     requeue
   ) {
     const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    const tabInfo = await getContentScriptTabInfo(tab);
 
-    // If we need to make a screen capture and tab is discarded then reload it
-    if (screenCaptureMode !== '0' && gsUtils.isDiscardedTab(tab)) {
-      gsUtils.log(tab.id, 'Tab is discarded. Will reload for screen capture.');
+    // If we need to make a screen capture and tab is not responding then reload it
+    // This is usually due to tab being discarded or 'parked' on chrome restart
+    if (screenCaptureMode !== '0' && !tabInfo) {
+      gsUtils.log(tab.id, 'Tab is not responding. Will reload for screen capture.');
       tgs.setUnsuspendedTabPropForTabId(
         tab.id,
         tgs.UTP_SUSPEND_ON_RELOAD_URL,
@@ -79,7 +81,6 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
-    const tabInfo = await getContentScriptTabInfo(tab);
     const isEligible = checkContentScriptEligibilityForSuspension(
       tabInfo.status,
       executionProps.forceLevel
@@ -269,22 +270,12 @@ var gsTabSuspendManager = (function() {
 
   function getContentScriptTabInfo(tab) {
     return new Promise(resolve => {
-      let tabInfo = {
-        status: 'loading',
-        scrollPos: '0',
-      };
-      if (gsUtils.isDiscardedTab(tab)) {
-        resolve(tabInfo);
-        return;
-      }
-      gsMessages.sendRequestInfoToContentScript(tab.id, (error, _tabInfo) => {
+      gsMessages.sendRequestInfoToContentScript(tab.id, (error, tabInfo) => {
         //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
         if (error) {
           gsUtils.warning(tab.id, 'Failed to get content script info', error);
           // continue here but will lose information about scroll position,
           // temp whitelist, and form input
-        } else {
-          tabInfo = _tabInfo;
         }
         resolve(tabInfo);
       });
