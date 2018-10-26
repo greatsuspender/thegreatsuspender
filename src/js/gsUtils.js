@@ -483,6 +483,9 @@ var gsUtils = {
       decodeURIComponent(this.getHashVariable('url', urlStr) || '')
     );
   },
+  generateFaviconFromUrl(url) {
+    return 'chrome://favicon/size/16@2x/' + url;
+  },
   getCleanTabFavicon(tab) {
     let cleanedFavicon;
     if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
@@ -492,12 +495,10 @@ var gsUtils = {
       !cleanedFavicon ||
       cleanedFavicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')
     ) {
-      const faviconPrefix = 'chrome://favicon/size/16@2x/';
-      if (gsUtils.isSuspendedTab(tab)) {
-        cleanedFavicon = faviconPrefix + gsUtils.getSuspendedUrl(tab.url);
-      } else {
-        cleanedFavicon = faviconPrefix + tab.url;
-      }
+      const url = gsUtils.isSuspendedTab(tab)
+        ? gsUtils.getSuspendedUrl(tab.url)
+        : tab.url;
+      cleanedFavicon = gsUtils.generateFaviconFromUrl(url);
     }
     return cleanedFavicon;
   },

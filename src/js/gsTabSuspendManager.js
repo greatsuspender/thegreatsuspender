@@ -332,7 +332,7 @@ var gsTabSuspendManager = (function() {
     if (tab.incognito) {
       favIconUrl = tab.favIconUrl;
     } else {
-      favIconUrl = 'chrome://favicon/size/16@2x/' + tab.url;
+      favIconUrl = gsUtils.generateFaviconFromUrl(tab.url);
     }
     const tabProperties = {
       date: new Date(),
