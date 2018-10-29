@@ -1653,7 +1653,9 @@ var tgs = (function() {
             ); //async. unhandled promise.
         } else {
           gsUtils.warning(
-            'savePreviewData reported an error: ' + request.errorMsg
+            sender.tab.id,
+            'savePreviewData reported an error: ',
+            request.errorMsg
           );
           gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab); //async. unhandled promise.
         }
