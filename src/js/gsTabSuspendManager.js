@@ -66,20 +66,28 @@ var gsTabSuspendManager = (function() {
     requeue
   ) {
     const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-    const tabInfo = await getContentScriptTabInfo(tab);
 
-    // If we need to make a screen capture and tab is not responding then reload it
-    // This is usually due to tab being discarded or 'parked' on chrome restart
-    if (screenCaptureMode !== '0' && !tabInfo) {
-      gsUtils.log(tab.id, 'Tab is not responding. Will reload for screen capture.');
-      tgs.setUnsuspendedTabPropForTabId(
-        tab.id,
-        tgs.UTP_SUSPEND_ON_RELOAD_URL,
-        tab.url
-      );
-      await gsChrome.tabsUpdate(tab.id, { url: tab.url });
-      resolve(false);
-      return;
+    let tabInfo = await getContentScriptTabInfo(tab);
+    // If tabInfo is null this is usually due to tab being discarded or 'parked' on chrome restart
+    if (!tabInfo) {
+      // If we need to make a screen capture and tab is not responding then reload it
+      // TODO: This doesn't actually seem to work
+      // Tabs that have just been reloaded usually fail to run the screen capture script :(
+      if (screenCaptureMode !== '0') {
+        gsUtils.log(tab.id, 'Tab is not responding. Will reload for screen capture.');
+        tgs.setUnsuspendedTabPropForTabId(
+          tab.id,
+          tgs.UTP_SUSPEND_ON_RELOAD_URL,
+          tab.url
+        );
+        await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+        resolve(false);
+        return;
+      }
+      tabInfo = {
+        status: 'loading',
+        scrollPos: '0',
+      }
     }
 
     const isEligible = checkContentScriptEligibilityForSuspension(
@@ -382,7 +390,7 @@ var gsTabSuspendManager = (function() {
   }
 
   // eslint-disable-next-line no-unused-vars
-  function generatePreviewImgContentScript(
+  async function generatePreviewImgContentScript(
     screenCaptureMode,
     forceScreenCapture,
     useAlternateScreenCaptureLib
@@ -393,14 +401,6 @@ var gsTabSuspendManager = (function() {
 
     let height = 0;
     let width = 0;
-
-    function sendResponse(errorMessage, dataUrl) {
-      chrome.runtime.sendMessage({
-        action: 'savePreviewData',
-        previewUrl: dataUrl,
-        errorMsg: errorMessage,
-      });
-    }
 
     //check where we need to capture the whole screen
     if (screenCaptureMode === '2') {
@@ -419,50 +419,61 @@ var gsTabSuspendManager = (function() {
     }
     width = document.body.clientWidth;
 
-    let fetchCanvasAsPromise;
+    let generateCanvas;
     if (useAlternateScreenCaptureLib) {
-      fetchCanvasAsPromise = domtoimage
-        .toCanvas(document.body, {})
-        .then(canvas => {
-          const croppedCanvas = document.createElement('canvas');
-          const context = croppedCanvas.getContext('2d');
-          croppedCanvas.width = width;
-          croppedCanvas.height = height;
-          context.drawImage(canvas, 0, 0);
-          return croppedCanvas;
-        });
+      generateCanvas = () => {
+        return domtoimage
+          .toCanvas(document.body, {})
+          .then(canvas => {
+            const croppedCanvas = document.createElement('canvas');
+            const context = croppedCanvas.getContext('2d');
+            croppedCanvas.width = width;
+            croppedCanvas.height = height;
+            context.drawImage(canvas, 0, 0);
+            return croppedCanvas;
+          });
+      };
     } else {
-      fetchCanvasAsPromise = html2canvas(document.body, {
-        height: height,
-        width: width,
-        // logging: true,
-        imageTimeout: 10000,
-        removeContainer: false,
-        async: true,
-      });
+      generateCanvas = () => {
+        return html2canvas(document.body, {
+          height: height,
+          width: width,
+          logging: false,
+          imageTimeout: 10000,
+          removeContainer: false,
+          async: true,
+        });
+      }
     }
+
+    const generateDataUrl = canvas => {
+      let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+      if (!dataUrl || dataUrl === 'data:,') {
+        dataUrl = canvas.toDataURL();
+      }
+      if (dataUrl === 'data:,') {
+        dataUrl = null;
+      }
+      return dataUrl;
+    };
 
     let dataUrl;
     let errorMsg;
-    fetchCanvasAsPromise
-      .then(function(canvas) {
-        let _dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
-        if (!_dataUrl || _dataUrl === 'data:,') {
-          _dataUrl = canvas.toDataURL();
-        }
-        if (!_dataUrl || _dataUrl === 'data:,') {
-          errorMsg = 'Bad dataUrl: ' + _dataUrl;
-        } else {
-          dataUrl = _dataUrl;
-        }
-      })
-      .catch(function(err) {
-        errorMsg = err.message;
-      })
-      .finally(function() {
-        console.log('dataUrl:\n' + dataUrl);
-        sendResponse(errorMsg, dataUrl);
-      });
+    try {
+      const canvas = await generateCanvas();
+      dataUrl = generateDataUrl(canvas);
+    } catch (err) {
+      errorMsg = err.message;
+    }
+    if (!dataUrl && !errorMsg) {
+      errorMsg = 'Failed to generate dataUrl';
+    }
+
+    chrome.runtime.sendMessage({
+      action: 'savePreviewData',
+      previewUrl: dataUrl,
+      errorMsg: errorMsg,
+    });
   }
 
   function getFaviconMetaData(faviconUrl) {
