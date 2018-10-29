@@ -3,7 +3,7 @@
 var gsTabDiscardManager = (function() {
   'use strict';
 
-  const DEFAULT_CONCURRENT_DISCARDS = 1;
+  const DEFAULT_CONCURRENT_DISCARDS = 5;
   const DEFAULT_DISCARD_TIMEOUT = 5 * 1000;
 
   let discardQueue;
