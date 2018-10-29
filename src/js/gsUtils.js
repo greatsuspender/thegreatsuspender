@@ -408,20 +408,26 @@ var gsUtils = {
     return chrome.extension.getURL('suspended.html' + args);
   },
 
-  getRootUrl: function(url, includePath) {
+  getRootUrl: function(url, includePath, includeScheme) {
     let rootUrlStr = url;
+    let scheme;
 
-    // remove scheme
+    // temporarily remove scheme
     if (rootUrlStr.indexOf('//') > 0) {
+      scheme = rootUrlStr.substring(0, rootUrlStr.indexOf('//') + 2);
       rootUrlStr = rootUrlStr.substring(rootUrlStr.indexOf('//') + 2);
     }
 
     // remove path
     if (!includePath) {
-      if (url.indexOf('file://') === 0) {
+      if (scheme === 'file://') {
         rootUrlStr = rootUrlStr.replace(new RegExp('/[^/]*$', 'g'), '');
       } else {
-        rootUrlStr = rootUrlStr.substring(0, rootUrlStr.indexOf('/'));
+        const pathStartIndex =
+          rootUrlStr.indexOf('/') > 0
+            ? rootUrlStr.indexOf('/')
+            : rootUrlStr.length;
+        rootUrlStr = rootUrlStr.substring(0, pathStartIndex);
       }
     } else {
       // remove query string
@@ -434,6 +440,11 @@ var gsUtils = {
       if (match) {
         rootUrlStr = rootUrlStr.substring(0, match.index);
       }
+    }
+
+    // readd scheme
+    if (scheme && includeScheme) {
+      rootUrlStr = scheme + rootUrlStr;
     }
     return rootUrlStr;
   },
@@ -484,7 +495,8 @@ var gsUtils = {
     );
   },
   generateFaviconFromUrl(url) {
-    return 'chrome://favicon/size/16@2x/' + url;
+    const rootUrl = gsUtils.getRootUrl(url, false, true);
+    return 'chrome://favicon/size/16@2x/' + rootUrl;
   },
   getCleanTabFavicon(tab) {
     let cleanedFavicon;

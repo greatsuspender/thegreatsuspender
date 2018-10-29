@@ -224,12 +224,13 @@ var tgs = (function() {
         if (gsUtils.isSuspendedTab(activeTab)) {
           let url = gsUtils.getRootUrl(
             gsUtils.getSuspendedUrl(activeTab.url),
-            includePath
+            includePath,
+            false
           );
           gsUtils.saveToWhitelist(url);
           unsuspendTab(activeTab);
         } else {
-          let url = gsUtils.getRootUrl(activeTab.url, includePath);
+          let url = gsUtils.getRootUrl(activeTab.url, includePath, false);
           gsUtils.saveToWhitelist(url);
           calculateTabStatus(activeTab, null, function(status) {
             setIconStatus(status, activeTab.id);

@@ -464,8 +464,14 @@ var gsTabSuspendManager = (function() {
       });
   }
 
-  function getFaviconMetaData(url) {
+  function getFaviconMetaData(faviconUrl) {
     return new Promise(resolve => {
+      const cachedFaviconMetaData = cachedFaviconMetaDataByFaviconUrl[faviconUrl];
+      if (cachedFaviconMetaData) {
+        resolve(cachedFaviconMetaData);
+        return;
+      }
+
       const img = new Image();
 
       img.onload = function() {
@@ -534,13 +540,15 @@ var gsTabSuspendManager = (function() {
         context.putImageData(imageData, 0, 0);
         const transparentDataUrl = canvas.toDataURL('image/png');
 
-        resolve({
+        const faviconMetaData = {
           isDark,
           normalisedDataUrl,
           transparentDataUrl,
-        });
+        };
+        cachedFaviconMetaDataByFaviconUrl[faviconUrl] = faviconMetaData;
+        resolve(faviconMetaData);
       };
-      img.src = url || DEFAULT_FAVICON;
+      img.src = faviconUrl || DEFAULT_FAVICON;
     });
   }
 
