@@ -116,25 +116,6 @@ var gsTabCheckManager = (function() {
     resolve(false);
   }
 
-  async function queueTabCheckForPotentiallyDiscardedTabs(tab) {
-    // NOTE: For some reason querying by url doesn't work here??
-    // TODO: Report chrome bug
-    let tabs = await gsChrome.tabsQuery({
-      discarded: true,
-      windowId: tab.windowId,
-    });
-    tabs = tabs.filter(o => o.url === tab.url);
-    gsUtils.log(tab.id, 'Searching for discarded tab matching tab: ', tab);
-    let matchingTab = tabs.find(o => o.index === tab.index);
-    if (matchingTab) {
-      queueTabCheck(tab);
-    } else {
-      for (const tab of tabs) {
-        queueTabCheck(tab);
-      }
-    }
-  }
-
   async function getUpdatedTab(tab) {
     let _tab = await gsChrome.tabsGet(tab.id);
     if (!_tab) {
@@ -148,6 +129,25 @@ var gsTabCheckManager = (function() {
       }
     }
     return _tab;
+  }
+
+  async function queueTabCheckForPotentiallyDiscardedTabs(tab) {
+    // NOTE: For some reason querying by url doesn't work here??
+    // TODO: Report chrome bug
+    let tabs = await gsChrome.tabsQuery({
+      discarded: true,
+      windowId: tab.windowId,
+    });
+    tabs = tabs.filter(o => o.url === tab.url);
+    gsUtils.log(tab.id, 'Searching for discarded tab matching tab: ', tab);
+    let matchingTab = tabs.find(o => o.index === tab.index);
+    if (matchingTab) {
+      queueTabCheck(matchingTab);
+    } else {
+      for (const matchingTab of tabs) {
+        queueTabCheck(matchingTab);
+      }
+    }
   }
 
   async function checkUnsuspendedTab(tab, resolve, reject, requeue) {
