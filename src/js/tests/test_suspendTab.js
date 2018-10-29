@@ -1,4 +1,4 @@
-/*global chrome, gsIndexedDb, gsTabSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
+/*global chrome, gsUtils, gsIndexedDb, gsTabSuspendManager, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS, FIXTURE_PREVIEW_URLS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -22,7 +22,7 @@ testSuites.push(
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&
           tabProperties.title === tab.title &&
-          tabProperties.favIconUrl === 'chrome://favicon/size/16@2x/' + tab.url;
+          tabProperties.favIconUrl === gsUtils.generateFaviconFromUrl(tab.url);
 
         await gsIndexedDb.addPreviewImage(tab.url, previewUrl);
         const preview = await gsIndexedDb.fetchPreviewImage(tab.url);
