@@ -7,6 +7,7 @@ var gsTabSuspendManager = (function() {
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
   const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
 
+  const cachedFaviconMetaDataByFaviconUrl = {};
   let suspensionQueue;
 
   function initAsPromised() {
