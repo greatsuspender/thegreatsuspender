@@ -645,8 +645,9 @@ var gsUtils = {
           );
           if (
             updateDiscardAfterSuspend &&
-            !gsUtils.isDiscardedTab(tab) &&
-            gsUtils.isSuspendedTab(tab)
+            gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) &&
+            gsUtils.isSuspendedTab(tab) &&
+            !gsUtils.isDiscardedTab(tab)
           ) {
             gsTabDiscardManager.queueTabForDiscard(tab);
           }
