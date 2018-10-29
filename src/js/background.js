@@ -1691,7 +1691,9 @@ var tgs = (function() {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
       if (gsUtils.isSuspendedTab(tab, true)) {
-        gsTabCheckManager.queueTabCheck(tab);
+        // Queue tab for check but mark it as sleeping for 2 seconds to give
+        // a change for the tab to load
+        gsTabCheckManager.queueTabCheck(tab, 2000);
       }
     });
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {

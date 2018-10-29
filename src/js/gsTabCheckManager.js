@@ -3,8 +3,9 @@
 var gsTabCheckManager = (function() {
   'use strict';
 
-  const DEFAULT_CONCURRENT_TAB_CHECKS = 5;
+  const DEFAULT_CONCURRENT_TAB_CHECKS = 3;
   const DEFAULT_TAB_CHECK_TIMEOUT = 10 * 1000;
+  const DEFAULT_TAB_CHECK_PREQUEUE_DELAY = 500;
   const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 5 * 1000;
 
   let tabCheckQueue;
@@ -14,6 +15,7 @@ var gsTabCheckManager = (function() {
       const queueProps = {
         concurrentExecutors: DEFAULT_CONCURRENT_TAB_CHECKS,
         jobTimeout: DEFAULT_TAB_CHECK_TIMEOUT,
+        prequeueDelay: DEFAULT_TAB_CHECK_PREQUEUE_DELAY,
         executorFn: performTabCheck,
         exceptionFn: handleTabCheckException,
       };
@@ -28,7 +30,8 @@ var gsTabCheckManager = (function() {
       tabs.length * 1000,
       DEFAULT_TAB_CHECK_TIMEOUT
     );
-    updateQueueProps(initJobTimeout);
+    const initPrequeueDelay = 1000;
+    updateQueueProps(initJobTimeout, initPrequeueDelay);
 
     const tabCheckPromises = [];
     for (const tab of tabs) {
@@ -42,29 +45,33 @@ var gsTabCheckManager = (function() {
     const results = await Promise.all(tabCheckPromises);
 
     // Revert timeout
-    updateQueueProps(DEFAULT_TAB_CHECK_TIMEOUT);
+    updateQueueProps(
+      DEFAULT_TAB_CHECK_TIMEOUT,
+      DEFAULT_TAB_CHECK_PREQUEUE_DELAY
+    );
     return results;
   }
 
-  function updateQueueProps(jobTimeout) {
+  function updateQueueProps(jobTimeout, prequeueDelay) {
     gsUtils.log(
       'gsTabCheckManager',
-      `Setting tabCheckQueue jobTimeout to ${jobTimeout}`
+      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. prequeueDelay: ${prequeueDelay}`
     );
     tabCheckQueue.setQueueProperties({
       jobTimeout,
+      prequeueDelay,
     });
   }
 
-  function queueTabCheck(tab) {
-    queueTabCheckAsPromise(tab).catch(e => {
+  function queueTabCheck(tab, prequeueDelay) {
+    queueTabCheckAsPromise(tab, prequeueDelay).catch(e => {
       gsUtils.log(tab.id, e);
     });
   }
 
-  function queueTabCheckAsPromise(tab) {
+  function queueTabCheckAsPromise(tab, prequeueDelay) {
     gsUtils.log(tab.id, `Queuing tab for responsiveness check.`);
-    return tabCheckQueue.queueTabAsPromise(tab);
+    return tabCheckQueue.queueTabAsPromise(tab, {}, prequeueDelay);
   }
 
   function getQueuedTabCheckDetails(tab) {
