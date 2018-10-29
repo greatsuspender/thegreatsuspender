@@ -569,7 +569,6 @@ var tgs = (function() {
       return;
     }
     clearTimeout(timerDetails.timer);
-    setUnsuspendedTabPropForTabId(tab.id, UTP_TIMER_DETAILS, null);
   }
 
   function getUnsuspendedTabPropForTabId(tabId, prop) {
@@ -1158,11 +1157,6 @@ var tgs = (function() {
         }
       }
     } else if (gsUtils.isNormalTab(focusedTab)) {
-      //clear timer on newly focused tab
-      if (focusedTab.status === 'complete') {
-        clearAutoSuspendTimerForTab(focusedTab);
-      }
-
       //if focusedTab is already in the queue for suspension then remove it.
       //although sometimes it seems that this is a 'fake' tab focus resulting
       //from the popup menu disappearing. in these cases the previousStationaryTabId
