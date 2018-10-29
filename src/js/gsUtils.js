@@ -565,25 +565,6 @@ var gsUtils = {
     return Math.abs(hash);
   },
 
-  buildSuspendUnsuspendHotkey: function(callback) {
-    var printableHotkey = '';
-    chrome.commands.getAll(function(commands) {
-      var toggleCommand = commands.find(function(command) {
-        return command.name === '1-suspend-tab';
-      });
-      if (toggleCommand && toggleCommand.shortcut !== '') {
-        printableHotkey = toggleCommand.shortcut
-          .replace(/Command/, '\u2318')
-          .replace(/Shift/, '\u21E7')
-          .replace(/Control/, '^')
-          .replace(/\+/g, ' ');
-        callback(printableHotkey);
-      } else {
-        callback(null);
-      }
-    });
-  },
-
   getAllExpiredTabs: function(callback) {
     var expiredTabs = [];
     chrome.tabs.query({}, tabs => {

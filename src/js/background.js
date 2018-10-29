@@ -48,7 +48,7 @@ var tgs = (function() {
   let _noticeToDisplay;
   let _isCharging = false;
   let _triggerHotkeyUpdate = false;
-  let _suspendUnsuspendHotkey;
+  let _suspensionToggleHotkey;
 
   function backgroundScriptsReadyAsPromised(retries) {
     retries = retries || 0;
@@ -632,34 +632,22 @@ var tgs = (function() {
     });
   }
 
-  function getSuspendUnsuspendHotkey(callback) {
-    if (_suspendUnsuspendHotkey) {
-      callback(_suspendUnsuspendHotkey);
-      return;
-    }
-    resetSuspendUnsuspendHotkey(function(hotkeyChanged) {
-      callback(_suspendUnsuspendHotkey);
-    });
-  }
-
-  function resetSuspendUnsuspendHotkey(callback) {
-    gsUtils.buildSuspendUnsuspendHotkey(function(hotkey) {
-      var hotkeyChanged = hotkey !== _suspendUnsuspendHotkey;
-      _suspendUnsuspendHotkey = hotkey;
-      callback(hotkeyChanged);
-    });
-  }
-
-  function updateSuspendUnsuspendHotkey() {
-    resetSuspendUnsuspendHotkey(function(hotkeyChanged) {
-      if (hotkeyChanged) {
-        getSuspendUnsuspendHotkey(function(hotkey) {
-          gsMessages.sendRefreshToAllSuspendedTabs({
-            //async
-            command: hotkey,
-          });
-        });
-      }
+  function buildSuspensionToggleHotkey() {
+    return new Promise(resolve => {
+      let printableHotkey = '';
+      chrome.commands.getAll(commands => {
+        const toggleCommand = commands.find(o => o.name === '1-suspend-tab');
+        if (toggleCommand && toggleCommand.shortcut !== '') {
+          printableHotkey = toggleCommand.shortcut
+            .replace(/Command/, '\u2318')
+            .replace(/Shift/, '\u21E7')
+            .replace(/Control/, '^')
+            .replace(/\+/g, ' ');
+          resolve(printableHotkey);
+        } else {
+          resolve(null);
+        }
+      });
     });
   }
 
@@ -912,40 +900,41 @@ var tgs = (function() {
         previewUri = preview.img;
       }
       const showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
+      if (_suspensionToggleHotkey === undefined) {
+        _suspensionToggleHotkey = await buildSuspensionToggleHotkey();
+      }
 
       const options = gsStorage.getSettings();
-      getSuspendUnsuspendHotkey(function(hotkey) {
-        var payload = {
-          tabId: tab.id,
-          tabActive: tab.active,
-          requestUnsuspendOnReload: true,
-          url: originalUrl,
-          faviconMeta: faviconMeta,
-          title: title,
-          whitelisted: whitelisted,
-          theme: options[gsStorage.THEME],
-          showNag: showNag,
-          previewMode: options[gsStorage.SCREEN_CAPTURE],
-          previewUri: previewUri,
-          command: hotkey,
-        };
-        const suspendReason = getSuspendedTabPropForTabId(
-          tab.id,
-          STP_SUSPEND_REASON
-        );
-        if (suspendReason === 3) {
-          payload.reason = chrome.i18n.getMessage('js_suspended_low_memory');
+      var payload = {
+        tabId: tab.id,
+        tabActive: tab.active,
+        requestUnsuspendOnReload: true,
+        url: originalUrl,
+        faviconMeta: faviconMeta,
+        title: title,
+        whitelisted: whitelisted,
+        theme: options[gsStorage.THEME],
+        showNag: showNag,
+        previewMode: options[gsStorage.SCREEN_CAPTURE],
+        previewUri: previewUri,
+        command: _suspensionToggleHotkey,
+      };
+      const suspendReason = getSuspendedTabPropForTabId(
+        tab.id,
+        STP_SUSPEND_REASON
+      );
+      if (suspendReason === 3) {
+        payload.reason = chrome.i18n.getMessage('js_suspended_low_memory');
+      }
+      gsMessages.sendInitSuspendedTab(tab.id, payload, function(
+        error,
+        response
+      ) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(response);
         }
-        gsMessages.sendInitSuspendedTab(tab.id, payload, function(
-          error,
-          response
-        ) {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(response);
-          }
-        });
       });
     });
   }
@@ -1054,7 +1043,13 @@ var tgs = (function() {
 
     // If the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
     if (_triggerHotkeyUpdate) {
-      updateSuspendUnsuspendHotkey();
+      const oldHotkey = _suspensionToggleHotkey;
+      _suspensionToggleHotkey = await buildSuspensionToggleHotkey();
+      if (oldHotkey !== _suspensionToggleHotkey) {
+        gsMessages.sendRefreshToAllSuspendedTabs({
+          command: _suspensionToggleHotkey,
+        }); //async
+      }
       _triggerHotkeyUpdate = false;
     }
 
