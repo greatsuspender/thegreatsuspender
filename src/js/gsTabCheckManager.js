@@ -87,27 +87,17 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
-    let _tab = await fetchUpdatedTab(tab);
-    if (!_tab) {
-      gsUtils.warning(
-        tab.id,
-        `Failed to initialize tab. Tab may have been removed.`
-      );
-      resolve(false);
-      return;
-    }
-    tab = _tab;
-
-    // If tab has a state of loading, then requeue for checking later
-    if (tab.status === 'loading') {
-      gsUtils.log(tab.id, 'Tab is still loading');
-      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
-      return;
-    }
-    if (gsUtils.isSuspendedTab(tab)) {
+    const isSuspended = gsUtils.isSuspendedTab(tab);
+    if (isSuspended) {
       checkSuspendedTab(tab, resolve, reject, requeue);
     } else {
-      checkUnsuspendedTab(tab, resolve, reject, requeue);
+      // Dont do any checking on unsuspended tabs anymore now that the timers
+      // have been moved out of the content scripts
+      // NOTE: This means 'parked on startup' tabs will end up in an unkonwn
+      // state instead of being forced discarded
+      // checkUnsuspendedTab(tab, resolve, reject, requeue);
+      resolve(true);
+      return;
     }
   }
 
@@ -126,21 +116,7 @@ var gsTabCheckManager = (function() {
     resolve(false);
   }
 
-  async function fetchUpdatedTab(tab) {
-    let newTab = await gsChrome.tabsGet(tab.id);
-    if (newTab) {
-      return newTab;
-    }
-    gsUtils.log(tab.id, 'Failed to get tab. It may have been discarded.');
-
-    // If we are still initialising, then check for potential discarded tab matches
-    if (gsSession.isInitialising()) {
-      newTab = await findPotentialDiscardedTab(tab);
-    }
-    return newTab;
-  }
-
-  async function findPotentialDiscardedTab(tab) {
+  async function queueTabCheckForPotentiallyDiscardedTabs(tab) {
     // NOTE: For some reason querying by url doesn't work here??
     // TODO: Report chrome bug
     let tabs = await gsChrome.tabsQuery({
@@ -149,30 +125,45 @@ var gsTabCheckManager = (function() {
     });
     tabs = tabs.filter(o => o.url === tab.url);
     gsUtils.log(tab.id, 'Searching for discarded tab matching tab: ', tab);
-    let matchingTab = null;
-    if (tabs.length === 1) {
-      matchingTab = tabs[0];
-    } else if (tabs.length > 1) {
-      matchingTab = tabs.find(o => o.index === tab.index);
-      matchingTab = matchingTab || tabs[0];
-    }
+    let matchingTab = tabs.find(o => o.index === tab.index);
     if (matchingTab) {
-      gsUtils.log('gsSession', 'Potential discarded tabs: ', tabs);
-      gsUtils.log(
-        tab.id,
-        'Updating tab with discarded version: ' + matchingTab.id
-      );
-      return matchingTab;
+      queueTabCheck(tab);
     } else {
-      gsUtils.log(
-        tab.id,
-        'Could not find any potential matching discarded tabs.'
-      );
-      return null;
+      for (const tab of tabs) {
+        queueTabCheck(tab);
+      }
     }
   }
 
+  async function getUpdatedTab(tab) {
+    let _tab = await gsChrome.tabsGet(tab.id);
+    if (!_tab) {
+      gsUtils.warning(
+        tab.id,
+        `Failed to initialize tab. Tab may have been discarded or removed.`
+      );
+      // If we are still initialising, then check for potential discarded tab matches
+      if (gsSession.isInitialising()) {
+        await queueTabCheckForPotentiallyDiscardedTabs(tab);
+      }
+    }
+    return _tab;
+  }
+
   async function checkUnsuspendedTab(tab, resolve, reject, requeue) {
+    tab = await getUpdatedTab(tab);
+    if (!tab) {
+      resolve(false);
+      return;
+    }
+
+    // If tab has a state of loading, then requeue for checking later
+    if (tab.status === 'loading') {
+      gsUtils.log(tab.id, 'Tab is still loading');
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+      return;
+    }
+
     if (gsUtils.isDiscardedTab(tab)) {
       gsUtils.log(tab.id, 'Unsuspended tab is discarded :(');
       resolve(false);
@@ -242,14 +233,15 @@ var gsTabCheckManager = (function() {
   }
 
   async function checkSuspendedTab(tab, resolve, reject, requeue) {
-    // If suspended tab has been discarded before check then it may stay in 'blockhead' state
-    // Therefore we want to reload this tab to make sure it can be suspended properly
-    if (gsUtils.isDiscardedTab(tab)) {
-      gsUtils.warning(
-        tab.id,
-        `Suspended tab was discarded before check. Will reload discarded tab..`
-      );
-      requestReloadSuspendedTab(tab);
+    tab = await getUpdatedTab(tab);
+    if (!tab) {
+      resolve(false);
+      return;
+    }
+
+    // If tab has a state of loading, then requeue for checking later
+    if (tab.status === 'loading') {
+      gsUtils.log(tab.id, 'Tab is still loading');
       requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
@@ -264,67 +256,78 @@ var gsTabCheckManager = (function() {
       }
     }
 
-    let tabResponse = await new Promise(resolve => {
-      gsMessages.sendPingToTab(tab.id, (error, response) => {
-        if (error) {
-          gsUtils.log(
-            tab.id,
-            'Failed to sendPingToTab to suspended tab',
-            error
-          );
-        }
-        resolve(response);
-      });
-    });
+    // All we really care about with suspended tabs is that the favicon and title
+    // are set correctly. If so, then resolve early.
+    let tabOk = performPostSuspensionTabChecks(tab);
+    if (tabOk) {
+      queueForDiscardIfRequired(tab);
+      resolve(true);
+      return;
+    }
 
-    if (!tabResponse) {
-      // If you use 'Continue where you left off', tabs from the last session
-      // will be restored as if discarded, but they will not have .discarded = false.
-      // This will cause ping and reinjection to fail
-      requestReloadSuspendedTab(tab);
+    gsUtils.log(tab.id, 'Tab favicon or title not set', tab);
+
+    if (gsUtils.isDiscardedTab(tab)) {
+      gsUtils.warning(
+        tab.id,
+        `Suspended tab was discarded before check. Will reload discarded tab..`
+      );
+      await requestReloadSuspendedTab(tab);
       requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
 
-    // If tab returned a response but is not initialised, then try to initialise
-    if (!tabResponse.isInitialised) {
-      try {
-        tabResponse = await tgs.initialiseSuspendedTabScriptAsPromised(tab);
-      } catch (error) {
-        gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
-      }
+    let tabResponse;
+    try {
+      tabResponse = await tgs.initialiseSuspendedTabScriptAsPromised(tab);
+    } catch (error) {
+      gsUtils.warning(tab.id, 'Failed to initialiseTabAsPromised', error);
     }
-    if (!tabResponse || !tabResponse.isInitialised) {
+
+    if (!tabResponse) {
+      // If you use 'Continue where you left off', tabs from the last session
+      // will be restored as if discarded, but they will not have .discarded = false.
+      await requestReloadSuspendedTab(tab);
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+      return;
+    }
+
+    if (!tabResponse.isInitialised) {
       gsUtils.log(tab.id, 'Failed to initialise suspended tab :(');
       resolve(false);
       return;
     }
-
-    await performPostSuspensionTabChecks(tab.id);
     gsUtils.log(tab.id, 'Suspended tab initialised successfully');
 
+    const updatedTab = await gsChrome.tabsGet(tab.id);
+    tabOk = performPostSuspensionTabChecks(updatedTab);
+    if (!tabOk) {
+      gsUtils.log(tab.id, 'Tab favicon or title still not set', tab);
+      await forceReinitOfSuspendedTabFaviconAndTitle(updatedTab);
+    }
+
+    queueForDiscardIfRequired(updatedTab);
+    resolve(true);
+  }
+
+  function queueForDiscardIfRequired(tab) {
     // If we want to discard tabs after suspending them
     let discardAfterSuspend = gsStorage.getOption(
       gsStorage.DISCARD_AFTER_SUSPEND
     );
-    if (discardAfterSuspend) {
+    if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
       gsTabDiscardManager.queueTabForDiscard(tab);
     }
-    resolve(true);
   }
 
-  function requestReloadSuspendedTab(tab) {
+  async function requestReloadSuspendedTab(tab) {
     gsUtils.log(tab.id, 'Resuspending unresponsive suspended tab.');
     tgs.setSuspendedTabPropForTabId(
       tab.id,
       tgs.STP_UNSUSPEND_ON_RELOAD_URL,
       null
     );
-    chrome.tabs.reload(tab.id, function() {
-      if (chrome.runtime.lastError) {
-        gsUtils.warning(tab.id, chrome.runtime.lastError);
-      }
-    });
+    await gsChrome.tabsReload(tab.id);
   }
 
   // Careful with this function. It seems that these unresponsive tabs can sometimes
@@ -360,30 +363,29 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  async function performPostSuspensionTabChecks(tabId) {
+  function performPostSuspensionTabChecks(tab) {
     let tabOk = true;
-    const tab = await gsChrome.tabsGet(tabId);
     if (!tab) {
-      gsUtils.warning(tabId, 'Could not find post suspended tab');
+      gsUtils.log(tab.id, 'Could not find post suspended tab');
       return;
     }
     if (!tab.title) {
-      gsUtils.warning(tabId, 'Failed to correctly set title', tab);
       tabOk = false;
     }
     if (!tab.favIconUrl || tab.favIconUrl.indexOf('data:image') !== 0) {
-      gsUtils.warning(tabId, 'Failed to correctly set favIconUrl', tab);
       tabOk = false;
     }
-    if (!tabOk) {
-      var payload = {
-        favicon: gsUtils.getCleanTabFavicon(tab),
-        title: gsUtils.getCleanTabTitle(tab),
-      };
-      await new Promise(resolve => {
-        gsMessages.sendInitSuspendedTab(tabId, payload, resolve); // async. unhandled callback error
-      });
-    }
+    return tabOk;
+  }
+
+  async function forceReinitOfSuspendedTabFaviconAndTitle(tab) {
+    var payload = {
+      favicon: gsUtils.getCleanTabFavicon(tab),
+      title: gsUtils.getCleanTabTitle(tab),
+    };
+    await new Promise(resolve => {
+      gsMessages.sendInitSuspendedTab(tab.id, payload, resolve); // async. unhandled callback error
+    });
   }
 
   return {
