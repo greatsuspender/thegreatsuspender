@@ -9,6 +9,11 @@
   }
   backgroundPage.tgs.setViewGlobals(global, 'updated');
 
+  function toggleUpdated() {
+    document.getElementById('updating').style.display = 'none';
+    document.getElementById('updated').style.display = 'block';
+  }
+
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var versionEl = document.getElementById('updatedVersion');
     versionEl.innerHTML = 'v' + chrome.runtime.getManifest().version;
@@ -30,21 +35,11 @@
     }
 
     if (gsSession.isUpdated()) {
-      document.getElementById('updating').style.display = 'none';
-      document.getElementById('updated').style.display = 'block';
-    } else {
-      chrome.runtime.onMessage.addListener(function(
-        request,
-        sender,
-        sendResponse
-      ) {
-        if (request && request.updateComplete) {
-          document.getElementById('updating').style.display = 'none';
-          document.getElementById('updated').style.display = 'block';
-        }
-        sendResponse();
-        return false;
-      });
+      toggleUpdated();
     }
   });
+
+  global.exports = {
+    toggleUpdated,
+  };
 })(this);

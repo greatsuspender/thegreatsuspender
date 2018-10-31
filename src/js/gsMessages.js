@@ -172,11 +172,6 @@ var gsMessages = {
     );
   },
 
-  sendUpdateCompleteToUpdatedTab: function(updatedTabId, callback) {
-    var payload = { updateComplete: true };
-    this.sendMessageToTab(updatedTabId, payload, this.INFO, callback);
-  },
-
   sendMessageToTab: function(tabId, message, severity, callback) {
     if (!tabId) {
       if (callback) callback('tabId not specified');

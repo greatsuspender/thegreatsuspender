@@ -299,16 +299,17 @@ var gsSession = (function() {
       await recoverLostTabs();
       updated = true;
 
-      //update updated screen
-      const error = await new Promise(resolve => {
-        gsMessages.sendUpdateCompleteToUpdatedTab(updatedTab.id, error => {
-          resolve(error);
-        });
-      });
-      if (error) {
+      //update updated views
+      const updatedViews = tgs.getInternalViews('updated');
+      if (updatedViews.length > 0) {
+        for (const view of updatedViews) {
+          view.exports.toggleUpdated();
+        }
+      } else {
         await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
         await gsChrome.tabsCreate({ url: updatedUrl });
       }
+
     } else {
       updated = true;
       await gsChrome.tabsCreate({ url: updatedUrl });
