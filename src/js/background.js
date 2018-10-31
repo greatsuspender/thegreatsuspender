@@ -1182,7 +1182,8 @@ var tgs = (function() {
         gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
       }
     } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
-      gsMessages.sendReloadOptionsToOptionsTab(focusedTab.id); //async. unhandled error
+      const optionsView = chrome.extension.getViews({tabId: focusedTab.id})[0];
+      optionsView.exports.initSettings();
     }
 
     //Perhaps this check could apply to the whole function?

@@ -161,17 +161,6 @@ var gsMessages = {
     );
   },
 
-  sendReloadOptionsToOptionsTab: function(tabId, callback) {
-    this.sendMessageToTab(
-      tabId,
-      {
-        action: 'reloadOptions',
-      },
-      this.INFO,
-      callback
-    );
-  },
-
   sendPingToTab: function(tabId, callback) {
     this.sendMessageToTab(
       tabId,

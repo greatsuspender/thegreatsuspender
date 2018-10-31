@@ -211,14 +211,8 @@
     }
   });
 
-  //listen for background events
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request && request.action === 'reloadOptions') {
-      initSettings();
-      sendResponse();
-      return false;
-    }
-  });
-
+  global.exports = {
+    initSettings,
+  };
   gsAnalytics.reportPageView('options.html');
 })(this);
