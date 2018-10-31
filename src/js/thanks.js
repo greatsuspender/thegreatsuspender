@@ -1,19 +1,17 @@
-/*global chrome */
-(function() {
+/*global chrome, gsAnalytics, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'thanks');
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     //do nothing
   });
   gsAnalytics.reportPageView('thanks.html');
-})();
+
+})(this);

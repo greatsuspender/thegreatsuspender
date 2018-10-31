@@ -1,19 +1,13 @@
-/*global chrome, historyUtils */
-(function() {
+/*global chrome, historyUtils, gsSession, gsChrome, gsUtils, gsAnalytics */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsChrome = chrome.extension.getBackgroundPage().gsChrome;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
+  backgroundPage.tgs.setViewGlobals(global, 'permissions');
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     document.getElementById('exportBackupBtn').onclick = async function(e) {
@@ -27,4 +21,4 @@
     };
   });
   gsAnalytics.reportPageView('permissions.html');
-})();
+})(this);

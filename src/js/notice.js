@@ -1,18 +1,13 @@
-/*global chrome */
-(function() {
+/*global chrome, tgs, gsAnalytics, gsStorage, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var tgs = chrome.extension.getBackgroundPage().tgs;
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'notice');
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var notice = tgs.requestNotice();
@@ -31,4 +26,4 @@
     tgs.clearNotice();
   });
   gsAnalytics.reportPageView('notice.html');
-})();
+})(this);

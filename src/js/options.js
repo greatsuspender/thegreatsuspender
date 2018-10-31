@@ -1,14 +1,13 @@
-/*global chrome */
-(function() {
-  'use strict';
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().gsUtils) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+/*global chrome, gsAnalytics, gsStorage, gsUtils */
+(function(global) {
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
+  backgroundPage.tgs.setViewGlobals(global, 'options');
 
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,
     forceScreenCapture: gsStorage.SCREEN_CAPTURE_FORCE,
@@ -222,4 +221,4 @@
   });
 
   gsAnalytics.reportPageView('options.html');
-})();
+})(this);

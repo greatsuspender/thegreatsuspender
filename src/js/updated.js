@@ -1,16 +1,13 @@
-/*global chrome */
-(function() {
+/*global chrome, gsSession, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'updated');
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var versionEl = document.getElementById('updatedVersion');
@@ -50,4 +47,4 @@
       });
     }
   });
-})();
+})(this);

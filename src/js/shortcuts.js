@@ -1,16 +1,13 @@
-/*global chrome */
-(function() {
+/*global chrome, gsAnalytics, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'shortcuts');
 
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     var shortcutsEl = document.getElementById('keyboardShortcuts');
@@ -51,4 +48,4 @@
   });
 
   gsAnalytics.reportPageView('shortcuts.html');
-})();
+})(this);

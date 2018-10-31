@@ -1,16 +1,12 @@
-/* global chrome */
-var historyUtils = (function() {
-  // eslint-disable-line no-unused-vars
+/* global chrome, gsIndexedDb, gsUtils */
+// eslint-disable-next-line no-unused-vars
+var historyUtils = (function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    return;
-  }
 
-  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  chrome.extension
+    .getBackgroundPage()
+    .tgs.setViewGlobals(global, 'historyUtils');
+
   var noop = function() {};
 
   function importSession(e) {
@@ -183,4 +179,4 @@ var historyUtils = (function() {
     validateNewSessionName,
     saveSession,
   };
-})();
+})(this);

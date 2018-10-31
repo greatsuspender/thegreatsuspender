@@ -1,16 +1,11 @@
-/*global chrome */
-var historyItems = (function() {
-  // eslint-disable-line no-unused-vars
+/*global chrome, gsSession, gsUtils */
+// eslint-disable-next-line no-unused-vars
+var historyItems = (function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    return;
-  }
 
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  chrome.extension
+    .getBackgroundPage()
+    .tgs.setViewGlobals(global, 'historyItem');
 
   function createSessionHtml(session, showLinks) {
     session.windows = session.windows || [];
@@ -245,4 +240,4 @@ var historyItems = (function() {
     createWindowHtml: createWindowHtml,
     createTabHtml: createTabHtml,
   };
-})();
+})(this);

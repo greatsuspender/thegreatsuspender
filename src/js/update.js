@@ -1,17 +1,13 @@
-/*global chrome, historyUtils */
-(function() {
+/*global chrome, historyUtils, gsSession, gsIndexedDb, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'update');
 
   function setRestartExtensionClickHandler(warnFirst) {
     document.getElementById('restartExtensionBtn').onclick = async function(e) {
@@ -72,4 +68,4 @@
         }
       });
   });
-})();
+})(this);

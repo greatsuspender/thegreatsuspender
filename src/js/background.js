@@ -124,6 +124,28 @@ var tgs = (function() {
     startAnalyticsUpdateJob();
   }
 
+  function setViewGlobals(_window, viewName) {
+    const globals = {
+      viewName,
+      tgs,
+      gsUtils,
+      gsChrome,
+      gsAnalytics,
+      gsStorage,
+      gsIndexedDb,
+      gsMessages,
+      gsSession,
+      gsTabCheckManager,
+      gsTabSuspendManager,
+      gsTabDiscardManager,
+    }
+    Object.assign(_window, globals);
+  }
+
+  function getInternalViews(viewName) {
+    return chrome.extension.getViews().filter(o => o.viewName === viewName);
+  }
+
   function getCurrentlyActiveTab(callback) {
     // wrap this in an anonymous async function so we can use await
     (async function() {
@@ -1812,6 +1834,8 @@ var tgs = (function() {
 
     backgroundScriptsReadyAsPromised,
     initAsPromised,
+    setViewGlobals,
+    getInternalViews,
     startTimers,
     requestNotice,
     clearNotice,

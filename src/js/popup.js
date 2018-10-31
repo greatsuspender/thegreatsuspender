@@ -1,11 +1,9 @@
-/*global chrome */
-(function() {
+/*global chrome, tgs, gsStorage, gsSession, gsUtils */
+(function(global) {
   'use strict';
 
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
-  var tgs = chrome.extension.getBackgroundPage().tgs;
+  chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'popup');
+
   var globalActionElListener;
 
   var getTabStatus = function(retriesRemaining, callback) {
@@ -328,4 +326,4 @@
         window.close();
       });
   }
-})();
+})(this);

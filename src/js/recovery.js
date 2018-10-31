@@ -1,21 +1,13 @@
-/*global chrome, historyItems */
-(function() {
+/*global chrome, historyItems, gsAnalytics, gsMessages, gsSession, gsStorage, gsIndexedDb, gsChrome, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsMessages = chrome.extension.getBackgroundPage().gsMessages;
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
-  var gsChrome = chrome.extension.getBackgroundPage().gsChrome;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'recovery');
 
   var restoreAttempted = false;
   var tabsToRecover = [];
@@ -180,4 +172,4 @@
   });
 
   gsAnalytics.reportPageView('recovery.html');
-})();
+})(this);

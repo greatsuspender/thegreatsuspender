@@ -1,18 +1,13 @@
-/*global chrome, historyItems, historyUtils */
-(function() {
+/*global chrome, historyItems, historyUtils, gsAnalytics, gsSession, gsIndexedDb, gsUtils */
+(function(global) {
   'use strict';
-  if (
-    !chrome.extension.getBackgroundPage() ||
-    !chrome.extension.getBackgroundPage().gsUtils
-  ) {
-    window.setTimeout(() => location.replace(location.href), 1000);
+
+  const backgroundPage = chrome.extension.getBackgroundPage();
+  if (!backgroundPage || !backgroundPage.tgs) {
+    setTimeout(() => location.replace(location.href), 1000);
     return;
   }
-
-  var gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-  var gsSession = chrome.extension.getBackgroundPage().gsSession;
-  var gsIndexedDb = chrome.extension.getBackgroundPage().gsIndexedDb;
-  var gsUtils = chrome.extension.getBackgroundPage().gsUtils;
+  backgroundPage.tgs.setViewGlobals(global, 'history');
 
   async function reloadTabs(sessionId, windowId, openTabsAsSuspended) {
     const session = await gsIndexedDb.fetchSessionBySessionId(sessionId);
@@ -258,4 +253,4 @@
   });
 
   gsAnalytics.reportPageView('history.html');
-})();
+})(this);
