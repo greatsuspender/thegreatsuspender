@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsTabCheckManager, gsTabDiscardManager */
+/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsTabCheckManager, gsTabDiscardManager */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -9,7 +9,6 @@ var gsSession = (function() {
 
   let initialisationMode = true;
   let sessionId;
-  let recoveryTabId;
   let updateType = null;
   let updated = false;
   let fileUrlsAccessAllowed = false;
@@ -226,8 +225,7 @@ var gsSession = (function() {
       } else {
         //otherwise show the recovery page
         const recoveryUrl = chrome.extension.getURL('recovery.html');
-        const recoveryTab = await gsChrome.tabsCreate(recoveryUrl);
-        recoveryTabId = recoveryTab.id;
+        await gsChrome.tabsCreate(recoveryUrl);
         //hax0r: wait for recovery tab to finish loading before returning
         //this is so we remain in 'recoveryMode' for a bit longer, preventing
         //the sessionUpdate code from running when this tab gains focus
@@ -725,8 +723,8 @@ var gsSession = (function() {
     });
 
     // Update recovery view (if it exists)
-    if (recoveryTabId) {
-      gsMessages.sendTabInfoToRecoveryTab(recoveryTabId, newTab); //async. unhandled error
+    for (const view of tgs.getInternalViews('recovery')) {
+      view.exports.removeSuspendedTabFromList(newTab);
     }
   }
 

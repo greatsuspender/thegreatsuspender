@@ -90,14 +90,6 @@
     document.getElementById('restoreSession').style.display = 'none';
   }
 
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request && request.recoveredTab) {
-      removeSuspendedTabFromList(request.recoveredTab);
-    }
-    sendResponse();
-    return false;
-  });
-
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
     var restoreEl = document.getElementById('restoreSession'),
       manageEl = document.getElementById('manageManuallyLink'),
@@ -171,5 +163,8 @@
     }
   });
 
+  global.exports = {
+    removeSuspendedTabFromList,
+  };
   gsAnalytics.reportPageView('recovery.html');
 })(this);

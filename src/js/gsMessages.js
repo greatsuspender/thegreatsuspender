@@ -188,11 +188,6 @@ var gsMessages = {
     this.sendMessageToTab(updatedTabId, payload, this.INFO, callback);
   },
 
-  sendTabInfoToRecoveryTab: function(recoveryTabId, tab, callback) {
-    var payload = { recoveredTab: tab };
-    this.sendMessageToTab(recoveryTabId, payload, this.INFO);
-  },
-
   sendMessageToTab: function(tabId, message, severity, callback) {
     if (!tabId) {
       if (callback) callback('tabId not specified');
