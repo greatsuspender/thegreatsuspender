@@ -78,6 +78,8 @@ function GsTabQueue(queueId, queueProps) {
         };
         _tabDetailsByTabId[tab.id] = tabDetails;
       } else {
+        tabDetails.tab = tab;
+        tabDetails.executionProps = executionProps;
         gsUtils.log(tab.id, _queueId, 'Tab already queued.');
       }
 

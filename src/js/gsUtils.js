@@ -488,7 +488,7 @@ var gsUtils = {
   getSuspendedScrollPosition: function(urlStr) {
     return decodeURIComponent(this.getHashVariable('pos', urlStr) || '');
   },
-  getSuspendedUrl: function(urlStr) {
+  getOriginalUrl: function(urlStr) {
     return (
       this.getHashVariable('uri', urlStr) ||
       decodeURIComponent(this.getHashVariable('url', urlStr) || '')
@@ -498,33 +498,33 @@ var gsUtils = {
     const rootUrl = gsUtils.getRootUrl(url, false, true);
     return 'chrome://favicon/size/16@2x/' + rootUrl;
   },
-  getCleanTabFavicon(tab) {
-    let cleanedFavicon;
+  getCleanTabFavIconUrl(tab) {
+    let cleanedFavIconUrl;
     if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
-      cleanedFavicon = tab.favIconUrl;
+      cleanedFavIconUrl = tab.favIconUrl;
     }
     if (
-      !cleanedFavicon ||
-      cleanedFavicon === chrome.extension.getURL('img/ic_suspendy_128x128.png')
+      !cleanedFavIconUrl ||
+      cleanedFavIconUrl === chrome.extension.getURL('img/ic_suspendy_16x16.png') // should use the same as the default extension favicon
     ) {
       const url = gsUtils.isSuspendedTab(tab)
-        ? gsUtils.getSuspendedUrl(tab.url)
+        ? gsUtils.getOriginalUrl(tab.url)
         : tab.url;
-      cleanedFavicon = gsUtils.generateFaviconFromUrl(url);
+      cleanedFavIconUrl = gsUtils.generateFaviconFromUrl(url);
     }
-    return cleanedFavicon;
+    return cleanedFavIconUrl;
   },
   getCleanTabTitle(tab) {
     let cleanedTitle = decodeURIComponent(tab.title);
     if (
       !cleanedTitle ||
       cleanedTitle === '' ||
-      cleanedTitle === decodeURIComponent(tab.url)
+      cleanedTitle === decodeURIComponent(tab.url) ||
+      cleanedTitle === 'Suspended Tab'
     ) {
       if (gsUtils.isSuspendedTab(tab)) {
         cleanedTitle =
-          gsUtils.getSuspendedTitle(tab.url) ||
-          gsUtils.getSuspendedUrl(tab.url);
+          gsUtils.getSuspendedTitle(tab.url) || gsUtils.getOriginalUrl(tab.url);
       } else {
         cleanedTitle = tab.url;
       }
@@ -617,7 +617,10 @@ var gsUtils = {
             payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
           }
           if (Object.keys(payload).length > 0) {
-            gsMessages.sendUpdateSuspendedTab(tab.id, payload); //async. unhandled error
+            const suspendedView = tgs.getInternalViewByTabId(tab.id);
+            if (suspendedView) {
+              suspendedView.exports.initTabProps(payload);
+            }
           }
 
           //if discardAfterSuspend has changed then updated discarded tabs

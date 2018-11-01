@@ -62,7 +62,14 @@ testSuites.push(
           gsUtils.getRootUrl(rawUrl6, false, true) === 'file:///Users/dean/Downloads' &&
           gsUtils.getRootUrl(rawUrl6, true, true) === 'file:///Users/dean/Downloads/session%20(63).txt';
 
-        return assertTrue(isUrl1Valid && isUrl2Valid && isUrl3Valid && isUrl4Valid && isUrl5Valid && isUrl6Valid);
+        const rawUrl7 = 'https://analytics.google.com/analytics/web/#/report-home/a52338347w84781065p87884368';
+        const isUrl7Valid =
+          gsUtils.getRootUrl(rawUrl7, false, false) === 'analytics.google.com' &&
+          gsUtils.getRootUrl(rawUrl7, true, false) === 'analytics.google.com/analytics/web' &&
+          gsUtils.getRootUrl(rawUrl7, false, true) === 'https://analytics.google.com' &&
+          gsUtils.getRootUrl(rawUrl7, true, true) === 'https://analytics.google.com/analytics/web';
+
+        return assertTrue(isUrl1Valid && isUrl2Valid && isUrl3Valid && isUrl4Valid && isUrl5Valid && isUrl6Valid&& isUrl7Valid);
       },
     ];
 

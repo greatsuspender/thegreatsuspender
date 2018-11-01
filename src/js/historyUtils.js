@@ -118,7 +118,7 @@ var historyUtils = (function(global) {
     session.windows.forEach(function(curWindow, index) {
       curWindow.tabs.forEach(function(curTab, tabIndex) {
         if (gsUtils.isSuspendedTab(curTab)) {
-          dataString += gsUtils.getSuspendedUrl(curTab.url) + '\n';
+          dataString += gsUtils.getOriginalUrl(curTab.url) + '\n';
         } else {
           dataString += curTab.url + '\n';
         }

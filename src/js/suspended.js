@@ -1,13 +1,20 @@
-/*global window, document, chrome, Image, XMLHttpRequest */
-(function() {
+/*global window, document, chrome, Image, XMLHttpRequest, tgs, gsTabSuspendManager */
+(function(global) {
   'use strict';
 
-  let isInitialised = false;
+  try {
+    chrome.extension
+      .getBackgroundPage()
+      .tgs.setViewGlobals(global, 'suspended');
+  } catch (e) {
+    // console.error(e);
+  }
+
   let isLowContrastFavicon = false;
-  let tabId;
-  let requestUnsuspendOnReload = false;
+  let requestUnsuspendOnReload = true;
   let previewUri;
   let scrollPosition;
+  let tabId;
 
   let showingNag;
   let builtImagePreview;
@@ -21,91 +28,157 @@
   let currentCommand;
   let currentReason;
 
-  async function preInit() {
-    const href = window.location.href;
-    const titleRegex = /ttl=([^&]*)/;
-    const scrollPosRegex = /pos=([^&]*)/;
-    const urlRegex = /uri=(.*)/;
+  function preLoadInit() {
+    localiseHtml(document);
 
     // Show suspended tab contents after max 1 second regardless
     window.setTimeout(() => {
       document.querySelector('body').classList.remove('hide-initially');
     }, 1000);
 
-    const preTitleEncoded = href.match(titleRegex)
-      ? href.match(titleRegex)[1]
-      : null;
-    if (preTitleEncoded) {
-      const decodedPreTitle = decodeURIComponent(preTitleEncoded);
-      setTitle(decodedPreTitle);
-    }
-
-    const preUrlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
-    const preUrlDecoded = preUrlEncoded
-      ? decodeURIComponent(preUrlEncoded)
-      : null;
-    if (preUrlDecoded) {
-      setUrl(preUrlDecoded);
-      document.getElementById('gsTopBar').onmousedown = handleUnsuspendTab;
-      document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
-    }
-
+    let preLoadInitProps = {};
     try {
-      const gsStorage = chrome.extension.getBackgroundPage().gsStorage;
-      const theme = gsStorage.getOption(gsStorage.THEME);
-      setTheme(theme);
-    } catch (error) {
-      // console.error(error);
+      preLoadInitProps = gsTabSuspendManager.buildPreLoadInitProps(
+        window.location.href
+      );
+    } catch (e) {
+      // console.error(e);
     }
+
+    // Fallback on href metadata
+    preLoadInitProps = populateMissingPropsFromHref(
+      preLoadInitProps,
+      window.location.href
+    );
+    initTabProps(preLoadInitProps);
 
     document.querySelector('body').classList.remove('hide-initially');
-
-    if (preUrlDecoded) {
-      const preFavicon = 'chrome://favicon/size/16@2x/' + preUrlDecoded;
-      const faviconMeta = {
-        isDark: false,
-        normalisedDataUrl: preFavicon,
-        transparentDataUrl: preFavicon,
-      };
-      await setFaviconMeta(faviconMeta);
-    }
-
-    const preScrollPosition = href.match(scrollPosRegex)
-      ? href.match(scrollPosRegex)[1]
-      : null;
-    if (preScrollPosition) {
-      setScrollPosition(preScrollPosition);
-    }
   }
 
-  function init(_tabId) {
-    tabId = _tabId;
+  async function postLoadInit() {
+    let postLoadInitProps = {};
+    const tabMeta = await fetchTabMeta();
+    if (tabMeta) {
+      try {
+        tgs.initialiseSuspendedTabProps(tabMeta);
+        postLoadInitProps = await gsTabSuspendManager.buildPostLoadInitProps(
+          tabMeta
+        );
+      } catch (e) {
+        // console.error(e);
+      }
+      addUnloadListener(tabMeta);
+    }
+    // Fallback on href metadata
+    postLoadInitProps = populateMissingPropsFromHref(
+      postLoadInitProps,
+      window.location.href
+    );
+    initTabProps(postLoadInitProps);
+  }
 
-    // beforeunload event will get fired if: the tab is refreshed, the url is changed, the tab is closed
-    // set the tabFlag STP_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
-    // this will be ignored if the tab is being closed or if the tab is navigating to a new url,
-    // and that new url does not match the STP_UNSUSPEND_ON_RELOAD_URL
-    window.addEventListener('beforeunload', function(event) {
-      if (requestUnsuspendOnReload) {
-        try {
-          const tgs = chrome.extension.getBackgroundPage().tgs;
-          tgs.setSuspendedTabPropForTabId(
-            _tabId,
-            tgs.STP_UNSUSPEND_ON_RELOAD_URL,
-            window.location.href
-          );
-        } catch (error) {
-          // console.error(error);
-        }
+  // AFAIK this is the only way to find out the chrome tabId
+  function fetchTabMeta() {
+    return new Promise(resolve => {
+      try {
+        chrome.runtime.sendMessage({ action: 'requestTabMeta' }, resolve);
+      } catch (e) {
+        resolve();
       }
     });
+  }
+
+  function populateMissingPropsFromHref(initProps, href) {
+    const titleRegex = /ttl=([^&]*)/;
+    const scrollPosRegex = /pos=([^&]*)/;
+    const urlRegex = /uri=(.*)/;
+
+    if (initProps.hasOwnProperty('title') && !initProps.title) {
+      const titleEncoded = href.match(titleRegex)
+        ? href.match(titleRegex)[1]
+        : null;
+      if (titleEncoded) {
+        initProps.title = decodeURIComponent(titleEncoded);
+      }
+    }
+
+    if (
+      (initProps.hasOwnProperty('url') && !initProps.url) ||
+      (initProps.hasOwnProperty('title') && !initProps.title) ||
+      (initProps.hasOwnProperty('faviconMeta') && !initProps.faviconMeta)
+    ) {
+      const urlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
+      if (urlEncoded) {
+        const url = decodeURIComponent(urlEncoded);
+        const faviconUrl = 'chrome://favicon/size/16@2x/' + url;
+
+        if (!initProps.url) {
+          initProps.url = url;
+        }
+        if (!initProps.title) {
+          initProps.title = url;
+        }
+        if (!initProps.faviconMeta) {
+          initProps.faviconMeta = {
+            isDark: false,
+            normalisedDataUrl: faviconUrl,
+            transparentDataUrl: faviconUrl,
+          };
+        }
+      }
+    }
+
+    if (
+      initProps.hasOwnProperty('scrollPosition') &&
+      !initProps.scrollPosition
+    ) {
+      const scrollPosition = href.match(scrollPosRegex)
+        ? href.match(scrollPosRegex)[1]
+        : null;
+      if (scrollPosition) {
+        initProps.scrollPosition = scrollPosition;
+      }
+    }
+    return initProps;
+  }
+
+  function initTabProps(initProps) {
+    if (initProps.hasOwnProperty('previewUri')) {
+      previewUri = initProps.previewUri;
+    }
+    if (initProps.hasOwnProperty('previewMode')) {
+      setPreviewMode(initProps.previewMode); // async. unhandled promise.
+    }
+    if (initProps.hasOwnProperty('theme')) {
+      setTheme(initProps.theme);
+    }
+    if (initProps.hasOwnProperty('showNag')) {
+      handleDonationPopup(initProps.showNag, initProps.tabActive);
+    }
+    if (initProps.hasOwnProperty('command')) {
+      setCommand(initProps.command);
+    }
+    if (initProps.hasOwnProperty('faviconMeta')) {
+      setFaviconMeta(initProps.faviconMeta);
+    }
+    if (initProps.hasOwnProperty('title')) {
+      setTitle(initProps.title);
+    }
+    if (initProps.hasOwnProperty('url')) {
+      setUrl(initProps.url);
+    }
+    if (initProps.hasOwnProperty('scrollPosition')) {
+      setScrollPosition(initProps.scrollPosition);
+    }
+    if (initProps.hasOwnProperty('reason')) {
+      setReason(initProps.reason);
+    }
   }
 
   function setTitle(title) {
     if (currentTitle === title) {
       return;
     }
-    currentTitle = title;
     document.getElementById('gsTitle').innerHTML = title;
     document.getElementById('gsTopBarTitle').innerHTML = title;
     // Prevent unsuspend by parent container
@@ -127,9 +200,11 @@
       e.stopPropagation();
     };
     document.getElementById('gsTopBarUrl').onclick = handleUnsuspendTab;
+    document.getElementById('gsTopBar').onmousedown = handleUnsuspendTab;
+    document.getElementById('suspendedMsg').onclick = handleUnsuspendTab;
   }
 
-  async function setFaviconMeta(faviconMeta) {
+  function setFaviconMeta(faviconMeta) {
     if (
       currentFaviconMeta &&
       currentFaviconMeta.isDark === faviconMeta.isDark &&
@@ -203,7 +278,7 @@
     currentShowNag = showNag;
 
     if (queueNag) {
-      var donationPopupFocusListener = function(e) {
+      const donationPopupFocusListener = function(e) {
         if (e) {
           e.target.removeEventListener(
             'visibilitychange',
@@ -212,7 +287,7 @@
         }
 
         //if user has donated since this page was first generated then dont display popup
-        if (currentShowNag) {
+        if (showNag) {
           loadDonationPopupTemplate();
         }
       };
@@ -259,17 +334,12 @@
       const previewImgEl = document.getElementById('gsPreviewImg');
       const onLoadedHandler = function() {
         previewImgEl.removeEventListener('load', onLoadedHandler);
-        previewImgEl.removeEventListener('error', onErrorHandler);
-        resolve();
-      };
-      const onErrorHandler = function() {
-        previewImgEl.removeEventListener('load', onLoadedHandler);
-        previewImgEl.removeEventListener('error', onErrorHandler);
+        previewImgEl.removeEventListener('error', onLoadedHandler);
         resolve();
       };
       previewImgEl.setAttribute('src', previewUri);
       previewImgEl.addEventListener('load', onLoadedHandler);
-      previewImgEl.addEventListener('error', onErrorHandler);
+      previewImgEl.addEventListener('error', onLoadedHandler);
     });
   }
 
@@ -277,7 +347,7 @@
     if (!document.getElementById('gsPreview')) {
       return;
     }
-    var overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
+    const overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
     document.body.style['overflow'] = overflow;
 
     if (currentPreviewMode === '0' || !previewUri) {
@@ -305,7 +375,7 @@
       return;
     }
     currentCommand = command;
-    var hotkeyEl = document.getElementById('hotkeyCommand');
+    const hotkeyEl = document.getElementById('hotkeyCommand');
     if (command) {
       hotkeyEl.innerHTML = '(' + command + ')';
     } else {
@@ -327,14 +397,15 @@
   }
 
   function unsuspendTab(addToTemporaryWhitelist) {
-    if (tabId) {
+    if (tabId && addToTemporaryWhitelist) {
       try {
-        const tgs = chrome.extension.getBackgroundPage().tgs;
-        if (addToTemporaryWhitelist) {
-          tgs.setSuspendedTabPropForTabId(tabId, tgs.STP_TEMP_WHITELIST_ON_RELOAD, true);
-        }
-      } catch (error) {
-        // console.error(error);
+        tgs.setSuspendedTabPropForTabId(
+          tabId,
+          tgs.STP_TEMP_WHITELIST_ON_RELOAD,
+          true
+        );
+      } catch (e) {
+        // console.error(e);
       }
     }
 
@@ -350,6 +421,10 @@
     window.location.replace(currentUrl);
   }
 
+  function disableUnsuspendOnReload() {
+    requestUnsuspendOnReload = false;
+  }
+
   function showNoConnectivityMessage() {
     if (!document.getElementById('disconnectedNotice')) {
       loadToastTemplate();
@@ -361,7 +436,7 @@
   }
 
   function loadToastTemplate() {
-    var toastEl = document.createElement('div');
+    const toastEl = document.createElement('div');
     toastEl.setAttribute('id', 'disconnectedNotice');
     toastEl.classList.add('toast-wrapper');
     toastEl.innerHTML = document.getElementById('toastTemplate').innerHTML;
@@ -399,24 +474,24 @@
   function loadDonationPopupTemplate() {
     showingNag = true;
 
-    var popupEl = document.createElement('div');
+    const popupEl = document.createElement('div');
     popupEl.innerHTML = document.getElementById('donateTemplate').innerHTML;
 
-    var cssEl = popupEl.querySelector('#donateCss');
-    var imgEl = popupEl.querySelector('#dudePopup');
-    var bubbleEl = popupEl.querySelector('#donateBubble');
+    const cssEl = popupEl.querySelector('#donateCss');
+    const imgEl = popupEl.querySelector('#dudePopup');
+    const bubbleEl = popupEl.querySelector('#donateBubble');
     // set display to 'none' to prevent TFOUC
     imgEl.style.display = 'none';
     bubbleEl.style.display = 'none';
     localiseHtml(bubbleEl);
 
-    var headEl = document.getElementsByTagName('head')[0];
-    var bodyEl = document.getElementsByTagName('body')[0];
+    const headEl = document.getElementsByTagName('head')[0];
+    const bodyEl = document.getElementsByTagName('body')[0];
     headEl.appendChild(cssEl);
     bodyEl.appendChild(imgEl);
     bodyEl.appendChild(bubbleEl);
 
-    var request = new XMLHttpRequest();
+    const request = new XMLHttpRequest();
     request.onload = loadDonateButtonsHtml;
     request.open('GET', 'support.html', true);
     request.send();
@@ -431,7 +506,7 @@
       urlStr = urlStr.substring(urlStr.indexOf('//') + 2);
     }
     // remove query string
-    var match = urlStr.match(/\/?[?#]+/);
+    let match = urlStr.match(/\/?[?#]+/);
     if (match) {
       urlStr = urlStr.substring(0, match.index);
     }
@@ -443,20 +518,8 @@
     return urlStr;
   }
 
-  function waitForDocumentReady() {
-    return new Promise(function(resolve) {
-      if (document.readyState !== 'loading') {
-        resolve();
-      } else {
-        document.addEventListener('DOMContentLoaded', function() {
-          resolve();
-        });
-      }
-    });
-  }
-
   function localiseHtml(parentEl) {
-    var replaceTagFunc = function(match, p1) {
+    const replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
     Array.prototype.forEach.call(parentEl.getElementsByTagName('*'), el => {
@@ -469,88 +532,33 @@
     });
   }
 
-  function addMessageListeners() {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      (async () => {
-        switch (request.action) {
-          case 'initSuspendedTab':
-            await handleInitRequest(request);
-            isInitialised = true;
-            break;
-
-          case 'updateSuspendedTab':
-            await handleInitRequest(request);
-            break;
-
-          case 'unsuspendTab':
-            unsuspendTab();
-            break;
-
-          case 'disableUnsuspendOnReload':
-            requestUnsuspendOnReload = false;
-            break;
-
-          case 'tempWhitelist':
-            unsuspendTab(true);
-            break;
-
-          case 'showNoConnectivityMessage':
-            showNoConnectivityMessage();
-            break;
+  function addUnloadListener(tabMeta) {
+    // beforeunload event will get fired if: the tab is refreshed, the url is changed, the tab is closed
+    // set the tabFlag STP_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
+    // this will be ignored if the tab is being closed or if the tab is navigating to a new url,
+    // and that new url does not match the STP_UNSUSPEND_ON_RELOAD_URL
+    window.addEventListener('beforeunload', function(event) {
+      if (requestUnsuspendOnReload) {
+        try {
+          tgs.setSuspendedTabPropForTabId(
+            tabMeta.id,
+            tgs.STP_UNSUSPEND_ON_RELOAD_URL,
+            window.location.href
+          );
+        } catch (e) {
+          // console.error(e);
         }
-        sendResponse(buildReportTabStatePayload());
-      })();
-      return true; // force message sender to wait for sendResponse
+      }
     });
   }
 
-  function buildReportTabStatePayload() {
-    return {
-      isInitialised,
-      tabId,
-      requestUnsuspendOnReload,
-    };
-  }
+  global.exports = {
+    initTabProps,
+    unsuspendTab,
+    disableUnsuspendOnReload,
+    showNoConnectivityMessage,
+  };
 
-  async function handleInitRequest(request) {
-    if (request.tabId && !tabId) {
-      init(request.tabId);
-    }
-    if (request.hasOwnProperty('requestUnsuspendOnReload')) {
-      requestUnsuspendOnReload = request.requestUnsuspendOnReload;
-    }
-    if (request.hasOwnProperty('previewUri')) {
-      previewUri = request.previewUri;
-    }
-    if (request.hasOwnProperty('previewMode')) {
-      await setPreviewMode(request.previewMode);
-    }
-    if (request.hasOwnProperty('theme')) {
-      setTheme(request.theme);
-    }
-    if (request.hasOwnProperty('showNag')) {
-      handleDonationPopup(request.showNag, request.tabActive);
-    }
-    if (request.hasOwnProperty('command')) {
-      setCommand(request.command);
-    }
-    if (request.hasOwnProperty('faviconMeta')) {
-      await setFaviconMeta(request.faviconMeta);
-    }
-    if (request.hasOwnProperty('title')) {
-      setTitle(request.title);
-    }
-    if (request.hasOwnProperty('url')) {
-      setUrl(request.url);
-    }
-    if (request.hasOwnProperty('reason')) {
-      setReason(request.reason);
-    }
-  }
-
-  waitForDocumentReady().then(async () => {
-    localiseHtml(document);
-    await preInit();
-    addMessageListeners();
-  });
-})();
+  preLoadInit();
+  postLoadInit(); // async.
+})(this);

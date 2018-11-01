@@ -20,7 +20,7 @@
       for (const window of lastSession.windows) {
         for (const tabProperties of window.tabs) {
           if (gsUtils.isSuspendedTab(tabProperties)) {
-            var originalUrl = gsUtils.getSuspendedUrl(tabProperties.url);
+            var originalUrl = gsUtils.getOriginalUrl(tabProperties.url);
             // Ignore suspended tabs from previous session that exist unsuspended now
             const originalTab = currentTabs.find(o => o.url === originalUrl);
             if (!originalTab) {
@@ -136,7 +136,7 @@
     }
 
     for (var tabToRecover of tabsToRecover) {
-      tabToRecover.favIconUrl = gsUtils.getCleanTabFavicon(tabToRecover);
+      tabToRecover.favIconUrl = gsUtils.getCleanTabFavIconUrl(tabToRecover);
       tabToRecover.title = gsUtils.getCleanTabTitle(tabToRecover);
       tabEl = historyItems.createTabHtml(tabToRecover, false);
       tabEl.onclick = function() {

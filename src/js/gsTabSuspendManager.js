@@ -74,7 +74,10 @@ var gsTabSuspendManager = (function() {
       // TODO: This doesn't actually seem to work
       // Tabs that have just been reloaded usually fail to run the screen capture script :(
       if (screenCaptureMode !== '0') {
-        gsUtils.log(tab.id, 'Tab is not responding. Will reload for screen capture.');
+        gsUtils.log(
+          tab.id,
+          'Tab is not responding. Will reload for screen capture.'
+        );
         tgs.setUnsuspendedTabPropForTabId(
           tab.id,
           tgs.UTP_SUSPEND_ON_RELOAD_URL,
@@ -87,7 +90,7 @@ var gsTabSuspendManager = (function() {
       tabInfo = {
         status: 'loading',
         scrollPos: '0',
-      }
+      };
     }
 
     const isEligible = checkContentScriptEligibilityForSuspension(
@@ -422,16 +425,14 @@ var gsTabSuspendManager = (function() {
     let generateCanvas;
     if (useAlternateScreenCaptureLib) {
       generateCanvas = () => {
-        return domtoimage
-          .toCanvas(document.body, {})
-          .then(canvas => {
-            const croppedCanvas = document.createElement('canvas');
-            const context = croppedCanvas.getContext('2d');
-            croppedCanvas.width = width;
-            croppedCanvas.height = height;
-            context.drawImage(canvas, 0, 0);
-            return croppedCanvas;
-          });
+        return domtoimage.toCanvas(document.body, {}).then(canvas => {
+          const croppedCanvas = document.createElement('canvas');
+          const context = croppedCanvas.getContext('2d');
+          croppedCanvas.width = width;
+          croppedCanvas.height = height;
+          context.drawImage(canvas, 0, 0);
+          return croppedCanvas;
+        });
       };
     } else {
       generateCanvas = () => {
@@ -443,7 +444,7 @@ var gsTabSuspendManager = (function() {
           removeContainer: false,
           async: true,
         });
-      }
+      };
     }
 
     const generateDataUrl = canvas => {
@@ -476,13 +477,21 @@ var gsTabSuspendManager = (function() {
     });
   }
 
+  function getCachedFaviconMetaData(faviconUrl) {
+    const faviconMetaData = cachedFaviconMetaDataByFaviconUrl[faviconUrl];
+    return faviconMetaData || null;
+  }
+
   function getFaviconMetaData(faviconUrl) {
     return new Promise(resolve => {
-      const cachedFaviconMetaData = cachedFaviconMetaDataByFaviconUrl[faviconUrl];
+      const cachedFaviconMetaData =
+        cachedFaviconMetaDataByFaviconUrl[faviconUrl];
       if (cachedFaviconMetaData) {
+        // gsUtils.log('cachedFaviconMetaData. Found cache hit: ' + faviconUrl);
         resolve(cachedFaviconMetaData);
         return;
       }
+      // gsUtils.log('cachedFaviconMetaData. No entry in cache for: ' + faviconUrl);
 
       const img = new Image();
 
@@ -557,11 +566,93 @@ var gsTabSuspendManager = (function() {
           normalisedDataUrl,
           transparentDataUrl,
         };
+        // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
         cachedFaviconMetaDataByFaviconUrl[faviconUrl] = faviconMetaData;
         resolve(faviconMetaData);
       };
       img.src = faviconUrl || DEFAULT_FAVICON;
     });
+  }
+
+  function buildPreLoadInitProps(suspendedUrl) {
+    const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
+    const whitelisted = gsUtils.checkWhiteList(originalUrl);
+    const faviconUrl = gsUtils.generateFaviconFromUrl(originalUrl);
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
+    let title = gsUtils.getSuspendedTitle(suspendedUrl);
+    if (title.indexOf('<') >= 0) {
+      // Encode any raw html tags that might be used in the title
+      title = gsUtils.htmlEncode(title);
+    }
+
+    let faviconMeta = getCachedFaviconMetaData(faviconUrl);
+    if (!faviconMeta) {
+      faviconMeta = {
+        isDark: false,
+        normalisedDataUrl: faviconUrl,
+        transparentDataUrl: faviconUrl,
+      };
+    }
+
+    const options = gsStorage.getSettings();
+    const initProps = {
+      url: originalUrl,
+      title: title,
+      scrollPosition: scrollPosition,
+      faviconMeta: faviconMeta,
+      whitelisted: whitelisted,
+      theme: options[gsStorage.THEME],
+      previewMode: options[gsStorage.SCREEN_CAPTURE],
+    };
+
+    // gsUtils.log(originalUrl, 'preLoadInitProps', initProps);
+    return initProps;
+  }
+
+  async function buildPostLoadInitProps(tab) {
+    const originalUrl = gsUtils.getOriginalUrl(tab.url);
+    const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
+
+    const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
+    let previewUri = null;
+    if (
+      preview &&
+      preview.img &&
+      preview.img !== null &&
+      preview.img !== 'data:,' &&
+      preview.img.length > 10000
+    ) {
+      previewUri = preview.img;
+    }
+
+    const showNag = tgs.getSuspendedTabPropForTabId(tab.id, tgs.STP_SHOW_NAG);
+    const suspendReason = tgs.getSuspendedTabPropForTabId(
+      tab.id,
+      tgs.STP_SUSPEND_REASON
+    );
+    const suspensionToggleHotkey = await tgs.getSuspensionToggleHotkey();
+
+    const initProps = {
+      tabId: tab.id,
+      tabActive: tab.active,
+      showNag: showNag,
+      previewUri: previewUri,
+      command: suspensionToggleHotkey,
+    };
+    if (tabProperties && tabProperties.favIconUrl) {
+      initProps.favIconUrl = tabProperties.favIconUrl;
+      const faviconMeta = await getFaviconMetaData(tabProperties.favIconUrl);
+      initProps.faviconMeta = faviconMeta;
+    }
+    if (tabProperties && tabProperties.title) {
+      initProps.title = tabProperties.title;
+    }
+    if (suspendReason === 3) {
+      initProps.reason = chrome.i18n.getMessage('js_suspended_low_memory');
+    }
+
+    // gsUtils.log(tab.id, 'postLoadInitProps', initProps);
+    return initProps;
   }
 
   return {
@@ -574,5 +665,7 @@ var gsTabSuspendManager = (function() {
     checkTabEligibilityForSuspension,
     forceTabSuspension,
     getFaviconMetaData,
+    buildPreLoadInitProps,
+    buildPostLoadInitProps,
   };
 })();

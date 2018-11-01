@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsMessages, gsTabCheckManager, gsTabDiscardManager */
+/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsTabCheckManager, gsTabDiscardManager */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -300,7 +300,7 @@ var gsSession = (function() {
       updated = true;
 
       //update updated views
-      const updatedViews = tgs.getInternalViews('updated');
+      const updatedViews = tgs.getInternalViewsByViewName('updated');
       if (updatedViews.length > 0) {
         for (const view of updatedViews) {
           view.exports.toggleUpdated();
@@ -309,7 +309,6 @@ var gsSession = (function() {
         await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
         await gsChrome.tabsCreate({ url: updatedUrl });
       }
-
     } else {
       updated = true;
       await gsChrome.tabsCreate({ url: updatedUrl });
@@ -525,7 +524,8 @@ var gsSession = (function() {
         bestTabMatchingObject.currentWindow;
 
       //remove from unmatchedSessionWindows and unmatchedCurrentWindows
-      const unmatchedSessionWindowsLengthBefore = unmatchedSessionWindows.length;
+      const unmatchedSessionWindowsLengthBefore =
+        unmatchedSessionWindows.length;
       unmatchedSessionWindows = unmatchedSessionWindows.filter(function(
         window
       ) {
@@ -713,7 +713,7 @@ var gsSession = (function() {
     ) {
       url = gsUtils.generateSuspendedUrl(sessionTab.url, sessionTab.title);
     } else if (suspendMode === 2 && gsUtils.isSuspendedTab(sessionTab)) {
-      url = gsUtils.getSuspendedUrl(sessionTab.url);
+      url = gsUtils.getOriginalUrl(sessionTab.url);
     }
     const newTab = await gsChrome.tabsCreate({
       windowId: windowId,
@@ -724,7 +724,7 @@ var gsSession = (function() {
     });
 
     // Update recovery view (if it exists)
-    for (const view of tgs.getInternalViews('recovery')) {
+    for (const view of tgs.getInternalViewsByViewName('recovery')) {
       view.exports.removeSuspendedTabFromList(newTab);
     }
   }

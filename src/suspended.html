@@ -3,9 +3,8 @@
 
 <head>
 	<!--should use the same as the default extension favicon-->
-	<link id="gsFavicon" rel="icon" href="img/icon128-suspendy.png" />
+	<link id="gsFavicon" rel="icon" href="img/ic_suspendy_16x16.png" />
 	<link rel="stylesheet" type="text/css" href="css/suspended.css">
-	<script type="text/javascript" src="js/suspended.js"></script>
 	<title id="gsTitle" data-i18n="__MSG_html_suspended_title__"></title>
 	<meta name="google" content="notranslate">
 </head>
@@ -66,6 +65,8 @@
 
 	<div id="refreshSpinner"></div>
 
+  <!--load last so we can be sure dom is ready-->
+  <script type="text/javascript" src="js/suspended.js"></script>
 </body>
 
 </html>
