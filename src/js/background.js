@@ -1429,11 +1429,11 @@ var tgs = (function() {
   }
 
   //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
-  //NOTE: In canary, the 'separator' elements do not currently display
+  //NOTE: In chrome v70, the 'separator' elements do not currently display
   //TODO: Report chrome bug
-
   function buildContextMenu(showContextMenu) {
-    var allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',
+    const allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',
+    const separator = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
 
     if (!showContextMenu) {
       chrome.contextMenus.removeAll();
@@ -1469,9 +1469,9 @@ var tgs = (function() {
 
       chrome.contextMenus.create({
         contexts: allContexts,
-        type: 'separator',
+        title: separator,
+        enabled: false,
       });
-
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
         contexts: allContexts,
@@ -1485,9 +1485,9 @@ var tgs = (function() {
 
       chrome.contextMenus.create({
         contexts: allContexts,
-        type: 'separator',
+        title: separator,
+        enabled: false,
       });
-
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
           'js_context_soft_suspend_other_tabs_in_window'
@@ -1512,9 +1512,9 @@ var tgs = (function() {
 
       chrome.contextMenus.create({
         contexts: allContexts,
-        type: 'separator',
+        title: separator,
+        enabled: false,
       });
-
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_soft_suspend_all_tabs'),
         contexts: allContexts,
