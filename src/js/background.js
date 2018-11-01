@@ -789,21 +789,6 @@ var tgs = (function() {
     resetAutoSuspendTimerForTab(tab);
   }
 
-  function initialiseSuspendedTabProps(tab) {
-    const options = gsStorage.getSettings();
-    if (!options[gsStorage.NO_NAG]) {
-      let showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
-      if (showNag === undefined || showNag === null) {
-        //show dude and donate link (randomly 1 of 20 times)
-        showNag = Math.random() > 0.95;
-        setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
-      }
-    }
-    // Set scrollPosition tab flag
-    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-    setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
-  }
-
   function initialiseUnsuspendedTabScriptAsPromised(tab) {
     return new Promise((resolve, reject) => {
       const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
@@ -871,6 +856,21 @@ var tgs = (function() {
         gsTabCheckManager.queueTabCheck(tab, true, 1000);
       }
     }
+  }
+
+  function initialiseSuspendedTabProps(tab) {
+    const options = gsStorage.getSettings();
+    if (!options[gsStorage.NO_NAG]) {
+      let showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
+      if (showNag === undefined || showNag === null) {
+        //show dude and donate link (randomly 1 of 20 times)
+        showNag = Math.random() > 0.95;
+        setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
+      }
+    }
+    // Set scrollPosition tab flag
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+    setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
@@ -1768,6 +1768,7 @@ var tgs = (function() {
 
     backgroundScriptsReadyAsPromised,
     initAsPromised,
+    initialiseSuspendedTabProps,
     setViewGlobals,
     getInternalViewByTabId,
     getInternalViewsByViewName,
@@ -1786,8 +1787,6 @@ var tgs = (function() {
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
 
-    initialiseUnsuspendedTabScriptAsPromised,
-    initialiseSuspendedTabProps,
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,

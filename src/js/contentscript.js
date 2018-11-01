@@ -9,11 +9,10 @@
 (function() {
   'use strict';
 
-  var isInitialised = false,
-    isFormListenerInitialised = false,
-    isReceivingFormInput = false,
-    isIgnoreForms = false,
-    tempWhitelist = false;
+  let isFormListenerInitialised = false;
+  let isReceivingFormInput = false;
+  let isIgnoreForms = false;
+  let tempWhitelist = false;
 
   function suspendTab(suspendedUrl) {
     window.location.replace(suspendedUrl);
@@ -57,13 +56,6 @@
       return false;
     }
 
-    if (
-      request.hasOwnProperty('action') &&
-      request.action === 'initialiseContentScript'
-    ) {
-      isInitialised = true;
-    }
-
     if (request.hasOwnProperty('scrollPos')) {
       if (request.scrollPos !== '' && request.scrollPos !== '0') {
         document.body.scrollTop = request.scrollPos;
@@ -90,7 +82,6 @@
   function buildReportTabStatePayload() {
     return {
       action: 'reportTabState',
-      isInitialised: isInitialised,
       status:
         isIgnoreForms && isReceivingFormInput
           ? 'formInput'

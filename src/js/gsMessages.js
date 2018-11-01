@@ -13,7 +13,6 @@ var gsMessages = {
     callback
   ) {
     var payload = {
-      action: 'initialiseContentScript',
       ignoreForms: ignoreForms,
       tempWhitelist: tempWhitelist,
     };
