@@ -178,13 +178,14 @@ var gsTabCheckManager = (function() {
       gsUtils.log(
         tab.id,
         QUEUE_ID,
-        'Tab refetch requested. Will getUpdatedTab..'
+        'Tab refetch requested. Getting updated tab..'
       );
       tab = await getUpdatedTab(tab);
       if (!tab) {
         resolve(false);
         return;
       }
+      gsUtils.log(tab.id, QUEUE_ID, 'Updated tab: ', tab);
     }
 
     // Once we're sure that tab still exists then make sure tab is registered
@@ -305,6 +306,7 @@ var gsTabCheckManager = (function() {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab title not set', tab);
       return false;
     }
+    return true;
   }
 
   async function forceReinitOfSuspendedTab(tab) {

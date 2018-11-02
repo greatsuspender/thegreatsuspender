@@ -651,7 +651,7 @@ var gsTabSuspendManager = (function() {
       initProps.reason = chrome.i18n.getMessage('js_suspended_low_memory');
     }
 
-    // gsUtils.log(tab.id, 'postLoadInitProps', initProps);
+    gsUtils.log(tab.id, 'postLoadInitProps', initProps);
     return initProps;
   }
 
