@@ -384,11 +384,12 @@ var gsUtils = {
     }
   },
 
-  documentReadyAndLocalisedAsPromsied: function(doc) {
-    var self = this;
-    return self.documentReadyAsPromsied(doc).then(function() {
-      return self.localiseHtml(doc);
-    });
+  documentReadyAndLocalisedAsPromsied: async function(doc) {
+    await gsUtils.documentReadyAsPromsied(doc);
+    gsUtils.localiseHtml(doc);
+    if (doc.body && doc.body.hidden) {
+      doc.body.hidden = false;
+    }
   },
 
   generateSuspendedUrl: function(url, title, scrollPos) {

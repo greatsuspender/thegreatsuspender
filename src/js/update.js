@@ -2,12 +2,12 @@
 (function(global) {
   'use strict';
 
-  const backgroundPage = chrome.extension.getBackgroundPage();
-  if (!backgroundPage || !backgroundPage.tgs) {
-    setTimeout(() => location.replace(location.href), 1000);
+  try {
+    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'update');
+  } catch (e) {
+    window.setTimeout(() => window.location.reload(), 1000);
     return;
   }
-  backgroundPage.tgs.setViewGlobals(global, 'update');
 
   function setRestartExtensionClickHandler(warnFirst) {
     document.getElementById('restartExtensionBtn').onclick = async function(e) {

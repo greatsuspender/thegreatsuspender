@@ -2,12 +2,12 @@
 (function(global) {
   'use strict';
 
-  const backgroundPage = chrome.extension.getBackgroundPage();
-  if (!backgroundPage || !backgroundPage.tgs) {
-    window.setTimeout(() => window.location.replace(window.location.href), 1000);
+  try {
+    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'about');
+  } catch (e) {
+    window.setTimeout(() => window.location.reload(), 1000);
     return;
   }
-  backgroundPage.tgs.setViewGlobals(global, 'about');
 
   function toggleNag(hideNag) {
     gsStorage.setOptionAndSync(gsStorage.NO_NAG, hideNag);

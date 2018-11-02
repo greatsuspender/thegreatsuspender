@@ -1,12 +1,12 @@
 /*global chrome, gsAnalytics, gsStorage, gsUtils */
 (function(global) {
 
-  const backgroundPage = chrome.extension.getBackgroundPage();
-  if (!backgroundPage || !backgroundPage.tgs) {
-    setTimeout(() => location.replace(location.href), 1000);
+  try {
+    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'options');
+  } catch (e) {
+    window.setTimeout(() => window.location.reload(), 1000);
     return;
   }
-  backgroundPage.tgs.setViewGlobals(global, 'options');
 
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,

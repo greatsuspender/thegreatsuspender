@@ -138,6 +138,11 @@ var tgs = (function() {
       gsTabSuspendManager,
       gsTabDiscardManager,
     };
+    for (const lib of Object.values(globals)) {
+      if (!lib) {
+        throw new Error('Lib not ready');
+      }
+    }
     Object.assign(_window, globals);
   }
 
