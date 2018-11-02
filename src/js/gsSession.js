@@ -291,10 +291,7 @@ var gsSession = (function() {
     gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(currentSessionTabs);
     if (shouldRecoverTabs) {
-      const updatedTab = await gsUtils.createTabAndWaitForFinishLoading(
-        updatedUrl,
-        10000
-      );
+      await gsUtils.createTabAndWaitForFinishLoading(updatedUrl, 10000);
 
       await recoverLostTabs();
       updated = true;
@@ -342,6 +339,9 @@ var gsSession = (function() {
     const currentSessionSuspendedTabs = currentSessionTabs.filter(
       tab => !gsUtils.isSpecialTab(tab) && gsUtils.isSuspendedTab(tab, true)
     );
+    const currentSessionNonExtensionTabs = currentSessionTabs.filter(
+      o => o.url.indexOf(chrome.runtime.id) === -1
+    );
 
     if (currentSessionSuspendedTabs.length > 0) {
       gsUtils.log(
@@ -374,16 +374,24 @@ var gsSession = (function() {
       o => o.url.indexOf(chrome.runtime.id) === -1
     );
 
+    if (lastSessionSuspendedTabs.length === 0) {
+      gsUtils.log(
+        'gsSession',
+        'Aborting tab recovery. Last session contained no suspended tabs.'
+      );
+      return false;
+    }
+
     // Match against all tabIds from last session here, not just non-extension tabs
     // as there is a chance during tabInitialisation of a suspended tab getting reloaded
     // directly and hence keeping its tabId (ie: file:// tabs)
-    const matchingTabIdsCount = currentSessionTabs.reduce(
+    const matchingTabIdsCount = currentSessionNonExtensionTabs.reduce(
       (a, o) => (lastSessionTabs.some(p => p.id === o.id) ? a + 1 : a),
       0
     );
     const maxTabCount = Math.max(
       lastSessionNonExtensionTabs.length,
-      currentSessionTabs.length
+      currentSessionNonExtensionTabs.length
     );
     gsUtils.log(
       'gsSession',
@@ -396,17 +404,7 @@ var gsSession = (function() {
       gsUtils.log('gsSession', 'Aborting tab recovery. Tab IDs do not match.');
       return false;
     }
-    if (
-      currentSessionTabs.length ===
-      lastSessionNonExtensionTabs.length + lastSessionSuspendedTabs.length
-    ) {
-      gsUtils.log(
-        'gsSession',
-        'Aborting tab recovery. Last session contains the same number of tabs' +
-          ' as the current session. Assuming last session contained no suspended tabs.'
-      );
-      return false;
-    }
+
     return true;
   }
 
