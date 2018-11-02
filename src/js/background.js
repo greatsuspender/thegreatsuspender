@@ -865,14 +865,17 @@ var tgs = (function() {
 
   function initialiseSuspendedTabProps(tab) {
     const options = gsStorage.getSettings();
+
+    let showNag = false;
     if (!options[gsStorage.NO_NAG]) {
-      let showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
+      showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
       if (showNag === undefined || showNag === null) {
         //show dude and donate link (randomly 1 of 20 times)
         showNag = Math.random() > 0.95;
-        setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
       }
     }
+    setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
+
     // Set scrollPosition tab flag
     const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
     setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
