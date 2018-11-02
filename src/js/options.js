@@ -151,7 +151,6 @@
 
       var [oldValue, newValue] = saveChange(element);
       if (oldValue !== newValue) {
-        gsStorage.syncSettings();
         var prefKey = elementPrefMap[element.id];
         gsUtils.performPostSaveUpdates(
           [prefKey],
@@ -173,7 +172,9 @@
     }
 
     //save option
-    gsStorage.setOption(elementPrefMap[element.id], newValue);
+    if (oldValue !== newValue) {
+      gsStorage.setOptionAndSync(elementPrefMap[element.id], newValue);
+    }
 
     return [oldValue, newValue];
   }

@@ -88,11 +88,10 @@
     document.getElementById('toggleDiscardInPlaceOfSuspend').onclick = function(
       e
     ) {
-      gsStorage.setOption(
+      gsStorage.setOptionAndSync(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
         !discardInPlaceOfSuspend
       );
-      gsStorage.syncSettings();
       document.getElementById(
         'toggleDiscardInPlaceOfSuspend'
       ).innerHTML = !discardInPlaceOfSuspend;
@@ -107,11 +106,10 @@
     document.getElementById(
       'toggleUseAlternateScreenCaptureLib'
     ).onclick = function(e) {
-      gsStorage.setOption(
+      gsStorage.setOptionAndSync(
         gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
         !useAlternateScreenCaptureLib
       );
-      gsStorage.syncSettings();
       document.getElementById(
         'toggleUseAlternateScreenCaptureLib'
       ).innerHTML = !useAlternateScreenCaptureLib;

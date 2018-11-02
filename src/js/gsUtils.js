@@ -281,8 +281,7 @@ var gsUtils = {
       }
     }
     var whitelistString = whitelistItems.join('\n');
-    gsStorage.setOption(gsStorage.WHITELIST, whitelistString);
-    gsStorage.syncSettings();
+    gsStorage.setOptionAndSync(gsStorage.WHITELIST, whitelistString);
 
     var key = gsStorage.WHITELIST;
     gsUtils.performPostSaveUpdates(
@@ -320,8 +319,7 @@ var gsUtils = {
     var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '';
     var newWhitelistString = oldWhitelistString + '\n' + newString;
     newWhitelistString = this.cleanupWhitelist(newWhitelistString);
-    gsStorage.setOption(gsStorage.WHITELIST, newWhitelistString);
-    gsStorage.syncSettings();
+    gsStorage.setOptionAndSync(gsStorage.WHITELIST, newWhitelistString);
 
     var key = gsStorage.WHITELIST;
     gsUtils.performPostSaveUpdates(

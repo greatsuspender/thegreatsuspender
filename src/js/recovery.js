@@ -105,7 +105,7 @@
 
     if (previewsEl) {
       previewsEl.onclick = function(e) {
-        gsStorage.setOption(gsStorage.SCREEN_CAPTURE, '0');
+        gsStorage.setOptionAndSync(gsStorage.SCREEN_CAPTURE, '0');
         window.location.reload();
       };
 

@@ -109,6 +109,16 @@ var gsStorage = {
             }
             continue;
           }
+          // If donations are disabled locally, then ensure we disable them on synced profile
+          if (
+            key === self.NO_NAG &&
+            shouldSyncSettings &&
+            rawLocalSettings.hasOwnProperty(self.NO_NAG) &&
+            rawLocalSettings[self.NO_NAG]
+          ) {
+            mergedSettings[self.NO_NAG] = true;
+            continue;
+          }
           // if synced setting exists and local setting does not exist or
           // syncing is enabled locally then overwrite with synced value
           if (
@@ -172,6 +182,14 @@ var gsStorage = {
         var newValueBySettingKey = {};
         Object.keys(remoteSettings).forEach(function(key) {
           var remoteSetting = remoteSettings[key];
+
+          // If donations are disabled locally, then ensure we disable them on synced profile
+          if (key === self.NO_NAG) {
+            if (remoteSetting.newValue === false) {
+              return false; // don't process this key
+            }
+          }
+
           if (localSettings[key] !== remoteSetting.newValue) {
             gsUtils.log(
               'gsStorage',
@@ -214,6 +232,15 @@ var gsStorage = {
     settings[prop] = value;
     // gsUtils.log('gsStorage', 'gsStorage', 'setting prop: ' + prop + ' to value ' + value);
     this.saveSettings(settings);
+  },
+
+  // Important to note that setOption (and ultimately saveSettings) uses localStorage whereas
+  // syncSettings saves to chrome.storage.
+  // Calling syncSettings has the unfortunate side-effect of triggering the chrome.storage.onChanged
+  // listener which the re-saves the setting to localStorage a second time.
+  setOptionAndSync: function(prop, value) {
+    this.setOption(prop, value);
+    this.syncSettings();
   },
 
   getSettings: function() {

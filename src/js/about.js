@@ -10,7 +10,7 @@
   backgroundPage.tgs.setViewGlobals(global, 'about');
 
   function toggleNag(hideNag) {
-    gsStorage.setOption(gsStorage.NO_NAG, hideNag);
+    gsStorage.setOptionAndSync(gsStorage.NO_NAG, hideNag);
     gsAnalytics.reportEvent('Donations', 'HidePopupManual', hideNag);
   }
 
