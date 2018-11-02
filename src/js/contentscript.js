@@ -18,42 +18,51 @@
     window.location.replace(suspendedUrl);
   }
 
+  function formInputListener(e) {
+    if (!isReceivingFormInput && !tempWhitelist) {
+      if (
+        event.keyCode >= 48 &&
+        event.keyCode <= 90 &&
+        event.target.tagName
+      ) {
+        if (
+          event.target.tagName.toUpperCase() === 'INPUT' ||
+          event.target.tagName.toUpperCase() === 'TEXTAREA' ||
+          event.target.tagName.toUpperCase() === 'FORM' ||
+          event.target.isContentEditable === true
+        ) {
+          isReceivingFormInput = true;
+          if (!isBackgroundConnectable()) {
+            return false;
+          }
+          chrome.runtime.sendMessage(buildReportTabStatePayload());
+        }
+      }
+    }
+  }
+
   function initFormInputListener() {
     if (isFormListenerInitialised) {
       return;
     }
-    window.addEventListener('keydown', function(event) {
-      if (!isReceivingFormInput && !tempWhitelist) {
-        if (
-          event.keyCode >= 48 &&
-          event.keyCode <= 90 &&
-          event.target.tagName
-        ) {
-          if (
-            event.target.tagName.toUpperCase() === 'INPUT' ||
-            event.target.tagName.toUpperCase() === 'TEXTAREA' ||
-            event.target.tagName.toUpperCase() === 'FORM' ||
-            event.target.isContentEditable === true
-          ) {
-            isReceivingFormInput = true;
-            chrome.runtime.sendMessage(buildReportTabStatePayload());
-          }
-        }
-      }
-    });
+    window.addEventListener('keydown', formInputListener);
     isFormListenerInitialised = true;
   }
 
   //listen for background events
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (
-      request.hasOwnProperty('action') &&
-      request.action === 'confirmTabSuspend' &&
-      request.suspendedUrl
-    ) {
-      sendResponse();
-      suspendTab(request.suspendedUrl);
-      return false;
+    if (request.hasOwnProperty('action')) {
+      if (request.action === 'confirmTabSuspend' &&
+        request.suspendedUrl
+      ) {
+        sendResponse();
+        suspendTab(request.suspendedUrl);
+        return false;
+      }
+      if (request.action === 'requestInfo') {
+        sendResponse(buildReportTabStatePayload());
+        return false;
+      }
     }
 
     if (request.hasOwnProperty('scrollPos')) {
@@ -78,6 +87,15 @@
     sendResponse(buildReportTabStatePayload());
     return false;
   });
+
+  function isBackgroundConnectable() {
+    var port = chrome.runtime.connect();
+    if (port) {
+      port.disconnect();
+      return true;
+    }
+    return false;
+  }
 
   function buildReportTabStatePayload() {
     return {

@@ -1000,8 +1000,28 @@ var tgs = (function() {
 
     gsTabDiscardManager.unqueueTabForDiscard(focusedTab);
 
+    let contentScriptStatus = null;
+    if (gsUtils.isNormalTab(focusedTab)) {
+      //ensure focused tab has a responsive content script
+      contentScriptStatus = await new Promise(resolve => {
+        gsMessages.sendRequestInfoToContentScript(
+          focusedTab.id,
+          (error, tabInfo) => {
+            if (error) {
+              gsTabCheckManager.reinjectContentScriptOnTab(focusedTab, true); // ignore promise here as we don't want to wait
+            }
+            if (!error && tabInfo) {
+              resolve(tabInfo.status);
+            } else {
+              resolve(null);
+            }
+          }
+        );
+      });
+    }
+
     //update icon
-    calculateTabStatus(focusedTab, null, function(status) {
+    calculateTabStatus(focusedTab, contentScriptStatus, function(status) {
       setIconStatus(status, focusedTab.id);
     });
 
@@ -1432,8 +1452,16 @@ var tgs = (function() {
   //NOTE: In chrome v70, the 'separator' elements do not currently display
   //TODO: Report chrome bug
   function buildContextMenu(showContextMenu) {
-    const allContexts = ['page', 'frame', 'editable', 'image', 'video', 'audio']; //'selection',
-    const separator = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+    const allContexts = [
+      'page',
+      'frame',
+      'editable',
+      'image',
+      'video',
+      'audio',
+    ]; //'selection',
+    const separator =
+      '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
 
     if (!showContextMenu) {
       chrome.contextMenus.removeAll();
@@ -1769,6 +1797,7 @@ var tgs = (function() {
     backgroundScriptsReadyAsPromised,
     initAsPromised,
     initialiseSuspendedTabProps,
+    initialiseUnsuspendedTabScriptAsPromised,
     setViewGlobals,
     getInternalViewByTabId,
     getInternalViewsByViewName,

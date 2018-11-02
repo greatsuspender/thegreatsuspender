@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsTabSuspendManager */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsMessages, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
@@ -12,6 +12,12 @@ var gsTabCheckManager = (function() {
 
   let tabCheckQueue;
 
+  // NOTE: This currently only checks suspended tabs
+  // For unsuspended tabs, there is no guarantee that the content script will
+  // be responsive, but seeing as the timer is kept by the background script, it
+  // doesn't really matter.
+  // However, when a tab gains focus, there is a check to make sure the content
+  // script is responsive, as we then need to rely on the form input and scroll behaviour.
   function initAsPromised() {
     return new Promise(resolve => {
       const queueProps = {
@@ -329,11 +335,62 @@ var gsTabCheckManager = (function() {
     }
   }
 
+  // Careful with this function. It seems that these unresponsive tabs can sometimes
+  // not return any result after chrome.tabs.executeScript
+  // Try to mitigate this by wrapping in a setTimeout
+  // TODO: Report chrome bug
+  // Unrelated, but reinjecting content scripts has some issues:
+  // https://groups.google.com/a/chromium.org/forum/#!topic/chromium-extensions/QLC4gNlYjbA
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=649947
+  // Notably (for me), the key listener of the old content script remains active
+  // if using: window.addEventListener('keydown', formInputListener);
+  function reinjectContentScriptOnTab(tab, initialise) {
+    return new Promise(resolve => {
+      gsUtils.log(
+        tab.id,
+        'Reinjecting contentscript into unresponsive unsuspended tab.'
+      );
+      const executeScriptTimeout = setTimeout(() => {
+        gsUtils.log(
+          tab.id,
+          'chrome.tabs.executeScript failed to trigger callback'
+        );
+        resolve(false);
+      }, 10000);
+      gsMessages.executeScriptOnTab(
+        tab.id,
+        'js/contentscript.js',
+        async error => {
+          clearTimeout(executeScriptTimeout);
+          if (error) {
+            gsUtils.log(
+              tab.id,
+              'Failed to execute js/contentscript.js on tab',
+              error
+            );
+            resolve(false);
+            return;
+          }
+          if (initialise) {
+            try {
+              await tgs.initialiseUnsuspendedTabScriptAsPromised(tab);
+            } catch (e) {
+              resolve(false);
+              return;
+            }
+          }
+          resolve(true);
+        }
+      );
+    });
+  }
+
   return {
     initAsPromised,
     performInitialisationTabChecks,
     queueTabCheck,
     queueTabCheckAsPromise,
     getQueuedTabCheckDetails,
+    reinjectContentScriptOnTab,
   };
 })();
