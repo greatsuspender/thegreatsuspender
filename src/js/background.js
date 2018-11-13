@@ -96,6 +96,7 @@ var tgs = (function() {
       }
 
       //add context menu items
+      //TODO: Report chrome bug where adding context menu in incognito removes it from main windows
       if (!chrome.extension.inIncognitoContext) {
         buildContextMenu(false);
         var contextMenus = gsStorage.getOption(gsStorage.ADD_CONTEXT);
