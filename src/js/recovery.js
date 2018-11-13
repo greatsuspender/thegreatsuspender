@@ -35,14 +35,18 @@
     }
   }
 
-  function removeSuspendedTabFromList(tabToRemove) {
-    var recoveryTabsEl = document.getElementById('recoveryTabs'),
-      childLinks = recoveryTabsEl.children;
+  function removeTabFromList(tabToRemove) {
+    const recoveryTabsEl = document.getElementById('recoveryTabs');
+    const childLinks = recoveryTabsEl.children;
 
     for (var i = 0; i < childLinks.length; i++) {
-      var element = childLinks[i];
+      const element = childLinks[i];
+      const url = gsUtils.isSuspendedTab(tabToRemove)
+        ? gsUtils.getOriginalUrl(tabToRemove.url)
+        : tabToRemove.url;
+
       if (
-        element.getAttribute('data-url') === tabToRemove.url ||
+        element.getAttribute('data-url') === url ||
         element.getAttribute('data-tabId') == tabToRemove.id
       ) {
         // eslint-disable-line eqeqeq
@@ -143,7 +147,7 @@
         return function(e) {
           e.preventDefault();
           chrome.tabs.create({ url: tabToRecover.url, active: false });
-          removeSuspendedTabFromList(tabToRecover);
+          removeTabFromList(tabToRecover);
         };
       };
       recoveryEl.appendChild(tabEl);
@@ -157,14 +161,14 @@
         if (error) {
           gsUtils.warning(suspendedTab.id, 'Failed to sendPingToTab', error);
         } else {
-          removeSuspendedTabFromList(suspendedTab);
+          removeTabFromList(suspendedTab);
         }
       });
     }
   });
 
   global.exports = {
-    removeSuspendedTabFromList,
+    removeTabFromList,
   };
   gsAnalytics.reportPageView('recovery.html');
 })(this);

@@ -723,7 +723,7 @@ var gsSession = (function() {
 
     // Update recovery view (if it exists)
     for (const view of tgs.getInternalViewsByViewName('recovery')) {
-      view.exports.removeSuspendedTabFromList(newTab);
+      view.exports.removeTabFromList(newTab);
     }
   }
 
