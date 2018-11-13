@@ -112,23 +112,22 @@ var historyUtils = (function(global) {
   }
 
   function exportSession(session, callback) {
-    var content = 'data:text/plain;charset=utf-8,',
-      dataString = '';
+    const dataUriPrefix = 'data:text/plain;charset=utf-8;base64,';
+    let dataUriContent = '';
 
     session.windows.forEach(function(curWindow, index) {
       curWindow.tabs.forEach(function(curTab, tabIndex) {
         if (gsUtils.isSuspendedTab(curTab)) {
-          dataString += gsUtils.getOriginalUrl(curTab.url) + '\n';
+          dataUriContent += gsUtils.getOriginalUrl(curTab.url) + '\n';
         } else {
-          dataString += curTab.url + '\n';
+          dataUriContent += curTab.url + '\n';
         }
       });
       //add an extra newline to separate windows
-      dataString += '\n';
+      dataUriContent += '\n';
     });
-    content += dataString;
 
-    var encodedUri = encodeURI(content);
+    var encodedUri = dataUriPrefix + btoa(dataUriContent);
     var link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', 'session.txt');
