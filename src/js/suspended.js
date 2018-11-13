@@ -110,7 +110,7 @@
       const urlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
       if (urlEncoded) {
         const url = decodeURIComponent(urlEncoded);
-        const faviconUrl = 'chrome://favicon/size/16@2x/' + url;
+        const favIconUrl = 'chrome://favicon/size/16@2x/' + url;
 
         if (!initProps.url) {
           initProps.url = url;
@@ -121,8 +121,8 @@
         if (!initProps.faviconMeta) {
           initProps.faviconMeta = {
             isDark: false,
-            normalisedDataUrl: faviconUrl,
-            transparentDataUrl: faviconUrl,
+            normalisedDataUrl: favIconUrl,
+            transparentDataUrl: favIconUrl,
           };
         }
       }

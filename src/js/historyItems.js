@@ -187,8 +187,9 @@ var historyItems = (function(global) {
       '\u2716'
     );
 
+    const favIconUrl = gsUtils.generateFavIconUrlFromUrl(tab.url);
     listImg = createEl('img', {
-      src: tab.favIconUrl,
+      src: favIconUrl,
       height: '16px',
       width: '16px',
     });

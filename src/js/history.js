@@ -98,9 +98,10 @@
         curWindow.tabs.forEach(function(curTab) {
           curTab.windowId = curWindow.id;
           curTab.sessionId = curSession.sessionId;
-          curTab.favIconUrl = gsUtils.getCleanTabFavIconUrl(curTab);
           curTab.title = gsUtils.getCleanTabTitle(curTab);
-
+          if (gsUtils.isSuspendedTab(curTab)) {
+            curTab.url = gsUtils.getOriginalUrl(curTab.url);
+          }
           sessionContentsEl.appendChild(
             createTabElement(curSession, curWindow, curTab)
           );

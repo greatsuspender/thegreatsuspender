@@ -57,7 +57,7 @@ var gsTabCheckManager = (function() {
       }
 
       // Bypass tabCheck queue for tabs that quickly pass title and favicon checks
-      const tabBasicsOk = ensureTabTitleAndFaviconSet(tab);
+      const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
       if (tabBasicsOk) {
         const backgroundTabPropsOk = ensureBackgroundSuspendedTabPropsSet(tab);
         if (!backgroundTabPropsOk) {
@@ -228,7 +228,7 @@ var gsTabCheckManager = (function() {
       tgs.initialiseSuspendedTabProps(tab);
     }
 
-    const tabBasicsOk = ensureTabTitleAndFaviconSet(tab);
+    const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
     const tabPropsOk = ensureViewSuspendedTabPropsSet(tab);
     if (!tabBasicsOk || !tabPropsOk) {
       const success = await forceReinitOfSuspendedTab(tab);
@@ -303,7 +303,7 @@ var gsTabCheckManager = (function() {
     return true;
   }
 
-  function ensureTabTitleAndFaviconSet(tab) {
+  function ensureSuspendedTabTitleAndFaviconSet(tab) {
     if (!tab.favIconUrl || tab.favIconUrl.indexOf('data:image') !== 0) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab favicon not set or not dataUrl.', tab);
       return false;
@@ -317,7 +317,6 @@ var gsTabCheckManager = (function() {
 
   async function forceReinitOfSuspendedTab(tab) {
     gsUtils.log(tab.id, 'Forcing reinit of suspendedTab: ', tab);
-    tab.favIconUrl = gsUtils.getCleanTabFavIconUrl(tab);
     const preLoadInitProps = gsTabSuspendManager.buildPreLoadInitProps(tab.url);
     gsUtils.log(tab.id, 'preLoadInitProps: ', preLoadInitProps);
     const postLoadInitProps = await gsTabSuspendManager.buildPostLoadInitProps(

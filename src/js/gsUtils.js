@@ -493,25 +493,8 @@ var gsUtils = {
       decodeURIComponent(this.getHashVariable('url', urlStr) || '')
     );
   },
-  generateFaviconFromUrl(url) {
-    const rootUrl = gsUtils.getRootUrl(url, false, true);
-    return 'chrome://favicon/size/16@2x/' + rootUrl;
-  },
-  getCleanTabFavIconUrl(tab) {
-    let cleanedFavIconUrl;
-    if (tab.favIconUrl && tab.favIconUrl.indexOf('chrome://theme') < 0) {
-      cleanedFavIconUrl = tab.favIconUrl;
-    }
-    if (
-      !cleanedFavIconUrl ||
-      cleanedFavIconUrl === chrome.extension.getURL('img/ic_suspendy_16x16.png') // should use the same as the default extension favicon
-    ) {
-      const url = gsUtils.isSuspendedTab(tab)
-        ? gsUtils.getOriginalUrl(tab.url)
-        : tab.url;
-      cleanedFavIconUrl = gsUtils.generateFaviconFromUrl(url);
-    }
-    return cleanedFavIconUrl;
+  generateFavIconUrlFromUrl(url) {
+    return 'chrome://favicon/size/16@2x/' + url;
   },
   getCleanTabTitle(tab) {
     let cleanedTitle = decodeURIComponent(tab.title);

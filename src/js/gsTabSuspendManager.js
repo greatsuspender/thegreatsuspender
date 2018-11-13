@@ -5,9 +5,12 @@ var gsTabSuspendManager = (function() {
 
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
-  const DEFAULT_FAVICON = chrome.extension.getURL('img/default.png');
+  const DEFAULT_NORMALISED_DATA_URI =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAlUlEQVRYR+2XQQ7AIAgE8Zt8pvUzfLMNSXurhW3WmCZ4RWUcxWiTxa0tzi9DAFU9QLhuZjs4hgrguWGI0ICZvW7TgykIggnQRWS7tiANQQNwU6rqZwCCoAL46lEIOgAKMQUAgaABRPU/qqb/A0Qrv++JaQYKoAyUgTJQBspAGZhuIEqQjX9+D2QTRP1ggGhCVnz57/gEwPfpITHekWIAAAAASUVORK5CYII=';
+  const DEFAULT_TRANSPARENT_DATA_URI =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnklEQVRYR+2XwQnAIAxFq4u1c4i7lO4iztEuJiWHXgo2fvkihXiNJi8PIuqWyctNrr9UAUIIOwLnvb9SSidyRvbSACRZD4QKkHM+vrp6m0IhaABSuJSyoiZoAGIqxrihEFQA6R6FoAOgEEMAEAgagDb/tWn6P4DW+XNPDDNgAGbADJgBM2AGzMBwA1qB1nj3e6C1gLYPBtASsuLTf8c3Muj4IV+SLm8AAAAASUVORK5CYII=';
 
-  const cachedFaviconMetaDataByFaviconUrl = {};
+  const cachedFaviconMetaDataByUrl = {};
   let suspensionQueue;
 
   function initAsPromised() {
@@ -332,17 +335,11 @@ var gsTabSuspendManager = (function() {
   }
 
   async function saveSuspendData(tab) {
-    let favIconUrl;
-    if (tab.incognito) {
-      favIconUrl = tab.favIconUrl;
-    } else {
-      favIconUrl = gsUtils.generateFaviconFromUrl(tab.url);
-    }
     const tabProperties = {
       date: new Date(),
       title: tab.title,
       url: tab.url,
-      favIconUrl: favIconUrl,
+      favIconUrl: tab.favIconUrl,
       pinned: tab.pinned,
       index: tab.index,
       windowId: tab.windowId,
@@ -477,22 +474,61 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  function getCachedFaviconMetaData(faviconUrl) {
-    const faviconMetaData = cachedFaviconMetaDataByFaviconUrl[faviconUrl];
+  async function getFaviconMetaData(tab) {
+    // First try to fetch from cache
+    const originalUrl = gsUtils.getOriginalUrl(tab.url);
+    let faviconMeta = getCachedFaviconMetaData(originalUrl);
+    if (faviconMeta) {
+      gsUtils.log(
+        'cachedFaviconMetaData. Found cache hit for url: ' + originalUrl
+      );
+      return faviconMeta;
+    }
+
+    // Else try to build from chromes favicon cache
+    gsUtils.log(
+      'cachedFaviconMetaData. No entry in cache for url: ' + originalUrl
+    );
+    const chromeFavIconUrl = gsUtils.generateFavIconUrlFromUrl(originalUrl);
+    faviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
+    if (faviconMeta) {
+      // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
+      setCachedFaviconMetaData(originalUrl, faviconMeta);
+      return faviconMeta;
+    }
+
+    // Else try to build from tab.favIconUrl
+    if (tab.favIconUrl) {
+      const tabFavIconUrl = gsUtils.generateFavIconUrlFromUrl(tab.favIconUrl);
+      faviconMeta = await buildFaviconMetaData(tabFavIconUrl);
+      if (faviconMeta) {
+        // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
+        // setCachedFaviconMetaData(originalUrl, faviconMeta);
+        return faviconMeta;
+      }
+    }
+
+    // Else return the default favicon
+    return {
+      isDark: true,
+      normalisedDataUrl: DEFAULT_NORMALISED_DATA_URI,
+      transparentDataUrl: DEFAULT_TRANSPARENT_DATA_URI,
+    };
+  }
+
+  function getCachedFaviconMetaData(url) {
+    const rootUrl = gsUtils.getRootUrl(url, false, true);
+    let faviconMetaData = cachedFaviconMetaDataByUrl[rootUrl];
     return faviconMetaData || null;
   }
 
-  function getFaviconMetaData(faviconUrl) {
-    return new Promise(resolve => {
-      const cachedFaviconMetaData =
-        cachedFaviconMetaDataByFaviconUrl[faviconUrl];
-      if (cachedFaviconMetaData) {
-        // gsUtils.log('cachedFaviconMetaData. Found cache hit: ' + faviconUrl);
-        resolve(cachedFaviconMetaData);
-        return;
-      }
-      // gsUtils.log('cachedFaviconMetaData. No entry in cache for: ' + faviconUrl);
+  function setCachedFaviconMetaData(url, faviconMeta) {
+    const rootUrl = gsUtils.getRootUrl(url, false, true);
+    cachedFaviconMetaDataByUrl[rootUrl] = faviconMeta;
+  }
 
+  function buildFaviconMetaData(url) {
+    return new Promise(resolve => {
       const img = new Image();
 
       img.onload = function() {
@@ -510,6 +546,7 @@ var gsTabSuspendManager = (function() {
           canvas.width,
           canvas.height
         );
+
         const origDataArray = imageData.data;
         const normalisedDataArray = new Uint8ClampedArray(origDataArray);
         const transparentDataArray = new Uint8ClampedArray(origDataArray);
@@ -536,7 +573,7 @@ var gsTabSuspendManager = (function() {
 
         //saftey check to make sure image is not completely transparent
         if (maxAlpha === 0) {
-          getFaviconMetaData(DEFAULT_FAVICON).then(resolve);
+          resolve(null);
           return;
         }
 
@@ -557,6 +594,12 @@ var gsTabSuspendManager = (function() {
         context.putImageData(imageData, 0, 0);
         const normalisedDataUrl = canvas.toDataURL('image/png');
 
+        //saftey check to make sure image is not the default
+        if (normalisedDataUrl === DEFAULT_NORMALISED_DATA_URI) {
+          resolve(null);
+          return;
+        }
+
         imageData.data.set(transparentDataArray);
         context.putImageData(imageData, 0, 0);
         const transparentDataUrl = canvas.toDataURL('image/png');
@@ -566,18 +609,15 @@ var gsTabSuspendManager = (function() {
           normalisedDataUrl,
           transparentDataUrl,
         };
-        // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
-        cachedFaviconMetaDataByFaviconUrl[faviconUrl] = faviconMetaData;
         resolve(faviconMetaData);
       };
-      img.src = faviconUrl || DEFAULT_FAVICON;
+      img.src = url;
     });
   }
 
   function buildPreLoadInitProps(suspendedUrl) {
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
     const whitelisted = gsUtils.checkWhiteList(originalUrl);
-    const faviconUrl = gsUtils.generateFaviconFromUrl(originalUrl);
     const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
     let title = gsUtils.getSuspendedTitle(suspendedUrl);
     if (title.indexOf('<') >= 0) {
@@ -585,12 +625,13 @@ var gsTabSuspendManager = (function() {
       title = gsUtils.htmlEncode(title);
     }
 
-    let faviconMeta = getCachedFaviconMetaData(faviconUrl);
+    let faviconMeta = getCachedFaviconMetaData(originalUrl);
     if (!faviconMeta) {
+      const fallbackFavIconUrl = gsUtils.generateFavIconUrlFromUrl(originalUrl);
       faviconMeta = {
         isDark: false,
-        normalisedDataUrl: faviconUrl,
-        transparentDataUrl: faviconUrl,
+        normalisedDataUrl: fallbackFavIconUrl,
+        transparentDataUrl: fallbackFavIconUrl,
       };
     }
 
@@ -610,9 +651,12 @@ var gsTabSuspendManager = (function() {
   }
 
   async function buildPostLoadInitProps(tab) {
-    const originalUrl = gsUtils.getOriginalUrl(tab.url);
-    const tabProperties = await gsIndexedDb.fetchTabInfo(originalUrl);
+    // NOTE: FaviconMeta may have already been defined in the suspended tab
+    // at this point, either from a cache hit in buildPreLoadInitProps or
+    // from the href fallback code in suspended.js
+    const faviconMeta = await getFaviconMetaData(tab);
 
+    const originalUrl = gsUtils.getOriginalUrl(tab.url);
     const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
     let previewUri = null;
     if (
@@ -635,18 +679,11 @@ var gsTabSuspendManager = (function() {
     const initProps = {
       tabId: tab.id,
       tabActive: tab.active,
+      faviconMeta: faviconMeta,
       showNag: showNag,
       previewUri: previewUri,
       command: suspensionToggleHotkey,
     };
-    if (tabProperties && tabProperties.favIconUrl) {
-      initProps.favIconUrl = tabProperties.favIconUrl;
-      const faviconMeta = await getFaviconMetaData(tabProperties.favIconUrl);
-      initProps.faviconMeta = faviconMeta;
-    }
-    if (tabProperties && tabProperties.title) {
-      initProps.title = tabProperties.title;
-    }
     if (suspendReason === 3) {
       initProps.reason = chrome.i18n.getMessage('js_suspended_low_memory');
     }
@@ -664,7 +701,6 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
-    getFaviconMetaData,
     buildPreLoadInitProps,
     buildPostLoadInitProps,
   };

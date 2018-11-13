@@ -126,6 +126,8 @@ var gsIndexedDb = {
     }
   },
 
+  // This information is no longer used for suspended tabs as everything we
+  // need for a suspended tab can be found in the suspended url
   fetchTabInfo: async function(tabUrl) {
     let results;
     try {
@@ -143,7 +145,9 @@ var gsIndexedDb = {
       const tabInfo = results[0];
       //Temporary code
       if (tabInfo.favicon) {
-        tabInfo.favIconUrl = tabInfo.favicon;
+        if (!tabInfo.favIconUrl) {
+          tabInfo.favIconUrl = tabInfo.favicon;
+        }
         delete tabInfo.favicon;
       }
       return tabInfo;

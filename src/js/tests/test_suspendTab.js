@@ -22,7 +22,7 @@ testSuites.push(
         const isTabPropertiesValid =
           tabProperties.url === tab.url &&
           tabProperties.title === tab.title &&
-          tabProperties.favIconUrl === gsUtils.generateFaviconFromUrl(tab.url);
+          tabProperties.favIconUrl === tab.favIconUrl;
 
         await gsIndexedDb.addPreviewImage(tab.url, previewUrl);
         const preview = await gsIndexedDb.fetchPreviewImage(tab.url);
