@@ -385,11 +385,16 @@ var gsSession = (function() {
     // Match against all tabIds from last session here, not just non-extension tabs
     // as there is a chance during tabInitialisation of a suspended tab getting reloaded
     // directly and hence keeping its tabId (ie: file:// tabs)
+    function matchingTabExists(tab) {
+      if (tab.url.indexOf('chrome://newtab') === 0 && tab.index === 0)
+        return false;
+      return lastSessionTabs.some(o => o.id === tab.id && o.url === tab.url);
+    }
     const matchingTabIdsCount = currentSessionNonExtensionTabs.reduce(
-      (a, o) => (lastSessionTabs.some(p => p.id === o.id) ? a + 1 : a),
+      (a, o) => (matchingTabExists(o) ? a + 1 : a),
       0
     );
-    const maxTabCount = Math.max(
+    const maxMatchableTabsCount = Math.max(
       lastSessionNonExtensionTabs.length,
       currentSessionNonExtensionTabs.length
     );
@@ -397,10 +402,13 @@ var gsSession = (function() {
       'gsSession',
       matchingTabIdsCount +
         ' / ' +
-        maxTabCount +
+        maxMatchableTabsCount +
         ' tabs have the same id between the last session and the current session.'
     );
-    if (maxTabCount - matchingTabIdsCount > 1) {
+    if (
+      matchingTabIdsCount === 0 ||
+      maxMatchableTabsCount - matchingTabIdsCount > 1
+    ) {
       gsUtils.log('gsSession', 'Aborting tab recovery. Tab IDs do not match.');
       return false;
     }
