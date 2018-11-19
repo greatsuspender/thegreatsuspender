@@ -3,9 +3,10 @@
 
 var gsIndexedDb = {
   DB_SERVER: 'tgs',
-  DB_VERSION: '2',
+  DB_VERSION: '3',
   DB_PREVIEWS: 'gsPreviews',
   DB_SUSPENDED_TABINFO: 'gsSuspendedTabInfo',
+  DB_FAVICON_META: 'gsFaviconMeta',
   DB_CURRENT_SESSIONS: 'gsCurrentSessions',
   DB_SAVED_SESSIONS: 'gsSavedSessions',
   DB_SESSION_PRE_UPGRADE_KEY: 'preUpgradeVersion',
@@ -37,6 +38,16 @@ var gsIndexedDb = {
         },
       },
       [gsIndexedDb.DB_SUSPENDED_TABINFO]: {
+        key: {
+          keyPath: 'id',
+          autoIncrement: true,
+        },
+        indexes: {
+          id: {},
+          url: {},
+        },
+      },
+      [gsIndexedDb.DB_FAVICON_META]: {
         key: {
           keyPath: 'id',
           autoIncrement: true,
@@ -151,6 +162,49 @@ var gsIndexedDb = {
         delete tabInfo.favicon;
       }
       return tabInfo;
+    }
+    return null;
+  },
+
+  addFaviconMeta: async function(url, faviconMeta) {
+    try {
+      if (!url) {
+        gsUtils.error('gsIndexedDb', 'url not set.');
+        return;
+      }
+      const faviconMetaWithUrl = Object.assign(faviconMeta, {url})
+      const gsDb = await this.getDb();
+      const results = await gsDb
+        .query(this.DB_FAVICON_META)
+        .filter('url', url)
+        .execute();
+      if (results.length > 0) {
+        for (const result of results) {
+          await gsDb.remove(this.DB_FAVICON_META, result.id);
+        }
+      }
+      await gsDb.add(this.DB_FAVICON_META, faviconMetaWithUrl);
+    } catch (e) {
+      gsUtils.error('gsIndexedDb', e);
+    }
+  },
+
+  fetchFaviconMeta: async function(url) {
+    let results;
+    try {
+      const gsDb = await this.getDb();
+      results = await gsDb
+        .query(this.DB_FAVICON_META, 'url')
+        .only(url)
+        .distinct()
+        .desc()
+        .execute();
+    } catch (e) {
+      gsUtils.error('gsIndexedDb', e);
+    }
+    if (results && results.length > 0) {
+      const faviconMeta = results[0];
+      return faviconMeta;
     }
     return null;
   },
@@ -409,6 +463,19 @@ var gsIndexedDb = {
         const itemsToRemove = suspendedTabInfos.length - maxTabItems;
         for (let i = 0; i < itemsToRemove; i++) {
           await gsDb.remove(this.DB_SUSPENDED_TABINFO, suspendedTabInfos[i]);
+        }
+      }
+
+      //trim suspendedTabInfo. if there are more than maxTabItems items, then remove the oldest ones
+      const faviconMetas = await gsDb
+        .query(this.DB_FAVICON_META, 'id')
+        .all()
+        .keys()
+        .execute();
+      if (faviconMetas.length > maxTabItems) {
+        const itemsToRemove = faviconMetas.length - maxTabItems;
+        for (let i = 0; i < itemsToRemove; i++) {
+          await gsDb.remove(this.DB_FAVICON_META, faviconMetas[i]);
         }
       }
 

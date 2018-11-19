@@ -1,4 +1,4 @@
-/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, chrome, XMLHttpRequest */
+/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -1847,6 +1847,7 @@ tgs
   .backgroundScriptsReadyAsPromised()
   .then(() => gsAnalytics.initAsPromised())
   .then(() => gsStorage.initSettingsAsPromised())
+  .then(() => gsFavicon.initAsPromised())
   .then(() => gsTabSuspendManager.initAsPromised())
   .then(() => gsTabCheckManager.initAsPromised())
   .then(() => gsTabDiscardManager.initAsPromised())

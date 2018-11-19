@@ -143,10 +143,17 @@ var gsUtils = {
     return false;
   },
 
+  isFileTab: function(tab) {
+    if (tab.url.indexOf('file') === 0) {
+      return true;
+    }
+    return false;
+  },
+
   //tests if the page is a file:// page AND the user has not enabled access to
   //file URLs in extension settings
   isBlockedFileTab: function(tab) {
-    if (tab.url.indexOf('file') === 0 && !gsSession.isFileUrlsAccessAllowed()) {
+    if (gsUtils.isFileTab(tab) && !gsSession.isFileUrlsAccessAllowed()) {
       return true;
     }
     return false;
@@ -492,9 +499,6 @@ var gsUtils = {
       this.getHashVariable('uri', urlStr) ||
       decodeURIComponent(this.getHashVariable('url', urlStr) || '')
     );
-  },
-  generateFavIconUrlFromUrl(url) {
-    return 'chrome://favicon/size/16@2x/' + url;
   },
   getCleanTabTitle(tab) {
     let cleanedTitle = decodeURIComponent(tab.title);

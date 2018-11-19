@@ -55,7 +55,7 @@
           sessionEl = element.parentElement.parentElement;
           newSessionEl = createSessionElement(session);
           sessionEl.parentElement.replaceChild(newSessionEl, sessionEl);
-          toggleSession(newSessionEl, session.sessionId);
+          toggleSession(newSessionEl, session.sessionId); //async. unhandled promise
 
           //otherwise assume it was the last tab in session and session has been removed
         } else {
@@ -64,7 +64,7 @@
       });
   }
 
-  function toggleSession(element, sessionId) {
+  async function toggleSession(element, sessionId) {
     var sessionContentsEl = element.getElementsByClassName(
       'sessionContents'
     )[0];
@@ -83,31 +83,36 @@
       return;
     }
 
-    gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(curSession) {
-      if (!curSession || !curSession.windows) {
-        return;
-      }
-      gsUtils.removeInternalUrlsFromSession(curSession);
+    gsIndexedDb
+      .fetchSessionBySessionId(sessionId)
+      .then(async function(curSession) {
+        if (!curSession || !curSession.windows) {
+          return;
+        }
+        gsUtils.removeInternalUrlsFromSession(curSession);
 
-      curSession.windows.forEach(function(curWindow, index) {
-        curWindow.sessionId = curSession.sessionId;
-        sessionContentsEl.appendChild(
-          createWindowElement(curSession, curWindow, index)
-        );
-
-        curWindow.tabs.forEach(function(curTab) {
-          curTab.windowId = curWindow.id;
-          curTab.sessionId = curSession.sessionId;
-          curTab.title = gsUtils.getCleanTabTitle(curTab);
-          if (gsUtils.isSuspendedTab(curTab)) {
-            curTab.url = gsUtils.getOriginalUrl(curTab.url);
-          }
+        for (const [i, curWindow] of curSession.windows.entries()) {
+          curWindow.sessionId = curSession.sessionId;
           sessionContentsEl.appendChild(
-            createTabElement(curSession, curWindow, curTab)
+            createWindowElement(curSession, curWindow, i)
           );
-        });
+
+          const tabPromises = [];
+          for (const curTab of curWindow.tabs) {
+            curTab.windowId = curWindow.id;
+            curTab.sessionId = curSession.sessionId;
+            curTab.title = gsUtils.getCleanTabTitle(curTab);
+            if (gsUtils.isSuspendedTab(curTab)) {
+              curTab.url = gsUtils.getOriginalUrl(curTab.url);
+            }
+            tabPromises.push(createTabElement(curSession, curWindow, curTab));
+          }
+          const tabEls = await Promise.all(tabPromises);
+          for (const tabEl of tabEls) {
+            sessionContentsEl.appendChild(tabEl);
+          }
+        }
       });
-    });
   }
 
   function addClickListenerToElement(element, func) {
@@ -122,13 +127,13 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('sessionIcon')[0],
       function() {
-        toggleSession(sessionEl, session.sessionId);
+        toggleSession(sessionEl, session.sessionId); //async. unhandled promise
       }
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('sessionLink')[0],
       function() {
-        toggleSession(sessionEl, session.sessionId);
+        toggleSession(sessionEl, session.sessionId); //async. unhandled promise
       }
     );
     addClickListenerToElement(
@@ -183,9 +188,9 @@
     return windowEl;
   }
 
-  function createTabElement(session, window, tab) {
+  async function createTabElement(session, window, tab) {
     var allowDelete = session.sessionId !== gsSession.getSessionId();
-    var tabEl = historyItems.createTabHtml(tab, allowDelete);
+    var tabEl = await historyItems.createTabHtml(tab, allowDelete);
 
     addClickListenerToElement(
       tabEl.getElementsByClassName('removeLink')[0],

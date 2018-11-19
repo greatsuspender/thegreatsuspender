@@ -1,8 +1,9 @@
-/*global chrome, gsSession, gsUtils */
+/*global chrome, gsSession, gsUtils, gsFavicon */
 // eslint-disable-next-line no-unused-vars
 var historyItems = (function(global) {
   'use strict';
 
+  if (!chrome.extension.getBackgroundPage().tgs) return;
   chrome.extension
     .getBackgroundPage()
     .tgs.setViewGlobals(global, 'historyItem');
@@ -163,7 +164,7 @@ var historyItems = (function(global) {
     return groupHeading;
   }
 
-  function createTabHtml(tab, showLinks) {
+  async function createTabHtml(tab, showLinks) {
     var linksSpan, listImg, listLink, listHover;
 
     if (tab.sessionId) {
@@ -187,7 +188,8 @@ var historyItems = (function(global) {
       '\u2716'
     );
 
-    const favIconUrl = gsUtils.generateFavIconUrlFromUrl(tab.url);
+    const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
+    const favIconUrl = faviconMeta.normalisedDataUrl;
     listImg = createEl('img', {
       src: favIconUrl,
       height: '16px',

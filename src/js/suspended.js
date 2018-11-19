@@ -81,8 +81,14 @@
   function fetchTabMeta() {
     return new Promise(resolve => {
       try {
-        chrome.runtime.sendMessage({ action: 'requestTabMeta' }, resolve);
+        chrome.runtime.sendMessage({ action: 'requestTabMeta' }, tab => {
+          if (chrome.runtime.lastError) {
+            // console.error(chrome.runtime.lastError);
+          }
+          resolve(tab);
+        });
       } catch (e) {
+        // console.error(e);
         resolve();
       }
     });

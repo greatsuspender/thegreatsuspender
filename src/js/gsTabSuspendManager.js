@@ -1,20 +1,15 @@
-/*global html2canvas, domtoimage, tgs, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
-  const DEFAULT_NORMALISED_DATA_URI =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAlUlEQVRYR+2XQQ7AIAgE8Zt8pvUzfLMNSXurhW3WmCZ4RWUcxWiTxa0tzi9DAFU9QLhuZjs4hgrguWGI0ICZvW7TgykIggnQRWS7tiANQQNwU6rqZwCCoAL46lEIOgAKMQUAgaABRPU/qqb/A0Qrv++JaQYKoAyUgTJQBspAGZhuIEqQjX9+D2QTRP1ggGhCVnz57/gEwPfpITHekWIAAAAASUVORK5CYII=';
-  const DEFAULT_TRANSPARENT_DATA_URI =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnklEQVRYR+2XwQnAIAxFq4u1c4i7lO4iztEuJiWHXgo2fvkihXiNJi8PIuqWyctNrr9UAUIIOwLnvb9SSidyRvbSACRZD4QKkHM+vrp6m0IhaABSuJSyoiZoAGIqxrihEFQA6R6FoAOgEEMAEAgagDb/tWn6P4DW+XNPDDNgAGbADJgBM2AGzMBwA1qB1nj3e6C1gLYPBtASsuLTf8c3Muj4IV+SLm8AAAAASUVORK5CYII=';
 
-  const cachedFaviconMetaDataByUrl = {};
-  let suspensionQueue;
+  let _suspensionQueue;
 
   function initAsPromised() {
-    return new Promise(function(resolve) {
+    return new Promise(async function(resolve) {
       const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
       const forceScreenCapture = gsStorage.getOption(
         gsStorage.SCREEN_CAPTURE_FORCE
@@ -31,7 +26,7 @@ var gsTabSuspendManager = (function() {
         executorFn: performSuspension,
         exceptionFn: handleSuspensionException,
       };
-      suspensionQueue = GsTabQueue('suspensionQueue', queueProps);
+      _suspensionQueue = GsTabQueue('suspensionQueue', queueProps);
       resolve();
     });
   }
@@ -51,11 +46,11 @@ var gsTabSuspendManager = (function() {
     }
 
     gsUtils.log(tab.id, 'Queueing tab for suspension.');
-    return suspensionQueue.queueTabAsPromise(tab, { forceLevel });
+    return _suspensionQueue.queueTabAsPromise(tab, { forceLevel });
   }
 
   function unqueueTabForSuspension(tab) {
-    const removed = suspensionQueue.unqueueTab(tab);
+    const removed = _suspensionQueue.unqueueTab(tab);
     if (removed) {
       gsUtils.log(tab.id, `Removed tab from suspension queue.`);
     }
@@ -142,7 +137,7 @@ var gsTabSuspendManager = (function() {
   }
 
   async function resumeQueuedTabSuspension(tab) {
-    const queuedTabDetails = suspensionQueue.getQueuedTabDetails(tab);
+    const queuedTabDetails = _suspensionQueue.getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(
         tab.id,
@@ -166,11 +161,11 @@ var gsTabSuspendManager = (function() {
     reject,
     requeue
   ) {
-    if (exceptionType === suspensionQueue.EXCEPTION_TIMEOUT) {
+    if (exceptionType === _suspensionQueue.EXCEPTION_TIMEOUT) {
       gsUtils.log(
         tab.id,
         `Tab took more than ${
-          suspensionQueue.getQueueProperties().jobTimeout
+          _suspensionQueue.getQueueProperties().jobTimeout
         }ms to suspend. Will abort screen capture.`
       );
       const success = await executeTabSuspension(
@@ -197,7 +192,7 @@ var gsTabSuspendManager = (function() {
       }
 
       if (!suspendedUrl) {
-        gsUtils.log('executionProps.suspendedUrl not set!');
+        gsUtils.log(tab.id, 'executionProps.suspendedUrl not set!');
         suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       }
 
@@ -345,6 +340,11 @@ var gsTabSuspendManager = (function() {
       windowId: tab.windowId,
     };
     await gsIndexedDb.addSuspendedTabInfo(tabProperties);
+
+    const faviconMeta = await gsFavicon.buildFaviconMetaFromChromeFaviconCache(tab.url);
+    if (faviconMeta) {
+      gsFavicon.saveFaviconMetaDataToCache(tab.url, faviconMeta);
+    }
   }
 
   function requestGeneratePreviewImg(tab) {
@@ -474,147 +474,6 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  async function getFaviconMetaData(tab) {
-    // First try to fetch from cache
-    const originalUrl = gsUtils.getOriginalUrl(tab.url);
-    let faviconMeta = getCachedFaviconMetaData(originalUrl);
-    if (faviconMeta) {
-      gsUtils.log(
-        'cachedFaviconMetaData. Found cache hit for url: ' + originalUrl
-      );
-      return faviconMeta;
-    }
-
-    // Else try to build from chromes favicon cache
-    gsUtils.log(
-      'cachedFaviconMetaData. No entry in cache for url: ' + originalUrl
-    );
-    const chromeFavIconUrl = gsUtils.generateFavIconUrlFromUrl(originalUrl);
-    faviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
-    if (faviconMeta) {
-      // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
-      setCachedFaviconMetaData(originalUrl, faviconMeta);
-      return faviconMeta;
-    }
-
-    // Else try to build from tab.favIconUrl
-    if (tab.favIconUrl) {
-      const tabFavIconUrl = gsUtils.generateFavIconUrlFromUrl(tab.favIconUrl);
-      faviconMeta = await buildFaviconMetaData(tabFavIconUrl);
-      if (faviconMeta) {
-        // gsUtils.log('cachedFaviconMetaData. Saving cache entry for: ' + faviconUrl);
-        // setCachedFaviconMetaData(originalUrl, faviconMeta);
-        return faviconMeta;
-      }
-    }
-
-    // Else return the default favicon
-    return {
-      isDark: true,
-      normalisedDataUrl: DEFAULT_NORMALISED_DATA_URI,
-      transparentDataUrl: DEFAULT_TRANSPARENT_DATA_URI,
-    };
-  }
-
-  function getCachedFaviconMetaData(url) {
-    const rootUrl = gsUtils.getRootUrl(url, false, true);
-    let faviconMetaData = cachedFaviconMetaDataByUrl[rootUrl];
-    return faviconMetaData || null;
-  }
-
-  function setCachedFaviconMetaData(url, faviconMeta) {
-    const rootUrl = gsUtils.getRootUrl(url, false, true);
-    cachedFaviconMetaDataByUrl[rootUrl] = faviconMeta;
-  }
-
-  function buildFaviconMetaData(url) {
-    return new Promise(resolve => {
-      const img = new Image();
-
-      img.onload = function() {
-        let canvas;
-        let context;
-        canvas = window.document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        context = canvas.getContext('2d');
-        context.drawImage(img, 0, 0);
-
-        const imageData = context.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
-
-        const origDataArray = imageData.data;
-        const normalisedDataArray = new Uint8ClampedArray(origDataArray);
-        const transparentDataArray = new Uint8ClampedArray(origDataArray);
-
-        let r, g, b, a;
-        let fuzzy = 0.1;
-        let light = 0;
-        let dark = 0;
-        let maxAlpha = 0;
-        let maxRgb = 0;
-
-        for (let x = 0; x < origDataArray.length; x += 4) {
-          r = origDataArray[x];
-          g = origDataArray[x + 1];
-          b = origDataArray[x + 2];
-          a = origDataArray[x + 3];
-
-          let localMaxRgb = Math.max(Math.max(r, g), b);
-          if (localMaxRgb < 128 || a < 128) dark++;
-          else light++;
-          maxAlpha = Math.max(a, maxAlpha);
-          maxRgb = Math.max(localMaxRgb, maxRgb);
-        }
-
-        //saftey check to make sure image is not completely transparent
-        if (maxAlpha === 0) {
-          resolve(null);
-          return;
-        }
-
-        const darkLightDiff = (light - dark) / (canvas.width * canvas.height);
-        const isDark = darkLightDiff + fuzzy < 0;
-        const normaliserMultiple = 1 / (maxAlpha / 255);
-
-        for (let x = 0; x < origDataArray.length; x += 4) {
-          a = origDataArray[x + 3];
-          normalisedDataArray[x + 3] = parseInt(a * normaliserMultiple, 10);
-        }
-        for (let x = 0; x < normalisedDataArray.length; x += 4) {
-          a = normalisedDataArray[x + 3];
-          transparentDataArray[x + 3] = parseInt(a * 0.5, 10);
-        }
-
-        imageData.data.set(normalisedDataArray);
-        context.putImageData(imageData, 0, 0);
-        const normalisedDataUrl = canvas.toDataURL('image/png');
-
-        //saftey check to make sure image is not the default
-        if (normalisedDataUrl === DEFAULT_NORMALISED_DATA_URI) {
-          resolve(null);
-          return;
-        }
-
-        imageData.data.set(transparentDataArray);
-        context.putImageData(imageData, 0, 0);
-        const transparentDataUrl = canvas.toDataURL('image/png');
-
-        const faviconMetaData = {
-          isDark,
-          normalisedDataUrl,
-          transparentDataUrl,
-        };
-        resolve(faviconMetaData);
-      };
-      img.src = url;
-    });
-  }
-
   function buildPreLoadInitProps(suspendedUrl) {
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
     const whitelisted = gsUtils.checkWhiteList(originalUrl);
@@ -625,15 +484,14 @@ var gsTabSuspendManager = (function() {
       title = gsUtils.htmlEncode(title);
     }
 
-    let faviconMeta = getCachedFaviconMetaData(originalUrl);
-    if (!faviconMeta) {
-      const fallbackFavIconUrl = gsUtils.generateFavIconUrlFromUrl(originalUrl);
-      faviconMeta = {
-        isDark: false,
-        normalisedDataUrl: fallbackFavIconUrl,
-        transparentDataUrl: fallbackFavIconUrl,
-      };
-    }
+    const fallbackFavIconUrl = gsFavicon.generateChromeFavIconUrlFromUrl(
+      originalUrl
+    );
+    const faviconMeta = {
+      isDark: false,
+      normalisedDataUrl: fallbackFavIconUrl,
+      transparentDataUrl: fallbackFavIconUrl,
+    };
 
     const options = gsStorage.getSettings();
     const initProps = {
@@ -654,7 +512,7 @@ var gsTabSuspendManager = (function() {
     // NOTE: FaviconMeta may have already been defined in the suspended tab
     // at this point, either from a cache hit in buildPreLoadInitProps or
     // from the href fallback code in suspended.js
-    const faviconMeta = await getFaviconMetaData(tab);
+    const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
 
     const originalUrl = gsUtils.getOriginalUrl(tab.url);
     const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);

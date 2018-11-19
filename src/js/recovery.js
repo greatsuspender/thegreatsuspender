@@ -142,7 +142,7 @@
     for (var tabToRecover of tabsToRecover) {
       tabToRecover.title = gsUtils.getCleanTabTitle(tabToRecover);
       tabToRecover.url = gsUtils.getOriginalUrl(tabToRecover.url);
-      tabEl = historyItems.createTabHtml(tabToRecover, false);
+      tabEl = await historyItems.createTabHtml(tabToRecover, false);
       tabEl.onclick = function() {
         return function(e) {
           e.preventDefault();
