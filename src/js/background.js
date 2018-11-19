@@ -50,6 +50,38 @@ var tgs = (function() {
   let _triggerHotkeyUpdate = false;
   let _suspensionToggleHotkey;
 
+  function getExtensionGlobals() {
+    const globals = {
+      tgs,
+      gsUtils,
+      gsChrome,
+      gsAnalytics,
+      gsStorage,
+      gsIndexedDb,
+      gsMessages,
+      gsSession,
+      gsFavicon,
+      gsTabCheckManager,
+      gsTabSuspendManager,
+      gsTabDiscardManager,
+    };
+    for (const lib of Object.values(globals)) {
+      if (!lib) {
+        return null;
+      }
+    }
+    return globals;
+  }
+
+  function setViewGlobals(_window, viewName) {
+    const globals = getExtensionGlobals();
+    if (!globals) {
+      throw new Error('Lib not ready');
+    }
+    globals.viewName = viewName;
+    Object.assign(_window, globals);
+  }
+
   function backgroundScriptsReadyAsPromised(retries) {
     retries = retries || 0;
     if (retries > 300) {
@@ -58,13 +90,7 @@ var tgs = (function() {
       return Promise.reject('Failed to initialise background scripts');
     }
     return new Promise(function(resolve) {
-      var isReady =
-        typeof db !== 'undefined' &&
-        typeof gsSession !== 'undefined' &&
-        typeof gsStorage !== 'undefined' &&
-        typeof gsMessages !== 'undefined' &&
-        typeof gsUtils !== 'undefined' &&
-        typeof gsAnalytics !== 'undefined';
+      const isReady = getExtensionGlobals() !== null;
       resolve(isReady);
     }).then(function(isReady) {
       if (isReady) {
@@ -122,29 +148,6 @@ var tgs = (function() {
     startNoticeCheckerJob();
     startSessionMetricsJob();
     startAnalyticsUpdateJob();
-  }
-
-  function setViewGlobals(_window, viewName) {
-    const globals = {
-      viewName,
-      tgs,
-      gsUtils,
-      gsChrome,
-      gsAnalytics,
-      gsStorage,
-      gsIndexedDb,
-      gsMessages,
-      gsSession,
-      gsTabCheckManager,
-      gsTabSuspendManager,
-      gsTabDiscardManager,
-    };
-    for (const lib of Object.values(globals)) {
-      if (!lib) {
-        throw new Error('Lib not ready');
-      }
-    }
-    Object.assign(_window, globals);
   }
 
   function getInternalViewByTabId(tabId, suppressLog) {
