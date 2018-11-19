@@ -322,7 +322,6 @@ var gsTabCheckManager = (function() {
     const postLoadInitProps = await gsTabSuspendManager.buildPostLoadInitProps(
       tab
     );
-    gsUtils.log(tab.id, 'postLoadInitProps: ', postLoadInitProps);
 
     const suspendedView = tgs.getInternalViewByTabId(tab.id);
     if (suspendedView) {
