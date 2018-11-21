@@ -876,7 +876,7 @@ var tgs = (function() {
         setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
       } else {
         //give the completed suspended tab 3secs to finish setting initProps
-        gsTabCheckManager.queueTabCheck(tab, true, 3000);
+        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
       }
     }
   }
@@ -1694,7 +1694,7 @@ var tgs = (function() {
       if (gsUtils.isSuspendedTab(tab, true)) {
         // Queue tab for check but mark it as sleeping for 5 seconds to give
         // a change for the tab to load
-        gsTabCheckManager.queueTabCheck(tab, true, 5000);
+        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 5000);
       }
     });
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
