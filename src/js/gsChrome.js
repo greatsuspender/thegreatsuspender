@@ -57,14 +57,14 @@ var gsChrome = {
     return new Promise(resolve => {
       if (!tabId) {
         gsUtils.warning('chromeTabs', 'tabId not specified');
-        resolve();
+        resolve(false);
         return;
       }
       chrome.tabs.reload(tabId, () => {
         if (chrome.runtime.lastError) {
           gsUtils.warning('chromeTabs', chrome.runtime.lastError);
         }
-        resolve();
+        resolve(true);
       });
     });
   },
