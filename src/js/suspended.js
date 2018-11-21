@@ -1,80 +1,32 @@
-/*global window, document, chrome, Image, XMLHttpRequest, tgs, gsTabSuspendManager */
+/*global window, document, chrome, Image, XMLHttpRequest, tgs, gsTabSuspendManager, gsUtils, gsSession, gsTabSuspendManager */
 (function(global) {
   'use strict';
 
-  try {
-    chrome.extension
-      .getBackgroundPage()
-      .tgs.setViewGlobals(global, 'suspended');
-  } catch (e) {
-    // console.error(e);
-  }
-
+  let unloadListener;
   let isLowContrastFavicon = false;
   let requestUnsuspendOnReload = true;
-  let previewUri;
-  let scrollPosition;
-  let tabId;
 
   let showingNag;
   let builtImagePreview;
 
+  let currentTabId;
   let currentPreviewMode;
+  let currentPreviewUri;
   let currentTitle;
   let currentUrl;
+  let currentScrollPosition;
   let currentFaviconMeta;
   let currentTheme;
   let currentShowNag;
   let currentCommand;
   let currentReason;
 
-  function preLoadInit() {
-    localiseHtml(document);
-
-    // Show suspended tab contents after max 1 second regardless
-    window.setTimeout(() => {
-      document.querySelector('body').classList.remove('hide-initially');
-    }, 1000);
-
-    let preLoadInitProps = {};
-    try {
-      preLoadInitProps = gsTabSuspendManager.buildPreLoadInitProps(
-        window.location.href
-      );
-    } catch (e) {
-      // console.error(e);
-    }
-
+  function fallbackInit() {
     // Fallback on href metadata
-    preLoadInitProps = populateMissingPropsFromHref(
-      preLoadInitProps,
-      window.location.href
-    );
-    initTabProps(preLoadInitProps);
-
-    document.querySelector('body').classList.remove('hide-initially');
-  }
-
-  async function postLoadInit() {
-    let postLoadInitProps = {};
-    const tabMeta = await fetchTabMeta();
-    if (tabMeta) {
-      try {
-        tgs.initialiseSuspendedTabProps(tabMeta);
-        postLoadInitProps = await gsTabSuspendManager.buildPostLoadInitProps(
-          tabMeta
-        );
-      } catch (e) {
-        // console.error(e);
-      }
-      addUnloadListener(tabMeta);
-    }
-    // Fallback on href metadata
-    postLoadInitProps = populateMissingPropsFromHref(
-      postLoadInitProps,
-      window.location.href
-    );
-    initTabProps(postLoadInitProps);
+    const fallbackInitProps = buildFallbackPropsFromHref(window.location.href);
+    logError('Falling back on href props:', fallbackInitProps);
+    initTabProps(fallbackInitProps);
+    showContents();
   }
 
   // AFAIK this is the only way to find out the chrome tabId
@@ -83,23 +35,24 @@
       try {
         chrome.runtime.sendMessage({ action: 'requestTabMeta' }, tab => {
           if (chrome.runtime.lastError) {
-            // console.error(chrome.runtime.lastError);
+            logError(chrome.runtime.lastError);
           }
           resolve(tab);
         });
       } catch (e) {
-        // console.error(e);
+        logError(e);
         resolve();
       }
     });
   }
 
-  function populateMissingPropsFromHref(initProps, href) {
+  function buildFallbackPropsFromHref(href) {
     const titleRegex = /ttl=([^&]*)/;
     const scrollPosRegex = /pos=([^&]*)/;
     const urlRegex = /uri=(.*)/;
 
-    if (initProps.hasOwnProperty('title') && !initProps.title) {
+    const initProps = {};
+    if (!currentTitle) {
       const titleEncoded = href.match(titleRegex)
         ? href.match(titleRegex)[1]
         : null;
@@ -108,23 +61,19 @@
       }
     }
 
-    if (
-      (initProps.hasOwnProperty('url') && !initProps.url) ||
-      (initProps.hasOwnProperty('title') && !initProps.title) ||
-      (initProps.hasOwnProperty('faviconMeta') && !initProps.faviconMeta)
-    ) {
+    if (!currentUrl || !currentTitle || !currentFaviconMeta) {
       const urlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
       if (urlEncoded) {
         const url = decodeURIComponent(urlEncoded);
         const favIconUrl = 'chrome://favicon/size/16@2x/' + url;
 
-        if (!initProps.url) {
+        if (!currentUrl) {
           initProps.url = url;
         }
-        if (!initProps.title) {
+        if (!currentTitle) {
           initProps.title = url;
         }
-        if (!initProps.faviconMeta) {
+        if (!currentFaviconMeta) {
           initProps.faviconMeta = {
             isDark: false,
             normalisedDataUrl: favIconUrl,
@@ -134,10 +83,7 @@
       }
     }
 
-    if (
-      initProps.hasOwnProperty('scrollPosition') &&
-      !initProps.scrollPosition
-    ) {
+    if (!currentScrollPosition) {
       const scrollPosition = href.match(scrollPosRegex)
         ? href.match(scrollPosRegex)[1]
         : null;
@@ -149,8 +95,11 @@
   }
 
   function initTabProps(initProps) {
+    if (initProps.hasOwnProperty('tabId')) {
+      setTabId(initProps.tabId);
+    }
     if (initProps.hasOwnProperty('previewUri')) {
-      previewUri = initProps.previewUri;
+      setPreviewUri(initProps.previewUri); // async. unhandled promise.
     }
     if (initProps.hasOwnProperty('previewMode')) {
       setPreviewMode(initProps.previewMode); // async. unhandled promise.
@@ -179,6 +128,14 @@
     if (initProps.hasOwnProperty('reason')) {
       setReason(initProps.reason);
     }
+  }
+
+  function showContents() {
+    document.querySelector('body').classList.remove('hide-initially');
+  }
+
+  function setTabId(tabId) {
+    currentTabId = tabId;
   }
 
   function setTitle(title) {
@@ -244,10 +201,10 @@
   }
 
   function setScrollPosition(newScrollPosition) {
-    if (scrollPosition === newScrollPosition) {
+    if (currentScrollPosition === newScrollPosition) {
       return;
     }
-    scrollPosition = newScrollPosition;
+    currentScrollPosition = newScrollPosition;
   }
 
   function setTheme(newTheme) {
@@ -309,13 +266,29 @@
     }
   }
 
+  async function setPreviewUri(previewUri) {
+    if (currentPreviewUri === previewUri) {
+      return;
+    }
+    currentPreviewUri = previewUri;
+    await updateImagePreview();
+  }
+
   async function setPreviewMode(previewMode) {
     if (currentPreviewMode === previewMode) {
       return;
     }
     currentPreviewMode = previewMode;
+    await updateImagePreview();
+  }
 
-    if (!builtImagePreview && previewMode !== '0' && previewUri) {
+  async function updateImagePreview() {
+    if (
+      !builtImagePreview &&
+      currentPreviewUri &&
+      currentPreviewMode &&
+      currentPreviewMode !== '0'
+    ) {
       await buildImagePreview();
       toggleImagePreviewVisibility();
     } else {
@@ -343,7 +316,7 @@
         previewImgEl.removeEventListener('error', onLoadedHandler);
         resolve();
       };
-      previewImgEl.setAttribute('src', previewUri);
+      previewImgEl.setAttribute('src', currentPreviewUri);
       previewImgEl.addEventListener('load', onLoadedHandler);
       previewImgEl.addEventListener('error', onLoadedHandler);
     });
@@ -356,7 +329,7 @@
     const overflow = currentPreviewMode === '2' ? 'auto' : 'hidden';
     document.body.style['overflow'] = overflow;
 
-    if (currentPreviewMode === '0' || !previewUri) {
+    if (currentPreviewMode === '0' || !currentPreviewUri) {
       document.getElementById('gsPreview').style.display = 'none';
       document.getElementById('suspendedMsg').style.display = 'flex';
       document.body.classList.remove('img-preview-mode');
@@ -367,9 +340,9 @@
     }
 
     const scrollImagePreview = currentPreviewMode === '2';
-    if (scrollImagePreview && scrollPosition) {
-      document.body.scrollTop = scrollPosition || 0;
-      document.documentElement.scrollTop = scrollPosition || 0;
+    if (scrollImagePreview && currentScrollPosition) {
+      document.body.scrollTop = currentScrollPosition || 0;
+      document.documentElement.scrollTop = currentScrollPosition || 0;
     } else {
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
@@ -403,15 +376,15 @@
   }
 
   function unsuspendTab(addToTemporaryWhitelist) {
-    if (tabId && addToTemporaryWhitelist) {
+    if (currentTabId && addToTemporaryWhitelist) {
       try {
         tgs.setSuspendedTabPropForTabId(
-          tabId,
+          currentTabId,
           tgs.STP_TEMP_WHITELIST_ON_RELOAD,
           true
         );
       } catch (e) {
-        // console.error(e);
+        logError(e);
       }
     }
 
@@ -424,6 +397,11 @@
       );
       document.getElementById('snoozySpinner').classList.add('spinner');
     }
+    if (!currentUrl) {
+      logError('currentUrl not set!');
+      fallbackInit();
+    }
+    window.removeEventListener('beforeunload', unloadListener);
     window.location.replace(currentUrl);
   }
 
@@ -473,7 +451,7 @@
         gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
       };
     } catch (error) {
-      // console.error(error);
+      logError(error);
     }
   }
 
@@ -538,33 +516,67 @@
     });
   }
 
-  function addUnloadListener(tabMeta) {
-    // beforeunload event will get fired if: the tab is refreshed, the url is changed, the tab is closed
+  function getUnloadListener() {
+    // beforeunload event will get fired if:
+    // the tab is refreshed, the url is changed, or the tab is closed.
     // set the tabFlag STP_UNSUSPEND_ON_RELOAD_URL so that a refresh will trigger an unsuspend
     // this will be ignored if the tab is being closed or if the tab is navigating to a new url,
     // and that new url does not match the STP_UNSUSPEND_ON_RELOAD_URL
-    window.addEventListener('beforeunload', function(event) {
+    return function(event) {
+      if (!currentTabId) {
+        logError('currentTabId not defined');
+        return;
+      }
       if (requestUnsuspendOnReload) {
         try {
           tgs.setSuspendedTabPropForTabId(
-            tabMeta.id,
+            currentTabId,
             tgs.STP_UNSUSPEND_ON_RELOAD_URL,
             window.location.href
           );
         } catch (e) {
-          // console.error(e);
+          logError(e);
         }
       }
-    });
+    };
+  }
+
+  function logError(error) {
+    try {
+      const id = currentTabId || currentUrl;
+      gsUtils.warning(id, 'Suspended tab error: ', error);
+    } catch (e) {
+      console.log(error);
+    }
   }
 
   global.exports = {
     initTabProps,
+    showContents,
     unsuspendTab,
     disableUnsuspendOnReload,
     showNoConnectivityMessage,
   };
 
-  preLoadInit();
-  postLoadInit(); // async.
+  unloadListener = getUnloadListener();
+  window.addEventListener('beforeunload', unloadListener);
+  localiseHtml(document);
+  try {
+    chrome.extension
+      .getBackgroundPage()
+      .tgs.setViewGlobals(global, 'suspended');
+
+    if (gsSession.isInitialising()) {
+      // do nothing as we rely on gsSession startup to handle init
+    } else {
+      fetchTabMeta().then((tabMeta) => {
+        setTabId(tabMeta.id);
+        gsTabSuspendManager.initSuspendedTab(global, tabMeta); //async
+      });
+    }
+  } catch (e) {
+    logError(e);
+    fallbackInit();
+  }
+
 })(this);

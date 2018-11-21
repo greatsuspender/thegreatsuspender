@@ -882,6 +882,8 @@ var tgs = (function() {
   }
 
   function initialiseSuspendedTabProps(tab) {
+    setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, null);
+
     const options = gsStorage.getSettings();
 
     let showNag = false;

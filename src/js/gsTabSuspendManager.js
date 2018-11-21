@@ -474,7 +474,11 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  function buildPreLoadInitProps(suspendedUrl) {
+  async function initSuspendedTab(tabView, tab) {
+    if (!tabView || !tabView.exports) {
+      return false;
+    }
+    const suspendedUrl = tab.url;
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
     const whitelisted = gsUtils.checkWhiteList(originalUrl);
     const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
@@ -484,37 +488,9 @@ var gsTabSuspendManager = (function() {
       title = gsUtils.htmlEncode(title);
     }
 
-    const fallbackFavIconUrl = gsFavicon.generateChromeFavIconUrlFromUrl(
-      originalUrl
-    );
-    const faviconMeta = {
-      isDark: false,
-      normalisedDataUrl: fallbackFavIconUrl,
-      transparentDataUrl: fallbackFavIconUrl,
-    };
-
     const options = gsStorage.getSettings();
-    const initProps = {
-      url: originalUrl,
-      title: title,
-      scrollPosition: scrollPosition,
-      faviconMeta: faviconMeta,
-      whitelisted: whitelisted,
-      theme: options[gsStorage.THEME],
-      previewMode: options[gsStorage.SCREEN_CAPTURE],
-    };
 
-    // gsUtils.log(originalUrl, 'preLoadInitProps', initProps);
-    return initProps;
-  }
-
-  async function buildPostLoadInitProps(tab) {
-    // NOTE: FaviconMeta may have already been defined in the suspended tab
-    // at this point, either from a cache hit in buildPreLoadInitProps or
-    // from the href fallback code in suspended.js
     const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
-
-    const originalUrl = gsUtils.getOriginalUrl(tab.url);
     const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
     let previewUri = null;
     if (
@@ -536,6 +512,12 @@ var gsTabSuspendManager = (function() {
 
     const initProps = {
       tabId: tab.id,
+      url: originalUrl,
+      title: title,
+      scrollPosition: scrollPosition,
+      whitelisted: whitelisted,
+      theme: options[gsStorage.THEME],
+      previewMode: options[gsStorage.SCREEN_CAPTURE],
       tabActive: tab.active,
       faviconMeta: faviconMeta,
       showNag: showNag,
@@ -545,9 +527,12 @@ var gsTabSuspendManager = (function() {
     if (suspendReason === 3) {
       initProps.reason = chrome.i18n.getMessage('js_suspended_low_memory');
     }
+    gsUtils.log(tab.id, 'initProps', initProps);
 
-    gsUtils.log(tab.id, 'postLoadInitProps', initProps);
-    return initProps;
+    tgs.initialiseSuspendedTabProps(tab);
+    tabView.exports.initTabProps(initProps);
+    tabView.exports.showContents();
+    return true;
   }
 
   return {
@@ -559,7 +544,6 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
-    buildPreLoadInitProps,
-    buildPostLoadInitProps,
+    initSuspendedTab,
   };
 })();

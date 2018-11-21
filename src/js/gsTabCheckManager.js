@@ -32,6 +32,8 @@ var gsTabCheckManager = (function() {
     });
   }
 
+  // Suspended tabs that exist or are created before the end of extension
+  // initialisation will need to be initialised by this startup script
   async function performInitialisationTabChecks(tabs) {
     // Temporarily change jobTimeout while we are starting up
     const initJobTimeout = Math.max(
@@ -56,22 +58,16 @@ var gsTabCheckManager = (function() {
         continue;
       }
 
-      // Bypass tabCheck queue for tabs that quickly pass title and favicon checks
-      const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-      if (tabBasicsOk) {
-        const backgroundTabPropsOk = ensureBackgroundSuspendedTabPropsSet(tab);
-        if (!backgroundTabPropsOk) {
-          tgs.initialiseSuspendedTabProps(tab);
-        }
-        queueForDiscardIfRequired(tab);
-        continue;
-      }
-
+      // For suspended tabs that are restored by chrome on restart (due to
+      // continue where you left off), we will need to reload them as they
+      // won't be associated with the extension yet
       let internalViewExists = ensureInternalViewExists(tab);
       if (!internalViewExists) {
-        resuspendSuspendedTab(tab);
+        await resuspendSuspendedTab(tab);
+        tabCheckPromises.push(queueTabCheckAsPromise(tab, false, 1000));
+      } else {
+        tabCheckPromises.push(queueTabCheckAsPromise(tab, false, 0));
       }
-      tabCheckPromises.push(queueTabCheckAsPromise(tab, true, 2000));
     }
 
     const results = await Promise.all(tabCheckPromises);
@@ -198,6 +194,7 @@ var gsTabCheckManager = (function() {
     // as a 'view' of the extension
     let internalViewExists = ensureInternalViewExists(tab);
     if (!internalViewExists) {
+      gsUtils.log(tab.id, 'Internal view does not exist for tab: ', tab);
       resuspendSuspendedTab(tab);
       executionProps.refetchTab = true;
       requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
@@ -223,27 +220,28 @@ var gsTabCheckManager = (function() {
       }
     }
 
+    let tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
+    let tabPropsOk = ensureViewSuspendedTabPropsSet(tab);
+    if (!tabBasicsOk || !tabPropsOk) {
+      gsUtils.log(tab.id, 'Reinitialising suspendedTab: ', tab);
+      const suspendedView = tgs.getInternalViewByTabId(tab.id);
+      if (suspendedView) {
+        await gsTabSuspendManager.initSuspendedTab(suspendedView, tab);
+      }
+
+      const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
+      if (!tabQueueDetails || tabQueueDetails.requeues > 1) {
+        resolve(false);
+        return;
+      }
+      executionProps.refetchTab = true;
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+      return;
+    }
+
     const backgroundTabPropsOk = ensureBackgroundSuspendedTabPropsSet(tab);
     if (!backgroundTabPropsOk) {
       tgs.initialiseSuspendedTabProps(tab);
-    }
-
-    const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-    const tabPropsOk = ensureViewSuspendedTabPropsSet(tab);
-    if (!tabBasicsOk || !tabPropsOk) {
-      const success = await forceReinitOfSuspendedTab(tab);
-      if (!success) {
-        const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
-        if (!tabQueueDetails || tabQueueDetails.requeues > 1) {
-          resolve(false);
-          return;
-        }
-        await resuspendSuspendedTab(tab);
-        executionProps.refetchTab = true;
-        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
-        return;
-      }
-      gsUtils.log(tab.id, QUEUE_ID, 'forceReinitOfSuspendedTab OK');
     }
 
     queueForDiscardIfRequired(tab);
@@ -313,24 +311,6 @@ var gsTabCheckManager = (function() {
       return false;
     }
     return true;
-  }
-
-  async function forceReinitOfSuspendedTab(tab) {
-    gsUtils.log(tab.id, 'Forcing reinit of suspendedTab: ', tab);
-    const preLoadInitProps = gsTabSuspendManager.buildPreLoadInitProps(tab.url);
-    gsUtils.log(tab.id, 'preLoadInitProps: ', preLoadInitProps);
-    const postLoadInitProps = await gsTabSuspendManager.buildPostLoadInitProps(
-      tab
-    );
-
-    const suspendedView = tgs.getInternalViewByTabId(tab.id);
-    if (suspendedView) {
-      suspendedView.exports.initTabProps(preLoadInitProps);
-      suspendedView.exports.initTabProps(postLoadInitProps);
-      return true;
-    } else {
-      return false;
-    }
   }
 
   // Careful with this function. It seems that these unresponsive tabs can sometimes
