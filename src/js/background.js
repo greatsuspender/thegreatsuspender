@@ -152,7 +152,7 @@ var tgs = (function() {
 
   function getInternalViewByTabId(tabId, suppressLog) {
     const internalViews = chrome.extension.getViews({ tabId: tabId });
-    if (internalViews.length > 0) {
+    if (internalViews.length === 1 && internalViews[0].exports) {
       return internalViews[0];
     }
     if (!suppressLog) {
@@ -164,7 +164,20 @@ var tgs = (function() {
     return null;
   }
   function getInternalViewsByViewName(viewName) {
-    return chrome.extension.getViews().filter(o => o.viewName === viewName);
+    const internalViews = chrome.extension
+      .getViews()
+      .filter(o => o.viewName === viewName);
+    const validInternalViews = internalViews.filter(o =>
+      o.hasOwnProperty('exports')
+    );
+    if (validInternalViews < internalViews) {
+      gsUtils.warning(
+        'background',
+        `${internalViews -
+          validInternalViews} ${viewName} views are missing an exports property.`
+      );
+    }
+    return validInternalViews;
   }
 
   function getCurrentlyActiveTab(callback) {
