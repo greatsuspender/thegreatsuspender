@@ -875,7 +875,8 @@ var tgs = (function() {
       if (isCurrentFocusedTab(tab)) {
         setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
       } else {
-        gsTabCheckManager.queueTabCheck(tab, true, 1000);
+        //give the completed suspended tab 3secs to finish setting initProps
+        gsTabCheckManager.queueTabCheck(tab, true, 3000);
       }
     }
   }

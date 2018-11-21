@@ -4,7 +4,7 @@ var gsTabCheckManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 3;
-  const DEFAULT_TAB_CHECK_TIMEOUT = 10 * 1000;
+  const DEFAULT_TAB_CHECK_TIMEOUT = 15 * 1000;
   const DEFAULT_TAB_CHECK_PREQUEUE_DELAY = 500;
   const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 5 * 1000;
 
