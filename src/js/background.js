@@ -646,13 +646,13 @@ var tgs = (function() {
 
   function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
-    gsUtils.log(tab.id, 'Unsuspending tab.');
 
     // If the suspended tab is discarded then reload the suspended tab and flag
     // if for unsuspend on reload.
     // This will happen if the 'discard suspended tabs' option is turned on and the tab
     // is being unsuspended remotely.
     if (gsUtils.isDiscardedTab(tab)) {
+      gsUtils.log(tab.id, 'Unsuspending discarded tab via reload');
       setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, tab.url);
       gsChrome.tabsReload(tab.id); //async. unhandled promise
       return;
@@ -660,15 +660,20 @@ var tgs = (function() {
 
     const suspendedView = getInternalViewByTabId(tab.id);
     if (suspendedView) {
+      gsUtils.log(tab.id, 'Unsuspending tab via suspendedView.exports');
       suspendedView.exports.unsuspendTab(false);
-    } else {
-      // Reloading directly causes a history item for the suspended tab to be made in the tab history.
-      let url = gsUtils.getOriginalUrl(tab.url);
-      if (url) {
-        gsUtils.log(tab.id, 'Will reload directly.');
-        chrome.tabs.update(tab.id, { url: url });
-      }
+      return;
     }
+
+    // Reloading directly causes a history item for the suspended tab to be made in the tab history.
+    let url = gsUtils.getOriginalUrl(tab.url);
+    if (url) {
+      gsUtils.log(tab.id, 'Unsuspending tab via chrome.tabs.update');
+      chrome.tabs.update(tab.id, { url: url });
+      return;
+    }
+
+    gsUtils.log(tab.id, 'Failed to execute unsuspend tab.');
   }
 
   function buildSuspensionToggleHotkey() {
