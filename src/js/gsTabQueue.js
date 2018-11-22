@@ -64,7 +64,7 @@ function GsTabQueue(queueId, queueProps) {
       return Object.keys(_tabDetailsByTabId).length;
     }
 
-    function queueTabAsPromise(tab, executionProps, prequeueDelay) {
+    function queueTabAsPromise(tab, executionProps, delay) {
       executionProps = executionProps || {};
       let tabDetails = _tabDetailsByTabId[tab.id];
       if (!tabDetails) {
@@ -83,9 +83,9 @@ function GsTabQueue(queueId, queueProps) {
         gsUtils.log(tab.id, _queueId, 'Tab already queued.');
       }
 
-      if (prequeueDelay && isValidInteger(prequeueDelay, 1)) {
-        gsUtils.log(tab.id, _queueId, `Sleeping tab for ${prequeueDelay}ms`);
-        sleepTab(tabDetails, prequeueDelay);
+      if (delay && isValidInteger(delay, 1)) {
+        gsUtils.log(tab.id, _queueId, `Sleeping tab for ${delay}ms`);
+        sleepTab(tabDetails, delay);
       } else {
         // If tab is already marked as sleeping then wake it up
         if (tabDetails.sleepTimer) {
