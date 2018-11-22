@@ -61,18 +61,16 @@ var gsTabCheckManager = (function() {
       // For suspended tabs that are restored by chrome on restart (due to
       // continue where you left off), we will need to reload them as they
       // won't be associated with the extension yet
-      let executionProps = null;
-      let delay = 0;
+      let executionProps = {};
       let internalViewExists = ensureInternalViewExists(tab);
       if (!internalViewExists) {
         await resuspendSuspendedTab(tab);
         // dont need to set {refetch: true} execution prop here as we already
         // know that the tab will not have a favicon set (as suspended tab init
         // on load is skipped during initialisation phase)
-        executionProps = { resuspended: true };
-        delay = 1000;
+        executionProps.resuspended = true;
       }
-      tabCheckPromises.push(queueTabCheckAsPromise(tab, executionProps, delay));
+      tabCheckPromises.push(queueTabCheckAsPromise(tab, executionProps, 1000));
     }
 
     const results = await Promise.all(tabCheckPromises);
@@ -177,26 +175,6 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
-    // Make sure tab is registered as a 'view' of the extension
-    let internalViewExists = ensureInternalViewExists(tab);
-    if (!internalViewExists) {
-      if (!executionProps.resuspended) {
-        const resuspendOk = await resuspendSuspendedTab(tab);
-        if (resuspendOk) {
-          executionProps.refetchTab = true;
-          executionProps.resuspended = true;
-          requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
-          return;
-        }
-        gsUtils.warning(tab.id, 'Failed to resuspend tab');
-        resolve(false);
-        return;
-      }
-      executionProps.refetchTab = true;
-      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
-      return;
-    }
-
     if (executionProps.refetchTab) {
       gsUtils.log(
         tab.id,
@@ -209,12 +187,30 @@ var gsTabCheckManager = (function() {
         return;
       }
       gsUtils.log(tab.id, QUEUE_ID, 'Updated tab: ', tab);
+
+      // If tab has a state of loading, then requeue for checking later
+      if (tab.status === 'loading') {
+        gsUtils.log(tab.id, QUEUE_ID, 'Tab is still loading');
+        executionProps.refetchTab = true;
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+        return;
+      }
     }
 
-    // If tab has a state of loading, then requeue for checking later
-    if (tab.status === 'loading') {
-      gsUtils.log(tab.id, QUEUE_ID, 'Tab is still loading');
-      executionProps.refetchTab = true;
+    // Make sure tab is registered as a 'view' of the extension
+    let internalViewExists = ensureInternalViewExists(tab);
+    if (!internalViewExists) {
+      if (!executionProps.resuspended) {
+        const resuspendOk = await resuspendSuspendedTab(tab);
+        if (resuspendOk) {
+          executionProps.resuspended = true;
+          requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+          return;
+        }
+        gsUtils.warning(tab.id, 'Failed to resuspend tab');
+        resolve(false);
+        return;
+      }
       requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
       return;
     }
