@@ -854,22 +854,9 @@ var tgs = (function() {
     if (changeInfo.status === 'complete') {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
-      //if a suspended tab is being reloaded, we may want to actually unsuspend it instead
-      //if the STP_UNSUSPEND_ON_RELOAD_URL flag is matches the current url, then unsuspend.
-      let unsuspendOnReloadUrl = getSuspendedTabPropForTabId(
-        tab.id,
-        STP_UNSUSPEND_ON_RELOAD_URL
-      );
-      if (unsuspendOnReloadUrl) {
-        setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, null);
-        if (unsuspendOnReloadUrl === tab.url) {
-          gsUtils.log(
-            tab.id,
-            'Unsuspend on reload flag set. Will unsuspend tab.'
-          );
-          unsuspendTab(tab);
-          return;
-        }
+      //if a suspended tab is marked for unsuspendOnReload then return early
+      if (shouldUnsuspendOnReload(tab)) {
+        return;
       }
 
       if (isCurrentFocusedTab(tab)) {
@@ -899,6 +886,14 @@ var tgs = (function() {
     // Set scrollPosition tab flag
     const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
     setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
+  }
+
+  function shouldUnsuspendOnReload(tab) {
+    let unsuspendOnReloadUrl = getSuspendedTabPropForTabId(
+      tab.id,
+      STP_UNSUSPEND_ON_RELOAD_URL
+    );
+    return unsuspendOnReloadUrl === tab.url;
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
@@ -1842,6 +1837,7 @@ var tgs = (function() {
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
+    shouldUnsuspendOnReload,
 
     unsuspendTab,
     unsuspendHighlightedTab,

@@ -341,7 +341,9 @@ var gsTabSuspendManager = (function() {
     };
     await gsIndexedDb.addSuspendedTabInfo(tabProperties);
 
-    const faviconMeta = await gsFavicon.buildFaviconMetaFromChromeFaviconCache(tab.url);
+    const faviconMeta = await gsFavicon.buildFaviconMetaFromChromeFaviconCache(
+      tab.url
+    );
     if (faviconMeta) {
       gsFavicon.saveFaviconMetaDataToCache(tab.url, faviconMeta);
     }
@@ -475,9 +477,20 @@ var gsTabSuspendManager = (function() {
   }
 
   async function initSuspendedTab(tabView, tab) {
-    if (!tabView || !tabView.exports) {
+    if (tgs.shouldUnsuspendOnReload(tab)) {
+      gsUtils.log(
+        tab.id,
+        'Unsuspend on reload flag set. Will unsuspend tab via suspendedView.exports'
+      );
+      tgs.setSuspendedTabPropForTabId(
+        tab.id,
+        tgs.STP_UNSUSPEND_ON_RELOAD_URL,
+        null
+      );
+      tabView.exports.unsuspendTab(false);
       return false;
     }
+
     const suspendedUrl = tab.url;
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
     const whitelisted = gsUtils.checkWhiteList(originalUrl);
