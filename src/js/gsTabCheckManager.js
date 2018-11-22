@@ -188,6 +188,13 @@ var gsTabCheckManager = (function() {
       }
       gsUtils.log(tab.id, QUEUE_ID, 'Updated tab: ', tab);
 
+      // Ensure tab is still suspended
+      if (!gsUtils.isSuspendedTab(tab)) {
+        gsUtils.log(tab.id, 'Tab is no longer suspended. Aborting check.');
+        resolve(false);
+        return;
+      }
+
       // If tab has a state of loading, then requeue for checking later
       if (tab.status === 'loading') {
         gsUtils.log(tab.id, QUEUE_ID, 'Tab is still loading');
