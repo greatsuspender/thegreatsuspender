@@ -21,12 +21,25 @@
   let currentCommand;
   let currentReason;
 
+  function preInit() {
+    const preInitProps = buildFallbackPropsFromHref(
+      window.location.href,
+      false
+    );
+    initTabProps(preInitProps);
+  }
+
   function fallbackInit() {
-    // Fallback on href metadata
-    const fallbackInitProps = buildFallbackPropsFromHref(window.location.href);
+    const fallbackInitProps = buildFallbackPropsFromHref(
+      window.location.href,
+      true
+    );
     logError('Falling back on href props:', fallbackInitProps);
     initTabProps(fallbackInitProps);
-    showContents();
+  }
+
+  function showContents() {
+    document.querySelector('body').classList.remove('hide-initially');
   }
 
   // AFAIK this is the only way to find out the chrome tabId
@@ -46,50 +59,44 @@
     });
   }
 
-  function buildFallbackPropsFromHref(href) {
-    const titleRegex = /ttl=([^&]*)/;
-    const scrollPosRegex = /pos=([^&]*)/;
-    const urlRegex = /uri=(.*)/;
-
+  function buildFallbackPropsFromHref(href, includeFaviconMeta) {
     const initProps = {};
+
+    const titleRegex = /ttl=([^&]*)/;
+    const titleEncoded = href.match(titleRegex)
+      ? href.match(titleRegex)[1]
+      : null;
+    const title = titleEncoded ? decodeURIComponent(titleEncoded) : null;
+
+    const urlRegex = /uri=(.*)/;
+    const urlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
+    const url = urlEncoded ? decodeURIComponent(urlEncoded) : null;
+
+    const scrollPosRegex = /pos=([^&]*)/;
+    const scrollPosition = href.match(scrollPosRegex)
+      ? href.match(scrollPosRegex)[1]
+      : null;
+
+    if (!currentUrl && url) {
+      initProps.url = url;
+    }
     if (!currentTitle) {
-      const titleEncoded = href.match(titleRegex)
-        ? href.match(titleRegex)[1]
-        : null;
-      if (titleEncoded) {
-        initProps.title = decodeURIComponent(titleEncoded);
+      if (title) {
+        initProps.title = title;
+      } else if (url) {
+        initProps.title = url;
       }
     }
-
-    if (!currentUrl || !currentTitle || !currentFaviconMeta) {
-      const urlEncoded = href.match(urlRegex) ? href.match(urlRegex)[1] : null;
-      if (urlEncoded) {
-        const url = decodeURIComponent(urlEncoded);
-        const favIconUrl = 'chrome://favicon/size/16@2x/' + url;
-
-        if (!currentUrl) {
-          initProps.url = url;
-        }
-        if (!currentTitle) {
-          initProps.title = url;
-        }
-        if (!currentFaviconMeta) {
-          initProps.faviconMeta = {
-            isDark: false,
-            normalisedDataUrl: favIconUrl,
-            transparentDataUrl: favIconUrl,
-          };
-        }
-      }
+    if (!currentScrollPosition && scrollPosition) {
+      initProps.scrollPosition = scrollPosition;
     }
-
-    if (!currentScrollPosition) {
-      const scrollPosition = href.match(scrollPosRegex)
-        ? href.match(scrollPosRegex)[1]
-        : null;
-      if (scrollPosition) {
-        initProps.scrollPosition = scrollPosition;
-      }
+    if (includeFaviconMeta && !currentFaviconMeta && url) {
+      const favIconUrl = 'chrome://favicon/size/16@2x/' + url;
+      initProps.faviconMeta = {
+        isDark: false,
+        normalisedDataUrl: favIconUrl,
+        transparentDataUrl: favIconUrl,
+      };
     }
     return initProps;
   }
@@ -128,10 +135,6 @@
     if (initProps.hasOwnProperty('reason')) {
       setReason(initProps.reason);
     }
-  }
-
-  function showContents() {
-    document.querySelector('body').classList.remove('hide-initially');
   }
 
   function setTabId(tabId) {
@@ -561,6 +564,7 @@
   unloadListener = getUnloadListener();
   window.addEventListener('beforeunload', unloadListener);
   localiseHtml(document);
+  preInit();
   try {
     chrome.extension
       .getBackgroundPage()
@@ -569,7 +573,7 @@
     if (gsSession.isInitialising()) {
       // do nothing as we rely on gsSession startup to handle init
     } else {
-      fetchTabMeta().then((tabMeta) => {
+      fetchTabMeta().then(tabMeta => {
         setTabId(tabMeta.id);
         gsTabSuspendManager.initSuspendedTab(global, tabMeta); //async
       });
@@ -578,5 +582,4 @@
     logError(e);
     fallbackInit();
   }
-
 })(this);
