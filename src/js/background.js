@@ -612,6 +612,7 @@ var tgs = (function() {
       return;
     }
     clearTimeout(timerDetails.timer);
+    setUnsuspendedTabPropForTabId(tab.id, UTP_TIMER_DETAILS, null);
   }
 
   function getUnsuspendedTabPropForTabId(tabId, prop) {
@@ -1839,6 +1840,7 @@ var tgs = (function() {
     isCurrentStationaryTab,
     isCurrentFocusedTab,
     isCurrentActiveTab,
+    clearAutoSuspendTimerForTab,
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,

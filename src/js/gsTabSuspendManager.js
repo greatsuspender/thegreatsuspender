@@ -63,7 +63,13 @@ var gsTabSuspendManager = (function() {
     reject,
     requeue
   ) {
-    const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    let screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    const discardInPlaceOfSuspend = gsStorage.getOption(
+      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+    );
+    if (discardInPlaceOfSuspend) {
+      screenCaptureMode = '0';
+    }
 
     let tabInfo = await getContentScriptTabInfo(tab);
     // If tabInfo is null this is usually due to tab being discarded or 'parked' on chrome restart
@@ -186,6 +192,7 @@ var gsTabSuspendManager = (function() {
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
       if (discardInPlaceOfSuspend) {
+        tgs.clearAutoSuspendTimerForTab(tab);
         gsTabDiscardManager.queueTabForDiscard(tab);
         resolve();
         return;
