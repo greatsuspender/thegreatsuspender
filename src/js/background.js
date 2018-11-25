@@ -791,7 +791,6 @@ var tgs = (function() {
       hasTabStatusChanged = true;
 
       //init loaded tab
-      clearSuspendedTabPropsForTabId(tab.id);
       initialiseUnsuspendedTabProps(tab);
       initialiseUnsuspendedTabScriptAsPromised(tab)
         .catch(error => {
@@ -802,6 +801,7 @@ var tgs = (function() {
         })
         .then(() => {
           // could use returned tab status here below
+          clearSuspendedTabPropsForTabId(tab.id);
         });
     }
 
