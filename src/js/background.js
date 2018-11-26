@@ -1670,6 +1670,10 @@ var tgs = (function() {
       sendResponse(sender.tab);
       return false;
     }
+
+    // Fallback to empty response to ensure callback is made
+    sendResponse();
+    return false;
   }
 
   function addMessageListeners() {

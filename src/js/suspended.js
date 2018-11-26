@@ -36,6 +36,7 @@
     );
     logError('Falling back on href props:', fallbackInitProps);
     initTabProps(fallbackInitProps);
+    showContents();
   }
 
   function showContents() {
@@ -549,7 +550,7 @@
       const id = currentTabId || currentUrl;
       gsUtils.warning(id, 'Suspended tab error: ', error);
     } catch (e) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -561,11 +562,12 @@
     showNoConnectivityMessage,
   };
 
-  unloadListener = getUnloadListener();
-  window.addEventListener('beforeunload', unloadListener);
-  localiseHtml(document);
-  preInit();
   try {
+    unloadListener = getUnloadListener();
+    window.addEventListener('beforeunload', unloadListener);
+    localiseHtml(document);
+    preInit();
+
     chrome.extension
       .getBackgroundPage()
       .tgs.setViewGlobals(global, 'suspended');
@@ -574,8 +576,13 @@
       // do nothing as we rely on gsSession startup to handle init
     } else {
       fetchTabMeta().then(tabMeta => {
-        setTabId(tabMeta.id);
-        gsTabSuspendManager.initSuspendedTab(global, tabMeta); //async
+        if (tabMeta) {
+          setTabId(tabMeta.id);
+          gsTabSuspendManager.initSuspendedTab(global, tabMeta); //async
+        } else {
+          logError('Failed to fetch tabMeta');
+          fallbackInit();
+        }
       });
     }
   } catch (e) {
