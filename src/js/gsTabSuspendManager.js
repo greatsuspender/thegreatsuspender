@@ -77,7 +77,7 @@ var gsTabSuspendManager = (function() {
       // If we need to make a screen capture and tab is not responding then reload it
       // TODO: This doesn't actually seem to work
       // Tabs that have just been reloaded usually fail to run the screen capture script :(
-      if (screenCaptureMode !== '0') {
+      if (screenCaptureMode !== '0' && !executionProps.reloaded) {
         gsUtils.log(
           tab.id,
           'Tab is not responding. Will reload for screen capture.'
@@ -88,7 +88,9 @@ var gsTabSuspendManager = (function() {
           tab.url
         );
         await gsChrome.tabsUpdate(tab.id, { url: tab.url });
-        resolve(false);
+        // allow up to 30 seconds for tab to reload and trigger its subsequent suspension request
+        // note that this will not reset the DEFAULT_SUSPENSION_TIMEOUT of 60 seconds
+        requeue(30000, { reloaded: true });
         return;
       }
       tabInfo = {
