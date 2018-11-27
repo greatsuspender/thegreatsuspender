@@ -199,8 +199,7 @@ var gsTabCheckManager = (function() {
       // If tab has a state of loading, then requeue for checking later
       if (tab.status === 'loading') {
         gsUtils.log(tab.id, QUEUE_ID, 'Tab is still loading');
-        executionProps.refetchTab = true;
-        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
         return;
       }
     }
@@ -211,8 +210,10 @@ var gsTabCheckManager = (function() {
       if (!executionProps.resuspended) {
         const resuspendOk = await resuspendSuspendedTab(tab);
         if (resuspendOk) {
-          executionProps.resuspended = true;
-          requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+          requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, {
+            resuspended: true,
+            refetchTab: true,
+          });
           return;
         }
         gsUtils.warning(tab.id, 'Failed to resuspend tab');
@@ -227,9 +228,9 @@ var gsTabCheckManager = (function() {
     if (!gsSession.isFileUrlsAccessAllowed()) {
       const originalUrl = gsUtils.getOriginalUrl(tab.url);
       if (originalUrl && originalUrl.indexOf('file') === 0) {
+        gsUtils.log(tab.id, QUEUE_ID, 'Unsuspending blocked local file tab.');
         await unsuspendSuspendedTab(tab);
-        executionProps.refetchTab = true;
-        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
         return;
       }
     }
@@ -248,8 +249,7 @@ var gsTabCheckManager = (function() {
         resolve(false);
         return;
       }
-      executionProps.refetchTab = true;
-      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY);
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
       return;
     }
 
@@ -273,7 +273,6 @@ var gsTabCheckManager = (function() {
   }
 
   async function unsuspendSuspendedTab(tab) {
-    gsUtils.log(tab.id, QUEUE_ID, 'Unsuspending blocked local file tab.');
     const originalUrl = gsUtils.getOriginalUrl(tab.url);
     await gsChrome.tabsUpdate(tab.id, { url: originalUrl });
   }

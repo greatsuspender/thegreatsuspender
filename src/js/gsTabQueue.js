@@ -79,7 +79,7 @@ function GsTabQueue(queueId, queueProps) {
         _tabDetailsByTabId[tab.id] = tabDetails;
       } else {
         tabDetails.tab = tab;
-        tabDetails.executionProps = executionProps;
+        applyExecutionProps(tabDetails, executionProps);
         gsUtils.log(tab.id, _queueId, 'Tab already queued.');
       }
 
@@ -97,6 +97,13 @@ function GsTabQueue(queueId, queueProps) {
         requestProcessQueue(false);
       }
       return tabDetails.deferredPromise;
+    }
+
+    function applyExecutionProps(tabDetails, executionProps) {
+      executionProps = executionProps || {};
+      for (const prop in executionProps) {
+        tabDetails.executionProps[prop] = executionProps[prop];
+      }
     }
 
     function unqueueTab(tab) {
@@ -213,8 +220,8 @@ function GsTabQueue(queueId, queueProps) {
 
       const _resolveTabPromise = r => resolveTabPromise(tabDetails, r);
       const _rejectTabPromise = e => rejectTabPromise(tabDetails, e);
-      const _requeueTab = requeueDelay => {
-        requeueTab(tabDetails, requeueDelay);
+      const _requeueTab = (requeueDelay, executionProps) => {
+        requeueTab(tabDetails, requeueDelay, executionProps);
       };
 
       // If timeout timer has not yet been initiated, then start it now
@@ -273,13 +280,16 @@ function GsTabQueue(queueId, queueProps) {
       requestProcessQueue(true);
     }
 
-    function requeueTab(tabDetails, requeueDelay) {
+    function requeueTab(tabDetails, requeueDelay, executionProps) {
       requeueDelay = requeueDelay || DEFAULT_REQUEUE_DELAY;
+      if (executionProps) {
+        applyExecutionProps(tabDetails, executionProps);
+      }
       tabDetails.requeues += 1;
       gsUtils.log(
         tabDetails.tab.id,
         _queueId,
-        `Requeueing tab. Requeues: ${tabDetails.requeues}`
+          `Requeueing tab. Requeues: ${tabDetails.requeues}`
       );
       requestProcessQueue(true);
       sleepTab(tabDetails, requeueDelay);
