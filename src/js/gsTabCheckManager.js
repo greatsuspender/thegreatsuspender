@@ -114,7 +114,7 @@ var gsTabCheckManager = (function() {
     return tabCheckQueue.getQueuedTabDetails(tab);
   }
 
-  function handleTabCheckException(
+  async function handleTabCheckException(
     tab,
     executionProps,
     exceptionType,
@@ -126,6 +126,7 @@ var gsTabCheckManager = (function() {
       tab.id,
       `Failed to initialise suspended tab: ${exceptionType}`
     );
+    await unsuspendSuspendedTab(tab);
     resolve(false);
   }
 

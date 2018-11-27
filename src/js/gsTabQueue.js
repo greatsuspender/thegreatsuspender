@@ -228,7 +228,7 @@ function GsTabQueue(queueId, queueProps) {
             _resolveTabPromise,
             _rejectTabPromise,
             _requeueTab
-          );
+          ); //async. unhandled promise
         }, _queueProperties.jobTimeout);
       }
 
@@ -238,7 +238,7 @@ function GsTabQueue(queueId, queueProps) {
         _resolveTabPromise,
         _rejectTabPromise,
         _requeueTab
-      );
+      ); //async. unhandled promise
     }
 
     function resolveTabPromise(tabDetails, result) {
