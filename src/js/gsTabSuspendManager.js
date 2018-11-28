@@ -184,7 +184,7 @@ var gsTabSuspendManager = (function() {
         tab.id,
         `Tab took more than ${
           _suspensionQueue.getQueueProperties().jobTimeout
-        }ms to suspend. Will abort screen capture.`
+        }ms to suspend. Will force suspension.`
       );
       const success = await executeTabSuspension(
         tab,
