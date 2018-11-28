@@ -77,7 +77,11 @@ var gsTabSuspendManager = (function() {
       // If we need to make a screen capture and tab is not responding then reload it
       // TODO: This doesn't actually seem to work
       // Tabs that have just been reloaded usually fail to run the screen capture script :(
-      if (tab.status !== 'loading' && screenCaptureMode !== '0' && !executionProps.reloaded) {
+      if (
+        tab.status !== 'loading' &&
+        screenCaptureMode !== '0' &&
+        !executionProps.reloaded
+      ) {
         gsUtils.log(
           tab.id,
           'Tab is not responding. Will reload for screen capture.'
@@ -365,16 +369,19 @@ var gsTabSuspendManager = (function() {
   }
 
   function requestGeneratePreviewImage(tab) {
-    if (tab.active) {
-      chrome.tabs.captureVisibleTab(
-        tab.windowId,
-        { format: 'png' },
-        dataUrl => {
-          handlePreviewImageResponse(tab, dataUrl, chrome.runtime.lastError);
-        }
-      );
-      return;
-    }
+    // Will not implement this for now as it does not actually capture the whole
+    // screen, just the visible area
+    // NOTE: It also requires the <all_urls> manifest permission
+    // if (tab.active) {
+    //   chrome.tabs.captureVisibleTab(
+    //     tab.windowId,
+    //     { format: 'png' },
+    //     dataUrl => {
+    //       handlePreviewImageResponse(tab, dataUrl, chrome.runtime.lastError);
+    //     }
+    //   );
+    //   return;
+    // }
 
     const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     const forceScreenCapture = gsStorage.getOption(
