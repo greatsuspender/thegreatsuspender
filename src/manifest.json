@@ -14,8 +14,7 @@
     "chrome://favicon/*",
     "https://greatsuspender.github.io/",
     "contextMenus",
-    "cookies",
-    "activeTab"
+    "cookies"
   ],
   "background": {
     "scripts": ["js/gsUtils.js", "js/gsChrome.js", "js/gsAnalytics.js", "js/gsStorage.js", "js/db.js", "js/gsIndexedDb.js",
