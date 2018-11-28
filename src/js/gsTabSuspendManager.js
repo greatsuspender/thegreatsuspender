@@ -72,12 +72,12 @@ var gsTabSuspendManager = (function() {
     }
 
     let tabInfo = await getContentScriptTabInfo(tab);
-    // If tabInfo is null this is usually due to tab being discarded or 'parked' on chrome restart
+    // If tabInfo is null this is usually due to tab loading, being discarded or 'parked' on chrome restart
     if (!tabInfo) {
       // If we need to make a screen capture and tab is not responding then reload it
       // TODO: This doesn't actually seem to work
       // Tabs that have just been reloaded usually fail to run the screen capture script :(
-      if (screenCaptureMode !== '0' && !executionProps.reloaded) {
+      if (tab.status !== 'loading' && screenCaptureMode !== '0' && !executionProps.reloaded) {
         gsUtils.log(
           tab.id,
           'Tab is not responding. Will reload for screen capture.'
