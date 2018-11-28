@@ -3,7 +3,9 @@
 var historyUtils = (function(global) {
   'use strict';
 
-  if (!chrome.extension.getBackgroundPage().tgs) return;
+  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().tgs) {
+    return;
+  }
   chrome.extension
     .getBackgroundPage()
     .tgs.setViewGlobals(global, 'historyUtils');
