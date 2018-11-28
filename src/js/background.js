@@ -1021,7 +1021,7 @@ var tgs = (function() {
           command: _suspensionToggleHotkey,
         };
         for (const suspendedView of suspendedViews) {
-          suspendedView.exports.initTabProps(payload);
+          suspendedView.exports.initTabProps(payload); //async. unhandled promise
         }
       }
       _triggerHotkeyUpdate = false;

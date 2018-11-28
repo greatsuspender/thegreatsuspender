@@ -21,21 +21,21 @@
   let currentCommand;
   let currentReason;
 
-  function preInit() {
+  async function preInit() {
     const preInitProps = buildFallbackPropsFromHref(
       window.location.href,
       false
     );
-    initTabProps(preInitProps);
+    await initTabProps(preInitProps);
   }
 
-  function fallbackInit() {
+  async function fallbackInit() {
     const fallbackInitProps = buildFallbackPropsFromHref(
       window.location.href,
       true
     );
     logError('Falling back on href props:', fallbackInitProps);
-    initTabProps(fallbackInitProps);
+    await initTabProps(fallbackInitProps);
     showContents();
   }
 
@@ -102,15 +102,15 @@
     return initProps;
   }
 
-  function initTabProps(initProps) {
+  async function initTabProps(initProps) {
     if (initProps.hasOwnProperty('tabId')) {
       setTabId(initProps.tabId);
     }
     if (initProps.hasOwnProperty('previewUri')) {
-      setPreviewUri(initProps.previewUri); // async. unhandled promise.
+      await setPreviewUri(initProps.previewUri);
     }
     if (initProps.hasOwnProperty('previewMode')) {
-      setPreviewMode(initProps.previewMode); // async. unhandled promise.
+      await setPreviewMode(initProps.previewMode);
     }
     if (initProps.hasOwnProperty('theme')) {
       setTheme(initProps.theme);
@@ -403,7 +403,7 @@
     }
     if (!currentUrl) {
       logError('currentUrl not set!');
-      fallbackInit();
+      fallbackInit(); //async. unhandled promise
     }
     window.removeEventListener('beforeunload', unloadListener);
     window.location.replace(currentUrl);
@@ -566,7 +566,7 @@
     unloadListener = getUnloadListener();
     window.addEventListener('beforeunload', unloadListener);
     localiseHtml(document);
-    preInit();
+    preInit(); //async. unhandled promise
 
     chrome.extension
       .getBackgroundPage()
@@ -581,12 +581,12 @@
           gsTabSuspendManager.initSuspendedTab(global, tabMeta); //async
         } else {
           logError('Failed to fetch tabMeta');
-          fallbackInit();
+          fallbackInit(); //async. unhandled promise
         }
       });
     }
   } catch (e) {
     logError(e);
-    fallbackInit();
+    fallbackInit(); //async. unhandled promise
   }
 })(this);

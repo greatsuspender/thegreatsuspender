@@ -566,7 +566,7 @@ var gsTabSuspendManager = (function() {
     gsUtils.log(tab.id, 'initProps', initProps);
 
     tgs.initialiseSuspendedTabProps(tab);
-    tabView.exports.initTabProps(initProps);
+    await tabView.exports.initTabProps(initProps);
     tabView.exports.showContents();
     return true;
   }

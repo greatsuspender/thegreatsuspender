@@ -605,7 +605,7 @@ var gsUtils = {
           if (Object.keys(payload).length > 0) {
             const suspendedView = tgs.getInternalViewByTabId(tab.id);
             if (suspendedView) {
-              suspendedView.exports.initTabProps(payload);
+              suspendedView.exports.initTabProps(payload); //async. unhandled promise
             }
           }
 
