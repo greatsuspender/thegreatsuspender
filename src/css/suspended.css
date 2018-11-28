@@ -128,9 +128,12 @@ body.suspended-page:not(.img-preview-mode) {
 .hideOverflow {
     overflow: hidden;
 }
-.gsPreview {
+.gsPreviewContainer {
     width: 90%;
-    margin: 30px auto;
+    margin: 0 auto;
+    padding: 30px 0;
+}
+.gsPreview {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);

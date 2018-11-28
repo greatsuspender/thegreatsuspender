@@ -306,12 +306,14 @@
   function buildImagePreview() {
     return new Promise(resolve => {
       const previewEl = document.createElement('div');
+      const bodyEl = document.getElementsByTagName('body')[0];
+      previewEl.classList.add('gsPreviewContainer');
       previewEl.innerHTML = document.getElementById(
         'previewTemplate'
       ).innerHTML;
       localiseHtml(previewEl);
       previewEl.onclick = handleUnsuspendTab;
-      document.getElementsByTagName('body')[0].appendChild(previewEl);
+      bodyEl.appendChild(previewEl);
       builtImagePreview = true;
 
       const previewImgEl = document.getElementById('gsPreviewImg');
