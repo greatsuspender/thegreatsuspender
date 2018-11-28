@@ -546,7 +546,8 @@ var gsTabSuspendManager = (function() {
       previewUri = preview.img;
     }
 
-    const showNag = tgs.getSuspendedTabPropForTabId(tab.id, tgs.STP_SHOW_NAG);
+    const showNag =
+      tgs.getSuspendedTabPropForTabId(tab.id, tgs.STP_SHOW_NAG) || false;
     const suspendReason = tgs.getSuspendedTabPropForTabId(
       tab.id,
       tgs.STP_SUSPEND_REASON

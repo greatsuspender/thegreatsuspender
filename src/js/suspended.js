@@ -41,6 +41,7 @@
 
   function showContents() {
     document.querySelector('body').classList.remove('hide-initially');
+    updateScrollPosition();
   }
 
   // AFAIK this is the only way to find out the chrome tabId
@@ -106,6 +107,11 @@
     if (initProps.hasOwnProperty('tabId')) {
       setTabId(initProps.tabId);
     }
+    // ScrollPosition should come before preview settings
+    if (initProps.hasOwnProperty('scrollPosition')) {
+      setScrollPosition(initProps.scrollPosition);
+    }
+    // PreviewUri should come before previewMode
     if (initProps.hasOwnProperty('previewUri')) {
       await setPreviewUri(initProps.previewUri);
     }
@@ -129,9 +135,6 @@
     }
     if (initProps.hasOwnProperty('url')) {
       setUrl(initProps.url);
-    }
-    if (initProps.hasOwnProperty('scrollPosition')) {
-      setScrollPosition(initProps.scrollPosition);
     }
     if (initProps.hasOwnProperty('reason')) {
       setReason(initProps.reason);
@@ -344,7 +347,10 @@
       document.getElementById('suspendedMsg').style.display = 'none';
       document.body.classList.add('img-preview-mode');
     }
+    updateScrollPosition();
+  }
 
+  function updateScrollPosition() {
     const scrollImagePreview = currentPreviewMode === '2';
     if (scrollImagePreview && currentScrollPosition) {
       document.body.scrollTop = currentScrollPosition || 0;
