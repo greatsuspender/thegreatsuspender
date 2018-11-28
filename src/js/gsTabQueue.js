@@ -24,7 +24,7 @@ function GsTabQueue(queueId, queueProps) {
       exceptionFn: (tab, resolve, reject, requeue) => resolve(false),
     };
     const _tabDetailsByTabId = {};
-    let _processingQueueTimer = null;
+    let _processingQueueBufferTimer = null;
     let _queueId = queueId;
 
     setQueueProperties(queueProps);
@@ -152,24 +152,23 @@ function GsTabQueue(queueId, queueProps) {
     function requestProcessQueue(sleepBefore) {
       if (sleepBefore) {
         setTimeout(() => {
-          if (_processingQueueTimer === null) {
-            processQueue();
-          }
+          startProcessQueueBufferTimer();
         }, _queueProperties.prequeueDelay);
       } else {
-        if (_processingQueueTimer === null) {
+        startProcessQueueBufferTimer();
+      }
+    }
+
+    function startProcessQueueBufferTimer() {
+      if (_processingQueueBufferTimer === null) {
+        _processingQueueBufferTimer = setTimeout(() => {
+          _processingQueueBufferTimer = null;
           processQueue();
-        }
+        }, PROCESSING_QUEUE_CHECK_INTERVAL);
       }
     }
 
     function processQueue() {
-      // restart _processingQueueTimer
-      _processingQueueTimer = setTimeout(() => {
-        _processingQueueTimer = null;
-        processQueue();
-      }, PROCESSING_QUEUE_CHECK_INTERVAL);
-
       // gsUtils.log(_queueId, 'Processing queue...');
       const queuedTabDetails = [];
       const inProgressTabDetails = [];
@@ -289,7 +288,7 @@ function GsTabQueue(queueId, queueProps) {
       gsUtils.log(
         tabDetails.tab.id,
         _queueId,
-          `Requeueing tab. Requeues: ${tabDetails.requeues}`
+        `Requeueing tab. Requeues: ${tabDetails.requeues}`
       );
       requestProcessQueue(true);
       sleepTab(tabDetails, requeueDelay);
