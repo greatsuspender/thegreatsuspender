@@ -1648,20 +1648,11 @@ var tgs = (function() {
     }
 
     if (request.action === 'savePreviewData') {
-      if (request.previewUrl) {
-        gsIndexedDb
-          .addPreviewImage(sender.tab.url, request.previewUrl)
-          .then(() =>
-            gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab)
-          ); //async. unhandled promise.
-      } else {
-        gsUtils.warning(
-          sender.tab.id,
-          'savePreviewData reported an error: ',
-          request.errorMsg
-        );
-        gsTabSuspendManager.resumeQueuedTabSuspension(sender.tab); //async. unhandled promise.
-      }
+      gsTabSuspendManager.handlePreviewImageResponse(
+        sender.tab,
+        request.previewUrl,
+        request.errorMsg
+      );
       sendResponse();
       return false;
     }

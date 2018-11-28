@@ -1,7 +1,7 @@
 {
   "name": "__MSG_ext_extension_name__",
   "description": "__MSG_ext_extension_description__",
-  "version": "7.0.148",
+  "version": "7.0.149",
   "default_locale": "en",
   "permissions": [
     "tabs",
@@ -14,7 +14,8 @@
     "chrome://favicon/*",
     "https://greatsuspender.github.io/",
     "contextMenus",
-    "cookies"
+    "cookies",
+    "activeTab"
   ],
   "background": {
     "scripts": ["js/gsUtils.js", "js/gsChrome.js", "js/gsAnalytics.js", "js/gsStorage.js", "js/db.js", "js/gsIndexedDb.js",

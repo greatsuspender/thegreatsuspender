@@ -131,16 +131,22 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
-    try {
-      // Hack. Save handle to resolve function so we can call it later
-      executionProps.resolveFn = resolve;
-      await requestGeneratePreviewImg(tab);
-      // resumeQueuedTabSuspension is called on the 'savePreviewData' message response
-      // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
-    } catch (error) {
-      gsUtils.warning(tab.id, error);
-      const success = await executeTabSuspension(tab, suspendedUrl);
-      resolve(success);
+    // Hack. Save handle to resolve function so we can call it later
+    executionProps.resolveFn = resolve;
+    requestGeneratePreviewImage(tab); //async
+    gsUtils.log(tab.id, 'Preview generation script started successfully.');
+    // resumeQueuedTabSuspension is called on the 'savePreviewData' message response
+    // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
+  }
+
+  function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
+    if (previewUrl) {
+      gsIndexedDb
+        .addPreviewImage(tab.url, previewUrl)
+        .then(() => resumeQueuedTabSuspension(tab)); //async. unhandled promise.
+    } else {
+      gsUtils.warning(tab.id, 'savePreviewData reported an error: ', errorMsg);
+      resumeQueuedTabSuspension(tab); //async. unhandled promise.
     }
   }
 
@@ -358,50 +364,55 @@ var gsTabSuspendManager = (function() {
     }
   }
 
-  function requestGeneratePreviewImg(tab) {
-    return new Promise((resolve, reject) => {
-      const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-      const forceScreenCapture = gsStorage.getOption(
-        gsStorage.SCREEN_CAPTURE_FORCE
-      );
-      const useAlternateScreenCaptureLib = gsStorage.getOption(
-        gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
-      );
-      const screenCaptureLib = useAlternateScreenCaptureLib
-        ? 'js/dom-to-image.js'
-        : 'js/html2canvas.min.js';
-      gsUtils.log(tab.id, `Injecting ${screenCaptureLib} into content script`);
-      const previewStartTime = Date.now();
-
-      gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
-        if (error) {
-          reject('Failed to executeScriptOnTab');
-          return;
+  function requestGeneratePreviewImage(tab) {
+    if (tab.active) {
+      chrome.tabs.captureVisibleTab(
+        tab.windowId,
+        { format: 'png' },
+        dataUrl => {
+          handlePreviewImageResponse(tab, dataUrl, chrome.runtime.lastError);
         }
-        gsMessages.executeCodeOnTab(
-          tab.id,
-          `(${generatePreviewImgContentScript})("${screenCaptureMode}", ${forceScreenCapture}, ${useAlternateScreenCaptureLib});`,
-          error => {
-            const timeTaken = parseInt((Date.now() - previewStartTime) / 1000);
-            gsUtils.log(
-              tab.id,
-              `Preview generation finished. Time taken: ${timeTaken}. Success: ${!error}`
+      );
+      return;
+    }
+
+    const screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
+    const forceScreenCapture = gsStorage.getOption(
+      gsStorage.SCREEN_CAPTURE_FORCE
+    );
+    const useAlternateScreenCaptureLib = gsStorage.getOption(
+      gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
+    );
+    const screenCaptureLib = useAlternateScreenCaptureLib
+      ? 'js/dom-to-image.js'
+      : 'js/html2canvas.min.js';
+    gsUtils.log(tab.id, `Injecting ${screenCaptureLib} into content script`);
+    gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
+      if (error) {
+        handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab');
+        return;
+      }
+      gsMessages.executeCodeOnTab(
+        tab.id,
+        `(${generatePreviewImageCanvasViaContentScript})("${screenCaptureMode}", ${forceScreenCapture}, ${useAlternateScreenCaptureLib});`,
+        error => {
+          if (error) {
+            handlePreviewImageResponse(
+              tab,
+              null,
+              'Failed to executeCodeOnTab: generatePreviewImgContentScript'
             );
-            if (error) {
-              reject(
-                'Failed to executeCodeOnTab: generatePreviewImgContentScript'
-              );
-            } else {
-              resolve();
-            }
+            return;
           }
-        );
-      });
+        }
+      );
     });
   }
 
+  // NOTE: This function below is run within the content script scope
+  // Therefore it must be self contained and not refer to any external functions
   // eslint-disable-next-line no-unused-vars
-  async function generatePreviewImgContentScript(
+  async function generatePreviewImageCanvasViaContentScript(
     screenCaptureMode,
     forceScreenCapture,
     useAlternateScreenCaptureLib
@@ -432,6 +443,7 @@ var gsTabSuspendManager = (function() {
 
     let generateCanvas;
     if (useAlternateScreenCaptureLib) {
+      // console.log('Generating via dom-to-image..');
       generateCanvas = () => {
         return domtoimage.toCanvas(document.body, {}).then(canvas => {
           const croppedCanvas = document.createElement('canvas');
@@ -443,6 +455,7 @@ var gsTabSuspendManager = (function() {
         });
       };
     } else {
+      // console.log('Generating via html2canvas..');
       generateCanvas = () => {
         return html2canvas(document.body, {
           height: height,
@@ -470,6 +483,7 @@ var gsTabSuspendManager = (function() {
     let errorMsg;
     try {
       const canvas = await generateCanvas();
+      // console.log('generating dataUrl..');
       dataUrl = generateDataUrl(canvas);
     } catch (err) {
       errorMsg = err.message;
@@ -477,7 +491,7 @@ var gsTabSuspendManager = (function() {
     if (!dataUrl && !errorMsg) {
       errorMsg = 'Failed to generate dataUrl';
     }
-
+    // console.log('saving previewData..');
     chrome.runtime.sendMessage({
       action: 'savePreviewData',
       previewUrl: dataUrl,
@@ -562,6 +576,7 @@ var gsTabSuspendManager = (function() {
     queueTabForSuspension,
     queueTabForSuspensionAsPromise,
     unqueueTabForSuspension,
+    handlePreviewImageResponse,
     resumeQueuedTabSuspension,
     saveSuspendData,
     checkTabEligibilityForSuspension,
