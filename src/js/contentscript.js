@@ -20,11 +20,7 @@
 
   function formInputListener(e) {
     if (!isReceivingFormInput && !tempWhitelist) {
-      if (
-        event.keyCode >= 48 &&
-        event.keyCode <= 90 &&
-        event.target.tagName
-      ) {
+      if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
         if (
           event.target.tagName.toUpperCase() === 'INPUT' ||
           event.target.tagName.toUpperCase() === 'TEXTAREA' ||
@@ -51,11 +47,13 @@
 
   function init() {
     //listen for background events
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    chrome.runtime.onMessage.addListener(function(
+      request,
+      sender,
+      sendResponse
+    ) {
       if (request.hasOwnProperty('action')) {
-        if (request.action === 'confirmTabSuspend' &&
-          request.suspendedUrl
-        ) {
+        if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
           sendResponse();
           suspendTab(request.suspendedUrl);
           return false;
@@ -91,20 +89,18 @@
   }
 
   function waitForRuntimeReady(retries) {
-    return new Promise(async (resolve, reject) => {
-      if (chrome.runtime) {
-        console.log('chrome.runtime ready after ' + retries + ' retries');
-        resolve();
-        return;
+    retries = retries || 0;
+    return new Promise(r => r(chrome.runtime)).then(chromeRuntime => {
+      if (chromeRuntime) {
+        return Promise.resolve();
       }
       if (retries > 3) {
-        reject('Failed waiting for chrome.runtime');
-        return;
+        return Promise.reject('Failed waiting for chrome.runtime');
       }
       retries += 1;
-      return new Promise(r => window.setTimeout(r, 100)).then(() => {
-        return waitForRuntimeReady(retries);
-      });
+      return new Promise(r => window.setTimeout(r, 500)).then(() =>
+        waitForRuntimeReady(retries)
+      );
     });
   }
 
@@ -131,5 +127,7 @@
     };
   }
 
-  waitForRuntimeReady(0).then(init).catch(console.error);
+  waitForRuntimeReady()
+    .then(init)
+    .catch(console.error);
 })();
