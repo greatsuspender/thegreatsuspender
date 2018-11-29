@@ -126,7 +126,9 @@ var gsTabCheckManager = (function() {
       tab.id,
       `Failed to initialise suspended tab: ${exceptionType}`
     );
-    await unsuspendSuspendedTab(tab);
+    // Dont unsuspend here as it tends to cause excess load and typically we are
+    // only getting exceptions here in situations with high load
+    // await unsuspendSuspendedTab(tab);
     resolve(false);
   }
 
