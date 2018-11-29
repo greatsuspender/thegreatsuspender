@@ -56,64 +56,54 @@
     });
   }
 
+  function addFlagHtml(elementId, getterFn, setterFn) {
+    document.getElementById(elementId).innerHTML = getterFn();
+    document.getElementById(elementId).onclick = function(e) {
+      const newVal = !getterFn();
+      setterFn(newVal);
+      document.getElementById(elementId).innerHTML = newVal;
+    };
+  }
+
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     fetchInfo();
-
-    document.getElementById(
-      'toggleDebugInfo'
-    ).innerHTML = gsUtils.isDebugInfo();
-    document.getElementById('toggleDebugInfo').onclick = function(e) {
-      gsUtils.setDebugInfo(!gsUtils.isDebugInfo());
-      document.getElementById(
-        'toggleDebugInfo'
-      ).innerHTML = gsUtils.isDebugInfo();
-    };
-
-    document.getElementById(
-      'toggleDebugError'
-    ).innerHTML = gsUtils.isDebugError();
-    document.getElementById('toggleDebugError').onclick = function(e) {
-      gsUtils.setDebugError(!gsUtils.isDebugError());
-      document.getElementById(
-        'toggleDebugError'
-      ).innerHTML = gsUtils.isDebugError();
-    };
-
-    let discardInPlaceOfSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+    addFlagHtml(
+      'toggleDebugInfo',
+      () => gsUtils.isDebugInfo(),
+      newVal => gsUtils.setDebugInfo(newVal)
     );
-    document.getElementById(
-      'toggleDiscardInPlaceOfSuspend'
-    ).innerHTML = discardInPlaceOfSuspend;
-    document.getElementById('toggleDiscardInPlaceOfSuspend').onclick = function(
-      e
-    ) {
-      gsStorage.setOptionAndSync(
-        gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
-        !discardInPlaceOfSuspend
-      );
-      document.getElementById(
-        'toggleDiscardInPlaceOfSuspend'
-      ).innerHTML = !discardInPlaceOfSuspend;
-    };
-
-    let useAlternateScreenCaptureLib = gsStorage.getOption(
-      gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
+    addFlagHtml(
+      'toggleDebugError',
+      () => gsUtils.isDebugError(),
+      newVal => gsUtils.setDebugError(newVal)
     );
-    document.getElementById(
-      'toggleUseAlternateScreenCaptureLib'
-    ).innerHTML = useAlternateScreenCaptureLib;
-    document.getElementById(
-      'toggleUseAlternateScreenCaptureLib'
-    ).onclick = function(e) {
-      gsStorage.setOptionAndSync(
-        gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
-        !useAlternateScreenCaptureLib
-      );
-      document.getElementById(
-        'toggleUseAlternateScreenCaptureLib'
-      ).innerHTML = !useAlternateScreenCaptureLib;
-    };
+    addFlagHtml(
+      'toggleDiscardInPlaceOfSuspend',
+      () => gsStorage.getOption(gsStorage.DISCARD_IN_PLACE_OF_SUSPEND),
+      newVal => {
+        gsStorage.setOptionAndSync(
+          gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
+          newVal
+        );
+      }
+    );
+    addFlagHtml(
+      'toggleUseAlternateScreenCaptureLib',
+      () => gsStorage.getOption(gsStorage.USE_ALT_SCREEN_CAPTURE_LIB),
+      newVal => {
+        gsStorage.setOptionAndSync(
+          gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
+          newVal
+        );
+      }
+    );
+    addFlagHtml(
+      'toggleDisableTabChecks',
+      () => gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS),
+      newVal => {
+        gsStorage.setOptionAndSync(gsStorage.DISABLE_TAB_CHECKS, newVal);
+      }
+    );
 
     var extensionsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
     document

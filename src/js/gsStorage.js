@@ -23,6 +23,7 @@ var gsStorage = {
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
   USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
+  DISABLE_TAB_CHECKS: 'disableTabChecks',
 
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
@@ -42,6 +43,7 @@ var gsStorage = {
     defaults[this.SUSPEND_IN_PLACE_OF_DISCARD] = false;
     defaults[this.DISCARD_IN_PLACE_OF_SUSPEND] = false;
     defaults[this.USE_ALT_SCREEN_CAPTURE_LIB] = false;
+    defaults[this.DISABLE_TAB_CHECKS] = false;
     defaults[this.DISCARD_AFTER_SUSPEND] = false;
     defaults[this.IGNORE_WHEN_OFFLINE] = false;
     defaults[this.IGNORE_WHEN_CHARGING] = false;
@@ -363,6 +365,7 @@ var gsStorage = {
         localStorage.getItem(this.LAST_EXTENSION_RECOVERY)
       );
     }
+    return null;
     return lastExtensionRecoveryTimestamp;
   },
   setLastExtensionRecoveryTimestamp: function(extensionRecoveryTimestamp) {
