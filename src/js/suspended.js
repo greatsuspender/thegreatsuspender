@@ -1,6 +1,8 @@
-/*global window, document, chrome, Image, XMLHttpRequest, tgs, gsTabSuspendManager, gsUtils, gsSession, gsTabSuspendManager */
+/*global window, document, chrome, Image, XMLHttpRequest, tgs, gsTabSuspendManager, gsUtils, gsSession, gsStorage, gsTabSuspendManager */
 (function(global) {
   'use strict';
+
+  const MAX_RETRIES = 10;
 
   let unloadListener;
   let isLowContrastFavicon = false;
@@ -20,6 +22,59 @@
   let currentShowNag;
   let currentCommand;
   let currentReason;
+
+  function init(retries) {
+    retries = retries || 0;
+    console.log('init attempt: ' + retries);
+    return new Promise(async (resolve, reject) => {
+      try {
+        chrome.extension
+          .getBackgroundPage()
+          .tgs.setViewGlobals(global, 'suspended');
+        if (!global.exports) {
+          reject('Failed to set global.exports');
+          return;
+        }
+
+        const disableTabChecks = gsStorage.getOption(
+          gsStorage.DISABLE_TAB_CHECKS
+        );
+        if (gsSession.isInitialising() && !disableTabChecks) {
+          // do nothing as we rely on gsSession startup to handle init
+          resolve();
+          return;
+        }
+
+        const tabMeta = await fetchTabMeta();
+        if (!tabMeta) {
+          reject('Failed to fetch tabMeta');
+          return;
+        }
+
+        setTabId(tabMeta.id);
+        const success = await gsTabSuspendManager.initSuspendedTab(
+          global,
+          tabMeta
+        );
+        if (!success) {
+          reject('Failed to initSuspendedTab');
+          return;
+        }
+        resolve();
+      }
+      catch (e) {
+        reject(e);
+      }
+    }).catch(e => {
+      if (retries >= MAX_RETRIES) {
+        return Promise.reject('Failed to init tab');
+      }
+      retries += 1;
+      return new Promise(r => window.setTimeout(r, 1000)).then(() =>
+        init(retries)
+      );
+    });
+  }
 
   async function preInit() {
     const preInitProps = buildFallbackPropsFromHref(
@@ -570,38 +625,20 @@
     showNoConnectivityMessage,
   };
 
-
-  // wrap this in an anonymous async function so we can use await
-  (async function() {
-    try {
-      unloadListener = getUnloadListener();
-      window.addEventListener('beforeunload', unloadListener);
-      localiseHtml(document);
-      preInit(); //async. unhandled promise
-
-      chrome.extension
-        .getBackgroundPage()
-        .tgs.setViewGlobals(global, 'suspended');
-      if (!global.exports) {
-        throw new Error('Failed to set global.exports');
-      }
-
-      if (gsSession.isInitialising()) {
-        // do nothing as we rely on gsSession startup to handle init
-        return;
-      }
-
-      const tabMeta = await fetchTabMeta();
-      if (!tabMeta) {
-        throw new Error('Failed to fetch tabMeta');
-      }
-      setTabId(tabMeta.id);
-      await gsTabSuspendManager.initSuspendedTab(global, tabMeta);
-
-    } catch (e) {
-      logError(e);
-      fallbackInit(); //async. unhandled promise
+  localiseHtml(document);
+  preInit(); //async. unhandled promise
+  unloadListener = getUnloadListener();
+  window.addEventListener('beforeunload', unloadListener);
+  window.onfocus = () => {
+    if (!currentTabId) {
+      init(MAX_RETRIES).catch(e => {
+        logError(e);
+        fallbackInit(); //async. unhandled promise
+      });
     }
-  })();
-
+  };
+  init().catch(e => {
+    logError(e);
+    fallbackInit(); //async. unhandled promise
+  });
 })(this);
