@@ -6,6 +6,8 @@ var gsTabDiscardManager = (function() {
   const DEFAULT_CONCURRENT_DISCARDS = 5;
   const DEFAULT_DISCARD_TIMEOUT = 5 * 1000;
 
+  const QUEUE_ID = 'discardQueue';
+
   let discardQueue;
 
   function initAsPromised() {
@@ -16,7 +18,7 @@ var gsTabDiscardManager = (function() {
         executorFn: performDiscard,
         exceptionFn: handleDiscardException,
       };
-      discardQueue = GsTabQueue('discardQueue', queueProps);
+      discardQueue = GsTabQueue(QUEUE_ID, queueProps);
       resolve();
     });
   }
@@ -35,7 +37,7 @@ var gsTabDiscardManager = (function() {
   function unqueueTabForDiscard(tab) {
     const removed = discardQueue.unqueueTab(tab);
     if (removed) {
-      gsUtils.log(tab.id, `Removed tab from discard queue.`);
+      gsUtils.log(tab.id, QUEUE_ID, `Removed tab from discard queue.`);
     }
   }
 
@@ -59,21 +61,21 @@ var gsTabDiscardManager = (function() {
     tab = _tab;
 
     if (gsUtils.isSuspendedTab(tab) && tab.status === 'loading') {
-      gsUtils.log(tab.id, 'Tab is still loading');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab is still loading');
       requeue();
       return;
     }
     if (tgs.isCurrentActiveTab(tab)) {
-      gsUtils.log(tab.id, 'Tab is active. Aborting discard.');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab is active. Aborting discard.');
       resolve(false);
       return;
     }
     if (gsUtils.isDiscardedTab(tab)) {
-      gsUtils.log(tab.id, 'Tab already discarded');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab already discarded');
       resolve(false);
       return;
     }
-    gsUtils.log(tab.id, 'Forcing discarding of tab.');
+    gsUtils.log(tab.id, QUEUE_ID, 'Forcing discarding of tab.');
     chrome.tabs.discard(tab.id, () => {
       if (chrome.runtime.lastError) {
         gsUtils.warning(tab.id, chrome.runtime.lastError);
@@ -103,7 +105,7 @@ var gsTabDiscardManager = (function() {
     ) {
       tgs.setSuspendedTabPropForTabId(tab.id, tgs.STP_SUSPEND_REASON, 3);
       const suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-      gsUtils.log(tab.id, 'Suspending discarded unsuspended tab');
+      gsUtils.log(tab.id, QUEUE_ID, 'Suspending discarded unsuspended tab');
 
       // Note: This bypasses the suspension tab queue and also prevents screenshots from being taken
       await gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl);
