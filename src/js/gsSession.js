@@ -85,16 +85,19 @@ var gsSession = (function() {
     const tabsExist = currentWindows.some(
       window => window.tabs && window.tabs.length
     );
-    if (tabsExist) {
-      const currentSession = {
-        sessionId: getSessionId(),
-        windows: currentWindows,
-        date: new Date().toISOString(),
-      };
-      return currentSession;
+    if (!tabsExist) {
+      gsUtils.warning(
+        'gsSession',
+        'Failed to build current session. Could not find any tabs.'
+      );
+      return null;
     }
-    gsUtils.error('gsSession', 'Failed to build current session!');
-    return null;
+    const currentSession = {
+      sessionId: getSessionId(),
+      windows: currentWindows,
+      date: new Date().toISOString(),
+    };
+    return currentSession;
   }
 
   async function updateCurrentSession() {
@@ -166,7 +169,12 @@ var gsSession = (function() {
       await handleUpdate(currentSessionTabs, curVersion, startupLastVersion);
     }
 
-    await performTabChecks();
+    const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
+    if (!disableTabChecks) {
+      await performTabChecks();
+    } else {
+      gsUtils.log('Skipping tabChecks due to disableTabChecks flag.');
+    }
 
     gsUtils.log('gsSession', 'updating current session');
     updateCurrentSession(); //async

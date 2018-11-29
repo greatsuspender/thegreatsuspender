@@ -867,10 +867,26 @@ var tgs = (function() {
 
       if (isCurrentFocusedTab(tab)) {
         setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-      } else {
-        //give the completed suspended tab 3secs to finish setting initProps
-        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+        return;
       }
+
+      // If tabChecks have been disabled then we need to handle discarding now
+      const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
+      if (disableTabChecks) {
+        // If we want to discard tabs after suspending them
+        let discardAfterSuspend = gsStorage.getOption(
+          gsStorage.DISCARD_AFTER_SUSPEND
+        );
+        if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
+          gsUtils.log(tab.id, 'Queueing tab for discard.');
+          gsTabDiscardManager.queueTabForDiscard(tab, null, 3000);
+        }
+        return;
+      }
+
+      // Otherwise let tabCheck trigger the subsequent tab discarding
+      // Give the completed suspended tab 3secs to finish setting initProps
+      gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
     }
   }
 
@@ -1687,7 +1703,11 @@ var tgs = (function() {
     chrome.tabs.onCreated.addListener(async function(tab) {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
+
       if (gsUtils.isSuspendedTab(tab, true)) {
+        const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
+        if (disableTabChecks) return;
+
         // Queue tab for check but mark it as sleeping for 5 seconds to give
         // a change for the tab to load
         gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 5000);
