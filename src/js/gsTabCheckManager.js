@@ -240,19 +240,22 @@ var gsTabCheckManager = (function() {
     let tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
     let tabPropsOk = ensureViewSuspendedTabPropsSet(tab);
     if (!tabBasicsOk || !tabPropsOk) {
-      gsUtils.log(tab.id, 'Reinitialising suspendedTab: ', tab);
-      const suspendedView = tgs.getInternalViewByTabId(tab.id);
-      if (suspendedView) {
-        await gsTabSuspendManager.initSuspendedTab(suspendedView, tab);
-      }
-
       const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
       if (!tabQueueDetails) {
         resolve(false);
         return;
       }
-      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
-      return;
+      try {
+        gsUtils.log(tab.id, 'Reinitialising suspendedTab: ', tab);
+        const suspendedView = tgs.getInternalViewByTabId(tab.id);
+        if (suspendedView) {
+          await gsTabSuspendManager.initSuspendedTab(suspendedView, tab);
+        }
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
+      } catch (e) {
+        gsUtils.log(tab.id, 'Failed to reinitialise suspendedTab. ', e);
+        resolve(false);
+      }
     }
 
     const backgroundTabPropsOk = ensureBackgroundSuspendedTabPropsSet(tab);
