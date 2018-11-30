@@ -23,16 +23,16 @@ var gsTabDiscardManager = (function() {
     });
   }
 
-  function queueTabForDiscard(tab, executionProps, prequeueDelay) {
-    queueTabForDiscardAsPromise(tab, executionProps, prequeueDelay).catch(e => {
+  function queueTabForDiscard(tab, executionProps, processingDelay) {
+    queueTabForDiscardAsPromise(tab, executionProps, processingDelay).catch(e => {
       gsUtils.log(tab.id, QUEUE_ID, e);
     });
   }
 
-  function queueTabForDiscardAsPromise(tab, executionProps, prequeueDelay) {
+  function queueTabForDiscardAsPromise(tab, executionProps, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queuing tab for discarding.`);
     executionProps = executionProps || {};
-    return discardQueue.queueTabAsPromise(tab, executionProps, prequeueDelay);
+    return discardQueue.queueTabAsPromise(tab, executionProps, processingDelay);
   }
 
   function unqueueTabForDiscard(tab) {
