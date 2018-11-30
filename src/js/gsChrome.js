@@ -63,6 +63,8 @@ var gsChrome = {
       chrome.tabs.reload(tabId, () => {
         if (chrome.runtime.lastError) {
           gsUtils.warning('chromeTabs', chrome.runtime.lastError);
+          resolve(false);
+          return;
         }
         resolve(true);
       });

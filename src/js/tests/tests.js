@@ -14,6 +14,7 @@ const requiredLibs = [
   'gsTabSuspendManager',
   'gsIndexedDb',
   'gsTabQueue',
+  'gsFavicon'
 ];
 
 function loadJsFile(fileName) {

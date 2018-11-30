@@ -37,39 +37,6 @@ testSuites.push(
       };
     }
 
-    // TODO: This function has issues
-    // Does not correctly calculate extraRequeueingTime if the tabCount is
-    // greater than queueProps.concurrentExecutors
-    function calculateExpectedTimeTaken(
-      tabCount,
-      executorDelay,
-      queueProps,
-      allowRequeueing,
-      requeueDelay
-    ) {
-      const processingQueueCheckInterval = 50; // From gsTabQueue
-      const requiredGroupRuns =
-        parseInt(tabCount / queueProps.concurrentExecutors) +
-        (tabCount % queueProps.concurrentExecutors > 0 ? 1 : 0);
-      const extraProcessingQueueCheckTime =
-        (requiredGroupRuns - 1) *
-        Math.max(
-          0,
-          processingQueueCheckInterval -
-            Math.min(executorDelay, queueProps.jobTimeout)
-        );
-      let extraRequeueingTime = 0;
-      if (allowRequeueing) {
-        extraRequeueingTime =
-          executorDelay * MAX_REQUEUES + requeueDelay * MAX_REQUEUES;
-      }
-      return (
-        requiredGroupRuns *
-          Math.min(executorDelay + extraRequeueingTime, queueProps.jobTimeout) +
-        extraProcessingQueueCheckTime
-      );
-    }
-
     async function runQueueTest(tabCount, gsTabQueue) {
       const tabCheckPromises = [];
       for (let tabId = 1; tabId <= tabCount; tabId += 1) {
@@ -101,15 +68,14 @@ testSuites.push(
       jobTimeout,
       executorFnType,
       exceptionFnType,
-      shouldGenerateException
+      shouldGenerateException,
+      expectedTimeTaken
     ) {
-      let allowRequeueing = false;
       let executorFn;
       if (executorFnType === 'resolveTrue') {
         executorFn = buildExecutorResolveTrue(executorDelay);
       } else if (executorFnType === 'requeue') {
         executorFn = buildExecutorRequeue(executorDelay, requeueDelay);
-        allowRequeueing = true;
       }
       let exceptionFn;
       if (exceptionFnType === 'resolveFalse') {
@@ -122,14 +88,8 @@ testSuites.push(
         jobTimeout,
         executorFn,
         exceptionFn,
+        processingDelay: 0
       };
-      const expectedTimeTaken = calculateExpectedTimeTaken(
-        tabCount,
-        executorDelay,
-        queueProps,
-        allowRequeueing,
-        requeueDelay
-      );
 
       const startTime = Date.now();
       const gsTabQueue = GsTabQueue('testQueue', queueProps);
@@ -151,7 +111,7 @@ testSuites.push(
       }
 
       // Nasty hack here
-      const allowedTimingVariation = 200;
+      const allowedTimingVariation = 150;
 
       let isTimeValid =
         timeTaken > expectedTimeTaken &&
@@ -165,6 +125,7 @@ testSuites.push(
         // Test: 5 tabs. 100ms per tab. No requeue delay. 1 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should resolveTrue.
+        // Expected time taken: 5 * 100 + 5 * 50
         return await makeTest(
           5,
           100,
@@ -173,7 +134,8 @@ testSuites.push(
           1000,
           'resolveTrue',
           'resolveFalse',
-          false
+          false,
+          750
         );
       },
 
@@ -181,6 +143,7 @@ testSuites.push(
         // Test: 5 tabs. 100ms per tab. No requeue delay. 2 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should resolveTrue.
+        // Expected time taken: 3 * 100 + 3 * 50
         return await makeTest(
           5,
           100,
@@ -189,7 +152,8 @@ testSuites.push(
           1000,
           'resolveTrue',
           'resolveFalse',
-          false
+          false,
+          450
         );
       },
 
@@ -197,6 +161,7 @@ testSuites.push(
         // Test: 5 tabs. 100ms per tab. No requeue delay. 50 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should resolveTrue.
+        // Expected time taken: 1 * 100 + 1 * 50
         return await makeTest(
           5,
           100,
@@ -205,7 +170,8 @@ testSuites.push(
           1000,
           'resolveTrue',
           'resolveFalse',
-          false
+          false,
+          150
         );
       },
 
@@ -213,6 +179,7 @@ testSuites.push(
         // Test: 50 tabs. 100ms per tab. No requeue delay. 20 at a time. 1000ms timeout.
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should resolveTrue.
+        // Expected time taken: 3 * 100 + 3 * 50
         return await makeTest(
           50,
           100,
@@ -221,7 +188,8 @@ testSuites.push(
           1000,
           'resolveTrue',
           'resolveFalse',
-          false
+          false,
+          450
         );
       },
 
@@ -230,6 +198,7 @@ testSuites.push(
         // Executor function resolvesTrue. Exception function resolvesFalse.
         // Should timeout on each execution.
         // Should resolveFalse.
+        // Expected time taken: 5 * 10 + 5 * 50
         return await makeTest(
           5,
           100,
@@ -238,7 +207,8 @@ testSuites.push(
           10,
           'resolveTrue',
           'resolveFalse',
-          true
+          true,
+          300
         );
       },
 
@@ -247,7 +217,8 @@ testSuites.push(
         // Executor function resolvesTrue. Exception function rejects.
         // Results should be undefined as Promises.all rejects.
         // Should reject.
-        return await makeTest(5, 100, 0, 1, 10, 'resolveTrue', 'reject', true);
+        // Expected time taken: 5 * 10 + 5 * 50
+        return await makeTest(5, 100, 0, 1, 10, 'resolveTrue', 'reject', true, 300);
       },
 
       async () => {
@@ -255,6 +226,7 @@ testSuites.push(
         // Executor function requeues (up to 2 times).
         // Exception function resolvesFalse.
         // Should requeue 2 times then resolveTrue.
+        // Expected time taken: 3 * 1 * 100 + 3 * 100 + 1 * 50
         return await makeTest(
           1,
           100,
@@ -263,7 +235,8 @@ testSuites.push(
           1000,
           'requeue',
           'resolveFalse',
-          false
+          false,
+          650
         );
       },
 
@@ -272,6 +245,7 @@ testSuites.push(
         // Executor function requeues (up to 2 times).
         // Exception function resolvesFalse.
         // Should requeue up to 2 times then timeout.
+        // Expected time taken: 1 * 250 + 1 * 50
         return await makeTest(
           1,
           100,
@@ -280,7 +254,8 @@ testSuites.push(
           250,
           'requeue',
           'resolveFalse',
-          true
+          true,
+          300
         );
       },
 
@@ -289,7 +264,8 @@ testSuites.push(
         // Executor function requeues (up to 2 times).
         // Exception function rejects.
         // Should requeue up to 2 times then timeout.
-        return await makeTest(1, 100, 100, 1, 250, 'requeue', 'reject', true);
+        // Expected time taken: 1 * 250 + 1 * 50
+        return await makeTest(1, 100, 100, 1, 250, 'requeue', 'reject', true, 300);
       },
     ];
 
