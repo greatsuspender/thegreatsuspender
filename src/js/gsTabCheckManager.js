@@ -5,7 +5,7 @@ var gsTabCheckManager = (function() {
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 3;
   const DEFAULT_TAB_CHECK_TIMEOUT = 15 * 1000;
-  const DEFAULT_TAB_CHECK_PREQUEUE_DELAY = 500;
+  const DEFAULT_TAB_CHECK_PROCESSING_DELAY = 500;
   const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 5 * 1000;
 
   const QUEUE_ID = 'checkQueue';
@@ -23,7 +23,7 @@ var gsTabCheckManager = (function() {
       const queueProps = {
         concurrentExecutors: DEFAULT_CONCURRENT_TAB_CHECKS,
         jobTimeout: DEFAULT_TAB_CHECK_TIMEOUT,
-        prequeueDelay: DEFAULT_TAB_CHECK_PREQUEUE_DELAY,
+        processingDelay: DEFAULT_TAB_CHECK_PROCESSING_DELAY,
         executorFn: checkSuspendedTab,
         exceptionFn: handleTabCheckException,
       };
@@ -40,8 +40,8 @@ var gsTabCheckManager = (function() {
       tabs.length * 1000,
       DEFAULT_TAB_CHECK_TIMEOUT
     );
-    const initPrequeueDelay = 1000;
-    updateQueueProps(initJobTimeout, initPrequeueDelay);
+    const initprocessingDelay = 1000;
+    updateQueueProps(initJobTimeout, initprocessingDelay);
 
     // Temporarily add messageListener to listen for suspended tab init requests
     const messageListener = (request, sender, sendResponse) => {
@@ -78,7 +78,7 @@ var gsTabCheckManager = (function() {
     // Revert timeout
     updateQueueProps(
       DEFAULT_TAB_CHECK_TIMEOUT,
-      DEFAULT_TAB_CHECK_PREQUEUE_DELAY
+      DEFAULT_TAB_CHECK_PROCESSING_DELAY
     );
 
     // Remove temporary listener
@@ -87,27 +87,27 @@ var gsTabCheckManager = (function() {
     return results;
   }
 
-  function updateQueueProps(jobTimeout, prequeueDelay) {
+  function updateQueueProps(jobTimeout, processingDelay) {
     gsUtils.log(
       QUEUE_ID,
-      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. prequeueDelay: ${prequeueDelay}`
+      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. processingDelay: ${processingDelay}`
     );
     tabCheckQueue.setQueueProperties({
       jobTimeout,
-      prequeueDelay,
+      processingDelay,
     });
   }
 
-  function queueTabCheck(tab, executionProps, prequeueDelay) {
-    queueTabCheckAsPromise(tab, executionProps, prequeueDelay).catch(e => {
+  function queueTabCheck(tab, executionProps, processingDelay) {
+    queueTabCheckAsPromise(tab, executionProps, processingDelay).catch(e => {
       gsUtils.log(tab.id, QUEUE_ID, e);
     });
   }
 
-  function queueTabCheckAsPromise(tab, executionProps, prequeueDelay) {
+  function queueTabCheckAsPromise(tab, executionProps, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queuing tab for responsiveness check.`);
     executionProps = executionProps || {};
-    return tabCheckQueue.queueTabAsPromise(tab, executionProps, prequeueDelay);
+    return tabCheckQueue.queueTabAsPromise(tab, executionProps, processingDelay);
   }
 
   function getQueuedTabCheckDetails(tab) {
@@ -256,6 +256,7 @@ var gsTabCheckManager = (function() {
         gsUtils.log(tab.id, 'Failed to reinitialise suspendedTab. ', e);
         resolve(false);
       }
+      return;
     }
 
     const backgroundTabPropsOk = ensureBackgroundSuspendedTabPropsSet(tab);
