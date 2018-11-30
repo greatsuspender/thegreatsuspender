@@ -1,4 +1,4 @@
-/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, gsTabCheckManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
@@ -576,6 +576,24 @@ var gsTabSuspendManager = (function() {
     tgs.initialiseSuspendedTabProps(tab);
     await tabView.exports.initTabProps(initProps);
     tabView.exports.showContents();
+
+    // If tabChecks have been disabled then we need to handle discarding now
+    const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
+    if (disableTabChecks) {
+      // If we want to discard tabs after suspending them
+      let discardAfterSuspend = gsStorage.getOption(
+        gsStorage.DISCARD_AFTER_SUSPEND
+      );
+      if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
+        gsUtils.log(tab.id, 'Queueing tab for discard.');
+        gsTabDiscardManager.queueTabForDiscard(tab, null, 3000);
+      }
+    } else {
+      // Otherwise let tabCheck trigger the subsequent tab discarding
+      // Give the completed suspended tab 3secs to finish setting initProps
+      gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+    }
+
     return true;
   }
 
