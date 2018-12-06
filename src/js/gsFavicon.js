@@ -13,12 +13,6 @@ var gsFavicon = (function() {
     return new Promise(async function(resolve) {
       await buildDefaultTgsFaviconMeta();
       await buildDefaultChromeFaviconMeta();
-
-      addFaviconMetaToDefaultFingerprints(_defaultTgsFaviconMeta, 'tgsFavicon');
-      addFaviconMetaToDefaultFingerprints(
-        _defaultChromeFaviconMeta,
-        'chromeFavicon'
-      );
       resolve();
     });
   }
@@ -28,7 +22,20 @@ var gsFavicon = (function() {
     const chromeFavIconUrl = generateChromeFavIconUrlFromUrl(
       'tgsDefaultFavicon'
     );
-    _defaultChromeFaviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
+    try {
+      _defaultChromeFaviconMeta = await gsUtils.executeWithRetries(
+        buildFaviconMetaData,
+        [chromeFavIconUrl],
+        4,
+        0
+      );
+      addFaviconMetaToDefaultFingerprints(
+        _defaultChromeFaviconMeta,
+        'chromeFavicon'
+      );
+    } catch (e) {
+      gsUtils.warning('gsFavicon', e);
+    }
     if (!_defaultChromeFaviconMeta) {
       gsUtils.warning('gsFavicon', 'Failed to build _defaultChromeFaviconMeta');
     }
@@ -36,7 +43,17 @@ var gsFavicon = (function() {
 
   async function buildDefaultTgsFaviconMeta() {
     const tgsFavIconUrl = chrome.extension.getURL('img/ic_suspendy_16x16.png');
-    _defaultTgsFaviconMeta = await buildFaviconMetaData(tgsFavIconUrl);
+    try {
+      _defaultTgsFaviconMeta = await gsUtils.executeWithRetries(
+        buildFaviconMetaData,
+        [tgsFavIconUrl],
+        4,
+        0
+      );
+      addFaviconMetaToDefaultFingerprints(_defaultTgsFaviconMeta, 'tgsFavicon');
+    } catch (e) {
+      gsUtils.warning('gsFavicon', e);
+    }
     if (!_defaultTgsFaviconMeta) {
       gsUtils.warning('gsFavicon', 'Failed to build _defaultTgsFaviconMeta');
     }
@@ -108,6 +125,7 @@ var gsFavicon = (function() {
     // if (fallbackToGoogle) {
     //   const rootUrl = encodeURIComponent(gsUtils.getRootUrl(originalUrl));
     //   const tabFavIconUrl = GOOGLE_S2_URL + rootUrl;
+    //   //TODO: Handle reject case below
     //   faviconMeta = await buildFaviconMetaData(tabFavIconUrl, 5000);
     //   faviconMetaValid = await isFaviconMetaValid(faviconMeta);
     //   if (faviconMetaValid) {
@@ -127,19 +145,27 @@ var gsFavicon = (function() {
 
   async function buildFaviconMetaFromChromeFaviconCache(url) {
     const chromeFavIconUrl = generateChromeFavIconUrlFromUrl(url);
-    const faviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
-    const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
-    if (faviconMetaValid) {
-      return faviconMeta;
+    try {
+      const faviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
+      const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
+      if (faviconMetaValid) {
+        return faviconMeta;
+      }
+    } catch (e) {
+      gsUtils.warning('gsUtils', e);
     }
     return null;
   }
 
   async function buildFaviconMetaFromTabFavIconUrl(favIconUrl) {
-    const faviconMeta = await buildFaviconMetaData(favIconUrl);
-    const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
-    if (faviconMetaValid) {
-      return faviconMeta;
+    try {
+      const faviconMeta = await buildFaviconMetaData(favIconUrl);
+      const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
+      if (faviconMetaValid) {
+        return faviconMeta;
+      }
+    } catch (e) {
+      gsUtils.warning('gsUtils', e);
     }
     return null;
   }
@@ -257,8 +283,8 @@ var gsFavicon = (function() {
   }
 
   function buildFaviconMetaData(url) {
-    const timeout = 30 * 1000;
-    return new Promise(resolve => {
+    const timeout = 5 * 1000;
+    return new Promise((resolve, reject) => {
       const img = new Image();
       let imageLoaded = false;
 
@@ -306,12 +332,10 @@ var gsFavicon = (function() {
 
         //saftey check to make sure image is not completely transparent
         if (maxAlpha === 0) {
-          gsUtils.log(
-            'gsFavicon',
+          reject(
             'Aborting favicon generation as image is completely transparent. url: ' +
               url
           );
-          resolve(null);
           return;
         }
 
@@ -347,8 +371,7 @@ var gsFavicon = (function() {
       img.src = url;
       setTimeout(() => {
         if (!imageLoaded) {
-          gsUtils.log('gsFavicon', 'Failed to load img.src of: ' + url);
-          resolve(null);
+          reject('Failed to load img.src of: ' + url);
         }
       }, timeout);
     });

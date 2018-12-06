@@ -817,4 +817,22 @@ var gsUtils = {
       window.setTimeout(resolve, timeout);
     });
   },
+
+  executeWithRetries: async function(promiseFn, fnArgsArray, maxRetries, retryWaitTime) {
+    const retryFn = async (retries) => {
+      try {
+        return await promiseFn(...fnArgsArray);
+      } catch (e) {
+        if (retries >= maxRetries) {
+          gsUtils.warning('gsUtils', 'Max retries exceeded');
+          return Promise.reject(e);
+        }
+        retries += 1;
+        await gsUtils.setTimeout(retryWaitTime);
+        return await retryFn(retries);
+      }
+    };
+    const result = await retryFn(0);
+    return result;
+  },
 };

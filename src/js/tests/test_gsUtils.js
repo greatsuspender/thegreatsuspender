@@ -71,6 +71,49 @@ testSuites.push(
 
         return assertTrue(isUrl1Valid && isUrl2Valid && isUrl3Valid && isUrl4Valid && isUrl5Valid && isUrl6Valid&& isUrl7Valid);
       },
+
+      // Test gsUtils.executeWithRetries
+      async () => {
+        const successPromiseFn = val => new Promise((r, j) => r(val));
+        let result1;
+        const timeBefore1 = new Date().getTime();
+        try {
+          result1 = await gsUtils.executeWithRetries(
+            successPromiseFn,
+            'a',
+            3,
+            500
+          );
+        } catch (e) {
+          // do nothing
+        }
+        const timeAfter1 = new Date().getTime();
+        const timeTaken1 = timeAfter1 - timeBefore1;
+        const isTime1Valid = timeTaken1 >= 0 && timeTaken1 < 100;
+        const isResult1Valid = result1 === 'a';
+
+        const errorPromiseFn = val => new Promise((r, j) => j());
+        let result2;
+        const timeBefore2 = new Date().getTime();
+        try {
+          result2 = await gsUtils.executeWithRetries(
+            errorPromiseFn,
+            'b',
+            3,
+            500
+          );
+        } catch (e) {
+          // do nothing
+        }
+        const timeAfter2 = new Date().getTime();
+        const timeTaken2 = timeAfter2 - timeBefore2;
+        const isTime2Valid = timeTaken2 >= 1500 && timeTaken2 < 1600;
+        const isResult2Valid = result2 === undefined;
+
+        return assertTrue(
+          isResult1Valid && isTime1Valid && isResult2Valid && isTime2Valid
+        );
+      },
     ];
 
     return {
