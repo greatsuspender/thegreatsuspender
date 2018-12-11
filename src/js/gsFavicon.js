@@ -84,11 +84,11 @@ var gsFavicon = (function() {
     }
     let faviconMeta = await getCachedFaviconMetaData(originalUrl);
     if (faviconMeta) {
-      gsUtils.log(
-        tab.id,
-        'Found favicon cache hit for url: ' + originalUrl,
-        faviconMeta
-      );
+      // gsUtils.log(
+      //   tab.id,
+      //   'Found favicon cache hit for url: ' + originalUrl,
+      //   faviconMeta
+      // );
       return faviconMeta;
     }
 

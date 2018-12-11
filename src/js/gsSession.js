@@ -147,7 +147,7 @@ var gsSession = (function() {
     initialisationMode = true;
 
     const currentSessionTabs = await gsChrome.tabsQuery();
-    gsUtils.log('gsSession', 'preRecoverySessionTabs:', currentSessionTabs);
+    gsUtils.log('gsSession', 'preRecovery open tabs:', currentSessionTabs);
 
     const curVersion = chrome.runtime.getManifest().version;
     startupLastVersion = gsStorage.fetchLastVersion();
