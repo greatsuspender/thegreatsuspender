@@ -8,7 +8,7 @@ var historyUtils = (function(global) {
   }
   chrome.extension
     .getBackgroundPage()
-    .tgs.setViewGlobals(global, 'historyUtils');
+    .tgs.setViewGlobals(global);
 
   var noop = function() {};
 

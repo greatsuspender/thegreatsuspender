@@ -2,7 +2,7 @@
 (function(global) {
 
   try {
-    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'options');
+    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
   } catch (e) {
     window.setTimeout(() => window.location.reload(), 1000);
     return;

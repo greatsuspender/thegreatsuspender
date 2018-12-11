@@ -8,7 +8,7 @@ var historyItems = (function(global) {
   }
   chrome.extension
     .getBackgroundPage()
-    .tgs.setViewGlobals(global, 'historyItem');
+    .tgs.setViewGlobals(global);
 
   function createSessionHtml(session, showLinks) {
     session.windows = session.windows || [];

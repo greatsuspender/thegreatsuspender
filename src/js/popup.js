@@ -2,7 +2,7 @@
 (function(global) {
   'use strict';
 
-  chrome.extension.getBackgroundPage().tgs.setViewGlobals(global, 'popup');
+  chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
 
   var globalActionElListener;
 

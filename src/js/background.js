@@ -73,12 +73,11 @@ var tgs = (function() {
     return globals;
   }
 
-  function setViewGlobals(_window, viewName) {
+  function setViewGlobals(_window) {
     const globals = getExtensionGlobals();
     if (!globals) {
       throw new Error('Lib not ready');
     }
-    globals.viewName = viewName;
     Object.assign(_window, globals);
   }
 
@@ -152,7 +151,7 @@ var tgs = (function() {
 
   function getInternalViewByTabId(tabId, suppressLog) {
     const internalViews = chrome.extension.getViews({ tabId: tabId });
-    if (internalViews.length === 1 && internalViews[0].exports) {
+    if (internalViews.length === 1) {
       return internalViews[0];
     }
     if (!suppressLog) {
@@ -166,18 +165,8 @@ var tgs = (function() {
   function getInternalViewsByViewName(viewName) {
     const internalViews = chrome.extension
       .getViews()
-      .filter(o => o.viewName === viewName);
-    const validInternalViews = internalViews.filter(o =>
-      o.hasOwnProperty('exports')
-    );
-    if (validInternalViews < internalViews) {
-      gsUtils.warning(
-        'background',
-        `${internalViews -
-          validInternalViews} ${viewName} views are missing an exports property.`
-      );
-    }
-    return validInternalViews;
+      .filter(o => o.location.pathname.indexOf(viewName) >= 0);
+    return internalViews;
   }
 
   function getCurrentlyActiveTab(callback) {
