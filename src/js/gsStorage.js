@@ -365,7 +365,6 @@ var gsStorage = {
         localStorage.getItem(this.LAST_EXTENSION_RECOVERY)
       );
     }
-    return null;
     return lastExtensionRecoveryTimestamp;
   },
   setLastExtensionRecoveryTimestamp: function(extensionRecoveryTimestamp) {
