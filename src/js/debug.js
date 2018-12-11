@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsUtils, gsStorage */
+/*global chrome, tgs, gsAnalytics, gsUtils, gsStorage, gsChrome */
 (function(global) {
   'use strict';
 
@@ -20,6 +20,7 @@
     var html = '',
       windowId = info && info.windowId ? info.windowId : '?',
       tabId = info && info.tabId ? info.tabId : '?',
+      tabIndex = info && info.tab ? info.tab.index : '?',
       tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : '?',
       tabTimer = timerStr,
       tabStatus = info ? info.status : '?';
@@ -27,6 +28,7 @@
     html += '<tr>';
     html += '<td>' + windowId + '</td>';
     html += '<td>' + tabId + '</td>';
+    html += '<td>' + tabIndex + '</td>';
     html +=
       '<td style="max-width:700px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
       tabTitle +
@@ -38,22 +40,23 @@
     return html;
   }
 
-  function fetchInfo() {
-    chrome.tabs.query({}, function(tabs) {
-      tabs.forEach(function(curTab, i, tabs) {
-        currentTabs[tabs[i].id] = tabs[i];
-
-        tgs.getDebugInfo(curTab.id, function(debugInfo) {
-          var html,
-            tableEl = document.getElementById('gsProfilerBody');
-
-          debugInfo.tab = curTab;
-
-          html = generateTabInfo(debugInfo);
-          tableEl.innerHTML = tableEl.innerHTML + html;
-        });
-      });
-    });
+  async function fetchInfo() {
+    const tabs = await gsChrome.tabsQuery();
+    const debugInfoPromises = [];
+    for (const [i, curTab] of tabs.entries()) {
+      currentTabs[tabs[i].id] = tabs[i];
+      debugInfoPromises.push(new Promise(r => tgs.getDebugInfo(curTab.id, o => {
+        o.tab = curTab;
+        r(o);
+      })));
+    }
+    const debugInfos = await Promise.all(debugInfoPromises);
+    for (const debugInfo of debugInfos) {
+      var html,
+        tableEl = document.getElementById('gsProfilerBody');
+      html = generateTabInfo(debugInfo);
+      tableEl.innerHTML = tableEl.innerHTML + html;
+    }
   }
 
   function addFlagHtml(elementId, getterFn, setterFn) {
@@ -65,8 +68,8 @@
     };
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
-    fetchInfo();
+  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
+    await fetchInfo();
     addFlagHtml(
       'toggleDebugInfo',
       () => gsUtils.isDebugInfo(),
