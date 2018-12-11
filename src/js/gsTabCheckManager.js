@@ -229,8 +229,9 @@ var gsTabCheckManager = (function() {
       }
     }
 
-    let tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-    if (!tabBasicsOk) {
+    const tabVisibleOk = ensureSuspendedTabVisible(suspendedView);
+    const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
+    if (!tabVisibleOk || !tabBasicsOk) {
       const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
       if (!tabQueueDetails) {
         resolve(gsUtils.STATUS_UNKNOWN);
@@ -278,6 +279,17 @@ var gsTabCheckManager = (function() {
     if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
       gsTabDiscardManager.queueTabForDiscard(tab);
     }
+  }
+
+  function ensureSuspendedTabVisible(tabView) {
+    if (!tabView) {
+      return false;
+    }
+    const bodyEl = tabView.document.getElementsByTagName('body')[0];
+    if (!bodyEl) {
+      return false;
+    }
+    return !bodyEl.classList.contains('hide-initially');
   }
 
   function ensureSuspendedTabTitleAndFaviconSet(tab) {
@@ -418,5 +430,6 @@ var gsTabCheckManager = (function() {
     queueTabCheck,
     queueTabCheckAsPromise,
     getQueuedTabCheckDetails,
+    ensureSuspendedTabVisible,
   };
 })();

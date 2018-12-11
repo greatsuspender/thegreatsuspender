@@ -987,7 +987,11 @@ var tgs = (function() {
     let contentScriptStatus = null;
     if (gsUtils.isNormalTab(focusedTab)) {
       //ensure focused tab has a responsive content script
-      contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(focusedTab, {}, 0);
+      contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(
+        focusedTab,
+        {},
+        0
+      );
       gsUtils.log(focusedTab.id, 'Focused tab status: ' + contentScriptStatus);
     }
 
@@ -1073,17 +1077,7 @@ var tgs = (function() {
     }
 
     if (gsUtils.isSuspendedTab(focusedTab)) {
-      var autoUnsuspend = gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS);
-      if (autoUnsuspend) {
-        if (navigator.onLine) {
-          unsuspendTab(focusedTab);
-        } else {
-          const suspendedView = getInternalViewByTabId(focusedTab.id);
-          if (suspendedView) {
-            gsSuspendedTab.showNoConnectivityMessage(suspendedView);
-          }
-        }
-      }
+      handleSuspendedTabFocusGained(focusedTab); //async. unhandled promise.
     } else if (gsUtils.isNormalTab(focusedTab)) {
       //if focusedTab is already in the queue for suspension then remove it.
       //although sometimes it seems that this is a 'fake' tab focus resulting
@@ -1099,16 +1093,14 @@ var tgs = (function() {
       }
     }
 
-    //Perhaps this check could apply to the whole function?
+    //Reset timer on tab that lost focus.
+    //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
     if (previousStationaryTabId && previousStationaryTabId !== focusedTabId) {
       chrome.tabs.get(previousStationaryTabId, function(previousStationaryTab) {
         if (chrome.runtime.lastError) {
           //Tab has probably been removed
           return;
         }
-
-        //Reset timer on tab that lost focus.
-        //NOTE: This may be due to a change in window focus in which case the tab may still have .active = true
         if (
           previousStationaryTab &&
           gsUtils.isNormalTab(previousStationaryTab) &&
@@ -1117,6 +1109,25 @@ var tgs = (function() {
           resetAutoSuspendTimerForTab(previousStationaryTab);
         }
       });
+    }
+  }
+
+  async function handleSuspendedTabFocusGained(focusedTab) {
+    //safety check to ensure suspended tab has been initialised
+    const suspendedView = getInternalViewByTabId(focusedTab.id);
+    if (!gsTabCheckManager.ensureSuspendedTabVisible(suspendedView)) {
+      await gsSuspendedTab.initTab(focusedTab, suspendedView);
+    }
+    //check for auto-unsuspend
+    var autoUnsuspend = gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS);
+    if (autoUnsuspend) {
+      if (navigator.onLine) {
+        unsuspendTab(focusedTab);
+        return;
+      }
+      if (suspendedView) {
+        gsSuspendedTab.showNoConnectivityMessage(suspendedView);
+      }
     }
   }
 
