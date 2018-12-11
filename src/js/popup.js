@@ -227,16 +227,16 @@
         status === gsUtils.STATUS_NORMAL ||
         status === gsUtils.STATUS_ACTIVE
       ) {
-        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_SUSPENDED) {
-        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
       } else if (
         status === gsUtils.STATUS_FORMINPUT ||
         status === gsUtils.STATUS_TEMPWHITELIST
       ) {
-        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
         tgsHanderFunc = tgs.promptForFilePermissions;
       }
