@@ -1,4 +1,4 @@
-/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, chrome, XMLHttpRequest */
+/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -20,25 +20,25 @@ var tgs = (function() {
   };
 
   // Unsuspended tab props
-  const UTP_TIMER_DETAILS = 'timerDetails';
-  const UTP_SUSPEND_ON_RELOAD_URL = 'suspendOnReloadUrl';
+  const STATE_TIMER_DETAILS = 'timerDetails';
+  const STATE_SUSPEND_ON_RELOAD_URL = 'suspendOnReloadUrl';
 
   // Suspended tab props
-  const STP_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-  const STP_UNSUSPEND_ON_RELOAD_URL = 'unsuspendOnReloadUrl';
-  const STP_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
-  const STP_SCROLL_POS = 'scrollPos';
-  const STP_SHOW_NAG = 'showNag';
+  const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
+  const STATE_DISABLE_UNSUSPEND_ON_RELOAD = 'disableUnsuspendOnReload';
+  const STATE_UNLOADED_URL = 'unloadedUrl';
+  const STATE_SHOW_NAG = 'showNag';
+  const STATE_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
+  const STATE_SCROLL_POS = 'scrollPos';
 
   const focusDelay = 500;
   const noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
   const sessionMetricsCheckInterval = 1000 * 60 * 15; // every 15 minutes
   const analyticsCheckInterval = 1000 * 60 * 60 * 23.5; // every 23.5 hours
 
+  const _tabStateByTabId = {};
   const _currentFocusedTabIdByWindowId = {};
   const _currentStationaryTabIdByWindowId = {};
-  const _unsuspendedTabPropsByTabId = {};
-  const _suspendedTabPropsByTabId = {};
 
   let _currentFocusedWindowId;
   let _currentStationaryWindowId;
@@ -64,6 +64,7 @@ var tgs = (function() {
       gsTabCheckManager,
       gsTabSuspendManager,
       gsTabDiscardManager,
+      gsSuspendedTab,
     };
     for (const lib of Object.values(globals)) {
       if (!lib) {
@@ -113,12 +114,7 @@ var tgs = (function() {
       addMiscListeners();
 
       //initialise unsuspended tab props
-      const allTabs = await gsChrome.tabsQuery();
-      for (const tab of allTabs) {
-        if (gsUtils.isNormalTab(tab)) {
-          initialiseUnsuspendedTabProps(tab);
-        }
-      }
+      resetAutoSuspendTimerForAllTabs();
 
       //add context menu items
       //TODO: Report chrome bug where adding context menu in incognito removes it from main windows
@@ -308,7 +304,8 @@ var tgs = (function() {
       if (gsUtils.isSuspendedTab(activeTab)) {
         const suspendedView = getInternalViewByTabId(activeTab.id);
         if (suspendedView) {
-          suspendedView.exports.unsuspendTab(true);
+          // suspendedTabProps.whitelistOnReload = true;
+          gsSuspendedTab.requestUnsuspendTab(suspendedView, activeTab);
         }
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
@@ -404,11 +401,7 @@ var tgs = (function() {
         active: false,
       };
       chrome.tabs.create(newTabProperties, tab => {
-        setUnsuspendedTabPropForTabId(
-          tab.id,
-          UTP_SUSPEND_ON_RELOAD_URL,
-          tab.url
-        );
+        setTabStatePropForTabId(tab.id, STATE_SUSPEND_ON_RELOAD_URL, tab.url);
       });
     });
   }
@@ -578,7 +571,7 @@ var tgs = (function() {
       gsTabSuspendManager.queueTabForSuspension(updatedTab, 3);
     }, timeToSuspend);
 
-    setUnsuspendedTabPropForTabId(tab.id, UTP_TIMER_DETAILS, timerDetails);
+    setTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS, timerDetails);
   }
 
   function resetAutoSuspendTimerForAllTabs() {
@@ -593,45 +586,26 @@ var tgs = (function() {
   }
 
   function clearAutoSuspendTimerForTab(tab) {
-    const timerDetails = getUnsuspendedTabPropForTabId(
-      tab.id,
-      UTP_TIMER_DETAILS
-    );
+    const timerDetails = getTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS);
     if (!timerDetails) {
       return;
     }
     clearTimeout(timerDetails.timer);
-    setUnsuspendedTabPropForTabId(tab.id, UTP_TIMER_DETAILS, null);
+    setTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS, null);
   }
 
-  function getUnsuspendedTabPropForTabId(tabId, prop) {
-    return _unsuspendedTabPropsByTabId[tabId]
-      ? _unsuspendedTabPropsByTabId[tabId][prop]
-      : undefined;
+  function getTabStatePropForTabId(tabId, prop) {
+    return _tabStateByTabId[tabId] ? _tabStateByTabId[tabId][prop] : undefined;
   }
-  function setUnsuspendedTabPropForTabId(tabId, prop, value) {
-    gsUtils.log(tabId, `Setting unsuspended tab prop: ${prop}:`, value);
-    var tabProps = _unsuspendedTabPropsByTabId[tabId] || {};
-    tabProps[prop] = value;
-    _unsuspendedTabPropsByTabId[tabId] = tabProps;
+  function setTabStatePropForTabId(tabId, prop, value) {
+    // gsUtils.log(tabId, `Setting tab state prop: ${prop}:`, value);
+    const tabState = _tabStateByTabId[tabId] || {};
+    tabState[prop] = value;
+    _tabStateByTabId[tabId] = tabState;
   }
-  function clearUnsuspendedTabPropsForTabId(tabId) {
-    delete _unsuspendedTabPropsByTabId[tabId];
-  }
-
-  function getSuspendedTabPropForTabId(tabId, prop) {
-    return _suspendedTabPropsByTabId[tabId]
-      ? _suspendedTabPropsByTabId[tabId][prop]
-      : undefined;
-  }
-  function setSuspendedTabPropForTabId(tabId, prop, value) {
-    gsUtils.log(tabId, `Setting suspended tab prop: ${prop}:`, value);
-    var tabProps = _suspendedTabPropsByTabId[tabId] || {};
-    tabProps[prop] = value;
-    _suspendedTabPropsByTabId[tabId] = tabProps;
-  }
-  function clearSuspendedTabPropsForTabId(tabId) {
-    delete _suspendedTabPropsByTabId[tabId];
+  function clearTabStateForTabId(tabId) {
+    gsUtils.log(tabId, 'Clearing tab state props.');
+    delete _tabStateByTabId[tabId];
   }
 
   function unsuspendTab(tab) {
@@ -643,15 +617,16 @@ var tgs = (function() {
     // is being unsuspended remotely.
     if (gsUtils.isDiscardedTab(tab)) {
       gsUtils.log(tab.id, 'Unsuspending discarded tab via reload');
-      setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, tab.url);
+      setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, tab.url);
       gsChrome.tabsReload(tab.id); //async. unhandled promise
       return;
     }
 
     const suspendedView = getInternalViewByTabId(tab.id);
     if (suspendedView) {
-      gsUtils.log(tab.id, 'Unsuspending tab via suspendedView.exports');
-      suspendedView.exports.unsuspendTab(false);
+      gsUtils.log(tab.id, 'Unsuspending tab via gsSuspendedTab');
+      // suspendedTabProps.whitelistOnReload = true;
+      gsSuspendedTab.requestUnsuspendTab(suspendedView, tab);
       return;
     }
 
@@ -717,9 +692,9 @@ var tgs = (function() {
 
     //check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
-      const existingSuspendReason = getSuspendedTabPropForTabId(
+      const existingSuspendReason = getTabStatePropForTabId(
         tab.id,
-        STP_SUSPEND_REASON
+        STATE_SUSPEND_REASON
       );
       if (existingSuspendReason && existingSuspendReason === 3) {
         // For some reason the discarded changeInfo gets called twice (chrome bug?)
@@ -764,12 +739,13 @@ var tgs = (function() {
       changeInfo.status === 'complete'
     ) {
       //check for suspend on reload
-      const suspendOnReloadUrl = getUnsuspendedTabPropForTabId(
+      const suspendOnReloadUrl = getTabStatePropForTabId(
         tab.id,
-        UTP_SUSPEND_ON_RELOAD_URL
+        STATE_SUSPEND_ON_RELOAD_URL
       );
+      clearTabStateForTabId(tab.id);
+
       if (suspendOnReloadUrl) {
-        setUnsuspendedTabPropForTabId(tab.id, UTP_SUSPEND_ON_RELOAD_URL, null);
         if (suspendOnReloadUrl === tab.url) {
           gsUtils.log(tab.id, 'Suspend on reload flag set. Will suspend tab.');
           gsTabSuspendManager.queueTabForSuspension(tab, 1);
@@ -780,8 +756,8 @@ var tgs = (function() {
       hasTabStatusChanged = true;
 
       //init loaded tab
-      initialiseUnsuspendedTabProps(tab);
-      initialiseUnsuspendedTabScriptAsPromised(tab)
+      resetAutoSuspendTimerForTab(tab);
+      initialiseTabContentScript(tab)
         .catch(error => {
           gsUtils.warning(
             tab.id,
@@ -790,7 +766,6 @@ var tgs = (function() {
         })
         .then(() => {
           // could use returned tab status here below
-          clearSuspendedTabPropsForTabId(tab.id);
         });
     }
 
@@ -802,19 +777,15 @@ var tgs = (function() {
     }
   }
 
-  function initialiseUnsuspendedTabProps(tab) {
-    resetAutoSuspendTimerForTab(tab);
-  }
-
-  function initialiseUnsuspendedTabScriptAsPromised(tab) {
+  function initialiseTabContentScript(tab) {
     return new Promise((resolve, reject) => {
       const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-      const isTempWhitelist = getSuspendedTabPropForTabId(
+      const isTempWhitelist = getTabStatePropForTabId(
         tab.id,
-        STP_TEMP_WHITELIST_ON_RELOAD
+        STATE_TEMP_WHITELIST_ON_RELOAD
       );
       const scrollPos =
-        getSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS) || null;
+        getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
       gsMessages.sendInitTabToContentScript(
         tab.id,
         ignoreForms,
@@ -849,44 +820,53 @@ var tgs = (function() {
     if (changeInfo.status === 'complete') {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
-      //if a suspended tab is marked for unsuspendOnReload then return early
-      if (shouldUnsuspendOnReload(tab)) {
-        return;
-      }
+      const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
+      const disableUnsuspendOnReload = getTabStatePropForTabId(
+        tab.id,
+        STATE_DISABLE_UNSUSPEND_ON_RELOAD
+      );
+      clearTabStateForTabId(tab.id);
 
       if (isCurrentFocusedTab(tab)) {
         setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-        return;
       }
+
+      const tabView = tgs.getInternalViewByTabId(tab.id);
+      gsSuspendedTab
+        .initTab(tab, tabView)
+        .catch(error => {
+          gsUtils.warning(tab.id, error);
+        })
+        .then(() => {
+          //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
+          const suspendedTabReloaded = unloadedUrl === tab.url;
+          if (suspendedTabReloaded && !disableUnsuspendOnReload) {
+            unsuspendTab(tab);
+            return;
+          }
+
+          // Once a tab has been suspended we may need to discard it depending on DISCARD_AFTER_SUSPEND
+          // Before doing this however, we should give the tab some time to set the suspended favicon.
+          // If we have tab checks enabled, then this handles both the favicon checking and subsequent discarding
+          // If tabs checks are disabled, then we need to do the discarding here (and risk favicon not being set)
+          const disableTabChecks = gsStorage.getOption(
+            gsStorage.DISABLE_TAB_CHECKS
+          );
+          if (!disableTabChecks) {
+            gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+            return;
+          }
+
+          // If tabChecks have been disabled
+          let discardAfterSuspend = gsStorage.getOption(
+            gsStorage.DISCARD_AFTER_SUSPEND
+          );
+          if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
+            gsUtils.log(tab.id, 'Queueing tab for discard.');
+            gsTabDiscardManager.queueTabForDiscard(tab, null, 3000);
+          }
+        });
     }
-  }
-
-  function initialiseSuspendedTabProps(tab) {
-    setSuspendedTabPropForTabId(tab.id, STP_UNSUSPEND_ON_RELOAD_URL, null);
-
-    const options = gsStorage.getSettings();
-
-    let showNag = false;
-    if (!options[gsStorage.NO_NAG]) {
-      showNag = getSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG);
-      if (showNag === undefined || showNag === null) {
-        //show dude and donate link (randomly 1 of 20 times)
-        showNag = Math.random() > 0.95;
-      }
-    }
-    setSuspendedTabPropForTabId(tab.id, STP_SHOW_NAG, showNag);
-
-    // Set scrollPosition tab flag
-    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-    setSuspendedTabPropForTabId(tab.id, STP_SCROLL_POS, scrollPosition);
-  }
-
-  function shouldUnsuspendOnReload(tab) {
-    let unsuspendOnReloadUrl = getSuspendedTabPropForTabId(
-      tab.id,
-      STP_UNSUSPEND_ON_RELOAD_URL
-    );
-    return unsuspendOnReloadUrl === tab.url;
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
@@ -901,19 +881,11 @@ var tgs = (function() {
         _currentStationaryTabIdByWindowId[windowId] = newTabId;
       }
     }
-    if (_suspendedTabPropsByTabId[oldTabId]) {
-      _suspendedTabPropsByTabId[newTabId] = _suspendedTabPropsByTabId[oldTabId];
-      delete _suspendedTabPropsByTabId[oldTabId];
+    if (_tabStateByTabId[oldTabId]) {
+      _tabStateByTabId[newTabId] = _tabStateByTabId[oldTabId];
+      delete _tabStateByTabId[oldTabId];
     }
-    if (_unsuspendedTabPropsByTabId[oldTabId]) {
-      _unsuspendedTabPropsByTabId[newTabId] =
-        _unsuspendedTabPropsByTabId[oldTabId];
-      delete _unsuspendedTabPropsByTabId[oldTabId];
-    }
-    const timerDetails = getUnsuspendedTabPropForTabId(
-      newTabId,
-      UTP_TIMER_DETAILS
-    );
+    const timerDetails = getTabStatePropForTabId(newTabId, STATE_TIMER_DETAILS);
     if (timerDetails) {
       timerDetails.tabId = newTabId;
     }
@@ -931,8 +903,7 @@ var tgs = (function() {
         _currentStationaryTabIdByWindowId[windowId] = null;
       }
     }
-    clearSuspendedTabPropsForTabId(tabId);
-    clearUnsuspendedTabPropsForTabId(tabId);
+    clearTabStateForTabId(tabId);
   }
 
   async function getSuspensionToggleHotkey() {
@@ -1004,11 +975,8 @@ var tgs = (function() {
       _suspensionToggleHotkey = await buildSuspensionToggleHotkey();
       if (oldHotkey !== _suspensionToggleHotkey) {
         const suspendedViews = getInternalViewsByViewName('suspended');
-        const payload = {
-          command: _suspensionToggleHotkey,
-        };
         for (const suspendedView of suspendedViews) {
-          suspendedView.exports.initTabProps(payload); //async. unhandled promise
+          gsSuspendedTab.updateCommand(suspendedView, _suspensionToggleHotkey);
         }
       }
       _triggerHotkeyUpdate = false;
@@ -1019,21 +987,8 @@ var tgs = (function() {
     let contentScriptStatus = null;
     if (gsUtils.isNormalTab(focusedTab)) {
       //ensure focused tab has a responsive content script
-      contentScriptStatus = await new Promise(resolve => {
-        gsMessages.sendRequestInfoToContentScript(
-          focusedTab.id,
-          (error, tabInfo) => {
-            if (error) {
-              gsTabCheckManager.reinjectContentScriptOnTab(focusedTab, true); // ignore promise here as we don't want to wait
-            }
-            if (!error && tabInfo) {
-              resolve(tabInfo.status);
-            } else {
-              resolve(null);
-            }
-          }
-        );
-      });
+      contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(focusedTab, {}, 0);
+      gsUtils.log(focusedTab.id, 'Focused tab status: ' + contentScriptStatus);
     }
 
     //update icon
@@ -1113,14 +1068,8 @@ var tgs = (function() {
   ) {
     gsUtils.log(focusedTabId, 'new tab focus handled');
     //remove request to suspend this tab id
-    if (
-      getUnsuspendedTabPropForTabId(focusedTabId, UTP_SUSPEND_ON_RELOAD_URL)
-    ) {
-      setUnsuspendedTabPropForTabId(
-        focusedTabId,
-        UTP_SUSPEND_ON_RELOAD_URL,
-        null
-      );
+    if (getTabStatePropForTabId(focusedTabId, STATE_SUSPEND_ON_RELOAD_URL)) {
+      setTabStatePropForTabId(focusedTabId, STATE_SUSPEND_ON_RELOAD_URL, null);
     }
 
     if (gsUtils.isSuspendedTab(focusedTab)) {
@@ -1131,7 +1080,7 @@ var tgs = (function() {
         } else {
           const suspendedView = getInternalViewByTabId(focusedTab.id);
           if (suspendedView) {
-            suspendedView.exports.showNoConnectivityMessage();
+            gsSuspendedTab.showNoConnectivityMessage(suspendedView);
           }
         }
       }
@@ -1256,10 +1205,7 @@ var tgs = (function() {
   }
 
   function getDebugInfo(tabId, callback) {
-    const timerDetails = getUnsuspendedTabPropForTabId(
-      tabId,
-      UTP_TIMER_DETAILS
-    );
+    const timerDetails = getTabStatePropForTabId(tabId, STATE_TIMER_DETAILS);
     const info = {
       windowId: '',
       tabId: '',
@@ -1644,11 +1590,6 @@ var tgs = (function() {
       return false;
     }
 
-    if (request.action === 'requestTabMeta') {
-      sendResponse(sender.tab);
-      return false;
-    }
-
     // Fallback to empty response to ensure callback is made
     sendResponse();
     return false;
@@ -1676,7 +1617,9 @@ var tgs = (function() {
       queueSessionTimer();
 
       if (gsUtils.isSuspendedTab(tab, true)) {
-        const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
+        const disableTabChecks = gsStorage.getOption(
+          gsStorage.DISABLE_TAB_CHECKS
+        );
         if (disableTabChecks) return;
 
         // Queue tab for check but mark it as sleeping for 5 seconds to give
@@ -1796,22 +1739,21 @@ var tgs = (function() {
   }
 
   return {
-    UTP_TIMER_DETAILS,
-    UTP_SUSPEND_ON_RELOAD_URL,
-    getUnsuspendedTabPropForTabId,
-    setUnsuspendedTabPropForTabId,
-
-    STP_TEMP_WHITELIST_ON_RELOAD,
-    STP_UNSUSPEND_ON_RELOAD_URL,
-    STP_SUSPEND_REASON,
-    STP_SHOW_NAG,
-    getSuspendedTabPropForTabId,
-    setSuspendedTabPropForTabId,
+    STATE_TIMER_DETAILS,
+    STATE_SUSPEND_ON_RELOAD_URL,
+    STATE_UNLOADED_URL,
+    STATE_TEMP_WHITELIST_ON_RELOAD,
+    STATE_DISABLE_UNSUSPEND_ON_RELOAD,
+    STATE_SUSPEND_REASON,
+    STATE_SCROLL_POS,
+    STATE_SHOW_NAG,
+    getTabStatePropForTabId,
+    setTabStatePropForTabId,
+    clearTabStateForTabId,
 
     backgroundScriptsReadyAsPromised,
     initAsPromised,
-    initialiseSuspendedTabProps,
-    initialiseUnsuspendedTabScriptAsPromised,
+    initialiseTabContentScript,
     setViewGlobals,
     getInternalViewByTabId,
     getInternalViewsByViewName,
@@ -1830,7 +1772,6 @@ var tgs = (function() {
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
-    shouldUnsuspendOnReload,
 
     unsuspendTab,
     unsuspendHighlightedTab,

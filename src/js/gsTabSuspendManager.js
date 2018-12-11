@@ -1,4 +1,4 @@
-/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, gsTabCheckManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
@@ -86,9 +86,9 @@ var gsTabSuspendManager = (function() {
           tab.id,
           'Tab is not responding. Will reload for screen capture.'
         );
-        tgs.setUnsuspendedTabPropForTabId(
+        tgs.setTabStatePropForTabId(
           tab.id,
-          tgs.UTP_SUSPEND_ON_RELOAD_URL,
+          tgs.STATE_SUSPEND_ON_RELOAD_URL,
           tab.url
         );
         await gsChrome.tabsUpdate(tab.id, { url: tab.url });
@@ -506,97 +506,6 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  async function initSuspendedTab(tabView, tab) {
-    if (tgs.shouldUnsuspendOnReload(tab)) {
-      gsUtils.log(
-        tab.id,
-        'Unsuspend on reload flag set. Will unsuspend tab via suspendedView.exports'
-      );
-      tgs.setSuspendedTabPropForTabId(
-        tab.id,
-        tgs.STP_UNSUSPEND_ON_RELOAD_URL,
-        null
-      );
-      tabView.exports.unsuspendTab(false);
-      return false;
-    }
-
-    const suspendedUrl = tab.url;
-    const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
-    const whitelisted = gsUtils.checkWhiteList(originalUrl);
-    const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
-    let title = gsUtils.getSuspendedTitle(suspendedUrl);
-    if (title.indexOf('<') >= 0) {
-      // Encode any raw html tags that might be used in the title
-      title = gsUtils.htmlEncode(title);
-    }
-
-    const options = gsStorage.getSettings();
-
-    const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
-    const preview = await gsIndexedDb.fetchPreviewImage(originalUrl);
-    let previewUri = null;
-    if (
-      preview &&
-      preview.img &&
-      preview.img !== null &&
-      preview.img !== 'data:,' &&
-      preview.img.length > 10000
-    ) {
-      previewUri = preview.img;
-    }
-
-    const showNag =
-      tgs.getSuspendedTabPropForTabId(tab.id, tgs.STP_SHOW_NAG) || false;
-    const suspendReason = tgs.getSuspendedTabPropForTabId(
-      tab.id,
-      tgs.STP_SUSPEND_REASON
-    );
-    const suspensionToggleHotkey = await tgs.getSuspensionToggleHotkey();
-
-    const initProps = {
-      tabId: tab.id,
-      url: originalUrl,
-      title: title,
-      scrollPosition: scrollPosition,
-      whitelisted: whitelisted,
-      theme: options[gsStorage.THEME],
-      previewMode: options[gsStorage.SCREEN_CAPTURE],
-      tabActive: tab.active,
-      faviconMeta: faviconMeta,
-      showNag: showNag,
-      previewUri: previewUri,
-      command: suspensionToggleHotkey,
-    };
-    if (suspendReason === 3) {
-      initProps.reason = chrome.i18n.getMessage('js_suspended_low_memory');
-    }
-    gsUtils.log(tab.id, 'initProps', initProps);
-
-    tgs.initialiseSuspendedTabProps(tab);
-    await tabView.exports.initTabProps(initProps);
-    tabView.exports.showContents();
-
-    // If tabChecks have been disabled then we need to handle discarding now
-    const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
-    if (disableTabChecks) {
-      // If we want to discard tabs after suspending them
-      let discardAfterSuspend = gsStorage.getOption(
-        gsStorage.DISCARD_AFTER_SUSPEND
-      );
-      if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
-        gsUtils.log(tab.id, 'Queueing tab for discard.');
-        gsTabDiscardManager.queueTabForDiscard(tab, null, 3000);
-      }
-    } else {
-      // Otherwise let tabCheck trigger the subsequent tab discarding
-      // Give the completed suspended tab 3secs to finish setting initProps
-      gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
-    }
-
-    return true;
-  }
-
   return {
     initAsPromised,
     queueTabForSuspension,
@@ -607,6 +516,5 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
-    initSuspendedTab,
   };
 })();

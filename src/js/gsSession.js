@@ -203,7 +203,7 @@ var gsSession = (function() {
       postRecoverySessionTabs
     );
     const totalTabCheckCount = tabCheckResults.length;
-    const successfulTabChecksCount = tabCheckResults.filter(o => o === true)
+    const successfulTabChecksCount = tabCheckResults.filter(o => o === gsUtils.STATUS_SUSPENDED)
       .length;
 
     startupTabCheckTimeTakenInSeconds = parseInt(

@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, tgs */
+/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -555,9 +555,9 @@ var gsUtils = {
     var expiredTabs = [];
     chrome.tabs.query({}, tabs => {
       for (const tab of tabs) {
-        const timerDetails = tgs.getUnsuspendedTabPropForTabId(
+        const timerDetails = tgs.getTabStatePropForTabId(
           tab.id,
-          tgs.UTP_TIMER_DETAILS
+          tgs.STATE_TIMER_DETAILS
         );
         if (
           timerDetails &&
@@ -595,17 +595,35 @@ var gsUtils = {
           }
 
           //if theme or screenshot preferences have changed then refresh suspended tabs
-          var payload = {};
-          if (changedSettingKeys.includes(gsStorage.THEME)) {
-            payload.theme = gsStorage.getOption(gsStorage.THEME);
-          }
-          if (changedSettingKeys.includes(gsStorage.SCREEN_CAPTURE)) {
-            payload.previewMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
-          }
-          if (Object.keys(payload).length > 0) {
+          const updateTheme = changedSettingKeys.includes(gsStorage.THEME);
+          const updatePreviewMode = changedSettingKeys.includes(
+            gsStorage.SCREEN_CAPTURE
+          );
+          if (updateTheme || updatePreviewMode) {
             const suspendedView = tgs.getInternalViewByTabId(tab.id);
             if (suspendedView) {
-              suspendedView.exports.initTabProps(payload); //async. unhandled promise
+              if (updateTheme) {
+                const theme = gsStorage.getOption(gsStorage.THEME);
+                gsFavicon.getFaviconMetaData(tab).then(faviconMeta => {
+                  const isLowContrastFavicon = faviconMeta.isDark || false;
+                  gsSuspendedTab.updateTheme(
+                    suspendedView,
+                    tab,
+                    theme,
+                    isLowContrastFavicon
+                  );
+                });
+              }
+              if (updatePreviewMode) {
+                const previewMode = gsStorage.getOption(
+                  gsStorage.SCREEN_CAPTURE
+                );
+                gsSuspendedTab.updatePreviewMode(
+                  suspendedView,
+                  tab,
+                  previewMode
+                ); // async. unhandled promise.
+              }
             }
           }
 
@@ -818,8 +836,13 @@ var gsUtils = {
     });
   },
 
-  executeWithRetries: async function(promiseFn, fnArgsArray, maxRetries, retryWaitTime) {
-    const retryFn = async (retries) => {
+  executeWithRetries: async function(
+    promiseFn,
+    fnArgsArray,
+    maxRetries,
+    retryWaitTime
+  ) {
+    const retryFn = async retries => {
       try {
         return await promiseFn(...fnArgsArray);
       } catch (e) {

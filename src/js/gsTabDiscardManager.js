@@ -24,9 +24,11 @@ var gsTabDiscardManager = (function() {
   }
 
   function queueTabForDiscard(tab, executionProps, processingDelay) {
-    queueTabForDiscardAsPromise(tab, executionProps, processingDelay).catch(e => {
-      gsUtils.log(tab.id, QUEUE_ID, e);
-    });
+    queueTabForDiscardAsPromise(tab, executionProps, processingDelay).catch(
+      e => {
+        gsUtils.log(tab.id, QUEUE_ID, e);
+      }
+    );
   }
 
   function queueTabForDiscardAsPromise(tab, executionProps, processingDelay) {
@@ -104,7 +106,7 @@ var gsTabDiscardManager = (function() {
       gsUtils.shouldSuspendDiscardedTabs() &&
       gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
     ) {
-      tgs.setSuspendedTabPropForTabId(tab.id, tgs.STP_SUSPEND_REASON, 3);
+      tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SUSPEND_REASON, 3);
       const suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       gsUtils.log(tab.id, QUEUE_ID, 'Suspending discarded unsuspended tab');
 
