@@ -578,7 +578,7 @@ var tgs = (function() {
     chrome.tabs.query({}, tabs => {
       for (const tab of tabs) {
         if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
-          return;
+          continue;
         }
         resetAutoSuspendTimerForTab(tab);
       }
