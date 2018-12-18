@@ -1610,52 +1610,59 @@ var tgs = (function() {
   }
 
   function externalMessageRequestListener(request, sender, sendResponse) {
-    gsUtils.log(
-      'background',
-      'external message request: ', request, sender
-    );
+    gsUtils.log('background', 'external message request: ', request, sender);
 
-    if (request.action === 'suspend') {
-      // wrap this in an anonymous async function so we can use await
-      (async function() {
-        let tab;
-        if (request.tabId) {
-          tab = await gsChrome.tabsGet(request.tabId);
-        } else {
-          tab = await new Promise(r => {
-            getCurrentlyActiveTab(r);
-          });
-        }
-        if (tab) {
-          gsTabSuspendManager.queueTabForSuspension(tab, 1);
-        }
-      })();
-      sendResponse();
-      return false;
+    if (!request.action || !['suspend', 'unsuspend'].includes(request.action)) {
+      sendResponse('Error: unknown request.action: ' + request.action);
+      return;
     }
 
-    if (request.action === 'unsuspend') {
-      // wrap this in an anonymous async function so we can use await
-      (async function() {
-        let tab;
-        if (request.tabId) {
-          tab = await gsChrome.tabsGet(request.tabId);
-        } else {
-          tab = await new Promise(r =>  {
-            getCurrentlyActiveTab(r);
-          });
+    // wrap this in an anonymous async function so we can use await
+    (async function() {
+      let tab;
+      if (request.tabId) {
+        if (typeof request.tabId !== 'number') {
+          sendResponse('Error: tabId must be an int');
+          return;
         }
-        if (tab && gsUtils.isSuspendedTab(tab)) {
-          unsuspendTab(tab);
+        tab = await gsChrome.tabsGet(request.tabId);
+        if (!tab) {
+          sendResponse('Error: no tab found with id: ' + request.tabId);
+          return;
         }
-      })();
-      sendResponse();
-      return false;
-    }
+      } else {
+        tab = await new Promise(r => {
+          getCurrentlyActiveTab(r);
+        });
+      }
+      if (!tab) {
+        sendResponse('Error: failed to find a target tab');
+        return;
+      }
 
-    // Fallback to empty response to ensure callback is made
-    sendResponse();
-    return false;
+      if (request.action === 'suspend') {
+        if (gsUtils.isSuspendedTab(tab)) {
+          sendResponse('Error: tab is already suspended');
+          return;
+        }
+
+        gsTabSuspendManager.queueTabForSuspension(tab, 1);
+        sendResponse();
+        return;
+      }
+
+      if (request.action === 'unsuspend') {
+        if (!gsUtils.isSuspendedTab(tab)) {
+          sendResponse('Error: tab is not suspended');
+          return;
+        }
+
+        unsuspendTab(tab);
+        sendResponse();
+        return;
+      }
+    })();
+    return true;
   }
 
   function addMessageListeners() {
