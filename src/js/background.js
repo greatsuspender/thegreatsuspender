@@ -1609,11 +1609,62 @@ var tgs = (function() {
     return false;
   }
 
+  function externalMessageRequestListener(request, sender, sendResponse) {
+    gsUtils.log(
+      'background',
+      'external message request: ', request, sender
+    );
+
+    if (request.action === 'suspend') {
+      // wrap this in an anonymous async function so we can use await
+      (async function() {
+        let tab;
+        if (request.tabId) {
+          tab = await gsChrome.tabsGet(request.tabId);
+        } else {
+          tab = await new Promise(r => {
+            getCurrentlyActiveTab(r);
+          });
+        }
+        if (tab) {
+          gsTabSuspendManager.queueTabForSuspension(tab, 1);
+        }
+      })();
+      sendResponse();
+      return false;
+    }
+
+    if (request.action === 'unsuspend') {
+      // wrap this in an anonymous async function so we can use await
+      (async function() {
+        let tab;
+        if (request.tabId) {
+          tab = await gsChrome.tabsGet(request.tabId);
+        } else {
+          tab = await new Promise(r =>  {
+            getCurrentlyActiveTab(r);
+          });
+        }
+        if (tab && gsUtils.isSuspendedTab(tab)) {
+          unsuspendTab(tab);
+        }
+      })();
+      sendResponse();
+      return false;
+    }
+
+    // Fallback to empty response to ensure callback is made
+    sendResponse();
+    return false;
+  }
+
   function addMessageListeners() {
     chrome.runtime.onMessage.addListener(messageRequestListener);
     //attach listener to runtime for external messages, to allow
     //interoperability with other extensions in the manner of an API
-    chrome.runtime.onMessageExternal.addListener(messageRequestListener);
+    chrome.runtime.onMessageExternal.addListener(
+      externalMessageRequestListener
+    );
   }
 
   function addChromeListeners() {
