@@ -19,7 +19,7 @@ var gsMessages = {
     if (scrollPos) {
       payload.scrollPos = scrollPos;
     }
-    this.sendMessageToContentScript(tabId, payload, this.ERROR, callback);
+    gsMessages.sendMessageToContentScript(tabId, payload, gsMessages.ERROR, callback);
   },
 
   sendUpdateToContentScriptOfTab: function(tab) {
@@ -32,57 +32,56 @@ var gsMessages = {
     }
 
     const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-    this.sendMessageToContentScript(tab.id, { ignoreForms }, this.WARNING);
+    gsMessages.sendMessageToContentScript(tab.id, { ignoreForms }, gsMessages.WARNING);
   },
 
   sendTemporaryWhitelistToContentScript: function(tabId, callback) {
-    this.sendMessageToContentScript(
+    gsMessages.sendMessageToContentScript(
       tabId,
       {
         tempWhitelist: true,
       },
-      this.WARNING,
+      gsMessages.WARNING,
       callback
     );
   },
 
   sendUndoTemporaryWhitelistToContentScript: function(tabId, callback) {
-    this.sendMessageToContentScript(
+    gsMessages.sendMessageToContentScript(
       tabId,
       {
         tempWhitelist: false,
       },
-      this.WARNING,
+      gsMessages.WARNING,
       callback
     );
   },
 
   sendRequestInfoToContentScript(tabId, callback) {
-    this.sendMessageToContentScript(
+    gsMessages.sendMessageToContentScript(
       tabId,
       {
         action: 'requestInfo',
       },
-      this.WARNING,
+      gsMessages.WARNING,
       callback
     );
   },
 
   sendConfirmSuspendToContentScript: function(tabId, suspendedUrl, callback) {
-    this.sendMessageToContentScript(
+    gsMessages.sendMessageToContentScript(
       tabId,
       {
         action: 'confirmTabSuspend',
         suspendedUrl: suspendedUrl,
       },
-      this.ERROR,
+      gsMessages.ERROR,
       callback
     );
   },
 
   sendMessageToContentScript: function(tabId, message, severity, callback) {
-    var self = this;
-    self.sendMessageToTab(tabId, message, severity, function(error, response) {
+    gsMessages.sendMessageToTab(tabId, message, severity, function(error, response) {
       if (error) {
         if (callback) callback(error);
       } else {
@@ -92,12 +91,12 @@ var gsMessages = {
   },
 
   sendPingToTab: function(tabId, callback) {
-    this.sendMessageToTab(
+    gsMessages.sendMessageToTab(
       tabId,
       {
         action: 'ping',
       },
-      this.INFO,
+      gsMessages.INFO,
       callback
     );
   },

@@ -69,8 +69,6 @@ var gsStorage = {
 
   //populate localstorage settings with sync settings where undefined
   initSettingsAsPromised: function() {
-    var self = this;
-
     return new Promise(function(resolve) {
       var defaultSettings = gsStorage.getSettingsDefaults();
       var defaultKeys = Object.keys(defaultSettings);
@@ -93,15 +91,15 @@ var gsStorage = {
         } else {
           //if we have some rawLocalSettings but SYNC_SETTINGS is not defined
           //then define it as FALSE (as opposed to default of TRUE)
-          rawLocalSettings[self.SYNC_SETTINGS] =
-            rawLocalSettings[self.SYNC_SETTINGS] || false;
+          rawLocalSettings[gsStorage.SYNC_SETTINGS] =
+            rawLocalSettings[gsStorage.SYNC_SETTINGS] || false;
         }
         gsUtils.log('gsStorage', 'localSettings on init: ', rawLocalSettings);
-        var shouldSyncSettings = rawLocalSettings[self.SYNC_SETTINGS];
+        var shouldSyncSettings = rawLocalSettings[gsStorage.SYNC_SETTINGS];
 
         var mergedSettings = {};
         for (const key of defaultKeys) {
-          if (key === self.SYNC_SETTINGS) {
+          if (key === gsStorage.SYNC_SETTINGS) {
             if (chrome.extension.inIncognitoContext) {
               mergedSettings[key] = false;
             } else {
@@ -113,12 +111,12 @@ var gsStorage = {
           }
           // If donations are disabled locally, then ensure we disable them on synced profile
           if (
-            key === self.NO_NAG &&
+            key === gsStorage.NO_NAG &&
             shouldSyncSettings &&
-            rawLocalSettings.hasOwnProperty(self.NO_NAG) &&
-            rawLocalSettings[self.NO_NAG]
+            rawLocalSettings.hasOwnProperty(gsStorage.NO_NAG) &&
+            rawLocalSettings[gsStorage.NO_NAG]
           ) {
-            mergedSettings[self.NO_NAG] = true;
+            mergedSettings[gsStorage.NO_NAG] = true;
             continue;
           }
           // if synced setting exists and local setting does not exist or
@@ -145,25 +143,24 @@ var gsStorage = {
             mergedSettings[key] = defaultSettings[key];
           }
         }
-        self.saveSettings(mergedSettings);
+        gsStorage.saveSettings(mergedSettings);
         gsUtils.log('gsStorage', 'mergedSettings: ', mergedSettings);
 
         // if any of the new settings are different to those in sync, then trigger a resync
         var triggerResync = false;
         for (const key of defaultKeys) {
           if (
-            key !== self.SYNC_SETTINGS &&
+            key !== gsStorage.SYNC_SETTINGS &&
             syncedSettings[key] !== mergedSettings[key]
           ) {
             triggerResync = true;
           }
         }
         if (triggerResync) {
-          self.syncSettings();
+          gsStorage.syncSettings();
         }
-
-        self.addSettingsSyncListener();
-
+        gsStorage.addSettingsSyncListener();
+        gsUtils.log('gsStorage', 'init successful');
         resolve();
       });
     });
@@ -171,14 +168,13 @@ var gsStorage = {
 
   // Listen for changes to synced settings
   addSettingsSyncListener: function() {
-    var self = this;
     chrome.storage.onChanged.addListener(function(remoteSettings, namespace) {
       if (namespace !== 'sync' || !remoteSettings) {
         return;
       }
-      var shouldSync = self.getOption(self.SYNC_SETTINGS);
+      var shouldSync = gsStorage.getOption(gsStorage.SYNC_SETTINGS);
       if (shouldSync) {
-        var localSettings = self.getSettings();
+        var localSettings = gsStorage.getSettings();
         var changedSettingKeys = [];
         var oldValueBySettingKey = {};
         var newValueBySettingKey = {};
@@ -186,7 +182,7 @@ var gsStorage = {
           var remoteSetting = remoteSettings[key];
 
           // If donations are disabled locally, then ensure we disable them on synced profile
-          if (key === self.NO_NAG) {
+          if (key === gsStorage.NO_NAG) {
             if (remoteSetting.newValue === false) {
               return false; // don't process this key
             }
@@ -207,7 +203,7 @@ var gsStorage = {
         });
 
         if (changedSettingKeys.length > 0) {
-          self.saveSettings(localSettings);
+          gsStorage.saveSettings(localSettings);
           gsUtils.performPostSaveUpdates(
             changedSettingKeys,
             oldValueBySettingKey,

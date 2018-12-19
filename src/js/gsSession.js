@@ -19,28 +19,26 @@ var gsSession = (function() {
   let startupLastVersion;
   let syncedSettingsOnInit;
 
-  function initAsPromised() {
-    return new Promise(async function(resolve) {
-      // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
-      await new Promise(resolve => {
-        chrome.extension.isAllowedFileSchemeAccess(isAllowedAccess => {
-          fileUrlsAccessAllowed = isAllowedAccess;
-          resolve();
-        });
+  async function initAsPromised() {
+    // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
+    await new Promise(r => {
+      chrome.extension.isAllowedFileSchemeAccess(isAllowedAccess => {
+        fileUrlsAccessAllowed = isAllowedAccess;
+        r();
       });
-
-      //remove any update screens
-      await Promise.all([
-        gsUtils.removeTabsByUrlAsPromised(updateUrl),
-        gsUtils.removeTabsByUrlAsPromised(updatedUrl),
-      ]);
-
-      //handle special event where an extension update is available
-      chrome.runtime.onUpdateAvailable.addListener(function(details) {
-        prepareForUpdate(details); //async
-      });
-      resolve();
     });
+
+    //remove any update screens
+    await Promise.all([
+      gsUtils.removeTabsByUrlAsPromised(updateUrl),
+      gsUtils.removeTabsByUrlAsPromised(updatedUrl),
+    ]);
+
+    //handle special event where an extension update is available
+    chrome.runtime.onUpdateAvailable.addListener(details => {
+      prepareForUpdate(details); //async
+    });
+    gsUtils.log('gsSession', 'init successful');
   }
 
   async function prepareForUpdate(newVersionDetails) {

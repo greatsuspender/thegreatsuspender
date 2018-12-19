@@ -19,6 +19,7 @@ var gsTabDiscardManager = (function() {
         exceptionFn: handleDiscardException,
       };
       discardQueue = GsTabQueue(QUEUE_ID, queueProps);
+      gsUtils.log('gsTabDiscardManager', 'init successful');
       resolve();
     });
   }

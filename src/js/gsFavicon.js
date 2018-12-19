@@ -9,12 +9,10 @@ var gsFavicon = (function() {
   let _defaultChromeFaviconMeta;
   let _defaultTgsFaviconMeta;
 
-  function initAsPromised() {
-    return new Promise(async function(resolve) {
-      await buildDefaultTgsFaviconMeta();
-      await buildDefaultChromeFaviconMeta();
-      resolve();
-    });
+  async function initAsPromised() {
+    await buildDefaultTgsFaviconMeta();
+    await buildDefaultChromeFaviconMeta();
+    gsUtils.log('gsFavicon', 'init successful');
   }
 
   async function buildDefaultChromeFaviconMeta() {
@@ -293,7 +291,7 @@ var gsFavicon = (function() {
       img.crossOrigin = "Anonymous";
       let imageLoaded = false;
 
-      img.onload = async function() {
+      img.onload = () => {
         imageLoaded = true;
 
         let canvas;
@@ -304,12 +302,18 @@ var gsFavicon = (function() {
         context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
 
-        const imageData = context.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
+        let imageData;
+        try {
+          imageData = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
+        } catch (e) {
+          reject(e);
+          return;
+        }
 
         const origDataArray = imageData.data;
         const normalisedDataArray = new Uint8ClampedArray(origDataArray);

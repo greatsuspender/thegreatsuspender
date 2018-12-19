@@ -28,6 +28,7 @@ var gsTabCheckManager = (function() {
         exceptionFn: handleTabCheckException,
       };
       tabCheckQueue = GsTabQueue(QUEUE_ID, queueProps);
+      gsUtils.log('gsTabCheckManager', 'init successful');
       resolve();
     });
   }

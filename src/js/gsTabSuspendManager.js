@@ -27,6 +27,7 @@ var gsTabSuspendManager = (function() {
         exceptionFn: handleSuspensionException,
       };
       _suspensionQueue = GsTabQueue('suspensionQueue', queueProps);
+      gsUtils.log('gsTabSuspendManager', 'init successful');
       resolve();
     });
   }

@@ -16,9 +16,14 @@ var gsAnalytics = (function() {
 
   function initAsPromised() {
     return new Promise(function(resolve) {
-      ga('create', 'UA-52338347-2', 'auto');
-      ga('set', 'checkProtocolTask', function() {});
-      ga('require', 'displayfeatures');
+      try {
+        ga('create', 'UA-52338347-2', 'auto');
+        ga('set', 'checkProtocolTask', function() {});
+        ga('require', 'displayfeatures');
+      } catch (e) {
+        gsUtils.warning('gsAnalytics', e);
+      }
+      gsUtils.log('gsAnalytics', 'init successful');
       resolve();
     });
   }

@@ -135,6 +135,7 @@ var tgs = (function() {
           _currentFocusedWindowId = activeTab.windowId;
         }
       }
+      gsUtils.log('background', 'init successful');
       resolve();
     });
   }
@@ -1858,26 +1859,32 @@ var tgs = (function() {
   };
 })();
 
-tgs
-  .backgroundScriptsReadyAsPromised()
-  .then(() => gsAnalytics.initAsPromised())
-  .then(() => gsStorage.initSettingsAsPromised())
-  .then(() => gsFavicon.initAsPromised())
-  .then(() => gsTabSuspendManager.initAsPromised())
-  .then(() => gsTabCheckManager.initAsPromised())
-  .then(() => gsTabDiscardManager.initAsPromised())
-  .then(() => gsSession.initAsPromised())
-  .then(() => gsSession.runStartupChecks()) // performs crash check (and maybe recovery) and tab responsiveness checks
-  .catch(error => {
-    error = error || 'Unknown error occurred during background initialisation';
-    gsUtils.error('background', error);
+Promise.resolve()
+  .then(tgs.backgroundScriptsReadyAsPromised) // wait until all gsLibs have loaded
+  .then(gsStorage.initSettingsAsPromised) // ensure settings have been loaded and synced
+  .then(() => { // initialise other gsLibs
+    return Promise.all([
+      gsAnalytics.initAsPromised(),
+      gsFavicon.initAsPromised(),
+      gsTabSuspendManager.initAsPromised(),
+      gsTabCheckManager.initAsPromised(),
+      gsTabDiscardManager.initAsPromised(),
+      gsSession.initAsPromised()
+    ]);
   })
-  .then(() => tgs.initAsPromised()) // adds handle(Un)SuspendedTabChanged listeners!
-  .then(() => {
-    return new Promise(resolve => {
-      gsAnalytics.performStartupReport();
-      gsAnalytics.performVersionReport();
-      tgs.startTimers();
-      resolve();
-    });
+  .catch(error => {
+    gsUtils.error('background init error: ', error);
+  })
+  .then(gsSession.runStartupChecks) // performs crash check (and maybe recovery) and tab responsiveness checks
+  .catch(error => {
+    gsUtils.error('background startup checks error: ', error);
+  })
+  .then(tgs.initAsPromised) // adds handle(Un)SuspendedTabChanged listeners!
+  .catch(error => {
+    gsUtils.error('background init error: ', error);
+  })
+  .finally(() => {
+    gsAnalytics.performStartupReport();
+    gsAnalytics.performVersionReport();
+    tgs.startTimers();
   });
