@@ -25,7 +25,7 @@ var gsMessages = {
   sendUpdateToContentScriptOfTab: function(tab) {
     if (
       gsUtils.isSpecialTab(tab) ||
-      gsUtils.isSuspendedTab(tab) ||
+      gsUtils.isSuspendedTab(tab, true) ||
       gsUtils.isDiscardedTab(tab)
     ) {
       return;

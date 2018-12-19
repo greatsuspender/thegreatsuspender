@@ -154,7 +154,7 @@
     }
 
     var currentSuspendedTabs = currentTabs.filter(o =>
-      gsUtils.isSuspendedTab(o, true)
+      gsUtils.isSuspendedTab(o)
     );
     for (const suspendedTab of currentSuspendedTabs) {
       gsMessages.sendPingToTab(suspendedTab.id, function(error) {

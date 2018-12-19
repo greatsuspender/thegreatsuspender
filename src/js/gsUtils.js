@@ -128,7 +128,7 @@ var gsUtils = {
   isSpecialTab: function(tab) {
     var url = tab.url;
 
-    if (gsUtils.isSuspendedUrl(url, false)) {
+    if (gsUtils.isSuspendedUrl(url, true)) {
       return false;
     }
     // Careful, suspended urls start with "chrome-extension://"
@@ -163,7 +163,7 @@ var gsUtils = {
   isInternalTab: function(tab) {
     var isLocalExtensionPage =
       tab.url.indexOf('chrome-extension://' + chrome.runtime.id) === 0;
-    return isLocalExtensionPage && !gsUtils.isSuspendedUrl(tab.url, true);
+    return isLocalExtensionPage && !gsUtils.isSuspendedUrl(tab.url);
   },
 
   isProtectedPinnedTab: function(tab) {
@@ -185,19 +185,20 @@ var gsUtils = {
     );
   },
 
+  // Note: Normal tabs may be in a discarded state
   isNormalTab: function(tab) {
-    return !gsUtils.isSpecialTab(tab) && !gsUtils.isSuspendedTab(tab);
+    return !gsUtils.isSpecialTab(tab) && !gsUtils.isSuspendedTab(tab, true);
   },
 
-  isSuspendedTab: function(tab, strictMatching) {
-    return gsUtils.isSuspendedUrl(tab.url, strictMatching);
+  isSuspendedTab: function(tab, looseMatching) {
+    return gsUtils.isSuspendedUrl(tab.url, looseMatching);
   },
 
-  isSuspendedUrl: function(url, strictMatching) {
-    if (strictMatching) {
-      return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
-    } else {
+  isSuspendedUrl: function(url, looseMatching) {
+    if (looseMatching) {
       return url.indexOf('suspended.html') > 0;
+    } else {
+      return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
     }
   },
 
@@ -521,7 +522,7 @@ var gsUtils = {
   getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();
     const currentSuspendedTabs = currentTabs.filter(tab =>
-      gsUtils.isSuspendedTab(tab, true)
+      gsUtils.isSuspendedTab(tab)
     );
     return currentSuspendedTabs.length;
   },
@@ -639,6 +640,10 @@ var gsUtils = {
           ) {
             gsTabDiscardManager.queueTabForDiscard(tab);
           }
+          return;
+        }
+
+        if (!gsUtils.isNormalTab(tab)) {
           return;
         }
 

@@ -246,7 +246,7 @@ var gsTabSuspendManager = (function() {
   }
 
   async function forceTabSuspension(tab, suspendedUrl) {
-    if (gsUtils.isSuspendedTab(tab)) {
+    if (gsUtils.isSuspendedTab(tab, true)) {
       gsUtils.log(tab.id, 'Tab already suspended');
       return;
     }
@@ -260,7 +260,7 @@ var gsTabSuspendManager = (function() {
   // 3: Same as above (2), plus also respect internet connectivity, running on battery, and time to suspend=never preferences.
   function checkTabEligibilityForSuspension(tab, forceLevel) {
     if (forceLevel >= 1) {
-      if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
+      if (gsUtils.isSuspendedTab(tab, true) || gsUtils.isSpecialTab(tab)) {
         return false;
       }
     }

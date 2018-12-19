@@ -115,8 +115,8 @@ var gsTabCheckManager = (function() {
   async function handleTabCheck(tab, executionProps, resolve, reject, requeue) {
     if (gsUtils.isSuspendedTab(tab)) {
       checkSuspendedTab(tab, executionProps, resolve, reject, requeue);
-    } else {
-      checkUnsuspendedTab(tab, executionProps, resolve, reject, requeue);
+    } else if (gsUtils.isNormalTab(tab)){
+      checkNormalTab(tab, executionProps, resolve, reject, requeue);
     }
   }
 
@@ -305,7 +305,7 @@ var gsTabCheckManager = (function() {
     return true;
   }
 
-  async function checkUnsuspendedTab(
+  async function checkNormalTab(
     tab,
     executionProps,
     resolve,
@@ -326,7 +326,7 @@ var gsTabCheckManager = (function() {
       gsUtils.log(tab.id, QUEUE_ID, 'Updated tab: ', tab);
 
       // Ensure tab is not suspended
-      if (gsUtils.isSuspendedTab(tab)) {
+      if (gsUtils.isSuspendedTab(tab, true)) {
         gsUtils.log(tab.id, 'Tab is suspended. Aborting check.');
         resolve(gsUtils.STATUS_SUSPENDED);
         return;

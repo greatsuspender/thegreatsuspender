@@ -265,7 +265,7 @@ var tgs = (function() {
           );
           gsUtils.saveToWhitelist(url);
           unsuspendTab(activeTab);
-        } else {
+        } else if (gsUtils.isNormalTab(activeTab)) {
           let url = gsUtils.getRootUrl(activeTab.url, includePath, false);
           gsUtils.saveToWhitelist(url);
           calculateTabStatus(activeTab, null, function(status) {
@@ -306,6 +306,10 @@ var tgs = (function() {
           );
           gsSuspendedTab.requestUnsuspendTab(suspendedView, activeTab);
         }
+        if (callback) callback(gsUtils.STATUS_UNKNOWN);
+        return;
+      }
+      if (!gsUtils.isNormalTab(activeTab)) {
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -575,10 +579,9 @@ var tgs = (function() {
   function resetAutoSuspendTimerForAllTabs() {
     chrome.tabs.query({}, tabs => {
       for (const tab of tabs) {
-        if (gsUtils.isSuspendedTab(tab) || gsUtils.isSpecialTab(tab)) {
-          continue;
+        if (gsUtils.isNormalTab(tab)) {
+          resetAutoSuspendTimerForTab(tab);
         }
-        resetAutoSuspendTimerForTab(tab);
       }
     });
   }
@@ -1025,7 +1028,7 @@ var tgs = (function() {
       );
       return;
     }
-    if (!gsUtils.isSuspendedTab(previouslyFocusedTab, true)) {
+    if (!gsUtils.isSuspendedTab(previouslyFocusedTab)) {
       return;
     }
     const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
@@ -1640,7 +1643,7 @@ var tgs = (function() {
       }
 
       if (request.action === 'suspend') {
-        if (gsUtils.isSuspendedTab(tab)) {
+        if (gsUtils.isSuspendedTab(tab, true)) {
           sendResponse('Error: tab is already suspended');
           return;
         }
@@ -1687,7 +1690,7 @@ var tgs = (function() {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
 
-      if (gsUtils.isSuspendedTab(tab, true)) {
+      if (gsUtils.isSuspendedTab(tab)) {
         const disableTabChecks = gsStorage.getOption(
           gsStorage.DISABLE_TAB_CHECKS
         );
@@ -1713,7 +1716,7 @@ var tgs = (function() {
         queueSessionTimer();
       }
 
-      if (gsUtils.isSuspendedTab(tab, true)) {
+      if (gsUtils.isSuspendedTab(tab)) {
         handleSuspendedTabStateChanged(tab, changeInfo);
       } else if (gsUtils.isNormalTab(tab)) {
         handleUnsuspendedTabStateChanged(tab, changeInfo);
@@ -1743,7 +1746,7 @@ var tgs = (function() {
     //It is also impossible to remove a the first tab history entry for a tab
     //Refer to: https://github.com/deanoemcke/thegreatsuspender/issues/717
     chrome.history.onVisited.addListener(function(historyItem) {
-      if (gsUtils.isSuspendedUrl(historyItem.url, true)) {
+      if (gsUtils.isSuspendedUrl(historyItem.url)) {
         //remove suspended tab history item
         chrome.history.deleteUrl({ url: historyItem.url });
       }
