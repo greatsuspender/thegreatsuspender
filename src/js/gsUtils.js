@@ -45,7 +45,7 @@ var gsUtils = {
     if (debugError) {
       args = args || [];
       const ignores = ['Error', 'gsUtils', 'gsMessages'];
-      const errorLine = this.getStackTrace()
+      const errorLine = gsUtils.getStackTrace()
         .split('\n')
         .filter(o => !ignores.find(p => o.indexOf(p) >= 0))
         .join('\n');
@@ -86,7 +86,7 @@ var gsUtils = {
     } else {
       // const logString = errorObj.hasOwnProperty('stack')
       //   ? errorObj.stack
-      //   : `${JSON.stringify(errorObj)}\n${this.getStackTrace()}`;
+      //   : `${JSON.stringify(errorObj)}\n${gsUtils.getStackTrace()}`;
       // gsAnalytics.reportException(logString, false);
     }
   },
@@ -128,7 +128,7 @@ var gsUtils = {
   isSpecialTab: function(tab) {
     var url = tab.url;
 
-    if (this.isSuspendedUrl(url, false)) {
+    if (gsUtils.isSuspendedUrl(url, false)) {
       return false;
     }
     // Careful, suspended urls start with "chrome-extension://"
@@ -190,7 +190,7 @@ var gsUtils = {
   },
 
   isSuspendedTab: function(tab, strictMatching) {
-    return this.isSuspendedUrl(tab.url, strictMatching);
+    return gsUtils.isSuspendedUrl(tab.url, strictMatching);
   },
 
   isSuspendedUrl: function(url, strictMatching) {
@@ -272,7 +272,7 @@ var gsUtils = {
       whitelisted;
 
     whitelisted = whitelistItems.some(function(item) {
-      return this.testForMatch(item, url);
+      return gsUtils.testForMatch(item, url);
     }, this);
     return whitelisted;
   },
@@ -283,7 +283,7 @@ var gsUtils = {
       i;
 
     for (i = whitelistItems.length - 1; i >= 0; i--) {
-      if (this.testForMatch(whitelistItems[i], url)) {
+      if (gsUtils.testForMatch(whitelistItems[i], url)) {
         whitelistItems.splice(i, 1);
       }
     }
@@ -325,7 +325,7 @@ var gsUtils = {
   saveToWhitelist: function(newString) {
     var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '';
     var newWhitelistString = oldWhitelistString + '\n' + newString;
-    newWhitelistString = this.cleanupWhitelist(newWhitelistString);
+    newWhitelistString = gsUtils.cleanupWhitelist(newWhitelistString);
     gsStorage.setOptionAndSync(gsStorage.WHITELIST, newWhitelistString);
 
     var key = gsStorage.WHITELIST;
@@ -489,15 +489,15 @@ var gsUtils = {
     return valuesByKey[key] || false;
   },
   getSuspendedTitle: function(urlStr) {
-    return decodeURIComponent(this.getHashVariable('ttl', urlStr) || '');
+    return decodeURIComponent(gsUtils.getHashVariable('ttl', urlStr) || '');
   },
   getSuspendedScrollPosition: function(urlStr) {
-    return decodeURIComponent(this.getHashVariable('pos', urlStr) || '');
+    return decodeURIComponent(gsUtils.getHashVariable('pos', urlStr) || '');
   },
   getOriginalUrl: function(urlStr) {
     return (
-      this.getHashVariable('uri', urlStr) ||
-      decodeURIComponent(this.getHashVariable('url', urlStr) || '')
+      gsUtils.getHashVariable('uri', urlStr) ||
+      decodeURIComponent(gsUtils.getHashVariable('url', urlStr) || '')
     );
   },
   getCleanTabTitle(tab) {
@@ -705,15 +705,15 @@ var gsUtils = {
     });
 
     //if context menu has been disabled then remove from chrome
-    if (this.contains(changedSettingKeys, gsStorage.ADD_CONTEXT)) {
+    if (gsUtils.contains(changedSettingKeys, gsStorage.ADD_CONTEXT)) {
       var addContextMenu = gsStorage.getOption(gsStorage.ADD_CONTEXT);
       tgs.buildContextMenu(addContextMenu);
     }
 
     //if screenshot preferences have changed then update the queue parameters
     if (
-      this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
-      this.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
+      gsUtils.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE) ||
+      gsUtils.contains(changedSettingKeys, gsStorage.SCREEN_CAPTURE_FORCE)
     ) {
       gsTabSuspendManager.initAsPromised(); //async. unhandled promise
     }

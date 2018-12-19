@@ -38,27 +38,27 @@ var gsStorage = {
 
   getSettingsDefaults: function() {
     const defaults = {};
-    defaults[this.SCREEN_CAPTURE] = '0';
-    defaults[this.SCREEN_CAPTURE_FORCE] = false;
-    defaults[this.SUSPEND_IN_PLACE_OF_DISCARD] = false;
-    defaults[this.DISCARD_IN_PLACE_OF_SUSPEND] = false;
-    defaults[this.USE_ALT_SCREEN_CAPTURE_LIB] = false;
-    defaults[this.DISABLE_TAB_CHECKS] = false;
-    defaults[this.DISCARD_AFTER_SUSPEND] = false;
-    defaults[this.IGNORE_WHEN_OFFLINE] = false;
-    defaults[this.IGNORE_WHEN_CHARGING] = false;
-    defaults[this.UNSUSPEND_ON_FOCUS] = false;
-    defaults[this.IGNORE_PINNED] = true;
-    defaults[this.IGNORE_FORMS] = true;
-    defaults[this.IGNORE_AUDIO] = true;
-    defaults[this.IGNORE_ACTIVE_TABS] = true;
-    defaults[this.IGNORE_CACHE] = false;
-    defaults[this.ADD_CONTEXT] = true;
-    defaults[this.SYNC_SETTINGS] = true;
-    defaults[this.SUSPEND_TIME] = '60';
-    defaults[this.NO_NAG] = false;
-    defaults[this.WHITELIST] = '';
-    defaults[this.THEME] = 'light';
+    defaults[gsStorage.SCREEN_CAPTURE] = '0';
+    defaults[gsStorage.SCREEN_CAPTURE_FORCE] = false;
+    defaults[gsStorage.SUSPEND_IN_PLACE_OF_DISCARD] = false;
+    defaults[gsStorage.DISCARD_IN_PLACE_OF_SUSPEND] = false;
+    defaults[gsStorage.USE_ALT_SCREEN_CAPTURE_LIB] = false;
+    defaults[gsStorage.DISABLE_TAB_CHECKS] = false;
+    defaults[gsStorage.DISCARD_AFTER_SUSPEND] = false;
+    defaults[gsStorage.IGNORE_WHEN_OFFLINE] = false;
+    defaults[gsStorage.IGNORE_WHEN_CHARGING] = false;
+    defaults[gsStorage.UNSUSPEND_ON_FOCUS] = false;
+    defaults[gsStorage.IGNORE_PINNED] = true;
+    defaults[gsStorage.IGNORE_FORMS] = true;
+    defaults[gsStorage.IGNORE_AUDIO] = true;
+    defaults[gsStorage.IGNORE_ACTIVE_TABS] = true;
+    defaults[gsStorage.IGNORE_CACHE] = false;
+    defaults[gsStorage.ADD_CONTEXT] = true;
+    defaults[gsStorage.SYNC_SETTINGS] = true;
+    defaults[gsStorage.SUSPEND_TIME] = '60';
+    defaults[gsStorage.NO_NAG] = false;
+    defaults[gsStorage.WHITELIST] = '';
+    defaults[gsStorage.THEME] = 'light';
 
     return defaults;
   },
@@ -217,19 +217,19 @@ var gsStorage = {
   //due to migration issues and new settings being added, i have built in some redundancy
   //here so that getOption will always return a valid value.
   getOption: function(prop) {
-    var settings = this.getSettings();
+    var settings = gsStorage.getSettings();
     if (typeof settings[prop] === 'undefined' || settings[prop] === null) {
-      settings[prop] = this.getSettingsDefaults()[prop];
-      this.saveSettings(settings);
+      settings[prop] = gsStorage.getSettingsDefaults()[prop];
+      gsStorage.saveSettings(settings);
     }
     return settings[prop];
   },
 
   setOption: function(prop, value) {
-    var settings = this.getSettings();
+    var settings = gsStorage.getSettings();
     settings[prop] = value;
     // gsUtils.log('gsStorage', 'gsStorage', 'setting prop: ' + prop + ' to value ' + value);
-    this.saveSettings(settings);
+    gsStorage.saveSettings(settings);
   },
 
   // Important to note that setOption (and ultimately saveSettings) uses localStorage whereas
@@ -237,8 +237,8 @@ var gsStorage = {
   // Calling syncSettings has the unfortunate side-effect of triggering the chrome.storage.onChanged
   // listener which the re-saves the setting to localStorage a second time.
   setOptionAndSync: function(prop, value) {
-    this.setOption(prop, value);
-    this.syncSettings();
+    gsStorage.setOption(prop, value);
+    gsStorage.syncSettings();
   },
 
   getSettings: function() {
@@ -253,8 +253,8 @@ var gsStorage = {
       );
     }
     if (!settings) {
-      settings = this.getSettingsDefaults();
-      this.saveSettings(settings);
+      settings = gsStorage.getSettingsDefaults();
+      gsStorage.saveSettings(settings);
     }
     return settings;
   },
@@ -274,10 +274,10 @@ var gsStorage = {
 
   // Push settings to sync
   syncSettings: function() {
-    var settings = this.getSettings();
-    if (settings[this.SYNC_SETTINGS]) {
+    var settings = gsStorage.getSettings();
+    if (settings[gsStorage.SYNC_SETTINGS]) {
       // Since sync is a local setting, delete it to simplify things.
-      delete settings[this.SYNC_SETTINGS];
+      delete settings[gsStorage.SYNC_SETTINGS];
       gsUtils.log(
         'gsStorage',
         'gsStorage',
@@ -299,12 +299,12 @@ var gsStorage = {
   fetchLastVersion: function() {
     var version;
     try {
-      version = JSON.parse(localStorage.getItem(this.APP_VERSION));
+      version = JSON.parse(localStorage.getItem(gsStorage.APP_VERSION));
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'Failed to parse ' + this.APP_VERSION + ': ',
-        localStorage.getItem(this.APP_VERSION)
+        'Failed to parse ' + gsStorage.APP_VERSION + ': ',
+        localStorage.getItem(gsStorage.APP_VERSION)
       );
     }
     version = version || '0.0.0';
@@ -312,11 +312,11 @@ var gsStorage = {
   },
   setLastVersion: function(newVersion) {
     try {
-      localStorage.setItem(this.APP_VERSION, JSON.stringify(newVersion));
+      localStorage.setItem(gsStorage.APP_VERSION, JSON.stringify(newVersion));
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'failed to save ' + this.APP_VERSION + ' to local storage',
+        'failed to save ' + gsStorage.APP_VERSION + ' to local storage',
         e
       );
     }
@@ -325,12 +325,12 @@ var gsStorage = {
   fetchNoticeVersion: function() {
     var lastNoticeVersion;
     try {
-      lastNoticeVersion = JSON.parse(localStorage.getItem(this.LAST_NOTICE));
+      lastNoticeVersion = JSON.parse(localStorage.getItem(gsStorage.LAST_NOTICE));
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'Failed to parse ' + this.LAST_NOTICE + ': ',
-        localStorage.getItem(this.LAST_NOTICE)
+        'Failed to parse ' + gsStorage.LAST_NOTICE + ': ',
+        localStorage.getItem(gsStorage.LAST_NOTICE)
       );
     }
     lastNoticeVersion = lastNoticeVersion || '0';
@@ -338,11 +338,11 @@ var gsStorage = {
   },
   setNoticeVersion: function(newVersion) {
     try {
-      localStorage.setItem(this.LAST_NOTICE, JSON.stringify(newVersion));
+      localStorage.setItem(gsStorage.LAST_NOTICE, JSON.stringify(newVersion));
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'failed to save ' + this.LAST_NOTICE + ' to local storage',
+        'failed to save ' + gsStorage.LAST_NOTICE + ' to local storage',
         e
       );
     }
@@ -352,13 +352,13 @@ var gsStorage = {
     var lastExtensionRecoveryTimestamp;
     try {
       lastExtensionRecoveryTimestamp = JSON.parse(
-        localStorage.getItem(this.LAST_EXTENSION_RECOVERY)
+        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY)
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'Failed to parse ' + this.LAST_EXTENSION_RECOVERY + ': ',
-        localStorage.getItem(this.LAST_EXTENSION_RECOVERY)
+        'Failed to parse ' + gsStorage.LAST_EXTENSION_RECOVERY + ': ',
+        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY)
       );
     }
     return lastExtensionRecoveryTimestamp;
@@ -366,13 +366,13 @@ var gsStorage = {
   setLastExtensionRecoveryTimestamp: function(extensionRecoveryTimestamp) {
     try {
       localStorage.setItem(
-        this.LAST_EXTENSION_RECOVERY,
+        gsStorage.LAST_EXTENSION_RECOVERY,
         JSON.stringify(extensionRecoveryTimestamp)
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'failed to save ' + this.LAST_EXTENSION_RECOVERY + ' to local storage',
+        'failed to save ' + gsStorage.LAST_EXTENSION_RECOVERY + ' to local storage',
         e
       );
     }
@@ -382,13 +382,13 @@ var gsStorage = {
     var sessionMetrics = {};
     try {
       sessionMetrics = JSON.parse(
-        localStorage.getItem(this.SM_SESSION_METRICS)
+        localStorage.getItem(gsStorage.SM_SESSION_METRICS)
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'Failed to parse ' + this.SM_SESSION_METRICS + ': ',
-        localStorage.getItem(this.SM_SESSION_METRICS)
+        'Failed to parse ' + gsStorage.SM_SESSION_METRICS + ': ',
+        localStorage.getItem(gsStorage.SM_SESSION_METRICS)
       );
     }
     return sessionMetrics;
@@ -396,13 +396,13 @@ var gsStorage = {
   setSessionMetrics: function(sessionMetrics) {
     try {
       localStorage.setItem(
-        this.SM_SESSION_METRICS,
+        gsStorage.SM_SESSION_METRICS,
         JSON.stringify(sessionMetrics)
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'failed to save ' + this.SM_SESSION_METRICS + ' to local storage',
+        'failed to save ' + gsStorage.SM_SESSION_METRICS + ' to local storage',
         e
       );
     }
