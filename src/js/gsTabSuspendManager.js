@@ -165,6 +165,15 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
+    const suspensionForceLevel = queuedTabDetails.executionProps.forceLevel;
+    if (!checkTabEligibilityForSuspension(tab, suspensionForceLevel)) {
+      gsUtils.log(
+        tab.id,
+        'Tab is no longer eligible for suspension. Removing tab from suspensionQueue.'
+      );
+      return;
+    }
+
     const success = await executeTabSuspension(
       tab,
       queuedTabDetails.executionProps.suspendedUrl
