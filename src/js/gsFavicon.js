@@ -286,7 +286,12 @@ var gsFavicon = (function() {
     const timeout = 5 * 1000;
     return new Promise((resolve, reject) => {
       const img = new Image();
-      let imageLoaded = false;
+      // 12-16-2018 ::: @CollinChaffin ::: Anonymous declaration required to prevent terminating cross origin security errors
+	  // 12-16-2018 ::: @CollinChaffin ::: http://bit.ly/2BolEqx
+	  // 12-16-2018 ::: @CollinChaffin ::: https://bugs.chromium.org/p/chromium/issues/detail?id=409090#c23
+	  // 12-16-2018 ::: @CollinChaffin ::: https://bugs.chromium.org/p/chromium/issues/detail?id=718352#c10	  
+	  img.crossOrigin = "Anonymous";
+	  let imageLoaded = false;
 
       img.onload = async function() {
         imageLoaded = true;
