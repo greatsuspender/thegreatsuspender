@@ -194,7 +194,7 @@ var gsTabCheckManager = (function() {
     }
 
     // Make sure tab is registered as a 'view' of the extension
-    const suspendedView = tgs.getInternalViewByTabId(tab.id, true);
+    const suspendedView = tgs.getInternalViewByTabId(tab.id);
     if (!suspendedView) {
       gsUtils.log(
         tab.id,
@@ -254,7 +254,7 @@ var gsTabCheckManager = (function() {
 
   async function resuspendSuspendedTab(tab) {
     gsUtils.log(tab.id, QUEUE_ID, 'Resuspending unresponsive suspended tab.');
-    const suspendedView = tgs.getInternalViewByTabId(tab.id, true);
+    const suspendedView = tgs.getInternalViewByTabId(tab.id);
     if (suspendedView) {
       tgs.setTabStatePropForTabId(
         tab.id,

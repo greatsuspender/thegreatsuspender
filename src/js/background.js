@@ -145,16 +145,10 @@ var tgs = (function() {
     startAnalyticsUpdateJob();
   }
 
-  function getInternalViewByTabId(tabId, suppressLog) {
+  function getInternalViewByTabId(tabId) {
     const internalViews = chrome.extension.getViews({ tabId: tabId });
     if (internalViews.length === 1) {
       return internalViews[0];
-    }
-    if (!suppressLog) {
-      gsUtils.warning(
-        'background',
-        `Failed to get internal view with id: ${tabId}`
-      );
     }
     return null;
   }
@@ -1126,10 +1120,11 @@ var tgs = (function() {
     if (autoUnsuspend) {
       if (navigator.onLine) {
         unsuspendTab(focusedTab);
-        return;
-      }
-      if (suspendedView) {
-        gsSuspendedTab.showNoConnectivityMessage(suspendedView);
+      } else {
+        const suspendedView = getInternalViewByTabId(focusedTab.id);
+        if (suspendedView) {
+          gsSuspendedTab.showNoConnectivityMessage(suspendedView);
+        }
       }
     }
   }

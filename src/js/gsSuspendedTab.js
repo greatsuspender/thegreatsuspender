@@ -5,7 +5,7 @@ var gsSuspendedTab = (function() {
 
   async function initTab(tab, tabView) {
     if (!tabView) {
-      throw new Error('Could not get internalTabView for suspended tab');
+      gsUtils.warning(tab.id, 'Could not get internalTabView for suspended tab');
     }
 
     gsUtils.localiseHtml(tabView.document);
