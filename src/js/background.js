@@ -1110,11 +1110,14 @@ var tgs = (function() {
   }
 
   async function handleSuspendedTabFocusGained(focusedTab) {
-    //safety check to ensure suspended tab has been initialised
-    const suspendedView = getInternalViewByTabId(focusedTab.id);
-    if (!gsTabCheckManager.ensureSuspendedTabVisible(suspendedView)) {
-      await gsSuspendedTab.initTab(focusedTab, suspendedView);
+    if (!focusedTab.status === 'loading') {
+      //safety check to ensure suspended tab has been initialised
+      const suspendedView = getInternalViewByTabId(focusedTab.id);
+      if (!gsTabCheckManager.ensureSuspendedTabVisible(suspendedView)) {
+        await gsSuspendedTab.initTab(focusedTab, suspendedView);
+      }
     }
+
     //check for auto-unsuspend
     var autoUnsuspend = gsStorage.getOption(gsStorage.UNSUSPEND_ON_FOCUS);
     if (autoUnsuspend) {
