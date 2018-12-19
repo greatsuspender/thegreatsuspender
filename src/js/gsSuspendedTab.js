@@ -5,7 +5,10 @@ var gsSuspendedTab = (function() {
 
   async function initTab(tab, tabView) {
     if (!tabView) {
-      gsUtils.warning(tab.id, 'Could not get internalTabView for suspended tab');
+      gsUtils.warning(
+        tab.id,
+        'Could not get internalTabView for suspended tab'
+      );
     }
 
     gsUtils.localiseHtml(tabView.document);
@@ -404,7 +407,7 @@ var gsSuspendedTab = (function() {
 
     const request = new XMLHttpRequest();
     request.onload = () => {
-      loadDonateButtonsHtml(_document);
+      loadDonateButtonsHtml(_document, request.responseText);
     };
     request.open('GET', 'support.html', true);
     request.send();
@@ -413,8 +416,8 @@ var gsSuspendedTab = (function() {
     _document.getElementById('donateBubble').classList.add('fadeIn');
   }
 
-  function loadDonateButtonsHtml(_document) {
-    _document.getElementById('donateButtons').innerHTML = this.responseText;
+  function loadDonateButtonsHtml(_document, responseText) {
+    _document.getElementById('donateButtons').innerHTML = responseText;
     _document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage(
       'js_donate_bitcoin'
     );

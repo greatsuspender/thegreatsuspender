@@ -14,8 +14,8 @@
     gsAnalytics.reportEvent('Donations', 'HidePopupManual', hideNag);
   }
 
-  function loadDonateButtons() {
-    document.getElementById('donateButtons').innerHTML = this.responseText;
+  function loadDonateButtons(responseText) {
+    document.getElementById('donateButtons').innerHTML = responseText;
 
     var bitcoinBtn = document.getElementById('bitcoinBtn');
     var patreonBtn = document.getElementById('patreonBtn');
@@ -55,7 +55,7 @@
     }
 
     var request = new XMLHttpRequest();
-    request.onload = loadDonateButtons;
+    request.onload = () => loadDonateButtons(request.responseText);
     request.open('GET', 'support.html', true);
     request.send();
 
