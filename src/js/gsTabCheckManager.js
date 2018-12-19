@@ -273,6 +273,10 @@ var gsTabCheckManager = (function() {
   }
 
   function queueForDiscardIfRequired(tab) {
+    // Do not discard during initialisation
+    if (gsSession.isInitialising()) {
+      return;
+    }
     // If we want to discard tabs after suspending them
     let discardAfterSuspend = gsStorage.getOption(
       gsStorage.DISCARD_AFTER_SUSPEND

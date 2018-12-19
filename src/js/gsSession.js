@@ -201,8 +201,19 @@ var gsSession = (function() {
       postRecoverySessionTabs
     );
     const totalTabCheckCount = tabCheckResults.length;
-    const successfulTabChecksCount = tabCheckResults.filter(o => o === gsUtils.STATUS_SUSPENDED)
-      .length;
+    const successfulTabChecksCount = tabCheckResults.filter(
+      o => o === gsUtils.STATUS_SUSPENDED
+    ).length;
+
+    // If we want to discard tabs after suspending them
+    let discardAfterSuspend = gsStorage.getOption(
+      gsStorage.DISCARD_AFTER_SUSPEND
+    );
+    if (discardAfterSuspend) {
+      await gsTabDiscardManager.performInitialisationTabDiscards(
+        postRecoverySessionTabs
+      );
+    }
 
     startupTabCheckTimeTakenInSeconds = parseInt(
       (Date.now() - initStartTime) / 1000
