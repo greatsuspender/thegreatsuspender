@@ -30,6 +30,8 @@
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "如果您有建議或想回報問題，可以在" },
     "html_about_report_issues_suffix": { "message": ". 在建立新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！" },
+    "html_about_debugging_prefix": { "message": "要啟用日誌記錄或設置調試標誌，請轉至" },
+    "html_about_debugging_suffix": { "message": "調試頁面。" },
     "html_about_the_github_issues_page": { "message": "GitHub 上進行" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "這個擴充功能使用 Niklas von Hertzen 撰寫的" },

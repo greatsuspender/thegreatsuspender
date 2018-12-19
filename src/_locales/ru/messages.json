@@ -30,6 +30,8 @@
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "Связаться с нами или сообщить о баге можно на" },
     "html_about_report_issues_suffix": { "message": ". Пожалуйста. убедитесь что ваша идея или предложение не опубликованы ранее. Спасибо!" },
+    "html_about_debugging_prefix": { "message": "Чтобы включить ведение журнала или установить флаги отладки, перейдите на " },
+    "html_about_debugging_suffix": { "message": "страницу отладки." },
     "html_about_the_github_issues_page": { "message": "странице предложений GitHub" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "Это расширение использует" },

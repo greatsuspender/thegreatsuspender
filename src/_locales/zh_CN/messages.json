@@ -30,6 +30,8 @@
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "如果您有反馈意见或想报告问题，可以在" },
     "html_about_report_issues_suffix": { "message": ". 在创建新的想法或问题之前，请检查您的想法或问题是否存在。谢谢！" },
+    "html_about_debugging_prefix": { "message": "要启用日志记录或设置调试标志，请转至" },
+    "html_about_debugging_suffix": { "message": "调试页面。" },
     "html_about_the_github_issues_page": { "message": "GitHub上进行" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "这个扩充元件使用 Niklas von Hertzen 撰写的" },

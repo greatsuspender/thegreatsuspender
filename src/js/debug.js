@@ -107,6 +107,15 @@
         gsStorage.setOptionAndSync(gsStorage.DISABLE_TAB_CHECKS, newVal);
       }
     );
+    document.getElementById('claimSuspendedTabs').onclick = async function(e) {
+      const tabs = await gsChrome.tabsQuery();
+      for (const tab of tabs) {
+        if (gsUtils.isSuspendedTab(tab, true) && tab.url.indexOf(chrome.runtime.id) < 0) {
+          const newUrl = tab.url.replace(gsUtils.getRootUrl(tab.url), chrome.runtime.id);
+          await gsChrome.tabsUpdate(tab.id, { url: newUrl});
+        }
+      }
+    };
 
     var extensionsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
     document

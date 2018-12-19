@@ -30,6 +30,8 @@
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "Wenn du Feedback hast oder einen Fehler melden möchtest, melde das auf der" },
     "html_about_report_issues_suffix": { "message": ". Bitte prüfe vorab, ob deine Idee oder dein Fehler schon gemeldet wurde. Danke!" },
+    "html_about_debugging_prefix": { "message": "Um die Protokollierung zu aktivieren oder Debugging-Flags festzulegen, gehen Sie auf die " },
+    "html_about_debugging_suffix": { "message": "Debug-Seite." },
     "html_about_the_github_issues_page": { "message": "GitHub Projektseite" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "Diese Erweiterung nutzt die" },

@@ -30,6 +30,8 @@
     "html_about_twitter_title": { "message": "Twitter" },
     "html_about_report_issues_prefix": { "message": "If you have feedback or would like to report an issue, you can do so on the" },
     "html_about_report_issues_suffix": { "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!" },
+    "html_about_debugging_prefix": { "message": "To enable logging, or to set debugging flags, go to the " },
+    "html_about_debugging_suffix": { "message": "debug page." },
     "html_about_the_github_issues_page": { "message": "GitHub issues page" },
     "html_about_html2canvas": { "message": "html2canvas" },
     "html_about_html2canvas_prefix": { "message": "This extension uses the" },
