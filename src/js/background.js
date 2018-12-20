@@ -854,6 +854,7 @@ var tgs = (function() {
             gsStorage.DISABLE_TAB_CHECKS
           );
           if (!disableTabChecks) {
+            gsTabDiscardManager.unqueueTabForDiscard(tab); // just in case
             gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
             return;
           }
@@ -998,7 +999,10 @@ var tgs = (function() {
 
     //update icon
     calculateTabStatus(focusedTab, contentScriptStatus, function(status) {
-      setIconStatus(status, focusedTab.id);
+      //if this tab still has focus then update icon
+      if (_currentFocusedTabIdByWindowId[windowId] === focusedTab.id) {
+        setIconStatus(status, focusedTab.id);
+      }
     });
 
     //pause for a bit before assuming we're on a new tab as some users
@@ -1017,7 +1021,6 @@ var tgs = (function() {
     if (!discardAfterSuspend) {
       return;
     }
-    await gsUtils.setTimeout(2000); // Allow time for tabCheck to initiate
     const previouslyFocusedTab = previouslyFocusedTabId
       ? await gsChrome.tabsGet(previouslyFocusedTabId)
       : null;
@@ -1029,6 +1032,10 @@ var tgs = (function() {
       return;
     }
     if (!gsUtils.isSuspendedTab(previouslyFocusedTab)) {
+      return;
+    }
+    if (previouslyFocusedTab.status === 'loading') {
+      // if tab is still loading then let the status === 'complete' handle the discard
       return;
     }
     const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
@@ -1043,7 +1050,7 @@ var tgs = (function() {
     }
 
     gsUtils.log(previouslyFocusedTabId, 'Discarding previously focused tab');
-    gsTabDiscardManager.queueTabForDiscard(previouslyFocusedTab);
+    gsTabDiscardManager.queueTabForDiscard(previouslyFocusedTab, {}, 1000);
   }
 
   function queueNewWindowFocusTimer(tabId, windowId, focusedTab) {
