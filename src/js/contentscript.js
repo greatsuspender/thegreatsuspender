@@ -129,5 +129,10 @@
 
   waitForRuntimeReady()
     .then(init)
-    .catch(console.error);
+    .catch((e) => {
+      console.error(e);
+      setTimeout(() => {
+        init();
+      }, 200);
+    });
 })();
