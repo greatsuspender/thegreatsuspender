@@ -183,18 +183,24 @@ var gsFavicon = (function() {
   }
 
   async function getCachedFaviconMetaData(url) {
-    const rootUrl = gsUtils.getRootUrl(url, false, true);
-    const faviconMetaData = await gsIndexedDb.fetchFaviconMeta(rootUrl);
+    const fullUrl = gsUtils.getRootUrl(url, true, false);
+    let faviconMetaData = await gsIndexedDb.fetchFaviconMeta(fullUrl);
+    if (!faviconMetaData) {
+      const rootUrl = gsUtils.getRootUrl(url, false, false);
+      faviconMetaData = await gsIndexedDb.fetchFaviconMeta(rootUrl);
+    }
     return faviconMetaData || null;
   }
 
   async function saveFaviconMetaDataToCache(url, faviconMeta) {
-    const rootUrl = gsUtils.getRootUrl(url, false, true);
+    const fullUrl = gsUtils.getRootUrl(url, true, false);
+    const rootUrl = gsUtils.getRootUrl(url, false, false);
     gsUtils.log(
       'gsFavicon',
-      'Saving favicon cache entry for: ' + rootUrl,
+      'Saving favicon cache entry for: ' + fullUrl,
       faviconMeta
     );
+    await gsIndexedDb.addFaviconMeta(fullUrl, faviconMeta);
     await gsIndexedDb.addFaviconMeta(rootUrl, faviconMeta);
   }
 

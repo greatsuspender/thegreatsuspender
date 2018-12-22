@@ -472,8 +472,11 @@ var gsIndexedDb = {
         .all()
         .keys()
         .execute();
-      if (faviconMetas.length > maxTabItems) {
-        const itemsToRemove = faviconMetas.length - maxTabItems;
+      //when favicons are stored they also create an extra indexedDb item with the root url as the key
+      //so they will have slightly more entries than the suspendedTabInfos
+      const maxFaviconItems = parseInt(maxTabItems + (maxTabItems * 0.3));
+      if (faviconMetas.length > maxFaviconItems) {
+        const itemsToRemove = faviconMetas.length - maxFaviconItems;
         for (let i = 0; i < itemsToRemove; i++) {
           await gsDb.remove(gsIndexedDb.DB_FAVICON_META, faviconMetas[i]);
         }
