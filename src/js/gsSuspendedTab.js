@@ -332,7 +332,7 @@ var gsSuspendedTab = (function() {
   function setCommand(_document, command) {
     const hotkeyEl = _document.getElementById('hotkeyWrapper');
     if (command) {
-      hotkeyEl.innerHTML = '<span class="hotkeyCommand">(' + command + ')</a>';
+      hotkeyEl.innerHTML = '<span class="hotkeyCommand">(' + command + ')</span>';
     } else {
       const reloadString = chrome.i18n.getMessage(
         'js_suspended_hotkey_to_reload'
