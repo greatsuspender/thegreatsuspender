@@ -200,8 +200,8 @@ var gsFavicon = (function() {
       'Saving favicon cache entry for: ' + fullUrl,
       faviconMeta
     );
-    await gsIndexedDb.addFaviconMeta(fullUrl, faviconMeta);
-    await gsIndexedDb.addFaviconMeta(rootUrl, faviconMeta);
+    await gsIndexedDb.addFaviconMeta(fullUrl, Object.assign({}, faviconMeta));
+    await gsIndexedDb.addFaviconMeta(rootUrl, Object.assign({}, faviconMeta));
   }
 
   // dont use this function as it causes rate limit issues
