@@ -50,19 +50,7 @@ var gsSuspendedTab = (function() {
     tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG, showNag);
 
     if (showNag) {
-      const dudeEl = document.getElementById('dudePopup');
-      const showingNag =
-        dudeEl !== null && dudeEl.classList.contains('poppedup');
-      if (showingNag) {
-        hideDonationPopup(tabView.document);
-      } else {
-        queueDonationPopup(
-          tabView.window,
-          tabView.document,
-          tab.active,
-          tab.id
-        );
-      }
+      queueDonationPopup(tabView.window, tabView.document, tab.active, tab.id);
     }
 
     // Set command
@@ -221,23 +209,27 @@ var gsSuspendedTab = (function() {
 
   function queueDonationPopup(_window, _document, tabActive, tabId) {
     const donationPopupFocusListener = function(e) {
-      if (e) {
-        e.target.removeEventListener(
-          'visibilitychange',
-          donationPopupFocusListener
-        );
+      if (e && e.target && e.target.visibilityState === 'hidden') {
+        return;
       }
+      const options = gsStorage.getSettings();
+      const showNag =
+        tgs.getTabStatePropForTabId(tabId, tgs.STATE_SHOW_NAG) &&
+        !options[gsStorage.NO_NAG];
+      const dudeEl = _document.getElementById('dudePopup');
+      const showingNag =
+        dudeEl !== null && dudeEl.classList.contains('poppedup');
 
-      //if user has donated since this page was first generated then dont display popup
-      const showNag = tgs.getTabStatePropForTabId(tabId, tgs.STATE_SHOW_NAG);
-      if (showNag) {
+      if (showNag && !showingNag) {
         loadDonationPopupTemplate(_document);
+      } else if (!showNag && showingNag) {
+        hideDonationPopup(_document);
       }
     };
+
+    _window.addEventListener('visibilitychange', donationPopupFocusListener);
     if (tabActive) {
       donationPopupFocusListener();
-    } else {
-      _window.addEventListener('visibilitychange', donationPopupFocusListener);
     }
   }
 
@@ -332,7 +324,8 @@ var gsSuspendedTab = (function() {
   function setCommand(_document, command) {
     const hotkeyEl = _document.getElementById('hotkeyWrapper');
     if (command) {
-      hotkeyEl.innerHTML = '<span class="hotkeyCommand">(' + command + ')</span>';
+      hotkeyEl.innerHTML =
+        '<span class="hotkeyCommand">(' + command + ')</span>';
     } else {
       const reloadString = chrome.i18n.getMessage(
         'js_suspended_hotkey_to_reload'
