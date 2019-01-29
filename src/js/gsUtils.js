@@ -45,7 +45,8 @@ var gsUtils = {
     if (debugError) {
       args = args || [];
       const ignores = ['Error', 'gsUtils', 'gsMessages'];
-      const errorLine = gsUtils.getStackTrace()
+      const errorLine = gsUtils
+        .getStackTrace()
         .split('\n')
         .filter(o => !ignores.find(p => o.indexOf(p) >= 0))
         .join('\n');
@@ -401,10 +402,11 @@ var gsUtils = {
   },
 
   generateSuspendedUrl: function(url, title, scrollPos) {
+    let encodedTitle = gsUtils.encodeString(title)
     var args =
       '#' +
       'ttl=' +
-      encodeURIComponent(title) +
+      encodedTitle +
       '&' +
       'pos=' +
       (scrollPos || '0') +
@@ -490,23 +492,23 @@ var gsUtils = {
     return valuesByKey[key] || false;
   },
   getSuspendedTitle: function(urlStr) {
-    return decodeURIComponent(gsUtils.getHashVariable('ttl', urlStr) || '');
+    return gsUtils.decodeString(gsUtils.getHashVariable('ttl', urlStr) || '');
   },
   getSuspendedScrollPosition: function(urlStr) {
-    return decodeURIComponent(gsUtils.getHashVariable('pos', urlStr) || '');
+    return gsUtils.decodeString(gsUtils.getHashVariable('pos', urlStr) || '');
   },
   getOriginalUrl: function(urlStr) {
     return (
       gsUtils.getHashVariable('uri', urlStr) ||
-      decodeURIComponent(gsUtils.getHashVariable('url', urlStr) || '')
+      gsUtils.decodeString(gsUtils.getHashVariable('url', urlStr) || '')
     );
   },
   getCleanTabTitle(tab) {
-    let cleanedTitle = decodeURIComponent(tab.title);
+    let cleanedTitle = gsUtils.decodeString(tab.title);
     if (
       !cleanedTitle ||
       cleanedTitle === '' ||
-      cleanedTitle === decodeURIComponent(tab.url) ||
+      cleanedTitle === gsUtils.decodeString(tab.url) ||
       cleanedTitle === 'Suspended Tab'
     ) {
       if (gsUtils.isSuspendedTab(tab)) {
@@ -517,6 +519,20 @@ var gsUtils = {
       }
     }
     return cleanedTitle;
+  },
+  decodeString(string) {
+    try {
+      return decodeURIComponent(string);
+    } catch (e) {
+      return string;
+    }
+  },
+  encodeString(string) {
+    try {
+      return encodeURIComponent(string);
+    } catch (e) {
+      return string;
+    }
   },
 
   getSuspendedTabCount: async function() {

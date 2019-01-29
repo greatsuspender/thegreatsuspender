@@ -210,7 +210,7 @@ var gsFavicon = (function() {
     return new Promise(resolve => {
       let imageLoaded = false;
 
-      const rootUrl = encodeURIComponent(gsUtils.getRootUrl(url));
+      const rootUrl = gsUtils.encodeString(gsUtils.getRootUrl(url));
       const requestUrl = GOOGLE_S2_URL + rootUrl;
 
       const xmlHTTP = new XMLHttpRequest();
