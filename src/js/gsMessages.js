@@ -19,7 +19,12 @@ var gsMessages = {
     if (scrollPos) {
       payload.scrollPos = scrollPos;
     }
-    gsMessages.sendMessageToContentScript(tabId, payload, gsMessages.ERROR, callback);
+    gsMessages.sendMessageToContentScript(
+      tabId,
+      payload,
+      gsMessages.ERROR,
+      callback
+    );
   },
 
   sendUpdateToContentScriptOfTab: function(tab) {
@@ -32,7 +37,11 @@ var gsMessages = {
     }
 
     const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
-    gsMessages.sendMessageToContentScript(tab.id, { ignoreForms }, gsMessages.WARNING);
+    gsMessages.sendMessageToContentScript(
+      tab.id,
+      { ignoreForms },
+      gsMessages.WARNING
+    );
   },
 
   sendTemporaryWhitelistToContentScript: function(tabId, callback) {
@@ -81,7 +90,10 @@ var gsMessages = {
   },
 
   sendMessageToContentScript: function(tabId, message, severity, callback) {
-    gsMessages.sendMessageToTab(tabId, message, severity, function(error, response) {
+    gsMessages.sendMessageToTab(tabId, message, severity, function(
+      error,
+      response
+    ) {
       if (error) {
         if (callback) callback(error);
       } else {

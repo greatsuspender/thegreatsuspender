@@ -115,7 +115,7 @@ var gsTabCheckManager = (function() {
   async function handleTabCheck(tab, executionProps, resolve, reject, requeue) {
     if (gsUtils.isSuspendedTab(tab)) {
       checkSuspendedTab(tab, executionProps, resolve, reject, requeue);
-    } else if (gsUtils.isNormalTab(tab)){
+    } else if (gsUtils.isNormalTab(tab)) {
       checkNormalTab(tab, executionProps, resolve, reject, requeue);
     }
   }
@@ -309,13 +309,7 @@ var gsTabCheckManager = (function() {
     return true;
   }
 
-  async function checkNormalTab(
-    tab,
-    executionProps,
-    resolve,
-    reject,
-    requeue
-  ) {
+  async function checkNormalTab(tab, executionProps, resolve, reject, requeue) {
     if (executionProps.refetchTab) {
       gsUtils.log(
         tab.id,
@@ -346,7 +340,11 @@ var gsTabCheckManager = (function() {
 
     if (gsUtils.isDiscardedTab(tab)) {
       if (tab.active) {
-        gsUtils.log(tab.id, QUEUE_ID, 'Tab is discarded but active. Will wait for auto reload.');
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Tab is discarded but active. Will wait for auto reload.'
+        );
         requeue(500, { refetchTab: true });
       } else {
         gsUtils.log(tab.id, QUEUE_ID, 'Tab is discarded. Will reload.');
@@ -357,9 +355,8 @@ var gsTabCheckManager = (function() {
     }
 
     let tabInfo = await new Promise(r => {
-      gsMessages.sendRequestInfoToContentScript(
-        tab.id,
-        (error, tabInfo) => r(tabInfo)
+      gsMessages.sendRequestInfoToContentScript(tab.id, (error, tabInfo) =>
+        r(tabInfo)
       );
     });
 
@@ -370,7 +367,11 @@ var gsTabCheckManager = (function() {
 
     const queuedTabDetails = tabCheckQueue.getQueuedTabDetails(tab);
     if (tab.active && queuedTabDetails.requeues === 0) {
-      gsUtils.log(tab.id, QUEUE_ID, 'Tab is not responding but active. Will wait for potential auto reload.');
+      gsUtils.log(
+        tab.id,
+        QUEUE_ID,
+        'Tab is not responding but active. Will wait for potential auto reload.'
+      );
       requeue(500, { refetchTab: false });
       return;
     }
@@ -396,7 +397,8 @@ var gsTabCheckManager = (function() {
     return new Promise(resolve => {
       gsUtils.log(
         tab.id,
-        'Reinjecting contentscript into unresponsive unsuspended tab.', tab
+        'Reinjecting contentscript into unresponsive unsuspended tab.',
+        tab
       );
       const executeScriptTimeout = setTimeout(() => {
         gsUtils.log(
@@ -405,27 +407,26 @@ var gsTabCheckManager = (function() {
         );
         resolve(null);
       }, 10000);
-      gsMessages.executeScriptOnTab(
-        tab.id,
-        'js/contentscript.js',
-        error => {
-          clearTimeout(executeScriptTimeout);
-          if (error) {
-            gsUtils.log(
-              tab.id,
-              'Failed to execute js/contentscript.js on tab',
-              error
-            );
-            resolve(null);
-            return;
-          }
-          tgs.initialiseTabContentScript(tab).then(tabInfo => {
+      gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
+        clearTimeout(executeScriptTimeout);
+        if (error) {
+          gsUtils.log(
+            tab.id,
+            'Failed to execute js/contentscript.js on tab',
+            error
+          );
+          resolve(null);
+          return;
+        }
+        tgs
+          .initialiseTabContentScript(tab)
+          .then(tabInfo => {
             resolve(tabInfo);
-          }).catch(error => {
+          })
+          .catch(error => {
             resolve(null);
           });
-        }
-      );
+      });
     });
   }
 

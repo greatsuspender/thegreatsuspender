@@ -16,8 +16,12 @@
         document.getElementById('exportBackupBtn').style.display = 'none';
       });
     };
-    document.getElementById('setFilePermissiosnBtn').onclick = async function(e) {
-      await gsChrome.tabsCreate({ url: 'chrome://extensions?id=' + chrome.runtime.id });
+    document.getElementById('setFilePermissiosnBtn').onclick = async function(
+      e
+    ) {
+      await gsChrome.tabsCreate({
+        url: 'chrome://extensions?id=' + chrome.runtime.id,
+      });
     };
   });
   gsAnalytics.reportPageView('permissions.html');

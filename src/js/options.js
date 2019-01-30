@@ -1,6 +1,5 @@
 /*global chrome, gsAnalytics, gsStorage, gsUtils */
 (function(global) {
-
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
   } catch (e) {

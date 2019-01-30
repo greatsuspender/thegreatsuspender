@@ -1872,14 +1872,15 @@ var tgs = (function() {
 Promise.resolve()
   .then(tgs.backgroundScriptsReadyAsPromised) // wait until all gsLibs have loaded
   .then(gsStorage.initSettingsAsPromised) // ensure settings have been loaded and synced
-  .then(() => { // initialise other gsLibs
+  .then(() => {
+    // initialise other gsLibs
     return Promise.all([
       gsAnalytics.initAsPromised(),
       gsFavicon.initAsPromised(),
       gsTabSuspendManager.initAsPromised(),
       gsTabCheckManager.initAsPromised(),
       gsTabDiscardManager.initAsPromised(),
-      gsSession.initAsPromised()
+      gsSession.initAsPromised(),
     ]);
   })
   .catch(error => {

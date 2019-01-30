@@ -3,12 +3,13 @@
 var historyItems = (function(global) {
   'use strict';
 
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().tgs) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().tgs
+  ) {
     return;
   }
-  chrome.extension
-    .getBackgroundPage()
-    .tgs.setViewGlobals(global);
+  chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
 
   function createSessionHtml(session, showLinks) {
     session.windows = session.windows || [];

@@ -172,7 +172,7 @@ var gsIndexedDb = {
         gsUtils.error('gsIndexedDb', 'url not set.');
         return;
       }
-      const faviconMetaWithUrl = Object.assign(faviconMeta, {url})
+      const faviconMetaWithUrl = Object.assign(faviconMeta, { url });
       const gsDb = await gsIndexedDb.getDb();
       const results = await gsDb
         .query(gsIndexedDb.DB_FAVICON_META)
@@ -308,7 +308,9 @@ var gsIndexedDb = {
       await gsIndexedDb.addToSavedSessions(session);
       gsUtils.log('gsIndexedDb', 'Created automatic session restore point');
     }
-    const newSessionRestorePoint = await gsIndexedDb.fetchSessionRestorePoint(version);
+    const newSessionRestorePoint = await gsIndexedDb.fetchSessionRestorePoint(
+      version
+    );
     gsUtils.log(
       'gsIndexedDb',
       'New session restore point:',
@@ -462,7 +464,10 @@ var gsIndexedDb = {
       if (suspendedTabInfos.length > maxTabItems) {
         const itemsToRemove = suspendedTabInfos.length - maxTabItems;
         for (let i = 0; i < itemsToRemove; i++) {
-          await gsDb.remove(gsIndexedDb.DB_SUSPENDED_TABINFO, suspendedTabInfos[i]);
+          await gsDb.remove(
+            gsIndexedDb.DB_SUSPENDED_TABINFO,
+            suspendedTabInfos[i]
+          );
         }
       }
 
@@ -474,7 +479,7 @@ var gsIndexedDb = {
         .execute();
       //when favicons are stored they also create an extra indexedDb item with the root url as the key
       //so they will have slightly more entries than the suspendedTabInfos
-      const maxFaviconItems = parseInt(maxTabItems + (maxTabItems * 0.3));
+      const maxFaviconItems = parseInt(maxTabItems + maxTabItems * 0.3);
       if (faviconMetas.length > maxFaviconItems) {
         const itemsToRemove = faviconMetas.length - maxFaviconItems;
         for (let i = 0; i < itemsToRemove; i++) {
@@ -505,7 +510,10 @@ var gsIndexedDb = {
       if (currentSessions.length > maxHistories) {
         const itemsToRemove = currentSessions.length - maxHistories;
         for (let i = 0; i < itemsToRemove; i++) {
-          await gsDb.remove(gsIndexedDb.DB_CURRENT_SESSIONS, currentSessions[i]);
+          await gsDb.remove(
+            gsIndexedDb.DB_CURRENT_SESSIONS,
+            currentSessions[i]
+          );
         }
       }
     } catch (e) {

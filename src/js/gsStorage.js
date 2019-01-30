@@ -325,7 +325,9 @@ var gsStorage = {
   fetchNoticeVersion: function() {
     var lastNoticeVersion;
     try {
-      lastNoticeVersion = JSON.parse(localStorage.getItem(gsStorage.LAST_NOTICE));
+      lastNoticeVersion = JSON.parse(
+        localStorage.getItem(gsStorage.LAST_NOTICE)
+      );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
@@ -372,7 +374,9 @@ var gsStorage = {
     } catch (e) {
       gsUtils.error(
         'gsStorage',
-        'failed to save ' + gsStorage.LAST_EXTENSION_RECOVERY + ' to local storage',
+        'failed to save ' +
+          gsStorage.LAST_EXTENSION_RECOVERY +
+          ' to local storage',
         e
       );
     }

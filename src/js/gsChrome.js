@@ -16,10 +16,7 @@ var gsChrome = {
   cookiesRemove: function(url, name) {
     return new Promise(resolve => {
       if (!url || !name) {
-        gsUtils.warning(
-          'chromeCookies',
-          'url or name not specified'
-        );
+        gsUtils.warning('chromeCookies', 'url or name not specified');
         resolve(null);
         return;
       }
@@ -186,10 +183,7 @@ var gsChrome = {
   windowsUpdate: function(windowId, updateInfo) {
     return new Promise(resolve => {
       if (!windowId || !updateInfo) {
-        gsUtils.warning(
-          'chromeTabs',
-          'windowId or updateInfo not specified'
-        );
+        gsUtils.warning('chromeTabs', 'windowId or updateInfo not specified');
         resolve(null);
         return;
       }

@@ -31,9 +31,7 @@ var gsTabDiscardManager = (function() {
       if (!gsUtils.isSuspendedTab(tab) || gsUtils.isDiscardedTab(tab)) {
         continue;
       }
-      tabDiscardPromises.push(
-        queueTabForDiscardAsPromise(tab, {}, 0)
-      );
+      tabDiscardPromises.push(queueTabForDiscardAsPromise(tab, {}, 0));
     }
     const results = await Promise.all(tabDiscardPromises);
     return results;

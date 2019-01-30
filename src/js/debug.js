@@ -45,10 +45,14 @@
     const debugInfoPromises = [];
     for (const [i, curTab] of tabs.entries()) {
       currentTabs[tabs[i].id] = tabs[i];
-      debugInfoPromises.push(new Promise(r => tgs.getDebugInfo(curTab.id, o => {
-        o.tab = curTab;
-        r(o);
-      })));
+      debugInfoPromises.push(
+        new Promise(r =>
+          tgs.getDebugInfo(curTab.id, o => {
+            o.tab = curTab;
+            r(o);
+          })
+        )
+      );
     }
     const debugInfos = await Promise.all(debugInfoPromises);
     for (const debugInfo of debugInfos) {
@@ -110,9 +114,15 @@
     document.getElementById('claimSuspendedTabs').onclick = async function(e) {
       const tabs = await gsChrome.tabsQuery();
       for (const tab of tabs) {
-        if (gsUtils.isSuspendedTab(tab, true) && tab.url.indexOf(chrome.runtime.id) < 0) {
-          const newUrl = tab.url.replace(gsUtils.getRootUrl(tab.url), chrome.runtime.id);
-          await gsChrome.tabsUpdate(tab.id, { url: newUrl});
+        if (
+          gsUtils.isSuspendedTab(tab, true) &&
+          tab.url.indexOf(chrome.runtime.id) < 0
+        ) {
+          const newUrl = tab.url.replace(
+            gsUtils.getRootUrl(tab.url),
+            chrome.runtime.id
+          );
+          await gsChrome.tabsUpdate(tab.id, { url: newUrl });
         }
       }
     };

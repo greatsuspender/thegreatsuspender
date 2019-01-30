@@ -129,7 +129,7 @@
 
   waitForRuntimeReady()
     .then(init)
-    .catch((e) => {
+    .catch(e => {
       console.error(e);
       setTimeout(() => {
         init();

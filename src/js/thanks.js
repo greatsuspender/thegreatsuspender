@@ -13,5 +13,4 @@
     //do nothing
   });
   gsAnalytics.reportPageView('thanks.html');
-
 })(this);

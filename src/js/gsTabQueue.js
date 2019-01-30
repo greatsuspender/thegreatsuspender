@@ -135,10 +135,7 @@ function GsTabQueue(queueId, queueProps) {
           break;
         }
       }
-      gsUtils.log(
-        _queueId,
-        `total queue size: ${_queuedTabIds.length}`
-      );
+      gsUtils.log(_queueId, `total queue size: ${_queuedTabIds.length}`);
     }
 
     function moveTabToEndOfQueue(tabDetails) {

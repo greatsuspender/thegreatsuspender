@@ -402,7 +402,7 @@ var gsUtils = {
   },
 
   generateSuspendedUrl: function(url, title, scrollPos) {
-    let encodedTitle = gsUtils.encodeString(title)
+    let encodedTitle = gsUtils.encodeString(title);
     var args =
       '#' +
       'ttl=' +

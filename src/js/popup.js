@@ -187,7 +187,7 @@
         chrome.i18n.getMessage('js_popup_blockedFile') +
         " <a href='#'>" +
         chrome.i18n.getMessage('js_popup_blockedFile_enable') +
-        "</a>";
+        '</a>';
       //    statusIconClass = 'fa fa-exclamation-triangle';
     } else if (
       status === gsUtils.STATUS_LOADING ||
