@@ -366,6 +366,12 @@ var gsTabCheckManager = (function() {
     }
 
     const queuedTabDetails = tabCheckQueue.getQueuedTabDetails(tab);
+    if (!queuedTabDetails) {
+      gsUtils.log(tab.id, 'Tab missing from suspensionQueue?');
+      resolve(gsUtils.STATUS_UNKNOWN);
+      return;
+    }
+
     if (tab.active && queuedTabDetails.requeues === 0) {
       gsUtils.log(
         tab.id,
