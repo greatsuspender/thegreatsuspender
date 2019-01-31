@@ -69,6 +69,10 @@ var gsUtils = {
     }
   },
   error: function(id, errorObj, ...args) {
+    if (errorObj === undefined) {
+      errorObj = id;
+      id = '?';
+    }
     //NOTE: errorObj may be just a string :/
     if (debugError) {
       const stackTrace = errorObj.hasOwnProperty('stack')
