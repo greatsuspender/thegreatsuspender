@@ -214,7 +214,7 @@ var gsTabSuspendManager = (function() {
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
       if (discardInPlaceOfSuspend) {
-        tgs.clearAutoSuspendTimerForTab(tab);
+        tgs.clearAutoSuspendTimerForTabId(tab.id);
         gsTabDiscardManager.queueTabForDiscard(tab);
         resolve();
         return;

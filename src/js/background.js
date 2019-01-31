@@ -546,7 +546,7 @@ var tgs = (function() {
   }
 
   function resetAutoSuspendTimerForTab(tab) {
-    clearAutoSuspendTimerForTab(tab);
+    clearAutoSuspendTimerForTabId(tab.id);
 
     const suspendTime = gsStorage.getOption(gsStorage.SUSPEND_TIME);
     const timeToSuspend = suspendTime * (1000 * 60);
@@ -586,13 +586,14 @@ var tgs = (function() {
     });
   }
 
-  function clearAutoSuspendTimerForTab(tab) {
-    const timerDetails = getTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS);
+  function clearAutoSuspendTimerForTabId(tabId) {
+    const timerDetails = getTabStatePropForTabId(tabId, STATE_TIMER_DETAILS);
     if (!timerDetails) {
       return;
     }
+    gsUtils.log(tabId, 'Removing tab timer.');
     clearTimeout(timerDetails.timer);
-    setTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS, null);
+    setTabStatePropForTabId(tabId, STATE_TIMER_DETAILS, null);
   }
 
   function getTabStatePropForTabId(tabId, prop) {
@@ -606,6 +607,7 @@ var tgs = (function() {
   }
   function clearTabStateForTabId(tabId) {
     gsUtils.log(tabId, 'Clearing tab state props.');
+    clearAutoSuspendTimerForTabId(tabId);
     delete _tabStateByTabId[tabId];
   }
 
@@ -1830,7 +1832,6 @@ var tgs = (function() {
     STATE_SHOW_NAG,
     getTabStatePropForTabId,
     setTabStatePropForTabId,
-    clearTabStateForTabId,
 
     backgroundScriptsReadyAsPromised,
     initAsPromised,
@@ -1849,7 +1850,7 @@ var tgs = (function() {
     isCurrentStationaryTab,
     isCurrentFocusedTab,
     isCurrentActiveTab,
-    clearAutoSuspendTimerForTab,
+    clearAutoSuspendTimerForTabId,
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
