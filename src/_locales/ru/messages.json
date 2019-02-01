@@ -238,7 +238,7 @@
     "js_history_enter_name_for_session": { "message": "Введите имя для сессии" },
     "js_history_confirm_delete": { "message": "Вы точно хотите удалить эту сессию?" },
     "js_history_confirm_session_overwrite": { "message": "Сессия с таким именем уже существует. Перезаписать?" },
-    "js_history_import_fail": { "message": "Ошибка при загрузке файла. Убедитесь, что файл в корректном формате (содежит один URL в каждой строке)." },
+    "js_history_import_fail": { "message": "Ошибка при загрузке файла. Убедитесь, что это текстовый файл и он содержит не более одного URL-адреса в каждой строке." },
     "js_suspended_remove_from_whitelist": { "message": "Удалить сайт из белого списка" },
     "js_suspended_hotkey_to_reload": { "message": "Сохранить сочетания клавиш" },
     "js_suspended_low_memory": { "message": "Вкладка приостановлена из-за нехватки памяти" },
