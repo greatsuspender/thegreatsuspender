@@ -115,7 +115,7 @@
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Настройки расширения будут синхронизированы с Вашим профилем между" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "всеми браузерами Chrome." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "Также синхронизирует настройки в режиме инкогнито." },
-    "html_options_other_enable_sync_warning": { "message": "Включение этой опции приведет к перезаписыванию настроек во всех других браузерах, вошедших в этот же профиль Chrome" },
+    "html_options_other_enable_sync_warning": { "message": "Включение этой опции приведет к перезаписыванию настроек расширения для Вашего профиля между всеми браузерами Chrome" },
     "html_options_suspend_on_low_memory": { "message": "Приостанавливать вкладки при нехватке системной памяти" },
     "html_options_suspend_on_low_memory_tooltip_line1": {"message": "Этот параметр заменяет встроенный в Chrome механизм выгрузки вкладок." },
     "html_options_suspend_on_low_memory_tooltip_line2": {"message": "Если включено, вкладка будет принудительно приостанавливаться, вместо использования механизма выгрузки Chrome." },
