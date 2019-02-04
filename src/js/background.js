@@ -1123,12 +1123,9 @@ var tgs = (function() {
   }
 
   async function handleSuspendedTabFocusGained(focusedTab) {
-    if (!focusedTab.status === 'loading') {
+    if (focusedTab.status !== 'loading') {
       //safety check to ensure suspended tab has been initialised
-      const suspendedView = getInternalViewByTabId(focusedTab.id);
-      if (!gsTabCheckManager.ensureSuspendedTabVisible(suspendedView)) {
-        await gsSuspendedTab.initTab(focusedTab, suspendedView);
-      }
+      gsTabCheckManager.queueTabCheck(focusedTab, { refetchTab: false }, 0);
     }
 
     //check for auto-unsuspend

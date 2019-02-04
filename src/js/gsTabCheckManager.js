@@ -230,9 +230,11 @@ var gsTabCheckManager = (function() {
       }
     }
 
+    const tabSessionOk =
+      suspendedView.document.sessionId === gsSession.getSessionId();
     const tabVisibleOk = ensureSuspendedTabVisible(suspendedView);
     const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-    if (!tabVisibleOk || !tabBasicsOk) {
+    if (!tabSessionOk || !tabVisibleOk || !tabBasicsOk) {
       const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
       if (!tabQueueDetails) {
         resolve(gsUtils.STATUS_UNKNOWN);

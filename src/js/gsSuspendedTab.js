@@ -1,4 +1,4 @@
-/*global tgs, gsFavicon, gsStorage, gsUtils, gsIndexedDb */
+/*global tgs, gsFavicon, gsStorage, gsSession, gsUtils, gsIndexedDb */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendedTab = (function() {
   'use strict';
@@ -16,6 +16,9 @@ var gsSuspendedTab = (function() {
     const options = gsStorage.getSettings();
     const suspendedUrl = tab.url;
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
+
+    // Set sessionId for subsequent checks
+    tabView.document.sessionId = gsSession.getSessionId();
 
     // Set unloadTabHandler
     setUnloadTabHandler(tabView.window, tab);
