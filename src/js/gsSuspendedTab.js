@@ -344,6 +344,7 @@ var gsSuspendedTab = (function() {
     // if the url is changed then on reload the url will not match
     // if the tab is closed, the reload will never occur
     _window.addEventListener('beforeunload', function(e) {
+      gsUtils.log(tab.id, 'BeforeUnload triggered: ' + tab.url);
       tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
     });
   }

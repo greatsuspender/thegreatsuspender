@@ -736,46 +736,53 @@ var tgs = (function() {
     }
 
     //if page has finished loading
-    if (
-      changeInfo.hasOwnProperty('status') &&
-      changeInfo.status === 'complete'
-    ) {
-      const suspendOnReloadUrl = getTabStatePropForTabId(
-        tab.id,
-        STATE_SUSPEND_ON_RELOAD_URL
-      );
-      const tempWhitelistOnReload = getTabStatePropForTabId(
-        tab.id,
-        STATE_TEMP_WHITELIST_ON_RELOAD
-      );
-      const scrollPos =
-        getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
+    if (changeInfo.hasOwnProperty('status')) {
+      if (changeInfo.status === 'loading') {
+        // Ensure we clear this flag during load in case the tab is suspended
+        // again before loading can finish (in which case on suspended tab
+        // complete, the tab will reload again)
+        setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, null);
+      } else if (changeInfo.status === 'complete') {
+        const suspendOnReloadUrl = getTabStatePropForTabId(
+          tab.id,
+          STATE_SUSPEND_ON_RELOAD_URL
+        );
+        const tempWhitelistOnReload = getTabStatePropForTabId(
+          tab.id,
+          STATE_TEMP_WHITELIST_ON_RELOAD
+        );
+        const scrollPos =
+          getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
 
-      clearTabStateForTabId(tab.id);
+        clearTabStateForTabId(tab.id);
 
-      //check for suspend on reload
-      if (suspendOnReloadUrl) {
-        if (suspendOnReloadUrl === tab.url) {
-          gsUtils.log(tab.id, 'Suspend on reload flag set. Will suspend tab.');
-          gsTabSuspendManager.queueTabForSuspension(tab, 1);
-          return;
+        //check for suspend on reload
+        if (suspendOnReloadUrl) {
+          if (suspendOnReloadUrl === tab.url) {
+            gsUtils.log(
+              tab.id,
+              'Suspend on reload flag set. Will suspend tab.'
+            );
+            gsTabSuspendManager.queueTabForSuspension(tab, 1);
+            return;
+          }
         }
+
+        //init loaded tab
+        resetAutoSuspendTimerForTab(tab);
+        initialiseTabContentScript(tab, tempWhitelistOnReload, scrollPos)
+          .catch(error => {
+            gsUtils.warning(
+              tab.id,
+              'Failed to send init to content script. Tab may not behave as expected.'
+            );
+          })
+          .then(() => {
+            // could use returned tab status here below
+          });
       }
 
       hasTabStatusChanged = true;
-
-      //init loaded tab
-      resetAutoSuspendTimerForTab(tab);
-      initialiseTabContentScript(tab, tempWhitelistOnReload, scrollPos)
-        .catch(error => {
-          gsUtils.warning(
-            tab.id,
-            'Failed to send init to content script. Tab may not behave as expected.'
-          );
-        })
-        .then(() => {
-          // could use returned tab status here below
-        });
     }
 
     //if tab is currently visible then update popup icon
@@ -842,8 +849,8 @@ var tgs = (function() {
         })
         .then(() => {
           //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
-          const suspendedTabReloaded = unloadedUrl === tab.url;
-          if (suspendedTabReloaded && !disableUnsuspendOnReload) {
+          const suspendedTabRefreshed = unloadedUrl === tab.url;
+          if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
             unsuspendTab(tab);
             return;
           }
