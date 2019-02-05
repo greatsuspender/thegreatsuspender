@@ -188,7 +188,7 @@
     "html_updating_message": { "message": "Восстанавливаются приостановленные вкладки..." },
     "html_updated_great_suspender_updated": { "message": "успешно обновлен" },
     "html_updated_info_line1": { "message": "Перед обновлением была создана резервная копия Ваших вкладок." },
-    "html_updated_info_line2_prefix": { "message": "Если после обновления возникли проблемы, то Вы можете восстановить потерянные вкладки из резервной копии в разделе " },
+    "html_updated_info_line2_prefix": { "message": "Если во время обновления возникли проблемы, то Вы можете восстановить потерянные вкладки из резервной копии в разделе " },
     "html_updated_info_line2_suffix": { "message": "." },
     "html_updated_detail_header_prefix": { "message": "Что нового в " },
     "html_updated_detail_header_suffix": { "message": "?" },
