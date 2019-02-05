@@ -6,6 +6,8 @@ var gsTabSuspendManager = (function() {
   const DEFAULT_CONCURRENT_SUSPENSIONS = 3;
   const DEFAULT_SUSPENSION_TIMEOUT = 60 * 1000;
 
+  const QUEUE_ID = 'suspendQueue';
+
   let _suspensionQueue;
 
   function initAsPromised() {
@@ -27,14 +29,14 @@ var gsTabSuspendManager = (function() {
         exceptionFn: handleSuspensionException,
       };
       _suspensionQueue = GsTabQueue('suspensionQueue', queueProps);
-      gsUtils.log('gsTabSuspendManager', 'init successful');
+      gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
     });
   }
 
   function queueTabForSuspension(tab, forceLevel) {
     queueTabForSuspensionAsPromise(tab, forceLevel).catch(e => {
-      gsUtils.log(tab.id, e);
+      gsUtils.log(tab.id, QUEUE_ID, e);
     });
   }
 
@@ -42,18 +44,18 @@ var gsTabSuspendManager = (function() {
     if (typeof tab === 'undefined') return Promise.resolve();
 
     if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
-      gsUtils.log(tab.id, 'Tab not eligible for suspension.');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab not eligible for suspension.');
       return Promise.resolve();
     }
 
-    gsUtils.log(tab.id, 'Queueing tab for suspension.');
+    gsUtils.log(tab.id, QUEUE_ID, 'Queueing tab for suspension.');
     return _suspensionQueue.queueTabAsPromise(tab, { forceLevel });
   }
 
   function unqueueTabForSuspension(tab) {
     const removed = _suspensionQueue.unqueueTab(tab);
     if (removed) {
-      gsUtils.log(tab.id, `Removed tab from suspension queue.`);
+      gsUtils.log(tab.id, QUEUE_ID, 'Removed tab from suspension queue.');
     }
   }
 
@@ -139,7 +141,11 @@ var gsTabSuspendManager = (function() {
     // Hack. Save handle to resolve function so we can call it later
     executionProps.resolveFn = resolve;
     requestGeneratePreviewImage(tab); //async
-    gsUtils.log(tab.id, 'Preview generation script started successfully.');
+    gsUtils.log(
+      tab.id,
+      QUEUE_ID,
+      'Preview generation script started successfully.'
+    );
     // resumeQueuedTabSuspension is called on the 'savePreviewData' message response
     // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
   }
@@ -160,6 +166,7 @@ var gsTabSuspendManager = (function() {
     if (!queuedTabDetails) {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         'Tab missing from suspensionQueue. Assuming suspension cancelled for this tab.'
       );
       return;
@@ -169,6 +176,7 @@ var gsTabSuspendManager = (function() {
     if (!checkTabEligibilityForSuspension(tab, suspensionForceLevel)) {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         'Tab is no longer eligible for suspension. Removing tab from suspensionQueue.'
       );
       return;
@@ -192,6 +200,7 @@ var gsTabSuspendManager = (function() {
     if (exceptionType === _suspensionQueue.EXCEPTION_TIMEOUT) {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         `Tab took more than ${
           _suspensionQueue.getQueueProperties().jobTimeout
         }ms to suspend. Will force suspension.`
@@ -221,7 +230,7 @@ var gsTabSuspendManager = (function() {
       }
 
       if (!suspendedUrl) {
-        gsUtils.log(tab.id, 'executionProps.suspendedUrl not set!');
+        gsUtils.log(tab.id, QUEUE_ID, 'executionProps.suspendedUrl not set!');
         suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       }
 
@@ -247,9 +256,10 @@ var gsTabSuspendManager = (function() {
 
   async function forceTabSuspension(tab, suspendedUrl) {
     if (gsUtils.isSuspendedTab(tab, true)) {
-      gsUtils.log(tab.id, 'Tab already suspended');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab already suspended');
       return;
     }
+    gsUtils.log(tab.id, QUEUE_ID, 'Forcing tab suspension');
     const updatedTab = await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
     return updatedTab !== null;
   }
@@ -403,7 +413,11 @@ var gsTabSuspendManager = (function() {
     const screenCaptureLib = useAlternateScreenCaptureLib
       ? 'js/dom-to-image.js'
       : 'js/html2canvas.min.js';
-    gsUtils.log(tab.id, `Injecting ${screenCaptureLib} into content script`);
+    gsUtils.log(
+      tab.id,
+      QUEUE_ID,
+      `Injecting ${screenCaptureLib} into content script`
+    );
     gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
       if (error) {
         handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab');
