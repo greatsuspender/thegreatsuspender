@@ -137,8 +137,6 @@ var gsIndexedDb = {
     }
   },
 
-  // This information is no longer used for suspended tabs as everything we
-  // need for a suspended tab can be found in the suspended url
   fetchTabInfo: async function(tabUrl) {
     let results;
     try {

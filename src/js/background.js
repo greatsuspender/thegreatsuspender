@@ -21,7 +21,6 @@ var tgs = (function() {
 
   // Unsuspended tab props
   const STATE_TIMER_DETAILS = 'timerDetails';
-  const STATE_SUSPEND_ON_RELOAD_URL = 'suspendOnReloadUrl';
 
   // Suspended tab props
   const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
@@ -403,7 +402,7 @@ var tgs = (function() {
         active: false,
       };
       chrome.tabs.create(newTabProperties, tab => {
-        setTabStatePropForTabId(tab.id, STATE_SUSPEND_ON_RELOAD_URL, tab.url);
+        gsTabSuspendManager.queueTabForSuspension(tab, 1);
       });
     });
   }
@@ -692,7 +691,17 @@ var tgs = (function() {
       changeInfo
     );
 
-    //check if tab has just been discarded
+    // Ensure we clear the STATE_UNLOADED_URL flag during load in case the
+    // tab is suspended again before loading can finish (in which case on
+    // suspended tab complete, the tab will reload again)
+    if (
+      changeInfo.hasOwnProperty('status') &&
+      changeInfo.status === 'loading'
+    ) {
+      setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, null);
+    }
+
+    // Check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
       const existingSuspendReason = getTabStatePropForTabId(
         tab.id,
@@ -717,9 +726,21 @@ var tgs = (function() {
       return;
     }
 
+    // Check if tab is queued for suspension
+    const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(tab);
+    if (queuedTabDetails) {
+      // Requeue tab to wake it from possible sleep
+      delete queuedTabDetails.executionProps.refetchTab;
+      gsTabSuspendManager.queueTabForSuspension(
+        tab,
+        queuedTabDetails.executionProps.forceLevel
+      );
+      return;
+    }
+
     let hasTabStatusChanged = false;
 
-    //check for change in tabs audible status
+    // Check for change in tabs audible status
     if (changeInfo.hasOwnProperty('audible')) {
       //reset tab timer if tab has just finished playing audio
       if (!changeInfo.audible && gsStorage.getOption(gsStorage.IGNORE_AUDIO)) {
@@ -735,38 +756,15 @@ var tgs = (function() {
       hasTabStatusChanged = true;
     }
 
-    //if page has finished loading
     if (changeInfo.hasOwnProperty('status')) {
-      if (changeInfo.status === 'loading') {
-        // Ensure we clear this flag during load in case the tab is suspended
-        // again before loading can finish (in which case on suspended tab
-        // complete, the tab will reload again)
-        setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, null);
-      } else if (changeInfo.status === 'complete') {
-        const suspendOnReloadUrl = getTabStatePropForTabId(
-          tab.id,
-          STATE_SUSPEND_ON_RELOAD_URL
-        );
+      if (changeInfo.status === 'complete') {
         const tempWhitelistOnReload = getTabStatePropForTabId(
           tab.id,
           STATE_TEMP_WHITELIST_ON_RELOAD
         );
         const scrollPos =
           getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
-
         clearTabStateForTabId(tab.id);
-
-        //check for suspend on reload
-        if (suspendOnReloadUrl) {
-          if (suspendOnReloadUrl === tab.url) {
-            gsUtils.log(
-              tab.id,
-              'Suspend on reload flag set. Will suspend tab.'
-            );
-            gsTabSuspendManager.queueTabForSuspension(tab, 1);
-            return;
-          }
-        }
 
         //init loaded tab
         resetAutoSuspendTimerForTab(tab);
@@ -1089,8 +1087,11 @@ var tgs = (function() {
   ) {
     gsUtils.log(focusedTabId, 'new tab focus handled');
     //remove request to suspend this tab id
-    if (getTabStatePropForTabId(focusedTabId, STATE_SUSPEND_ON_RELOAD_URL)) {
-      setTabStatePropForTabId(focusedTabId, STATE_SUSPEND_ON_RELOAD_URL, null);
+    const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(
+      focusedTab
+    );
+    if (queuedTabDetails) {
+      gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
     }
 
     if (gsUtils.isSuspendedTab(focusedTab)) {
@@ -1827,7 +1828,6 @@ var tgs = (function() {
 
   return {
     STATE_TIMER_DETAILS,
-    STATE_SUSPEND_ON_RELOAD_URL,
     STATE_UNLOADED_URL,
     STATE_TEMP_WHITELIST_ON_RELOAD,
     STATE_DISABLE_UNSUSPEND_ON_RELOAD,

@@ -66,6 +66,73 @@ var gsTabSuspendManager = (function() {
     reject,
     requeue
   ) {
+    if (executionProps.refetchTab || gsUtils.isSuspendedTab(tab)) {
+      gsUtils.log(
+        tab.id,
+        QUEUE_ID,
+        'Tab refetch required. Getting updated tab..'
+      );
+      tab = await gsChrome.tabsGet(tab.id);
+      if (!tab) {
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Could not find tab with id. Will ignore suspension request'
+        );
+        resolve(false);
+        return;
+      }
+    }
+
+    if (gsUtils.isSuspendedTab(tab)) {
+      if (!executionProps.refetchTab) {
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Tab is already suspended. Will check again in 3 seconds'
+        );
+        requeue(3000, { refetchTab: true });
+      } else {
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Tab still suspended after 3 seconds. Will ignore tab suspension request'
+        );
+        resolve(false);
+      }
+      return;
+    }
+
+    // If tab is in loading state, try to suspend early if possible
+    // Note: doing so will bypass a few checks below. Namely:
+    // - Any temporary pause flag that has been set up on the tab
+    // - It may lose any scrollPos value
+    // - It may also bypass the screencapture process
+    // Although if the tab is still loading then pause and scroll pos should
+    // not be set?
+    // And if savedTabInfo is set, then hopefully the screen capture has
+    // already been generated and cached?
+    if (tab.status === 'loading') {
+      const savedTabInfo = await gsIndexedDb.fetchTabInfo(tab.url);
+      if (savedTabInfo) {
+        const suspendedUrl = gsUtils.generateSuspendedUrl(
+          tab.url,
+          savedTabInfo.title,
+          0
+        );
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Interrupting tab loading to resuspend tab'
+        );
+        const success = await executeTabSuspension(tab, suspendedUrl, true);
+        resolve(success);
+      } else {
+        requeue(3000, { refetchTab: true });
+      }
+      return;
+    }
+
     let screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     const discardInPlaceOfSuspend = gsStorage.getOption(
       gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
@@ -75,36 +142,28 @@ var gsTabSuspendManager = (function() {
     }
 
     let tabInfo = await getContentScriptTabInfo(tab);
+
     // If tabInfo is null this is usually due to tab loading, being discarded or 'parked' on chrome restart
-    if (!tabInfo) {
-      // If we need to make a screen capture and tab is not responding then reload it
-      // TODO: This doesn't actually seem to work
-      // Tabs that have just been reloaded usually fail to run the screen capture script :(
-      if (
-        tab.status !== 'loading' &&
-        screenCaptureMode !== '0' &&
-        !executionProps.reloaded
-      ) {
-        gsUtils.log(
-          tab.id,
-          'Tab is not responding. Will reload for screen capture.'
-        );
-        tgs.setTabStatePropForTabId(
-          tab.id,
-          tgs.STATE_SUSPEND_ON_RELOAD_URL,
-          tab.url
-        );
-        await gsChrome.tabsUpdate(tab.id, { url: tab.url });
-        // allow up to 30 seconds for tab to reload and trigger its subsequent suspension request
-        // note that this will not reset the DEFAULT_SUSPENSION_TIMEOUT of 60 seconds
-        requeue(30000, { reloaded: true });
-        return;
-      }
-      tabInfo = {
-        status: 'loading',
-        scrollPos: '0',
-      };
+    // If we need to make a screen capture and tab is not responding then reload it
+    // TODO: This doesn't actually seem to work
+    // Tabs that have just been reloaded usually fail to run the screen capture script :(
+    if (!tabInfo && screenCaptureMode !== '0' && !executionProps.reloaded) {
+      gsUtils.log(
+        tab.id,
+        QUEUE_ID,
+        'Tab is not responding. Will reload for screen capture.'
+      );
+      await gsChrome.tabsUpdate(tab.id, { url: tab.url });
+      // allow up to 30 seconds for tab to reload and trigger its subsequent suspension request
+      // note that this will not reset the DEFAULT_SUSPENSION_TIMEOUT of 60 seconds
+      requeue(30000, { reloaded: true });
+      return;
     }
+
+    tabInfo = tabInfo || {
+      status: 'unknown',
+      scrollPos: '0',
+    };
 
     const isEligible = checkContentScriptEligibilityForSuspension(
       tabInfo.status,
@@ -113,6 +172,7 @@ var gsTabSuspendManager = (function() {
     if (!isEligible) {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         `Content script status of ${
           tabInfo.status
         } not eligible for suspension. Removing tab from suspensionQueue.`
@@ -121,12 +181,12 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
-    const updatedUrl = await generateUrlWithYouTubeTimestamp(tab);
-    tab.url = updatedUrl;
+    const timestampedUrl = await generateUrlWithYouTubeTimestamp(tab);
+    tab.url = timestampedUrl;
     await saveSuspendData(tab);
 
     const suspendedUrl = gsUtils.generateSuspendedUrl(
-      updatedUrl,
+      tab.url,
       tab.title,
       tabInfo.scrollPos
     );
@@ -161,8 +221,12 @@ var gsTabSuspendManager = (function() {
     }
   }
 
+  function getQueuedTabDetails(tab) {
+    return _suspensionQueue.getQueuedTabDetails(tab);
+  }
+
   async function resumeQueuedTabSuspension(tab) {
-    const queuedTabDetails = _suspensionQueue.getQueuedTabDetails(tab);
+    const queuedTabDetails = getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(
         tab.id,
@@ -218,7 +282,7 @@ var gsTabSuspendManager = (function() {
 
   function executeTabSuspension(tab, suspendedUrl) {
     return new Promise(resolve => {
-      // If we want to force tabs to be discarded instead of suspending them
+      // If we want tabs to be discarded instead of suspending them
       let discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );
@@ -270,7 +334,11 @@ var gsTabSuspendManager = (function() {
   // 3: Same as above (2), plus also respect internet connectivity, running on battery, and time to suspend=never preferences.
   function checkTabEligibilityForSuspension(tab, forceLevel) {
     if (forceLevel >= 1) {
-      if (gsUtils.isSuspendedTab(tab, true) || gsUtils.isSpecialTab(tab)) {
+      // if (gsUtils.isSuspendedTab(tab, true) || gsUtils.isSpecialTab(tab)) {
+      // actually allow suspended tabs to attempt suspension in case they are
+      // in the process of being reloaded and we have changed our mind and
+      // want to suspend them again.
+      if (gsUtils.isSpecialTab(tab)) {
         return false;
       }
     }
@@ -540,5 +608,6 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,
+    getQueuedTabDetails,
   };
 })();
