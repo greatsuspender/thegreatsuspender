@@ -1,8 +1,8 @@
 /*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
 'use strict';
 
-var debugInfo = true;
-var debugError = true;
+var debugInfo = false;
+var debugError = false;
 
 var gsUtils = {
   STATUS_NORMAL: 'normal',
@@ -192,8 +192,13 @@ var gsUtils = {
   },
 
   // Note: Normal tabs may be in a discarded state
-  isNormalTab: function(tab) {
-    return !gsUtils.isSpecialTab(tab) && !gsUtils.isSuspendedTab(tab, true);
+  isNormalTab: function(tab, excludeDiscarded) {
+    excludeDiscarded = excludeDiscarded || false;
+    return (
+      !gsUtils.isSpecialTab(tab) &&
+      !gsUtils.isSuspendedTab(tab, true) &&
+      (!excludeDiscarded || !gsUtils.isDiscardedTab(tab))
+    );
   },
 
   isSuspendedTab: function(tab, looseMatching) {
@@ -664,7 +669,7 @@ var gsUtils = {
           return;
         }
 
-        if (!gsUtils.isNormalTab(tab)) {
+        if (!gsUtils.isNormalTab(tab, true)) {
           return;
         }
 
