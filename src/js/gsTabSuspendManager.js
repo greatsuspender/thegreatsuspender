@@ -82,7 +82,7 @@ var gsTabSuspendManager = (function() {
         resolve(false);
         return;
       }
-      tab = _tab
+      tab = _tab;
     }
 
     if (gsUtils.isSuspendedTab(tab)) {
@@ -217,7 +217,12 @@ var gsTabSuspendManager = (function() {
         .addPreviewImage(tab.url, previewUrl)
         .then(() => resumeQueuedTabSuspension(tab)); //async. unhandled promise.
     } else {
-      gsUtils.warning(tab.id, 'savePreviewData reported an error: ', errorMsg);
+      gsUtils.warning(
+        tab.id,
+        QUEUE_ID,
+        'savePreviewData reported an error: ',
+        errorMsg
+      );
       resumeQueuedTabSuspension(tab); //async. unhandled promise.
     }
   }
@@ -276,7 +281,11 @@ var gsTabSuspendManager = (function() {
       );
       resolve(success);
     } else {
-      gsUtils.warning(tab.id, `Failed to suspend tab: ${exceptionType}`);
+      gsUtils.warning(
+        tab.id,
+        QUEUE_ID,
+        `Failed to suspend tab: ${exceptionType}`
+      );
       resolve(false);
     }
   }
@@ -307,6 +316,7 @@ var gsTabSuspendManager = (function() {
           if (error) {
             gsUtils.warning(
               tab.id,
+              QUEUE_ID,
               'Failed to sendConfirmSuspendToContentScript',
               error
             );
@@ -392,7 +402,12 @@ var gsTabSuspendManager = (function() {
       gsMessages.sendRequestInfoToContentScript(tab.id, (error, tabInfo) => {
         //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
         if (error) {
-          gsUtils.warning(tab.id, 'Failed to get content script info', error);
+          gsUtils.warning(
+            tab.id,
+            QUEUE_ID,
+            'Failed to get content script info',
+            error
+          );
           // continue here but will lose information about scroll position,
           // temp whitelist, and form input
         }
@@ -413,7 +428,12 @@ var gsTabSuspendManager = (function() {
         `(${fetchYouTubeTimestampContentScript})();`,
         (error, response) => {
           if (error) {
-            gsUtils.warning(tab.id, 'Failed to fetch YouTube timestamp', error);
+            gsUtils.warning(
+              tab.id,
+              QUEUE_ID,
+              'Failed to fetch YouTube timestamp',
+              error
+            );
           }
           if (!response) {
             resolve(tab.url);

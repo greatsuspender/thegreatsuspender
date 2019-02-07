@@ -19,7 +19,7 @@ var gsTabDiscardManager = (function() {
         exceptionFn: handleDiscardException,
       };
       discardQueue = GsTabQueue(QUEUE_ID, queueProps);
-      gsUtils.log('gsTabDiscardManager', 'init successful');
+      gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
     });
   }
@@ -70,10 +70,7 @@ var gsTabDiscardManager = (function() {
       // assume tab has been discarded
     }
     if (!_tab) {
-      gsUtils.warning(
-        tab.id,
-        `Failed to discard tab. Tab may have already been discarded or removed.`
-      );
+      gsUtils.warning(tab.id, QUEUE_ID, `Failed to discard tab. Tab may have already been discarded or removed.`);
       resolve(false);
       return;
     }
@@ -97,7 +94,7 @@ var gsTabDiscardManager = (function() {
     gsUtils.log(tab.id, QUEUE_ID, 'Forcing discarding of tab.');
     chrome.tabs.discard(tab.id, () => {
       if (chrome.runtime.lastError) {
-        gsUtils.warning(tab.id, chrome.runtime.lastError);
+        gsUtils.warning(tab.id, QUEUE_ID, chrome.runtime.lastError);
         resolve(false);
       } else {
         resolve(true);
@@ -113,7 +110,7 @@ var gsTabDiscardManager = (function() {
     reject,
     requeue
   ) {
-    gsUtils.warning(tab.id, `Failed to discard tab: ${exceptionType}`);
+    gsUtils.warning(tab.id, QUEUE_ID, `Failed to discard tab: ${exceptionType}`);
     resolve(false);
   }
 

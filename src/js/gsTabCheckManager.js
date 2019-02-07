@@ -108,7 +108,7 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
-    gsUtils.warning(tab.id, `Failed to initialise tab: ${exceptionType}`);
+    gsUtils.warning(tab.id, QUEUE_ID, `Failed to initialise tab: ${exceptionType}`);
     resolve(false);
   }
 
@@ -125,6 +125,7 @@ var gsTabCheckManager = (function() {
     if (!_tab) {
       gsUtils.warning(
         tab.id,
+        QUEUE_ID,
         `Failed to initialize tab. Tab may have been discarded or removed.`
       );
       // If we are still initialising, then check for potential discarded tab matches
@@ -216,7 +217,7 @@ var gsTabCheckManager = (function() {
           });
           return;
         }
-        gsUtils.warning(tab.id, 'Failed to resuspend tab');
+        gsUtils.warning(tab.id, QUEUE_ID, 'Failed to resuspend tab');
         resolve(gsUtils.STATUS_UNKNOWN);
         return;
       }
