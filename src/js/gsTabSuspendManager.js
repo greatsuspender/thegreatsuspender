@@ -72,8 +72,8 @@ var gsTabSuspendManager = (function() {
         QUEUE_ID,
         'Tab refetch required. Getting updated tab..'
       );
-      tab = await gsChrome.tabsGet(tab.id);
-      if (!tab) {
+      const _tab = await gsChrome.tabsGet(tab.id);
+      if (!_tab) {
         gsUtils.log(
           tab.id,
           QUEUE_ID,
@@ -82,6 +82,7 @@ var gsTabSuspendManager = (function() {
         resolve(false);
         return;
       }
+      tab = _tab
     }
 
     if (gsUtils.isSuspendedTab(tab)) {

@@ -54,7 +54,9 @@ var gsTabDiscardManager = (function() {
   function unqueueTabForDiscard(tab) {
     const removed = discardQueue.unqueueTab(tab);
     if (removed) {
-      gsUtils.log(tab.id, QUEUE_ID, `Removed tab from discard queue.`);
+      gsUtils.log(tab.id, QUEUE_ID, 'Removed tab from discard queue');
+    } else {
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab does not exist in discard queue');
     }
   }
 

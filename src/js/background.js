@@ -844,6 +844,17 @@ var tgs = (function() {
         setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
       }
 
+      //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
+      const suspendedTabRefreshed = unloadedUrl === tab.url;
+      if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
+        unsuspendTab(tab);
+        return;
+      }
+
+      // Queue a job to check suspended tab. This should come before calling initTab
+      // as otherwise tab may be discarded before init has finished (when discarding previously focused tab)
+      gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 10000);
+
       const tabView = tgs.getInternalViewByTabId(tab.id);
       gsSuspendedTab
         .initTab(tab, tabView)
@@ -851,16 +862,7 @@ var tgs = (function() {
           gsUtils.warning(tab.id, error);
         })
         .then(() => {
-          //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
-          const suspendedTabRefreshed = unloadedUrl === tab.url;
-          if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
-            unsuspendTab(tab);
-            return;
-          }
-
-          // Once a tab has been suspended we may need to discard it depending on DISCARD_AFTER_SUSPEND
-          // Before doing this however, we should give the tab some time to set the suspended favicon.
-          gsTabDiscardManager.unqueueTabForDiscard(tab); // just in case
+          // Update delay before queueTabCheck. But still allow time for favicon to be set correctly
           gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
         });
     }
@@ -1030,7 +1032,10 @@ var tgs = (function() {
       return;
     }
     if (previouslyFocusedTab.status === 'loading') {
-      // if tab is still loading then let the status === 'complete' handle the discard
+      gsUtils.log(
+        previouslyFocusedTab.id,
+        'Aborting tab discard queueing as tab is currently loading and will discard on status complete.'
+      );
       return;
     }
     const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
