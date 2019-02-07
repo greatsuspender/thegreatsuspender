@@ -28,7 +28,7 @@ var gsTabCheckManager = (function() {
         exceptionFn: handleTabCheckException,
       };
       tabCheckQueue = GsTabQueue(QUEUE_ID, queueProps);
-      gsUtils.log('gsTabCheckManager', 'init successful');
+      gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
     });
   }
@@ -181,7 +181,11 @@ var gsTabCheckManager = (function() {
 
       // Ensure tab is still suspended
       if (!gsUtils.isSuspendedTab(tab)) {
-        gsUtils.log(tab.id, 'Tab is no longer suspended. Aborting check.');
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Tab is no longer suspended. Aborting check.'
+        );
         resolve(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -199,6 +203,7 @@ var gsTabCheckManager = (function() {
     if (!suspendedView) {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         'Could not find an internal view for suspended tab.',
         tab
       );
@@ -241,11 +246,11 @@ var gsTabCheckManager = (function() {
         return;
       }
       try {
-        gsUtils.log(tab.id, 'Reinitialising suspendedTab: ', tab);
+        gsUtils.log(tab.id, QUEUE_ID, 'Reinitialising suspendedTab: ', tab);
         await gsSuspendedTab.initTab(tab, suspendedView);
         requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
       } catch (e) {
-        gsUtils.log(tab.id, 'Failed to reinitialise suspendedTab. ', e);
+        gsUtils.log(tab.id, QUEUE_ID, 'Failed to reinitialise suspendedTab. ', e);
         resolve(gsUtils.STATUS_UNKNOWN);
       }
       return;
@@ -327,7 +332,7 @@ var gsTabCheckManager = (function() {
 
       // Ensure tab is not suspended
       if (gsUtils.isSuspendedTab(tab, true)) {
-        gsUtils.log(tab.id, 'Tab is suspended. Aborting check.');
+        gsUtils.log(tab.id, QUEUE_ID, 'Tab is suspended. Aborting check.');
         resolve(gsUtils.STATUS_SUSPENDED);
         return;
       }
@@ -369,7 +374,7 @@ var gsTabCheckManager = (function() {
 
     const queuedTabDetails = tabCheckQueue.getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
-      gsUtils.log(tab.id, 'Tab missing from suspensionQueue?');
+      gsUtils.log(tab.id, QUEUE_ID, 'Tab missing from suspensionQueue?');
       resolve(gsUtils.STATUS_UNKNOWN);
       return;
     }
@@ -405,11 +410,13 @@ var gsTabCheckManager = (function() {
     return new Promise(resolve => {
       gsUtils.log(
         tab.id,
+        QUEUE_ID,
         'Reinjecting contentscript into unresponsive unsuspended tab.',
         tab
       );
       const executeScriptTimeout = setTimeout(() => {
         gsUtils.log(
+          QUEUE_ID,
           tab.id,
           'chrome.tabs.executeScript failed to trigger callback'
         );
@@ -418,11 +425,7 @@ var gsTabCheckManager = (function() {
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
         clearTimeout(executeScriptTimeout);
         if (error) {
-          gsUtils.log(
-            tab.id,
-            'Failed to execute js/contentscript.js on tab',
-            error
-          );
+          gsUtils.log(tab.id, 'Failed to execute js/contentscript.js on tab', error);
           resolve(null);
           return;
         }
