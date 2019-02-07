@@ -829,6 +829,13 @@ var tgs = (function() {
       changeInfo
     );
 
+    //if this tab is currently performing a tabCheck then return early
+    //as tab check will take care of initialising the suspended tab
+    const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(tab);
+    if (tabCheckDetails) {
+      return;
+    }
+
     if (changeInfo.status === 'loading') {
       return;
     }
@@ -854,19 +861,20 @@ var tgs = (function() {
         return;
       }
 
-      // Queue a job to check suspended tab. This should come before calling initTab
-      // as otherwise tab may be discarded before init has finished (when discarding previously focused tab)
-      gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 10000);
-
       const tabView = tgs.getInternalViewByTabId(tab.id);
+      const quickInit =
+        gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
       gsSuspendedTab
-        .initTab(tab, tabView)
+        .initTab(tab, tabView, quickInit)
         .catch(error => {
           gsUtils.warning(tab.id, error);
         })
         .then(() => {
-          // Update delay before queueTabCheck. But still allow time for favicon to be set correctly
-          gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+          gsTabCheckManager.queueTabCheck(
+            tab,
+            { quickInit, refetchTab: true },
+            3000
+          );
         });
     }
   }
@@ -1005,7 +1013,7 @@ var tgs = (function() {
     //will key through intermediate tabs to get to the one they want.
     queueNewTabFocusTimer(tabId, windowId, focusedTab);
 
-    // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
+    //test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
     if (focusedTab.url === 'chrome://extensions/shortcuts') {
       _triggerHotkeyUpdate = true;
     }
@@ -1030,26 +1038,18 @@ var tgs = (function() {
     if (!gsUtils.isSuspendedTab(previouslyFocusedTab)) {
       return;
     }
-    if (previouslyFocusedTab.status === 'loading') {
-      gsUtils.log(
-        previouslyFocusedTab.id,
-        'Aborting tab discard queueing as tab is currently loading and will discard on status complete.'
-      );
-      return;
-    }
-    const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(
-      previouslyFocusedTab
-    );
-    if (tabCheckDetails) {
-      gsUtils.log(
-        previouslyFocusedTab.id,
-        'Aborting tab discard queueing as tab in currently queued for tabCheck and will discard after that.'
-      );
-      return;
-    }
 
-    gsUtils.log(previouslyFocusedTabId, 'Discarding previously focused tab');
-    gsTabDiscardManager.queueTabForDiscard(previouslyFocusedTab, {}, 1000);
+    //queue tabCheck for this tab. that will force a discard afterwards
+    //but also avoids conflicts if this tab is already scheduled for checking
+    gsUtils.log(
+      previouslyFocusedTabId,
+      'Queueing previously focused tab for discard via tabCheckManager'
+    );
+    gsTabCheckManager.queueTabCheck(
+      previouslyFocusedTab,
+      { quickInit: true },
+      1000
+    );
   }
 
   function queueNewWindowFocusTimer(tabId, windowId, focusedTab) {
@@ -1696,10 +1696,12 @@ var tgs = (function() {
       gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
       queueSessionTimer();
 
-      if (gsUtils.isSuspendedTab(tab)) {
+      // It's unusual for a suspended tab to be created. Usually they are updated
+      // from a normal tab. This usually happens when using 'reopen closed tab'.
+      if (gsUtils.isSuspendedTab(tab) && !tab.active) {
         // Queue tab for check but mark it as sleeping for 5 seconds to give
-        // a change for the tab to load
-        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 5000);
+        // a chance for the tab to load
+        gsTabCheckManager.queueTabCheck(tab, { quickInit: true }, 5000);
       }
     });
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {

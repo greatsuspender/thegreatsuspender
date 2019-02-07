@@ -1,10 +1,10 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsMessages, gsFavicon, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsMessages, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
 
   const DEFAULT_CONCURRENT_TAB_CHECKS = 3;
-  const DEFAULT_TAB_CHECK_TIMEOUT = 15 * 1000;
+  const DEFAULT_TAB_CHECK_TIMEOUT = 60 * 1000;
   const DEFAULT_TAB_CHECK_PROCESSING_DELAY = 500;
   const DEFAULT_TAB_CHECK_REQUEUE_DELAY = 3 * 1000;
 
@@ -55,7 +55,7 @@ var gsTabCheckManager = (function() {
         // From experience, even if a tab status is 'complete' now, it
         // may actually switch to 'loading' in a few seconds even though a
         // tab reload has not be performed
-        queueTabCheckAsPromise(tab, { quickInit: true }, 1000)
+        queueTabCheckAsPromise(tab, { quickInit: true, resuspend: true }, 1000)
       );
     }
 
@@ -174,7 +174,7 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
-    if (executionProps.quickInit && !executionProps.resuspended) {
+    if (executionProps.resuspend && !executionProps.resuspended) {
       await resuspendSuspendedTab(tab);
       requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, {
         resuspended: true,
