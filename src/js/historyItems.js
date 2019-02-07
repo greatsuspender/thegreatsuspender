@@ -43,10 +43,10 @@ var historyItems = (function(global) {
     titleText +=
       '&nbsp;&nbsp;<small>(' +
       winCnt +
-      pluralise(' ' + chrome.i18n.getMessage('js_history_window'), winCnt) +
+      pluralise(' ' + chrome.i18n.getMessage('js_history_window').toLowerCase(), winCnt) +
       ', ' +
       tabCnt +
-      pluralise(' ' + chrome.i18n.getMessage('js_history_tab'), tabCnt) +
+      pluralise(' ' + chrome.i18n.getMessage('js_history_tab').toLowerCase(), tabCnt) +
       ')</small>';
 
     sessionIcon = createEl('i', {
@@ -138,7 +138,12 @@ var historyItems = (function(global) {
       class: 'windowContainer',
     });
 
-    windowContainer = createEl('span', {}, 'Window ' + (index + 1) + ':\u00A0');
+    var windowString = chrome.i18n.getMessage('js_history_window');
+    windowContainer = createEl(
+      'span',
+      {},
+      windowString + ' ' + (index + 1) + ':\u00A0'
+    );
 
     groupUnsuspendCurrent = createEl(
       'a',

@@ -251,5 +251,6 @@
     "js_update_confirm": { "message": "Es existiert keine Sicherung. Erweiterung trotzdem aktualisieren?" },
     "js_update_button_export": { "message": "Sicherung anlegen" },
     "js_update_button_reload": { "message": "Erweiterung jetzt aktualisieren" },
-    "js_shortcuts_not_set": { "message": "nicht gesetzt" }
+    "js_shortcuts_not_set": { "message": "nicht gesetzt" },
+    "js_session_save_point": { "message": "Automatischer Sicherungspunkt für v" }
 }

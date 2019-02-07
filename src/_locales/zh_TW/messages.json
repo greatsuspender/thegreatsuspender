@@ -251,5 +251,6 @@
     "js_update_confirm": { "message": "您尚未匯出備份。更新擴充功能？" },
     "js_update_button_export": { "message": "匯出備份" },
     "js_update_button_reload": { "message": "現在更新擴充功能" },
-    "js_shortcuts_not_set": { "message": "沒有設定" }
+    "js_shortcuts_not_set": { "message": "沒有設定" },
+    "js_session_save_point": { "message": "自動保存點 " }
 }

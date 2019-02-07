@@ -251,5 +251,6 @@
     "js_update_confirm": { "message": "Вы еще не делали резервную копию. Всё равно обновить?" },
     "js_update_button_export": { "message": "Сохранить резервную копию" },
     "js_update_button_reload": { "message": "Обновить расширение" },
-    "js_shortcuts_not_set": { "message": "не задано" }
+    "js_shortcuts_not_set": { "message": "не задано" },
+    "js_session_save_point": { "message": "Автоматическая точка сохранения для " }
 }
