@@ -3,22 +3,38 @@
 var gsSuspendedTab = (function() {
   'use strict';
 
-  async function initTab(tab, tabView) {
+  async function initTab(tab, tabView, quickInit) {
     if (!tabView) {
       gsUtils.warning(
         tab.id,
         'Could not get internalTabView for suspended tab'
       );
     }
+    const suspendedUrl = tab.url;
+
+    // Set sessionId for subsequent checks
+    tabView.document.sessionId = gsSession.getSessionId();
+
+    // Set title
+    let title = gsUtils.getSuspendedTitle(suspendedUrl);
+    if (title.indexOf('<') >= 0) {
+      // Encode any raw html tags that might be used in the title
+      title = gsUtils.htmlEncode(title);
+    }
+    setTitle(tabView.document, title);
+
+    // Set faviconMeta
+    const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
+    setFaviconMeta(tabView.document, faviconMeta);
+
+    if (quickInit) {
+      return;
+    }
 
     gsUtils.localiseHtml(tabView.document);
 
     const options = gsStorage.getSettings();
-    const suspendedUrl = tab.url;
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
-
-    // Set sessionId for subsequent checks
-    tabView.document.sessionId = gsSession.getSessionId();
 
     // Set unloadTabHandler
     setUnloadTabHandler(tabView.window, tab);
@@ -31,10 +47,6 @@ var gsSuspendedTab = (function() {
       previewMode,
       previewUri
     );
-
-    // Set faviconMeta
-    const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
-    setFaviconMeta(tabView.document, faviconMeta);
 
     // Set theme
     const theme = options[gsStorage.THEME];
@@ -59,14 +71,6 @@ var gsSuspendedTab = (function() {
     // Set command
     const suspensionToggleHotkey = await tgs.getSuspensionToggleHotkey();
     setCommand(tabView.document, suspensionToggleHotkey);
-
-    // Set title
-    let title = gsUtils.getSuspendedTitle(suspendedUrl);
-    if (title.indexOf('<') >= 0) {
-      // Encode any raw html tags that might be used in the title
-      title = gsUtils.htmlEncode(title);
-    }
-    setTitle(tabView.document, title);
 
     // Set url
     setUrl(tabView.document, originalUrl);

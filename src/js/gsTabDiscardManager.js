@@ -24,19 +24,6 @@ var gsTabDiscardManager = (function() {
     });
   }
 
-  // Discard all suspended tabs currently open during extension initialisation
-  async function performInitialisationTabDiscards(tabs) {
-    const tabDiscardPromises = [];
-    for (const tab of tabs) {
-      if (!gsUtils.isSuspendedTab(tab) || gsUtils.isDiscardedTab(tab)) {
-        continue;
-      }
-      tabDiscardPromises.push(queueTabForDiscardAsPromise(tab, {}, 0));
-    }
-    const results = await Promise.all(tabDiscardPromises);
-    return results;
-  }
-
   function queueTabForDiscard(tab, executionProps, processingDelay) {
     queueTabForDiscardAsPromise(tab, executionProps, processingDelay).catch(
       e => {
@@ -136,7 +123,6 @@ var gsTabDiscardManager = (function() {
 
   return {
     initAsPromised,
-    performInitialisationTabDiscards,
     queueTabForDiscard,
     queueTabForDiscardAsPromise,
     unqueueTabForDiscard,

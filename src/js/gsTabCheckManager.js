@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsSession, gsMessages, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
+/*global chrome, localStorage, tgs, gsStorage, gsSession, gsMessages, gsFavicon, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
@@ -42,7 +42,8 @@ var gsTabCheckManager = (function() {
       DEFAULT_TAB_CHECK_TIMEOUT
     );
     const initprocessingDelay = DEFAULT_TAB_CHECK_PROCESSING_DELAY;
-    updateQueueProps(initJobTimeout, initprocessingDelay);
+    const concurrentExecutors = DEFAULT_CONCURRENT_TAB_CHECKS;
+    updateQueueProps(initJobTimeout, initprocessingDelay, concurrentExecutors);
 
     const tabCheckPromises = [];
     for (const tab of tabs) {
@@ -54,7 +55,7 @@ var gsTabCheckManager = (function() {
         // From experience, even if a tab status is 'complete' now, it
         // may actually switch to 'loading' in a few seconds even though a
         // tab reload has not be performed
-        queueTabCheckAsPromise(tab, { refetchTab: true }, 3000)
+        queueTabCheckAsPromise(tab, { quickInit: true }, 1000)
       );
     }
 
@@ -63,20 +64,22 @@ var gsTabCheckManager = (function() {
     // Revert timeout
     updateQueueProps(
       DEFAULT_TAB_CHECK_TIMEOUT,
-      DEFAULT_TAB_CHECK_PROCESSING_DELAY
+      DEFAULT_TAB_CHECK_PROCESSING_DELAY,
+      DEFAULT_CONCURRENT_TAB_CHECKS
     );
 
     return results;
   }
 
-  function updateQueueProps(jobTimeout, processingDelay) {
+  function updateQueueProps(jobTimeout, processingDelay, concurrentExecutors) {
     gsUtils.log(
       QUEUE_ID,
-      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. processingDelay: ${processingDelay}`
+      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. processingDelay: ${processingDelay}. concurrentExecutors: ${concurrentExecutors}`
     );
     tabCheckQueue.setQueueProperties({
       jobTimeout,
       processingDelay,
+      concurrentExecutors,
     });
   }
 
@@ -108,7 +111,11 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
-    gsUtils.warning(tab.id, QUEUE_ID, `Failed to initialise tab: ${exceptionType}`);
+    gsUtils.warning(
+      tab.id,
+      QUEUE_ID,
+      `Failed to initialise tab: ${exceptionType}`
+    );
     resolve(false);
   }
 
@@ -167,6 +174,15 @@ var gsTabCheckManager = (function() {
     reject,
     requeue
   ) {
+    if (executionProps.quickInit && !executionProps.resuspended) {
+      await resuspendSuspendedTab(tab);
+      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, {
+        resuspended: true,
+        refetchTab: true,
+      });
+      return;
+    }
+
     if (executionProps.refetchTab) {
       gsUtils.log(
         tab.id,
@@ -238,9 +254,13 @@ var gsTabCheckManager = (function() {
 
     const tabSessionOk =
       suspendedView.document.sessionId === gsSession.getSessionId();
-    const tabVisibleOk = ensureSuspendedTabVisible(suspendedView);
     const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-    if (!tabSessionOk || !tabVisibleOk || !tabBasicsOk) {
+    const tabVisibleOk = ensureSuspendedTabVisible(suspendedView);
+    if (
+      !tabSessionOk ||
+      !tabBasicsOk ||
+      (!executionProps.quickInit && !tabVisibleOk)
+    ) {
       const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
       if (!tabQueueDetails) {
         resolve(gsUtils.STATUS_UNKNOWN);
@@ -248,17 +268,30 @@ var gsTabCheckManager = (function() {
       }
       try {
         gsUtils.log(tab.id, QUEUE_ID, 'Reinitialising suspendedTab: ', tab);
-        await gsSuspendedTab.initTab(tab, suspendedView);
+        const quickInit = executionProps.quickInit && !tab.active;
+        await gsSuspendedTab.initTab(tab, suspendedView, quickInit);
         requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
       } catch (e) {
-        gsUtils.log(tab.id, QUEUE_ID, 'Failed to reinitialise suspendedTab. ', e);
+        gsUtils.log(
+          tab.id,
+          QUEUE_ID,
+          'Failed to reinitialise suspendedTab. ',
+          e
+        );
         resolve(gsUtils.STATUS_UNKNOWN);
       }
       return;
     }
 
-    queueForDiscardIfRequired(tab);
-    resolve(gsUtils.STATUS_SUSPENDED);
+    let discarded = false;
+    if (
+      executionProps.quickInit ||
+      (gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) &&
+        !gsUtils.isDiscardedTab(tab))
+    ) {
+      discarded = await gsTabDiscardManager.queueTabForDiscardAsPromise(tab);
+    }
+    resolve(discarded ? gsUtils.STATUS_DISCARDED : gsUtils.STATUS_SUSPENDED);
   }
 
   async function resuspendSuspendedTab(tab) {
@@ -278,20 +311,6 @@ var gsTabCheckManager = (function() {
   async function unsuspendSuspendedTab(tab) {
     const originalUrl = gsUtils.getOriginalUrl(tab.url);
     await gsChrome.tabsUpdate(tab.id, { url: originalUrl });
-  }
-
-  function queueForDiscardIfRequired(tab) {
-    // Do not discard during initialisation
-    if (gsSession.isInitialising()) {
-      return;
-    }
-    // If we want to discard tabs after suspending them
-    let discardAfterSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_AFTER_SUSPEND
-    );
-    if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
-      gsTabDiscardManager.queueTabForDiscard(tab);
-    }
   }
 
   function ensureSuspendedTabVisible(tabView) {
@@ -426,7 +445,11 @@ var gsTabCheckManager = (function() {
       gsMessages.executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
         clearTimeout(executeScriptTimeout);
         if (error) {
-          gsUtils.log(tab.id, 'Failed to execute js/contentscript.js on tab', error);
+          gsUtils.log(
+            tab.id,
+            'Failed to execute js/contentscript.js on tab',
+            error
+          );
           resolve(null);
           return;
         }
