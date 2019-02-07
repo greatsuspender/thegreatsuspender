@@ -37,7 +37,7 @@
     "html_about_html2canvas_prefix": { "message": "Это расширение использует" },
     "html_about_html2canvas_suffix": { "message": "библиотеку Niklas von Hertzen." },
     "html_about_indexedDb": { "message": "db.js" },
-    "html_about_indexedDb_prefix": { "message": "Также используется indexedDb враппер " },
+    "html_about_indexedDb_prefix": { "message": "Также используется обёртка indexedDb " },
     "html_about_indexedDb_suffix": { "message": "от Aaron Powell." },
     "html_about_browserstack": { "message": "browserstack" },
     "html_about_browserstack_prefix": { "message": "Отдельное спасибо" },
