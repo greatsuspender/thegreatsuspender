@@ -242,7 +242,7 @@
     "js_suspended_remove_from_whitelist": { "message": "Удалить сайт из белого списка" },
     "js_suspended_hotkey_to_reload": { "message": "Сохранить горячие клавиши" },
     "js_suspended_low_memory": { "message": "Вкладка приостановлена из-за нехватки памяти" },
-    "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Настройки для расширения (при наличии) будут получены используя синхронизацию Chrome." },
+    "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Настройки расширения (при наличии) будут получены при помощи синхронизации Chrome." },
     "js_permissions_button_export": { "message": "Сохранить резервную копию" },
     "js_permissions_button_set": { "message": "Открыть настройки расширения" },
     "js_update_confirm": { "message": "Вы еще не сделали резервную копию. Всё равно обновить?" },
