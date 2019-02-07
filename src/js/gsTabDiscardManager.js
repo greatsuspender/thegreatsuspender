@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsUtils, gsChrome, GsTabQueue, gsTabSuspendManager */
+/*global chrome, localStorage, tgs, gsUtils, gsChrome, GsTabQueue, gsStorage, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
 var gsTabDiscardManager = (function() {
   'use strict';
@@ -82,9 +82,14 @@ var gsTabDiscardManager = (function() {
       return;
     }
     if (tgs.isCurrentActiveTab(tab)) {
-      gsUtils.log(tab.id, QUEUE_ID, 'Tab is active. Aborting discard.');
-      resolve(false);
-      return;
+      const discardInPlaceOfSuspend = gsStorage.getOption(
+        gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+      );
+      if (!discardInPlaceOfSuspend) {
+        gsUtils.log(tab.id, QUEUE_ID, 'Tab is active. Aborting discard.');
+        resolve(false);
+        return;
+      }
     }
     if (gsUtils.isDiscardedTab(tab)) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab already discarded');

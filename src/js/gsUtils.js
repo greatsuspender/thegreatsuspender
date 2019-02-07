@@ -1,8 +1,8 @@
 /*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
 'use strict';
 
-var debugInfo = false;
-var debugError = false;
+var debugInfo = true;
+var debugError = true;
 
 var gsUtils = {
   STATUS_NORMAL: 'normal',

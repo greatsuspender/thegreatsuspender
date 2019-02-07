@@ -308,7 +308,7 @@ var tgs = (function() {
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
-      if (!gsUtils.isNormalTab(activeTab)) {
+      if (!gsUtils.isNormalTab(activeTab, true)) {
         if (callback) callback(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -983,19 +983,15 @@ var tgs = (function() {
 
     gsTabDiscardManager.unqueueTabForDiscard(focusedTab);
 
-    let contentScriptStatus = null;
-    if (gsUtils.isNormalTab(focusedTab)) {
+    if (gsUtils.isNormalTab(focusedTab, true)) {
       //ensure focused tab has a responsive content script
-      contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(
-        focusedTab,
-        {},
-        0
-      );
-      gsUtils.log(focusedTab.id, 'Focused tab status: ' + contentScriptStatus);
+      await gsTabCheckManager.queueTabCheckAsPromise(focusedTab, {}, 0);
     }
 
     //update icon
-    calculateTabStatus(focusedTab, contentScriptStatus, function(status) {
+    calculateTabStatus(focusedTab, null, status => {
+      gsUtils.log(focusedTab.id, 'Focused tab status: ' + status);
+
       //if this tab still has focus then update icon
       if (_currentFocusedTabIdByWindowId[windowId] === focusedTab.id) {
         setIconStatus(status, focusedTab.id);
@@ -1245,7 +1241,7 @@ var tgs = (function() {
 
       info.windowId = tab.windowId;
       info.tabId = tab.id;
-      if (gsUtils.isNormalTab(tab) && !gsUtils.isDiscardedTab(tab)) {
+      if (gsUtils.isNormalTab(tab, true)) {
         gsMessages.sendRequestInfoToContentScript(tab.id, function(
           error,
           tabInfo

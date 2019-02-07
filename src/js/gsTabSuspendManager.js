@@ -299,7 +299,7 @@ var gsTabSuspendManager = (function() {
       if (discardInPlaceOfSuspend) {
         tgs.clearAutoSuspendTimerForTabId(tab.id);
         gsTabDiscardManager.queueTabForDiscard(tab);
-        resolve();
+        resolve(true);
         return;
       }
 
