@@ -618,6 +618,9 @@ var tgs = (function() {
   function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
 
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
+
     // If the suspended tab is discarded then reload the suspended tab and flag
     // if for unsuspend on reload.
     // This will happen if the 'discard suspended tabs' option is turned on and the tab

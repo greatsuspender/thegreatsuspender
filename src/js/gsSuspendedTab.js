@@ -88,8 +88,6 @@ var gsSuspendedTab = (function() {
     // Set scrollPosition (must come after showing page contents)
     const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
     setScrollPosition(tabView.document, scrollPosition, previewMode);
-    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
-
     // const whitelisted = gsUtils.checkWhiteList(originalUrl);
   }
 
