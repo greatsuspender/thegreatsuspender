@@ -860,25 +860,8 @@ var tgs = (function() {
 
           // Once a tab has been suspended we may need to discard it depending on DISCARD_AFTER_SUSPEND
           // Before doing this however, we should give the tab some time to set the suspended favicon.
-          // If we have tab checks enabled, then this handles both the favicon checking and subsequent discarding
-          // If tabs checks are disabled, then we need to do the discarding here (and risk favicon not being set)
-          const disableTabChecks = gsStorage.getOption(
-            gsStorage.DISABLE_TAB_CHECKS
-          );
-          if (!disableTabChecks) {
-            gsTabDiscardManager.unqueueTabForDiscard(tab); // just in case
-            gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
-            return;
-          }
-
-          // If tabChecks have been disabled
-          let discardAfterSuspend = gsStorage.getOption(
-            gsStorage.DISCARD_AFTER_SUSPEND
-          );
-          if (discardAfterSuspend && !gsUtils.isDiscardedTab(tab)) {
-            gsUtils.log(tab.id, 'Queueing tab for discard.');
-            gsTabDiscardManager.queueTabForDiscard(tab, null, 3000);
-          }
+          gsTabDiscardManager.unqueueTabForDiscard(tab); // just in case
+          gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
         });
     }
   }
@@ -1710,11 +1693,6 @@ var tgs = (function() {
       queueSessionTimer();
 
       if (gsUtils.isSuspendedTab(tab)) {
-        const disableTabChecks = gsStorage.getOption(
-          gsStorage.DISABLE_TAB_CHECKS
-        );
-        if (disableTabChecks) return;
-
         // Queue tab for check but mark it as sleeping for 5 seconds to give
         // a change for the tab to load
         gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 5000);

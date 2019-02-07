@@ -104,13 +104,6 @@
         );
       }
     );
-    addFlagHtml(
-      'toggleDisableTabChecks',
-      () => gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS),
-      newVal => {
-        gsStorage.setOptionAndSync(gsStorage.DISABLE_TAB_CHECKS, newVal);
-      }
-    );
     document.getElementById('claimSuspendedTabs').onclick = async function(e) {
       const tabs = await gsChrome.tabsQuery();
       for (const tab of tabs) {

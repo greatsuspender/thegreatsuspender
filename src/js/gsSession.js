@@ -167,12 +167,7 @@ var gsSession = (function() {
       await handleUpdate(currentSessionTabs, curVersion, startupLastVersion);
     }
 
-    const disableTabChecks = gsStorage.getOption(gsStorage.DISABLE_TAB_CHECKS);
-    if (!disableTabChecks) {
-      await performTabChecks();
-    } else {
-      gsUtils.log('Skipping tabChecks due to disableTabChecks flag.');
-    }
+    await performTabChecks();
 
     gsUtils.log('gsSession', 'updating current session');
     updateCurrentSession(); //async
