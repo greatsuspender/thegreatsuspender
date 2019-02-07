@@ -87,7 +87,7 @@ var gsTabCheckManager = (function() {
   }
 
   function queueTabCheckAsPromise(tab, executionProps, processingDelay) {
-    gsUtils.log(tab.id, QUEUE_ID, `Queuing tab for responsiveness check.`);
+    gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for responsiveness check.`);
     executionProps = executionProps || {};
     return tabCheckQueue.queueTabAsPromise(
       tab,

@@ -46,7 +46,7 @@ var gsTabDiscardManager = (function() {
   }
 
   function queueTabForDiscardAsPromise(tab, executionProps, processingDelay) {
-    gsUtils.log(tab.id, QUEUE_ID, `Queuing tab for discarding.`);
+    gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for discarding.`);
     executionProps = executionProps || {};
     return discardQueue.queueTabAsPromise(tab, executionProps, processingDelay);
   }

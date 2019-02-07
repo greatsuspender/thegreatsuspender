@@ -69,7 +69,7 @@ function GsTabQueue(queueId, queueProps) {
       executionProps = executionProps || {};
       let tabDetails = _tabDetailsByTabId[tab.id];
       if (!tabDetails) {
-        // gsUtils.log(tab.id, _queueId, 'Queuing new tab.');
+        // gsUtils.log(tab.id, _queueId, 'Queueing new tab.');
         tabDetails = {
           tab,
           executionProps,
