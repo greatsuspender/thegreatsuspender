@@ -1106,7 +1106,7 @@ var tgs = (function() {
       }
     } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
       const optionsView = getInternalViewByTabId(focusedTab.id);
-      if (optionsView) {
+      if (optionsView && optionsView.exports) {
         optionsView.exports.initSettings();
       }
     }
