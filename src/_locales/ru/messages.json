@@ -136,7 +136,7 @@
     "html_popup_settings": { "message": "Настройки" },
     "html_restoring_title": { "message": "Восстановление окна" },
     "html_restoring_heading": { "message": "Восстановление вкладок" },
-    "html_restoring_detail": { "message": "Пожалуйста, подождите пока я восстановлю это окно..." },
+    "html_restoring_detail": { "message": "Пожалуйста, подождите, пока я восстановлю это окно..." },
     "html_recovery_title": { "message": "Восстановление" },
     "html_recovery_ruh_roh": { "message": "Ой-ой!" },
     "html_recovery_description_line1": { "message": "Кажется, расширение завершило работу некорректно." },
