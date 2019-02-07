@@ -562,6 +562,7 @@ var tgs = (function() {
     timerDetails.suspendDateTime = new Date(
       new Date().getTime() + timeToSuspend
     );
+
     timerDetails.timer = setTimeout(async () => {
       const updatedTabId = timerDetails.tabId; // This may get updated via updateTabIdReferences
       const updatedTab = await gsChrome.tabsGet(updatedTabId);
@@ -571,6 +572,10 @@ var tgs = (function() {
       }
       gsTabSuspendManager.queueTabForSuspension(updatedTab, 3);
     }, timeToSuspend);
+    gsUtils.log(
+      tab.id,
+      'Adding tab timer for: ' + timerDetails.suspendDateTime
+    );
 
     setTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS, timerDetails);
   }
