@@ -14,7 +14,7 @@
     "ext_cmd_unsuspend_all_windows_description": { "message": "Возобновить все вкладки во всех окнах" },
     "js_context_open_link_in_suspended_tab": { "message": "Открыть ссылку в новой приостановленной вкладке" },
     "js_context_toggle_suspend_state": { "message": "Приостановить/Возобновить эту вкладку" },
-    "js_context_toggle_pause_suspension": { "message": "Включить/выключить приостановку этой вкладки" },
+    "js_context_toggle_pause_suspension": { "message": "Поставить на паузу/Возобновить приостановку этой вкладки" },
     "js_context_never_suspend_domain": { "message": "Никогда не приостанавливать этот домен" },
     "js_context_never_suspend_page": { "message": "Никогда не приостанавливать этот URL" },
     "js_context_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
