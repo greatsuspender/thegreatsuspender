@@ -151,6 +151,7 @@ var gsSuspendedTab = (function() {
   }
 
   function setTitle(_document, title) {
+    _document.title = title;
     _document.getElementById('gsTitle').innerHTML = title;
     _document.getElementById('gsTopBarTitle').innerHTML = title;
     // Prevent unsuspend by parent container

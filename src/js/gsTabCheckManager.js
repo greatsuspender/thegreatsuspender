@@ -10,6 +10,7 @@ var gsTabCheckManager = (function() {
 
   const QUEUE_ID = 'checkQueue';
 
+  let defaultTabTitle;
   let tabCheckQueue;
 
   // NOTE: This mainly checks suspended tabs
@@ -27,6 +28,7 @@ var gsTabCheckManager = (function() {
         executorFn: handleTabCheck,
         exceptionFn: handleTabCheckException,
       };
+      defaultTabTitle = chrome.i18n.getMessage('html_suspended_title');
       tabCheckQueue = GsTabQueue(QUEUE_ID, queueProps);
       gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
@@ -329,7 +331,7 @@ var gsTabCheckManager = (function() {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab favicon not set or not dataUrl.', tab);
       return false;
     }
-    if (!tab.title) {
+    if (!tab.title || tab.title === defaultTabTitle) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab title not set', tab);
       return false;
     }
