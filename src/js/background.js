@@ -920,10 +920,10 @@ var tgs = (function() {
   }
 
   function handleWindowFocusChanged(windowId) {
+    gsUtils.log(windowId, 'window gained focus');
     if (windowId < 0) {
       return;
     }
-    gsUtils.log(windowId, 'window changed');
     _currentFocusedWindowId = windowId;
 
     // Get the active tab in the newly focused window
@@ -1069,7 +1069,7 @@ var tgs = (function() {
     previousStationaryTabId,
     focusedTab
   ) {
-    gsUtils.log(focusedTabId, 'new tab focus handled');
+    gsUtils.log(focusedTabId, 'new stationary tab focus handled');
     //remove request to suspend this tab id
     const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(
       focusedTab
