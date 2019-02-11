@@ -921,7 +921,7 @@ var tgs = (function() {
 
   function handleWindowFocusChanged(windowId) {
     gsUtils.log(windowId, 'window gained focus');
-    if (windowId < 0) {
+    if (windowId < 0 || windowId === _currentFocusedWindowId) {
       return;
     }
     _currentFocusedWindowId = windowId;
