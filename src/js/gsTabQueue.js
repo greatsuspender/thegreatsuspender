@@ -138,6 +138,7 @@ function GsTabQueue(queueId, queueProps) {
       gsUtils.log(_queueId, `total queue size: ${_queuedTabIds.length}`);
     }
 
+    // eslint-disable-next-line no-unused-vars
     function moveTabToEndOfQueue(tabDetails) {
       const tab = tabDetails.tab;
       for (const [i, tabId] of _queuedTabIds.entries()) {
@@ -285,7 +286,7 @@ function GsTabQueue(queueId, queueProps) {
         _queueId,
         `Requeueing tab. Requeues: ${tabDetails.requeues}`
       );
-      moveTabToEndOfQueue(tabDetails);
+      // moveTabToEndOfQueue(tabDetails);
       sleepTab(tabDetails, requeueDelay);
       requestProcessQueue(_queueProperties.processingDelay);
     }

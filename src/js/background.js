@@ -870,11 +870,7 @@ var tgs = (function() {
           gsUtils.warning(tab.id, error);
         })
         .then(() => {
-          gsTabCheckManager.queueTabCheck(
-            tab,
-            { quickInit, refetchTab: true },
-            3000
-          );
+          gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
         });
     }
   }
@@ -1045,11 +1041,7 @@ var tgs = (function() {
       previouslyFocusedTabId,
       'Queueing previously focused tab for discard via tabCheckManager'
     );
-    gsTabCheckManager.queueTabCheck(
-      previouslyFocusedTab,
-      { quickInit: true },
-      1000
-    );
+    gsTabCheckManager.queueTabCheck(previouslyFocusedTab, {}, 1000);
   }
 
   function queueNewWindowFocusTimer(tabId, windowId, focusedTab) {
@@ -1701,7 +1693,7 @@ var tgs = (function() {
       if (gsUtils.isSuspendedTab(tab) && !tab.active) {
         // Queue tab for check but mark it as sleeping for 5 seconds to give
         // a chance for the tab to load
-        gsTabCheckManager.queueTabCheck(tab, { quickInit: true }, 5000);
+        gsTabCheckManager.queueTabCheck(tab, {}, 5000);
       }
     });
     chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
