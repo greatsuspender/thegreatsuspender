@@ -990,20 +990,33 @@ var tgs = (function() {
 
     gsTabDiscardManager.unqueueTabForDiscard(focusedTab);
 
+    // If normal tab, then ensure it has a responsive content script
+    let contentScriptStatus = null;
     if (gsUtils.isNormalTab(focusedTab, true)) {
-      //ensure focused tab has a responsive content script
-      await gsTabCheckManager.queueTabCheckAsPromise(focusedTab, {}, 0);
+      contentScriptStatus = await getContentScriptStatus(focusedTab.id);
+      if (!contentScriptStatus) {
+        contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(
+          focusedTab,
+          {},
+          0
+        );
+      }
+      gsUtils.log(
+        focusedTab.id,
+        'Content script status: ' + contentScriptStatus
+      );
     }
 
     //update icon
-    calculateTabStatus(focusedTab, null, status => {
-      gsUtils.log(focusedTab.id, 'Focused tab status: ' + status);
-
-      //if this tab still has focus then update icon
-      if (_currentFocusedTabIdByWindowId[windowId] === focusedTab.id) {
-        setIconStatus(status, focusedTab.id);
-      }
+    const status = await new Promise(r => {
+      calculateTabStatus(focusedTab, contentScriptStatus, r);
     });
+    gsUtils.log(focusedTab.id, 'Focused tab status: ' + status);
+
+    //if this tab still has focus then update icon
+    if (_currentFocusedTabIdByWindowId[windowId] === focusedTab.id) {
+      setIconStatus(status, focusedTab.id);
+    }
 
     //pause for a bit before assuming we're on a new tab as some users
     //will key through intermediate tabs to get to the one they want.
@@ -1014,13 +1027,14 @@ var tgs = (function() {
       _triggerHotkeyUpdate = true;
     }
 
-    //queue job to discard previously focused tab
     let discardAfterSuspend = gsStorage.getOption(
       gsStorage.DISCARD_AFTER_SUSPEND
     );
     if (!discardAfterSuspend) {
       return;
     }
+
+    //queue job to discard previously focused tab
     const previouslyFocusedTab = previouslyFocusedTabId
       ? await gsChrome.tabsGet(previouslyFocusedTabId)
       : null;
@@ -1338,50 +1352,53 @@ var tgs = (function() {
       callback(gsUtils.STATUS_NEVER);
       return;
     }
-    getContentScriptStatus(tab.id, knownContentScriptStatus).then(function(
-      contentScriptStatus
-    ) {
-      if (
-        contentScriptStatus &&
-        contentScriptStatus !== gsUtils.STATUS_NORMAL
-      ) {
-        callback(contentScriptStatus);
-        return;
+    getContentScriptStatus(tab.id, knownContentScriptStatus).then(
+      contentScriptStatus => {
+        if (
+          contentScriptStatus &&
+          contentScriptStatus !== gsUtils.STATUS_NORMAL
+        ) {
+          callback(contentScriptStatus);
+          return;
+        }
+        //check running on battery
+        if (
+          gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) &&
+          _isCharging
+        ) {
+          callback(gsUtils.STATUS_CHARGING);
+          return;
+        }
+        //check internet connectivity
+        if (
+          gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) &&
+          !navigator.onLine
+        ) {
+          callback(gsUtils.STATUS_NOCONNECTIVITY);
+          return;
+        }
+        //check pinned tab
+        if (gsUtils.isProtectedPinnedTab(tab)) {
+          callback(gsUtils.STATUS_PINNED);
+          return;
+        }
+        //check audible tab
+        if (gsUtils.isProtectedAudibleTab(tab)) {
+          callback(gsUtils.STATUS_AUDIBLE);
+          return;
+        }
+        //check active
+        if (gsUtils.isProtectedActiveTab(tab)) {
+          callback(gsUtils.STATUS_ACTIVE);
+          return;
+        }
+        if (contentScriptStatus) {
+          callback(contentScriptStatus); // should be 'normal'
+          return;
+        }
+        callback(gsUtils.STATUS_UNKNOWN);
       }
-      //check running on battery
-      if (gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING) && _isCharging) {
-        callback(gsUtils.STATUS_CHARGING);
-        return;
-      }
-      //check internet connectivity
-      if (
-        gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE) &&
-        !navigator.onLine
-      ) {
-        callback(gsUtils.STATUS_NOCONNECTIVITY);
-        return;
-      }
-      //check pinned tab
-      if (gsUtils.isProtectedPinnedTab(tab)) {
-        callback(gsUtils.STATUS_PINNED);
-        return;
-      }
-      //check audible tab
-      if (gsUtils.isProtectedAudibleTab(tab)) {
-        callback(gsUtils.STATUS_AUDIBLE);
-        return;
-      }
-      //check active
-      if (gsUtils.isProtectedActiveTab(tab)) {
-        callback(gsUtils.STATUS_ACTIVE);
-        return;
-      }
-      if (contentScriptStatus) {
-        callback(contentScriptStatus); // should be 'normal'
-        return;
-      }
-      callback(gsUtils.STATUS_UNKNOWN);
-    });
+    );
   }
 
   function getActiveTabStatus(callback) {
