@@ -88,6 +88,7 @@ var gsTabCheckManager = (function() {
       ) {
         return;
       }
+      gsUtils.log(_tab.id, 'suspended tab loaded. status === complete');
       const tabQueueDetails = getQueuedTabCheckDetails(_tab);
       if (tabQueueDetails) {
         // If tab is in check queue, then force it to continue processing immediately

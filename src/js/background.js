@@ -1035,7 +1035,7 @@ var tgs = (function() {
       return;
     }
 
-    //queue tabCheck for this tab. that will force a discard afterwards
+    //queue tabCheck for previouslyFocusedTab. that will force a discard afterwards
     //but also avoids conflicts if this tab is already scheduled for checking
     gsUtils.log(
       previouslyFocusedTabId,
