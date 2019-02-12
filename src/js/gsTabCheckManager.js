@@ -307,10 +307,10 @@ var gsTabCheckManager = (function() {
         gsUtils.log(
           tab.id,
           QUEUE_ID,
-          'Failed to reinitialise suspendedTab. ',
+          'Failed to reinitialise suspendedTab. Will requeue with refetching.',
           e
         );
-        resolve(gsUtils.STATUS_UNKNOWN);
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
         return;
       }
     }
