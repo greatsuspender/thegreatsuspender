@@ -134,6 +134,9 @@
     "html_popup_suspend_selected_tabs": { "message": "Ausgewählte Tabs aussetzen" },
     "html_popup_unsuspend_selected_tabs": { "message": "Ausgewählte Tabs aufwachen" },
     "html_popup_settings": { "message": "Einstellungen" },
+    "html_restoring_title": { "message": "Fenster wird wiederhergestellt" },
+    "html_restoring_heading": { "message": "Tabs wiederherstellen" },
+    "html_restoring_detail": { "message": "Bitte warten Sie, bis ich dieses Fenster wiederhergestellt habe..." },
     "html_recovery_title": { "message": "Wiederherstellung" },
     "html_recovery_ruh_roh": { "message": "Oh oh!" },
     "html_recovery_description_line1": { "message": "Es sieht so aus als wäre die Erweiterung abgestürzt." },
@@ -248,5 +251,6 @@
     "js_update_confirm": { "message": "Es existiert keine Sicherung. Erweiterung trotzdem aktualisieren?" },
     "js_update_button_export": { "message": "Sicherung anlegen" },
     "js_update_button_reload": { "message": "Erweiterung jetzt aktualisieren" },
-    "js_shortcuts_not_set": { "message": "nicht gesetzt" }
+    "js_shortcuts_not_set": { "message": "nicht gesetzt" },
+    "js_session_save_point": { "message": "Automatischer Sicherungspunkt für v" }
 }

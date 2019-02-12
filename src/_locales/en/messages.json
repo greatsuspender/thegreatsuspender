@@ -134,6 +134,9 @@
     "html_popup_suspend_selected_tabs": { "message": "Suspend selected tabs" },
     "html_popup_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
     "html_popup_settings": { "message": "Settings" },
+    "html_restoring_title": { "message": "Restoring window" },
+    "html_restoring_heading": { "message": "Restoring tabs" },
+    "html_restoring_detail": { "message": "Please wait while I restore this window..." },
     "html_recovery_title": { "message": "Recovery" },
     "html_recovery_ruh_roh": { "message": "Ruh roh!" },
     "html_recovery_description_line1": { "message": "Looks like you're recovering from an extension crash." },
@@ -232,8 +235,8 @@
     "js_history_reload": { "message": "reload" },
     "js_history_resuspend": { "message": "resuspend" },
     "js_history_save": { "message": "save" },
-    "js_history_window": { "message": "window" },
-    "js_history_tab": { "message": "tab" },
+    "js_history_window": { "message": "Window" },
+    "js_history_tab": { "message": "Tab" },
     "js_history_plural": { "message": "s" },
     "js_history_enter_name_for_session": { "message": "Enter a name for this session" },
     "js_history_confirm_delete": { "message": "Are you sure you want to delete this session?" },
@@ -248,5 +251,6 @@
     "js_update_confirm": { "message": "You have not saved a backup yet. Update the extension anyway?" },
     "js_update_button_export": { "message": "Save backup" },
     "js_update_button_reload": { "message": "Update extension now" },
-    "js_shortcuts_not_set": { "message": "not set" }
+    "js_shortcuts_not_set": { "message": "not set" },
+    "js_session_save_point": { "message": "Automatic save point for v" }
 }

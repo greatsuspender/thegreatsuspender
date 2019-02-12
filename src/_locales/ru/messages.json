@@ -134,6 +134,9 @@
     "html_popup_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
     "html_popup_unsuspend_selected_tabs": { "message": "Возобновить выбранные вкладки" },
     "html_popup_settings": { "message": "Настройки" },
+    "html_restoring_title": { "message": "Восстановление окна" },
+    "html_restoring_heading": { "message": "Восстановление вкладок" },
+    "html_restoring_detail": { "message": "Пожалуйста, подождите, пока я восстановлю это окно..." },
     "html_recovery_title": { "message": "Восстановление" },
     "html_recovery_ruh_roh": { "message": "Ой-ой!" },
     "html_recovery_description_line1": { "message": "Кажется, расширение завершило работу некорректно." },
@@ -232,8 +235,8 @@
     "js_history_reload": { "message": "открыть и загрузить" },
     "js_history_resuspend": { "message": "открыть и приостановить" },
     "js_history_save": { "message": "сохранить" },
-    "js_history_window": { "message": "окно" },
-    "js_history_tab": { "message": "вкладка" },
+    "js_history_window": { "message": "Окно" },
+    "js_history_tab": { "message": "Вкладка" },
     "js_history_plural": { "message": "" },
     "js_history_enter_name_for_session": { "message": "Введите имя для сессии" },
     "js_history_confirm_delete": { "message": "Вы точно хотите удалить эту сессию?" },
@@ -248,5 +251,6 @@
     "js_update_confirm": { "message": "Вы ещё не сделали резервную копию. Всё равно обновить?" },
     "js_update_button_export": { "message": "Сохранить резервную копию" },
     "js_update_button_reload": { "message": "Обновить расширение" },
-    "js_shortcuts_not_set": { "message": "не задано" }
+    "js_shortcuts_not_set": { "message": "не задано" },
+    "js_session_save_point": { "message": "Автоматическая точка восстановления для версии " }
 }

@@ -301,7 +301,7 @@ var gsIndexedDb = {
       await gsIndexedDb.updateSession(existingSessionRestorePoint);
       gsUtils.log('gsIndexedDb', 'Updated automatic session restore point');
     } else {
-      session.name = 'Automatic save point for v' + version;
+      session.name = chrome.i18n.getMessage('js_session_save_point') + version;
       session[gsIndexedDb.DB_SESSION_PRE_UPGRADE_KEY] = version;
       await gsIndexedDb.addToSavedSessions(session);
       gsUtils.log('gsIndexedDb', 'Created automatic session restore point');
