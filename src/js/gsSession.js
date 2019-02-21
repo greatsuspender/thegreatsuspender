@@ -169,6 +169,15 @@ var gsSession = (function() {
 
     await performTabChecks();
 
+    // Ensure currently focused tab is initialised correctly if suspended
+    const currentWindowActiveTabs = await gsChrome.tabsQuery({
+      active: true,
+      currentWindow: true,
+    });
+    if (currentWindowActiveTabs.length > 0) {
+      gsTabCheckManager.queueTabCheck(currentWindowActiveTabs[0]);
+    }
+
     gsUtils.log('gsSession', 'updating current session');
     updateCurrentSession(); //async
 
@@ -210,15 +219,6 @@ var gsSession = (function() {
         `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
         '------------------------------------------------\n\n'
     );
-
-    // Ensure currently focused tab is initialised correctly if suspended
-    const currentWindowActiveTabs = await gsChrome.tabsQuery({
-      active: true,
-      currentWindow: true,
-    });
-    if (currentWindowActiveTabs.length > 0) {
-      gsTabCheckManager.queueTabCheck(currentWindowActiveTabs[0]);
-    }
   }
 
   async function handleNormalStartup(currentSessionTabs, curVersion) {
