@@ -170,6 +170,9 @@ body.img-preview-mode .gsTopBar {
     flex-direction: column;
     text-align: center;
 }
+.hotkeyCommand {
+    word-spacing: -1px;
+}
 .reasonMsg {
     font-size: 15px;
     margin-bottom: 25px;
