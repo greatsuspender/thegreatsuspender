@@ -128,10 +128,7 @@ var gsSuspendedTab = (function() {
       previewUri
     );
 
-    const scrollPosition = tgs.getTabStatePropForTabId(
-      tab.id,
-      tgs.STATE_SCROLL_POS
-    );
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
     setScrollPosition(tabView.document, scrollPosition, previewMode);
   }
 
@@ -349,6 +346,8 @@ var gsSuspendedTab = (function() {
     _window.addEventListener('beforeunload', function(e) {
       gsUtils.log(tab.id, 'BeforeUnload triggered: ' + tab.url);
       tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
+      const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+      tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
     });
   }
 

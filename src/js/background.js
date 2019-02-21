@@ -634,7 +634,7 @@ var tgs = (function() {
 
     const suspendedView = getInternalViewByTabId(tab.id);
     if (suspendedView) {
-      gsUtils.log(tab.id, 'Unsuspending tab via gsSuspendedTab');
+      gsUtils.log(tab.id, 'Requesting unsuspend via gsSuspendedTab');
       gsSuspendedTab.requestUnsuspendTab(suspendedView, tab);
       return;
     }
