@@ -662,7 +662,9 @@ var tgs = (function() {
             .replace(/[⇧\u21E7]/, ' Shift ')
             .replace(/[⌃\u8963]/, ' Ctrl ')
             .replace(/[⌥\u8997]/, ' Option ')
-            .replace(/\+/g, ' ').trim();
+            .replace(/\+/g, ' ')
+            .replace(/ +/g, ' ').trim()
+            .replace(/[ ]/g, ' \u00B7 ');
           resolve(printableHotkey);
         } else {
           resolve(null);
