@@ -105,12 +105,16 @@
   }
 
   function isBackgroundConnectable() {
-    var port = chrome.runtime.connect();
-    if (port) {
-      port.disconnect();
-      return true;
+    try {
+      var port = chrome.runtime.connect();
+      if (port) {
+        port.disconnect();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
-    return false;
   }
 
   function buildReportTabStatePayload() {
