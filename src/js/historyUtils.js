@@ -115,26 +115,27 @@ var historyUtils = (function(global) {
   }
 
   function exportSession(session, callback) {
-    const dataUriPrefix = 'data:text/plain;charset=utf-8;base64,';
-    let dataUriContent = '';
+    let sessionString = '';
 
     session.windows.forEach(function(curWindow, index) {
       curWindow.tabs.forEach(function(curTab, tabIndex) {
         if (gsUtils.isSuspendedTab(curTab)) {
-          dataUriContent += gsUtils.getOriginalUrl(curTab.url) + '\n';
+          sessionString += gsUtils.getOriginalUrl(curTab.url) + '\n';
         } else {
-          dataUriContent += curTab.url + '\n';
+          sessionString += curTab.url + '\n';
         }
       });
       //add an extra newline to separate windows
-      dataUriContent += '\n';
+      sessionString += '\n';
     });
 
-    var encodedUri = dataUriPrefix + btoa(dataUriContent);
-    var link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    const blob = new Blob([sessionString], {type : 'text/plain'});
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', blobUrl);
     link.setAttribute('download', 'session.txt');
     link.click();
+
     callback();
   }
 
