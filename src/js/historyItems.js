@@ -211,7 +211,7 @@ var historyItems = (function(global) {
         href: tab.url,
         target: '_blank',
       },
-      tab.title
+      tab.title || tab.url
     );
 
     if (showLinks) {
