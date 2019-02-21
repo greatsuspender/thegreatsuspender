@@ -657,10 +657,12 @@ var tgs = (function() {
         const toggleCommand = commands.find(o => o.name === '1-suspend-tab');
         if (toggleCommand && toggleCommand.shortcut !== '') {
           printableHotkey = toggleCommand.shortcut
-            .replace(/Command/, '\u2318')
-            .replace(/Shift/, '\u21E7')
-            .replace(/Control/, '^')
-            .replace(/\+/g, ' ');
+            .replace(/Command/, '⌘')
+            .replace(/[⌘\u2318]/, ' ⌘ ')
+            .replace(/[⇧\u21E7]/, ' Shift ')
+            .replace(/[⌃\u8963]/, ' Ctrl ')
+            .replace(/[⌥\u8997]/, ' Option ')
+            .replace(/\+/g, ' ').trim();
           resolve(printableHotkey);
         } else {
           resolve(null);
