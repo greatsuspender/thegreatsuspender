@@ -74,7 +74,7 @@
     "html_options_suspend_only_connected": { "message": "Никогда не приостанавливать вкладки в режиме оффлайн" },
     "html_options_suspend_only_on_battery": { "message": "Никогда не приостанавливать вкладки, когда подключён источник питания" },
     "html_options_suspend_no_active_tabs": { "message": "Никогда не приостанавливать активную вкладку в каждом окне" },
-    "html_options_suspend_automatically_unsuspend": { "message": "Автоматически возобновлять приостановленную вкладку при переходе на нее" },
+    "html_options_suspend_automatically_unsuspend": { "message": "Автоматически возобновлять приостановленную вкладку при переходе на неё" },
     "html_options_suspend_discard_after_suspend": { "message": "Использовать встроенный в Chrome механизм экономии памяти для приостановленных вкладок" },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "Ещё больше уменьшает потребление памяти для приостановленных вкладок, используя" },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "встроенный в Chrome механизм выгрузки вкладок. Это позволит уменьшить" },
