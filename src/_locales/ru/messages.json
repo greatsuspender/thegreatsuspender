@@ -3,7 +3,7 @@
     "ext_extension_description": { "message": "Заставь свой браузер работать быстрее, приостанавливая неактивные вкладки" },
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Приостановить/Возобновить активную вкладку" },
-    "ext_cmd_toggle_tab_pause_description": { "message": "Включить/выключить приостановку активной вкладки" },
+    "ext_cmd_toggle_tab_pause_description": { "message": "Поставить на паузу/Возобновить приостановку активной вкладки" },
     "ext_cmd_suspend_selected_tabs_description": { "message": "Приостановить выбранные вкладки" },
     "ext_cmd_unsuspend_selected_tabs_description": { "message": "Возобновить выбранные вкладки" },
     "ext_cmd_soft_suspend_active_window_description": { "message": "Приостановить все остальные вкладки в активном окне" },
