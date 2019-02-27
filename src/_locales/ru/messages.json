@@ -243,7 +243,7 @@
     "js_history_confirm_session_overwrite": { "message": "Сессия с таким именем уже существует. Перезаписать?" },
     "js_history_import_fail": { "message": "Ошибка при загрузке файла. Убедитесь, что это текстовый файл, и что он содержит не более одного URL-адреса в каждой строке." },
     "js_suspended_remove_from_whitelist": { "message": "Удалить сайт из белого списка" },
-    "js_suspended_hotkey_to_reload": { "message": "Сохранить горячие клавиши" },
+    "js_suspended_hotkey_to_reload": { "message": "Назначить горячие клавиши" },
     "js_suspended_low_memory": { "message": "Вкладка приостановлена из-за нехватки памяти" },
     "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Настройки расширения (при наличии) будут получены при помощи синхронизации Chrome." },
     "js_permissions_button_export": { "message": "Сохранить резервную копию" },
