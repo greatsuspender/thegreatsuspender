@@ -545,6 +545,18 @@ var gsUtils = {
     }
   },
 
+  formatHotkeyString(hotkeyString) {
+    return hotkeyString
+      .replace(/Command/, '⌘')
+      .replace(/[⌘\u2318]/, ' ⌘ ')
+      .replace(/[⇧\u21E7]/, ' Shift ')
+      .replace(/[⌃\u8963]/, ' Ctrl ')
+      .replace(/[⌥\u8997]/, ' Option ')
+      .replace(/\+/g, ' ')
+      .replace(/ +/g, ' ').trim()
+      .replace(/[ ]/g, ' \u00B7 ');
+  },
+
   getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();
     const currentSuspendedTabs = currentTabs.filter(tab =>

@@ -26,15 +26,15 @@
         if (command.name !== '_execute_browser_action') {
           const shortcut =
             command.shortcut !== ''
-              ? command.shortcut
+              ? gsUtils.formatHotkeyString(command.shortcut)
               : '(' + notSetMessage + ')';
           var addMarginBottom = groupingKeys.includes(command.name);
           shortcutsEl.innerHTML += `<div ${addMarginBottom ?
           ' class="bottomMargin"' : ''}>${
             command.description
           }</div>
-            <div ${command.shortcut ? '' :
-              ' class="lesserText"'}>${shortcut}</div>`;
+            <div class="${command.shortcut ? 'hotkeyCommand' :
+              'lesserText'}">${shortcut}</div>`;
         }
       });
     });

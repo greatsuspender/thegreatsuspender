@@ -656,15 +656,7 @@ var tgs = (function() {
       chrome.commands.getAll(commands => {
         const toggleCommand = commands.find(o => o.name === '1-suspend-tab');
         if (toggleCommand && toggleCommand.shortcut !== '') {
-          printableHotkey = toggleCommand.shortcut
-            .replace(/Command/, '⌘')
-            .replace(/[⌘\u2318]/, ' ⌘ ')
-            .replace(/[⇧\u21E7]/, ' Shift ')
-            .replace(/[⌃\u8963]/, ' Ctrl ')
-            .replace(/[⌥\u8997]/, ' Option ')
-            .replace(/\+/g, ' ')
-            .replace(/ +/g, ' ').trim()
-            .replace(/[ ]/g, ' \u00B7 ');
+          printableHotkey = gsUtils.formatHotkeyString(toggleCommand.shortcut);
           resolve(printableHotkey);
         } else {
           resolve(null);

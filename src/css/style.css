@@ -369,6 +369,9 @@ a.historyLink:hover {
 .bottomMargin {
   margin-bottom: 20px !important;
 }
+.hotkeyCommand {
+  word-spacing: -1px;
+}
 
 /* custom checkboxes */
 input[type='checkbox'] {
