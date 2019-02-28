@@ -1,7 +1,7 @@
 {
   "name": "__MSG_ext_extension_name__",
   "description": "__MSG_ext_extension_description__",
-  "version": "7.0.173",
+  "version": "7.0.174",
   "default_locale": "en",
   "permissions": [
     "tabs",
@@ -44,7 +44,7 @@
     "128": "img/ic_suspendy_128x128.png"
   },
   "web_accessible_resources": ["suspended.html"],
-  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'; child-src 'self'; connect-src 'self' https://greatsuspender.github.io https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' data: chrome: https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net; default-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
   "minimum_chrome_version": "55",
