@@ -30,7 +30,7 @@
     html += '<td>' + tabId + '</td>';
     html += '<td>' + tabIndex + '</td>';
     html +=
-      '<td style="max-width:700px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
+      '<td>' +
       tabTitle +
       '</td>';
     html += '<td>' + tabTimer + '</td>';

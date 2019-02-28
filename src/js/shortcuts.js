@@ -28,14 +28,12 @@
             command.shortcut !== ''
               ? command.shortcut
               : '(' + notSetMessage + ')';
-          var removeMargin = !groupingKeys.includes(command.name);
-          var style = removeMargin
-            ? '"margin: 0 0 2px;"'
-            : '"margin: 0 0 20px;"';
-          shortcutsEl.innerHTML += `<div style=${style}>${
+          var addMarginBottom = groupingKeys.includes(command.name);
+          shortcutsEl.innerHTML += `<div ${addMarginBottom ?
+          ' class="bottomMargin"' : ''}>${
             command.description
           }</div>
-            <div${!command.shortcut &&
+            <div ${command.shortcut ? '' :
               ' class="lesserText"'}>${shortcut}</div>`;
         }
       });

@@ -157,6 +157,13 @@ ul.unorderedList li {
 .suspendy-guy {
   width: 100%;
 }
+#suspendy-guy-inprogress {
+  max-height: 220px;
+  max-width: 137px;
+}
+#suspendy-guy-complete {
+  max-height: 220px;
+}
 .btn {
   background: #3477db;
   color: #fff;
@@ -355,6 +362,12 @@ a.historyLink:hover {
 .keyboardShortcuts {
   display: grid;
   grid-template-columns: auto auto;
+}
+.keyboardShortcuts div {
+  margin: 0 0 2px;
+}
+.bottomMargin {
+  margin-bottom: 20px !important;
 }
 
 /* custom checkboxes */

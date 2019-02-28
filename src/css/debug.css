@@ -1,0 +1,11 @@
+body {
+    padding: 20px;
+    font-size: 1.3rem;
+}
+
+td {
+    max-width:700px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
