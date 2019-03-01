@@ -108,14 +108,13 @@ var gsTabSuspendManager = (function() {
     // Note: doing so will bypass a few checks below. Namely:
     // - Any temporary pause flag that has been set up on the tab
     // - It may lose any scrollPos value
-    // - It may also bypass the screencapture process
     // Although if the tab is still loading then pause and scroll pos should
     // not be set?
-    // And if savedTabInfo is set, then hopefully the screen capture has
-    // already been generated and cached?
+    // Do not bypass loading state if screen capture is required
+    let screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     if (tab.status === 'loading') {
       const savedTabInfo = await gsIndexedDb.fetchTabInfo(tab.url);
-      if (savedTabInfo) {
+      if (screenCaptureMode === '0' && savedTabInfo) {
         const suspendedUrl = gsUtils.generateSuspendedUrl(
           tab.url,
           savedTabInfo.title,
@@ -134,7 +133,6 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
-    let screenCaptureMode = gsStorage.getOption(gsStorage.SCREEN_CAPTURE);
     const discardInPlaceOfSuspend = gsStorage.getOption(
       gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
     );
