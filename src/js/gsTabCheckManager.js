@@ -282,7 +282,8 @@ var gsTabCheckManager = (function() {
 
     const attemptDiscarding =
       gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) &&
-      !gsUtils.isDiscardedTab(tab);
+      !gsUtils.isDiscardedTab(tab) &&
+      !tgs.isCurrentActiveTab(tab);
     const tabSessionOk =
       suspendedView.document.sessionId === gsSession.getSessionId();
     const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
