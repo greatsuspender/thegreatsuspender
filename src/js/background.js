@@ -1080,23 +1080,27 @@ var tgs = (function() {
     focusedTab
   ) {
     gsUtils.log(focusedTabId, 'new stationary tab focus handled');
-    //remove request to suspend this tab id
-    const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(
-      focusedTab
-    );
-    if (queuedTabDetails) {
-      gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
-    }
 
     if (gsUtils.isSuspendedTab(focusedTab)) {
       handleSuspendedTabFocusGained(focusedTab); //async. unhandled promise.
     } else if (gsUtils.isNormalTab(focusedTab)) {
+      const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(
+        focusedTab
+      );
       //if focusedTab is already in the queue for suspension then remove it.
-      //although sometimes it seems that this is a 'fake' tab focus resulting
-      //from the popup menu disappearing. in these cases the previousStationaryTabId
-      //should match the current tabId (fix for issue #735)
-      if (previousStationaryTabId && previousStationaryTabId !== focusedTabId) {
-        gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
+      if (queuedTabDetails) {
+        //although sometimes it seems that this is a 'fake' tab focus resulting
+        //from the popup menu disappearing. in these cases the previousStationaryTabId
+        //should match the current tabId (fix for issue #735)
+        const isRealTabFocus =
+          previousStationaryTabId && previousStationaryTabId !== focusedTabId;
+
+        //also, only cancel suspension if the tab suspension request has a forceLevel > 1
+        const isLowForceLevel = queuedTabDetails.executionProps.forceLevel > 1;
+
+        if (isRealTabFocus && isLowForceLevel) {
+          gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
+        }
       }
     } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
       const optionsView = getInternalViewByTabId(focusedTab.id);
