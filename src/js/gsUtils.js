@@ -513,7 +513,7 @@ var gsUtils = {
       gsUtils.decodeString(gsUtils.getHashVariable('url', urlStr) || '')
     );
   },
-  getCleanTabTitle(tab) {
+  getCleanTabTitle: function(tab) {
     let cleanedTitle = gsUtils.decodeString(tab.title);
     if (
       !cleanedTitle ||
@@ -530,14 +530,14 @@ var gsUtils = {
     }
     return cleanedTitle;
   },
-  decodeString(string) {
+  decodeString: function(string) {
     try {
       return decodeURIComponent(string);
     } catch (e) {
       return string;
     }
   },
-  encodeString(string) {
+  encodeString: function(string) {
     try {
       return encodeURIComponent(string);
     } catch (e) {
@@ -545,7 +545,7 @@ var gsUtils = {
     }
   },
 
-  formatHotkeyString(hotkeyString) {
+  formatHotkeyString: function(hotkeyString) {
     return hotkeyString
       .replace(/Command/, '⌘')
       .replace(/[⌘\u2318]/, ' ⌘ ')
@@ -553,7 +553,8 @@ var gsUtils = {
       .replace(/[⌃\u8963]/, ' Ctrl ')
       .replace(/[⌥\u8997]/, ' Option ')
       .replace(/\+/g, ' ')
-      .replace(/ +/g, ' ').trim()
+      .replace(/ +/g, ' ')
+      .trim()
       .replace(/[ ]/g, ' \u00B7 ');
   },
 
