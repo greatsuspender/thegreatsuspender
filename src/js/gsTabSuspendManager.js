@@ -306,24 +306,7 @@ var gsTabSuspendManager = (function() {
         suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       }
 
-      gsMessages.sendConfirmSuspendToContentScript(
-        tab.id,
-        suspendedUrl,
-        async error => {
-          let success = true;
-          if (error) {
-            gsUtils.warning(
-              tab.id,
-              QUEUE_ID,
-              'Failed to sendConfirmSuspendToContentScript',
-              error
-            );
-            // Will not be able to use window.replace when forcing suspension
-            success = await forceTabSuspension(tab, suspendedUrl);
-          }
-          resolve(success);
-        }
-      );
+      forceTabSuspension(tab, suspendedUrl).then(resolve);
     });
   }
 
