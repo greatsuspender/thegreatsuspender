@@ -14,10 +14,6 @@
   let isIgnoreForms = false;
   let tempWhitelist = false;
 
-  function suspendTab(suspendedUrl) {
-    window.location.replace(suspendedUrl);
-  }
-
   function formInputListener(e) {
     if (!isReceivingFormInput && !tempWhitelist) {
       if (event.keyCode >= 48 && event.keyCode <= 90 && event.target.tagName) {
@@ -53,11 +49,6 @@
       sendResponse
     ) {
       if (request.hasOwnProperty('action')) {
-        if (request.action === 'confirmTabSuspend' && request.suspendedUrl) {
-          sendResponse();
-          suspendTab(request.suspendedUrl);
-          return false;
-        }
         if (request.action === 'requestInfo') {
           sendResponse(buildReportTabStatePayload());
           return false;
