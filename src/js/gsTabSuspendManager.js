@@ -180,7 +180,9 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
+    // Temporarily change tab.url to append youtube timestamp
     const timestampedUrl = await generateUrlWithYouTubeTimestamp(tab);
+    // NOTE: This does not actually change the tab url, just the current tab object
     tab.url = timestampedUrl;
     await saveSuspendData(tab);
 
@@ -205,31 +207,11 @@ var gsTabSuspendManager = (function() {
       QUEUE_ID,
       'Preview generation script started successfully.'
     );
-    // resumeQueuedTabSuspension is called on the 'savePreviewData' message response
+    // handlePreviewImageResponse is called on the 'savePreviewData' message response
     // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
   }
 
-  function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
-    if (previewUrl) {
-      gsIndexedDb
-        .addPreviewImage(tab.url, previewUrl)
-        .then(() => resumeQueuedTabSuspension(tab)); //async. unhandled promise.
-    } else {
-      gsUtils.warning(
-        tab.id,
-        QUEUE_ID,
-        'savePreviewData reported an error: ',
-        errorMsg
-      );
-      resumeQueuedTabSuspension(tab); //async. unhandled promise.
-    }
-  }
-
-  function getQueuedTabDetails(tab) {
-    return _suspensionQueue.getQueuedTabDetails(tab);
-  }
-
-  async function resumeQueuedTabSuspension(tab) {
+  async function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
     const queuedTabDetails = getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(
@@ -250,11 +232,34 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
+    // Temporarily change tab.url with that from the generated suspended url
+    // This is because for youtube tabs we manually change the url to persist timestamp
+    const timestampedUrl = gsUtils.getOriginalUrl(
+      queuedTabDetails.executionProps.suspendedUrl
+    );
+    // NOTE: This does not actually change the tab url, just the current tab object
+    tab.url = timestampedUrl;
+
+    if (!previewUrl) {
+      gsUtils.warning(
+        tab.id,
+        QUEUE_ID,
+        'savePreviewData reported an error: ',
+        errorMsg
+      );
+    } else {
+      await gsIndexedDb.addPreviewImage(tab.url, previewUrl);
+    }
+
     const success = await executeTabSuspension(
       tab,
       queuedTabDetails.executionProps.suspendedUrl
     );
     queuedTabDetails.executionProps.resolveFn(success);
+  }
+
+  function getQueuedTabDetails(tab) {
+    return _suspensionQueue.getQueuedTabDetails(tab);
   }
 
   async function handleSuspensionException(
@@ -486,7 +491,7 @@ var gsTabSuspendManager = (function() {
     //     dataUrl => {
     //       handlePreviewImageResponse(tab, dataUrl, chrome.runtime.lastError);
     //     }
-    //   );
+    //   ); //async. unhandled promise.
     //   return;
     // }
 
@@ -507,7 +512,7 @@ var gsTabSuspendManager = (function() {
     );
     gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
       if (error) {
-        handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab');
+        handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab'); //async. unhandled promise.
         return;
       }
       gsMessages.executeCodeOnTab(
@@ -519,7 +524,7 @@ var gsTabSuspendManager = (function() {
               tab,
               null,
               'Failed to executeCodeOnTab: generatePreviewImgContentScript'
-            );
+            ); //async. unhandled promise.
             return;
           }
         }
@@ -623,7 +628,6 @@ var gsTabSuspendManager = (function() {
     queueTabForSuspensionAsPromise,
     unqueueTabForSuspension,
     handlePreviewImageResponse,
-    resumeQueuedTabSuspension,
     saveSuspendData,
     checkTabEligibilityForSuspension,
     forceTabSuspension,

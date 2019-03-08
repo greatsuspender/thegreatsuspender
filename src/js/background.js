@@ -1616,7 +1616,7 @@ var tgs = (function() {
         sender.tab,
         request.previewUrl,
         request.errorMsg
-      );
+      ); // async. unhandled promise
       sendResponse();
       return false;
     }
