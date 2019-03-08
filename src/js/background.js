@@ -839,13 +839,6 @@ var tgs = (function() {
     if (changeInfo.status === 'complete') {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
 
-      //remove unsuspended tab history item
-      //NOTE: Not implementing this as it will remove it from the tab history of
-      //all tabs that contain this url, not just the current tab
-      // const unsuspendedUrl = gsUtils.getOriginalUrl(tab.url);
-      // gsUtils.log(tab.id, 'Removing unsuspended url from history: ' + unsuspendedUrl);
-      // chrome.history.deleteUrl({ url: unsuspendedUrl });
-
       const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
       const disableUnsuspendOnReload = getTabStatePropForTabId(
         tab.id,
