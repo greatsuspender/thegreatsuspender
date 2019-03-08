@@ -306,23 +306,22 @@ var gsTabSuspendManager = (function() {
         return;
       }
 
+      if (gsUtils.isSuspendedTab(tab, true)) {
+        gsUtils.log(tab.id, 'Tab already suspended');
+        resolve(false);
+        return;
+      }
+
       if (!suspendedUrl) {
-        gsUtils.log(tab.id, QUEUE_ID, 'executionProps.suspendedUrl not set!');
+        gsUtils.log(tab.id, 'executionProps.suspendedUrl not set!');
         suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
       }
 
-      forceTabSuspension(tab, suspendedUrl).then(resolve);
+      gsUtils.log(tab.id, 'Suspending tab');
+      gsChrome.tabsUpdate(tab.id, { url: suspendedUrl }).then(updatedTab => {
+        resolve(updatedTab !== null);
+      });
     });
-  }
-
-  async function forceTabSuspension(tab, suspendedUrl) {
-    if (gsUtils.isSuspendedTab(tab, true)) {
-      gsUtils.log(tab.id, QUEUE_ID, 'Tab already suspended');
-      return;
-    }
-    gsUtils.log(tab.id, QUEUE_ID, 'Forcing tab suspension');
-    const updatedTab = await gsChrome.tabsUpdate(tab.id, { url: suspendedUrl });
-    return updatedTab !== null;
   }
 
   // forceLevel indicates which users preferences to respect when attempting to suspend the tab
@@ -630,7 +629,7 @@ var gsTabSuspendManager = (function() {
     handlePreviewImageResponse,
     saveSuspendData,
     checkTabEligibilityForSuspension,
-    forceTabSuspension,
+    executeTabSuspension,
     getQueuedTabDetails,
   };
 })();

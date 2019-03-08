@@ -114,7 +114,7 @@ var gsTabDiscardManager = (function() {
       gsUtils.log(tab.id, QUEUE_ID, 'Suspending discarded unsuspended tab');
 
       // Note: This bypasses the suspension tab queue and also prevents screenshots from being taken
-      await gsTabSuspendManager.forceTabSuspension(tab, suspendedUrl);
+      await gsTabSuspendManager.executeTabSuspension(tab, suspendedUrl);
       return;
     }
   }
