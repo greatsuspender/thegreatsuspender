@@ -77,18 +77,6 @@ var gsMessages = {
     );
   },
 
-  sendConfirmSuspendToContentScript: function(tabId, suspendedUrl, callback) {
-    gsMessages.sendMessageToContentScript(
-      tabId,
-      {
-        action: 'confirmTabSuspend',
-        suspendedUrl: suspendedUrl,
-      },
-      gsMessages.ERROR,
-      callback
-    );
-  },
-
   sendMessageToContentScript: function(tabId, message, severity, callback) {
     gsMessages.sendMessageToTab(tabId, message, severity, function(
       error,
