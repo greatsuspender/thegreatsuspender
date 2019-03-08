@@ -534,6 +534,7 @@ var gsTabSuspendManager = (function() {
 
   // NOTE: This function below is run within the content script scope
   // Therefore it must be self contained and not refer to any external functions
+  // such as references to gsUtils etc.
   // eslint-disable-next-line no-unused-vars
   async function generatePreviewImageCanvasViaContentScript(
     screenCaptureMode,
@@ -591,6 +592,19 @@ var gsTabSuspendManager = (function() {
       };
     }
 
+    const isCanvasVisible = canvas => {
+        var ctx = canvas.getContext('2d');
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < imageData.data.length; i += 4) {
+          const isTransparent = imageData.data[i + 3] === 0;
+          const isWhite = imageData.data[i] === 255 && imageData.data[i + 1] === 255 && imageData.data[i + 2] === 255;
+          if (!isTransparent && !isWhite) {
+            return true;
+          }
+        }
+        return false;
+    }
+
     const generateDataUrl = canvas => {
       let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
       if (!dataUrl || dataUrl === 'data:,') {
@@ -606,8 +620,11 @@ var gsTabSuspendManager = (function() {
     let errorMsg;
     try {
       const canvas = await generateCanvas();
-      // console.log('generating dataUrl..');
-      dataUrl = generateDataUrl(canvas);
+      if (!isCanvasVisible(canvas)) {
+        errorMsg = 'Canvas contains no visible pixels';
+      } else {
+        dataUrl = generateDataUrl(canvas);
+      }
     } catch (err) {
       errorMsg = err.message;
     }
