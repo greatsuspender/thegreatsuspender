@@ -308,18 +308,18 @@ var gsSuspendedTab = (function() {
       addWatermarkHandler(_document);
     }
 
-    if (!_document.getElementById('gsPreview')) {
+    if (!_document.getElementById('gsPreviewContainer')) {
       return;
     }
     const overflow = previewMode === '2' ? 'auto' : 'hidden';
     _document.body.style['overflow'] = overflow;
 
     if (previewMode === '0' || !previewUri) {
-      _document.getElementById('gsPreview').style.display = 'none';
+      _document.getElementById('gsPreviewContainer').style.display = 'none';
       _document.getElementById('suspendedMsg').style.display = 'flex';
       _document.body.classList.remove('img-preview-mode');
     } else {
-      _document.getElementById('gsPreview').style.display = 'block';
+      _document.getElementById('gsPreviewContainer').style.display = 'block';
       _document.getElementById('suspendedMsg').style.display = 'none';
       _document.body.classList.add('img-preview-mode');
     }

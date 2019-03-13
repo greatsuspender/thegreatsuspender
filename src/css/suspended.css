@@ -134,26 +134,24 @@ body.suspended-page:not(.img-preview-mode) {
     margin: 0 auto;
     padding: 30px 0;
 }
-.gsPreview {
+.gsPreviewImg {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     transition: all 0.2s ease;
 }
-.gsPreview:hover {
+.gsPreviewImg:hover {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
-.dark .gsPreview {
+.dark .gsPreviewImg {
     filter: brightness(70%);
     opacity: 0.7;
 }
-.dark .gsPreview:hover {
+.dark .gsPreviewImg:hover {
     opacity: 1;
-}
-.gsPreviewImg {
-    display: block;
-    max-width: 100%;
-    margin: 0;
 }
 body.img-preview-mode .gsTopBar {
     position: relative;
