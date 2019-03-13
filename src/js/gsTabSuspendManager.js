@@ -1,4 +1,4 @@
-/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, gsTabCheckManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
@@ -295,6 +295,10 @@ var gsTabSuspendManager = (function() {
 
   function executeTabSuspension(tab, suspendedUrl) {
     return new Promise(resolve => {
+      // Remove any existing queued tab checks (this can happen if we try to suspend
+      // a tab immediately after it gains focus)
+      gsTabCheckManager.unqueueTabCheck(tab);
+
       // If we want tabs to be discarded instead of suspending them
       let discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND

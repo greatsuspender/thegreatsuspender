@@ -127,6 +127,13 @@ var gsTabCheckManager = (function() {
     );
   }
 
+  function unqueueTabCheck(tab) {
+    const removed = _tabCheckQueue.unqueueTab(tab);
+    if (removed) {
+      gsUtils.log(tab.id, QUEUE_ID, 'Removed tab from check queue.');
+    }
+  }
+
   function getQueuedTabCheckDetails(tab) {
     return _tabCheckQueue.getQueuedTabDetails(tab);
   }
@@ -506,6 +513,7 @@ var gsTabCheckManager = (function() {
     performInitialisationTabChecks,
     queueTabCheck,
     queueTabCheckAsPromise,
+    unqueueTabCheck,
     getQueuedTabCheckDetails,
     ensureSuspendedTabVisible,
   };
