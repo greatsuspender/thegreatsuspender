@@ -115,6 +115,7 @@ body.suspended-page:not(.img-preview-mode) {
 .gsTopBarUrl {
     color: #444;
     cursor: pointer;
+    padding: 0 20px;
 }
 .gsTopBarUrl,
 .gsTopBarTitleWrap {
