@@ -6,9 +6,9 @@ var gsTabDiscardManager = (function() {
   const DEFAULT_CONCURRENT_DISCARDS = 5;
   const DEFAULT_DISCARD_TIMEOUT = 5 * 1000;
 
-  const QUEUE_ID = 'discardQueue';
+  const QUEUE_ID = '_discardQueue';
 
-  let discardQueue;
+  let _discardQueue;
 
   function initAsPromised() {
     return new Promise(resolve => {
@@ -18,7 +18,7 @@ var gsTabDiscardManager = (function() {
         executorFn: performDiscard,
         exceptionFn: handleDiscardException,
       };
-      discardQueue = GsTabQueue(QUEUE_ID, queueProps);
+      _discardQueue = GsTabQueue(QUEUE_ID, queueProps);
       gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
     });
@@ -35,17 +35,17 @@ var gsTabDiscardManager = (function() {
   function queueTabForDiscardAsPromise(tab, executionProps, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for discarding.`);
     executionProps = executionProps || {};
-    return discardQueue.queueTabAsPromise(tab, executionProps, processingDelay);
+    return _discardQueue.queueTabAsPromise(tab, executionProps, processingDelay);
   }
 
   function unqueueTabForDiscard(tab) {
-    const removed = discardQueue.unqueueTab(tab);
+    const removed = _discardQueue.unqueueTab(tab);
     if (removed) {
       gsUtils.log(tab.id, QUEUE_ID, 'Removed tab from discard queue');
     }
   }
 
-  // This is called remotely by the discardQueue
+  // This is called remotely by the _discardQueue
   // So we must first re-fetch the tab in case it has changed
   async function performDiscard(tab, executionProps, resolve, reject, requeue) {
     let _tab = null;

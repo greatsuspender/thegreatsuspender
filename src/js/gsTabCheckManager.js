@@ -10,8 +10,8 @@ var gsTabCheckManager = (function() {
 
   const QUEUE_ID = 'checkQueue';
 
-  let defaultTabTitle;
-  let tabCheckQueue;
+  let _defaultTabTitle;
+  let _tabCheckQueue;
 
   // NOTE: This mainly checks suspended tabs
   // For unsuspended tabs, there is no guarantee that the content script will
@@ -28,8 +28,8 @@ var gsTabCheckManager = (function() {
         executorFn: handleTabCheck,
         exceptionFn: handleTabCheckException,
       };
-      defaultTabTitle = chrome.i18n.getMessage('html_suspended_title');
-      tabCheckQueue = GsTabQueue(QUEUE_ID, queueProps);
+      _defaultTabTitle = chrome.i18n.getMessage('html_suspended_title');
+      _tabCheckQueue = GsTabQueue(QUEUE_ID, queueProps);
       gsUtils.log(QUEUE_ID, 'init successful');
       resolve();
     });
@@ -102,9 +102,9 @@ var gsTabCheckManager = (function() {
   function updateQueueProps(jobTimeout, processingDelay, concurrentExecutors) {
     gsUtils.log(
       QUEUE_ID,
-      `Setting tabCheckQueue props. jobTimeout: ${jobTimeout}. processingDelay: ${processingDelay}. concurrentExecutors: ${concurrentExecutors}`
+      `Setting _tabCheckQueue props. jobTimeout: ${jobTimeout}. processingDelay: ${processingDelay}. concurrentExecutors: ${concurrentExecutors}`
     );
-    tabCheckQueue.setQueueProperties({
+    _tabCheckQueue.setQueueProperties({
       jobTimeout,
       processingDelay,
       concurrentExecutors,
@@ -120,7 +120,7 @@ var gsTabCheckManager = (function() {
   function queueTabCheckAsPromise(tab, executionProps, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for responsiveness check.`);
     executionProps = executionProps || {};
-    return tabCheckQueue.queueTabAsPromise(
+    return _tabCheckQueue.queueTabAsPromise(
       tab,
       executionProps,
       processingDelay
@@ -128,7 +128,7 @@ var gsTabCheckManager = (function() {
   }
 
   function getQueuedTabCheckDetails(tab) {
-    return tabCheckQueue.getQueuedTabDetails(tab);
+    return _tabCheckQueue.getQueuedTabDetails(tab);
   }
 
   async function handleTabCheckException(
@@ -293,7 +293,7 @@ var gsTabCheckManager = (function() {
 
     let reinitialised = false;
     if (!tabChecksOk) {
-      const tabQueueDetails = tabCheckQueue.getQueuedTabDetails(tab);
+      const tabQueueDetails = _tabCheckQueue.getQueuedTabDetails(tab);
       if (!tabQueueDetails) {
         resolve(gsUtils.STATUS_UNKNOWN);
         return;
@@ -365,7 +365,7 @@ var gsTabCheckManager = (function() {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab favicon not set or not dataUrl.', tab);
       return false;
     }
-    if (!tab.title || tab.title === defaultTabTitle) {
+    if (!tab.title || tab.title === _defaultTabTitle) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab title not set', tab);
       return false;
     }
@@ -428,7 +428,7 @@ var gsTabCheckManager = (function() {
       return;
     }
 
-    const queuedTabDetails = tabCheckQueue.getQueuedTabDetails(tab);
+    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab missing from suspensionQueue?');
       resolve(gsUtils.STATUS_UNKNOWN);

@@ -125,7 +125,7 @@ var gsTabSuspendManager = (function() {
           QUEUE_ID,
           'Interrupting tab loading to resuspend tab'
         );
-        const success = await executeTabSuspension(tab, suspendedUrl, true);
+        const success = await executeTabSuspension(tab, suspendedUrl);
         resolve(success);
       } else {
         requeue(3000, { refetchTab: true });
