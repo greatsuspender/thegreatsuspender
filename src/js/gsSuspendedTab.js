@@ -3,7 +3,7 @@
 var gsSuspendedTab = (function() {
   'use strict';
 
-  async function initTab(tab, tabView, quickInit) {
+  async function initTab(tab, tabView, {showNag, quickInit}) {
     if (!tabView) {
       gsUtils.warning(
         tab.id,
@@ -54,7 +54,6 @@ var gsSuspendedTab = (function() {
     setTheme(tabView.document, theme, isLowContrastFavicon);
 
     // Set showNag
-    let showNag = tgs.getTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG);
     if (
       !options[gsStorage.NO_NAG] &&
       (showNag === undefined || showNag === null)
@@ -137,7 +136,7 @@ var gsSuspendedTab = (function() {
   }
 
   function setScrollPosition(_document, scrollPosition, previewMode) {
-    const scrollPosAsInt = scrollPosition && parseInt(scrollPosition) || 0;
+    const scrollPosAsInt = (scrollPosition && parseInt(scrollPosition)) || 0;
     const scrollImagePreview = previewMode === '2';
     if (scrollImagePreview && scrollPosAsInt > 15) {
       const offsetScrollPosition = scrollPosAsInt + 151;

@@ -610,7 +610,7 @@ var tgs = (function() {
     _tabStateByTabId[tabId] = tabState;
   }
   function clearTabStateForTabId(tabId) {
-    gsUtils.log(tabId, 'Clearing tab state props.');
+    gsUtils.log(tabId, 'Clearing tab state props:', _tabStateByTabId[tabId]);
     clearAutoSuspendTimerForTabId(tabId);
     delete _tabStateByTabId[tabId];
   }
@@ -837,6 +837,7 @@ var tgs = (function() {
         tab.id,
         STATE_DISABLE_UNSUSPEND_ON_RELOAD
       );
+      let showNag = tgs.getTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG);
       clearTabStateForTabId(tab.id);
 
       if (isCurrentFocusedTab(tab)) {
@@ -854,7 +855,7 @@ var tgs = (function() {
       const quickInit =
         gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
       gsSuspendedTab
-        .initTab(tab, tabView, quickInit)
+        .initTab(tab, tabView, { quickInit, showNag })
         .catch(error => {
           gsUtils.warning(tab.id, error);
         })

@@ -309,7 +309,7 @@ var gsTabCheckManager = (function() {
         gsUtils.log(tab.id, QUEUE_ID, 'Reinitialising suspendedTab: ', tab);
         // If we know that we will discard tab, then just perform a quick init
         const quickInit = attemptDiscarding && !tab.active;
-        await gsSuspendedTab.initTab(tab, suspendedView, quickInit);
+        await gsSuspendedTab.initTab(tab, suspendedView, { quickInit });
         reinitialised = true;
       } catch (e) {
         gsUtils.log(
