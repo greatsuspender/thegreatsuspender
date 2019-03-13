@@ -667,7 +667,7 @@ var tgs = (function() {
 
   function checkForTriggerUrls(tab, url) {
     // test for special case of a successful donation
-    if (url === 'https://greatsuspender.github.io/thanks.html') {
+    if (url.indexOf('greatsuspender.github.io/thanks.html') > 0) {
       gsStorage.setOptionAndSync(gsStorage.NO_NAG, true);
       gsAnalytics.reportEvent('Donations', 'HidePopupAuto', true);
       chrome.tabs.update(tab.id, {
