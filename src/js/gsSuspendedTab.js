@@ -139,8 +139,9 @@ var gsSuspendedTab = (function() {
   function setScrollPosition(_document, scrollPosition, previewMode) {
     const scrollImagePreview = previewMode === '2';
     if (scrollImagePreview && scrollPosition) {
-      _document.body.scrollTop = scrollPosition || 0;
-      _document.documentElement.scrollTop = scrollPosition || 0;
+      const offsetScrollPosition = parseInt(scrollPosition) + 151;
+      _document.body.scrollTop = offsetScrollPosition;
+      _document.documentElement.scrollTop = offsetScrollPosition;
     } else {
       _document.body.scrollTop = 0;
       _document.documentElement.scrollTop = 0;
