@@ -825,17 +825,6 @@ var tgs = (function() {
       changeInfo
     );
 
-    //if this tab is currently performing a tabCheck then return early
-    //as tab check will take care of initialising the suspended tab
-    const tabCheckDetails = gsTabCheckManager.getQueuedTabCheckDetails(tab);
-    if (tabCheckDetails) {
-      gsUtils.log(
-        tab.id,
-        'Ignoring state change as tab is currently queued for tabCheck'
-      );
-      return;
-    }
-
     if (changeInfo.status === 'loading') {
       return;
     }
