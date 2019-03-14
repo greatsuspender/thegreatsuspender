@@ -29,12 +29,12 @@
               ? gsUtils.formatHotkeyString(command.shortcut)
               : '(' + notSetMessage + ')';
           var addMarginBottom = groupingKeys.includes(command.name);
-          shortcutsEl.innerHTML += `<div ${addMarginBottom ?
-          ' class="bottomMargin"' : ''}>${
-            command.description
-          }</div>
-            <div class="${command.shortcut ? 'hotkeyCommand' :
-              'lesserText'}">${shortcut}</div>`;
+          shortcutsEl.innerHTML += `<div ${
+            addMarginBottom ? ' class="bottomMargin"' : ''
+          }>${command.description}</div>
+            <div class="${
+              command.shortcut ? 'hotkeyCommand' : 'lesserText'
+            }">${shortcut}</div>`;
         }
       });
     });

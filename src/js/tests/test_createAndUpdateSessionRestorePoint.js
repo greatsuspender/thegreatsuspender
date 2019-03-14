@@ -1,4 +1,4 @@
-/*global chrome, gsIndexedDb, gsUtils, gsSession, getFixture, loadJsFile, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsIndexedDb, gsSession, getFixture, loadJsFile, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {

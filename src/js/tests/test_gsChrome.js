@@ -119,11 +119,13 @@ testSuites.push(
         const isTestTab1Valid = testTab1.url === testTabUrl;
 
         const result1 = await gsChrome.tabsReload();
-        const isTabReload1Valid = warningString === 'tabId not specified' && result1 === false;
+        const isTabReload1Valid =
+          warningString === 'tabId not specified' && result1 === false;
 
         const result2 = await gsChrome.tabsReload(7777);
         const isTabReload2Valid =
-          warningString.message === 'No tab with id: 7777.' && result2 === false;
+          warningString.message === 'No tab with id: 7777.' &&
+          result2 === false;
 
         warningString = null;
         const result3 = await gsChrome.tabsReload(testTab1.id);

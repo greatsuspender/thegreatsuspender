@@ -88,7 +88,7 @@ testSuites.push(
         jobTimeout,
         executorFn,
         exceptionFn,
-        processingDelay: 0
+        processingDelay: 0,
       };
 
       const startTime = Date.now();

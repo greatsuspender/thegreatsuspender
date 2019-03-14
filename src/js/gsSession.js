@@ -45,18 +45,12 @@ var gsSession = (function() {
     const currentVersion = chrome.runtime.getManifest().version;
     const newVersion = newVersionDetails.version;
 
-    gsUtils.log(
-      'gsSession',
-      'A new version is available: ' + currentVersion + ' -> ' + newVersion
-    );
+    gsUtils.log('gsSession', 'A new version is available: ' + currentVersion + ' -> ' + newVersion);
 
     let sessionRestorePoint;
     const currentSession = await buildCurrentSession();
     if (currentSession) {
-      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(
-        currentSession,
-        currentVersion
-      );
+      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(currentSession, currentVersion);
     }
 
     const suspendedTabCount = await gsUtils.getSuspendedTabCount();

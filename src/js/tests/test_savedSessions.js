@@ -12,7 +12,10 @@ testSuites.push(
         const savedSessionsBefore = await gsIndexedDb.fetchSavedSessions();
         const wasSavedSessionsEmpty = savedSessionsBefore.length === 0;
 
-        const session1 = await getFixture(FIXTURE_SAVED_SESSIONS, 'savedSession1');
+        const session1 = await getFixture(
+          FIXTURE_SAVED_SESSIONS,
+          'savedSession1'
+        );
         await gsIndexedDb.updateSession(session1);
         const dbSavedSession1 = await gsIndexedDb.fetchSessionBySessionId(
           session1.sessionId
@@ -33,28 +36,32 @@ testSuites.push(
 
         return assertTrue(
           wasCurrentSessionsEmpty &&
-          wasSavedSessionsEmpty &&
-          isCurrentSessionsEmpty &&
-          isSavedSessionsPopulated &&
-          isSessionValid
+            wasSavedSessionsEmpty &&
+            isCurrentSessionsEmpty &&
+            isSavedSessionsPopulated &&
+            isSessionValid
         );
       },
 
       // Test removing savedSession
       async () => {
-        const session1 = await getFixture(FIXTURE_SAVED_SESSIONS, 'savedSession1');
+        const session1 = await getFixture(
+          FIXTURE_SAVED_SESSIONS,
+          'savedSession1'
+        );
         await gsIndexedDb.updateSession(session1);
         const savedSessionsBefore = await gsIndexedDb.fetchSavedSessions();
         const isSavedSessionsBeforeValid = savedSessionsBefore.length === 1;
 
-        await gsIndexedDb.removeSessionFromHistory(savedSessionsBefore[0].sessionId);
+        await gsIndexedDb.removeSessionFromHistory(
+          savedSessionsBefore[0].sessionId
+        );
 
         const savedSessionsAfter = await gsIndexedDb.fetchSavedSessions();
         const isSavedSessionsAfterValid = savedSessionsAfter.length === 0;
 
         return assertTrue(
-          isSavedSessionsBeforeValid &&
-          isSavedSessionsAfterValid
+          isSavedSessionsBeforeValid && isSavedSessionsAfterValid
         );
       },
 

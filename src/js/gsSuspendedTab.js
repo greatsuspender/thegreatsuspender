@@ -3,7 +3,7 @@
 var gsSuspendedTab = (function() {
   'use strict';
 
-  async function initTab(tab, tabView, {showNag, quickInit}) {
+  async function initTab(tab, tabView, { showNag, quickInit }) {
     if (!tabView) {
       gsUtils.warning(
         tab.id,

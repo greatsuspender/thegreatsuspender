@@ -1,4 +1,4 @@
-/*global chrome, gsIndexedDb, gsUtils, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
+/*global chrome, gsIndexedDb, gsSession, getFixture, assertTrue, FIXTURE_CURRENT_SESSIONS */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -83,7 +83,9 @@ testSuites.push(
         const currentSessionsAfter = await gsIndexedDb.fetchCurrentSessions();
         const isCurrentSessionsAfterValid = currentSessionsAfter.length === 1;
 
-        return assertTrue(isSession1Valid && isSession2Valid && isCurrentSessionsAfterValid);
+        return assertTrue(
+          isSession1Valid && isSession2Valid && isCurrentSessionsAfterValid
+        );
       },
     ];
 

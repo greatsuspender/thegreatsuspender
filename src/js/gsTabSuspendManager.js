@@ -579,17 +579,20 @@ var gsTabSuspendManager = (function() {
     }
 
     const isCanvasVisible = canvas => {
-        var ctx = canvas.getContext('2d');
-        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        for (var i = 0; i < imageData.data.length; i += 4) {
-          const isTransparent = imageData.data[i + 3] === 0;
-          const isWhite = imageData.data[i] === 255 && imageData.data[i + 1] === 255 && imageData.data[i + 2] === 255;
-          if (!isTransparent && !isWhite) {
-            return true;
-          }
+      var ctx = canvas.getContext('2d');
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      for (var i = 0; i < imageData.data.length; i += 4) {
+        const isTransparent = imageData.data[i + 3] === 0;
+        const isWhite =
+          imageData.data[i] === 255 &&
+          imageData.data[i + 1] === 255 &&
+          imageData.data[i + 2] === 255;
+        if (!isTransparent && !isWhite) {
+          return true;
         }
-        return false;
-    }
+      }
+      return false;
+    };
 
     const generateDataUrl = canvas => {
       let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);

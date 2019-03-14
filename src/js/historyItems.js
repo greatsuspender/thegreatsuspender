@@ -43,10 +43,16 @@ var historyItems = (function(global) {
     titleText +=
       '&nbsp;&nbsp;<small>(' +
       winCnt +
-      pluralise(' ' + chrome.i18n.getMessage('js_history_window').toLowerCase(), winCnt) +
+      pluralise(
+        ' ' + chrome.i18n.getMessage('js_history_window').toLowerCase(),
+        winCnt
+      ) +
       ', ' +
       tabCnt +
-      pluralise(' ' + chrome.i18n.getMessage('js_history_tab').toLowerCase(), tabCnt) +
+      pluralise(
+        ' ' + chrome.i18n.getMessage('js_history_tab').toLowerCase(),
+        tabCnt
+      ) +
       ')</small>';
 
     sessionIcon = createEl('i', {

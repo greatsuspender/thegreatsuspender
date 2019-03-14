@@ -11,7 +11,10 @@ testSuites.push(
         const currentSessionId = gsSession.getSessionId();
 
         for (let i = 0; i < 100; i++) {
-          const session1 = await getFixture(FIXTURE_CURRENT_SESSIONS, 'currentSession1');
+          const session1 = await getFixture(
+            FIXTURE_CURRENT_SESSIONS,
+            'currentSession1'
+          );
           let windowTemplate = session1.windows[0];
           windowTemplate.id = i;
           currentSessionWindows.push(windowTemplate);
@@ -38,7 +41,11 @@ testSuites.push(
         const isCurrentSessionValid =
           currentSessionsAfter[0].windows.length === 100;
 
-        return assertTrue(onlySingleSessionForIdExists && isCurrentSessionsPopulated && isCurrentSessionValid);
+        return assertTrue(
+          onlySingleSessionForIdExists &&
+            isCurrentSessionsPopulated &&
+            isCurrentSessionValid
+        );
       },
     ];
 

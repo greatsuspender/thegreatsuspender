@@ -29,10 +29,7 @@
     html += '<td>' + windowId + '</td>';
     html += '<td>' + tabId + '</td>';
     html += '<td>' + tabIndex + '</td>';
-    html +=
-      '<td>' +
-      tabTitle +
-      '</td>';
+    html += '<td>' + tabTitle + '</td>';
     html += '<td>' + tabTimer + '</td>';
     html += '<td>' + tabStatus + '</td>';
     html += '</tr>';

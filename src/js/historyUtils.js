@@ -3,12 +3,13 @@
 var historyUtils = (function(global) {
   'use strict';
 
-  if (!chrome.extension.getBackgroundPage() || !chrome.extension.getBackgroundPage().tgs) {
+  if (
+    !chrome.extension.getBackgroundPage() ||
+    !chrome.extension.getBackgroundPage().tgs
+  ) {
     return;
   }
-  chrome.extension
-    .getBackgroundPage()
-    .tgs.setViewGlobals(global);
+  chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
 
   var noop = function() {};
 
@@ -129,7 +130,7 @@ var historyUtils = (function(global) {
       sessionString += '\n';
     });
 
-    const blob = new Blob([sessionString], {type : 'text/plain'});
+    const blob = new Blob([sessionString], { type: 'text/plain' });
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', blobUrl);
