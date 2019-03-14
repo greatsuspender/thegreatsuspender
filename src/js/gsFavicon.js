@@ -33,8 +33,10 @@ var gsFavicon = (function() {
 
   async function buildDefaultChromeFaviconMeta() {
     // Specify a url that will definitely not exist in the chrome favicon cache
+    // NOTE: If we omit http:// here then it seems to return a different default
+    // favicon which will break testing for default later on
     const chromeFavIconUrl = generateChromeFavIconUrlFromUrl(
-      'tgsDefaultFavicon'
+      'http://tgsDefaultFavicon'
     );
     try {
       _defaultChromeFaviconMeta = await gsUtils.executeWithRetries(
