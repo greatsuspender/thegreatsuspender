@@ -146,6 +146,17 @@
         if (getOptionValue(element)) {
           setSyncNoteVisibility(false);
         }
+      } else if (pref === gsStorage.WHITELIST) {
+        chrome.tabs.query({}, function(tabs) {
+          var matches = [];
+          var newWhitelist = getOptionValue(element);
+          tabs.forEach(function(tab) {
+            if (gsUtils.checkSpecificWhiteList(tab.url, newWhitelist)) {
+              matches.push(tab.title);
+            }
+          });
+          document.getElementById("whitelist_matches").innerText = matches.join("\n ");
+        });
       }
 
       var [oldValue, newValue] = saveChange(element);
