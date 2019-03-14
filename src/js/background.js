@@ -1436,8 +1436,6 @@ var tgs = (function() {
   }
 
   //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
-  //NOTE: In chrome v70, the 'separator' elements do not currently display
-  //TODO: Report chrome bug
   function buildContextMenu(showContextMenu) {
     const allContexts = [
       'page',
@@ -1447,7 +1445,6 @@ var tgs = (function() {
       'video',
       'audio',
     ]; //'selection',
-    const separator = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
 
     if (!showContextMenu) {
       chrome.contextMenus.removeAll();
@@ -1482,9 +1479,8 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
+        type: 'separator',
         contexts: allContexts,
-        title: separator,
-        enabled: false,
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
@@ -1498,9 +1494,8 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
+        type: 'separator',
         contexts: allContexts,
-        title: separator,
-        enabled: false,
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage(
@@ -1525,9 +1520,8 @@ var tgs = (function() {
       });
 
       chrome.contextMenus.create({
+        type: 'separator',
         contexts: allContexts,
-        title: separator,
-        enabled: false,
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_soft_suspend_all_tabs'),
