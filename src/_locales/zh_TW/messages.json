@@ -237,7 +237,7 @@
     "js_suspended_remove_from_whitelist": { "message": "從白名單移除" },
     "js_suspended_hotkey_to_reload": { "message": "設定鍵盤快捷鍵" },
     "js_suspended_low_memory": { "message": "由於系統記憶體不足而凍結的分頁" },
-    "js_options_incognito_warning": { "message": "你目前使用隱私模式。我们已經從 Chrome 同步擴充插件的設定" },
+    "js_options_incognito_warning": { "message": "你目前使用隱私模式。某些功能將無法使用。" },
     "js_permissions_button_export": { "message": "儲存備份" },
     "js_permissions_button_set": { "message": "打開擴充套件設定" },
     "js_update_confirm": { "message": "您尚未匯出備份。更新擴充功能？" },

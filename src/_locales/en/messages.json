@@ -237,7 +237,7 @@
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
     "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
     "js_suspended_low_memory": { "message": "Tab suspended due to low system memory" },
-    "js_options_incognito_warning": { "message": "You are in incognito mode. Some features are not available." },
+    "js_options_incognito_warning": { "message": "You are in incognito mode. Some features will not be available." },
     "js_permissions_button_export": { "message": "Save backup" },
     "js_permissions_button_set": { "message": "Open extension settings" },
     "js_update_confirm": { "message": "You have not saved a backup yet. Update the extension anyway?" },

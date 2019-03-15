@@ -237,7 +237,7 @@
     "js_suspended_remove_from_whitelist": { "message": "从白名单移除" },
     "js_suspended_hotkey_to_reload": { "message": "设置键盘快捷键" },
     "js_suspended_low_memory": { "message": "由于系统内存不足而冻结的页面" },
-    "js_options_incognito_warning": { "message": "您现在处于无痕模式。扩展将从 Chrome 中同步已有设置（如果存在的话）。" },
+    "js_options_incognito_warning": { "message": "您现在处于无痕模式。某些功能将无法使用。" },
     "js_permissions_button_export": { "message": "导出备份" },
     "js_permissions_button_set": { "message": "打开扩展设置" },
     "js_update_confirm": { "message": "您尚未保存备份。即使如此也要更新扩展吗？" },

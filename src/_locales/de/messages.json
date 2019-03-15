@@ -237,7 +237,7 @@
     "js_suspended_remove_from_whitelist": { "message": "Seite aus Ausnahmeliste entfernen" },
     "js_suspended_hotkey_to_reload": { "message": "Tastenkombination setzen" },
     "js_suspended_low_memory": { "message": "Tab ausgesetzt aufgrund von niedrigem Speicher" },
-    "js_options_incognito_warning": { "message": "Du bist im Inkognitomodus. Erweiterungseinstellungen werden, sofern sie existieren, über die Chrome Synchronisation geladen." },
+    "js_options_incognito_warning": { "message": "Du bist im Inkognitomodus. Einige Funktionen sind nicht verfügbar." },
     "js_permissions_button_export": { "message": "Sicherung anlegen" },
     "js_permissions_button_set": { "message": "Einstellungen öffnen" },
     "js_update_confirm": { "message": "Es existiert keine Sicherung. Erweiterung trotzdem aktualisieren?" },
