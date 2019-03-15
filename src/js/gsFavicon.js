@@ -3,78 +3,86 @@
 var gsFavicon = (function() {
   'use strict';
 
-  const GOOGLE_S2_URL = 'https://www.google.com/s2/favicons?domain_url=';
+  // const GOOGLE_S2_URL = 'https://www.google.com/s2/favicons?domain_url=';
   const FALLBACK_CHROME_FAVICON_META = {
-    favIconUrl: 'chrome://favicon/size/16@2x/tgsDefaultFavicon',
+    favIconUrl: 'chrome://favicon/size/16@2x/fallbackChromeFaviconMeta',
     isDark: true,
     normalisedDataUrl:
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVQ4T2NkoBAwIuuPior6j8O8xmXLljVgk8MwYNmyZdgMfcjAwLAAmyFEGfDv3z9FJiamA9gMIcoAkKsiIiIUsBlClAHofkf2JkED0DWDAnrUgOEfBsRkTpzpgBjN6GoA24V1Efr1zoAAAAAASUVORK5CYII=',
     transparentDataUrl:
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAaUlEQVQ4T2NkoBAwIuuPioqqx2YeExPTwSVLlhzAJodhwLJlyxrRDWVkZPzIyMh4AZshRBnAxsY28ffv3wnYDCHKAJCrEhISBLAZQpQB6H5H9iZBA9A1gwJ61IDhHwbEZE6c6YAYzehqAAmQeBHM42eMAAAAAElFTkSuQmCC',
   };
-  const FALLBACK_TGS_FAVICON_META = {
-    favIconUrl: chrome.extension.getURL('img/ic_suspendy_16x16.png'),
-    isDark: false,
-    normalisedDataUrl:
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABNUlEQVQ4T2NkQAPqMz+sZ2RgDPjP8J+BkYERLPufgQHM+s/wf+3NdIEQZC0QFUhAY9aH1f//M4IVQTTBNYMMXHEjnT8SxYAt02qmMTAwZHYyp4AVv2YQBMsjmwwzBCQmzPAeLFf+dw5I2XTGLdNq/lvoq6I7hCj+iYu3GQahAZ+/fWfg5eIk3QugaJu0aDND+5z1DAvb8hjcbQxRDPn7/x9DQeschpv3nzBsnFbDwMnOxoASBv/+/2PQ8c5hePXxK4ObpR7Dsp5iFAO+//zF4JRQw3D70UuGW9unMgjx8aAaAFL9+OUbht1HzjOEetqAvbFh30mGKzceMBjrqTJ42hgx/Pz9m+Hnr98MfNxcYMMJxsLVO48ZyvsWMHQWxTNoq8hhhAtBAwiF5DAyAJyZCPkXh/x0AD8FpQXQTF64AAAAAElFTkSuQmCC',
-    transparentDataUrl:
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABNUlEQVQ4T2NkQANqMz6EMzEyavxjYGBggsrB2P8Z/1+/mSawClkLI7oB6jM/hP5nYNQCiYMMgGkG04z/r9xIE1iLYsCWaVXejIxMJu1MqWDxVwwCYBpmO4iN7BoRhg9g+cp/sxn+//93hnHr9Jp6Cz1VdIcQxT9x6TbDIDTg07cfDHxcHKR7ARRQExduZOiYs4FhYXseg4eNIYohfxj+MeQ3z2a49eAJw8bptQxcbGwMKGHwj+Efg7ZnNsOrT98Y3Cz0GJb3FqMY8O3XLwbH+GqGO49eMdzePpVBiI8H1QCQ6kev3jDsOXyeIcTTFuyNDftOMly+/oDBWF+FwcvGmOHHnz8Mv379YuDj4gIbTjAWrtx5wlDeO5+hszieQUdFDiNcCBpAKCSHiwGwzETIv9jkQZkJACgqnoPT5d2xAAAAAElFTkSuQmCC',
-  };
 
   const _defaultFaviconFingerprintById = {};
   let _defaultChromeFaviconMeta;
-  let _defaultTgsFaviconMeta;
 
   async function initAsPromised() {
-    await buildDefaultTgsFaviconMeta();
-    await buildDefaultChromeFaviconMeta();
+    await addFaviconDefaults();
     gsUtils.log('gsFavicon', 'init successful');
   }
 
-  async function buildDefaultChromeFaviconMeta() {
-    // Specify a url that will definitely not exist in the chrome favicon cache
-    // NOTE: If we omit http:// here then it seems to return a different default
-    // favicon which will break testing for default later on
-    const chromeFavIconUrl = generateChromeFavIconUrlFromUrl(
-      'http://tgsDefaultFavicon'
-    );
-    try {
-      _defaultChromeFaviconMeta = await gsUtils.executeWithRetries(
-        buildFaviconMetaData,
-        [chromeFavIconUrl],
-        4,
-        0
+  async function addFaviconDefaults() {
+    // Generate a list of potential 'default' favicons so we can avoid caching
+    // anything that matches these defaults
+    const defaultIconUrls = [
+      generateChromeFavIconUrlFromUrl('http://chromeDefaultFavicon'),
+      generateChromeFavIconUrlFromUrl('chromeDefaultFavicon'),
+      chrome.extension.getURL('img/ic_suspendy_16x16.png'),
+      chrome.extension.getURL('img/chromeDefaultFavicon.png'),
+      chrome.extension.getURL('img/chromeDefaultFaviconSml.png'),
+      chrome.extension.getURL('img/chromeDevDefaultFavicon.png'),
+      chrome.extension.getURL('img/chromeDevDefaultFaviconSml.png'),
+    ];
+
+    const faviconPromises = [];
+    for (let i = 0; i < defaultIconUrls.length; i += 1) {
+      const iconUrl = defaultIconUrls[i];
+      faviconPromises.push(
+        new Promise(async resolve => {
+          const faviconMeta = await addDefaultFaviconMeta(iconUrl);
+          if (faviconMeta) {
+            gsUtils.log(
+              'gsFavicon',
+              `Successfully built default faviconMeta for url: ${iconUrl}`,
+              faviconMeta
+            );
+          } else {
+            gsUtils.warning(
+              'gsFavicon',
+              `Failed to build faviconMeta for url: ${iconUrl}`
+            );
+          }
+          // Set the first url as the default favicon
+          if (i === 0) {
+            _defaultChromeFaviconMeta =
+              faviconMeta || FALLBACK_CHROME_FAVICON_META;
+            gsUtils.log(
+              'gsFavicon',
+              'Set _defaultChromeFaviconMeta',
+              _defaultChromeFaviconMeta
+            );
+          }
+          resolve();
+        })
       );
-    } catch (e) {
-      gsUtils.warning('gsFavicon', e);
     }
-    if (!_defaultChromeFaviconMeta) {
-      gsUtils.warning('gsFavicon', 'Failed to build _defaultChromeFaviconMeta');
-      _defaultChromeFaviconMeta = FALLBACK_CHROME_FAVICON_META;
-    }
-    addFaviconMetaToDefaultFingerprints(
-      _defaultChromeFaviconMeta,
-      'chromeFavicon'
-    );
+    await Promise.all(faviconPromises);
   }
 
-  async function buildDefaultTgsFaviconMeta() {
-    const tgsFavIconUrl = chrome.extension.getURL('img/ic_suspendy_16x16.png');
+  async function addDefaultFaviconMeta(url) {
+    let faviconMeta;
     try {
-      _defaultTgsFaviconMeta = await gsUtils.executeWithRetries(
+      faviconMeta = await gsUtils.executeWithRetries(
         buildFaviconMetaData,
-        [tgsFavIconUrl],
+        [url],
         4,
         0
       );
     } catch (e) {
       gsUtils.warning('gsFavicon', e);
     }
-    if (!_defaultTgsFaviconMeta) {
-      gsUtils.warning('gsFavicon', 'Failed to build _defaultTgsFaviconMeta');
-      _defaultTgsFaviconMeta = FALLBACK_TGS_FAVICON_META;
-    }
-    addFaviconMetaToDefaultFingerprints(_defaultTgsFaviconMeta, 'tgsFavicon');
+    addFaviconMetaToDefaultFingerprints(faviconMeta, url);
+    return faviconMeta;
   }
 
   async function addFaviconMetaToDefaultFingerprints(faviconMeta, id) {
@@ -113,7 +121,11 @@ var gsFavicon = (function() {
     // Else try to build from chrome's favicon cache
     faviconMeta = await buildFaviconMetaFromChromeFaviconCache(originalUrl);
     if (faviconMeta) {
-      gsUtils.log(tab.id, 'Built faviconMeta from chrome cache', faviconMeta);
+      gsUtils.log(
+        tab.id,
+        'Saving faviconMeta from chrome://favicon into cache',
+        faviconMeta
+      );
       // Save to tgs favicon cache
       await saveFaviconMetaDataToCache(originalUrl, faviconMeta);
       return faviconMeta;
@@ -163,6 +175,10 @@ var gsFavicon = (function() {
 
   async function buildFaviconMetaFromChromeFaviconCache(url) {
     const chromeFavIconUrl = generateChromeFavIconUrlFromUrl(url);
+    gsUtils.log(
+      'gsFavicon',
+      `Building faviconMeta from url: ${chromeFavIconUrl}`
+    );
     try {
       const faviconMeta = await buildFaviconMetaData(chromeFavIconUrl);
       const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
@@ -212,34 +228,34 @@ var gsFavicon = (function() {
 
   // dont use this function as it causes rate limit issues
   // eslint-disable-next-line no-unused-vars
-  function fetchFallbackFaviconDataUrl(url) {
-    return new Promise(resolve => {
-      let imageLoaded = false;
-
-      const rootUrl = gsUtils.encodeString(gsUtils.getRootUrl(url));
-      const requestUrl = GOOGLE_S2_URL + rootUrl;
-
-      const xmlHTTP = new XMLHttpRequest();
-      xmlHTTP.open('GET', requestUrl, true);
-
-      xmlHTTP.responseType = 'arraybuffer';
-      xmlHTTP.onload = function(e) {
-        imageLoaded = true;
-        const arr = new Uint8Array(xmlHTTP.response);
-        const raw = String.fromCharCode.apply(null, arr);
-        const b64 = btoa(raw);
-        const dataUrl = 'data:image/png;base64,' + b64;
-        resolve(dataUrl);
-      };
-      xmlHTTP.send();
-      setTimeout(() => {
-        if (!imageLoaded) {
-          gsUtils.log('gsFavicon', 'Failed to load image from: ' + url);
-          resolve(null);
-        }
-      }, 3000);
-    });
-  }
+  // function fetchFallbackFaviconDataUrl(url) {
+  //   return new Promise(resolve => {
+  //     let imageLoaded = false;
+  //
+  //     const rootUrl = gsUtils.encodeString(gsUtils.getRootUrl(url));
+  //     const requestUrl = GOOGLE_S2_URL + rootUrl;
+  //
+  //     const xmlHTTP = new XMLHttpRequest();
+  //     xmlHTTP.open('GET', requestUrl, true);
+  //
+  //     xmlHTTP.responseType = 'arraybuffer';
+  //     xmlHTTP.onload = function(e) {
+  //       imageLoaded = true;
+  //       const arr = new Uint8Array(xmlHTTP.response);
+  //       const raw = String.fromCharCode.apply(null, arr);
+  //       const b64 = btoa(raw);
+  //       const dataUrl = 'data:image/png;base64,' + b64;
+  //       resolve(dataUrl);
+  //     };
+  //     xmlHTTP.send();
+  //     setTimeout(() => {
+  //       if (!imageLoaded) {
+  //         gsUtils.log('gsFavicon', 'Failed to load image from: ' + url);
+  //         resolve(null);
+  //       }
+  //     }, 3000);
+  //   });
+  // }
 
   async function isFaviconMetaValid(faviconMeta) {
     if (

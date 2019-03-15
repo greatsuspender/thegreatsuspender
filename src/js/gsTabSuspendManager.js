@@ -462,7 +462,7 @@ var gsTabSuspendManager = (function() {
       tab.url
     );
     if (faviconMeta) {
-      gsFavicon.saveFaviconMetaDataToCache(tab.url, faviconMeta);
+      await gsFavicon.saveFaviconMetaDataToCache(tab.url, faviconMeta);
     }
   }
 
