@@ -240,7 +240,7 @@
     "js_suspended_low_memory": { "message": "Tab ausgesetzt aufgrund von niedrigem Speicher" },
     "js_options_incognito_warning": { "message": "Du bist im Inkognitomodus. Einige Funktionen sind nicht verfügbar." },
     "js_options_whitelist_no_matches": { "message": "Es sind keine offenen Seiten vorhanden, die den aktuell zulässigen Seiten entsprechen." },
-    "js_options_whitelist_matches_heading": { "message": "Die folgenden offenen Seiten stimmen mit den aktuellen zulässigen Seiten überein:" },
+    "js_options_whitelist_matches_heading": { "message": "Erlaubte offene Seiten:" },
     "js_options_whitelist_matches_overflow_prefix": { "message": "und" },
     "js_options_whitelist_matches_overflow_suffix": { "message": "weitere." },
     "js_permissions_button_export": { "message": "Sicherung anlegen" },

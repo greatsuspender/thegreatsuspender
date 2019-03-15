@@ -240,7 +240,7 @@
     "js_suspended_low_memory": { "message": "Tab suspended due to low system memory" },
     "js_options_incognito_warning": { "message": "You are in incognito mode. Some features will not be available." },
     "js_options_whitelist_no_matches": { "message": "There are no open tabs that match the current whitelist." },
-    "js_options_whitelist_matches_heading": { "message": "The following open tabs match current whitelist:" },
+    "js_options_whitelist_matches_heading": { "message": "Whitelisted open tabs:" },
     "js_options_whitelist_matches_overflow_prefix": { "message": "and" },
     "js_options_whitelist_matches_overflow_suffix": { "message": "more." },
     "js_permissions_button_export": { "message": "Save backup" },

@@ -199,7 +199,8 @@
       }
     }
 
-    document.getElementById('testWhitelistBtn').onclick = async () => {
+    document.getElementById('testWhitelistBtn').onclick = async e => {
+      e.preventDefault();
       const tabs = await gsChrome.tabsQuery();
       const tabUrls = tabs
         .map(
@@ -216,10 +217,10 @@
         alert(chrome.i18n.getMessage('js_options_whitelist_no_matches'));
         return;
       }
-      const first20Urls = tabUrls.splice(0, 20);
+      const firstUrls = tabUrls.splice(0, 22);
       let alertString = `${chrome.i18n.getMessage(
         'js_options_whitelist_matches_heading'
-      )}\n\n${first20Urls.join('\n')}`;
+      )}\n${firstUrls.join('\n')}`;
 
       if (tabUrls.length > 0) {
         alertString += `\n${chrome.i18n.getMessage(
