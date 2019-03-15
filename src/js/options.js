@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsStorage, gsUtils */
+/*global chrome, gsAnalytics, gsStorage, gsChrome, gsUtils */
 (function(global) {
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
@@ -198,6 +198,33 @@
         element.onchange = handleChange(element);
       }
     }
+
+    document.getElementById('testWhitelistBtn').onclick = async () => {
+      const tabs = await gsChrome.tabsQuery();
+      const tabUrls = tabs
+        .map(
+          tab =>
+            gsUtils.isSuspendedTab(tab)
+              ? gsUtils.getOriginalUrl(tab.url)
+              : tab.url
+        )
+        .filter(
+          url => !gsUtils.isSuspendedUrl(url) && gsUtils.checkWhiteList(url)
+        )
+        .map(url => (url.length > 55 ? url.substr(0, 52) + '...' : url));
+      if (tabUrls.length === 0) {
+        alert('There are no open tabs that match the current whitelist.');
+        return;
+      }
+      const first20Urls = tabUrls.splice(0, 20);
+      let alertString = `The following open tabs match current whitelist:\n\n${first20Urls.join(
+        '\n'
+      )}`;
+      if (tabUrls.length > 0) {
+        alertString += `\nand ${tabUrls.length} more.`;
+      }
+      alert(alertString);
+    };
 
     //hide incompatible sidebar items if in incognito mode
     if (chrome.extension.inIncognitoContext) {
