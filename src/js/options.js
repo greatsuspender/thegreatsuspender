@@ -213,15 +213,20 @@
         )
         .map(url => (url.length > 55 ? url.substr(0, 52) + '...' : url));
       if (tabUrls.length === 0) {
-        alert('There are no open tabs that match the current whitelist.');
+        alert(chrome.i18n.getMessage('js_options_whitelist_no_matches'));
         return;
       }
       const first20Urls = tabUrls.splice(0, 20);
-      let alertString = `The following open tabs match current whitelist:\n\n${first20Urls.join(
-        '\n'
-      )}`;
+      let alertString = `${chrome.i18n.getMessage(
+        'js_options_whitelist_matches_heading'
+      )}\n\n${first20Urls.join('\n')}`;
+
       if (tabUrls.length > 0) {
-        alertString += `\nand ${tabUrls.length} more.`;
+        alertString += `\n${chrome.i18n.getMessage(
+          'js_options_whitelist_matches_overflow_prefix'
+        )} ${tabUrls.length} ${chrome.i18n.getMessage(
+          'js_options_whitelist_matches_overflow_suffix'
+        )}`;
       }
       alert(alertString);
     };
