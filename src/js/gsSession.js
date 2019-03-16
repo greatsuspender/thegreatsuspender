@@ -4,8 +4,9 @@ var gsSession = (function() {
   'use strict';
 
   const tabsToRestorePerSecond = 12;
-  const updateUrl = chrome.extension.getURL('update.html');
-  const updatedUrl = chrome.extension.getURL('updated.html');
+
+  let updateUrl;
+  let updatedUrl;
 
   let initialisationMode = true;
   let sessionId;
@@ -20,6 +21,9 @@ var gsSession = (function() {
   let syncedSettingsOnInit;
 
   async function initAsPromised() {
+    updateUrl = chrome.extension.getURL('update.html');
+    updatedUrl = chrome.extension.getURL('updated.html');
+
     // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
     await new Promise(r => {
       chrome.extension.isAllowedFileSchemeAccess(isAllowedAccess => {
@@ -142,7 +146,10 @@ var gsSession = (function() {
     gsUtils.log('gsSession', 'preRecovery open tabs:', currentSessionTabs);
 
     const curVersion = chrome.runtime.getManifest().version;
+    gsUtils.log('gsSession', 'curVersion:', curVersion);
+
     startupLastVersion = gsStorage.fetchLastVersion();
+    gsUtils.log('gsSession', 'startupLastVersion:', startupLastVersion);
 
     if (chrome.extension.inIncognitoContext) {
       // do nothing if in incognito context

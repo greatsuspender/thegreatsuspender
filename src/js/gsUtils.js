@@ -224,13 +224,9 @@ var gsUtils = {
   },
 
   removeTabsByUrlAsPromised: function(url) {
-    return new Promise(resolve => {
-      chrome.tabs.query({ url }, function(tabs) {
-        chrome.tabs.remove(
-          tabs.map(function(tab) {
-            return tab.id;
-          })
-        );
+    return new Promise(async resolve => {
+      const tabs = await gsChrome.tabsQuery({ url });
+      chrome.tabs.remove(tabs.map(o => o.id), () => {
         resolve();
       });
     });
