@@ -252,6 +252,7 @@ var gsIndexedDb = {
         .execute();
     } catch (e) {
       gsUtils.error('gsIndexedDb', e);
+      results = [];
     }
     return results;
   },
@@ -314,7 +315,7 @@ var gsIndexedDb = {
       'New session restore point:',
       newSessionRestorePoint
     );
-    return newSessionRestorePoint;
+    return newSessionRestorePoint || null;
   },
 
   fetchSessionRestorePoint: async function(versionValue) {
@@ -368,6 +369,7 @@ var gsIndexedDb = {
         .execute();
     } catch (e) {
       gsUtils.error('gsIndexedDb', e);
+      results = [];
     }
     return results;
   },

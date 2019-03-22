@@ -160,6 +160,15 @@ var historyUtils = (function(global) {
 
   function saveSession(sessionId) {
     gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
+      if (!session) {
+        gsUtils.warning(
+          'historyUtils',
+          'Could not find session with sessionId: ' +
+            sessionId +
+            '. Save aborted'
+        );
+        return;
+      }
       var sessionName = window.prompt(
         chrome.i18n.getMessage('js_history_enter_name_for_session')
       );
