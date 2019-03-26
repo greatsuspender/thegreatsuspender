@@ -289,99 +289,119 @@ var tgs = (function() {
     });
   }
 
-  function requestToggleTempWhitelistStateOfHighlightedTab(callback) {
-    getCurrentlyActiveTab(function(activeTab) {
+  function toggleTempWhitelistStateOfHighlightedTab(callback) {
+    toggleTempWhitelistStateOfSelectedTabs(true, callback);
+  }
+
+  // Action is an int. 1=tempWhitelist 2=removeFromTempWhitelist
+  function toggleTempWhitelistStateOfSelectedTabs(onlyActiveTab, callback) {
+    getCurrentlyActiveTab(activeTab => {
       if (!activeTab) {
-        if (callback) callback(status);
-        return;
-      }
-      if (gsUtils.isSuspendedTab(activeTab)) {
-        const suspendedView = getInternalViewByTabId(activeTab.id);
-        if (suspendedView) {
-          setTabStatePropForTabId(
-            activeTab.id,
-            STATE_TEMP_WHITELIST_ON_RELOAD,
-            true
-          );
-          gsSuspendedTab.requestUnsuspendTab(suspendedView, activeTab);
-        }
-        if (callback) callback(gsUtils.STATUS_UNKNOWN);
-        return;
-      }
-      if (!gsUtils.isNormalTab(activeTab, true)) {
-        if (callback) callback(gsUtils.STATUS_UNKNOWN);
+        if (callback) callback();
         return;
       }
 
       calculateTabStatus(activeTab, null, function(status) {
+        let action;
         if (
           status === gsUtils.STATUS_ACTIVE ||
           status === gsUtils.STATUS_NORMAL
         ) {
-          setTempWhitelistStateForTab(activeTab, callback);
+          action = 1;
         } else if (
           status === gsUtils.STATUS_TEMPWHITELIST ||
           status === gsUtils.STATUS_FORMINPUT
         ) {
-          unsetTempWhitelistStateForTab(activeTab, callback);
+          action = 2;
         } else {
-          if (callback) callback(status);
+          gsUtils.log(activeTab.id,
+            'Aborting tempWhitelist toggle as current tab is not normal'
+          );
+          if (callback) callback();
+          return;
         }
+
+        chrome.tabs.query(
+          { highlighted: true, windowId: activeTab.windowId },
+          async selectedTabs => {
+            selectedTabs =
+              onlyActiveTab || selectedTabs.length === 1
+                ? [activeTab]
+                : selectedTabs;
+            for (const tab of selectedTabs) {
+              if (gsUtils.isNormalTab(tab, true)) {
+                if (action === 1) {
+                  // if tempWhitelisting
+                  await setTempWhitelistStateForTab(tab);
+                } else if (action === 2) {
+                  // if removing from tempWhitelist
+                  await unsetTempWhitelistStateForTab(tab);
+                }
+              }
+            }
+            if (callback) callback();
+            return;
+          }
+        );
       });
     });
   }
 
-  function setTempWhitelistStateForTab(tab, callback) {
-    gsMessages.sendTemporaryWhitelistToContentScript(tab.id, function(
-      error,
-      response
-    ) {
-      if (error) {
-        gsUtils.warning(
-          tab.id,
-          'Failed to sendTemporaryWhitelistToContentScript',
-          error
-        );
-      }
-      var contentScriptStatus =
-        response && response.status ? response.status : null;
-      calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
-        setIconStatus(newStatus, tab.id);
-        //This is a hotfix for issue #723
-        if (newStatus === 'tempWhitelist' && tab.autoDiscardable) {
-          chrome.tabs.update(tab.id, {
-            autoDiscardable: false,
-          });
+  function setTempWhitelistStateForTab(tab) {
+    return new Promise(resolve => {
+      gsMessages.sendTemporaryWhitelistToContentScript(tab.id, function(
+        error,
+        response
+      ) {
+        if (error) {
+          gsUtils.warning(
+            tab.id,
+            'Failed to sendTemporaryWhitelistToContentScript',
+            error
+          );
         }
-        if (callback) callback(newStatus);
+        var contentScriptStatus =
+          response && response.status ? response.status : null;
+        calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
+          setIconStatus(newStatus, tab.id);
+          //This is a hotfix for issue #723
+          if (newStatus === 'tempWhitelist' && tab.autoDiscardable) {
+            chrome.tabs.update(tab.id, {
+              autoDiscardable: false,
+            });
+          }
+          resolve(newStatus);
+        });
       });
     });
   }
 
-  function unsetTempWhitelistStateForTab(tab, callback) {
-    gsMessages.sendUndoTemporaryWhitelistToContentScript(tab.id, function(
-      error,
-      response
-    ) {
-      if (error) {
-        gsUtils.warning(
-          tab.id,
-          'Failed to sendUndoTemporaryWhitelistToContentScript',
-          error
-        );
-      }
-      var contentScriptStatus =
-        response && response.status ? response.status : null;
-      calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
-        setIconStatus(newStatus, tab.id);
-        //This is a hotfix for issue #723
-        if (newStatus !== 'tempWhitelist' && !tab.autoDiscardable) {
-          chrome.tabs.update(tab.id, {
-            //async
-            autoDiscardable: true,
-          });
+  function unsetTempWhitelistStateForTab(tab) {
+    return new Promise(resolve => {
+      gsMessages.sendUndoTemporaryWhitelistToContentScript(tab.id, function(
+        error,
+        response
+      ) {
+        if (error) {
+          gsUtils.warning(
+            tab.id,
+            'Failed to sendUndoTemporaryWhitelistToContentScript',
+            error
+          );
         }
-        if (callback) callback(newStatus);
+        var contentScriptStatus =
+          response && response.status ? response.status : null;
+        calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
+          setIconStatus(newStatus, tab.id);
+          //This is a hotfix for issue #723
+          if (newStatus !== 'tempWhitelist' && !tab.autoDiscardable) {
+            chrome.tabs.update(tab.id, {
+              //async
+              autoDiscardable: true,
+            });
+          }
+          resolve(newStatus);
+        });
       });
     });
   }
@@ -1453,7 +1473,7 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
         contexts: allContexts,
-        onclick: () => requestToggleTempWhitelistStateOfHighlightedTab(),
+        onclick: () => toggleTempWhitelistStateOfSelectedTabs(false),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_never_suspend_page'),
@@ -1526,7 +1546,7 @@ var tgs = (function() {
       if (command === '1-suspend-tab') {
         toggleSuspendedStateOfSelectedTabs();
       } else if (command === '2-toggle-temp-whitelist-tab') {
-        requestToggleTempWhitelistStateOfHighlightedTab();
+        toggleTempWhitelistStateOfSelectedTabs(false);
       } else if (command === '3-suspend-active-window') {
         suspendAllTabs(false);
       } else if (command === '3b-force-suspend-active-window') {
@@ -1822,7 +1842,7 @@ var tgs = (function() {
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,
-    requestToggleTempWhitelistStateOfHighlightedTab,
+    toggleTempWhitelistStateOfHighlightedTab,
     suspendHighlightedTab,
     suspendAllTabs,
     unsuspendAllTabs,

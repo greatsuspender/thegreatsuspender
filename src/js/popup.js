@@ -227,16 +227,16 @@
         status === gsUtils.STATUS_NORMAL ||
         status === gsUtils.STATUS_ACTIVE
       ) {
-        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_SUSPENDED) {
-        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_WHITELISTED) {
         tgsHanderFunc = tgs.unwhitelistHighlightedTab;
       } else if (
         status === gsUtils.STATUS_FORMINPUT ||
         status === gsUtils.STATUS_TEMPWHITELIST
       ) {
-        tgsHanderFunc = tgs.requestToggleTempWhitelistStateOfHighlightedTab;
+        tgsHanderFunc = tgs.toggleTempWhitelistStateOfHighlightedTab;
       } else if (status === gsUtils.STATUS_BLOCKED_FILE) {
         tgsHanderFunc = tgs.promptForFilePermissions;
       }
@@ -245,9 +245,11 @@
         actionEl.removeEventListener('click', globalActionElListener);
       }
       if (tgsHanderFunc) {
-        globalActionElListener = function(e) {
-          tgsHanderFunc(function(newTabStatus) {
-            setStatus(newTabStatus);
+        globalActionElListener = () => {
+          tgsHanderFunc(() => {
+            getTabStatus(0, newTabStatus => {
+              setStatus(newTabStatus);
+            });
           });
           // window.close();
         };
