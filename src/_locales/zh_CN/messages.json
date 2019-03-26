@@ -17,8 +17,6 @@
     "js_context_toggle_pause_suspension": { "message": "暂停/取消暂停此标签页的冻结" },
     "js_context_never_suspend_domain": { "message": "永远不要冻结此域名" },
     "js_context_never_suspend_page": { "message": "永远不要冻结此页面" },
-    "js_context_suspend_selected_tabs": { "message": "冻结已选择标签页" },
-    "js_context_unsuspend_selected_tabs": { "message": "恢复已选择标签页" },
     "js_context_soft_suspend_other_tabs_in_window": { "message": "冻结当前窗口中所有的标签页" },
     "js_context_force_suspend_other_tabs_in_window": { "message": "强制冻结当前窗口中的所有标签页" },
     "js_context_unsuspend_all_tabs_in_window": { "message": "恢复当前窗口中所有的标签页" },

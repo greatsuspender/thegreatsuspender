@@ -17,8 +17,6 @@
     "js_context_toggle_pause_suspension": { "message": "Pausar/Retomar a suspensão desta guia " },
     "js_context_never_suspend_domain": { "message": "Nunca suspender este domínio " },
     "js_context_never_suspend_page": { "message": "Nunca suspender esta URL " },
-    "js_context_suspend_selected_tabs": { "message": "Suspender as guias selecionadas " },
-    "js_context_unsuspend_selected_tabs": { "message": "Recarregar as guias selecionadas " },
     "js_context_soft_suspend_other_tabs_in_window": { "message": "Suspender todas as outras guias nessa janela " },
     "js_context_force_suspend_other_tabs_in_window": { "message": "Forçar a suspensão de todas as outras guias nessa janela " },
     "js_context_unsuspend_all_tabs_in_window": { "message": "Recarregar todas as guias nessa janela " },

@@ -294,13 +294,13 @@
     document
       .getElementById('suspendSelected')
       .addEventListener('click', function(e) {
-        tgs.suspendSelectedTabs();
+        tgs.toggleSuspendedStateOfSelectedTabs(1);
         window.close();
       });
     document
       .getElementById('unsuspendSelected')
       .addEventListener('click', function(e) {
-        tgs.unsuspendSelectedTabs();
+        tgs.toggleSuspendedStateOfSelectedTabs(2);
         window.close();
       });
     document

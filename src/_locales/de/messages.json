@@ -17,8 +17,6 @@
     "js_context_toggle_pause_suspension": { "message": "Aussetzen dieses Tabs pausieren/fortführen" },
     "js_context_never_suspend_domain": { "message": "Diese Domain nicht aussetzen" },
     "js_context_never_suspend_page": { "message": "Diese URL nicht aussetzen" },
-    "js_context_suspend_selected_tabs": { "message": "Ausgewählte Tabs aussetzen" },
-    "js_context_unsuspend_selected_tabs": { "message": "Ausgewählte Tabs aufwachen" },
     "js_context_soft_suspend_other_tabs_in_window": { "message": "Alle anderen Tabs in diesem Fenster aussetzen" },
     "js_context_force_suspend_other_tabs_in_window": { "message": "Alle anderen Tabs in diesem Fenster aussetzen (forcieren)" },
     "js_context_unsuspend_all_tabs_in_window": { "message": "Alle Tabs in diesem Fenster aufwachen" },

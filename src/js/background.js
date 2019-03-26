@@ -407,15 +407,28 @@ var tgs = (function() {
     });
   }
 
-  function toggleSuspendedStateOfHighlightedTab() {
+  // Action is an int. 1=suspendAll 2=unsuspendAll
+  function toggleSuspendedStateOfSelectedTabs(forceAction) {
     getCurrentlyActiveTab(activeTab => {
-      if (activeTab) {
-        if (gsUtils.isSuspendedTab(activeTab)) {
-          unsuspendTab(activeTab);
-        } else {
-          gsTabSuspendManager.queueTabForSuspension(activeTab, 1);
-        }
+      if (!activeTab) {
+        return;
       }
+
+      let action = forceAction || (gsUtils.isSuspendedTab(activeTab) ? 2 : 1);
+      chrome.tabs.query(
+        { highlighted: true, windowId: activeTab.windowId },
+        selectedTabs => {
+          selectedTabs = selectedTabs.length > 1 ? selectedTabs : [activeTab];
+          for (const tab of selectedTabs) {
+            if (action === 1 && !gsUtils.isSuspendedTab(tab)) {
+              gsTabSuspendManager.queueTabForSuspension(tab, 1);
+            } else if (action === 2 && gsUtils.isSuspendedTab(tab)) {
+              gsTabSuspendManager.unqueueTabForSuspension(tab);
+              unsuspendTab(tab);
+            }
+          }
+        }
+      );
     });
   }
 
@@ -509,31 +522,6 @@ var tgs = (function() {
         }
       });
     });
-  }
-
-  function suspendSelectedTabs() {
-    chrome.tabs.query(
-      { highlighted: true, lastFocusedWindow: true },
-      selectedTabs => {
-        for (const tab of selectedTabs) {
-          gsTabSuspendManager.queueTabForSuspension(tab, 1);
-        }
-      }
-    );
-  }
-
-  function unsuspendSelectedTabs() {
-    chrome.tabs.query(
-      { highlighted: true, lastFocusedWindow: true },
-      selectedTabs => {
-        for (const tab of selectedTabs) {
-          gsTabSuspendManager.unqueueTabForSuspension(tab);
-          if (gsUtils.isSuspendedTab(tab)) {
-            unsuspendTab(tab);
-          }
-        }
-      }
-    );
   }
 
   function queueSessionTimer() {
@@ -1460,7 +1448,7 @@ var tgs = (function() {
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
         contexts: allContexts,
-        onclick: () => toggleSuspendedStateOfHighlightedTab(),
+        onclick: () => toggleSuspendedStateOfSelectedTabs(),
       });
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
@@ -1481,16 +1469,6 @@ var tgs = (function() {
       chrome.contextMenus.create({
         type: 'separator',
         contexts: allContexts,
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_suspend_selected_tabs'),
-        contexts: allContexts,
-        onclick: () => suspendSelectedTabs(),
-      });
-      chrome.contextMenus.create({
-        title: chrome.i18n.getMessage('js_context_unsuspend_selected_tabs'),
-        contexts: allContexts,
-        onclick: () => unsuspendSelectedTabs(),
       });
 
       chrome.contextMenus.create({
@@ -1546,13 +1524,9 @@ var tgs = (function() {
   function addCommandListeners() {
     chrome.commands.onCommand.addListener(function(command) {
       if (command === '1-suspend-tab') {
-        toggleSuspendedStateOfHighlightedTab();
+        toggleSuspendedStateOfSelectedTabs();
       } else if (command === '2-toggle-temp-whitelist-tab') {
         requestToggleTempWhitelistStateOfHighlightedTab();
-      } else if (command === '2a-suspend-selected-tabs') {
-        suspendSelectedTabs();
-      } else if (command === '2b-unsuspend-selected-tabs') {
-        unsuspendSelectedTabs();
       } else if (command === '3-suspend-active-window') {
         suspendAllTabs(false);
       } else if (command === '3b-force-suspend-active-window') {
@@ -1852,8 +1826,7 @@ var tgs = (function() {
     suspendHighlightedTab,
     suspendAllTabs,
     unsuspendAllTabs,
-    suspendSelectedTabs,
-    unsuspendSelectedTabs,
+    toggleSuspendedStateOfSelectedTabs,
     whitelistHighlightedTab,
     unsuspendAllTabsInAllWindows,
     promptForFilePermissions,

@@ -17,8 +17,6 @@
     "js_context_toggle_pause_suspension": { "message": "Поставить на паузу/Возобновить приостановку этой вкладки" },
     "js_context_never_suspend_domain": { "message": "Никогда не приостанавливать этот домен" },
     "js_context_never_suspend_page": { "message": "Никогда не приостанавливать этот URL" },
-    "js_context_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
-    "js_context_unsuspend_selected_tabs": { "message": "Возобновить выбранные вкладки" },
     "js_context_soft_suspend_other_tabs_in_window": { "message": "Приостановить все остальные вкладки в этом окне" },
     "js_context_force_suspend_other_tabs_in_window": { "message": "Принудительно приостановить все остальные вкладки в этом окне" },
     "js_context_unsuspend_all_tabs_in_window": { "message": "Возобновить все вкладки в этом окне" },

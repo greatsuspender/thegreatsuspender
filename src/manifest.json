@@ -57,12 +57,6 @@
     "2-toggle-temp-whitelist-tab": {
       "description": "__MSG_ext_cmd_toggle_tab_pause_description__"
     },
-    "2a-suspend-selected-tabs": {
-      "description": "__MSG_ext_cmd_suspend_selected_tabs_description__"
-    },
-    "2b-unsuspend-selected-tabs": {
-      "description": "__MSG_ext_cmd_unsuspend_selected_tabs_description__"
-    },
     "3-suspend-active-window": {
       "description": "__MSG_ext_cmd_soft_suspend_active_window_description__"
     },

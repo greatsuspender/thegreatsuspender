@@ -17,8 +17,6 @@
     "js_context_toggle_pause_suspension": { "message": "Pause/Unpause suspension of this tab" },
     "js_context_never_suspend_domain": { "message": "Never suspend this domain" },
     "js_context_never_suspend_page": { "message": "Never suspend this URL" },
-    "js_context_suspend_selected_tabs": { "message": "Suspend selected tabs" },
-    "js_context_unsuspend_selected_tabs": { "message": "Unsuspend selected tabs" },
     "js_context_soft_suspend_other_tabs_in_window": { "message": "Suspend all other tabs in this window" },
     "js_context_force_suspend_other_tabs_in_window": { "message": "Force suspend all other tabs in this window" },
     "js_context_unsuspend_all_tabs_in_window": { "message": "Unsuspend all tabs in this window" },
