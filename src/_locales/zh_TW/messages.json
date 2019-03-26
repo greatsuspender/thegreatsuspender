@@ -4,8 +4,6 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "凍結/回復目前分頁" },
     "ext_cmd_toggle_tab_pause_description": { "message": "暫停/取消暫停目前分頁的凍結" },
-    "ext_cmd_suspend_selected_tabs_description": { "message": "凍結已選擇分頁" },
-    "ext_cmd_unsuspend_selected_tabs_description": { "message": "回復已選擇分頁" },
     "ext_cmd_soft_suspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" },
     "ext_cmd_force_suspend_active_window_description": { "message": "強制凍結當前視窗中的所有分頁" },
     "ext_cmd_unsuspend_active_window_description": { "message": "凍結目前視窗中所有的分頁" },
