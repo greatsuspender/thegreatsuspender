@@ -77,7 +77,7 @@
   "html_options_suspend_automatically_unsuspend": { "message": "Recarregar automaticamente quando a guia for visualizada" },
   "html_options_suspend_discard_after_suspend": { "message": "Aplicar a economia de memória integrada do Chrome ao suspender" },
   "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "Reduz ainda mais o uso de memória de uma guia suspensa, utilizando a" },
-  "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "funcionalidade de "descartar de guias" do Chrome. Isso pode resultar em" },
+  "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "funcionalidade de \"descartar de guias\" do Chrome. Isso pode resultar em" },
   "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "até 500% de economia de memória ao trabalhar com um grande número de abas." },
   "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "No entanto, isso também causará um pequeno atraso na renderização ao selecionar" },
   "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "uma guia suspensa." },
