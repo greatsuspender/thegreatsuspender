@@ -25,6 +25,8 @@
           currentVersion
         );
       }
+      //ensure we don't leave any windows with no unsuspended tabs
+      await gsSession.unsuspendActiveTabInEachWindow();
       chrome.runtime.reload();
       // }
     };
