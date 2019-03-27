@@ -4,6 +4,8 @@
     "ext_default_title": { "message": "O Grande Suspensor " },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Suspender/Recarregar a guia ativa " },
     "ext_cmd_toggle_tab_pause_description": { "message": "Pausar/Retomar suspensão da guia ativa " },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "Suspender guias selecionadas " },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Recarregar guias selecionadas " },
     "ext_cmd_soft_suspend_active_window_description": { "message": "Suspender todas as outras guias na janela ativa " },
     "ext_cmd_force_suspend_active_window_description": { "message": "Forçar suspender todas as outras guias na janela ativa " },
     "ext_cmd_unsuspend_active_window_description": { "message": "Resumir todas as guias na janela ativa " },

@@ -4,6 +4,8 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Suspend/Unsuspend active tab" },
     "ext_cmd_toggle_tab_pause_description": { "message": "Pause/Unpause suspension of active tab" },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "Suspend selected tabs" },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Unsuspend selected tabs" },
     "ext_cmd_soft_suspend_active_window_description": { "message": "Suspend all other tabs in active window" },
     "ext_cmd_force_suspend_active_window_description": { "message": "Force suspend all other tabs in active window" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Unsuspend all tabs in active window" },

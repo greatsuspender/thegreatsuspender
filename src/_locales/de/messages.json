@@ -4,6 +4,8 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Aktiven Tab aussetzen/aufwachen" },
     "ext_cmd_toggle_tab_pause_description": { "message": "Aussetzen des aktiven Tabs pausieren/fortführen" },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "Ausgewählte Tabs aussetzen" },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Ausgewählte Tabs aufwachen" },
     "ext_cmd_soft_suspend_active_window_description": { "message": "Alle anderen Tabs im aktiven Fenster aussetzen" },
     "ext_cmd_force_suspend_active_window_description": { "message": "Alle anderen Tabs im aktiven Fenster aussetzen (forcieren)" },
     "ext_cmd_unsuspend_active_window_description": { "message": "Alle Tabs in diesem Fenster aufwachen" },

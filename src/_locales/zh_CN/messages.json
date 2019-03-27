@@ -4,6 +4,8 @@
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "冻结/恢复当前标签页" },
     "ext_cmd_toggle_tab_pause_description": { "message": "暂停/取消暂停当前标签页的冻结" },
+    "ext_cmd_suspend_selected_tabs_description": { "message": "冻结已选择标签页" },
+    "ext_cmd_unsuspend_selected_tabs_description": { "message": "恢复已选择标签页" },
     "ext_cmd_soft_suspend_active_window_description": { "message": "冻结当前窗口中所有的标签页" },
     "ext_cmd_force_suspend_active_window_description": { "message": "强制冻结当前窗口中的所有标签页" },
     "ext_cmd_unsuspend_active_window_description": { "message": "恢复当前窗口中所有的标签页" },
