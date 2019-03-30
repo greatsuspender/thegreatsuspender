@@ -36,14 +36,16 @@ var gsSuspendedTab = (function() {
     const options = gsStorage.getSettings();
     const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
 
-    // Set unloadTabHandler
+    // Add event listeners
     setUnloadTabHandler(tabView.window, tab);
+    setUnsuspendTabHandlers(tabView.document, tab);
 
     // Set imagePreview
     const previewMode = options[gsStorage.SCREEN_CAPTURE];
     const previewUri = await getPreviewUri(suspendedUrl);
     await toggleImagePreviewVisibility(
       tabView.document,
+      tab,
       previewMode,
       previewUri
     );
@@ -91,12 +93,8 @@ var gsSuspendedTab = (function() {
     // Set scrollPosition (must come after showing page contents)
     const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
     setScrollPosition(tabView.document, scrollPosition, previewMode);
+    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
     // const whitelisted = gsUtils.checkWhiteList(originalUrl);
-  }
-
-  function requestUnsuspendTab(tabView, tab) {
-    const originalUrl = gsUtils.getOriginalUrl(tab.url);
-    unsuspendTab(tabView.document, originalUrl);
   }
 
   function showNoConnectivityMessage(tabView) {
@@ -123,6 +121,7 @@ var gsSuspendedTab = (function() {
     const previewUri = await getPreviewUri(tab.url);
     await toggleImagePreviewVisibility(
       tabView.document,
+      tab,
       previewMode,
       previewUri
     );
@@ -166,10 +165,6 @@ var gsSuspendedTab = (function() {
     _document.getElementById('gsTopBarUrl').onmousedown = function(e) {
       e.stopPropagation();
     };
-    const unsuspendTabHandler = buildUnsuspendTabHandler(_document);
-    _document.getElementById('gsTopBarUrl').onclick = unsuspendTabHandler;
-    _document.getElementById('gsTopBar').onmousedown = unsuspendTabHandler;
-    _document.getElementById('suspendedMsg').onclick = unsuspendTabHandler;
   }
 
   function setFaviconMeta(_document, faviconMeta) {
@@ -258,7 +253,7 @@ var gsSuspendedTab = (function() {
     return previewUri;
   }
 
-  function buildImagePreview(_document, previewUri) {
+  function buildImagePreview(_document, tab, previewUri) {
     return new Promise(resolve => {
       const previewEl = _document.createElement('div');
       const bodyEl = _document.getElementsByTagName('body')[0];
@@ -267,7 +262,7 @@ var gsSuspendedTab = (function() {
       previewEl.innerHTML = _document.getElementById(
         'previewTemplate'
       ).innerHTML;
-      const unsuspendTabHandler = buildUnsuspendTabHandler(_document);
+      const unsuspendTabHandler = buildUnsuspendTabHandler(_document, tab);
       previewEl.onclick = unsuspendTabHandler;
       gsUtils.localiseHtml(previewEl);
       bodyEl.appendChild(previewEl);
@@ -292,6 +287,7 @@ var gsSuspendedTab = (function() {
 
   async function toggleImagePreviewVisibility(
     _document,
+    tab,
     previewMode,
     previewUri
   ) {
@@ -303,7 +299,7 @@ var gsSuspendedTab = (function() {
       previewMode &&
       previewMode !== '0'
     ) {
-      await buildImagePreview(_document, previewUri);
+      await buildImagePreview(_document, tab, previewUri);
     } else {
       addWatermarkHandler(_document);
     }
@@ -339,33 +335,46 @@ var gsSuspendedTab = (function() {
   }
 
   function setUnloadTabHandler(_window, tab) {
-    // beforeunload event will get fired if: the tab is refreshed, the url is changed, or the tab is closed.
+    // beforeunload event will get fired if: the tab is refreshed, the url is changed,
+    // the tab is closed, or the tab is frozen by chrome ??
     // when this happens the STATE_UNLOADED_URL gets set with the suspended tab url
     // if the tab is refreshed, then on reload the url will match and the tab will unsuspend
     // if the url is changed then on reload the url will not match
     // if the tab is closed, the reload will never occur
     _window.addEventListener('beforeunload', function(e) {
       gsUtils.log(tab.id, 'BeforeUnload triggered: ' + tab.url);
-      tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
-      const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-      tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
+      if (tgs.isCurrentFocusedTab(tab)) {
+        tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
+      } else {
+        gsUtils.log(
+          tab.id,
+          'Ignoring beforeUnload as tab is not currently focused.'
+        );
+      }
     });
   }
 
-  function buildUnsuspendTabHandler(_document) {
-    const originalUrl = gsUtils.getOriginalUrl(_document.location.href);
+  function setUnsuspendTabHandlers(_document, tab) {
+    const unsuspendTabHandler = buildUnsuspendTabHandler(_document, tab);
+    _document.getElementById('gsTopBarUrl').onclick = unsuspendTabHandler;
+    _document.getElementById('gsTopBar').onmousedown = unsuspendTabHandler;
+    _document.getElementById('suspendedMsg').onclick = unsuspendTabHandler;
+  }
+
+  function buildUnsuspendTabHandler(_document, tab) {
     return function(e) {
       e.preventDefault();
       e.stopPropagation();
       if (e.target.id === 'setKeyboardShortcut') {
         chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
       } else if (e.which === 1) {
-        unsuspendTab(_document, originalUrl);
+        showUnsuspendAnimation(_document);
+        tgs.unsuspendTab(tab);
       }
     };
   }
 
-  function unsuspendTab(_document, originalUrl) {
+  function showUnsuspendAnimation(_document) {
     if (_document.body.classList.contains('img-preview-mode')) {
       _document.getElementById('refreshSpinner').classList.add('spinner');
     } else {
@@ -375,7 +384,6 @@ var gsSuspendedTab = (function() {
       );
       _document.getElementById('snoozySpinner').classList.add('spinner');
     }
-    _document.location.replace(originalUrl);
   }
 
   function loadToastTemplate(_document) {
@@ -463,7 +471,6 @@ var gsSuspendedTab = (function() {
 
   return {
     initTab,
-    requestUnsuspendTab,
     showNoConnectivityMessage,
     updateCommand,
     updateTheme,
