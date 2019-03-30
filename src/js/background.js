@@ -49,6 +49,9 @@ var tgs = (function() {
   let _triggerHotkeyUpdate = false;
   let _suspensionToggleHotkey;
 
+  let _cmidSuspendToggle;
+  let _cmidPauseToggle;
+
   function getExtensionGlobals() {
     const globals = {
       tgs,
@@ -314,7 +317,8 @@ var tgs = (function() {
         ) {
           action = 2;
         } else {
-          gsUtils.log(activeTab.id,
+          gsUtils.log(
+            activeTab.id,
             'Aborting tempWhitelist toggle as current tab is not normal'
           );
           if (callback) callback();
@@ -1465,16 +1469,17 @@ var tgs = (function() {
         },
       });
 
-      chrome.contextMenus.create({
+      _cmidSuspendToggle = chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_suspend_state'),
         contexts: allContexts,
         onclick: () => toggleSuspendedStateOfSelectedTabs(),
       });
-      chrome.contextMenus.create({
+      _cmidPauseToggle = chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_toggle_pause_suspension'),
         contexts: allContexts,
         onclick: () => toggleTempWhitelistStateOfSelectedTabs(false),
       });
+
       chrome.contextMenus.create({
         title: chrome.i18n.getMessage('js_context_never_suspend_page'),
         contexts: allContexts,
@@ -1536,6 +1541,45 @@ var tgs = (function() {
         contexts: allContexts,
         onclick: () => unsuspendAllTabsInAllWindows(),
       });
+    }
+  }
+
+  function shouldSuspendSelectedTabs(selectedTabs) {
+
+  }
+
+  async function checkForContextMenuChanges() {
+    gsUtils.log('background', 'Checking for context menu changes');
+    let currentWindowId = _currentFocusedWindowId;
+    if (!currentWindowId) {
+      let currentWindow = await gsChrome.windowsGetLastFocused();
+      if (!currentWindow) {
+        return;
+      }
+      currentWindowId = currentWindow.id;
+    }
+    const selectedTabId = _currentFocusedTabIdByWindowId[currentWindowId];
+    if (!selectedTabId) {
+      return;
+    }
+    const isSuspended = gsUtils.
+    const activeTabs = await gsChrome.tabsQuery({
+      highlighted: true,
+      windowId: currentWindowId,
+    });
+    if (activeTabs && activeTabs.length > 1) {
+      gsUtils.log('background', 'Multiple tabs highlighted in this window');
+      chrome.contextMenus.update(_cmidSuspendToggle, {
+        title: chrome.i18n.getMessage('ext_cmd_suspend_selected_tabs_description') });
+      chrome.contextMenus.update(_cmidPauseToggle, {
+        title: chrome.i18n.getMessage('html_about_html2canvas') });
+    }
+    else {
+      gsUtils.log('background', 'Only one tab highlighted in this window');
+      chrome.contextMenus.update(_cmidSuspendToggle, {
+        title: chrome.i18n.getMessage('js_context_toggle_suspend_state') });
+      chrome.contextMenus.update(_cmidPauseToggle, {
+        title: chrome.i18n.getMessage('js_context_toggle_pause_suspension') });
     }
   }
 
@@ -1676,9 +1720,13 @@ var tgs = (function() {
   function addChromeListeners() {
     chrome.windows.onFocusChanged.addListener(function(windowId) {
       handleWindowFocusChanged(windowId);
+      if (windowId > 0) {
+        checkForContextMenuChanges();  // async. unhandled promise
+      }
     });
     chrome.tabs.onActivated.addListener(function(activeInfo) {
       handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId); // async. unhandled promise
+      checkForContextMenuChanges();  // async. unhandled promise
     });
     chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
       updateTabIdReferences(addedTabId, removedTabId);
