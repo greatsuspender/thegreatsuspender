@@ -765,7 +765,7 @@ var tgs = (function() {
         clearTabStateForTabId(tab.id);
 
         if (historyUrlToRemove) {
-          chrome.history.deleteUrl({ url: historyUrlToRemove });
+          removeTabHistoryForUnuspendedTab(historyUrlToRemove);
         }
         if (setAutodiscardable) {
           gsChrome.tabsUpdate(tab.id, { autoDiscardable: true });
@@ -794,6 +794,27 @@ var tgs = (function() {
         setIconStatus(status, tab.id);
       });
     }
+  }
+
+  function removeTabHistoryForUnuspendedTab(suspendedUrl) {
+    chrome.history.deleteUrl({ url: suspendedUrl });
+    const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
+    chrome.history.getVisits({ url: originalUrl }, visits => {
+      //assume history entry will be the second to latest one (latest one is the currently visible page)
+      //NOTE: this will break if the same url has been visited by another tab more recently than the
+      //suspended tab (pre suspension)
+      const latestVisit = visits.pop();
+      const previousVisit = visits.pop();
+      if (previousVisit) {
+        chrome.history.deleteRange(
+          {
+            startTime: previousVisit.visitTime - 0.1,
+            endTime: previousVisit.visitTime + 0.1,
+          },
+          () => {}
+        );
+      }
+    });
   }
 
   function initialiseTabContentScript(tab, isTempWhitelist, scrollPos) {
