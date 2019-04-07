@@ -61,8 +61,6 @@ var gsSession = (function() {
     if (!sessionRestorePoint || suspendedTabCount > 0) {
       //show update screen
       await gsChrome.tabsCreate(updateUrl);
-      //ensure we don't leave any windows with no unsuspended tabs
-      await unsuspendActiveTabInEachWindow();
     } else {
       // if there are no suspended tabs then simply install the update immediately
       chrome.runtime.reload();
@@ -793,13 +791,6 @@ var gsSession = (function() {
     return sessionMetrics;
   }
 
-  async function unsuspendActiveTabInEachWindow() {
-    const activeTabs = await gsChrome.tabsQuery({ active: true });
-    for (let activeTab of activeTabs) {
-      tgs.unsuspendTab(activeTab);
-    }
-  }
-
   return {
     initAsPromised,
     runStartupChecks,
@@ -820,6 +811,5 @@ var gsSession = (function() {
     prepareForUpdate,
     getUpdateType,
     updateSessionMetrics,
-    unsuspendActiveTabInEachWindow,
   };
 })();
