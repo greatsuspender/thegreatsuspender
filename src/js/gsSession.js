@@ -49,18 +49,26 @@ var gsSession = (function() {
     const currentVersion = chrome.runtime.getManifest().version;
     const newVersion = newVersionDetails.version;
 
-    gsUtils.log('gsSession', 'A new version is available: ' + currentVersion + ' -> ' + newVersion);
+    gsUtils.log(
+      'gsSession',
+      'A new version is available: ' + currentVersion + ' -> ' + newVersion
+    );
 
     let sessionRestorePoint;
     const currentSession = await buildCurrentSession();
     if (currentSession) {
-      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(currentSession, currentVersion);
+      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(
+        currentSession,
+        currentVersion
+      );
     }
 
     const suspendedTabCount = await gsUtils.getSuspendedTabCount();
     if (!sessionRestorePoint || suspendedTabCount > 0) {
       //show update screen
       await gsChrome.tabsCreate(updateUrl);
+      //ensure we don't leave any windows with no unsuspended tabs
+      await unsuspendActiveTabInEachWindow();
     } else {
       // if there are no suspended tabs then simply install the update immediately
       chrome.runtime.reload();
@@ -791,6 +799,21 @@ var gsSession = (function() {
     return sessionMetrics;
   }
 
+  async function unsuspendActiveTabInEachWindow() {
+    const activeTabs = await gsChrome.tabsQuery({ active: true });
+    const suspendedActiveTabs = activeTabs.filter(tab =>
+      gsUtils.isSuspendedTab(tab)
+    );
+    if (suspendedActiveTabs.length === 0) {
+      return;
+    }
+    for (let suspendedActiveTab of suspendedActiveTabs) {
+      tgs.unsuspendTab(suspendedActiveTab);
+    }
+    await gsUtils.setTimeout(1000);
+    await unsuspendActiveTabInEachWindow();
+  }
+
   return {
     initAsPromised,
     runStartupChecks,
@@ -811,5 +834,6 @@ var gsSession = (function() {
     prepareForUpdate,
     getUpdateType,
     updateSessionMetrics,
+    unsuspendActiveTabInEachWindow,
   };
 })();
