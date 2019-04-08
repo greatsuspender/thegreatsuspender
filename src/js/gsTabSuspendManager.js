@@ -322,6 +322,11 @@ var gsTabSuspendManager = (function() {
       }
 
       gsUtils.log(tab.id, 'Suspending tab');
+      tgs.setTabStatePropForTabId(
+        tab.id,
+        tgs.STATE_INITIALISE_SUSPENDED_TAB,
+        true
+      );
       gsChrome.tabsUpdate(tab.id, { url: suspendedUrl }).then(updatedTab => {
         resolve(updatedTab !== null);
       });

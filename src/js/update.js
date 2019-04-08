@@ -17,6 +17,9 @@
       // }
       // if (result) {
 
+      document.getElementById('restartExtensionBtn').className += ' btnDisabled';
+      document.getElementById('restartExtensionBtn').onclick = null;
+
       const currentSession = await gsSession.buildCurrentSession();
       if (currentSession) {
         var currentVersion = chrome.runtime.getManifest().version;
@@ -25,6 +28,14 @@
           currentVersion
         );
       }
+
+      //ensure we don't leave any windows with no unsuspended tabs
+      await gsSession.unsuspendActiveTabInEachWindow();
+
+      //update current session to ensure the new tab ids are saved before
+      //we restart the extension
+      await gsSession.updateCurrentSession();
+
       chrome.runtime.reload();
       // }
     };

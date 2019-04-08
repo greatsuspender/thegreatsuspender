@@ -25,7 +25,10 @@ var tgs = (function() {
   // Suspended tab props
   const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
   const STATE_DISABLE_UNSUSPEND_ON_RELOAD = 'disableUnsuspendOnReload';
+  const STATE_INITIALISE_SUSPENDED_TAB = 'initialiseSuspendedTab';
   const STATE_UNLOADED_URL = 'unloadedUrl';
+  const STATE_HISTORY_URL_TO_REMOVE = 'historyUrlToRemove';
+  const STATE_SET_AUTODISCARDABLE = 'setAutodiscardable';
   const STATE_SHOW_NAG = 'showNag';
   const STATE_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
   const STATE_SCROLL_POS = 'scrollPos';
@@ -633,29 +636,20 @@ var tgs = (function() {
     const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
     tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
 
-    // If the suspended tab is discarded then reload the suspended tab and flag
-    // if for unsuspend on reload.
-    // This will happen if the 'discard suspended tabs' option is turned on and the tab
-    // is being unsuspended remotely.
-    if (gsUtils.isDiscardedTab(tab)) {
-      gsUtils.log(tab.id, 'Unsuspending discarded tab via reload');
-      setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, tab.url);
-      gsChrome.tabsReload(tab.id); //async. unhandled promise
-      return;
-    }
-
-    const suspendedView = getInternalViewByTabId(tab.id);
-    if (suspendedView) {
-      gsUtils.log(tab.id, 'Requesting unsuspend via gsSuspendedTab');
-      gsSuspendedTab.requestUnsuspendTab(suspendedView, tab);
-      return;
-    }
-
-    // Reloading directly causes a history item for the suspended tab to be made in the tab history.
-    let url = gsUtils.getOriginalUrl(tab.url);
-    if (url) {
+    let originalUrl = gsUtils.getOriginalUrl(tab.url);
+    if (originalUrl) {
+      // Reloading chrome.tabs.update causes a history item for the suspended tab
+      // to be made in the tab history. We clean this up on tab updated hook
+      setTabStatePropForTabId(tab.id, tgs.STATE_HISTORY_URL_TO_REMOVE, tab.url);
+      if (tab.autoDiscardable) {
+        setTabStatePropForTabId(tab.id, tgs.STATE_SET_AUTODISCARDABLE, tab.url);
+      }
+      // NOTE: Temporarily disable autoDiscardable, as there seems to be a bug
+      // where discarded (and frozen?) suspended tabs will not unsuspend with
+      // chrome.tabs.update if this is set to true. This gets unset again after tab
+      // has reloaded via the STATE_SET_AUTODISCARDABLE flag.
       gsUtils.log(tab.id, 'Unsuspending tab via chrome.tabs.update');
-      chrome.tabs.update(tab.id, { url: url });
+      chrome.tabs.update(tab.id, { url: originalUrl, autoDiscardable: false });
       return;
     }
 
@@ -780,7 +774,22 @@ var tgs = (function() {
         );
         const scrollPos =
           getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
+        const historyUrlToRemove = getTabStatePropForTabId(
+          tab.id,
+          STATE_HISTORY_URL_TO_REMOVE
+        );
+        const setAutodiscardable = getTabStatePropForTabId(
+          tab.id,
+          STATE_SET_AUTODISCARDABLE
+        );
         clearTabStateForTabId(tab.id);
+
+        if (historyUrlToRemove) {
+          removeTabHistoryForUnuspendedTab(historyUrlToRemove);
+        }
+        if (setAutodiscardable) {
+          gsChrome.tabsUpdate(tab.id, { autoDiscardable: true });
+        }
 
         //init loaded tab
         resetAutoSuspendTimerForTab(tab);
@@ -807,6 +816,27 @@ var tgs = (function() {
     }
   }
 
+  function removeTabHistoryForUnuspendedTab(suspendedUrl) {
+    chrome.history.deleteUrl({ url: suspendedUrl });
+    const originalUrl = gsUtils.getOriginalUrl(suspendedUrl);
+    chrome.history.getVisits({ url: originalUrl }, visits => {
+      //assume history entry will be the second to latest one (latest one is the currently visible page)
+      //NOTE: this will break if the same url has been visited by another tab more recently than the
+      //suspended tab (pre suspension)
+      const latestVisit = visits.pop();
+      const previousVisit = visits.pop();
+      if (previousVisit) {
+        chrome.history.deleteRange(
+          {
+            startTime: previousVisit.visitTime - 0.1,
+            endTime: previousVisit.visitTime + 0.1,
+          },
+          () => {}
+        );
+      }
+    });
+  }
+
   function initialiseTabContentScript(tab, isTempWhitelist, scrollPos) {
     return new Promise((resolve, reject) => {
       const ignoreForms = gsStorage.getOption(gsStorage.IGNORE_FORMS);
@@ -827,7 +857,10 @@ var tgs = (function() {
   }
 
   function handleSuspendedTabStateChanged(tab, changeInfo) {
-    if (!changeInfo.hasOwnProperty('status')) {
+    if (
+      !changeInfo.hasOwnProperty('status') &&
+      !changeInfo.hasOwnProperty('discarded')
+    ) {
       return;
     }
 
@@ -837,44 +870,61 @@ var tgs = (function() {
       changeInfo
     );
 
-    if (changeInfo.status === 'loading') {
+    if (changeInfo.status && changeInfo.status === 'loading') {
+      tgs.setTabStatePropForTabId(
+        tab.id,
+        tgs.STATE_INITIALISE_SUSPENDED_TAB,
+        true
+      );
       return;
     }
 
-    if (changeInfo.status === 'complete') {
+    if (
+      (changeInfo.status && changeInfo.status === 'complete') ||
+      changeInfo.discarded
+    ) {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
-
-      const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
-      const disableUnsuspendOnReload = getTabStatePropForTabId(
+      const shouldInitTab = getTabStatePropForTabId(
         tab.id,
-        STATE_DISABLE_UNSUSPEND_ON_RELOAD
+        STATE_INITIALISE_SUSPENDED_TAB
       );
-      let showNag = tgs.getTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG);
-      clearTabStateForTabId(tab.id);
-
-      if (isCurrentFocusedTab(tab)) {
-        setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+      if (shouldInitTab) {
+        initialiseSuspendedTab(tab);
       }
-
-      //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
-      const suspendedTabRefreshed = unloadedUrl === tab.url;
-      if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
-        unsuspendTab(tab);
-        return;
-      }
-
-      const tabView = tgs.getInternalViewByTabId(tab.id);
-      const quickInit =
-        gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
-      gsSuspendedTab
-        .initTab(tab, tabView, { quickInit, showNag })
-        .catch(error => {
-          gsUtils.warning(tab.id, error);
-        })
-        .then(() => {
-          gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
-        });
     }
+  }
+
+  function initialiseSuspendedTab(tab) {
+    const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
+    const disableUnsuspendOnReload = getTabStatePropForTabId(
+      tab.id,
+      STATE_DISABLE_UNSUSPEND_ON_RELOAD
+    );
+    let showNag = tgs.getTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG);
+    clearTabStateForTabId(tab.id);
+
+    if (isCurrentFocusedTab(tab)) {
+      setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
+    }
+
+    //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
+    const suspendedTabRefreshed = unloadedUrl === tab.url;
+    if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
+      unsuspendTab(tab);
+      return;
+    }
+
+    const tabView = tgs.getInternalViewByTabId(tab.id);
+    const quickInit =
+      gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
+    gsSuspendedTab
+      .initTab(tab, tabView, { quickInit, showNag })
+      .catch(error => {
+        gsUtils.warning(tab.id, error);
+      })
+      .then(() => {
+        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+      });
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
@@ -1782,17 +1832,6 @@ var tgs = (function() {
       gsUtils.log(windowId, 'window removed.');
       queueSessionTimer();
     });
-
-    //tidy up history items as they are created
-    //NOTE: This only affects tab history, and has no effect on chrome://history
-    //It is also impossible to remove a the first tab history entry for a tab
-    //Refer to: https://github.com/deanoemcke/thegreatsuspender/issues/717
-    chrome.history.onVisited.addListener(function(historyItem) {
-      if (gsUtils.isSuspendedUrl(historyItem.url)) {
-        //remove suspended tab history item
-        chrome.history.deleteUrl({ url: historyItem.url });
-      }
-    });
   }
 
   function addMiscListeners() {
@@ -1857,8 +1896,11 @@ var tgs = (function() {
   return {
     STATE_TIMER_DETAILS,
     STATE_UNLOADED_URL,
+    STATE_INITIALISE_SUSPENDED_TAB,
+    STATE_HISTORY_URL_TO_REMOVE,
     STATE_TEMP_WHITELIST_ON_RELOAD,
     STATE_DISABLE_UNSUSPEND_ON_RELOAD,
+    STATE_SET_AUTODISCARDABLE,
     STATE_SUSPEND_REASON,
     STATE_SCROLL_POS,
     STATE_SHOW_NAG,

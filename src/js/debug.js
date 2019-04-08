@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsUtils, gsStorage, gsChrome */
+/*global chrome, tgs, gsAnalytics, gsUtils, gsFavicon, gsStorage, gsChrome */
 (function(global) {
   'use strict';
 
@@ -21,14 +21,21 @@
       windowId = info && info.windowId ? info.windowId : '?',
       tabId = info && info.tabId ? info.tabId : '?',
       tabIndex = info && info.tab ? info.tab.index : '?',
+      favicon = info && info.tab ? info.tab.favIconUrl : '',
       tabTitle = info && info.tab ? gsUtils.htmlEncode(info.tab.title) : '?',
       tabTimer = timerStr,
       tabStatus = info ? info.status : '?';
+
+    favicon =
+      favicon && favicon.indexOf('data') === 0
+        ? favicon
+        : gsFavicon.generateChromeFavIconUrlFromUrl(info.tab.url);
 
     html += '<tr>';
     html += '<td>' + windowId + '</td>';
     html += '<td>' + tabId + '</td>';
     html += '<td>' + tabIndex + '</td>';
+    html += '<td><img src=' + favicon + '></td>';
     html += '<td>' + tabTitle + '</td>';
     html += '<td>' + tabTimer + '</td>';
     html += '<td>' + tabStatus + '</td>';
