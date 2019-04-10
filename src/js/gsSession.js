@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsIndexedDb, gsUtils, gsChrome, gsTabCheckManager, gsTabDiscardManager */
+/*global chrome, localStorage, tgs, gsStorage, gsTabActions, gsIndexedDb, gsUtils, gsChrome, gsTabCheckManager, gsTabDiscardManager */
 // eslint-disable-next-line no-unused-vars
 var gsSession = (function() {
   'use strict';
@@ -808,9 +808,9 @@ var gsSession = (function() {
       return;
     }
     for (let suspendedActiveTab of suspendedActiveTabs) {
-      tgs.unsuspendTab(suspendedActiveTab);
+      await gsTabActions.unsuspendTab(suspendedActiveTab);
     }
-    await gsUtils.setTimeout(1000);
+    await gsUtils.setTimeout(200);
     await unsuspendActiveTabInEachWindow();
   }
 

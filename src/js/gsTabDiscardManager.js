@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsUtils, gsChrome, GsTabQueue, gsStorage, gsTabSuspendManager */
+/*global chrome, localStorage, tgs, gsTabSelector, gsUtils, gsChrome, GsTabQueue, gsStorage, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
 var gsTabDiscardManager = (function() {
   'use strict';
@@ -74,7 +74,7 @@ var gsTabDiscardManager = (function() {
       requeue();
       return;
     }
-    if (tgs.isCurrentActiveTab(tab)) {
+    if (gsTabSelector.isCurrentActiveTab(tab)) {
       const discardInPlaceOfSuspend = gsStorage.getOption(
         gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
       );

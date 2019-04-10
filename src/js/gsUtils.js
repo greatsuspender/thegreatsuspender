@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsChrome, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
+/*global chrome, localStorage, gsStorage, gsTabActions, gsChrome, gsTabSelector, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -187,7 +187,8 @@ var gsUtils = {
       gsStorage.IGNORE_ACTIVE_TABS
     );
     return (
-      tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active)
+      gsTabSelector.isCurrentFocusedTab(tab) ||
+      (dontSuspendActiveTabs && tab.active)
     );
   },
 
@@ -626,7 +627,7 @@ var gsUtils = {
             (changedSettingKeys.includes(gsStorage.IGNORE_ACTIVE_TABS) &&
               gsUtils.isProtectedActiveTab(tab))
           ) {
-            tgs.unsuspendTab(tab);
+            gsTabActions.unsuspendTab(tab); // async. unhandled promise.
             return;
           }
 
@@ -733,7 +734,7 @@ var gsUtils = {
         //should always be caught by tests above, but we'll check all tabs anyway just in case
         // if (!updateSuspendTime) {
         //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) { // unhandled error
-        //         tgs.calculateTabStatus(tab, tabInfo, function (tabStatus) {
+        //         tgs.calculateTabStatus(tab, tabInfo).then(tabStatus => {
         //             if (tabStatus === STATUS_NORMAL && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
         //                 gsUtils.error(tab.id, 'Tab has an expired timer!', tabInfo);
         //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false); // async. unhandled error

@@ -22,7 +22,7 @@
           event.target.tagName.toUpperCase() === 'TEXTAREA' ||
           event.target.tagName.toUpperCase() === 'FORM' ||
           event.target.isContentEditable === true ||
-          event.target.type === "application/pdf"
+          event.target.type === 'application/pdf'
         ) {
           isReceivingFormInput = true;
           if (!isBackgroundConnectable()) {

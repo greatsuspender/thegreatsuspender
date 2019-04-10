@@ -50,12 +50,11 @@
     for (const [i, curTab] of tabs.entries()) {
       currentTabs[tabs[i].id] = tabs[i];
       debugInfoPromises.push(
-        new Promise(r =>
-          tgs.getDebugInfo(curTab.id, o => {
-            o.tab = curTab;
-            r(o);
-          })
-        )
+        new Promise(async r => {
+          const debugInfo = await tgs.getDebugInfo(curTab.id);
+          debugInfo.tab = curTab;
+          r(debugInfo);
+        })
       );
     }
     const debugInfos = await Promise.all(debugInfoPromises);

@@ -1,4 +1,4 @@
-/*global tgs, gsFavicon, gsStorage, gsSession, gsUtils, gsIndexedDb */
+/*global tgs, gsFavicon, gsChrome, gsTabActions, gsTabSelector, gsStorage, gsSession, gsUtils, gsIndexedDb */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendedTab = (function() {
   'use strict';
@@ -343,7 +343,7 @@ var gsSuspendedTab = (function() {
     // if the tab is closed, the reload will never occur
     _window.addEventListener('beforeunload', function(e) {
       gsUtils.log(tab.id, 'BeforeUnload triggered: ' + tab.url);
-      if (tgs.isCurrentFocusedTab(tab)) {
+      if (gsTabSelector.isCurrentFocusedTab(tab)) {
         tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
       } else {
         gsUtils.log(
@@ -362,14 +362,14 @@ var gsSuspendedTab = (function() {
   }
 
   function buildUnsuspendTabHandler(_document, tab) {
-    return function(e) {
+    return async e => {
       e.preventDefault();
       e.stopPropagation();
       if (e.target.id === 'setKeyboardShortcut') {
-        chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+        await gsChrome.tabsCreate({ url: 'chrome://extensions/shortcuts' });
       } else if (e.which === 1) {
         showUnsuspendAnimation(_document);
-        tgs.unsuspendTab(tab);
+        await gsTabActions.unsuspendTab(tab);
       }
     };
   }
