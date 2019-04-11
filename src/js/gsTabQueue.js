@@ -152,6 +152,9 @@ function GsTabQueue(queueId, queueProps) {
     function getQueuedTabDetails(tab) {
       return _tabDetailsByTabId[tab.id];
     }
+    function getQueuedTabDetailsByTabId(tabId) {
+      return _tabDetailsByTabId[tabId];
+    }
 
     function createDeferredPromise() {
       let res;
@@ -311,6 +314,7 @@ function GsTabQueue(queueId, queueProps) {
       queueTabAsPromise,
       unqueueTab,
       getQueuedTabDetails,
+      getQueuedTabDetailsByTabId,
     };
   })();
 }

@@ -633,6 +633,27 @@ var gsTabSuspendManager = (function() {
     });
   }
 
+  function updateTabIdReferences(newTabId, oldTabId) {
+    const queuedTabDetails = _suspensionQueue.getQueuedTabDetailsByTabId(
+      oldTabId
+    );
+    if (queuedTabDetails) {
+      _suspensionQueue.unqueueTab(queuedTabDetails.tab);
+      gsChrome.tabsGet(newTabId).then(newTab => {
+        if (newTab) {
+          queueTabForSuspension(newTab, queuedTabDetails.executionProps);
+        }
+      });
+    }
+  }
+
+  function removeTabIdReferences(tabId) {
+    const queuedTabDetails = _suspensionQueue.getQueuedTabDetailsByTabId(tabId);
+    if (queuedTabDetails) {
+      _suspensionQueue.unqueueTab(queuedTabDetails.tab);
+    }
+  }
+
   return {
     initAsPromised,
     queueTabForSuspension,
@@ -643,5 +664,7 @@ var gsTabSuspendManager = (function() {
     checkTabEligibilityForSuspension,
     executeTabSuspension,
     getQueuedTabDetails,
+    updateTabIdReferences,
+    removeTabIdReferences,
   };
 })();

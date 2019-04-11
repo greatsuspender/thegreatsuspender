@@ -131,11 +131,36 @@ var gsTabDiscardManager = (function() {
     }
   }
 
+  function updateTabIdReferences(newTabId, oldTabId) {
+    const queuedTabDetails = _discardQueue.getQueuedTabDetailsByTabId(
+      oldTabId
+    );
+    if (queuedTabDetails) {
+      _discardQueue.unqueueTab(queuedTabDetails.tab);
+      // Probably dont want to re-queue a tab for discard that has just had
+      // its id change as a result of a previous discard :)
+      // gsChrome.tabsGet(newTabId).then(newTab => {
+      //   if (newTab) {
+      //     queueTabForDiscard(newTab);
+      //   }
+      // });
+    }
+  }
+
+  function removeTabIdReferences(tabId) {
+    const queuedTabDetails = _discardQueue.getQueuedTabDetailsByTabId(tabId);
+    if (queuedTabDetails) {
+      _discardQueue.unqueueTab(queuedTabDetails.tab);
+    }
+  }
+
   return {
     initAsPromised,
     queueTabForDiscard,
     queueTabForDiscardAsPromise,
     unqueueTabForDiscard,
     handleDiscardedUnsuspendedTab,
+    updateTabIdReferences,
+    removeTabIdReferences,
   };
 })();

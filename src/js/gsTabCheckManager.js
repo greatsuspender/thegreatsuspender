@@ -287,7 +287,12 @@ var gsTabCheckManager = (function() {
       }
     }
 
+    // Dont attempt discarding if executionProps.hasDiscarded is set
+    // This means the tab has already been in the check queue but was discarded
+    // before it could be checked. Attempting to discard again could result
+    // in an infinite loop of discard/rechecking.
     const attemptDiscarding =
+      !executionProps.hasDiscarded &&
       gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) &&
       !gsUtils.isDiscardedTab(tab) &&
       !gsTabSelector.isCurrentActiveTab(tab);
@@ -508,6 +513,27 @@ var gsTabCheckManager = (function() {
     });
   }
 
+  function updateTabIdReferences(newTabId, oldTabId) {
+    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetailsByTabId(
+      oldTabId
+    );
+    if (queuedTabDetails) {
+      _tabCheckQueue.unqueueTab(queuedTabDetails.tab);
+      gsChrome.tabsGet(newTabId).then(newTab => {
+        if (newTab) {
+          queueTabCheck(newTab, { hasDiscarded: true }, 1000);
+        }
+      });
+    }
+  }
+
+  function removeTabIdReferences(tabId) {
+    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetailsByTabId(tabId);
+    if (queuedTabDetails) {
+      _tabCheckQueue.unqueueTab(queuedTabDetails.tab);
+    }
+  }
+
   return {
     initAsPromised,
     performInitialisationTabChecks,
@@ -516,5 +542,7 @@ var gsTabCheckManager = (function() {
     unqueueTabCheck,
     getQueuedTabCheckDetails,
     ensureSuspendedTabVisible,
+    updateTabIdReferences,
+    removeTabIdReferences,
   };
 })();

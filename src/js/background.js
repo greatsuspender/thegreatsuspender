@@ -507,6 +507,12 @@ var tgs = (function() {
       return;
     }
 
+    //queue tab check before initTab as we want the check in the gsTabCheckManager
+    //queue as early as possible. sometimes tabs will discard between now and the
+    //end of initTab. if the tab is in the queue before this happens, it's tabId
+    //will get updated when the discard triggers gsTabCheckManager.updateTabIdReferences
+    gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
+
     const tabView = tgs.getInternalViewByTabId(tab.id);
     const quickInit =
       gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
@@ -514,15 +520,17 @@ var tgs = (function() {
       .initTab(tab, tabView, { quickInit, showNag })
       .catch(error => {
         gsUtils.warning(tab.id, error);
-      })
-      .then(() => {
-        gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
       });
   }
 
   function updateTabIdReferences(newTabId, oldTabId) {
     gsUtils.log(oldTabId, 'update tabId references to ' + newTabId);
+
     gsTabSelector.updateTabIdReferences(newTabId, oldTabId);
+    gsTabCheckManager.updateTabIdReferences(newTabId, oldTabId);
+    gsTabDiscardManager.updateTabIdReferences(newTabId, oldTabId);
+    gsTabSuspendManager.updateTabIdReferences(newTabId, oldTabId);
+
     if (_tabStateByTabId[oldTabId]) {
       _tabStateByTabId[newTabId] = _tabStateByTabId[oldTabId];
       delete _tabStateByTabId[oldTabId];
@@ -535,7 +543,12 @@ var tgs = (function() {
 
   function removeTabIdReferences(tabId) {
     gsUtils.log(tabId, 'removing tabId references to ' + tabId);
+
     gsTabSelector.removeTabIdReferences(tabId);
+    gsTabCheckManager.removeTabIdReferences(tabId);
+    gsTabDiscardManager.removeTabIdReferences(tabId);
+    gsTabSuspendManager.removeTabIdReferences(tabId);
+
     clearTabStateForTabId(tabId);
   }
 
@@ -586,23 +599,20 @@ var tgs = (function() {
 
   async function handleTabFocusChanged(tabId, windowId) {
     gsUtils.log(tabId, 'tab gained focus');
-
     const focusedTab = await gsChrome.tabsGet(tabId);
     if (!focusedTab) {
-      // If focusedTab is null then assume tab has been discarded between the
-      // time the chrome.tabs.onActivated event was activated and now.
-      // If so, then a subsequeunt chrome.tabs.onActivated event will be called
-      // with the new discarded id
-      gsUtils.log(
-        tabId,
-        'Could not find newly focused tab. Assuming it has been discarded'
-      );
       return;
     }
-
     const previouslyFocusedTabId = gsTabSelector.getCurrentlyFocusedTabIdForWindowId(
       windowId
     );
+    if (previouslyFocusedTabId === tabId) {
+      //when a tab discards, it can trigger a tab focus event.
+      //new tabId can match previouslyFocusedTabId if the old id was updated via updateTabIdReferences
+      gsUtils.log(tabId, 'Ignoring tab focus change as new tabId matches previouslyFocusedTabId.');
+      return;
+    }
+
     gsTabSelector.setCurrentlyFocusedTabIdForWindowId(windowId, tabId);
 
     // If the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
@@ -713,7 +723,16 @@ var tgs = (function() {
         windowId,
         focusedTab.id
       );
-      handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab);
+
+      //sometimes it seems that this is a 'fake' tab focus resulting
+      //from the popup menu disappearing. in these cases the previousStationaryTabId
+      //should match the current tabId (fix for issue #735)
+      if (
+        !previousStationaryTabId ||
+        previousStationaryTabId !== focusedTab.id
+      ) {
+        handleNewStationaryTabFocus(tabId, previousStationaryTabId, focusedTab);
+      }
     }, focusDelay);
   }
 
@@ -732,16 +751,10 @@ var tgs = (function() {
       );
       //if focusedTab is already in the queue for suspension then remove it.
       if (queuedTabDetails) {
-        //although sometimes it seems that this is a 'fake' tab focus resulting
-        //from the popup menu disappearing. in these cases the previousStationaryTabId
-        //should match the current tabId (fix for issue #735)
-        const isRealTabFocus =
-          previousStationaryTabId && previousStationaryTabId !== focusedTabId;
-
-        //also, only cancel suspension if the tab suspension request has a forceLevel > 1
+        //only cancel suspension if the tab suspension request has a forceLevel > 1
         const isLowForceLevel = queuedTabDetails.executionProps.forceLevel > 1;
 
-        if (isRealTabFocus && isLowForceLevel) {
+        if (isLowForceLevel) {
           gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
         }
       }
