@@ -92,7 +92,7 @@ var gsTabDiscardManager = (function() {
     gsUtils.log(tab.id, QUEUE_ID, 'Forcing discarding of tab.');
     chrome.tabs.discard(tab.id, () => {
       if (chrome.runtime.lastError) {
-        gsUtils.warning(tab.id, QUEUE_ID, chrome.runtime.lastError);
+        gsUtils.warning(tab.id, QUEUE_ID, chrome.runtime.lastError.message);
         resolve(false);
       } else {
         resolve(true);

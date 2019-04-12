@@ -109,7 +109,7 @@ var gsMessages = {
     var responseHandler = function(response) {
       gsUtils.log(tabId, 'response from tab', response);
       if (chrome.runtime.lastError) {
-        if (callback) callback(chrome.runtime.lastError);
+        if (callback) callback(chrome.runtime.lastError.message);
       } else {
         if (callback) callback(null, response);
       }
@@ -132,7 +132,7 @@ var gsMessages = {
     }
     chrome.tabs.executeScript(tabId, { file: scriptPath }, function(response) {
       if (chrome.runtime.lastError) {
-        if (callback) callback(chrome.runtime.lastError);
+        if (callback) callback(chrome.runtime.lastError.message);
       } else {
         if (callback) callback(null, response);
       }
@@ -146,7 +146,7 @@ var gsMessages = {
     }
     chrome.tabs.executeScript(tabId, { code: codeString }, function(response) {
       if (chrome.runtime.lastError) {
-        if (callback) callback(chrome.runtime.lastError);
+        if (callback) callback(chrome.runtime.lastError.message);
       } else {
         if (callback) callback(null, response);
       }

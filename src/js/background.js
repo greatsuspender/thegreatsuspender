@@ -771,6 +771,7 @@ var tgs = (function() {
       chrome.tabs.get(previousStationaryTabId, function(previousStationaryTab) {
         if (chrome.runtime.lastError) {
           //Tab has probably been removed
+          gsUtils.log(previousStationaryTabId, chrome.runtime.lastError.message)
           return;
         }
         if (
@@ -1048,7 +1049,7 @@ var tgs = (function() {
       if (chrome.runtime.lastError) {
         gsUtils.warning(
           tabId,
-          chrome.runtime.lastError,
+          chrome.runtime.lastError.message,
           `Failed to set icon for tab. Tab may have been closed.`
         );
       }

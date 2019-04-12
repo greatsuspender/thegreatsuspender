@@ -287,7 +287,7 @@ var gsStorage = {
           gsUtils.error(
             'gsStorage',
             'failed to save to chrome.storage.sync: ',
-            chrome.runtime.lastError
+            chrome.runtime.lastError.message
           );
         }
       });
