@@ -259,16 +259,11 @@ var gsTabCheckManager = (function() {
         tab
       );
       if (!executionProps.resuspended) {
-        const resuspendOk = await resuspendSuspendedTab(tab);
-        if (resuspendOk) {
-          requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, {
-            resuspended: true,
-            refetchTab: true,
-          });
-          return;
-        }
-        gsUtils.warning(tab.id, QUEUE_ID, 'Failed to resuspend tab');
-        resolve(gsUtils.STATUS_UNKNOWN);
+        await resuspendSuspendedTab(tab);
+        requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, {
+          resuspended: true,
+          refetchTab: true,
+        });
         return;
       }
       // Queue a refresh as tab may no longer exist
