@@ -119,6 +119,10 @@ var gsSession = (function() {
     return initialisationMode;
   }
 
+  function setInitialising(isInitialising) {
+    initialisationMode = isInitialising;
+  }
+
   function isFileUrlsAccessAllowed() {
     return fileUrlsAccessAllowed;
   }
@@ -148,7 +152,6 @@ var gsSession = (function() {
   }
 
   async function runStartupChecks() {
-    initialisationMode = true;
 
     const currentSessionTabs = await gsChrome.tabsQuery();
     gsUtils.log('gsSession', 'preRecovery open tabs:', currentSessionTabs);
@@ -176,7 +179,7 @@ var gsSession = (function() {
       await handleUpdate(currentSessionTabs, curVersion, startupLastVersion);
     }
 
-    await performTabChecks();
+    // await performTabChecks();
 
     // Ensure currently focused tab is initialised correctly if suspended
     const currentWindowActiveTabs = await gsChrome.tabsQuery({
@@ -189,8 +192,6 @@ var gsSession = (function() {
 
     gsUtils.log('gsSession', 'updating current session');
     updateCurrentSession(); //async
-
-    initialisationMode = false;
   }
 
   //make sure the contentscript / suspended script of each tab is responsive
@@ -821,6 +822,7 @@ var gsSession = (function() {
     buildCurrentSession,
     updateCurrentSession,
     isInitialising,
+    setInitialising,
     isUpdated,
     isFileUrlsAccessAllowed,
     getTabCheckTimeTakenInSeconds,

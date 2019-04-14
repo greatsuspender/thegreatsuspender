@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsStorage, gsTabSelector, gsSession, gsMessages, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
+/*global chrome, localStorage, tgs, gsStorage, gsTabState, gsTabSelector, gsSession, gsMessages, gsUtils, gsTabDiscardManager, gsChrome, GsTabQueue, gsSuspendedTab */
 // eslint-disable-next-line no-unused-vars
 var gsTabCheckManager = (function() {
   'use strict';
@@ -52,12 +52,14 @@ var gsTabCheckManager = (function() {
       if (!gsUtils.isSuspendedTab(tab)) {
         continue;
       }
+      const tabState = gsTabState.getTabStateForId(tab.id);
+      // Set to refetch immediately when being processed on the queue
+      // From experience, even if a tab status is 'complete' now, it
+      // may actually switch to 'loading' in a few seconds even though a
+      // tab reload has not be performed
+      tabState.requestResuspend = true;
       tabCheckPromises.push(
-        // Set to refetch immediately when being processed on the queue
-        // From experience, even if a tab status is 'complete' now, it
-        // may actually switch to 'loading' in a few seconds even though a
-        // tab reload has not be performed
-        queueTabCheckAsPromise(tab, { resuspend: true }, 1000)
+        queueTabCheckAsPromise(tab, 1000)
       );
     }
 
@@ -89,12 +91,13 @@ var gsTabCheckManager = (function() {
         return;
       }
       gsUtils.log(_tab.id, 'suspended tab loaded. status === complete');
-      const tabQueueDetails = getQueuedTabCheckDetails(_tab);
-      if (tabQueueDetails) {
+      const tabState = gsTabState.getTabStateForId(_tab.id);
+      if (tabState) {
         // If tab is in check queue, then force it to continue processing immediately
         // This allows us to prevent a timeout -> fetch tab cycle
-        tabQueueDetails.tab = _tab;
-        queueTabCheck(_tab, { refetchTab: false }, 0);
+        tabState.tab = _tab;
+        gsTabState.setPropForTabId(_tab.id, 'refetchTab', false);
+        queueTabCheck(_tab, 0);
       }
     };
   }
@@ -111,18 +114,16 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  function queueTabCheck(tab, executionProps, processingDelay) {
-    queueTabCheckAsPromise(tab, executionProps, processingDelay).catch(e => {
+  function queueTabCheck(tab, processingDelay) {
+    queueTabCheckAsPromise(tab, processingDelay).catch(e => {
       gsUtils.log(tab.id, QUEUE_ID, e);
     });
   }
 
-  function queueTabCheckAsPromise(tab, executionProps, processingDelay) {
+  function queueTabCheckAsPromise(tab, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for responsiveness check.`);
-    executionProps = executionProps || {};
     return _tabCheckQueue.queueTabAsPromise(
       tab,
-      executionProps,
       processingDelay
     );
   }
@@ -132,10 +133,6 @@ var gsTabCheckManager = (function() {
     if (removed) {
       gsUtils.log(tab.id, QUEUE_ID, 'Removed tab from check queue.');
     }
-  }
-
-  function getQueuedTabCheckDetails(tab) {
-    return _tabCheckQueue.getQueuedTabDetails(tab);
   }
 
   async function handleTabCheckException(
@@ -198,7 +195,8 @@ var gsTabCheckManager = (function() {
     }
     for (const tab of tabs) {
       await resuspendSuspendedTab(tab);
-      queueTabCheck(tab, { refetchTab: true }, 2000);
+      gsTabState.setPropForTabId(tab.id, 'refetchTab', true);
+      queueTabCheck(tab, 2000);
     }
   }
 
@@ -282,12 +280,7 @@ var gsTabCheckManager = (function() {
       }
     }
 
-    // Dont attempt discarding if executionProps.hasDiscarded is set
-    // This means the tab has already been in the check queue but was discarded
-    // before it could be checked. Attempting to discard again could result
-    // in an infinite loop of discard/rechecking.
     const attemptDiscarding =
-      !executionProps.hasDiscarded &&
       gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) &&
       !gsUtils.isDiscardedTab(tab) &&
       !gsTabSelector.isCurrentActiveTab(tab);
@@ -516,7 +509,7 @@ var gsTabCheckManager = (function() {
       _tabCheckQueue.unqueueTab(queuedTabDetails.tab);
       gsChrome.tabsGet(newTabId).then(newTab => {
         if (newTab) {
-          queueTabCheck(newTab, { hasDiscarded: true }, 1000);
+          queueTabCheck(newTab, 1000);
         }
       });
     }
@@ -535,7 +528,6 @@ var gsTabCheckManager = (function() {
     queueTabCheck,
     queueTabCheckAsPromise,
     unqueueTabCheck,
-    getQueuedTabCheckDetails,
     ensureSuspendedTabVisible,
     updateTabIdReferences,
     removeTabIdReferences,
