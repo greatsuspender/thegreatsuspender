@@ -20,6 +20,8 @@ var gsSession = (function() {
   let startupLastVersion;
   let syncedSettingsOnInit;
 
+  let _sessionSaveTimer;
+
   async function initAsPromised() {
     updateUrl = chrome.extension.getURL('update.html');
     updatedUrl = chrome.extension.getURL('updated.html');
@@ -104,6 +106,14 @@ var gsSession = (function() {
     return currentSession;
   }
 
+  function queueUpdateCurrentSession() {
+    clearTimeout(_sessionSaveTimer);
+    _sessionSaveTimer = setTimeout(async () => {
+      gsUtils.log('background', 'updating current session');
+      await updateCurrentSession();
+    }, 1000);
+  }
+
   async function updateCurrentSession() {
     const currentSession = await buildCurrentSession();
     if (currentSession) {
@@ -152,7 +162,6 @@ var gsSession = (function() {
   }
 
   async function runStartupChecks() {
-
     const currentSessionTabs = await gsChrome.tabsQuery();
     gsUtils.log('gsSession', 'preRecovery open tabs:', currentSessionTabs);
 
@@ -194,43 +203,6 @@ var gsSession = (function() {
     updateCurrentSession(); //async
   }
 
-  //make sure the contentscript / suspended script of each tab is responsive
-  async function performTabChecks() {
-    const initStartTime = Date.now();
-    gsUtils.log(
-      'gsSession',
-      '\n\n------------------------------------------------\n' +
-        `Checking tabs for responsiveness..\n` +
-        '------------------------------------------------\n\n'
-    );
-
-    const postRecoverySessionTabs = await gsChrome.tabsQuery();
-    gsUtils.log(
-      'gsSession',
-      'postRecoverySessionTabs:',
-      postRecoverySessionTabs
-    );
-
-    const tabCheckResults = await gsTabCheckManager.performInitialisationTabChecks(
-      postRecoverySessionTabs
-    );
-    const totalTabCheckCount = tabCheckResults.length;
-    const successfulTabChecksCount = tabCheckResults.filter(
-      o => o === gsUtils.STATUS_SUSPENDED || o === gsUtils.STATUS_DISCARDED
-    ).length;
-
-    startupTabCheckTimeTakenInSeconds = parseInt(
-      (Date.now() - initStartTime) / 1000
-    );
-    gsUtils.log(
-      'gsSession',
-      '\n\n------------------------------------------------\n' +
-        `Checking tabs finished. Time taken: ${startupTabCheckTimeTakenInSeconds} sec\n` +
-        `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
-        '------------------------------------------------\n\n'
-    );
-  }
-
   async function handleNormalStartup(currentSessionTabs, curVersion) {
     const shouldRecoverTabs = await checkForCrashRecovery(currentSessionTabs);
     if (shouldRecoverTabs) {
@@ -240,7 +212,9 @@ var gsSession = (function() {
         Date.now() - lastExtensionRecoveryTimestamp < 1000 * 60 * 5;
       gsStorage.setLastExtensionRecoveryTimestamp(Date.now());
 
-      if (!hasCrashedRecently) {
+//TODO: Remove this!
+//       if (!hasCrashedRecently) {
+      if (true) {
         //if this is the first recent crash, then automatically recover lost tabs
         await recoverLostTabs();
       } else {
@@ -821,6 +795,7 @@ var gsSession = (function() {
     getSessionId,
     buildCurrentSession,
     updateCurrentSession,
+    queueUpdateCurrentSession,
     isInitialising,
     setInitialising,
     isUpdated,

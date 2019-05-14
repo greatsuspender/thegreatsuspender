@@ -17,7 +17,8 @@
       // }
       // if (result) {
 
-      document.getElementById('restartExtensionBtn').className += ' btnDisabled';
+      document.getElementById('restartExtensionBtn').className +=
+        ' btnDisabled';
       document.getElementById('restartExtensionBtn').onclick = null;
 
       const currentSession = await gsSession.buildCurrentSession();

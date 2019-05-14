@@ -1,4 +1,4 @@
-/*global chrome, localStorage, gsStorage, gsTabActions, gsChrome, gsTabSelector, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
+/*global chrome, localStorage, gsStorage, gsTabState, gsTabActions, gsChrome, gsTabSelector, gsMessages, gsSession, gsTabSuspendManager, gsTabDiscardManager, gsSuspendedTab, gsFavicon, tgs */
 'use strict';
 
 var debugInfo = false;
@@ -212,16 +212,6 @@ var gsUtils = {
     } else {
       return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
     }
-  },
-
-  shouldSuspendDiscardedTabs: function() {
-    var suspendInPlaceOfDiscard = gsStorage.getOption(
-      gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
-    );
-    var discardInPlaceOfSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
-    );
-    return suspendInPlaceOfDiscard && !discardInPlaceOfSuspend;
   },
 
   removeTabsByUrlAsPromised: function(url) {
@@ -592,10 +582,7 @@ var gsUtils = {
     var expiredTabs = [];
     chrome.tabs.query({}, tabs => {
       for (const tab of tabs) {
-        const timerDetails = tgs.getTabStatePropForTabId(
-          tab.id,
-          tgs.STATE_TIMER_DETAILS
-        );
+        const timerDetails = gsTabState.getTabTimer(tab.id);
         if (
           timerDetails &&
           timerDetails.suspendDateTime &&
@@ -719,15 +706,6 @@ var gsUtils = {
               )));
         if (updateSuspendTime) {
           tgs.resetAutoSuspendTimerForTab(tab);
-        }
-
-        //if SuspendInPlaceOfDiscard has changed then updated discarded tabs
-        const updateSuspendInPlaceOfDiscard = changedSettingKeys.includes(
-          gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
-        );
-        if (updateSuspendInPlaceOfDiscard && gsUtils.isDiscardedTab(tab)) {
-          gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
-          //note: this may cause the tab to suspend
         }
 
         //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer

@@ -172,10 +172,6 @@ body.img-preview-mode .gsTopBar {
 .hotkeyCommand {
     word-spacing: -1px;
 }
-.reasonMsg {
-    font-size: 15px;
-    margin-bottom: 25px;
-}
 .suspendedMsg img {
     height: 180px;
     margin-bottom: 30px;

@@ -1,4 +1,4 @@
-/*global chrome, localStorage, tgs, gsTabSelector, gsUtils, gsChrome, GsTabQueue, gsStorage, gsTabSuspendManager */
+/*global chrome, localStorage, gsTabSelector, gsUtils, gsTabState, gsChrome, GsTabQueue, gsStorage */
 // eslint-disable-next-line no-unused-vars
 var gsTabDiscardManager = (function() {
   'use strict';
@@ -6,7 +6,7 @@ var gsTabDiscardManager = (function() {
   const DEFAULT_CONCURRENT_DISCARDS = 5;
   const DEFAULT_DISCARD_TIMEOUT = 5 * 1000;
 
-  const QUEUE_ID = '_discardQueue';
+  const QUEUE_ID = 'discardQueue';
 
   let _discardQueue;
 
@@ -116,41 +116,10 @@ var gsTabDiscardManager = (function() {
     resolve(false);
   }
 
-  async function handleDiscardedUnsuspendedTab(tab) {
-    if (
-      gsUtils.shouldSuspendDiscardedTabs() &&
-      gsTabSuspendManager.checkTabEligibilityForSuspension(tab, 3)
-    ) {
-      tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SUSPEND_REASON, 3);
-      const suspendedUrl = gsUtils.generateSuspendedUrl(tab.url, tab.title, 0);
-      gsUtils.log(tab.id, QUEUE_ID, 'Suspending discarded unsuspended tab');
-
-      // Note: This bypasses the suspension tab queue and also prevents screenshots from being taken
-      await gsTabSuspendManager.executeTabSuspension(tab, suspendedUrl);
-      return;
-    }
-  }
-
-  function updateTabIdReferences(newTabId, oldTabId) {
-    const queuedTabDetails = _discardQueue.getQueuedTabDetailsByTabId(
-      oldTabId
-    );
-    if (queuedTabDetails) {
-      _discardQueue.unqueueTab(queuedTabDetails.tab);
-      // Probably dont want to re-queue a tab for discard that has just had
-      // its id change as a result of a previous discard :)
-      // gsChrome.tabsGet(newTabId).then(newTab => {
-      //   if (newTab) {
-      //     queueTabForDiscard(newTab);
-      //   }
-      // });
-    }
-  }
-
   function removeTabIdReferences(tabId) {
-    const queuedTabDetails = _discardQueue.getQueuedTabDetailsByTabId(tabId);
-    if (queuedTabDetails) {
-      _discardQueue.unqueueTab(queuedTabDetails.tab);
+    const tabState = gsTabState.getTabStateForId(tabId);
+    if (tabState) {
+      _discardQueue.unqueueTab(tabState.tab);
     }
   }
 
@@ -159,8 +128,6 @@ var gsTabDiscardManager = (function() {
     queueTabForDiscard,
     queueTabForDiscardAsPromise,
     unqueueTabForDiscard,
-    handleDiscardedUnsuspendedTab,
-    updateTabIdReferences,
     removeTabIdReferences,
   };
 })();

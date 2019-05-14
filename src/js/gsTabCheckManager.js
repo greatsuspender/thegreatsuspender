@@ -58,10 +58,10 @@ var gsTabCheckManager = (function() {
       // may actually switch to 'loading' in a few seconds even though a
       // tab reload has not be performed
       tabState.requestResuspend = true;
-      tabCheckPromises.push(
-        queueTabCheckAsPromise(tab, 1000)
-      );
+      tabCheckPromises.push(queueTabCheckAsPromise(tab, {}, 1000));
     }
+
+    console.log('tabCheckPromises',tabCheckPromises);
 
     const tabUpdatedListener = getTabUpdatedListener();
     chrome.tabs.onUpdated.addListener(tabUpdatedListener);
@@ -96,8 +96,7 @@ var gsTabCheckManager = (function() {
         // If tab is in check queue, then force it to continue processing immediately
         // This allows us to prevent a timeout -> fetch tab cycle
         tabState.tab = _tab;
-        gsTabState.setPropForTabId(_tab.id, 'refetchTab', false);
-        queueTabCheck(_tab, 0);
+        queueTabCheck(_tab, { refetchTab: false }, 0);
       }
     };
   }
@@ -114,16 +113,18 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  function queueTabCheck(tab, processingDelay) {
-    queueTabCheckAsPromise(tab, processingDelay).catch(e => {
+  function queueTabCheck(tab, executionProps, processingDelay) {
+    queueTabCheckAsPromise(tab, executionProps, processingDelay).catch(e => {
       gsUtils.log(tab.id, QUEUE_ID, e);
     });
   }
 
-  function queueTabCheckAsPromise(tab, processingDelay) {
+  function queueTabCheckAsPromise(tab, executionProps, processingDelay) {
     gsUtils.log(tab.id, QUEUE_ID, `Queueing tab for responsiveness check.`);
+    executionProps = executionProps || {};
     return _tabCheckQueue.queueTabAsPromise(
       tab,
+      executionProps,
       processingDelay
     );
   }
@@ -195,8 +196,7 @@ var gsTabCheckManager = (function() {
     }
     for (const tab of tabs) {
       await resuspendSuspendedTab(tab);
-      gsTabState.setPropForTabId(tab.id, 'refetchTab', true);
-      queueTabCheck(tab, 2000);
+      queueTabCheck(tab, { refetchTab: true }, 2000);
     }
   }
 
@@ -293,8 +293,8 @@ var gsTabCheckManager = (function() {
 
     let reinitialised = false;
     if (!tabChecksOk) {
-      const tabQueueDetails = _tabCheckQueue.getQueuedTabDetails(tab);
-      if (!tabQueueDetails) {
+      const tabQueueState = _tabCheckQueue.getTabQueueState(tab);
+      if (!tabQueueState) {
         resolve(gsUtils.STATUS_UNKNOWN);
         return;
       }
@@ -332,14 +332,7 @@ var gsTabCheckManager = (function() {
 
   async function resuspendSuspendedTab(tab) {
     gsUtils.log(tab.id, QUEUE_ID, 'Resuspending unresponsive suspended tab.');
-    const suspendedView = tgs.getInternalViewByTabId(tab.id);
-    if (suspendedView) {
-      tgs.setTabStatePropForTabId(
-        tab.id,
-        tgs.STATE_DISABLE_UNSUSPEND_ON_RELOAD,
-        true
-      );
-    }
+    gsTabState.setTabSuspending(tab.id);
     const reloadOk = await gsChrome.tabsReload(tab.id);
     return reloadOk;
   }
@@ -428,14 +421,14 @@ var gsTabCheckManager = (function() {
       return;
     }
 
-    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetails(tab);
-    if (!queuedTabDetails) {
+    const tabQueueState = _tabCheckQueue.getTabQueueState(tab);
+    if (!tabQueueState) {
       gsUtils.log(tab.id, QUEUE_ID, 'Tab missing from suspensionQueue?');
       resolve(gsUtils.STATUS_UNKNOWN);
       return;
     }
 
-    if (tab.active && queuedTabDetails.requeues === 0) {
+    if (tab.active && tabQueueState.requeues === 0) {
       gsUtils.log(
         tab.id,
         QUEUE_ID,
@@ -501,24 +494,10 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  function updateTabIdReferences(newTabId, oldTabId) {
-    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetailsByTabId(
-      oldTabId
-    );
-    if (queuedTabDetails) {
-      _tabCheckQueue.unqueueTab(queuedTabDetails.tab);
-      gsChrome.tabsGet(newTabId).then(newTab => {
-        if (newTab) {
-          queueTabCheck(newTab, 1000);
-        }
-      });
-    }
-  }
-
   function removeTabIdReferences(tabId) {
-    const queuedTabDetails = _tabCheckQueue.getQueuedTabDetailsByTabId(tabId);
-    if (queuedTabDetails) {
-      _tabCheckQueue.unqueueTab(queuedTabDetails.tab);
+    const tabState = gsTabState.getTabStateForId(tabId);
+    if (tabState) {
+      _tabCheckQueue.unqueueTab(tabState.tab);
     }
   }
 
@@ -529,7 +508,6 @@ var gsTabCheckManager = (function() {
     queueTabCheckAsPromise,
     unqueueTabCheck,
     ensureSuspendedTabVisible,
-    updateTabIdReferences,
     removeTabIdReferences,
   };
 })();

@@ -1,4 +1,4 @@
-/* global gsStorage, gsChrome, gsIndexedDb, gsTabActions, gsUtils, gsTabState, gsFavicon, gsSession, gsMessages, gsTabSelector, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
+/* global gsStorage, gsChrome, gsIndexedDb, gsTabActions, gsUtils, gsEvents, gsTabState, gsFavicon, gsSession, gsMessages, gsTabSelector, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -19,27 +19,11 @@ var tgs = (function() {
     '32': 'img/ic_suspendy_32x32_grey.png',
   };
 
-  // Unsuspended tab props
-  const STATE_TIMER_DETAILS = 'timerDetails';
-
-  // Suspended tab props
-  const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-  const STATE_DISABLE_UNSUSPEND_ON_RELOAD = 'disableUnsuspendOnReload';
-  const STATE_INITIALISE_SUSPENDED_TAB = 'initialiseSuspendedTab';
-  const STATE_UNLOADED_URL = 'unloadedUrl';
-  const STATE_HISTORY_URL_TO_REMOVE = 'historyUrlToRemove';
-  const STATE_SET_AUTODISCARDABLE = 'setAutodiscardable';
-  const STATE_SHOW_NAG = 'showNag';
-  const STATE_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
-  const STATE_SCROLL_POS = 'scrollPos';
-
   const focusDelay = 500;
   const noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
   const sessionMetricsCheckInterval = 1000 * 60 * 15; // every 15 minutes
   const analyticsCheckInterval = 1000 * 60 * 60 * 23.5; // every 23.5 hours
 
-  const _tabStateByTabId = {};
-  let _sessionSaveTimer;
   let _newTabFocusTimer;
   let _newWindowFocusTimer;
   let _noticeToDisplay;
@@ -62,6 +46,7 @@ var tgs = (function() {
       gsSession,
       gsFavicon,
       gsTabState,
+      gsEvents,
       gsTabSelector,
       gsTabActions,
       gsTabCheckManager,
@@ -111,10 +96,6 @@ var tgs = (function() {
   function initAsPromised() {
     return new Promise(async function(resolve) {
       gsUtils.log('background', 'PERFORMING BACKGROUND INIT...');
-      addCommandListeners();
-      addMessageListeners();
-      addChromeListeners();
-      addMiscListeners();
 
       //initialise unsuspended tab props
       resetAutoSuspendTimerForAllTabs();
@@ -135,21 +116,21 @@ var tgs = (function() {
   async function performTabChecks() {
     const initStartTime = Date.now();
     gsUtils.log(
-      'gsSession',
+      'background',
       '\n\n------------------------------------------------\n' +
-      `Checking tabs for responsiveness..\n` +
-      '------------------------------------------------\n\n'
+        `Checking tabs for responsiveness..\n` +
+        '------------------------------------------------\n\n'
     );
 
     const postRecoverySessionTabs = await gsChrome.tabsQuery();
     gsUtils.log(
-      'gsSession',
+      'background',
       'postRecoverySessionTabs:',
       postRecoverySessionTabs
     );
 
     for (const tab of postRecoverySessionTabs) {
-      _tabStateByTabId[tab.id] = gsTabState.createNewTabState(tab);
+      gsTabState.createNewTabState(tab);
     }
 
     const tabCheckResults = await gsTabCheckManager.performInitialisationTabChecks(
@@ -160,15 +141,15 @@ var tgs = (function() {
       o => o === gsUtils.STATUS_SUSPENDED || o === gsUtils.STATUS_DISCARDED
     ).length;
 
-    startupTabCheckTimeTakenInSeconds = parseInt(
+    const startupTabCheckTimeTakenInSeconds = parseInt(
       (Date.now() - initStartTime) / 1000
     );
     gsUtils.log(
-      'gsSession',
+      'background',
       '\n\n------------------------------------------------\n' +
-      `Checking tabs finished. Time taken: ${startupTabCheckTimeTakenInSeconds} sec\n` +
-      `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
-      '------------------------------------------------\n\n'
+        `Checking tabs finished. Time taken: ${startupTabCheckTimeTakenInSeconds} sec\n` +
+        `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
+        '------------------------------------------------\n\n'
     );
   }
 
@@ -213,14 +194,6 @@ var tgs = (function() {
     });
   }
 
-  function queueSessionTimer() {
-    clearTimeout(_sessionSaveTimer);
-    _sessionSaveTimer = setTimeout(function() {
-      gsUtils.log('background', 'updating current session');
-      gsSession.updateCurrentSession(); //async
-    }, 1000);
-  }
-
   function resetAutoSuspendTimerForTab(tab) {
     clearAutoSuspendTimerForTabId(tab.id);
 
@@ -253,8 +226,7 @@ var tgs = (function() {
       tab.id,
       'Adding tab timer for: ' + timerDetails.suspendDateTime
     );
-
-    setTabStatePropForTabId(tab.id, STATE_TIMER_DETAILS, timerDetails);
+    gsTabState.setTabTimer(tab.id, timerDetails);
   }
 
   function resetAutoSuspendTimerForAllTabs() {
@@ -268,28 +240,13 @@ var tgs = (function() {
   }
 
   function clearAutoSuspendTimerForTabId(tabId) {
-    const timerDetails = getTabStatePropForTabId(tabId, STATE_TIMER_DETAILS);
+    const timerDetails = gsTabState.getTabTimer(tabId);
     if (!timerDetails) {
       return;
     }
     gsUtils.log(tabId, 'Removing tab timer.');
     clearTimeout(timerDetails.timer);
-    setTabStatePropForTabId(tabId, STATE_TIMER_DETAILS, null);
-  }
-
-  function getTabStatePropForTabId(tabId, prop) {
-    return _tabStateByTabId[tabId] ? _tabStateByTabId[tabId][prop] : undefined;
-  }
-  function setTabStatePropForTabId(tabId, prop, value) {
-    // gsUtils.log(tabId, `Setting tab state prop: ${prop}:`, value);
-    const tabState = _tabStateByTabId[tabId] || {};
-    tabState[prop] = value;
-    _tabStateByTabId[tabId] = tabState;
-  }
-  function clearTabStateForTabId(tabId) {
-    gsUtils.log(tabId, 'Clearing tab state props:', _tabStateByTabId[tabId]);
-    clearAutoSuspendTimerForTabId(tabId);
-    delete _tabStateByTabId[tabId];
+    gsTabState.setTabTimer(tabId, null);
   }
 
   function buildSuspensionToggleHotkey() {
@@ -337,49 +294,32 @@ var tgs = (function() {
       changeInfo
     );
 
-    // Ensure we clear the STATE_UNLOADED_URL flag during load in case the
-    // tab is suspended again before loading can finish (in which case on
-    // suspended tab complete, the tab will reload again)
+    // Ensure we clear the gsTabState.UNLOADED_URL flag during unsuspended tab
+    // load in case the tab is suspended again before loading can finish (in
+    // which case on suspended tab complete, the tab will reload again)
     if (
       changeInfo.hasOwnProperty('status') &&
       changeInfo.status === 'loading'
     ) {
-      setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, null);
+      gsTabState.setTabUnloadedUrlFlag(tab.id, null);
     }
 
     // Check if tab has just been discarded
     if (changeInfo.hasOwnProperty('discarded') && changeInfo.discarded) {
-      const existingSuspendReason = getTabStatePropForTabId(
-        tab.id,
-        STATE_SUSPEND_REASON
-      );
-      if (existingSuspendReason && existingSuspendReason === 3) {
-        // For some reason the discarded changeInfo gets called twice (chrome bug?)
-        // As a workaround we use the suspend reason to determine if we've already
-        // handled this discard
-        //TODO: Report chrome bug
-        return;
-      }
-      gsUtils.log(
-        tab.id,
-        'Unsuspended tab has been discarded. Url: ' + tab.url
-      );
-      gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
-
       // When a tab is discarded the tab id changes. We need up-to-date UNSUSPENDED
       // tabIds in the current session otherwise crash recovery will not work
-      queueSessionTimer();
+      gsSession.queueUpdateCurrentSession();
       return;
     }
 
     // Check if tab is queued for suspension
-    const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(tab);
-    if (queuedTabDetails) {
+    const tabQueueState = gsTabSuspendManager.getTabQueueState(tab);
+    if (tabQueueState) {
       // Requeue tab to wake it from possible sleep
-      delete queuedTabDetails.executionProps.refetchTab;
+      gsTabState.setPropForTabId(tab.id, 'refetchTab', false);
       gsTabSuspendManager.queueTabForSuspension(
         tab,
-        queuedTabDetails.executionProps.forceLevel
+        tabQueueState.executionProps.forceLevel
       );
       return;
     }
@@ -404,51 +344,43 @@ var tgs = (function() {
 
     if (changeInfo.hasOwnProperty('status')) {
       if (changeInfo.status === 'complete') {
-        const tempWhitelistOnReload = getTabStatePropForTabId(
-          tab.id,
-          STATE_TEMP_WHITELIST_ON_RELOAD
-        );
-        const scrollPos =
-          getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
-        const historyUrlToRemove = getTabStatePropForTabId(
-          tab.id,
-          STATE_HISTORY_URL_TO_REMOVE
-        );
-        const setAutodiscardable = getTabStatePropForTabId(
-          tab.id,
-          STATE_SET_AUTODISCARDABLE
-        );
-        clearTabStateForTabId(tab.id);
-
-        if (historyUrlToRemove) {
-          removeTabHistoryForUnuspendedTab(historyUrlToRemove);
-        }
-        if (setAutodiscardable) {
-          gsChrome.tabsUpdate(tab.id, { autoDiscardable: true });
-        }
-
-        //init loaded tab
-        resetAutoSuspendTimerForTab(tab);
-        initialiseTabContentScript(tab, tempWhitelistOnReload, scrollPos)
-          .catch(error => {
-            gsUtils.warning(
-              tab.id,
-              'Failed to send init to content script. Tab may not behave as expected.'
-            );
-          })
-          .then(() => {
-            // could use returned tab status here below
-          });
+        handleUnsuspendedTabLoaded(tab);
       }
-
       hasTabStatusChanged = true;
     }
 
     //if tab is currently visible then update popup icon
     if (hasTabStatusChanged && gsTabSelector.isCurrentFocusedTab(tab)) {
-      const status = await calculateTabStatus(tab, null);
-      setIconStatus(status, tab.id);
+      await updateIconStatusForTab(tab);
     }
+  }
+
+  function handleUnsuspendedTabLoaded(tab) {
+    const tempWhitelistOnReload = gsTabState.getTabTempWhitelistOnReloadFlag(
+      tab.id
+    );
+    const scrollPos = gsTabState.getTabScrollPosFlag(tab.id) || null;
+    const historyUrlToRemove = gsTabState.getTabHistoryUrlToRemoveFlag(tab.id);
+    const isAutodiscardable = gsTabState.getTabIsAutoDiscardableFlag(tab.id);
+    if (historyUrlToRemove) {
+      removeTabHistoryForUnuspendedTab(historyUrlToRemove);
+    }
+    if (isAutodiscardable) {
+      gsChrome.tabsUpdate(tab.id, { autoDiscardable: true });
+    }
+
+    //init loaded tab
+    resetAutoSuspendTimerForTab(tab);
+    initialiseTabContentScript(tab, tempWhitelistOnReload, scrollPos).catch(
+      error => {
+        gsUtils.warning(
+          tab.id,
+          'Failed to send init to content script. Tab may not behave as expected.'
+        );
+      }
+    );
+
+    gsTabState.setTabUnsuspended(tab.id);
   }
 
   function removeTabHistoryForUnuspendedTab(suspendedUrl) {
@@ -458,6 +390,7 @@ var tgs = (function() {
       //assume history entry will be the second to latest one (latest one is the currently visible page)
       //NOTE: this will break if the same url has been visited by another tab more recently than the
       //suspended tab (pre suspension)
+      //eslint-disable-next-line no-unused-vars
       const latestVisit = visits.pop();
       const previousVisit = visits.pop();
       if (previousVisit) {
@@ -505,94 +438,51 @@ var tgs = (function() {
       changeInfo
     );
 
-    if (changeInfo.status && changeInfo.status === 'loading') {
-      tgs.setTabStatePropForTabId(
-        tab.id,
-        tgs.STATE_INITIALISE_SUSPENDED_TAB,
-        true
-      );
+    // Check if suspended tab has been reloaded with the same url.
+    // If so, and the tab is not is a SUSPENDING state, unsuspend tab and return early
+    const unloadedUrl = gsTabState.getTabUnloadedUrlFlag(tab.id);
+    const suspendedTabReloaded = unloadedUrl === tab.url;
+    if (suspendedTabReloaded && !gsTabState.isTabSuspending(tab.id)) {
+      gsTabActions.unsuspendTab(tab); //async. unhandled promise
       return;
     }
 
+    if (changeInfo.status && changeInfo.status === 'loading') {
+      return;
+    }
+
+    // When suspended tabs are discarded (by chrome) also trigger initialisation
     if (
       (changeInfo.status && changeInfo.status === 'complete') ||
-      changeInfo.discarded
+      (changeInfo.discarded && gsTabState.isTabSuspending(tab.id))
     ) {
       gsTabSuspendManager.unqueueTabForSuspension(tab); //safety precaution
-      const shouldInitTab = getTabStatePropForTabId(
-        tab.id,
-        STATE_INITIALISE_SUSPENDED_TAB
-      );
-      if (shouldInitTab) {
-        initialiseSuspendedTab(tab);
-      }
+      initialiseSuspendedTab(tab);
     }
   }
 
   function initialiseSuspendedTab(tab) {
-    const tabState = gsTabState.getTabStateForId(tab.id);
-    const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
-    const disableUnsuspendOnReload = getTabStatePropForTabId(
-      tab.id,
-      STATE_DISABLE_UNSUSPEND_ON_RELOAD
-    );
-    let showNag = tgs.getTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG);
-    clearTabStateForTabId(tab.id);
-
     if (gsTabSelector.isCurrentFocusedTab(tab)) {
-      setIconStatus(gsUtils.STATUS_SUSPENDED, tab.id);
-    }
-
-    //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
-    const suspendedTabRefreshed = unloadedUrl === tab.url;
-    if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
-      gsTabActions.unsuspendTab(tab); //async. unhandled promise
-      return;
+      setIconStatusForTabId(gsUtils.STATUS_SUSPENDED, tab.id);
     }
 
     //queue tab check before initTab as we want the check in the gsTabCheckManager
     //queue as early as possible. sometimes tabs will discard between now and the
     //end of initTab. if the tab is in the queue before this happens, it's tabId
     //will get updated when the discard triggers gsTabCheckManager.updateTabIdReferences
-    gsTabCheckManager.queueTabCheck(tab, 3000);
+    gsTabCheckManager.queueTabCheck(tab, { refetchTab: true }, 3000);
 
     const tabView = tgs.getInternalViewByTabId(tab.id);
     const quickInit =
       gsStorage.getOption(gsStorage.DISCARD_AFTER_SUSPEND) && !tab.active;
     gsSuspendedTab
-      .initTab(tab, tabView, { quickInit, showNag })
+      .initTab(tab, tabView, { quickInit })
+      .then(() => {
+
+      })
       .catch(error => {
         gsUtils.warning(tab.id, error);
       });
-  }
-
-  function updateTabIdReferences(newTabId, oldTabId) {
-    gsUtils.log(oldTabId, 'update tabId references to ' + newTabId);
-
-    gsTabSelector.updateTabIdReferences(newTabId, oldTabId);
-    gsTabCheckManager.updateTabIdReferences(newTabId, oldTabId);
-    gsTabDiscardManager.updateTabIdReferences(newTabId, oldTabId);
-    gsTabSuspendManager.updateTabIdReferences(newTabId, oldTabId);
-
-    if (_tabStateByTabId[oldTabId]) {
-      _tabStateByTabId[newTabId] = _tabStateByTabId[oldTabId];
-      delete _tabStateByTabId[oldTabId];
-    }
-    const timerDetails = getTabStatePropForTabId(newTabId, STATE_TIMER_DETAILS);
-    if (timerDetails) {
-      timerDetails.tabId = newTabId;
-    }
-  }
-
-  function removeTabIdReferences(tabId) {
-    gsUtils.log(tabId, 'removing tabId references to ' + tabId);
-
-    gsTabSelector.removeTabIdReferences(tabId);
-    gsTabCheckManager.removeTabIdReferences(tabId);
-    gsTabDiscardManager.removeTabIdReferences(tabId);
-    gsTabSuspendManager.removeTabIdReferences(tabId);
-
-    clearTabStateForTabId(tabId);
   }
 
   async function getSuspensionToggleHotkey() {
@@ -611,6 +501,7 @@ var tgs = (function() {
       return;
     }
     gsTabSelector.setCurrentlyFocusedWindowId(windowId);
+    checkForContextMenuChanges(); // async. unhandled promise
 
     // Get the active tab in the newly focused window
     const tabs = await gsChrome.tabsQuery({ active: true });
@@ -636,12 +527,13 @@ var tgs = (function() {
     queueNewWindowFocusTimer(focusedTab.id, windowId, focusedTab);
 
     //update icon
-    const status = await calculateTabStatus(focusedTab, null);
-    setIconStatus(status, focusedTab.id);
+    await updateIconStatusForTab(tab);
   }
 
   async function handleTabFocusChanged(tabId, windowId) {
     gsUtils.log(tabId, 'tab gained focus');
+    checkForContextMenuChanges(); // async. unhandled promise
+
     const focusedTab = await gsChrome.tabsGet(tabId);
     if (!focusedTab) {
       return;
@@ -652,7 +544,10 @@ var tgs = (function() {
     if (previouslyFocusedTabId === tabId) {
       //when a tab discards, it can trigger a tab focus event.
       //new tabId can match previouslyFocusedTabId if the old id was updated via updateTabIdReferences
-      gsUtils.log(tabId, 'Ignoring tab focus change as new tabId matches previouslyFocusedTabId.');
+      gsUtils.log(
+        tabId,
+        'Ignoring tab focus change as new tabId matches previouslyFocusedTabId.'
+      );
       return;
     }
 
@@ -680,6 +575,7 @@ var tgs = (function() {
       if (!contentScriptStatus) {
         contentScriptStatus = await gsTabCheckManager.queueTabCheckAsPromise(
           focusedTab,
+          {},
           0
         );
       }
@@ -699,7 +595,7 @@ var tgs = (function() {
         windowId
       );
       if (currentlyFocusedTabId === focusedTab.id) {
-        setIconStatus(status, focusedTab.id);
+        setIconStatusForTabId(status, focusedTab.id);
       }
     }, 0);
 
@@ -740,7 +636,7 @@ var tgs = (function() {
       previouslyFocusedTabId,
       'Queueing previously focused tab for discard via tabCheckManager'
     );
-    gsTabCheckManager.queueTabCheck(previouslyFocusedTab, 1000);
+    gsTabCheckManager.queueTabCheck(previouslyFocusedTab, {}, 1000);
   }
 
   function queueNewWindowFocusTimer(tabId, windowId, focusedTab) {
@@ -788,13 +684,11 @@ var tgs = (function() {
     if (gsUtils.isSuspendedTab(focusedTab)) {
       handleSuspendedTabFocusGained(focusedTab); //async. unhandled promise.
     } else if (gsUtils.isNormalTab(focusedTab)) {
-      const queuedTabDetails = gsTabSuspendManager.getQueuedTabDetails(
-        focusedTab
-      );
+      const tabQueueState = gsTabSuspendManager.getTabQueueState(focusedTab);
       //if focusedTab is already in the queue for suspension then remove it.
-      if (queuedTabDetails) {
+      if (tabQueueState) {
         //only cancel suspension if the tab suspension request has a forceLevel > 1
-        const isLowForceLevel = queuedTabDetails.executionProps.forceLevel > 1;
+        const isLowForceLevel = tabQueueState.executionProps.forceLevel > 1;
 
         if (isLowForceLevel) {
           gsTabSuspendManager.unqueueTabForSuspension(focusedTab);
@@ -813,7 +707,10 @@ var tgs = (function() {
       chrome.tabs.get(previousStationaryTabId, function(previousStationaryTab) {
         if (chrome.runtime.lastError) {
           //Tab has probably been removed
-          gsUtils.log(previousStationaryTabId, chrome.runtime.lastError.message)
+          gsUtils.log(
+            previousStationaryTabId,
+            chrome.runtime.lastError.message
+          );
           return;
         }
         if (
@@ -830,8 +727,7 @@ var tgs = (function() {
   async function handleSuspendedTabFocusGained(focusedTab) {
     if (focusedTab.status !== 'loading') {
       //safety check to ensure suspended tab has been initialised
-      gsTabState.setPropForTabId(focusedTab.id, 'refetchTab', false);
-      gsTabCheckManager.queueTabCheck(focusedTab, 0);
+      gsTabCheckManager.queueTabCheck(focusedTab, { refetchTab: false }, 0);
     }
 
     //check for auto-unsuspend
@@ -920,6 +816,63 @@ var tgs = (function() {
     xhr.send();
   }
 
+  async function handleTabCreated(tab) {
+    gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
+    gsSession.queueUpdateCurrentSession();
+    gsTabState.createNewTabState(tab);
+
+    // It's unusual for a suspended tab to be created. Usually they are updated
+    // from a normal tab. This usually happens when using 'reopen closed tab'.
+    if (gsUtils.isSuspendedTab(tab) && !tab.active) {
+      // Queue tab for check but mark it as sleeping for 5 seconds to give
+      // a chance for the tab to load
+      gsTabCheckManager.queueTabCheck(tab, {}, 5000);
+    }
+  }
+
+  async function handleTabRemoved(tabId) {
+    gsUtils.log(tabId, 'tab removed.');
+    gsSession.queueUpdateCurrentSession();
+    gsTabState.removeTabIdReferences(tabId);
+  }
+
+  async function handleTabUpdated(tab, changeInfo) {
+    if (!changeInfo) return;
+
+    // if url has changed
+    if (changeInfo.url) {
+      gsUtils.log(tab.id, 'tab url changed. changeInfo: ', changeInfo);
+      checkForTriggerUrls(tab, changeInfo.url);
+      gsSession.queueUpdateCurrentSession();
+    }
+
+    if (gsUtils.isSuspendedTab(tab)) {
+      handleSuspendedTabStateChanged(tab, changeInfo);
+    } else if (gsUtils.isNormalTab(tab)) {
+      await handleUnsuspendedTabStateChanged(tab, changeInfo);
+    }
+  }
+
+  async function handleWindowCreated(window) {
+    gsUtils.log(window.id, 'window created.');
+    gsSession.queueUpdateCurrentSession();
+
+    var noticeToDisplay = requestNotice();
+    if (noticeToDisplay) {
+      chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
+      gsAnalytics.reportEvent(
+        'Notice',
+        'Display',
+        noticeToDisplay.target + ':' + noticeToDisplay.version
+      );
+    }
+  }
+
+  async function handleWindowRemoved(windowId) {
+    gsUtils.log(windowId, 'window removed.');
+    gsSession.queueUpdateCurrentSession();
+  }
+
   function requestNotice() {
     return _noticeToDisplay;
   }
@@ -931,8 +884,33 @@ var tgs = (function() {
     return _isCharging;
   }
 
+  function handleBatteryChargingChange(battery) {
+    _isCharging = battery.charging;
+    gsUtils.log('background', `_isCharging: ${_isCharging}`);
+    tgs.updateIconStatusForActiveTab(); //async. unhandled promise
+    //restart timer on all normal tabs
+    //NOTE: some tabs may have been prevented from suspending when computer was charging
+    if (!_isCharging && gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)) {
+      resetAutoSuspendTimerForAllTabs();
+    }
+  }
+
+  async function handleOnlineStatusChange(isOnline) {
+    if (isOnline) {
+      gsUtils.log('background', 'Internet is online.');
+      //restart timer on all normal tabs
+      //NOTE: some tabs may have been prevented from suspending when internet was offline
+      if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
+        resetAutoSuspendTimerForAllTabs();
+      }
+    } else {
+      gsUtils.log('background', 'Internet is offline.');
+    }
+    await tgs.updateIconStatusForActiveTab();
+  }
+
   async function getDebugInfo(tabId) {
-    const timerDetails = getTabStatePropForTabId(tabId, STATE_TIMER_DETAILS);
+    const timerDetails = gsTabState.getTabTimer(tabId);
     const info = {
       windowId: '',
       tabId: '',
@@ -1082,8 +1060,21 @@ var tgs = (function() {
     return status;
   }
 
+  async function updateIconStatusForActiveTab() {
+    const tab = await gsTabSelector.getCurrentlyActiveTab();
+    if (!tab) {
+      return;
+    }
+    await updateIconStatusForTab(tab);
+  }
+
+  async function updateIconStatusForTab(tab, knownContentScriptStatus) {
+    const tabStatus = await calculateTabStatus(tab, knownContentScriptStatus);
+    setIconStatusForTabId(tabStatus, tab.id);
+  }
+
   //change the icon to either active or inactive
-  function setIconStatus(status, tabId) {
+  function setIconStatusForTabId(status, tabId) {
     // gsUtils.log(tabId, 'Setting icon status: ' + status);
     var icon = ![gsUtils.STATUS_NORMAL, gsUtils.STATUS_ACTIVE].includes(status)
       ? ICON_SUSPENSION_PAUSED
@@ -1097,15 +1088,6 @@ var tgs = (function() {
         );
       }
     });
-  }
-
-  async function setIconStatusForActiveTab() {
-    const tab = await gsTabSelector.getCurrentlyActiveTab();
-    if (!tab) {
-      return;
-    }
-    const status = await calculateTabStatus(tab, null);
-    setIconStatus(status, tab.id);
   }
 
   //HANDLERS FOR RIGHT-CLICK CONTEXT MENU
@@ -1251,243 +1233,6 @@ var tgs = (function() {
     }
   }
 
-  //HANDLERS FOR KEYBOARD SHORTCUTS
-
-  function addCommandListeners() {
-    chrome.commands.onCommand.addListener(async command => {
-      if (command === '1-suspend-tab') {
-        await gsTabActions.toggleSuspendedStateOfSelectedTabs();
-      } else if (command === '2-toggle-temp-whitelist-tab') {
-        await gsTabActions.toggleTempWhitelistStateOfSelectedTabs();
-      } else if (command === '3-suspend-active-window') {
-        await gsTabActions.suspendAllTabs(false);
-      } else if (command === '3b-force-suspend-active-window') {
-        await gsTabActions.suspendAllTabs(true);
-      } else if (command === '4-unsuspend-active-window') {
-        await gsTabActions.unsuspendAllTabs();
-      } else if (command === '4b-soft-suspend-all-windows') {
-        await gsTabActions.suspendAllTabsInAllWindows(false);
-      } else if (command === '5-suspend-all-windows') {
-        await gsTabActions.suspendAllTabsInAllWindows(true);
-      } else if (command === '6-unsuspend-all-windows') {
-        await gsTabActions.unsuspendAllTabsInAllWindows();
-      }
-    });
-  }
-
-  //HANDLERS FOR MESSAGE REQUESTS
-
-  function messageRequestListener(request, sender, sendResponse) {
-    gsUtils.log(
-      sender.tab.id,
-      'background messageRequestListener',
-      request.action
-    );
-
-    if (request.action === 'reportTabState') {
-      var contentScriptStatus =
-        request && request.status ? request.status : null;
-      if (
-        contentScriptStatus === 'formInput' ||
-        contentScriptStatus === 'tempWhitelist'
-      ) {
-        chrome.tabs.update(sender.tab.id, { autoDiscardable: false });
-      } else if (!sender.tab.autoDiscardable) {
-        chrome.tabs.update(sender.tab.id, { autoDiscardable: true });
-      }
-      // If tab is currently visible then update popup icon
-      if (sender.tab && gsTabSelector.isCurrentFocusedTab(sender.tab)) {
-        calculateTabStatus(sender.tab, contentScriptStatus).then(status => {
-          setIconStatus(status, sender.tab.id);
-        });
-      }
-      sendResponse();
-      return false;
-    }
-
-    if (request.action === 'savePreviewData') {
-      gsTabSuspendManager.handlePreviewImageResponse(
-        sender.tab,
-        request.previewUrl,
-        request.errorMsg
-      ); // async. unhandled promise
-      sendResponse();
-      return false;
-    }
-
-    // Fallback to empty response to ensure callback is made
-    sendResponse();
-    return false;
-  }
-
-  function externalMessageRequestListener(request, sender, sendResponse) {
-    gsUtils.log('background', 'external message request: ', request, sender);
-
-    if (!request.action || !['suspend', 'unsuspend'].includes(request.action)) {
-      sendResponse('Error: unknown request.action: ' + request.action);
-      return;
-    }
-
-    // wrap this in an anonymous async function so we can use await
-    (async function() {
-      let tab;
-      if (request.tabId) {
-        if (typeof request.tabId !== 'number') {
-          sendResponse('Error: tabId must be an int');
-          return;
-        }
-        tab = await gsChrome.tabsGet(request.tabId);
-        if (!tab) {
-          sendResponse('Error: no tab found with id: ' + request.tabId);
-          return;
-        }
-      } else {
-        tab = await gsTabSelector.getCurrentlyActiveTab();
-      }
-      if (!tab) {
-        sendResponse('Error: failed to find a target tab');
-        return;
-      }
-
-      if (request.action === 'suspend') {
-        if (gsUtils.isSuspendedTab(tab, true)) {
-          sendResponse('Error: tab is already suspended');
-          return;
-        }
-
-        gsTabSuspendManager.queueTabForSuspension(tab, 1);
-        sendResponse();
-        return;
-      }
-
-      if (request.action === 'unsuspend') {
-        if (!gsUtils.isSuspendedTab(tab)) {
-          sendResponse('Error: tab is not suspended');
-          return;
-        }
-
-        await gsTabActions.unsuspendTab(tab);
-        sendResponse();
-        return;
-      }
-    })();
-    return true;
-  }
-
-  function addMessageListeners() {
-    chrome.runtime.onMessage.addListener(messageRequestListener);
-    //attach listener to runtime for external messages, to allow
-    //interoperability with other extensions in the manner of an API
-    chrome.runtime.onMessageExternal.addListener(
-      externalMessageRequestListener
-    );
-  }
-
-  function addChromeListeners() {
-    chrome.windows.onFocusChanged.addListener(async windowId => {
-      await handleWindowFocusChanged(windowId);
-      if (windowId > 0) {
-        checkForContextMenuChanges(); // async. unhandled promise
-      }
-    });
-    chrome.tabs.onActivated.addListener(async activeInfo => {
-      handleTabFocusChanged(activeInfo.tabId, activeInfo.windowId); // async. unhandled promise
-      checkForContextMenuChanges(); // async. unhandled promise
-    });
-    chrome.tabs.onReplaced.addListener(async (addedTabId, removedTabId) => {
-      updateTabIdReferences(addedTabId, removedTabId);
-    });
-    chrome.tabs.onCreated.addListener(async tab => {
-      gsUtils.log(tab.id, 'tab created. tabUrl: ' + tab.url);
-      queueSessionTimer();
-
-      // It's unusual for a suspended tab to be created. Usually they are updated
-      // from a normal tab. This usually happens when using 'reopen closed tab'.
-      if (gsUtils.isSuspendedTab(tab) && !tab.active) {
-        // Queue tab for check but mark it as sleeping for 5 seconds to give
-        // a chance for the tab to load
-        gsTabCheckManager.queueTabCheck(tab, 5000);
-      }
-    });
-    chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
-      gsUtils.log(tabId, 'tab removed.');
-      queueSessionTimer();
-      removeTabIdReferences(tabId);
-    });
-    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-      if (!changeInfo) return;
-
-      // if url has changed
-      if (changeInfo.url) {
-        gsUtils.log(tabId, 'tab url changed. changeInfo: ', changeInfo);
-        checkForTriggerUrls(tab, changeInfo.url);
-        queueSessionTimer();
-      }
-
-      if (gsUtils.isSuspendedTab(tab)) {
-        handleSuspendedTabStateChanged(tab, changeInfo);
-      } else if (gsUtils.isNormalTab(tab)) {
-        await handleUnsuspendedTabStateChanged(tab, changeInfo);
-      }
-    });
-    chrome.windows.onCreated.addListener(async window => {
-      gsUtils.log(window.id, 'window created.');
-      queueSessionTimer();
-
-      var noticeToDisplay = requestNotice();
-      if (noticeToDisplay) {
-        chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
-        gsAnalytics.reportEvent(
-          'Notice',
-          'Display',
-          noticeToDisplay.target + ':' + noticeToDisplay.version
-        );
-      }
-    });
-    chrome.windows.onRemoved.addListener(async windowId => {
-      gsUtils.log(windowId, 'window removed.');
-      queueSessionTimer();
-    });
-  }
-
-  function addMiscListeners() {
-    //add listener for battery state changes
-    if (navigator.getBattery) {
-      navigator.getBattery().then(function(battery) {
-        _isCharging = battery.charging;
-
-        battery.onchargingchange = function() {
-          _isCharging = battery.charging;
-          gsUtils.log('background', `_isCharging: ${_isCharging}`);
-          setIconStatusForActiveTab(); //async. unhandled promise
-          //restart timer on all normal tabs
-          //NOTE: some tabs may have been prevented from suspending when computer was charging
-          if (
-            !_isCharging &&
-            gsStorage.getOption(gsStorage.IGNORE_WHEN_CHARGING)
-          ) {
-            resetAutoSuspendTimerForAllTabs();
-          }
-        };
-      });
-    }
-
-    //add listeners for online/offline state changes
-    window.addEventListener('online', async () => {
-      gsUtils.log('background', 'Internet is online.');
-      //restart timer on all normal tabs
-      //NOTE: some tabs may have been prevented from suspending when internet was offline
-      if (gsStorage.getOption(gsStorage.IGNORE_WHEN_OFFLINE)) {
-        resetAutoSuspendTimerForAllTabs();
-      }
-      await setIconStatusForActiveTab();
-    });
-    window.addEventListener('offline', async () => {
-      gsUtils.log('background', 'Internet is offline.');
-      await setIconStatusForActiveTab();
-    });
-  }
-
   function startNoticeCheckerJob() {
     checkForNotices();
     window.setInterval(checkForNotices, noticeCheckInterval);
@@ -1510,19 +1255,6 @@ var tgs = (function() {
   }
 
   return {
-    STATE_TIMER_DETAILS,
-    STATE_UNLOADED_URL,
-    STATE_INITIALISE_SUSPENDED_TAB,
-    STATE_HISTORY_URL_TO_REMOVE,
-    STATE_TEMP_WHITELIST_ON_RELOAD,
-    STATE_DISABLE_UNSUSPEND_ON_RELOAD,
-    STATE_SET_AUTODISCARDABLE,
-    STATE_SUSPEND_REASON,
-    STATE_SCROLL_POS,
-    STATE_SHOW_NAG,
-    getTabStatePropForTabId,
-    setTabStatePropForTabId,
-
     backgroundScriptsReadyAsPromised,
     initAsPromised,
     performTabChecks,
@@ -1537,13 +1269,24 @@ var tgs = (function() {
     getActiveTabStatus,
     getDebugInfo,
     calculateTabStatus,
-    setIconStatus,
+    updateIconStatusForActiveTab,
+    updateIconStatusForTab,
     isCharging,
     clearAutoSuspendTimerForTabId,
     resetAutoSuspendTimerForTab,
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
     promptForFilePermissions,
+
+    handleWindowFocusChanged,
+    handleTabFocusChanged,
+    handleTabCreated,
+    handleTabRemoved,
+    handleTabUpdated,
+    handleWindowCreated,
+    handleWindowRemoved,
+    handleBatteryChargingChange,
+    handleOnlineStatusChange,
   };
 })();
 
@@ -1579,7 +1322,8 @@ Promise.resolve()
   .catch(error => {
     gsUtils.error('background tgs.runStartupChecks error: ', error);
   })
-  .then(tgs.initAsPromised) // adds handle(Un)SuspendedTabChanged listeners!
+  .then(gsEvents.initAsPromised) // adds handle(Un)SuspendedTabChanged listeners!
+  .then(tgs.initAsPromised) // sets suspend timers on tabs
   .catch(error => {
     gsUtils.error('background init error: ', error);
   })

@@ -1,4 +1,4 @@
-/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsIndexedDb, gsTabDiscardManager, gsTabCheckManager, GsTabQueue */
+/*global html2canvas, domtoimage, tgs, gsFavicon, gsMessages, gsStorage, gsUtils, gsChrome, gsTabState, gsIndexedDb, gsTabDiscardManager, gsTabCheckManager, GsTabQueue */
 // eslint-disable-next-line no-unused-vars
 var gsTabSuspendManager = (function() {
   'use strict';
@@ -212,8 +212,8 @@ var gsTabSuspendManager = (function() {
   }
 
   async function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
-    const queuedTabDetails = getQueuedTabDetails(tab);
-    if (!queuedTabDetails) {
+    const tabQueueState = getTabQueueState(tab);
+    if (!tabQueueState) {
       gsUtils.log(
         tab.id,
         QUEUE_ID,
@@ -222,7 +222,7 @@ var gsTabSuspendManager = (function() {
       return;
     }
 
-    const suspensionForceLevel = queuedTabDetails.executionProps.forceLevel;
+    const suspensionForceLevel = tabQueueState.executionProps.forceLevel;
     if (!checkTabEligibilityForSuspension(tab, suspensionForceLevel)) {
       gsUtils.log(
         tab.id,
@@ -235,7 +235,7 @@ var gsTabSuspendManager = (function() {
     // Temporarily change tab.url with that from the generated suspended url
     // This is because for youtube tabs we manually change the url to persist timestamp
     const timestampedUrl = gsUtils.getOriginalUrl(
-      queuedTabDetails.executionProps.suspendedUrl
+      tabQueueState.executionProps.suspendedUrl
     );
     // NOTE: This does not actually change the tab url, just the current tab object
     tab.url = timestampedUrl;
@@ -253,13 +253,13 @@ var gsTabSuspendManager = (function() {
 
     const success = await executeTabSuspension(
       tab,
-      queuedTabDetails.executionProps.suspendedUrl
+      tabQueueState.executionProps.suspendedUrl
     );
-    queuedTabDetails.executionProps.resolveFn(success);
+    tabQueueState.executionProps.resolveFn(success);
   }
 
-  function getQueuedTabDetails(tab) {
-    return _suspensionQueue.getQueuedTabDetails(tab);
+  function getTabQueueState(tab) {
+    return _suspensionQueue.getTabQueueState(tab);
   }
 
   async function handleSuspensionException(
@@ -322,11 +322,7 @@ var gsTabSuspendManager = (function() {
       }
 
       gsUtils.log(tab.id, 'Suspending tab');
-      tgs.setTabStatePropForTabId(
-        tab.id,
-        tgs.STATE_INITIALISE_SUSPENDED_TAB,
-        true
-      );
+      gsTabState.setTabSuspending(tab.id);
       gsChrome.tabsUpdate(tab.id, { url: suspendedUrl }).then(updatedTab => {
         resolve(updatedTab !== null);
       });
@@ -633,24 +629,10 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  function updateTabIdReferences(newTabId, oldTabId) {
-    const queuedTabDetails = _suspensionQueue.getQueuedTabDetailsByTabId(
-      oldTabId
-    );
-    if (queuedTabDetails) {
-      _suspensionQueue.unqueueTab(queuedTabDetails.tab);
-      gsChrome.tabsGet(newTabId).then(newTab => {
-        if (newTab) {
-          queueTabForSuspension(newTab, queuedTabDetails.executionProps);
-        }
-      });
-    }
-  }
-
   function removeTabIdReferences(tabId) {
-    const queuedTabDetails = _suspensionQueue.getQueuedTabDetailsByTabId(tabId);
-    if (queuedTabDetails) {
-      _suspensionQueue.unqueueTab(queuedTabDetails.tab);
+    const tabState = gsTabState.getTabStateForId(tabId);
+    if (tabState) {
+      _suspensionQueue.unqueueTab(tabState.tab);
     }
   }
 
@@ -663,8 +645,7 @@ var gsTabSuspendManager = (function() {
     saveSuspendData,
     checkTabEligibilityForSuspension,
     executeTabSuspension,
-    getQueuedTabDetails,
-    updateTabIdReferences,
+    getTabQueueState,
     removeTabIdReferences,
   };
 })();

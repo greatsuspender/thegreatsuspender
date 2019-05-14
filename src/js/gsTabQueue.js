@@ -1,6 +1,6 @@
-/*global gsUtils, gsTabState */
+/*global gsUtils, gsChrome, gsTabState */
 // eslint-disable-next-line no-unused-vars
-function GsTabQueue(queueId, queueProps) {
+function GsTabQueue(initQueueId, initQueueProps) {
   return (function() {
     'use strict';
 
@@ -23,11 +23,11 @@ function GsTabQueue(queueId, queueProps) {
       executorFn: (tab, resolve, reject, requeue) => resolve(true),
       exceptionFn: (tab, resolve, reject, requeue) => resolve(false),
     };
-    const _queuedTabIds = [];
+    const _queuedTabStates = [];
     let _processingQueueBufferTimer = null;
-    let _queueId = queueId;
+    let _queueId = initQueueId;
 
-    setQueueProperties(queueProps);
+    setQueueProperties(initQueueProps);
 
     function setQueueProperties(queueProps) {
       for (const propName of Object.keys(queueProps)) {
@@ -61,87 +61,102 @@ function GsTabQueue(queueId, queueProps) {
     }
 
     function getTotalQueueSize() {
-      return _queuedTabIds.length;
+      return _queuedTabStates.length;
     }
 
     function queueTabAsPromise(tab, executionProps, delay) {
-      const tabState = gsTabState.getTabStateForId(tab.id);
-      tabState.tab = tab;
-      if (!tabState.queueProps) {
-        // gsUtils.log(tab.id, _queueId, 'Queueing new tab.');
-        tabState.queueProps = {
-          executionProps,
-          deferredPromise: createDeferredPromise(),
-          queueStatus: STATUS_QUEUED,
-          requeues: 0,
-          sleepTimer: null,
-        };
-        addTabToQueue(tabState);
+      let queueState = getTabQueueState(tab);
+      if (!queueState) {
+        queueState = addTabToQueue(tab, executionProps);
+        gsUtils.log(tab.id, _queueId, 'Queueing new tab.');
       } else {
-        applyExecutionProps(tabState, executionProps);
+        applyExecutionProps(queueState, executionProps);
         gsUtils.log(tab.id, _queueId, 'Tab already queued.');
       }
 
-      const queueProps = tabState.queueProps;
-
       if (delay && isValidInteger(delay, 1)) {
         gsUtils.log(tab.id, _queueId, `Sleeping tab for ${delay}ms`);
-        sleepTab(tabState, delay);
+        sleepTab(queueState, delay);
       } else {
         // If tab is already marked as sleeping then wake it up
-        if (queueProps.sleepTimer) {
+        if (queueState.sleepTimer) {
           gsUtils.log(tab.id, _queueId, 'Removing tab from sleep');
-          clearTimeout(queueProps.sleepTimer);
-          delete queueProps.sleepTimer;
-          queueProps.queueStatus = STATUS_QUEUED;
+          clearTimeout(queueState.sleepTimer);
+          delete queueState.sleepTimer;
+          queueState.queueStatus = STATUS_QUEUED;
         }
         requestProcessQueue(0);
       }
-      return queueProps.deferredPromise;
+      return queueState.deferredPromise;
     }
 
-    function applyExecutionProps(tabState, executionProps) {
+    function applyExecutionProps(queueState, executionProps) {
       executionProps = executionProps || {};
       for (const prop in executionProps) {
-        tabState.executionProps[prop] = executionProps[prop];
+        queueState.executionProps[prop] = executionProps[prop];
       }
     }
 
     function unqueueTab(tab) {
       const tabState = gsTabState.getTabStateForId(tab.id);
-      if (tabState) {
+      const queueState = getTabQueueState(tab);
+      if (queueState) {
         // gsUtils.log(tab.id, _queueId, 'Unqueueing tab.');
-        clearTimeout(tabState.queueProps.timeoutTimer);
-        removeTabFromQueue(tabState);
-        rejectTabPromise(tabState, 'Queued tab job cancelled externally');
+        clearTimeout(queueState.timeoutTimer);
+        removeTabStateFromQueue(tabState);
+        rejectTabStatePromise(tabState, 'Queued tab job cancelled externally');
         return true;
       } else {
         return false;
       }
     }
 
-    function addTabToQueue(tabState) {
-      const tab = tabState.tab;
-      _queuedTabIds.push(tab.id);
+    function getTabQueueState(tab) {
+      const tabState = gsTabState.getTabStateForId(tab.id);
+console.log(`tabState.queue[${_queueId}]`, tabState.queue[_queueId]);
+      return tabState.queue[_queueId];
     }
 
-    function removeTabFromQueue(tabState) {
-      const tab = tabState.tab;
-      for (const [i, tabId] of _queuedTabIds.entries()) {
-        if (tabId === tab.id) {
-          _queuedTabIds.splice(i, 1);
+    function setTabQueueState(tab, queueState) {
+      const tabState = gsTabState.getTabStateForId(tab.id);
+      tabState.queue[_queueId] = queueState;
+    };
+
+    function addTabToQueue(tab, executionProps) {
+      const queueState = {
+        executionProps,
+        deferredPromise: createDeferredPromise(),
+        queueStatus: STATUS_QUEUED,
+        requeues: 0,
+        sleepTimer: null,
+      };
+      setTabQueueState(tab, queueState);
+      const tabState = gsTabState.getTabStateForId(tab.id);
+console.log(_queueId, `adding tabState to queue. TabId: ${tab.id}. TabStateId: ${tabState.tab.id}`);
+      _queuedTabStates.push(tabState);
+console.log(_queueId, `postadd processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
+      return queueState;
+    }
+
+    function removeTabStateFromQueue(tabState) {
+console.log(_queueId, `pre processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
+      for (const [i, currentTabState] of _queuedTabStates.entries()) {
+        if (tabState === currentTabState) {
+          _queuedTabStates.splice(i, 1);
+          setTabQueueState(tabState.tab, null);
+console.log(`removed tabState from queue[${_queueId}] for tabId: ${tabState.tab.id}`);
           break;
         }
       }
-      gsUtils.log(_queueId, `total queue size: ${_queuedTabIds.length}`);
+console.log(_queueId, `post processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
+      gsUtils.log(_queueId, `total queue size: ${_queuedTabStates.length}`);
     }
 
     // eslint-disable-next-line no-unused-vars
     function moveTabToEndOfQueue(tabState) {
-      const tab = tabState.tab;
-      for (const [i, tabId] of _queuedTabIds.entries()) {
-        if (tabId === tab.id) {
-          _queuedTabIds.push(_queuedTabIds.splice(i, 1)[0]);
+      for (const [i, currentTabState] of _queuedTabStates.entries()) {
+        if (tabState === currentTabState) {
+          _queuedTabStates.push(_queuedTabStates.splice(i, 1)[0]);
           break;
         }
       }
@@ -182,14 +197,16 @@ function GsTabQueue(queueId, queueProps) {
 
     async function processQueue() {
       let inProgressCount = 0;
-      for (const tabId of _queuedTabIds) {
-        const tabState = gsTabState.getTabStateForId(tabId);
-        if (tabState.queueProps.queueStatus === STATUS_IN_PROGRESS) {
+console.log(_queueId, `current processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
+      for (const tabState of _queuedTabStates) {
+console.log('processQueue: tabId: ' + tabState.tab.id);
+        const queueState = getTabQueueState(tabState.tab);
+        if (queueState.queueStatus === STATUS_IN_PROGRESS) {
           inProgressCount += 1;
-        } else if (tabState.queueProps.queueStatus === STATUS_QUEUED) {
-          await processTab(tabState);
+        } else if (queueState.queueStatus === STATUS_QUEUED) {
+          await processTabState(tabState);
           inProgressCount += 1;
-        } else if (tabState.queueProps.queueStatus === STATUS_SLEEPING) {
+        } else if (queueState.queueStatus === STATUS_SLEEPING) {
           // ignore
         }
         if (inProgressCount >= _queueProperties.concurrentExecutors) {
@@ -198,8 +215,9 @@ function GsTabQueue(queueId, queueProps) {
       }
     }
 
-    async function processTab(tabState) {
-      tabState.queueProps.queueStatus = STATUS_IN_PROGRESS;
+    async function processTabState(tabState) {
+      const queueState = getTabQueueState(tabState.tab);
+      queueState.queueStatus = STATUS_IN_PROGRESS;
       gsUtils.log(
         tabState.tab.id,
         _queueId,
@@ -209,54 +227,61 @@ function GsTabQueue(queueId, queueProps) {
 
       if (tabState.refetchTab) {
         gsUtils.log(
-          tabState.tabId,
+          tabState.tab.id,
           _queueId,
           'Tab refetch requested. Getting updated tab..'
         );
-        const updatedTab = await gsChrome.tabsGet(tabState.tabId);
+        const updatedTab = await gsChrome.tabsGet(tabState.tab.id);
         tabState.refetchTab = false;
         if (!updatedTab) {
           gsUtils.warning(
-            tabState.tabId,
+            tabState.tab.id,
             _queueId,
             `Failed to fetch updated tab. Will remove from queue`
           );
-          rejectTabPromise(tabState, `Tab with id: ${tabState.tabId} does not exist. Tab may have been discarded or removed.`)
+          rejectTabStatePromise(
+            tabState,
+            `Tab with id: ${
+              tabState.tab.id
+            } does not exist. Tab may have been discarded or removed.`
+          );
           return;
+        }
       }
 
-      const _resolveTabPromise = r => resolveTabPromise(tabState, r);
-      const _rejectTabPromise = e => rejectTabPromise(tabState, e);
-      const _requeueTab = (requeueDelay, executionProps) => {
-        requeueTab(tabState, requeueDelay, executionProps);
+      const _resolveTabStatePromise = r => resolveTabStatePromise(tabState, r);
+      const _rejectTabStatePromise = e => rejectTabStatePromise(tabState, e);
+      const _requeueTabState = (requeueDelay, executionProps) => {
+        requeueTabState(tabState, requeueDelay, executionProps);
       };
 
       // If timeout timer has not yet been initiated, then start it now
-      if (!tabState.queueProps.hasOwnProperty('timeoutTimer')) {
-        tabState.queueProps.timeoutTimer = setTimeout(() => {
+      if (!queueState.hasOwnProperty('timeoutTimer')) {
+        queueState.timeoutTimer = setTimeout(() => {
           gsUtils.log(tabState.tab.id, _queueId, 'Tab job timed out');
           _queueProperties.exceptionFn(
             tabState.tab,
-            tabState.executionProps,
+            queueState.executionProps,
             EXCEPTION_TIMEOUT,
-            _resolveTabPromise,
-            _rejectTabPromise,
-            _requeueTab
+            _resolveTabStatePromise,
+            _rejectTabStatePromise,
+            _requeueTabState
           ); //async. unhandled promise
         }, _queueProperties.jobTimeout);
       }
 
       _queueProperties.executorFn(
         tabState.tab,
-        tabState.executionProps,
-        _resolveTabPromise,
-        _rejectTabPromise,
-        _requeueTab
+        queueState.executionProps,
+        _resolveTabStatePromise,
+        _rejectTabStatePromise,
+        _requeueTabState
       ); //async. unhandled promise
     }
 
-    function resolveTabPromise(tabState, result) {
-      if (!tabState.queueProps) {
+    function resolveTabStatePromise(tabState, result) {
+      const queueState = getTabQueueState(tabState.tab);
+      if (!queueState) {
         return;
       }
       gsUtils.log(
@@ -265,14 +290,15 @@ function GsTabQueue(queueId, queueProps) {
         'Queued tab resolved. Result: ',
         result
       );
-      clearTimeout(tabState.queueProps.timeoutTimer);
-      removeTabFromQueue(tabState);
-      tabState.queueProps.deferredPromise.resolve(result);
+      clearTimeout(queueState.timeoutTimer);
+      removeTabStateFromQueue(tabState);
+      queueState.deferredPromise.resolve(result);
       requestProcessQueue(_queueProperties.processingDelay);
     }
 
-    function rejectTabPromise(tabState, error) {
-      if (!tabState.queueProps) {
+    function rejectTabStatePromise(tabState, error) {
+      const queueState = getTabQueueState(tabState.tab);
+      if (!queueState) {
         return;
       }
       gsUtils.log(
@@ -281,36 +307,37 @@ function GsTabQueue(queueId, queueProps) {
         'Queued tab rejected. Error: ',
         error
       );
-      clearTimeout(tabState.queueProps.timeoutTimer);
-      removeTabFromQueue(tabState);
-      tabState.queueProps.deferredPromise.reject(error);
+      clearTimeout(queueState.timeoutTimer);
+      removeTabStateFromQueue(tabState);
+      queueState.deferredPromise.reject(error);
       requestProcessQueue(_queueProperties.processingDelay);
     }
 
-    function requeueTab(tabState, requeueDelay, executionProps) {
+    function requeueTabState(tabState, requeueDelay, executionProps) {
+      const queueState = getTabQueueState(tabState.tab);
       requeueDelay = requeueDelay || DEFAULT_REQUEUE_DELAY;
       if (executionProps) {
-        applyExecutionProps(tabState, executionProps);
+        applyExecutionProps(queueState, executionProps);
       }
-      tabState.queueProps.requeues += 1;
+      queueState.requeues += 1;
       gsUtils.log(
         tabState.tab.id,
         _queueId,
-        `Requeueing tab. Requeues: ${tabState.queueProps.requeues}`
+        `Requeueing tab. Requeues: ${queueState.requeues}`
       );
       // moveTabToEndOfQueue(tabState);
-      sleepTab(tabState, requeueDelay);
+      sleepTab(queueState, requeueDelay);
       requestProcessQueue(_queueProperties.processingDelay);
     }
 
-    function sleepTab(tabState, delay) {
-      tabState.queueProps.queueStatus = STATUS_SLEEPING;
-      if (tabState.queueProps.sleepTimer) {
-        clearTimeout(tabState.queueProps.sleepTimer);
+    function sleepTab(queueState, delay) {
+      queueState.queueStatus = STATUS_SLEEPING;
+      if (queueState.sleepTimer) {
+        clearTimeout(queueState.sleepTimer);
       }
-      tabState.queueProps.sleepTimer = window.setTimeout(() => {
-        delete tabState.queueProps.sleepTimer;
-        tabState.queueProps.queueStatus = STATUS_QUEUED;
+      queueState.sleepTimer = window.setTimeout(() => {
+        delete queueState.sleepTimer;
+        queueState.queueStatus = STATUS_QUEUED;
         requestProcessQueue(0);
       }, delay);
     }
@@ -321,6 +348,7 @@ function GsTabQueue(queueId, queueProps) {
       getQueueProperties,
       getTotalQueueSize,
       queueTabAsPromise,
+      getTabQueueState,
       unqueueTab,
     };
   })();

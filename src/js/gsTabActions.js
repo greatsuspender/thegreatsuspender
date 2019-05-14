@@ -1,4 +1,4 @@
-/*global tgs, gsUtils, gsChrome, gsTabSelector, gsTabSuspendManager, gsMessages  */
+/*global tgs, gsUtils, gsChrome, gsTabSelector, gsTabSuspendManager, gsMessages, gsTabState  */
 // eslint-disable-next-line no-unused-vars
 var gsTabActions = (function() {
   'use strict';
@@ -47,38 +47,31 @@ var gsTabActions = (function() {
   async function unsuspendTab(tab) {
     if (!gsUtils.isSuspendedTab(tab)) return;
 
-    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
-    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
-
     let originalUrl = gsUtils.getOriginalUrl(tab.url);
-    if (originalUrl) {
-      // Reloading chrome.tabs.update causes a history item for the suspended tab
-      // to be made in the tab history. We clean this up on tab updated hook
-      tgs.setTabStatePropForTabId(
-        tab.id,
-        tgs.STATE_HISTORY_URL_TO_REMOVE,
-        tab.url
-      );
-      if (tab.autoDiscardable) {
-        tgs.setTabStatePropForTabId(
-          tab.id,
-          tgs.STATE_SET_AUTODISCARDABLE,
-          tab.url
-        );
-      }
-      // NOTE: Temporarily disable autoDiscardable, as there seems to be a bug
-      // where discarded (and frozen?) suspended tabs will not unsuspend with
-      // chrome.tabs.update if this is set to true. This gets unset again after tab
-      // has reloaded via the STATE_SET_AUTODISCARDABLE flag.
-      gsUtils.log(tab.id, 'Unsuspending tab via chrome.tabs.update');
-      await gsChrome.tabsUpdate(tab.id, {
-        url: originalUrl,
-        autoDiscardable: false,
-      });
+    if (!originalUrl) {
+      gsUtils.log(tab.id, 'Failed to execute unsuspend tab.');
       return;
     }
 
-    gsUtils.log(tab.id, 'Failed to execute unsuspend tab.');
+    const scrollPosition = gsUtils.getSuspendedScrollPosition(tab.url);
+
+    // Reloading chrome.tabs.update causes a history item for the suspended tab
+    // to be made in the tab history. We clean this up on tab updated hook
+    const suspendedUrl = tab.url;
+
+    // There seems to be a bug where discarded (and frozen?) suspended tabs will
+    // not unsuspend with chrome.tabs.update if this is set to true.
+    // This gets unset again after tab has reloaded via the SET_AUTODISCARDABLE flag.
+    const wasAutoDiscardable = tab.autoDiscardable;
+
+    gsTabState.setTabUnsuspending(tab.id, suspendedUrl, scrollPosition, wasAutoDiscardable);
+
+    // NOTE: Temporarily disable autoDiscardable
+    gsUtils.log(tab.id, 'Unsuspending tab via chrome.tabs.update');
+    await gsChrome.tabsUpdate(tab.id, {
+      url: originalUrl,
+      autoDiscardable: false,
+    });
   }
 
   async function unsuspendHighlightedTab() {
@@ -170,8 +163,7 @@ var gsTabActions = (function() {
       } else if (gsUtils.isNormalTab(activeTab)) {
         let url = gsUtils.getRootUrl(activeTab.url, includePath, false);
         gsUtils.saveToWhitelist(url);
-        const status = await tgs.calculateTabStatus(activeTab, null);
-        tgs.setIconStatus(status, activeTab.id);
+        await tgs.updateIconStatusForTab(activeTab);
       }
     }
   }
@@ -180,66 +172,7 @@ var gsTabActions = (function() {
     const activeTab = await gsTabSelector.getCurrentlyActiveTab();
     if (activeTab) {
       gsUtils.removeFromWhitelist(activeTab.url);
-      const status = await tgs.calculateTabStatus(activeTab, null);
-      tgs.setIconStatus(status, activeTab.id);
-    }
-  }
-
-  async function setTempWhitelistStateForTab(tab) {
-    const tabInfo = await new Promise(resolve => {
-      gsMessages.sendTemporaryWhitelistToContentScript(tab.id, function(
-        error,
-        contentScriptInfo
-      ) {
-        if (error) {
-          gsUtils.warning(
-            tab.id,
-            'Failed to sendTemporaryWhitelistToContentScript',
-            error
-          );
-        }
-        resolve(contentScriptInfo);
-      });
-    });
-    const contentScriptStatus =
-      tabInfo && tabInfo.status ? tabInfo.status : null;
-    const newStatus = await tgs.calculateTabStatus(tab, contentScriptStatus);
-    tgs.setIconStatus(newStatus, tab.id);
-
-    //This is a hotfix for issue #723
-    if (newStatus === 'tempWhitelist' && tab.autoDiscardable) {
-      await gsChrome.tabsUpdate(tab.id, {
-        autoDiscardable: false,
-      });
-    }
-  }
-
-  async function unsetTempWhitelistStateForTab(tab) {
-    const tabInfo = await new Promise(resolve => {
-      gsMessages.sendUndoTemporaryWhitelistToContentScript(tab.id, function(
-        error,
-        contentScriptInfo
-      ) {
-        if (error) {
-          gsUtils.warning(
-            tab.id,
-            'Failed to sendUndoTemporaryWhitelistToContentScript',
-            error
-          );
-        }
-        resolve(contentScriptInfo);
-      });
-    });
-    const contentScriptStatus =
-      tabInfo && tabInfo.status ? tabInfo.status : null;
-    const newStatus = await tgs.calculateTabStatus(tab, contentScriptStatus);
-    tgs.setIconStatus(newStatus, tab.id);
-
-    //This is a hotfix for issue #723
-    if (newStatus !== 'tempWhitelist' && !tab.autoDiscardable) {
-      await gsChrome.tabsUpdate(tab.id, {
-        autoDiscardable: true,
-      });
+      tgs.updateIconStatusForTab(activeTab);
     }
   }
 
@@ -281,14 +214,70 @@ var gsTabActions = (function() {
       if (gsUtils.isNormalTab(tab, true)) {
         if (action === 1) {
           // if tempWhitelisting
-          await setTempWhitelistStateForTab(tab);
+          await setTempWhitelistStateForTab(tab, true);
         } else if (action === 2) {
           // if removing from tempWhitelist
-          await unsetTempWhitelistStateForTab(tab);
+          await setTempWhitelistStateForTab(tab, false);
         }
       }
     }
     return;
+  }
+
+  async function setTempWhitelistStateForTab(tab, isTempWhitelisted) {
+    let tabInfo;
+    if (isTempWhitelisted) {
+      tabInfo = await new Promise(resolve => {
+        gsMessages.sendTemporaryWhitelistToContentScript(tab.id, function(
+          error,
+          contentScriptInfo
+        ) {
+          if (error) {
+            gsUtils.warning(
+              tab.id,
+              'Failed to sendTemporaryWhitelistToContentScript',
+              error
+            );
+          }
+          resolve();
+        });
+      });
+    } else {
+      tabInfo = await new Promise(resolve => {
+        gsMessages.sendUndoTemporaryWhitelistToContentScript(tab.id, function(
+          error,
+          contentScriptInfo
+        ) {
+          if (error) {
+            gsUtils.warning(
+              tab.id,
+              'Failed to sendUndoTemporaryWhitelistToContentScript',
+              error
+            );
+          }
+          resolve();
+        });
+      });
+    }
+    const contentScriptStatus =
+      tabInfo && tabInfo.status ? tabInfo.status : null;
+    tgs.updateIconStatusForTab(tab, contentScriptStatus);
+
+    //This is a hotfix for issue #723
+    if (contentScriptStatus === 'tempWhitelist' && tab.autoDiscardable) {
+      setAutoDiscardableStateForTab(tab, false);
+    } else if (
+      contentScriptStatus !== 'tempWhitelist' &&
+      !tab.autoDiscardable
+    ) {
+      setAutoDiscardableStateForTab(tab, true);
+    }
+  }
+
+  async function setAutoDiscardableStateForTab(tab, isAutoDiscardable) {
+    await gsChrome.tabsUpdate(tab.id, {
+      autoDiscardable: isAutoDiscardable,
+    });
   }
 
   return {
@@ -304,9 +293,9 @@ var gsTabActions = (function() {
     toggleSuspendedStateOfSelectedTabs,
     whitelistHighlightedTab,
     unwhitelistHighlightedTab,
-    setTempWhitelistStateForTab,
-    unsetTempWhitelistStateForTab,
     toggleTempWhitelistStateOfHighlightedTab,
     toggleTempWhitelistStateOfSelectedTabs,
+    setTempWhitelistStateForTab,
+    setAutoDiscardableStateForTab,
   };
 })();

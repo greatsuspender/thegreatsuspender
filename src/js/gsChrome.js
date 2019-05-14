@@ -132,7 +132,7 @@ var gsChrome = {
 
   windowsGetLastFocused: function() {
     return new Promise(resolve => {
-      chrome.windows.getLastFocused({}, window => {
+      chrome.windows.getLastFocused({ populate: true }, window => {
         if (chrome.runtime.lastError) {
           gsUtils.warning('chromeWindows', chrome.runtime.lastError.message);
           window = null;

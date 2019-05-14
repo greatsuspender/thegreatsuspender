@@ -28,7 +28,9 @@
           if (!isBackgroundConnectable()) {
             return false;
           }
-          chrome.runtime.sendMessage(buildReportTabStatePayload());
+          chrome.runtime.sendMessage(
+            buildReportTabStatePayload('updateFormInputState')
+          );
         }
       }
     }
@@ -51,7 +53,7 @@
     ) {
       if (request.hasOwnProperty('action')) {
         if (request.action === 'requestInfo') {
-          sendResponse(buildReportTabStatePayload());
+          sendResponse(buildReportTabStatePayload('reportTabState'));
           return false;
         }
       }
@@ -75,7 +77,7 @@
         }
         tempWhitelist = request.tempWhitelist;
       }
-      sendResponse(buildReportTabStatePayload());
+      sendResponse(buildReportTabStatePayload('reportTabState'));
       return false;
     });
   }
@@ -109,9 +111,9 @@
     }
   }
 
-  function buildReportTabStatePayload() {
+  function buildReportTabStatePayload(action) {
     return {
-      action: 'reportTabState',
+      action,
       status:
         isIgnoreForms && isReceivingFormInput
           ? 'formInput'

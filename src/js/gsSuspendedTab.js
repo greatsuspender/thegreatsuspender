@@ -1,9 +1,9 @@
-/*global tgs, gsFavicon, gsChrome, gsTabActions, gsTabSelector, gsStorage, gsSession, gsUtils, gsIndexedDb */
+/*global tgs, gsFavicon, gsChrome, gsTabActions, gsTabSelector, gsStorage, gsSession, gsUtils, gsIndexedDb, gsTabState */
 // eslint-disable-next-line no-unused-vars
 var gsSuspendedTab = (function() {
   'use strict';
 
-  async function initTab(tab, tabView, { showNag, quickInit }) {
+  async function initTab(tab, tabView, { quickInit }) {
     if (!tabView) {
       gsUtils.warning(
         tab.id,
@@ -56,14 +56,18 @@ var gsSuspendedTab = (function() {
     setTheme(tabView.document, theme, isLowContrastFavicon);
 
     // Set showNag
-    if (
+    let showNag = gsTabState.getTabShowNagFlag(tab.id);
+    if (showNag && options[gsStorage.NO_NAG]) {
+      showNag = false;
+      gsTabState.setTabShowNagFlag(tab.id, false);
+    } else if (
       !options[gsStorage.NO_NAG] &&
       (showNag === undefined || showNag === null)
     ) {
       //show dude and donate link (randomly 1 of 20 times)
       showNag = Math.random() > 0.95;
+      gsTabState.setTabShowNagFlag(tab.id, showNag);
     }
-    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG, showNag);
 
     if (showNag) {
       queueDonationPopup(tabView.window, tabView.document, tab.active, tab.id);
@@ -76,24 +80,13 @@ var gsSuspendedTab = (function() {
     // Set url
     setUrl(tabView.document, originalUrl);
 
-    // Set reason
-    const suspendReasonInt = tgs.getTabStatePropForTabId(
-      tab.id,
-      tgs.STATE_SUSPEND_REASON
-    );
-    let suspendReason = null;
-    if (suspendReasonInt === 3) {
-      suspendReason = chrome.i18n.getMessage('js_suspended_low_memory');
-    }
-    setReason(tabView.document, suspendReason);
-
     // Show the view
     showContents(tabView.document);
 
     // Set scrollPosition (must come after showing page contents)
     const scrollPosition = gsUtils.getSuspendedScrollPosition(suspendedUrl);
     setScrollPosition(tabView.document, scrollPosition, previewMode);
-    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SCROLL_POS, scrollPosition);
+    gsTabState.setTabScrollPosFlag(tab.id, scrollPosition);
     // const whitelisted = gsUtils.checkWhiteList(originalUrl);
   }
 
@@ -194,18 +187,6 @@ var gsSuspendedTab = (function() {
     }
   }
 
-  function setReason(_document, reason) {
-    let reasonMsgEl = _document.getElementById('reasonMsg');
-    if (!reasonMsgEl) {
-      reasonMsgEl = _document.createElement('div');
-      reasonMsgEl.setAttribute('id', 'reasonMsg');
-      reasonMsgEl.classList.add('reasonMsg');
-      const containerEl = _document.getElementById('suspendedMsg-instr');
-      containerEl.insertBefore(reasonMsgEl, containerEl.firstChild);
-    }
-    reasonMsgEl.innerHTML = reason;
-  }
-
   function queueDonationPopup(_window, _document, tabActive, tabId) {
     const donationPopupFocusListener = function(e) {
       if (e && e.target && e.target.visibilityState === 'hidden') {
@@ -213,8 +194,7 @@ var gsSuspendedTab = (function() {
       }
       const options = gsStorage.getSettings();
       const showNag =
-        tgs.getTabStatePropForTabId(tabId, tgs.STATE_SHOW_NAG) &&
-        !options[gsStorage.NO_NAG];
+        gsTabState.getTabShowNagFlag(tabId) && !options[gsStorage.NO_NAG];
       const dudeEl = _document.getElementById('dudePopup');
       const showingNag =
         dudeEl !== null && dudeEl.classList.contains('poppedup');
@@ -337,14 +317,14 @@ var gsSuspendedTab = (function() {
   function setUnloadTabHandler(_window, tab) {
     // beforeunload event will get fired if: the tab is refreshed, the url is changed,
     // the tab is closed, or the tab is frozen by chrome ??
-    // when this happens the STATE_UNLOADED_URL gets set with the suspended tab url
+    // when this happens the UNLOADED_URL gets set with the suspended tab url
     // if the tab is refreshed, then on reload the url will match and the tab will unsuspend
     // if the url is changed then on reload the url will not match
     // if the tab is closed, the reload will never occur
     _window.addEventListener('beforeunload', function(e) {
       gsUtils.log(tab.id, 'BeforeUnload triggered: ' + tab.url);
       if (gsTabSelector.isCurrentFocusedTab(tab)) {
-        tgs.setTabStatePropForTabId(tab.id, tgs.STATE_UNLOADED_URL, tab.url);
+        gsTabState.setTabUnloadedUrlFlag(tab.id, tab.url);
       } else {
         gsUtils.log(
           tab.id,
