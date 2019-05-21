@@ -127,8 +127,8 @@
     document
       .getElementById('backgroundPage')
       .setAttribute('href', extensionsUrl);
-    document.getElementById('backgroundPage').onclick = function() {
-      chrome.tabs.create({ url: extensionsUrl });
+    document.getElementById('backgroundPage').onclick = async () => {
+      await gsChrome.tabsCreate({ url: extensionsUrl });
     };
 
     /*

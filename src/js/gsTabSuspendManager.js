@@ -629,8 +629,8 @@ var gsTabSuspendManager = (function() {
     });
   }
 
-  function removeTabIdReferences(tabId) {
-    const tabState = gsTabState.getTabStateForId(tabId);
+  async function removeTabIdReferences(tabId) {
+    const tabState = gsTabState.getTabStateForTabId(tabId);
     if (tabState) {
       _suspensionQueue.unqueueTab(tabState.tab);
     }

@@ -1,4 +1,4 @@
-/* global tgs, gsUtils, gsTabSelector, gsTabCheckManager, gsTabDiscardManager, gsTabSuspendManager */
+/* global gsChrome, gsUtils, gsTabSelector, gsTabCheckManager, gsTabDiscardManager, gsTabSuspendManager */
 // eslint-disable-next-line no-unused-vars
 var gsTabState = (function() {
   'use strict';
@@ -13,6 +13,7 @@ var gsTabState = (function() {
   const STATE_SUSPENDED = 'suspended';
   const STATE_UNSUSPENDING = 'unsuspending';
   const STATE_UNSUSPENDED = 'unsuspended';
+  const STATE_UNKNOWN = 'unkonwn';
 
   const TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
   const UNLOADED_URL = 'unloadedUrl';
@@ -49,14 +50,18 @@ var gsTabState = (function() {
     return tabState;
   };
 
-  const getTabStateForId = tabId => {
-    if (!_tabStateByTabId[tabId]) {
+  const findOrCreateTabStateForTab = tab => {
+    if (!_tabStateByTabId[tab.id]) {
       gsUtils.error(
-        tabId,
-        `TabState does not exist for tabId: ${tabId}. Will create a new one.`
+        tab.id,
+        `TabState does not exist for tabId: ${tab.id}. Will create a new one.`
       );
-      _tabStateByTabId[tabId] = gsTabState.createNewTabState(tabId);
+      _tabStateByTabId[tab.id] = gsTabState.createNewTabState(tab);
     }
+    return _tabStateByTabId[tab.id];
+  };
+
+  const getTabStateForTabId = tabId => {
     return _tabStateByTabId[tabId];
   };
 
@@ -81,13 +86,13 @@ var gsTabState = (function() {
     }
   }
 
-  function removeTabIdReferences(tabId) {
+  async function removeTabIdReferences(tabId) {
     gsUtils.log(tabId, 'removing tabId references to ' + tabId);
 
     gsTabSelector.removeTabIdReferences(tabId);
-    gsTabCheckManager.removeTabIdReferences(tabId);
-    gsTabDiscardManager.removeTabIdReferences(tabId);
-    gsTabSuspendManager.removeTabIdReferences(tabId);
+    await gsTabCheckManager.removeTabIdReferences(tabId);
+    await gsTabDiscardManager.removeTabIdReferences(tabId);
+    await gsTabSuspendManager.removeTabIdReferences(tabId);
     delete _tabStateByTabId[tabId];
   }
 
@@ -141,12 +146,22 @@ var gsTabState = (function() {
     setPropForTabId(tabId, IS_AUTODISCARDABLE, null);
   }
 
+  const isTabUnknown = (tabId) => {
+    return getPropForTabId(tabId, CURRENT_STATE) === STATE_UNKNOWN;
+  }
+  const setTabUnknown = (tabId) => {
+    setPropForTabId(tabId, CURRENT_STATE, STATE_UNKNOWN);
+  }
+
 
   const getTabTempWhitelistOnReloadFlag = (tabId) => {
     return getPropForTabId(tabId, TEMP_WHITELIST_ON_RELOAD);
   }
   const getTabUnloadedUrlFlag = (tabId) => {
     return getPropForTabId(tabId, UNLOADED_URL);
+  }
+    const setTabUnloadedUrlFlag = (tabId, unloadedUrl) => {
+    return setPropForTabId(tabId, UNLOADED_URL, unloadedUrl);
   }
   const getTabScrollPosFlag = (tabId) => {
     return getPropForTabId(tabId, SCROLL_POS);
@@ -179,7 +194,7 @@ var gsTabState = (function() {
       gsUtils.error(tabId, `Unknown tabState property: ${prop}`);
       return;
     }
-    const tabState = getTabStateForId(tabId);
+    const tabState = _tabStateByTabId[tabId];
     if (!tabState) {
       gsUtils.error(tabId, `No tabState exists for tabId: ${tabId}`);
       return;
@@ -192,13 +207,19 @@ var gsTabState = (function() {
       gsUtils.error(tabId, `Unknown tabState property: ${prop}`);
       return;
     }
-    getTabStateForId(tabId)[prop] = value;
+    const tabState = _tabStateByTabId[tabId];
+    if (!tabState) {
+      gsUtils.error(tabId, `No tabState exists for tabId: ${tabId}`);
+      return;
+    }
+    _tabStateByTabId[tabId][prop] = value;
   };
 
 
   return {
     createNewTabState,
-    getTabStateForId,
+    findOrCreateTabStateForTab,
+    getTabStateForTabId,
     setPropForTabId,
     updateTabIdReferences,
     removeTabIdReferences,
@@ -218,6 +239,8 @@ var gsTabState = (function() {
     setTabUnsuspending,
     isTabUnsuspended,
     setTabUnsuspended,
+    isTabUnknown,
+    setTabUnknown,
 
     getTabTempWhitelistOnReloadFlag,
     getTabUnloadedUrlFlag,
@@ -226,6 +249,7 @@ var gsTabState = (function() {
     getTabIsAutoDiscardableFlag,
     getTabShowNagFlag,
 
+    setTabUnloadedUrlFlag,
     setTabScrollPosFlag,
     setTabShowNagFlag,
   };

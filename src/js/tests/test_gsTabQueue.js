@@ -1,4 +1,4 @@
-/*global chrome, GsTabQueue, gsUtils, assertTrue */
+/*global chrome, GsTabQueue, gsTabState, gsUtils, assertTrue */
 var testSuites = typeof testSuites === 'undefined' ? [] : testSuites;
 testSuites.push(
   (function() {
@@ -40,9 +40,9 @@ testSuites.push(
     async function runQueueTest(tabCount, gsTabQueue) {
       const tabCheckPromises = [];
       for (let tabId = 1; tabId <= tabCount; tabId += 1) {
-        const tabCheckPromise = gsTabQueue.queueTabAsPromise({
-          id: tabId,
-        });
+        const tab = {id: tabId};
+        gsTabState.createNewTabState(tab);
+        const tabCheckPromise = gsTabQueue.queueTabAsPromise(tab);
         tabCheckPromises.push(tabCheckPromise);
       }
 
@@ -218,7 +218,9 @@ testSuites.push(
         // Results should be undefined as Promises.all rejects.
         // Should reject.
         // Expected time taken: 5 * 10 + 5 * 50
-        return await makeTest(5, 100, 0, 1, 10, 'resolveTrue', 'reject', true, 300);
+        const res = await makeTest(5, 100, 0, 1, 10, 'resolveTrue', 'reject', true, 300);
+        console.log('res', res);
+        return res;
       },
 
       async () => {

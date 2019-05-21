@@ -52,7 +52,7 @@ var gsTabCheckManager = (function() {
       if (!gsUtils.isSuspendedTab(tab)) {
         continue;
       }
-      const tabState = gsTabState.getTabStateForId(tab.id);
+      const tabState = gsTabState.findOrCreateTabStateForTab(tab);
       // Set to refetch immediately when being processed on the queue
       // From experience, even if a tab status is 'complete' now, it
       // may actually switch to 'loading' in a few seconds even though a
@@ -91,7 +91,7 @@ var gsTabCheckManager = (function() {
         return;
       }
       gsUtils.log(_tab.id, 'suspended tab loaded. status === complete');
-      const tabState = gsTabState.getTabStateForId(_tab.id);
+      const tabState = gsTabState.findOrCreateTabStateForTab(_tab);
       if (tabState) {
         // If tab is in check queue, then force it to continue processing immediately
         // This allows us to prevent a timeout -> fetch tab cycle
@@ -494,8 +494,8 @@ var gsTabCheckManager = (function() {
     });
   }
 
-  function removeTabIdReferences(tabId) {
-    const tabState = gsTabState.getTabStateForId(tabId);
+  async function removeTabIdReferences(tabId) {
+    const tabState = gsTabState.getTabStateForTabId(tabId);
     if (tabState) {
       _tabCheckQueue.unqueueTab(tabState.tab);
     }

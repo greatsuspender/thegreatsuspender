@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics */
+/*global chrome, gsAnalytics, gsChrome */
 (function(global) {
   'use strict';
 
@@ -12,20 +12,20 @@
   function init() {
     document
       .getElementById('restartExtension')
-      .addEventListener('click', function() {
+      .addEventListener('click', () => {
         chrome.runtime.reload();
       });
     document
       .getElementById('sessionManagementLink')
-      .addEventListener('click', function() {
-        chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+      .addEventListener('click', async () => {
+        await gsChrome.tabsCreate({ url: chrome.extension.getURL('history.html') });
       });
     gsAnalytics.reportPageView('broken.html');
   }
   if (document.readyState !== 'loading') {
     init();
   } else {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
       init();
     });
   }

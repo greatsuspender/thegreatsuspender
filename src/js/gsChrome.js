@@ -118,14 +118,33 @@ var gsChrome = {
     return new Promise(resolve => {
       if (!tabId) {
         gsUtils.warning('chromeTabs', 'tabId not specified');
-        resolve(null);
+        resolve(false);
         return;
       }
       chrome.tabs.remove(tabId, () => {
         if (chrome.runtime.lastError) {
           gsUtils.warning(tabId, chrome.runtime.lastError.message);
+          resolve(false);
+          return;
         }
-        resolve();
+        resolve(true);
+      });
+    });
+  },
+  tabsDiscard: function(tabId) {
+    return new Promise(resolve => {
+      if (!tabId) {
+        gsUtils.warning('chromeTabs', 'tabId not specified');
+        resolve(null);
+        return;
+      }
+      chrome.tabs.discard(tabId, (tab) => {
+        if (chrome.runtime.lastError) {
+          gsUtils.warning(tabId, chrome.runtime.lastError.message);
+          resolve(null);
+          return;
+        }
+        resolve(tab);
       });
     });
   },

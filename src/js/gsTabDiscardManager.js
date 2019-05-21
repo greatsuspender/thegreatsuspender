@@ -90,14 +90,8 @@ var gsTabDiscardManager = (function() {
       return;
     }
     gsUtils.log(tab.id, QUEUE_ID, 'Forcing discarding of tab.');
-    chrome.tabs.discard(tab.id, () => {
-      if (chrome.runtime.lastError) {
-        gsUtils.warning(tab.id, QUEUE_ID, chrome.runtime.lastError.message);
-        resolve(false);
-      } else {
-        resolve(true);
-      }
-    });
+    const discardedTab = await gsChrome.tabsDiscard(tab.id);
+    resolve(discardedTab !== null);
   }
 
   function handleDiscardException(
@@ -116,8 +110,8 @@ var gsTabDiscardManager = (function() {
     resolve(false);
   }
 
-  function removeTabIdReferences(tabId) {
-    const tabState = gsTabState.getTabStateForId(tabId);
+  async function removeTabIdReferences(tabId) {
+    const tabState = gsTabState.getTabStateForTabId(tabId);
     if (tabState) {
       _discardQueue.unqueueTab(tabState.tab);
     }

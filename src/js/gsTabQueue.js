@@ -98,7 +98,7 @@ function GsTabQueue(initQueueId, initQueueProps) {
     }
 
     function unqueueTab(tab) {
-      const tabState = gsTabState.getTabStateForId(tab.id);
+      const tabState = gsTabState.findOrCreateTabStateForTab(tab);
       const queueState = getTabQueueState(tab);
       if (queueState) {
         // gsUtils.log(tab.id, _queueId, 'Unqueueing tab.');
@@ -112,17 +112,26 @@ function GsTabQueue(initQueueId, initQueueProps) {
     }
 
     function getTabQueueState(tab) {
-      const tabState = gsTabState.getTabStateForId(tab.id);
-console.log(`tabState.queue[${_queueId}]`, tabState.queue[_queueId]);
-      return tabState.queue[_queueId];
+      const tabState = gsTabState.getTabStateForTabId(tab.id);
+      if (tabState) {
+        return tabState.queue[_queueId];
+      } else {
+        return null;
+      }
     }
 
     function setTabQueueState(tab, queueState) {
-      const tabState = gsTabState.getTabStateForId(tab.id);
-      tabState.queue[_queueId] = queueState;
+      let tabState = gsTabState.getTabStateForTabId(tab.id);
+      if (!tabState && queueState !== null) {
+        tabState = gsTabState.createNewTabState(tab);
+      }
+      if (tabState) {
+        tabState.queue[_queueId] = queueState;
+      }
     };
 
     function addTabToQueue(tab, executionProps) {
+      executionProps = executionProps || {};
       const queueState = {
         executionProps,
         deferredPromise: createDeferredPromise(),
@@ -131,24 +140,19 @@ console.log(`tabState.queue[${_queueId}]`, tabState.queue[_queueId]);
         sleepTimer: null,
       };
       setTabQueueState(tab, queueState);
-      const tabState = gsTabState.getTabStateForId(tab.id);
-console.log(_queueId, `adding tabState to queue. TabId: ${tab.id}. TabStateId: ${tabState.tab.id}`);
+      const tabState = gsTabState.findOrCreateTabStateForTab(tab);
       _queuedTabStates.push(tabState);
-console.log(_queueId, `postadd processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
       return queueState;
     }
 
     function removeTabStateFromQueue(tabState) {
-console.log(_queueId, `pre processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
       for (const [i, currentTabState] of _queuedTabStates.entries()) {
         if (tabState === currentTabState) {
           _queuedTabStates.splice(i, 1);
           setTabQueueState(tabState.tab, null);
-console.log(`removed tabState from queue[${_queueId}] for tabId: ${tabState.tab.id}`);
           break;
         }
       }
-console.log(_queueId, `post processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
       gsUtils.log(_queueId, `total queue size: ${_queuedTabStates.length}`);
     }
 
@@ -197,11 +201,11 @@ console.log(_queueId, `post processQueue ids: ${_queuedTabStates.map(o => o.tab.
 
     async function processQueue() {
       let inProgressCount = 0;
-console.log(_queueId, `current processQueue ids: ${_queuedTabStates.map(o => o.tab.id)}`);
       for (const tabState of _queuedTabStates) {
-console.log('processQueue: tabId: ' + tabState.tab.id);
         const queueState = getTabQueueState(tabState.tab);
-        if (queueState.queueStatus === STATUS_IN_PROGRESS) {
+        if (!queueState) {
+          removeTabStateFromQueue(tabState);
+        } else if (queueState.queueStatus === STATUS_IN_PROGRESS) {
           inProgressCount += 1;
         } else if (queueState.queueStatus === STATUS_QUEUED) {
           await processTabState(tabState);
@@ -217,6 +221,9 @@ console.log('processQueue: tabId: ' + tabState.tab.id);
 
     async function processTabState(tabState) {
       const queueState = getTabQueueState(tabState.tab);
+      if (!queueState) {
+        return;
+      }
       queueState.queueStatus = STATUS_IN_PROGRESS;
       gsUtils.log(
         tabState.tab.id,
@@ -315,6 +322,9 @@ console.log('processQueue: tabId: ' + tabState.tab.id);
 
     function requeueTabState(tabState, requeueDelay, executionProps) {
       const queueState = getTabQueueState(tabState.tab);
+      if (!queueState) {
+        return;
+      }
       requeueDelay = requeueDelay || DEFAULT_REQUEUE_DELAY;
       if (executionProps) {
         applyExecutionProps(queueState, executionProps);

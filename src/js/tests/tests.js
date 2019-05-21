@@ -15,6 +15,8 @@ const requiredLibs = [
   'gsIndexedDb',
   'gsTabQueue',
   'gsFavicon',
+  'gsTabState',
+  'gsEvents',
 ];
 
 function loadJsFile(fileName) {

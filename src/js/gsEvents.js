@@ -8,7 +8,7 @@ var gsEvents = (function() {
       addCommandListeners();
       addMessageListeners();
       addChromeListeners();
-      addMiscListeners();
+      await addMiscListeners();
       gsUtils.log('gsEvents', 'init successful');
       resolve();
     });
@@ -165,15 +165,14 @@ var gsEvents = (function() {
     });
   }
 
-  function addMiscListeners() {
+  async function addMiscListeners() {
     //add listener for battery state changes
     if (navigator.getBattery) {
-      navigator.getBattery().then(battery => {
-        tgs.handleBatteryChargingChange(battery);
-        battery.onchargingchange = () => {
-          tgs.handleBatteryChargingChange(battery);
-        };
-      });
+      const battery = await navigator.getBattery();
+      await tgs.handleBatteryChargingChange(battery);
+      battery.onchargingchange = async () => {
+        await tgs.handleBatteryChargingChange(battery);
+      };
     }
 
     //add listeners for online/offline state changes
