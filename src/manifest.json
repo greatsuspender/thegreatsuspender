@@ -16,6 +16,9 @@
     "contextMenus",
     "cookies"
   ],
+  "storage": {
+    "managed_schema": "managed-storage-schema.json"
+  },
   "background": {
     "scripts": ["js/gsUtils.js", "js/gsChrome.js", "js/gsAnalytics.js", "js/gsStorage.js", "js/db.js", "js/gsIndexedDb.js",
       "js/gsMessages.js", "js/gsSession.js", "js/gsTabQueue.js", "js/gsTabCheckManager.js", "js/gsFavicon.js",
