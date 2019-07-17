@@ -1,0 +1,65 @@
+{
+  "type": "object",
+  "properties": {
+    "SCREEN_CAPTURE": {
+      "type": "string"
+    },
+    "SCREEN_CAPTURE_FORCE": {
+      "type": "boolean"
+    },
+    "SUSPEND_IN_PLACE_OF_DISCARD": {
+      "type": "boolean"
+    },
+    "DISCARD_IN_PLACE_OF_SUSPEND": {
+      "type": "boolean"
+    },
+    "USE_ALT_SCREEN_CAPTURE_LIB": {
+      "type": "boolean"
+    },
+    "DISCARD_AFTER_SUSPEND": {
+      "type": "boolean"
+    },
+    "IGNORE_WHEN_OFFLINE": {
+      "type": "boolean"
+    },
+    "IGNORE_WHEN_CHARGING": {
+      "type": "boolean"
+    },
+    "UNSUSPEND_ON_FOCUS": {
+      "type": "boolean"
+    },
+    "IGNORE_PINNED": {
+      "type": "boolean"
+    },
+    "IGNORE_FORMS": {
+      "type": "boolean"
+    },
+    "IGNORE_AUDIO": {
+      "type": "boolean"
+    },
+    "IGNORE_ACTIVE_TABS": {
+      "type": "boolean"
+    },
+    "IGNORE_CACHE": {
+      "type": "boolean"
+    },
+    "ADD_CONTEXT": {
+      "type": "boolean"
+    },
+    "SYNC_SETTINGS": {
+      "type": "boolean"
+    },
+    "SUSPEND_TIME": {
+      "type": "string"
+    },
+    "NO_NAG": {
+      "type": "boolean"
+    },
+    "WHITELIST": {
+      "type": "string"
+    },
+    "THEME": {
+      "type": "string"
+    }
+  }
+}
