@@ -62,7 +62,7 @@ The whitelist is stored internally as a string, with one URL per line.
 
 The following settings can be defined:
 
-* `SCREEN_CAPTURE` (integer, default: '0')
+* `SCREEN_CAPTURE` (string, default: '0')
 * `SCREEN_CAPTURE_FORCE` (boolean, default: false)
 * `SUSPEND_IN_PLACE_OF_DISCARD` (boolean, default: false)
 * `DISCARD_IN_PLACE_OF_SUSPEND` (boolean, default: false)
@@ -78,7 +78,7 @@ The following settings can be defined:
 * `IGNORE_CACHE` (boolean, default: false)
 * `ADD_CONTEXT` (boolean, default: true)
 * `SYNC_SETTINGS` (boolean, default: true)
-* `SUSPEND_TIME` (integer (minutes), default: '60')
+* `SUSPEND_TIME` (string (minutes), default: '60')
 * `NO_NAG` (boolean, default: false)
 * `WHITELIST` (string (one URL per line), default: '')
 * `THEME` (string, default: 'light')
