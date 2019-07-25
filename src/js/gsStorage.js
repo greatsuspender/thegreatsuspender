@@ -1,6 +1,9 @@
 /*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
 'use strict';
 
+// Used to keep track of which settings were defined in the managed storage
+const managedOptions = []; // Example: ["gsTheme, gsWhitelist"]
+
 const gsStorageSettings = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
@@ -168,17 +171,19 @@ var gsStorage = {
     });
   },
 
-  // Checks the managed storage for settings and overrides the local storage
-  checkManagedStorageAndOverride() {
+  /**
+   * Checks the managed storage for settings and overrides the local storage
+   * Settings in managed storage are stored by key
+   * Settings in local storage are stored by name
+   * Example: in managed storage you will find "SYNC_SETTINGS": true.
+   *          in local storage you will find "gsSyncSettings": true
+   * I did this because I think the key is easier to interpret for someone
+   * editing the managed storage manually.
+   */
+   checkManagedStorageAndOverride() {
     const settingsList = Object.keys(gsStorageSettings);
     chrome.storage.managed.get(settingsList, result => {
       const settings = gsStorage.getSettings();
-
-      // Settings in storage are stored by name
-      // Settings in managed storage are defined by key
-      // Example: in managed storage you will find "SYNC_SETTINGS": true.
-      //          in local storage you will find "gsSyncSettings": true
-      // I did this because I think the key is easier to interpret
 
       Object.keys(result).forEach(key => {
         if (key === "WHITELIST") {
@@ -186,6 +191,9 @@ var gsStorage = {
         } else {
           settings[gsStorage[key]] = result[key];
         }
+
+        // Mark option as managed
+        managedOptions.push(gsStorage[key]);
       });
 
       gsStorage.saveSettings(settings);
@@ -442,4 +450,12 @@ var gsStorage = {
       );
     }
   },
+
+  /**
+   * Used by the options page to tell whether an option is set in managed storage
+   * and thus should not be changed.
+   *
+   * @param option The option name, such as "gsWhitelist" (not "WHITELIST")
+   */
+  isOptionManaged: option => managedOptions.includes(option)
 };
