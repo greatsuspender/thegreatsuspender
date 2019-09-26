@@ -310,19 +310,20 @@ var gsUtils = {
     if (whitelistItem.length < 1) {
       return false;
 
-      //test for regex ( must be of the form /foobar/ )
+      // test for regex ( must be of the form /foobar/i )
     } else if (
-      whitelistItem.length > 2 &&
-      whitelistItem.indexOf('/') === 0 &&
-      whitelistItem.indexOf('/', whitelistItem.length - 1) !== -1
+      (/^\/.+\/(?!.*?(.).*?\1)[gimsuy]*$/).test(whitelistItem)
     ) {
-      whitelistItem = whitelistItem.substring(1, whitelistItem.length - 1);
+      var regexSplitter = whitelistItem.lastIndexOf('/');
+      var regexMode = whitelistItem.substring(regexSplitter + 1);
+      whitelistItem = whitelistItem.substring(1, regexSplitter);
       try {
-        new RegExp(whitelistItem); // eslint-disable-line no-new
+        /* eslint-disable no-new */
+        return new RegExp(whitelistItem, regexMode).test(word);
+        /* eslint-enable no-new */
       } catch (e) {
         return false;
       }
-      return new RegExp(whitelistItem).test(word);
 
       // test as substring
     } else {
