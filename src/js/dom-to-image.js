@@ -1,6 +1,6 @@
 // dom-to-image-2.6.0
-// patched to add toCanvas public function (line 111)
-// patched to fix uncaught in promise (line 741)
+// patched to add toCanvas public function (line 112)
+// patched to fix uncaught in promise (line 742)
 // patched to fix illegal symbols in data-uri (line 349, 358)
 (function (global) {
     'use strict';
