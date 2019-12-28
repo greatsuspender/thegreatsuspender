@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /*!
  * html2canvas 1.0.0-alpha.12 <https://html2canvas.hertzen.com>
  * Copyright (c) 2018 Niklas von Hertzen <https://hertzen.com>

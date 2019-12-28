@@ -1,16 +1,16 @@
-/*global chrome, gsAnalytics, gsUtils */
-(function(global) {
-  'use strict';
+let gsGlobals;
+try {
+  gsGlobals = chrome.extension.getBackgroundPage().gsGlobals;
+  if (!gsGlobals) throw new Error();
+} catch (e) {
+  window.setTimeout(() => window.location.reload(), 1000);
+  return;
+}
 
-  try {
-    chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
-  } catch (e) {
-    window.setTimeout(() => window.location.reload(), 1000);
-    return;
-  }
+const { documentReadyAndLocalisedAsPromsied } = gsGlobals.gsUtils;
+const { reportPageView } = gsGlobals.gsAnalytics;
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
-    //do nothing
-  });
-  gsAnalytics.reportPageView('restoring-window.html');
-})(this);
+documentReadyAndLocalisedAsPromsied(document).then(function() {
+  //do nothing
+});
+reportPageView('restoring-window.html');

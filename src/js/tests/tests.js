@@ -1,47 +1,42 @@
-/* global gsIndexedDb, testSuites */
-/* eslint-disable no-unused-vars */
+import { initTestDatabase } from '../gsIndexedDb';
 
-const FIXTURE_CURRENT_SESSIONS = 'currentSessions';
-const FIXTURE_SAVED_SESSIONS = 'savedSessions';
-const FIXTURE_PREVIEW_URLS = 'previewUrls';
+import testCreateAndUpdateSessionRestorePoint from './test_createAndUpdateSessionRestorePoint';
+import testCurrentSessions from './test_currentSessions';
+import testGsChrome from './test_gsChrome';
+import testGsTabQueue from './test_gsTabQueue';
+import testGsUtils from './test_gsUtils';
+import testSavedSessions from './test_savedSessions';
+import testSuspendTab from './test_suspendTab';
+import testTrimDbItems from './test_trimDbItems';
+import testUpdateCurrentSession from './test_updateCurrentSession';
 
-const requiredLibs = [
-  'db',
-  'gsSession',
-  'gsStorage',
-  'gsUtils',
-  'gsChrome',
-  'gsTabSuspendManager',
-  'gsIndexedDb',
-  'gsTabQueue',
-  'gsFavicon',
+import fixtureCurrentSessions from './fixture_currentSessions';
+import fixtureSavedSessions from './fixture_savedSessions';
+import fixturePreviewUrls from './fixture_previewUrls';
+
+export const FIXTURE_CURRENT_SESSIONS = 'currentSessions';
+export const FIXTURE_SAVED_SESSIONS = 'savedSessions';
+export const FIXTURE_PREVIEW_URLS = 'previewUrls';
+
+const fixtures = {
+  [FIXTURE_CURRENT_SESSIONS]: { ...fixtureCurrentSessions },
+  [FIXTURE_SAVED_SESSIONS]: { ...fixtureSavedSessions },
+  [FIXTURE_PREVIEW_URLS]: { ...fixturePreviewUrls },
+};
+
+const testSuites = [
+  testCreateAndUpdateSessionRestorePoint,
+  testCurrentSessions,
+  // testGsChrome,
+  testGsTabQueue,
+  testGsUtils,
+  testSavedSessions,
+  testSuspendTab,
+  testTrimDbItems,
+  testUpdateCurrentSession,
 ];
 
-function loadJsFile(fileName) {
-  return new Promise(resolve => {
-    const script = document.createElement('script');
-    script.onload = resolve;
-    script.src = chrome.extension.getURL(`js/${fileName}.js`);
-    document.head.appendChild(script);
-  });
-}
-
-function loadJsonFixture(fileName) {
-  return new Promise(resolve => {
-    const request = new XMLHttpRequest();
-    request.open(
-      'GET',
-      chrome.extension.getURL(`js/tests/fixture_${fileName}.json`),
-      true
-    );
-    request.onload = () => {
-      return resolve(JSON.parse(request.responseText));
-    };
-    request.send();
-  });
-}
-
-function assertTrue(testResult) {
+export function assertTrue(testResult) {
   if (testResult) {
     return Promise.resolve(true);
   } else {
@@ -49,28 +44,23 @@ function assertTrue(testResult) {
   }
 }
 
-async function getFixture(fixtureName, itemName) {
-  const fixtures = await loadJsonFixture(fixtureName);
-  return JSON.parse(JSON.stringify(fixtures[itemName]));
+export async function getFixture(fixtureName, itemName) {
+  return JSON.parse(JSON.stringify(fixtures[fixtureName][itemName]));
 }
 
 async function runTests() {
-  for (let testSuite of testSuites) {
+  for (const testSuite of testSuites) {
     const resultEl = document.createElement('div');
     resultEl.innerHTML = `Testing ${testSuite.name}...`;
     document.getElementById('results').appendChild(resultEl);
 
     let allTestsPassed = true;
     console.log(`Running testSuite: ${testSuite.name}..`);
-    for (let [j, test] of testSuite.tests.entries()) {
+    for (const [j, test] of testSuite.tests.entries()) {
       console.log(`  Running test ${j + 1}..`);
 
-      // loads/reset required libs
-      await Promise.all(requiredLibs.map(loadJsFile));
-
       // clear indexedDb contents
-      gsIndexedDb.DB_SERVER = 'tgsTest';
-      await gsIndexedDb.clearGsDatabase();
+      await initTestDatabase();
 
       // run test
       try {

@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
+/* eslint-disable no-undef */
+/* eslint-disable no-var */
+/* eslint-disable prettier/prettier */
 // dom-to-image-2.6.0
 // patched to add toCanvas public function (line 111)
 // patched to fix uncaught in promise (line 741)
