@@ -335,7 +335,7 @@ function addClickHandlers() {
     });
   document.getElementById('settingsLink').addEventListener('click', function() {
     chrome.tabs.create({
-      url: chrome.extension.getURL('options.html'),
+      url: chrome.runtime.getURL('options.html'),
     });
     window.close();
   });

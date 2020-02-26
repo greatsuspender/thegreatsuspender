@@ -206,7 +206,7 @@ body.img-preview-mode .gsTopBar {
 .snoozyWrapper {
     position: relative;
 }
-#snoozySpinner.spinner:before {
+.snoozySpinner.spinner:before {
     border: 2px solid transparent;
     border-right-color: #4a4a4a;
     border-top-color: #4a4a4a;
@@ -229,6 +229,22 @@ body.img-preview-mode .gsTopBar {
     to {
         transform: rotate(360deg);
     }
+}
+.snoozyAsleep svg, .snoozyAwake svg {
+    width: 180px;
+    height: 180px;
+}
+.snoozyAsleep {
+    display: block;
+}
+.snoozyAwake {
+    display: none;
+}
+.waking .snoozyAsleep {
+    display: none;
+}
+.waking .snoozyAwake {
+    display: block;
 }
 
 /* dark theme for night lurkers */

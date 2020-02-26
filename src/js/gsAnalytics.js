@@ -5,7 +5,6 @@ import {
   SCREEN_CAPTURE,
   SUSPEND_TIME,
   NO_NAG,
-  DISCARD_AFTER_SUSPEND,
   SM_TIMESTAMP,
   SM_TOTAL_TAB_COUNT,
   SM_SUSPENDED_TAB_COUNT,
@@ -24,7 +23,6 @@ const DIMENSION_VERSION = 'dimension1';
 const DIMENSION_SCREEN_CAPTURE = 'dimension2';
 const DIMENSION_SUSPEND_TIME = 'dimension3';
 const DIMENSION_DONATED = 'dimension4';
-const DIMENSION_DISCARD_AFTER_SUSPEND = 'dimension5';
 
 const METRIC_SUSPENDED_TAB_COUNT = 'metric1';
 const METRIC_TOTAL_TAB_COUNT = 'metric2';
@@ -53,7 +51,6 @@ export const setUserDimensions = () => {
     [DIMENSION_SCREEN_CAPTURE]: getOption(SCREEN_CAPTURE) + '',
     [DIMENSION_SUSPEND_TIME]: getOption(SUSPEND_TIME) + '',
     [DIMENSION_DONATED]: getOption(NO_NAG) + '',
-    [DIMENSION_DISCARD_AFTER_SUSPEND]: getOption(DISCARD_AFTER_SUSPEND) + '',
   };
   log('gsAnalytics', 'Setting dimensions', dimensions);
   ga('set', dimensions);

@@ -1,7 +1,7 @@
 {
   "name": "__MSG_ext_extension_name__",
   "description": "__MSG_ext_extension_description__",
-  "version": "7.1.4",
+  "version": "8.0.2",
   "default_locale": "en",
   "permissions": [
     "tabs",
@@ -14,7 +14,9 @@
     "chrome://favicon/*",
     "https://greatsuspender.github.io/",
     "contextMenus",
-    "cookies"
+    "cookies",
+    "webRequest",
+    "webRequestBlocking"
   ],
   "background": {
     "scripts": ["background.js"],
@@ -41,7 +43,7 @@
     "48": "img/ic_suspendy_48x48.png",
     "128": "img/ic_suspendy_128x128.png"
   },
-  "web_accessible_resources": ["suspended.html"],
+  "web_accessible_resources": ["suspended.html", "img/snoozy_tab.svg", "img/snoozy_tab.svg"],
   "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'; child-src 'self'; connect-src 'self' https://greatsuspender.github.io https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' data: chrome: https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net https://greatsuspender.github.io; style-src 'self' https://greatsuspender.github.io; default-src 'self'",
   "incognito": "split",
   "manifest_version": 2,

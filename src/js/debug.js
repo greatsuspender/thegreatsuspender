@@ -56,10 +56,7 @@ function getDebugInfo(tabId, callback) {
     info.windowId = tab.windowId;
     info.tabId = tab.id;
     if (isNormalTab(tab, true)) {
-      sendRequestInfoToContentScript(tab.id, function(error, tabInfo) {
-        if (error) {
-          warning(tab.id, 'Failed to getDebugInfo', error);
-        }
+      sendRequestInfoToContentScript(tab.id).then(tabInfo => {
         if (tabInfo) {
           calculateTabStatus(tab, tabInfo.status, function(status) {
             info.status = status;
@@ -156,28 +153,12 @@ documentReadyAndLocalisedAsPromsied(document).then(async function() {
     newVal => setDebugError(newVal)
   );
   addFlagHtml(
-    'toggleDiscardInPlaceOfSuspend',
-    () => getOption(DISCARD_IN_PLACE_OF_SUSPEND),
-    newVal => {
-      setOptionAndSync(DISCARD_IN_PLACE_OF_SUSPEND, newVal);
-    }
-  );
-  addFlagHtml(
     'toggleUseAlternateScreenCaptureLib',
     () => getOption(USE_ALT_SCREEN_CAPTURE_LIB),
     newVal => {
       setOptionAndSync(USE_ALT_SCREEN_CAPTURE_LIB, newVal);
     }
   );
-  document.getElementById('claimSuspendedTabs').onclick = async function() {
-    const tabs = await tabsQuery();
-    for (const tab of tabs) {
-      if (isSuspendedTab(tab, true) && tab.url.indexOf(chrome.runtime.id) < 0) {
-        const newUrl = tab.url.replace(getRootUrl(tab.url), chrome.runtime.id);
-        await tabsUpdate(tab.id, { url: newUrl });
-      }
-    }
-  };
 
   const extensionsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
   document.getElementById('backgroundPage').setAttribute('href', extensionsUrl);

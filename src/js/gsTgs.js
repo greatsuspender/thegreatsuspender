@@ -1,3 +1,4 @@
+sendRequestInfoToContentScript;
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -16,12 +17,19 @@ import {
   IGNORE_AUDIO,
   IGNORE_PINNED,
   IGNORE_FORMS,
-  DISCARD_AFTER_SUSPEND,
   UNSUSPEND_ON_FOCUS,
   IGNORE_WHEN_CHARGING,
   IGNORE_WHEN_OFFLINE,
 } from './gsStorage';
+import {
+  initialiseTabContentScript,
+  sendTemporaryWhitelistToContentScript,
+  sendUndoTemporaryWhitelistToContentScript,
+  sendRequestInfoToContentScript,
+} from './helpers/contentScripts';
 import { reportEvent } from './gsAnalytics';
+import { SUSPEND_URL_PREFIX, UNSUSPEND_URL_PREFIX } from './actions/suspendTab';
+import { reinjectContentScriptOnTab } from './helpers/contentScripts';
 import {
   queueTabForSuspension,
   unqueueTabForSuspension,
@@ -29,17 +37,7 @@ import {
   handlePreviewImageResponse,
 } from './gsTabSuspendManager';
 import { queueTabCheck, queueTabCheckAsPromise } from './gsTabCheckManager';
-import {
-  handleDiscardedUnsuspendedTab,
-  unqueueTabForDiscard,
-} from './gsTabDiscardManager';
 import { updateCurrentSession } from './gsSession';
-import {
-  sendTemporaryWhitelistToContentScript,
-  sendUndoTemporaryWhitelistToContentScript,
-  sendInitTabToContentScript,
-  sendRequestInfoToContentScript,
-} from './gsMessages';
 import {
   log,
   warning,
@@ -59,6 +57,7 @@ import {
   isProtectedActiveTab,
   isProtectedPinnedTab,
   isProtectedAudibleTab,
+  parseQueryString,
   hasProperty,
   STATUS_UNKNOWN,
   STATUS_LOADING,
@@ -92,15 +91,14 @@ import {
   updateTabStateIdReferences,
   STATE_SHOW_NAG,
   STATE_TIMER_DETAILS,
-  STATE_SET_AUTODISCARDABLE,
-  STATE_HISTORY_URL_TO_REMOVE,
-  STATE_SCROLL_POS,
-  STATE_UNLOADED_URL,
   STATE_SUSPEND_REASON,
   STATE_TEMP_WHITELIST_ON_RELOAD,
-  STATE_INITIALISE_SUSPENDED_TAB,
-  STATE_DISABLE_UNSUSPEND_ON_RELOAD,
 } from './gsTabState';
+import {
+  getScrollPosForTabId,
+  setStatusForTabId,
+  getStatusForTabId,
+} from './helpers/tabStates';
 import {
   getInternalViewByTabId,
   executeViewGlobal,
@@ -326,48 +324,48 @@ export const requestToggleTempWhitelistStateOfHighlightedTab = callback => {
 };
 
 export const setTempWhitelistStateForTab = (tab, callback) => {
-  sendTemporaryWhitelistToContentScript(tab.id, function(error, response) {
-    if (error) {
-      warning(tab.id, 'Failed to sendTemporaryWhitelistToContentScript', error);
-    }
-    const contentScriptStatus =
-      response && response.status ? response.status : null;
-    calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
-      setIconStatus(newStatus, tab.id);
-      //This is a hotfix for issue #723
-      if (newStatus === 'tempWhitelist' && tab.autoDiscardable) {
-        chrome.tabs.update(tab.id, {
-          autoDiscardable: false,
-        });
-      }
-      if (callback) callback(newStatus);
+  sendTemporaryWhitelistToContentScript(tab.id)
+    .then(response => {
+      const contentScriptStatus =
+        response && response.status ? response.status : null;
+      calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
+        setIconStatus(newStatus, tab.id);
+        //This is a hotfix for issue #723
+        if (newStatus === 'tempWhitelist' && tab.autoDiscardable) {
+          chrome.tabs.update(tab.id, {
+            autoDiscardable: false,
+          });
+        }
+        if (callback) callback(newStatus);
+      });
+    })
+    .catch(e => {
+      warning(tab.id, 'Failed to sendTemporaryWhitelistToContentScript', e);
+      if (callback) callback();
     });
-  });
 };
 
 export const unsetTempWhitelistStateForTab = (tab, callback) => {
-  sendUndoTemporaryWhitelistToContentScript(tab.id, function(error, response) {
-    if (error) {
-      warning(
-        tab.id,
-        'Failed to sendUndoTemporaryWhitelistToContentScript',
-        error
-      );
-    }
-    const contentScriptStatus =
-      response && response.status ? response.status : null;
-    calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
-      setIconStatus(newStatus, tab.id);
-      //This is a hotfix for issue #723
-      if (newStatus !== 'tempWhitelist' && !tab.autoDiscardable) {
-        chrome.tabs.update(tab.id, {
-          //async
-          autoDiscardable: true,
-        });
-      }
-      if (callback) callback(newStatus);
+  sendUndoTemporaryWhitelistToContentScript(tab.id)
+    .then(response => {
+      const contentScriptStatus =
+        response && response.status ? response.status : null;
+      calculateTabStatus(tab, contentScriptStatus, function(newStatus) {
+        setIconStatus(newStatus, tab.id);
+        //This is a hotfix for issue #723
+        if (newStatus !== 'tempWhitelist' && !tab.autoDiscardable) {
+          chrome.tabs.update(tab.id, {
+            //async
+            autoDiscardable: true,
+          });
+        }
+        if (callback) callback(newStatus);
+      });
+    })
+    .catch(e => {
+      warning(tab.id, 'Failed to sendUndoTemporaryWhitelistToContentScript', e);
+      if (callback) callback();
     });
-  });
 };
 
 export const openLinkInSuspendedTab = (parentTab, linkedUrl) => {
@@ -446,6 +444,7 @@ export const suspendAllTabsInAllWindows = force => {
 };
 
 export const unsuspendAllTabs = () => {
+  debugger;
   getCurrentlyActiveTab(function(activeTab) {
     if (!activeTab) {
       warning('background', 'Could not determine currently active window.');
@@ -562,21 +561,12 @@ export const resetAutoSuspendTimerForAllTabs = () => {
 export const unsuspendTab = tab => {
   if (!isSuspendedTab(tab)) return;
 
-  const scrollPosition = getSuspendedScrollPosition(tab.url);
-  setTabStatePropForTabId(tab.id, STATE_SCROLL_POS, scrollPosition);
-
   const originalUrl = getOriginalUrl(tab.url);
+
   if (originalUrl) {
-    // Reloading chrome.tabs.update causes a history item for the suspended tab
-    // to be made in the tab history. We clean this up on tab updated hook
-    setTabStatePropForTabId(tab.id, STATE_HISTORY_URL_TO_REMOVE, tab.url);
-    if (tab.autoDiscardable) {
-      setTabStatePropForTabId(tab.id, STATE_SET_AUTODISCARDABLE, tab.url);
-    }
     // NOTE: Temporarily disable autoDiscardable, as there seems to be a bug
     // where discarded (and frozen?) suspended tabs will not unsuspend with
-    // chrome.tabs.update if this is set to true. This gets unset again after tab
-    // has reloaded via the STATE_SET_AUTODISCARDABLE flag.
+    // chrome.tabs.update if this is set to true. This should remain set to true.
     log(tab.id, 'Unsuspending tab via chrome.tabs.update');
     chrome.tabs.update(tab.id, { url: originalUrl, autoDiscardable: false });
     return;
@@ -606,7 +596,7 @@ export const checkForTriggerUrls = (tab, url) => {
     setOptionAndSync(NO_NAG, true);
     reportEvent('Donations', 'HidePopupAuto', true);
     chrome.tabs.update(tab.id, {
-      url: chrome.extension.getURL('thanks.html'),
+      url: chrome.runtime.getURL('thanks.html'),
     });
 
     // test for a save of keyboard shortcuts (chrome://extensions/shortcuts)
@@ -626,13 +616,6 @@ export const handleUnsuspendedTabStateChanged = (tab, changeInfo) => {
   }
   log(tab.id, 'unsuspended tab state changed. changeInfo: ', changeInfo);
 
-  // Ensure we clear the STATE_UNLOADED_URL flag during load in case the
-  // tab is suspended again before loading can finish (in which case on
-  // suspended tab complete, the tab will reload again)
-  if (hasProperty(changeInfo, 'status') && changeInfo.status === 'loading') {
-    setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, null);
-  }
-
   // Check if tab has just been discarded
   if (hasProperty(changeInfo, 'discarded') && changeInfo.discarded) {
     const existingSuspendReason = getTabStatePropForTabId(
@@ -647,20 +630,12 @@ export const handleUnsuspendedTabStateChanged = (tab, changeInfo) => {
       return;
     }
     log(tab.id, 'Unsuspended tab has been discarded. Url: ' + tab.url);
-    handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
+    //TODO: Remove this code?
+    // handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
 
     // When a tab is discarded the tab id changes. We need up-to-date UNSUSPENDED
     // tabIds in the current session otherwise crash recovery will not work
     queueSessionTimer();
-    return;
-  }
-
-  // Check if tab is queued for suspension
-  const queuedTabDetails = getQueuedTabDetails(tab);
-  if (queuedTabDetails) {
-    // Requeue tab to wake it from possible sleep
-    delete queuedTabDetails.executionProps.refetchTab;
-    queueTabForSuspension(tab, queuedTabDetails.executionProps.forceLevel);
     return;
   }
 
@@ -683,29 +658,26 @@ export const handleUnsuspendedTabStateChanged = (tab, changeInfo) => {
   }
 
   if (hasProperty(changeInfo, 'status')) {
-    if (changeInfo.status === 'complete') {
+    if (changeInfo.status === 'loading') {
+      if (getStatusForTabId(tab.id) === 'suspended') {
+        setStatusForTabId(tab.id, 'unsuspending');
+      }
+    } else if (changeInfo.status === 'complete') {
       const tempWhitelistOnReload = getTabStatePropForTabId(
         tab.id,
         STATE_TEMP_WHITELIST_ON_RELOAD
       );
-      const scrollPos =
-        getTabStatePropForTabId(tab.id, STATE_SCROLL_POS) || null;
-      const historyUrlToRemove = getTabStatePropForTabId(
-        tab.id,
-        STATE_HISTORY_URL_TO_REMOVE
-      );
-      const setAutodiscardable = getTabStatePropForTabId(
-        tab.id,
-        STATE_SET_AUTODISCARDABLE
-      );
+      const scrollPos = getScrollPosForTabId(tab.id);
+      const tabStatus = getStatusForTabId(tab.id);
+      if (tabStatus === 'unsuspending') {
+        removeTabHistoryForUnuspendedTab(tab.url);
+      }
+      setStatusForTabId(tab.id, 'unsuspended');
       clearTabStateForTabId(tab.id);
 
-      if (historyUrlToRemove) {
-        removeTabHistoryForUnuspendedTab(historyUrlToRemove);
-      }
-      if (setAutodiscardable) {
-        tabsUpdate(tab.id, { autoDiscardable: true });
-      }
+      // if (setAutodiscardable) {
+      //   tabsUpdate(tab.id, { autoDiscardable: true });
+      // }
 
       //init loaded tab
       resetAutoSuspendTimerForTab(tab);
@@ -732,10 +704,10 @@ export const handleUnsuspendedTabStateChanged = (tab, changeInfo) => {
   }
 };
 
-export const removeTabHistoryForUnuspendedTab = suspendedUrl => {
-  chrome.history.deleteUrl({ url: suspendedUrl });
-  const originalUrl = getOriginalUrl(suspendedUrl);
-  chrome.history.getVisits({ url: originalUrl }, visits => {
+export const removeTabHistoryForUnuspendedTab = url => {
+  // chrome.history.deleteUrl({ url: suspendedUrl });
+  chrome.history.getVisits({ url }, visits => {
+    console.log('visits for: ' + url, visits);
     //assume history entry will be the second to latest one (latest one is the currently visible page)
     //NOTE: this will break if the same url has been visited by another tab more recently than the
     //suspended tab (pre suspension)
@@ -756,25 +728,6 @@ export const removeTabHistoryForUnuspendedTab = suspendedUrl => {
   });
 };
 
-export const initialiseTabContentScript = (tab, isTempWhitelist, scrollPos) => {
-  return new Promise((resolve, reject) => {
-    const ignoreForms = getOption(IGNORE_FORMS);
-    sendInitTabToContentScript(
-      tab.id,
-      ignoreForms,
-      isTempWhitelist,
-      scrollPos,
-      (error, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(response);
-        }
-      }
-    );
-  });
-};
-
 export const handleSuspendedTabStateChanged = (tab, changeInfo) => {
   if (
     !hasProperty(changeInfo, 'status') &&
@@ -784,9 +737,16 @@ export const handleSuspendedTabStateChanged = (tab, changeInfo) => {
   }
 
   log(tab.id, 'suspended tab status changed. changeInfo: ', changeInfo);
+  const currentTabStatus = getStatusForTabId(tab.id);
+  log(tab.id, 'currentTabStatus: ', currentTabStatus);
 
   if (changeInfo.status && changeInfo.status === 'loading') {
-    setTabStatePropForTabId(tab.id, STATE_INITIALISE_SUSPENDED_TAB, true);
+    if (currentTabStatus === 'suspended') {
+      // Assume suspended tab has been refreshed, in which case we want to unsuspend tab
+      log(tab.id, 'unsuspending tab due to page refresh.');
+      unsuspendTab(tab);
+    }
+    setStatusForTabId(tab.id, 'suspending');
     return;
   }
 
@@ -794,46 +754,11 @@ export const handleSuspendedTabStateChanged = (tab, changeInfo) => {
     (changeInfo.status && changeInfo.status === 'complete') ||
     changeInfo.discarded
   ) {
-    unqueueTabForSuspension(tab); //safety precaution
-    const shouldInitTab = getTabStatePropForTabId(
-      tab.id,
-      STATE_INITIALISE_SUSPENDED_TAB
-    );
-    if (shouldInitTab) {
-      initialiseSuspendedTab(tab);
+    setStatusForTabId(tab.id, 'suspended');
+    if (isCurrentFocusedTab(tab)) {
+      setIconStatus(STATUS_SUSPENDED, tab.id);
     }
   }
-};
-
-export const initialiseSuspendedTab = tab => {
-  const unloadedUrl = getTabStatePropForTabId(tab.id, STATE_UNLOADED_URL);
-  const disableUnsuspendOnReload = getTabStatePropForTabId(
-    tab.id,
-    STATE_DISABLE_UNSUSPEND_ON_RELOAD
-  );
-  const showNag = getTabStatePropForTabId(tab.id, STATE_SHOW_NAG);
-  clearTabStateForTabId(tab.id);
-
-  if (isCurrentFocusedTab(tab)) {
-    setIconStatus(STATUS_SUSPENDED, tab.id);
-  }
-
-  //if a suspended tab is marked for unsuspendOnReload then unsuspend tab and return early
-  const suspendedTabRefreshed = unloadedUrl === tab.url;
-  if (suspendedTabRefreshed && !disableUnsuspendOnReload) {
-    unsuspendTab(tab);
-    return;
-  }
-
-  const tabView = getInternalViewByTabId(tab.id);
-  const quickInit = getOption(DISCARD_AFTER_SUSPEND) && !tab.active;
-  initTab(tab, tabView, { quickInit, showNag })
-    .catch(error => {
-      warning(tab.id, error);
-    })
-    .then(() => {
-      queueTabCheck(tab, { refetchTab: true }, 3000);
-    });
 };
 
 export const updateTabIdReferences = (newTabId, oldTabId) => {
@@ -946,14 +871,13 @@ export const handleTabFocusChanged = async (tabId, windowId) => {
     _triggerHotkeyUpdate = false;
   }
 
-  unqueueTabForDiscard(focusedTab);
-
   // If normal tab, then ensure it has a responsive content script
   let contentScriptStatus = null;
   if (isNormalTab(focusedTab, true)) {
     contentScriptStatus = await getContentScriptStatus(focusedTab.id);
     if (!contentScriptStatus) {
-      contentScriptStatus = await queueTabCheckAsPromise(focusedTab, {}, 0);
+      await reinjectContentScriptOnTab(focusedTab);
+      contentScriptStatus = await getContentScriptStatus(focusedTab.id);
     }
     log(focusedTab.id, 'Content script status: ' + contentScriptStatus);
   }
@@ -977,34 +901,6 @@ export const handleTabFocusChanged = async (tabId, windowId) => {
   if (focusedTab.url === 'chrome://extensions/shortcuts') {
     _triggerHotkeyUpdate = true;
   }
-
-  const discardAfterSuspend = getOption(DISCARD_AFTER_SUSPEND);
-  if (!discardAfterSuspend) {
-    return;
-  }
-
-  //queue job to discard previously focused tab
-  const previouslyFocusedTab = previouslyFocusedTabId
-    ? await tabsGet(previouslyFocusedTabId)
-    : null;
-  if (!previouslyFocusedTab) {
-    log(
-      previouslyFocusedTabId,
-      'Could not find tab. Has probably already been discarded'
-    );
-    return;
-  }
-  if (!isSuspendedTab(previouslyFocusedTab)) {
-    return;
-  }
-
-  //queue tabCheck for previouslyFocusedTab. that will force a discard afterwards
-  //but also avoids conflicts if this tab is already scheduled for checking
-  log(
-    previouslyFocusedTabId,
-    'Queueing previously focused tab for discard via tabCheckManager'
-  );
-  queueTabCheck(previouslyFocusedTab, {}, 1000);
 };
 
 export const queueNewWindowFocusTimer = (tabId, windowId, focusedTab) => {
@@ -1053,7 +949,7 @@ function handleNewStationaryTabFocus(
         unqueueTabForSuspension(focusedTab);
       }
     }
-  } else if (focusedTab.url === chrome.extension.getURL('options.html')) {
+  } else if (focusedTab.url === chrome.runtime.getURL('options.html')) {
     executeViewGlobal(focusedTab.id, VIEW_FUNC_OPTIONS_REINIT);
   }
 
@@ -1079,7 +975,8 @@ function handleNewStationaryTabFocus(
 export const handleSuspendedTabFocusGained = focusedTab => {
   if (focusedTab.status !== 'loading') {
     //safety check to ensure suspended tab has been initialised
-    queueTabCheck(focusedTab, { refetchTab: false }, 0);
+    //TODO: Reenable this check
+    // queueTabCheck(focusedTab, { refetchTab: false }, 0);
   }
 
   //check for auto-unsuspend
@@ -1099,7 +996,7 @@ export const handleSuspendedTabFocusGained = focusedTab => {
 export const promptForFilePermissions = () => {
   getCurrentlyActiveTab(activeTab => {
     chrome.tabs.create({
-      url: chrome.extension.getURL('permissions.html'),
+      url: chrome.runtime.getURL('permissions.html'),
       index: activeTab.index + 1,
     });
   });
@@ -1181,16 +1078,18 @@ export const getContentScriptStatus = (tabId, knownContentScriptStatus) => {
     if (knownContentScriptStatus) {
       resolve(knownContentScriptStatus);
     } else {
-      sendRequestInfoToContentScript(tabId, function(error, tabInfo) {
-        if (error) {
-          warning(tabId, 'Failed to getContentScriptStatus', error);
-        }
-        if (tabInfo) {
-          resolve(tabInfo.status);
-        } else {
+      sendRequestInfoToContentScript(tabId)
+        .then(tabInfo => {
+          if (tabInfo) {
+            resolve(tabInfo.status);
+          } else {
+            resolve(null);
+          }
+        })
+        .catch(e => {
+          warning(tabId, 'Error sending request to content script', e);
           resolve(null);
-        }
-      });
+        });
     }
   });
 };
@@ -1532,7 +1431,7 @@ export const externalMessageRequestListener = (
     }
 
     if (request.action === 'suspend') {
-      if (isSuspendedTab(tab, true)) {
+      if (isSuspendedTab(tab)) {
         sendResponse('Error: tab is already suspended');
         return;
       }
@@ -1564,6 +1463,31 @@ export const addMessageListeners = () => {
 };
 
 export const addChromeListeners = () => {
+  // const extensionUrl = chrome.runtime.getURL('');
+  // const host = new URL(extensionUrl).host;
+  const suspendRequestUrl = chrome.runtime.getURL(SUSPEND_URL_PREFIX);
+
+  chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+      console.log('details', details);
+      if (details.url.indexOf(suspendRequestUrl) === 0) {
+        const queryParams = parseQueryString(
+          details.url.split(suspendRequestUrl)[1]
+        );
+        // Suspend tab by redirecting to the data:text/html url
+        return { redirectUrl: queryParams.data };
+      }
+
+      return { cancel: false };
+    },
+    // { urls: [`*://${host}/${SUSPEND_URL_PREFIX}*`] },
+    // { urls: [`${chrome.runtime.getURL('')}/${SUSPEND_URL_PREFIX}*`] },
+    {
+      urls: [`${suspendRequestUrl}*`],
+    },
+    ['blocking']
+  );
+
   chrome.windows.onFocusChanged.addListener(function(windowId) {
     handleWindowFocusChanged(windowId);
   });
@@ -1582,7 +1506,8 @@ export const addChromeListeners = () => {
     if (isSuspendedTab(tab) && !tab.active) {
       // Queue tab for check but mark it as sleeping for 5 seconds to give
       // a chance for the tab to load
-      queueTabCheck(tab, {}, 5000);
+      //TODO: Reenable this check
+      // queueTabCheck(tab, {}, 5000);
     }
   });
   chrome.tabs.onRemoved.addListener(function(tabId) {
@@ -1596,6 +1521,7 @@ export const addChromeListeners = () => {
     // if url has changed
     if (changeInfo.url) {
       log(tabId, 'tab url changed. changeInfo: ', changeInfo);
+
       checkForTriggerUrls(tab, changeInfo.url);
       queueSessionTimer();
     }
@@ -1611,9 +1537,9 @@ export const addChromeListeners = () => {
     queueSessionTimer();
 
     // eslint-disable-next-line no-var
-    var noticeToDisplay = requestNotice();
+    const noticeToDisplay = requestNotice();
     if (noticeToDisplay) {
-      chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
+      chrome.tabs.create({ url: chrome.runtime.getURL('notice.html') });
       reportEvent(
         'Notice',
         'Display',

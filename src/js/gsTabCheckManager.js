@@ -1,5 +1,5 @@
 import GsTabQueue from './gsTabQueue';
-import { initialiseTabContentScript } from './gsTgs';
+import { reinjectContentScriptOnTab } from './helpers/contentScripts';
 import {
   log,
   warning,
@@ -18,17 +18,14 @@ import {
   getSessionId,
 } from './gsSession';
 import { tabsGet, tabsQuery, tabsReload, tabsUpdate } from './gsChrome';
-import { getOption, DISCARD_AFTER_SUSPEND } from './gsStorage';
+import { getOption } from './gsStorage';
 import { initTab } from './gsSuspendedTab';
-import { queueTabForDiscardAsPromise } from './gsTabDiscardManager';
 import {
-  STATE_DISABLE_UNSUSPEND_ON_RELOAD,
+  // STATE_DISABLE_UNSUSPEND_ON_RELOAD,
   setTabStatePropForTabId,
 } from './gsTabState';
-import {
-  executeScriptOnTab,
-  sendRequestInfoToContentScript,
-} from './gsMessages';
+import { executeScriptOnTab } from './gsMessages';
+import { sendRequestInfoToContentScript } from './helpers/contentScripts';
 import { getInternalViewByTabId } from './gsViews';
 import { isCurrentActiveTab } from './gsTgs';
 
@@ -81,13 +78,16 @@ export const performInitialisationTabChecks = async tabs => {
     if (!isSuspendedTab(tab)) {
       continue;
     }
-    tabCheckPromises.push(
+    tabCheckPromises
+      .push
       // Set to refetch immediately when being processed on the queue
       // From experience, even if a tab status is 'complete' now, it
       // may actually switch to 'loading' in a few seconds even though a
       // tab reload has not be performed
-      queueTabCheckAsPromise(tab, { resuspend: true }, 1000)
-    );
+
+      //TODO: Reenable this check
+      // queueTabCheckAsPromise(tab, { resuspend: true }, 1000)
+      ();
   }
 
   const tabUpdatedListener = getTabUpdatedListener();
@@ -307,14 +307,9 @@ async function checkSuspendedTab(
     }
   }
 
-  const attemptDiscarding =
-    getOption(DISCARD_AFTER_SUSPEND) &&
-    !isDiscardedTab(tab) &&
-    !isCurrentActiveTab(tab);
   const tabSessionOk = suspendedView.document.sessionId === getSessionId();
   const tabBasicsOk = ensureSuspendedTabTitleAndFaviconSet(tab);
-  const tabVisibleOk =
-    attemptDiscarding || ensureSuspendedTabVisible(suspendedView);
+  const tabVisibleOk = ensureSuspendedTabVisible(suspendedView);
   const tabChecksOk = tabSessionOk && tabBasicsOk && tabVisibleOk;
 
   let reinitialised = false;
@@ -327,8 +322,7 @@ async function checkSuspendedTab(
     try {
       log(tab.id, QUEUE_ID, 'Reinitialising suspendedTab: ', tab);
       // If we know that we will discard tab, then just perform a quick init
-      const quickInit = attemptDiscarding && !tab.active;
-      await initTab(tab, suspendedView, { quickInit });
+      await initTab(tab, suspendedView);
       reinitialised = true;
     } catch (e) {
       log(
@@ -341,26 +335,15 @@ async function checkSuspendedTab(
       return;
     }
   }
-
-  let discarded = false;
-  if (attemptDiscarding) {
-    // dont attempt discarding straight away if we have just reinitialised
-    // as it seems to take the favicon a while to display and discarding prematurely
-    // will break this process
-    if (reinitialised) {
-      requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
-      return;
-    }
-    discarded = await queueTabForDiscardAsPromise(tab);
-  }
-  resolve(discarded ? STATUS_DISCARDED : STATUS_SUSPENDED);
+  resolve(STATUS_SUSPENDED);
 }
 
 export const resuspendSuspendedTab = async tab => {
   log(tab.id, QUEUE_ID, 'Resuspending unresponsive suspended tab.');
   const suspendedView = getInternalViewByTabId(tab.id);
   if (suspendedView) {
-    setTabStatePropForTabId(tab.id, STATE_DISABLE_UNSUSPEND_ON_RELOAD, true);
+    // TODO: Reenable this?
+    // setTabStatePropForTabId(tab.id, STATE_DISABLE_UNSUSPEND_ON_RELOAD, true);
   }
   const reloadOk = await tabsReload(tab.id);
   return reloadOk;
@@ -411,7 +394,7 @@ export const checkNormalTab = async (
     log(tab.id, QUEUE_ID, 'Updated tab: ', tab);
 
     // Ensure tab is not suspended
-    if (isSuspendedTab(tab, true)) {
+    if (isSuspendedTab(tab)) {
       log(tab.id, QUEUE_ID, 'Tab is suspended. Aborting check.');
       resolve(STATUS_SUSPENDED);
       return;
@@ -441,9 +424,7 @@ export const checkNormalTab = async (
     return;
   }
 
-  let tabInfo = await new Promise(r => {
-    sendRequestInfoToContentScript(tab.id, (error, tabInfo) => r(tabInfo));
-  });
+  let tabInfo = await sendRequestInfoToContentScript(tab.id);
 
   if (tabInfo) {
     resolve(tabInfo.status);
@@ -473,47 +454,4 @@ export const checkNormalTab = async (
   } else {
     resolve(STATUS_UNKNOWN);
   }
-};
-
-// Careful with this function. It seems that these unresponsive tabs can sometimes
-// not return any result after chrome.tabs.executeScript
-// Try to mitigate this by wrapping in a setTimeout
-// TODO: Report chrome bug
-// Unrelated, but reinjecting content scripts has some issues:
-// https://groups.google.com/a/chromium.org/forum/#!topic/chromium-extensions/QLC4gNlYjbA
-// https://bugs.chromium.org/p/chromium/issues/detail?id=649947
-// Notably (for me), the key listener of the old content script remains active
-// if using: window.addEventListener('keydown', formInputListener);
-export const reinjectContentScriptOnTab = tab => {
-  return new Promise(resolve => {
-    log(
-      tab.id,
-      QUEUE_ID,
-      'Reinjecting contentscript into unresponsive unsuspended tab.',
-      tab
-    );
-    const executeScriptTimeout = setTimeout(() => {
-      log(
-        QUEUE_ID,
-        tab.id,
-        'chrome.tabs.executeScript failed to trigger callback'
-      );
-      resolve(null);
-    }, 10000);
-    executeScriptOnTab(tab.id, 'js/contentscript.js', error => {
-      clearTimeout(executeScriptTimeout);
-      if (error) {
-        log(tab.id, 'Failed to execute js/contentscript.js on tab', error);
-        resolve(null);
-        return;
-      }
-      initialiseTabContentScript(tab)
-        .then(tabInfo => {
-          resolve(tabInfo);
-        })
-        .catch(() => {
-          resolve(null);
-        });
-    });
-  });
 };

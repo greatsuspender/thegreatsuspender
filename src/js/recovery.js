@@ -117,7 +117,7 @@ documentReadyAndLocalisedAsPromsied(document).then(async function() {
 
   manageEl.onclick = function(e) {
     e.preventDefault();
-    chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
   };
 
   if (previewsEl) {

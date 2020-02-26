@@ -6,6 +6,7 @@
     "module": "es6",
     "target": "es5",
     "jsx": "react",
+    "jsxFactory": "h",
     "allowJs": true,
     "moduleResolution": "node",
     "removeComments": true,
@@ -18,5 +19,6 @@
     "alwaysStrict": true,
     "esModuleInterop": true
   },
+  "include": ["./src/**/*.tsx", "./src/**/*.ts"],
   "exclude": ["./dist"]
 }

@@ -12,7 +12,7 @@ import {
 import { fetchFaviconMeta, addFaviconMeta } from './gsIndexedDb';
 
 // const GOOGLE_S2_URL = 'https://www.google.com/s2/favicons?domain_url=';
-const FALLBACK_CHROME_FAVICON_META = {
+export const FALLBACK_CHROME_FAVICON_META = {
   favIconUrl: 'chrome://favicon/size/16@2x/fallbackChromeFaviconMeta',
   isDark: true,
   normalisedDataUrl:
@@ -35,11 +35,11 @@ export const addFaviconDefaults = async () => {
   const defaultIconUrls = [
     generateChromeFavIconUrlFromUrl('http://chromeDefaultFavicon'),
     generateChromeFavIconUrlFromUrl('chromeDefaultFavicon'),
-    chrome.extension.getURL('img/ic_suspendy_16x16.png'),
-    chrome.extension.getURL('img/chromeDefaultFavicon.png'),
-    chrome.extension.getURL('img/chromeDefaultFaviconSml.png'),
-    chrome.extension.getURL('img/chromeDevDefaultFavicon.png'),
-    chrome.extension.getURL('img/chromeDevDefaultFaviconSml.png'),
+    chrome.runtime.getURL('img/ic_suspendy_16x16.png'),
+    chrome.runtime.getURL('img/chromeDefaultFavicon.png'),
+    chrome.runtime.getURL('img/chromeDefaultFaviconSml.png'),
+    chrome.runtime.getURL('img/chromeDevDefaultFavicon.png'),
+    chrome.runtime.getURL('img/chromeDevDefaultFaviconSml.png'),
   ];
 
   const faviconPromises = [];
@@ -139,7 +139,7 @@ export const getFaviconMetaData = async tab => {
   log(tab.id, 'No entry in chrome favicon cache for url: ' + originalUrl);
   if (
     tab.favIconUrl &&
-    tab.favIconUrl !== chrome.extension.getURL('img/ic_suspendy_16x16.png')
+    tab.favIconUrl !== chrome.runtime.getURL('img/ic_suspendy_16x16.png')
   ) {
     faviconMeta = await buildFaviconMetaFromTabFavIconUrl(tab.favIconUrl);
     if (faviconMeta) {

@@ -61,7 +61,7 @@ function setExportBackupClickHandler() {
 function setSessionManagerClickHandler() {
   document.getElementById('sessionManagerLink').onclick = function(e) {
     e.preventDefault();
-    chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
     setRestartExtensionClickHandler(false);
   };
 }

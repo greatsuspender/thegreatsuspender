@@ -3,6 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  devtool: 'source-map',
   entry: {
     background: './src/js/background.js',
     contentScript: './src/js/contentscript.js',
@@ -22,6 +23,30 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [
+          // {
+          //   loader: 'to-string-loader',
+          // },
+          // {
+          //   loader: 'typings-for-css-modules-loader?modules',
+          //   options: { minimize: true, modules: true },
+          // },
+          'to-string-loader',
+          {
+            loader: 'css-loader',
+            // options: { minimize: true, modules: true },
+          },
+          '@teamsupercell/typings-for-css-modules-loader',
+        ],
+        include: path.resolve(__dirname, 'src/css/'),
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-inline-loader',
+        exclude: /node_modules/,
+      },
       {
         test: /\.tsx?$/,
         use: 'ts-loader',

@@ -7,14 +7,8 @@ export const STATE_TIMER_DETAILS = 'timerDetails';
 
 // Suspended tab props
 export const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-export const STATE_DISABLE_UNSUSPEND_ON_RELOAD = 'disableUnsuspendOnReload';
-export const STATE_INITIALISE_SUSPENDED_TAB = 'initialiseSuspendedTab';
-export const STATE_UNLOADED_URL = 'unloadedUrl';
-export const STATE_HISTORY_URL_TO_REMOVE = 'historyUrlToRemove';
-export const STATE_SET_AUTODISCARDABLE = 'setAutodiscardable';
 export const STATE_SHOW_NAG = 'showNag';
 export const STATE_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
-export const STATE_SCROLL_POS = 'scrollPos';
 
 export function getTabStatePropForTabId(tabId, prop) {
   return _tabStateByTabId[tabId] ? _tabStateByTabId[tabId][prop] : undefined;

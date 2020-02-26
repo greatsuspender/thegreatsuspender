@@ -10,10 +10,8 @@ import {
 import { getSessionId } from './gsSession';
 import { getFaviconMetaData } from './gsFavicon';
 import {
-  STATE_UNLOADED_URL,
   STATE_SHOW_NAG,
   STATE_SUSPEND_REASON,
-  STATE_SCROLL_POS,
   setTabStatePropForTabId,
   getTabStatePropForTabId,
 } from './gsTabState';
@@ -30,7 +28,7 @@ import {
   getSuspensionToggleHotkey,
 } from './gsTgs';
 
-export const initTab = async (tab, tabView, { showNag, quickInit }) => {
+export const initTab = async (tab, tabView, { showNag }) => {
   if (!tabView) {
     warning(tab.id, 'Could not get internalTabView for suspended tab');
   }
@@ -39,21 +37,9 @@ export const initTab = async (tab, tabView, { showNag, quickInit }) => {
   // Set sessionId for subsequent checks
   tabView.document.sessionId = getSessionId();
 
-  // Set title
-  let title = getSuspendedTitle(suspendedUrl);
-  if (title.indexOf('<') >= 0) {
-    // Encode any raw html tags that might be used in the title
-    title = htmlEncode(title);
-  }
-  setTitle(tabView.document, title);
-
   // Set faviconMeta
   const faviconMeta = await getFaviconMetaData(tab);
   setFaviconMeta(tabView.document, faviconMeta);
-
-  if (quickInit) {
-    return;
-  }
 
   tabView.document;
 
@@ -114,7 +100,7 @@ export const initTab = async (tab, tabView, { showNag, quickInit }) => {
   // Set scrollPosition (must come after showing page contents)
   const scrollPosition = getSuspendedScrollPosition(suspendedUrl);
   setScrollPosition(tabView.document, scrollPosition, previewMode);
-  setTabStatePropForTabId(tab.id, STATE_SCROLL_POS, scrollPosition);
+  // setTabStatePropForTabId(tab.id, STATE_SCROLL_POS, scrollPosition);
   // const whitelisted = checkWhiteList(originalUrl);
 };
 
@@ -165,18 +151,6 @@ export const setScrollPosition = (_document, scrollPosition, previewMode) => {
     _document.body.scrollTop = 0;
     _document.documentElement.scrollTop = 0;
   }
-};
-
-export const setTitle = (_document, title) => {
-  _document.title = title;
-  _document.getElementById('gsTitle').innerHTML = title;
-  _document.getElementById('gsTopBarTitle').innerHTML = title;
-  // Prevent unsuspend by parent container
-  // Using mousedown event otherwise click can still be triggered if
-  // mouse is released outside of this element
-  _document.getElementById('gsTopBarTitle').onmousedown = function(e) {
-    e.stopPropagation();
-  };
 };
 
 export const setUrl = (_document, url) => {
@@ -297,7 +271,7 @@ export const buildImagePreview = (_document, tab, previewUri) => {
 
 export const addWatermarkHandler = _document => {
   _document.querySelector('.watermark').onclick = () => {
-    chrome.tabs.create({ url: chrome.extension.getURL('about.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('about.html') });
   };
 };
 
@@ -354,7 +328,8 @@ export const setUnloadTabHandler = (_window, tab) => {
   _window.addEventListener('beforeunload', function() {
     log(tab.id, 'BeforeUnload triggered: ' + tab.url);
     if (isCurrentFocusedTab(tab)) {
-      setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, tab.url);
+      // TODO: Reenable this?
+      // setTabStatePropForTabId(tab.id, STATE_UNLOADED_URL, tab.url);
     } else {
       log(tab.id, 'Ignoring beforeUnload as tab is not currently focused.');
     }
@@ -386,7 +361,7 @@ export const showUnsuspendAnimation = _document => {
     _document.getElementById('refreshSpinner').classList.add('spinner');
   } else {
     _document.body.classList.add('waking');
-    _document.getElementById('snoozyImg').src = chrome.extension.getURL(
+    _document.getElementById('snoozyImg').src = chrome.runtime.getURL(
       'img/snoozy_tab_awake.svg'
     );
     _document.getElementById('snoozySpinner').classList.add('spinner');
@@ -453,8 +428,8 @@ export const loadDonateButtonsHtml = (_document, responseText) => {
     _document.getElementById('paypalBtn').onclick = function() {
       gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
     };
-  } catch (error) {
-    warning(error);
+  } catch (e) {
+    warning(e);
   }
 };
 

@@ -4,7 +4,6 @@ import * as gsAnalytics from './gsAnalytics';
 import * as gsFavicon from './gsFavicon';
 import * as gsTabSuspendManager from './gsTabSuspendManager';
 import * as gsTabCheckManager from './gsTabCheckManager';
-import * as gsTabDiscardManager from './gsTabDiscardManager';
 import * as gsIndexedDb from './gsIndexedDb';
 import * as gsSession from './gsSession';
 import * as gsMessages from './gsMessages';
@@ -22,7 +21,6 @@ export default {
   gsFavicon: { ...gsFavicon },
   gsTabSuspendManager: { ...gsTabSuspendManager },
   gsTabCheckManager: { ...gsTabCheckManager },
-  gsTabDiscardManager: { ...gsTabDiscardManager },
   gsIndexedDb: { ...gsIndexedDb },
   gsSession: { ...gsSession },
   gsMessages: { ...gsMessages },

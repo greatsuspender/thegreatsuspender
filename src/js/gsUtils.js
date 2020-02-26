@@ -11,9 +11,7 @@ import {
   IGNORE_ACTIVE_TABS,
   WHITELIST,
   THEME,
-  DISCARD_AFTER_SUSPEND,
   SUSPEND_IN_PLACE_OF_DISCARD,
-  DISCARD_IN_PLACE_OF_SUSPEND,
   IGNORE_FORMS,
   SUSPEND_TIME,
   IGNORE_WHEN_OFFLINE,
@@ -22,7 +20,7 @@ import {
   SCREEN_CAPTURE_FORCE,
   ADD_CONTEXT,
 } from './gsStorage';
-import { sendUpdateToContentScriptOfTab } from './gsMessages';
+import { sendUpdateToContentScriptOfTab } from './helpers/contentScripts';
 import {} from './gsUtils';
 import {
   tabsGet,
@@ -31,11 +29,12 @@ import {
   windowsGet,
   windowsCreate,
 } from './gsChrome';
-import { initAsPromised as gsTabSuspendManagerInit } from './gsTabSuspendManager';
 import {
-  queueTabForDiscard,
-  handleDiscardedUnsuspendedTab,
-} from './gsTabDiscardManager';
+  SUSPENDED_DATAURL_PREFIX,
+  SUSPENDED_METADATA_PREFIX,
+  SUSPENDED_METADATA_SUFFIX,
+} from './actions/suspendTab';
+import { initAsPromised as gsTabSuspendManagerInit } from './gsTabSuspendManager';
 import { isInitialising, isFileUrlsAccessAllowed } from './gsSession';
 import { updateTheme, updatePreviewMode } from './gsSuspendedTab';
 import { getFaviconMetaData } from './gsFavicon';
@@ -233,22 +232,22 @@ export const isNormalTab = (tab, excludeDiscarded) => {
   );
 };
 
-export const isSuspendedTab = (tab, looseMatching) => {
-  return isSuspendedUrl(tab.url, looseMatching);
+export const isSuspendedTab = tab => {
+  return isSuspendedUrl(tab.url);
 };
 
-export const isSuspendedUrl = (url, looseMatching) => {
-  if (looseMatching) {
-    return url.indexOf('suspended.html') > 0;
-  } else {
-    return url.indexOf(chrome.extension.getURL('suspended.html')) === 0;
-  }
+export const isSuspendedUrl = url => {
+  return (
+    url.indexOf(
+      `${SUSPENDED_DATAURL_PREFIX}${encodeString(SUSPENDED_METADATA_PREFIX)}`
+    ) === 0 ||
+    url.indexOf(`${SUSPENDED_DATAURL_PREFIX}${SUSPENDED_METADATA_PREFIX}`) === 0
+  );
 };
 
 export const shouldSuspendDiscardedTabs = () => {
   const suspendInPlaceOfDiscard = getOption(SUSPEND_IN_PLACE_OF_DISCARD);
-  const discardInPlaceOfSuspend = getOption(DISCARD_IN_PLACE_OF_SUSPEND);
-  return suspendInPlaceOfDiscard && !discardInPlaceOfSuspend;
+  return suspendInPlaceOfDiscard;
 };
 
 export const removeTabsByUrlAsPromised = url => {
@@ -434,22 +433,6 @@ export const documentReadyAndLocalisedAsPromsied = async doc => {
   }
 };
 
-export const generateSuspendedUrl = (url, title, scrollPos) => {
-  const encodedTitle = encodeString(title);
-  const args =
-    '#' +
-    'ttl=' +
-    encodedTitle +
-    '&' +
-    'pos=' +
-    (scrollPos || '0') +
-    '&' +
-    'uri=' +
-    url;
-
-  return chrome.extension.getURL('suspended.html' + args);
-};
-
 export const getRootUrl = (url, includePath, includeScheme) => {
   let rootUrlStr = url;
   let scheme;
@@ -491,49 +474,82 @@ export const getRootUrl = (url, includePath, includeScheme) => {
   return rootUrlStr;
 };
 
-export const getHashVariable = (key, urlStr) => {
-  const valuesByKey = {};
-  const keyPairRegEx = /^(.+)=(.+)/;
+export const generateQueryString = params => {
+  return Object.keys(params)
+    .map(k => k + '=' + params[k])
+    .join('&');
+};
 
-  if (!urlStr || urlStr.length === 0 || urlStr.indexOf('#') === -1) {
+export const parseQueryString = (queryString, decode) => {
+  const query = {};
+  if (decode) {
+    queryString = decodeURIComponent(queryString);
+  }
+  const pairs = (queryString[0] === '?'
+    ? queryString.substr(1)
+    : queryString
+  ).split('&');
+  for (let i = 0; i < pairs.length; i++) {
+    const splitIndex = pairs[i].indexOf('=');
+    const pair = [
+      pairs[i].substring(0, splitIndex),
+      pairs[i].substring(splitIndex + 1),
+    ];
+    query[pair[0]] = pair[1] || '';
+  }
+  return query;
+};
+
+const getMetadataValue = (key, urlStr) => {
+  if (
+    !urlStr ||
+    urlStr.length === 0 ||
+    urlStr.indexOf(SUSPENDED_METADATA_PREFIX) === -1
+  ) {
     return false;
   }
 
   //extract hash component from url
-  let hashStr = urlStr.replace(/^[^#]+#+(.*)/, '$1');
+  const replace = `.*${SUSPENDED_METADATA_PREFIX}(.*)${SUSPENDED_METADATA_SUFFIX}.*`;
+  const re = new RegExp(replace);
+  const hashStr = urlStr.replace(re, '$1');
 
   if (hashStr.length === 0) {
     return false;
   }
 
-  //handle possible unencoded final const called 'uri'
-  const uriIndex = hashStr.indexOf('uri=');
-  if (uriIndex >= 0) {
-    valuesByKey.uri = hashStr.substr(uriIndex + 4);
-    hashStr = hashStr.substr(0, uriIndex);
+  try {
+    const valuesByKey = JSON.parse(hashStr);
+    return valuesByKey[key] || false;
+  } catch (e) {
+    return false;
   }
-
-  hashStr.split('&').forEach(function(keyPair) {
-    if (keyPair && keyPair.match(keyPairRegEx)) {
-      valuesByKey[keyPair.replace(keyPairRegEx, '$1')] = keyPair.replace(
-        keyPairRegEx,
-        '$2'
-      );
-    }
-  });
-  return valuesByKey[key] || false;
 };
-export const getSuspendedTitle = urlStr => {
-  return decodeString(getHashVariable('ttl', urlStr) || '');
-};
+// export const getSuspendedTitle = urlStr => {
+//   return getMetadataValue('t', decodeString(urlStr) || '');
+// };
 export const getSuspendedScrollPosition = urlStr => {
-  return decodeString(getHashVariable('pos', urlStr) || '');
+  return getMetadataValue('p', decodeString(urlStr) || '');
 };
 export const getOriginalUrl = urlStr => {
-  return (
-    getHashVariable('uri', urlStr) ||
-    decodeString(getHashVariable('url', urlStr) || '')
-  );
+  return getMetadataValue('u', decodeString(urlStr) || '');
+};
+export const getCleanUrl = url => {
+  // remove scheme
+  if (url.indexOf('//') > 0) {
+    url = url.substring(url.indexOf('//') + 2);
+  }
+  // remove query string
+  let match = url.match(/\/?[?#]+/);
+  if (match) {
+    url = url.substring(0, match.index);
+  }
+  // remove trailing slash
+  match = url.match(/\/$/);
+  if (match) {
+    url = url.substring(0, match.index);
+  }
+  return url;
 };
 export const getCleanTabTitle = tab => {
   let cleanedTitle = decodeString(tab.title);
@@ -544,7 +560,9 @@ export const getCleanTabTitle = tab => {
     cleanedTitle === 'Suspended Tab'
   ) {
     if (isSuspendedTab(tab)) {
-      cleanedTitle = getSuspendedTitle(tab.url) || getOriginalUrl(tab.url);
+      // TODO: If url is a dataUrl, then use jsdom to get tab title from meta
+      // cleanedTitle = getSuspendedTitle(tab.url) || getOriginalUrl(tab.url);
+      cleanedTitle = getOriginalUrl(tab.url);
     } else {
       cleanedTitle = tab.url;
     }
@@ -564,6 +582,16 @@ export const encodeString = string => {
   } catch (e) {
     return string;
   }
+};
+export const encodeString2 = string => {
+  // from here: https://stackoverflow.com/questions/9238890/convert-html-to-datatext-html-link-using-javascript
+  return string
+    .replace(/\s{2,}/g, '') // <-- Replace all consecutive spaces, 2+
+    .replace(/%/g, '%25') // <-- Escape %
+    .replace(/&/g, '%26') // <-- Escape &
+    .replace(/#/g, '%23') // <-- Escape #
+    .replace(/"/g, '%22') // <-- Escape "
+    .replace(/'/g, '%27'); // <-- Escape ' (to be 100% safe)
 };
 
 export const formatHotkeyString = hotkeyString => {
@@ -666,19 +694,6 @@ export const performPostSaveUpdates = (
             }
           }
         }
-
-        //if discardAfterSuspend has changed then updated discarded tabs
-        const updateDiscardAfterSuspend = changedSettingKeys.includes(
-          DISCARD_AFTER_SUSPEND
-        );
-        if (
-          updateDiscardAfterSuspend &&
-          getOption(DISCARD_AFTER_SUSPEND) &&
-          isSuspendedTab(tab) &&
-          !isDiscardedTab(tab)
-        ) {
-          queueTabForDiscard(tab);
-        }
         return;
       }
 
@@ -720,18 +735,21 @@ export const performPostSaveUpdates = (
         SUSPEND_IN_PLACE_OF_DISCARD
       );
       if (updateSuspendInPlaceOfDiscard && isDiscardedTab(tab)) {
-        handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
+        //TODO: Remove this code?
+        // handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
         //note: this may cause the tab to suspend
       }
 
       //if we aren't resetting the timer on this tab, then check to make sure it does not have an expired timer
       //should always be caught by tests above, but we'll check all tabs anyway just in case
       // if (!updateSuspendTime) {
-      //     gsMessages.sendRequestInfoToContentScript(tab.id, function (err, tabInfo) { // unhandled error
+      //     fixme: this is now a promise, not a callback func.
+      //     sendRequestInfoToContentScript(tab.id, function (err, tabInfo) { // unhandled error
       //         calculateTabStatus(tab, tabInfo, function (tabStatus) {
       //             if (tabStatus === STATUS_NORMAL && tabInfo && tabInfo.timerUp && (new Date(tabInfo.timerUp)) < new Date()) {
       //                 error(tab.id, 'Tab has an expired timer!', tabInfo);
-      //                 gsMessages.sendUpdateToContentScriptOfTab(tab, true, false); // async. unhandled error
+      //                 fixme: this is now a promise, not a callback func.
+      //                 sendUpdateToContentScriptOfTab(tab, true, false); // async. unhandled error
       //             }
       //         });
       //     });

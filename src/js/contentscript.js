@@ -5,7 +5,7 @@
  * http://github.com/deanoemcke/thegreatsuspender
  * ლ(ಠ益ಠლ)
  */
-(function() {
+export function ContentScript() {
   'use strict';
 
   let isFormListenerInitialised = false;
@@ -135,4 +135,6 @@
         init();
       }, 200);
     });
-})();
+}
+
+ContentScript();

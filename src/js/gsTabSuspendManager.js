@@ -1,12 +1,12 @@
 import html2canvas from './html2canvas';
 import domtoimage from './dom-to-image';
 import GsTabQueue from './gsTabQueue';
+import { suspendTab } from './actions/suspendTab';
 import {
   log,
   warning,
   isSuspendedTab,
   getOriginalUrl,
-  generateSuspendedUrl,
   isSpecialTab,
   isProtectedActiveTab,
   isProtectedPinnedTab,
@@ -15,33 +15,25 @@ import {
   STATUS_FORMINPUT,
   STATUS_TEMPWHITELIST,
 } from './gsUtils';
-import {
-  buildFaviconMetaFromChromeFaviconCache,
-  saveFaviconMetaDataToCache,
-} from './gsFavicon';
 import { tabsGet, tabsUpdate } from './gsChrome';
+import { clearAutoSuspendTimerForTabId } from './gsTabState';
 import {
-  STATE_INITIALISE_SUSPENDED_TAB,
-  setTabStatePropForTabId,
-  clearAutoSuspendTimerForTabId,
-} from './gsTabState';
+  getStatusForTabId,
+  setScrollPosForTabId,
+  setStatusForTabId,
+} from './helpers/tabStates';
 import {
   getOption,
   SCREEN_CAPTURE_FORCE,
   SCREEN_CAPTURE,
-  DISCARD_IN_PLACE_OF_SUSPEND,
   IGNORE_WHEN_OFFLINE,
   IGNORE_WHEN_CHARGING,
   SUSPEND_TIME,
   USE_ALT_SCREEN_CAPTURE_LIB,
 } from './gsStorage';
-import { queueTabForDiscard } from './gsTabDiscardManager';
 import { unqueueTabCheck } from './gsTabCheckManager';
-import {
-  executeScriptOnTab,
-  sendRequestInfoToContentScript,
-  executeCodeOnTab,
-} from './gsMessages';
+import { executeScriptOnTab, executeCodeOnTab } from './gsMessages';
+import { sendRequestInfoToContentScript } from './helpers/contentScripts';
 import {
   fetchTabInfo,
   addPreviewImage,
@@ -79,12 +71,13 @@ export const initAsPromised = () => {
 };
 
 export const queueTabForSuspension = (tab, forceLevel) => {
+  setStatusForTabId(tab.id, 'suspending');
   queueTabForSuspensionAsPromise(tab, forceLevel).catch(e => {
     log(tab.id, QUEUE_ID, e);
   });
 };
 
-export const queueTabForSuspensionAsPromise = (tab, forceLevel) => {
+const queueTabForSuspensionAsPromise = (tab, forceLevel) => {
   if (typeof tab === 'undefined') return Promise.resolve();
 
   if (!checkTabEligibilityForSuspension(tab, forceLevel)) {
@@ -110,39 +103,41 @@ async function performSuspension(
   reject,
   requeue
 ) {
-  if (executionProps.refetchTab || isSuspendedTab(tab)) {
-    log(tab.id, QUEUE_ID, 'Tab refetch required. Getting updated tab..');
-    const _tab = await tabsGet(tab.id);
-    if (!_tab) {
-      log(
-        tab.id,
-        QUEUE_ID,
-        'Could not find tab with id. Will ignore suspension request'
-      );
-      resolve(false);
-      return;
-    }
-    tab = _tab;
-  }
-
-  if (isSuspendedTab(tab)) {
-    if (!executionProps.refetchTab) {
-      log(
-        tab.id,
-        QUEUE_ID,
-        'Tab is already suspended. Will check again in 3 seconds'
-      );
-      requeue(3000, { refetchTab: true });
-    } else {
-      log(
-        tab.id,
-        QUEUE_ID,
-        'Tab still suspended after 3 seconds. Will ignore tab suspension request'
-      );
-      resolve(false);
-    }
+  // Check tab is still in need of suspension
+  const tabStatus = getStatusForTabId(tab.id);
+  if (tabStatus !== 'suspending') {
+    log(
+      tab.id,
+      QUEUE_ID,
+      `Tab has status of ${status}. Will ignore suspension request`
+    );
+    resolve(false);
     return;
   }
+
+  // Check tab is not already suspended
+  if (isSuspendedTab(tab)) {
+    log(
+      tab.id,
+      QUEUE_ID,
+      'Tab is already suspended. Will ignore tab suspension request'
+    );
+    resolve(false);
+    return;
+  }
+
+  // Get most recent tab state
+  const _tab = await tabsGet(tab.id);
+  if (!_tab) {
+    log(
+      tab.id,
+      QUEUE_ID,
+      'Could not find tab with id. Will ignore suspension request'
+    );
+    resolve(false);
+    return;
+  }
+  tab = _tab;
 
   // If tab is in loading state, try to suspend early if possible
   // Note: doing so will bypass a few checks below. Namely:
@@ -151,44 +146,19 @@ async function performSuspension(
   // Although if the tab is still loading then pause and scroll pos should
   // not be set?
   // Do not bypass loading state if screen capture is required
-  let screenCaptureMode = getOption(SCREEN_CAPTURE);
+  const screenCaptureMode = getOption(SCREEN_CAPTURE);
   if (tab.status === 'loading') {
-    const savedTabInfo = await fetchTabInfo(tab.url);
-    if (screenCaptureMode === '0' && savedTabInfo) {
-      const suspendedUrl = generateSuspendedUrl(tab.url, savedTabInfo.title, 0);
+    if (screenCaptureMode === '0') {
       log(tab.id, QUEUE_ID, 'Interrupting tab loading to resuspend tab');
-      const success = await executeTabSuspension(tab, suspendedUrl);
+      const success = await suspendTab(tab);
       resolve(success);
     } else {
-      requeue(3000, { refetchTab: true });
+      requeue(3000);
     }
     return;
   }
 
-  const discardInPlaceOfSuspend = getOption(DISCARD_IN_PLACE_OF_SUSPEND);
-  if (discardInPlaceOfSuspend) {
-    screenCaptureMode = '0';
-  }
-
-  let tabInfo = await getContentScriptTabInfo(tab);
-
-  // If tabInfo is null this is usually due to tab loading, being discarded or 'parked' on chrome restart
-  // If we need to make a screen capture and tab is not responding then reload it
-  // TODO: This doesn't actually seem to work
-  // Tabs that have just been reloaded usually fail to run the screen capture script :(
-  if (!tabInfo && screenCaptureMode !== '0' && !executionProps.reloaded) {
-    log(
-      tab.id,
-      QUEUE_ID,
-      'Tab is not responding. Will reload for screen capture.'
-    );
-    await tabsUpdate(tab.id, { url: tab.url });
-    // allow up to 30 seconds for tab to reload and trigger its subsequent suspension request
-    // note that this will not reset the DEFAULT_SUSPENSION_TIMEOUT of 60 seconds
-    requeue(30000, { reloaded: true });
-    return;
-  }
-
+  let tabInfo = await sendRequestInfoToContentScript(tab.id);
   tabInfo = tabInfo || {
     status: 'unknown',
     scrollPos: '0',
@@ -208,21 +178,11 @@ async function performSuspension(
     return;
   }
 
-  // Temporarily change tab.url to append youtube timestamp
-  const timestampedUrl = await generateUrlWithYouTubeTimestamp(tab);
-  // NOTE: This does not actually change the tab url, just the current tab object
-  tab.url = timestampedUrl;
-  await saveSuspendData(tab);
-
-  const suspendedUrl = generateSuspendedUrl(
-    tab.url,
-    tab.title,
-    tabInfo.scrollPos
-  );
-  executionProps.suspendedUrl = suspendedUrl;
+  // Set scrollPos in tabState
+  setScrollPosForTabId(tab.id, tabInfo.scrollPos);
 
   if (screenCaptureMode === '0') {
-    const success = await executeTabSuspension(tab, suspendedUrl);
+    const success = await suspendTab(tab);
     resolve(success);
     return;
   }
@@ -256,24 +216,13 @@ export const handlePreviewImageResponse = async (tab, previewUrl, errorMsg) => {
     return;
   }
 
-  // Temporarily change tab.url with that from the generated suspended url
-  // This is because for youtube tabs we manually change the url to persist timestamp
-  const timestampedUrl = getOriginalUrl(
-    queuedTabDetails.executionProps.suspendedUrl
-  );
-  // NOTE: This does not actually change the tab url, just the current tab object
-  tab.url = timestampedUrl;
-
   if (!previewUrl) {
     warning(tab.id, QUEUE_ID, 'savePreviewData reported an error: ', errorMsg);
   } else {
     await addPreviewImage(tab.url, previewUrl);
   }
 
-  const success = await executeTabSuspension(
-    tab,
-    queuedTabDetails.executionProps.suspendedUrl
-  );
+  const success = await suspendTab(tab);
   queuedTabDetails.executionProps.resolveFn(success);
 };
 
@@ -295,10 +244,7 @@ async function handleSuspensionException(
         _suspensionQueue.getQueueProperties().jobTimeout
       }ms to suspend. Will force suspension.`
     );
-    const success = await executeTabSuspension(
-      tab,
-      executionProps.suspendedUrl
-    );
+    const success = await suspendTab(tab);
     resolve(success);
   } else {
     warning(tab.id, QUEUE_ID, `Failed to suspend tab: ${exceptionType}`);
@@ -306,47 +252,13 @@ async function handleSuspensionException(
   }
 }
 
-export const executeTabSuspension = (tab, suspendedUrl) => {
-  return new Promise(resolve => {
-    // Remove any existing queued tab checks (this can happen if we try to suspend
-    // a tab immediately after it gains focus)
-    unqueueTabCheck(tab);
-
-    // If we want tabs to be discarded instead of suspending them
-    const discardInPlaceOfSuspend = getOption(DISCARD_IN_PLACE_OF_SUSPEND);
-    if (discardInPlaceOfSuspend) {
-      clearAutoSuspendTimerForTabId(tab.id);
-      queueTabForDiscard(tab);
-      resolve(true);
-      return;
-    }
-
-    if (isSuspendedTab(tab, true)) {
-      log(tab.id, 'Tab already suspended');
-      resolve(false);
-      return;
-    }
-
-    if (!suspendedUrl) {
-      log(tab.id, 'executionProps.suspendedUrl not set!');
-      suspendedUrl = generateSuspendedUrl(tab.url, tab.title, 0);
-    }
-
-    log(tab.id, 'Suspending tab');
-    setTabStatePropForTabId(tab.id, STATE_INITIALISE_SUSPENDED_TAB, true);
-    tabsUpdate(tab.id, { url: suspendedUrl }).then(updatedTab => {
-      resolve(updatedTab !== null);
-    });
-  });
-};
-
 // forceLevel indicates which users preferences to respect when attempting to suspend the tab
 // 1: Suspend if at all possible
 // 2: Respect whitelist, temporary whitelist, form input, pinned tabs, audible preferences, and exclude current active tab
 // 3: Same as above (2), plus also respect internet connectivity, running on battery, and time to suspend=never preferences.
 export const checkTabEligibilityForSuspension = (tab, forceLevel) => {
   if (forceLevel >= 1) {
-    // if (isSuspendedTab(tab, true) || isSpecialTab(tab)) {
+    // if (isSuspendedTab(tab) || isSpecialTab(tab)) {
     // actually allow suspended tabs to attempt suspension in case they are
     // in the process of being reloaded and we have changed our mind and
     // want to suspend them again.
@@ -391,72 +303,6 @@ function checkContentScriptEligibilityForSuspension(
   }
   return true;
 }
-
-export const getContentScriptTabInfo = tab => {
-  return new Promise(resolve => {
-    sendRequestInfoToContentScript(tab.id, (error, tabInfo) => {
-      //TODO: Should we wait here for the tab to load? Doesnt seem to matter..
-      if (error) {
-        warning(tab.id, QUEUE_ID, 'Failed to get content script info', error);
-        // continue here but will lose information about scroll position,
-        // temp whitelist, and form input
-      }
-      resolve(tabInfo);
-    });
-  });
-};
-
-export const generateUrlWithYouTubeTimestamp = tab => {
-  return new Promise(resolve => {
-    if (tab.url.indexOf('https://www.youtube.com/watch') < 0) {
-      resolve(tab.url);
-      return;
-    }
-
-    executeCodeOnTab(
-      tab.id,
-      `(${fetchYouTubeTimestampContentScript})();`,
-      (error, response) => {
-        if (error) {
-          warning(tab.id, QUEUE_ID, 'Failed to fetch YouTube timestamp', error);
-        }
-        if (!response) {
-          resolve(tab.url);
-          return;
-        }
-
-        const timestamp = response;
-        const youTubeUrl = new URL(tab.url);
-        youTubeUrl.searchParams.set('t', timestamp + 's');
-        resolve(youTubeUrl.href);
-      }
-    );
-  });
-};
-
-export const fetchYouTubeTimestampContentScript = () => {
-  const videoEl = document.querySelector('video.video-stream.html5-main-video');
-  const timestamp = videoEl ? videoEl.currentTime >> 0 : 0;
-  return timestamp;
-};
-
-export const saveSuspendData = async tab => {
-  const tabProperties = {
-    date: new Date(),
-    title: tab.title,
-    url: tab.url,
-    favIconUrl: tab.favIconUrl,
-    pinned: tab.pinned,
-    index: tab.index,
-    windowId: tab.windowId,
-  };
-  await addSuspendedTabInfo(tabProperties);
-
-  const faviconMeta = await buildFaviconMetaFromChromeFaviconCache(tab.url);
-  if (faviconMeta) {
-    await saveFaviconMetaDataToCache(tab.url, faviconMeta);
-  }
-};
 
 export const requestGeneratePreviewImage = tab => {
   // Will not implement this for now as it does not actually capture the whole

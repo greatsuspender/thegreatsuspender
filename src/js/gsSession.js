@@ -18,6 +18,7 @@ import {
   performMigration,
   fetchLastSession,
 } from './gsIndexedDb';
+import { generateSuspendUrl, generateDataUrl } from './actions/suspendTab';
 import {
   log,
   warning,
@@ -27,7 +28,6 @@ import {
   isSuspendedTab,
   isSpecialTab,
   isNormalTab,
-  generateSuspendedUrl,
   getOriginalUrl,
   createTabAndWaitForFinishLoading,
   removeInternalUrlsFromSession,
@@ -48,7 +48,6 @@ import {
   queueTabCheck,
   performInitialisationTabChecks,
 } from './gsTabCheckManager';
-import { queueTabForDiscard } from './gsTabDiscardManager';
 import {
   executeViewGlobalsForViewName,
   VIEW_FUNC_UPDATED_TOGGLE,
@@ -74,8 +73,8 @@ let startupLastVersion;
 let syncedSettingsOnInit;
 
 export const initAsPromised = async () => {
-  updateUrl = chrome.extension.getURL('update.html');
-  updatedUrl = chrome.extension.getURL('updated.html');
+  updateUrl = chrome.runtime.getURL('update.html');
+  updatedUrl = chrome.runtime.getURL('updated.html');
 
   // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
   await new Promise(r => {
@@ -229,7 +228,7 @@ export const runStartupChecks = async () => {
     await handleUpdate(currentSessionTabs, curVersion, startupLastVersion);
   }
 
-  await performTabChecks();
+  //TODO: reinstate this code: await performTabChecks();
 
   // Ensure currently focused tab is initialised correctly if suspended
   const currentWindowActiveTabs = await tabsQuery({
@@ -237,7 +236,8 @@ export const runStartupChecks = async () => {
     currentWindow: true,
   });
   if (currentWindowActiveTabs.length > 0) {
-    queueTabCheck(currentWindowActiveTabs[0]);
+    //TODO: Reenable this check
+    // queueTabCheck(currentWindowActiveTabs[0]);
   }
 
   log('gsSession', 'updating current session');
@@ -256,27 +256,29 @@ export const performTabChecks = async () => {
       '------------------------------------------------\n\n'
   );
 
-  const postRecoverySessionTabs = await tabsQuery();
-  log('gsSession', 'postRecoverySessionTabs:', postRecoverySessionTabs);
+  log('tab check skipped for now');
+  //TODO: Reenable tab checks?
+  // const postRecoverySessionTabs = await tabsQuery();
+  // log('gsSession', 'postRecoverySessionTabs:', postRecoverySessionTabs);
 
-  const tabCheckResults = await performInitialisationTabChecks(
-    postRecoverySessionTabs
-  );
-  const totalTabCheckCount = tabCheckResults.length;
-  const successfulTabChecksCount = tabCheckResults.filter(
-    o => o === STATUS_SUSPENDED || o === STATUS_DISCARDED
-  ).length;
+  // const tabCheckResults = await performInitialisationTabChecks(
+  //   postRecoverySessionTabs
+  // );
+  // const totalTabCheckCount = tabCheckResults.length;
+  // const successfulTabChecksCount = tabCheckResults.filter(
+  //   o => o === STATUS_SUSPENDED || o === STATUS_DISCARDED
+  // ).length;
 
   startupTabCheckTimeTakenInSeconds = parseInt(
     (Date.now() - initStartTime) / 1000
   );
-  log(
-    'gsSession',
-    '\n\n------------------------------------------------\n' +
-      `Checking tabs finished. Time taken: ${startupTabCheckTimeTakenInSeconds} sec\n` +
-      `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
-      '------------------------------------------------\n\n'
-  );
+  // log(
+  //   'gsSession',
+  //   '\n\n------------------------------------------------\n' +
+  //     `Checking tabs finished. Time taken: ${startupTabCheckTimeTakenInSeconds} sec\n` +
+  //     `${successfulTabChecksCount} / ${totalTabCheckCount} initialised successfully\n` +
+  //     '------------------------------------------------\n\n'
+  // );
 };
 
 const setTimeout = timeoutInMs => {
@@ -299,7 +301,7 @@ export const handleNormalStartup = async currentSessionTabs => {
       await recoverLostTabs();
     } else {
       //otherwise show the recovery page
-      const recoveryUrl = chrome.extension.getURL('recovery.html');
+      const recoveryUrl = chrome.runtime.getURL('recovery.html');
       await tabsCreate(recoveryUrl);
       //hax0r: wait for recovery tab to finish loading before returning
       //this is so we remain in 'recoveryMode' for a bit longer, preventing
@@ -319,7 +321,7 @@ export const handleNewInstall = async curVersion => {
   // a new install for this computer
   if (!syncedSettingsOnInit || Object.keys(syncedSettingsOnInit).length === 0) {
     //show welcome message
-    const optionsUrl = chrome.extension.getURL('options.html?firstTime');
+    const optionsUrl = chrome.runtime.getURL('options.html?firstTime');
     await tabsCreate(optionsUrl);
   }
 };
@@ -390,7 +392,7 @@ export const triggerDiscardOfAllTabs = async () => {
         if (tabs[i] === undefined || isSpecialTab(tabs[i])) {
           continue;
         }
-        queueTabForDiscard(tabs[i]);
+        chrome.tabs.discard(tabs[i].id);
       }
       resolve();
     });
@@ -407,18 +409,19 @@ export const checkForCrashRecovery = async currentSessionTabs => {
     tab => !isSpecialTab(tab) && isSuspendedTab(tab)
   );
   const currentSessionNonExtensionTabs = currentSessionTabs.filter(
-    o => o.url.indexOf(chrome.runtime.id) === -1
+    tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
   );
 
-  if (currentSessionSuspendedTabs.length > 0) {
-    log(
-      'gsSession',
-      'Aborting tab recovery. Browser has open suspended tabs.' +
-        ' Assuming user has "On start-up -> Continue where you left off" set' +
-        ' or is restarting with suspended pinned tabs.'
-    );
-    return false;
-  }
+  //TODO: Reenable this startup check?
+  // if (currentSessionSuspendedTabs.length > 0) {
+  //   log(
+  //     'gsSession',
+  //     'Aborting tab recovery. Browser has open suspended tabs.' +
+  //       ' Assuming user has "On start-up -> Continue where you left off" set' +
+  //       ' or is restarting with suspended pinned tabs.'
+  //   );
+  //   return false;
+  // }
 
   const lastSession = await fetchLastSession();
   if (!lastSession) {
@@ -435,7 +438,7 @@ export const checkForCrashRecovery = async currentSessionTabs => {
     isSuspendedTab(o)
   );
   const lastSessionNonExtensionTabs = lastSessionTabs.filter(
-    o => o.url.indexOf(chrome.runtime.id) === -1
+    tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
   );
 
   if (lastSessionSuspendedTabs.length === 0) {
@@ -724,7 +727,7 @@ export async function restoreSessionWindow(
   // else restore entire window
   log('gsUtils', 'Could not find match for sessionWindow: ', sessionWindow);
 
-  const restoringUrl = chrome.extension.getURL('restoring-window.html');
+  const restoringUrl = chrome.runtime.getURL('restoring-window.html');
   // Create new window. Important: do not pass in all urls to chrome.windows.create
   // If you load too many windows (or tabs?) like this, then it seems to blow
   // out the GPU memory in the chrome task manager
@@ -767,7 +770,11 @@ async function createNewTabFromSessionTab(
 ) {
   let url = sessionTab.url;
   if (suspendMode === 1 && isNormalTab(sessionTab)) {
-    url = generateSuspendedUrl(sessionTab.url, sessionTab.title);
+    const suspendDataUrl = generateDataUrl({
+      url: sessionTab.url,
+      title: sessionTab.title,
+    });
+    url = generateSuspendUrl(suspendDataUrl);
   } else if (suspendMode === 2 && isSuspendedTab(sessionTab)) {
     url = getOriginalUrl(sessionTab.url);
   }
@@ -844,4 +851,3 @@ export const unsuspendActiveTabInEachWindow = async () => {
 export const initNewTestSession = async () => {
   sessionId = null;
 };
-

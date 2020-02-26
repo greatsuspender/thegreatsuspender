@@ -5,7 +5,7 @@ import {
   FIXTURE_PREVIEW_URLS,
 } from './tests.js';
 import * as gsIndexedDb from '../gsIndexedDb';
-import * as gsTabSuspendManager from '../gsTabSuspendManager';
+import * as suspendTab from '../actions/suspendTab';
 
 export default (function() {
   const tests = [
@@ -18,7 +18,7 @@ export default (function() {
       const tab = session1.windows[0].tabs[0];
       const previewUrl = await getFixture(FIXTURE_PREVIEW_URLS, 'previewUrl1');
 
-      await gsTabSuspendManager.saveSuspendData(tab);
+      await suspendTab.saveSuspendData(tab);
       const tabProperties = await gsIndexedDb.fetchTabInfo(tab.url);
       const isTabPropertiesValid =
         tabProperties.url === tab.url &&

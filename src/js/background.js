@@ -11,7 +11,7 @@ import {
 import { initAsPromised as gsFaviconInit } from './gsFavicon';
 import { initAsPromised as gsTabSuspendManagerInit } from './gsTabSuspendManager';
 import { initAsPromised as gsTabCheckManagerInit } from './gsTabCheckManager';
-import { initAsPromised as gsTabDiscardManagerInit } from './gsTabDiscardManager';
+import { init as gsTabStatesInit, logAllTabStates } from './helpers/tabStates';
 import {
   initAsPromised as gsSessionInit,
   runStartupChecks,
@@ -51,9 +51,10 @@ Promise.resolve()
       gsAnalyticsInit(),
       gsFaviconInit(),
       gsTabSuspendManagerInit(),
-      gsTabCheckManagerInit(),
-      gsTabDiscardManagerInit(),
+      // gsTabCheckManagerInit(),
       gsSessionInit(),
+      // TODO: Set all tabs to be autoDiscardable: false
+      gsTabStatesInit(),
     ]);
   })
   .catch(e => {

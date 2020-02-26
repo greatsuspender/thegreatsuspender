@@ -27,8 +27,6 @@ export const SYNC_SETTINGS = 'gsSyncSettings';
 export const NO_NAG = 'gsNoNag';
 export const THEME = 'gsTheme';
 export const WHITELIST = 'gsWhitelist';
-export const DISCARD_AFTER_SUSPEND = 'discardAfterSuspend';
-export const DISCARD_IN_PLACE_OF_SUSPEND = 'discardInPlaceOfSuspend';
 export const USE_ALT_SCREEN_CAPTURE_LIB = 'useAlternateScreenCaptureLib';
 
 export const APP_VERSION = 'gsVersion';
@@ -45,9 +43,7 @@ export const getSettingsDefaults = () => {
   defaults[SCREEN_CAPTURE] = '0';
   defaults[SCREEN_CAPTURE_FORCE] = false;
   defaults[SUSPEND_IN_PLACE_OF_DISCARD] = false;
-  defaults[DISCARD_IN_PLACE_OF_SUSPEND] = false;
   defaults[USE_ALT_SCREEN_CAPTURE_LIB] = false;
-  defaults[DISCARD_AFTER_SUSPEND] = false;
   defaults[IGNORE_WHEN_OFFLINE] = false;
   defaults[IGNORE_WHEN_CHARGING] = false;
   defaults[UNSUSPEND_ON_FOCUS] = false;
