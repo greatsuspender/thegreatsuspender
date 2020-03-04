@@ -515,9 +515,9 @@ const getIframeQueryParamsValue = (key, urlString) => {
 export const getTitleFromSuspendedUrl = urlStr => {
   return getIframeQueryParamsValue('t', decodeString(urlStr) || '');
 };
-export const getSettingsHashFromSuspendedUrl = urlStr => {
-  return getIframeQueryParamsValue('i', decodeString(urlStr) || '');
-};
+// export const getSettingsHashFromSuspendedUrl = urlStr => {
+//   return getIframeQueryParamsValue('i', decodeString(urlStr) || '');
+// };
 export const getScrollPositionFromSuspendedUrl = urlStr => {
   return getIframeQueryParamsValue('p', decodeString(urlStr) || '');
 };

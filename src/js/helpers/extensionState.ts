@@ -25,6 +25,8 @@ export const getSuspensionToggleHotkey = (): string => {
 };
 
 export const buildSettingsStateHash = async (): Promise<void> => {
+  // Include sessionId in the hash, as the favicon on the suspended page does not get loaded
+  // after restart due to it not existing in the tabState for the tab
   const sessionId = getSessionId();
   const theme = getOption(THEME);
   const screenCapture = getOption(SCREEN_CAPTURE);

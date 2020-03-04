@@ -100,6 +100,10 @@ export const generateIframeContainerDataUrl: (
   return makeDataUrl(html);
 };
 
+export const generateIframePlaceholderDataUrl: () => string = () => {
+  return makeDataUrl('');
+};
+
 export const generateIframeContentsDataUrl: (
   suspendedProps: SuspendedProps,
   faviconMeta: FaviconMeta
@@ -224,15 +228,13 @@ export const suspendTab: (tab: Tabs.Tab) => Promise<boolean> = async tab => {
   await saveSuspendData({ ...tab, url: timestampedUrl });
 
   const scrollPos = getScrollPosForTabId(tab.id);
-  const usePlaceholder = !isCurrentFocusedTab(tab);
 
   const faviconMeta = await getFaviconMetaData(tab);
   setFaviconMetaForTabId(tab.id, faviconMeta);
 
   const suspendUrl = generateSuspendUrl(
     { title: tab.title || '', url: tab.url || '' },
-    scrollPos,
-    usePlaceholder
+    scrollPos
   );
   const updatedTab = await browser.tabs.update(tab.id, {
     url: suspendUrl,

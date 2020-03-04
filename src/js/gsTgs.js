@@ -36,7 +36,9 @@ import {
   reinitialiseSuspendedTab,
   generateIframeContainerDataUrl,
   generateIframeContentsDataUrl,
+  generateIframePlaceholderDataUrl,
   KEYBOARD_SHORTCUTS_PREFIX,
+  SETTINGS_HASH_PREFIX,
 } from './actions/suspendTab';
 import { reinjectContentScriptOnTab } from './helpers/contentScripts';
 import {
@@ -105,8 +107,8 @@ import {
   setStatusForTabId,
   getStatusForTabId,
   getFaviconMetaForTabId,
-  setSettingsHashForTabId,
   getSettingsHashForTabId,
+  setSettingsHashForTabId,
 } from './helpers/tabStates';
 import {
   getInternalViewByTabId,
@@ -745,6 +747,13 @@ export const handleSuspendedTabStateChanged = (tab, changeInfo) => {
     setStatusForTabId(tab.id, 'suspended');
     if (isCurrentFocusedTab(tab)) {
       setIconStatus(STATUS_SUSPENDED, tab.id);
+
+      const curSettingsHash = getSettingsStateHash();
+      const tabSettingsHash = getSettingsHashForTabId(tab.id);
+      if (curSettingsHash !== tabSettingsHash) {
+        setSettingsHashForTabId(tab.id, curSettingsHash);
+        reinitialiseSuspendedTab(tab);
+      }
     }
   }
 };
@@ -857,11 +866,14 @@ export const handleTabFocusChanged = async (tabId, windowId) => {
     log(focusedTab.id, 'Content script status: ' + contentScriptStatus);
   } else if (isSuspendedTab(focusedTab)) {
     // If suspended tab, then display full suspension UI
-    const settingsStateHash = getSettingsStateHash();
-    const tabStateHash = getSettingsHashFromSuspendedUrl(focusedTab.url);
-    if (settingsStateHash !== tabStateHash) {
-      //TODO: Reinstate this code
-      // reinitialiseSuspendedTab(focusedTab);
+
+    const curSettingsHash = getSettingsStateHash();
+    const tabSettingsHash = getSettingsHashForTabId(focusedTab.id);
+
+    // const tabStateHash = getSettingsHashFromSuspendedUrl(focusedTab.url);
+    if (curSettingsHash !== tabSettingsHash) {
+      setSettingsHashForTabId(focusedTab.id, curSettingsHash);
+      reinitialiseSuspendedTab(focusedTab);
     }
   }
 
@@ -1463,25 +1475,25 @@ export const addChromeListeners = () => {
         return { redirectUrl: dataUrl };
       }
       if (details.url.indexOf(SUSPENDED_IFRAME_PREFIX) > 0) {
+        const tabSettingsHash = getSettingsHashForTabId(details.tabId);
+        if (!tabSettingsHash) {
+          return {
+            redirectUrl: generateIframePlaceholderDataUrl(),
+          };
+        }
+
         const suspendedProps = parseEncodedQueryString(
           details.url.split(SUSPENDED_IFRAME_PREFIX)[1],
           true
         );
-        const curSettingsHash = getSettingsStateHash();
-        const tabSettingsHash = getSettingsHashForTabId(details.tabId);
         const faviconMeta = getFaviconMetaForTabId(details.tabId);
         const suspendedHtml = generateIframeContentsDataUrl(
           suspendedProps,
           faviconMeta
         );
-        if (tabSettingsHash === curSettingsHash) {
-          console.log('cancel');
-          return { cancel: true };
-        } else {
-          setSettingsHashForTabId(details.tabId, curSettingsHash);
-          console.log('init');
-          return { redirectUrl: suspendedHtml };
-        }
+        return {
+          redirectUrl: suspendedHtml,
+        };
       }
       if (details.url.indexOf(KEYBOARD_SHORTCUTS_PREFIX) > 0) {
         return {
