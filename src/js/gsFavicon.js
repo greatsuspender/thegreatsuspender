@@ -6,7 +6,7 @@ import {
   isFileTab,
   isSuspendedTab,
   executeWithRetries,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   getRootUrl,
 } from './gsUtils';
 import { fetchFaviconMeta, addFaviconMeta } from './gsIndexedDb';
@@ -29,7 +29,7 @@ export const initAsPromised = async () => {
   log('gsFavicon', 'init successful');
 };
 
-export const addFaviconDefaults = async () => {
+const addFaviconDefaults = async () => {
   // Generate a list of potential 'default' favicons so we can avoid caching
   // anything that matches these defaults
   const defaultIconUrls = [
@@ -78,7 +78,7 @@ export const addFaviconDefaults = async () => {
   await Promise.all(faviconPromises);
 };
 
-export const addDefaultFaviconMeta = async url => {
+const addDefaultFaviconMeta = async url => {
   let faviconMeta;
   try {
     faviconMeta = await executeWithRetries(buildFaviconMetaData, [url], 4, 0);
@@ -89,7 +89,7 @@ export const addDefaultFaviconMeta = async url => {
   return faviconMeta;
 };
 
-export const addFaviconMetaToDefaultFingerprints = async (faviconMeta, id) => {
+const addFaviconMetaToDefaultFingerprints = async (faviconMeta, id) => {
   _defaultFaviconFingerprintById[id] = await createImageFingerprint(
     faviconMeta.normalisedDataUrl
   );
@@ -110,8 +110,10 @@ export const getFaviconMetaData = async tab => {
   // First try to fetch from cache
   let originalUrl = tab.url;
   if (isSuspendedTab(tab)) {
-    originalUrl = getOriginalUrl(tab.url);
+    originalUrl = getOriginalUrlFromSuspendedUrl(tab.url);
   }
+  if (!originalUrl) return _defaultChromeFaviconMeta;
+
   let faviconMeta = await getCachedFaviconMetaData(originalUrl);
   if (faviconMeta) {
     // log(
@@ -185,7 +187,7 @@ export const buildFaviconMetaFromChromeFaviconCache = async url => {
   return null;
 };
 
-export const buildFaviconMetaFromTabFavIconUrl = async favIconUrl => {
+const buildFaviconMetaFromTabFavIconUrl = async favIconUrl => {
   try {
     const faviconMeta = await buildFaviconMetaData(favIconUrl);
     const faviconMetaValid = await isFaviconMetaValid(faviconMeta);
@@ -198,7 +200,7 @@ export const buildFaviconMetaFromTabFavIconUrl = async favIconUrl => {
   return null;
 };
 
-export const getCachedFaviconMetaData = async url => {
+const getCachedFaviconMetaData = async url => {
   const fullUrl = getRootUrl(url, true, false);
   let faviconMetaData = await fetchFaviconMeta(fullUrl);
   if (!faviconMetaData) {
@@ -247,7 +249,7 @@ export const saveFaviconMetaDataToCache = async (url, faviconMeta) => {
 //   });
 // }
 
-export const isFaviconMetaValid = async faviconMeta => {
+const isFaviconMetaValid = async faviconMeta => {
   if (
     !faviconMeta ||
     faviconMeta.normalisedDataUrl === 'data:,' ||
@@ -281,7 +283,7 @@ export const isFaviconMetaValid = async faviconMeta => {
 };
 
 // Turns the img into a 16x16 black and white dataUrl
-export const createImageFingerprint = dataUrl => {
+const createImageFingerprint = dataUrl => {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
@@ -312,7 +314,7 @@ export const createImageFingerprint = dataUrl => {
   });
 };
 
-export const buildFaviconMetaData = url => {
+const buildFaviconMetaData = url => {
   const timeout = 5 * 1000;
   return new Promise((resolve, reject) => {
     const img = new Image();

@@ -6,7 +6,7 @@ import {
   isSuspendedTab,
   isNormalTab,
   isDiscardedTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   hasProperty,
   STATUS_UNKNOWN,
   STATUS_DISCARDED,
@@ -298,7 +298,7 @@ async function checkSuspendedTab(
 
   // If tab is a file:// tab and file is blocked then unsuspend tab
   if (!isFileUrlsAccessAllowed()) {
-    const originalUrl = getOriginalUrl(tab.url);
+    const originalUrl = getOriginalUrlFromSuspendedUrl(tab.url);
     if (originalUrl && originalUrl.indexOf('file') === 0) {
       log(tab.id, QUEUE_ID, 'Unsuspending blocked local file tab.');
       await unsuspendSuspendedTab(tab);
@@ -350,7 +350,7 @@ export const resuspendSuspendedTab = async tab => {
 };
 
 export const unsuspendSuspendedTab = async tab => {
-  const originalUrl = getOriginalUrl(tab.url);
+  const originalUrl = getOriginalUrlFromSuspendedUrl(tab.url);
   await tabsUpdate(tab.id, { url: originalUrl });
 };
 

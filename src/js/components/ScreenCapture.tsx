@@ -1,7 +1,7 @@
 import { h, Fragment } from 'preact';
 
 // export const getPreviewUri = async suspendedUrl => {
-//     const originalUrl = getOriginalUrl(suspendedUrl);
+//     const originalUrl = getOriginalUrlFromSuspendedUrl(suspendedUrl);
 //     const preview = await fetchPreviewImage(originalUrl);
 //     let previewUri = null;
 //     if (

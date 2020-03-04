@@ -2,7 +2,7 @@ import {
   warning,
   generateHashCode,
   isSuspendedTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
 } from './gsUtils';
 import {
   fetchTabInfo,
@@ -125,7 +125,7 @@ export const exportSession = (session, callback) => {
   session.windows.forEach(function(curWindow) {
     curWindow.tabs.forEach(function(curTab) {
       if (isSuspendedTab(curTab)) {
-        sessionString += getOriginalUrl(curTab.url) + '\n';
+        sessionString += getOriginalUrlFromSuspendedUrl(curTab.url) + '\n';
       } else {
         sessionString += curTab.url + '\n';
       }

@@ -11,7 +11,7 @@ const {
   warning,
   removeInternalUrlsFromSession,
   isSuspendedTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   documentReadyAndLocalisedAsPromsied,
   getCleanTabTitle,
 } = gsGlobals.gsUtils;
@@ -35,10 +35,12 @@ async function getRecoverableTabs(currentTabs) {
     for (const window of lastSession.windows) {
       for (const tabProperties of window.tabs) {
         if (isSuspendedTab(tabProperties)) {
-          const originalUrl = getOriginalUrl(tabProperties.url);
-          // Ignore suspended tabs from previous session that exist unsuspended now
+          // Ignore suspended tabs that still exist in current session
+          const suspendedTab = currentTabs.find(o => o.url === tabProperties.url);
+          // Also ignore suspended tabs from previous session that exist unsuspended now
+          const originalUrl = getOriginalUrlFromSuspendedUrl(tabProperties.url);
           const originalTab = currentTabs.find(o => o.url === originalUrl);
-          if (!originalTab) {
+          if (!suspendedTab && !originalTab) {
             tabProperties.windowId = window.id;
             tabProperties.sessionId = lastSession.sessionId;
             tabsToRecover.push(tabProperties);
@@ -57,7 +59,7 @@ const removeTabFromList = tabToRemove => {
   for (let i = 0; i < childLinks.length; i++) {
     const element = childLinks[i];
     const url = isSuspendedTab(tabToRemove)
-      ? getOriginalUrl(tabToRemove.url)
+      ? getOriginalUrlFromSuspendedUrl(tabToRemove.url)
       : tabToRemove.url;
 
     if (
@@ -137,9 +139,10 @@ documentReadyAndLocalisedAsPromsied(document).then(async function() {
     restoreEl.className += ' btnDisabled';
     restoreEl.removeEventListener('click', performRestore);
     showTabSpinners();
-    while (isInitialising()) {
-      await setTimeout(200);
-    }
+    // Can cause lockup if initialising never finishes!!
+    // while (isInitialising()) {
+    //   await setTimeout(200);
+    // }
     await recoverLostTabs();
   };
 
@@ -154,7 +157,7 @@ documentReadyAndLocalisedAsPromsied(document).then(async function() {
 
   for (const tabToRecover of tabsToRecover) {
     tabToRecover.title = getCleanTabTitle(tabToRecover);
-    tabToRecover.url = getOriginalUrl(tabToRecover.url);
+    tabToRecover.url = getOriginalUrlFromSuspendedUrl(tabToRecover.url);
     const tabEl = await createTabHtml(tabToRecover, false);
     tabEl.onclick = function() {
       return function(e) {

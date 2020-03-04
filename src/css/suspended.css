@@ -263,7 +263,7 @@ body.img-preview-mode .gsTopBar {
 .dark .watermark {
     color: #b8b8b8;
 }
-.dark #setKeyboardShortcut {
+.dark .setKeyboardShortcut {
     text-decoration: underline;
     color: #b8b8b8;
 }

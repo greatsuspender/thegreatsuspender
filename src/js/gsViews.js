@@ -1,11 +1,9 @@
 export const VIEW_FUNC_OPTIONS_REINIT = 'viewOptionsReinit';
 export const VIEW_FUNC_UPDATED_TOGGLE = 'viewUpdatedToggle';
 export const VIEW_FUNC_RECOVERY_REMOVE_TAB = 'viewRecoveryRemoveTab';
-export const VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND =
-  'viewSuspendedTabUpdateCommand';
 
 export const registerViewGlobal = (view, key, fn) => {
-  view.exports = { key: fn };
+  view.exports = { [key]: fn };
 };
 
 export const executeViewGlobal = (tabId, key) => {

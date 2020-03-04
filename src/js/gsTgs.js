@@ -28,7 +28,16 @@ import {
   sendRequestInfoToContentScript,
 } from './helpers/contentScripts';
 import { reportEvent } from './gsAnalytics';
-import { SUSPEND_URL_PREFIX, UNSUSPEND_URL_PREFIX } from './actions/suspendTab';
+import {
+  SUSPENDED_IFRAME_PREFIX,
+  SUSPEND_URL_PREFIX,
+  INTERNAL_MSG_URL,
+  makeDataUrl,
+  reinitialiseSuspendedTab,
+  generateIframeContainerDataUrl,
+  generateIframeContentsDataUrl,
+  KEYBOARD_SHORTCUTS_PREFIX,
+} from './actions/suspendTab';
 import { reinjectContentScriptOnTab } from './helpers/contentScripts';
 import {
   queueTabForSuspension,
@@ -45,11 +54,11 @@ import {
   isNormalTab,
   isSuspendedTab,
   getRootUrl,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   saveToWhitelist,
   removeFromWhitelist,
-  getSuspendedScrollPosition,
-  formatHotkeyString,
+  getScrollPositionFromSuspendedUrl,
+  getSettingsHashFromSuspendedUrl,
   isBlockedFileTab,
   isSpecialTab,
   isDiscardedTab,
@@ -57,7 +66,7 @@ import {
   isProtectedActiveTab,
   isProtectedPinnedTab,
   isProtectedAudibleTab,
-  parseQueryString,
+  parseEncodedQueryString,
   hasProperty,
   STATUS_UNKNOWN,
   STATUS_LOADING,
@@ -82,30 +91,35 @@ import {
   tabsUpdate,
   windowsGetLastFocused,
 } from './gsChrome';
-import { showNoConnectivityMessage, initTab } from './gsSuspendedTab';
 import {
   getTabStatePropForTabId,
   setTabStatePropForTabId,
   clearTabStateForTabId,
   clearAutoSuspendTimerForTabId,
   updateTabStateIdReferences,
-  STATE_SHOW_NAG,
   STATE_TIMER_DETAILS,
-  STATE_SUSPEND_REASON,
   STATE_TEMP_WHITELIST_ON_RELOAD,
 } from './gsTabState';
 import {
   getScrollPosForTabId,
   setStatusForTabId,
   getStatusForTabId,
+  getFaviconMetaForTabId,
+  setSettingsHashForTabId,
+  getSettingsHashForTabId,
 } from './helpers/tabStates';
 import {
   getInternalViewByTabId,
   executeViewGlobal,
   executeViewGlobalsForViewName,
   VIEW_FUNC_OPTIONS_REINIT,
-  VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND,
 } from './gsViews';
+import {
+  buildSuspensionToggleHotkey,
+  buildSettingsStateHash,
+  getSettingsStateHash,
+} from './helpers/extensionState';
+import { browser } from 'webextension-polyfill-ts';
 
 const ICON_SUSPENSION_ACTIVE = {
   '16': 'img/ic_suspendy_16x16.png',
@@ -261,7 +275,7 @@ export const whitelistHighlightedTab = includePath => {
     if (activeTab) {
       if (isSuspendedTab(activeTab)) {
         const url = getRootUrl(
-          getOriginalUrl(activeTab.url),
+          getOriginalUrlFromSuspendedUrl(activeTab.url),
           includePath,
           false
         );
@@ -444,7 +458,6 @@ export const suspendAllTabsInAllWindows = force => {
 };
 
 export const unsuspendAllTabs = () => {
-  debugger;
   getCurrentlyActiveTab(function(activeTab) {
     if (!activeTab) {
       warning('background', 'Could not determine currently active window.');
@@ -561,7 +574,7 @@ export const resetAutoSuspendTimerForAllTabs = () => {
 export const unsuspendTab = tab => {
   if (!isSuspendedTab(tab)) return;
 
-  const originalUrl = getOriginalUrl(tab.url);
+  const originalUrl = getOriginalUrlFromSuspendedUrl(tab.url);
 
   if (originalUrl) {
     // NOTE: Temporarily disable autoDiscardable, as there seems to be a bug
@@ -573,21 +586,6 @@ export const unsuspendTab = tab => {
   }
 
   log(tab.id, 'Failed to execute unsuspend tab.');
-};
-
-export const buildSuspensionToggleHotkey = () => {
-  return new Promise(resolve => {
-    let printableHotkey = '';
-    chrome.commands.getAll(commands => {
-      const toggleCommand = commands.find(o => o.name === '1-suspend-tab');
-      if (toggleCommand && toggleCommand.shortcut !== '') {
-        printableHotkey = formatHotkeyString(toggleCommand.shortcut);
-        resolve(printableHotkey);
-      } else {
-        resolve(null);
-      }
-    });
-  });
 };
 
 export const checkForTriggerUrls = (tab, url) => {
@@ -618,17 +616,6 @@ export const handleUnsuspendedTabStateChanged = (tab, changeInfo) => {
 
   // Check if tab has just been discarded
   if (hasProperty(changeInfo, 'discarded') && changeInfo.discarded) {
-    const existingSuspendReason = getTabStatePropForTabId(
-      tab.id,
-      STATE_SUSPEND_REASON
-    );
-    if (existingSuspendReason && existingSuspendReason === 3) {
-      // For some reason the discarded changeInfo gets called twice (chrome bug?)
-      // As a workaround we use the suspend reason to determine if we've already
-      // handled this discard
-      //TODO: Report chrome bug
-      return;
-    }
     log(tab.id, 'Unsuspended tab has been discarded. Url: ' + tab.url);
     //TODO: Remove this code?
     // handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
@@ -743,8 +730,9 @@ export const handleSuspendedTabStateChanged = (tab, changeInfo) => {
   if (changeInfo.status && changeInfo.status === 'loading') {
     if (currentTabStatus === 'suspended') {
       // Assume suspended tab has been refreshed, in which case we want to unsuspend tab
-      log(tab.id, 'unsuspending tab due to page refresh.');
-      unsuspendTab(tab);
+      //TODO: Fix this
+      // log(tab.id, 'unsuspending tab due to page refresh.');
+      // unsuspendTab(tab);
     }
     setStatusForTabId(tab.id, 'suspending');
     return;
@@ -793,13 +781,6 @@ export const removeTabIdReferences = tabId => {
     }
   }
   clearTabStateForTabId(tabId);
-};
-
-export const getSuspensionToggleHotkey = async () => {
-  if (_suspensionToggleHotkey === undefined) {
-    _suspensionToggleHotkey = await buildSuspensionToggleHotkey();
-  }
-  return _suspensionToggleHotkey;
 };
 
 export const handleWindowFocusChanged = windowId => {
@@ -860,26 +841,28 @@ export const handleTabFocusChanged = async (tabId, windowId) => {
 
   // If the tab focused before this was the keyboard shortcuts page, then update hotkeys on suspended pages
   if (_triggerHotkeyUpdate) {
-    const oldHotkey = _suspensionToggleHotkey;
-    _suspensionToggleHotkey = await buildSuspensionToggleHotkey();
-    if (oldHotkey !== _suspensionToggleHotkey) {
-      executeViewGlobalsForViewName(
-        'suspended',
-        VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND
-      );
-    }
+    await buildSuspensionToggleHotkey();
+    await buildSettingsStateHash();
     _triggerHotkeyUpdate = false;
   }
 
-  // If normal tab, then ensure it has a responsive content script
   let contentScriptStatus = null;
   if (isNormalTab(focusedTab, true)) {
+    // If normal tab, then ensure it has a responsive content script
     contentScriptStatus = await getContentScriptStatus(focusedTab.id);
     if (!contentScriptStatus) {
       await reinjectContentScriptOnTab(focusedTab);
       contentScriptStatus = await getContentScriptStatus(focusedTab.id);
     }
     log(focusedTab.id, 'Content script status: ' + contentScriptStatus);
+  } else if (isSuspendedTab(focusedTab)) {
+    // If suspended tab, then display full suspension UI
+    const settingsStateHash = getSettingsStateHash();
+    const tabStateHash = getSettingsHashFromSuspendedUrl(focusedTab.url);
+    if (settingsStateHash !== tabStateHash) {
+      //TODO: Reinstate this code
+      // reinitialiseSuspendedTab(focusedTab);
+    }
   }
 
   //update icon
@@ -985,10 +968,7 @@ export const handleSuspendedTabFocusGained = focusedTab => {
     if (navigator.onLine) {
       unsuspendTab(focusedTab);
     } else {
-      const suspendedView = getInternalViewByTabId(focusedTab.id);
-      if (suspendedView) {
-        showNoConnectivityMessage(suspendedView);
-      }
+      // showNoConnectivityMessage(suspendedView);
     }
   }
 };
@@ -1465,25 +1445,57 @@ export const addMessageListeners = () => {
 export const addChromeListeners = () => {
   // const extensionUrl = chrome.runtime.getURL('');
   // const host = new URL(extensionUrl).host;
-  const suspendRequestUrl = chrome.runtime.getURL(SUSPEND_URL_PREFIX);
 
   chrome.webRequest.onBeforeRequest.addListener(
     function(details) {
       console.log('details', details);
-      if (details.url.indexOf(suspendRequestUrl) === 0) {
-        const queryParams = parseQueryString(
-          details.url.split(suspendRequestUrl)[1]
+      if (details.url.indexOf(SUSPEND_URL_PREFIX) > 0) {
+        const suspendedProps = parseEncodedQueryString(
+          details.url.split(SUSPEND_URL_PREFIX)[1],
+          true
+        );
+        const faviconMeta = getFaviconMetaForTabId(details.tabId);
+        const dataUrl = generateIframeContainerDataUrl(
+          suspendedProps,
+          faviconMeta
         );
         // Suspend tab by redirecting to the data:text/html url
-        return { redirectUrl: queryParams.data };
+        return { redirectUrl: dataUrl };
+      }
+      if (details.url.indexOf(SUSPENDED_IFRAME_PREFIX) > 0) {
+        const suspendedProps = parseEncodedQueryString(
+          details.url.split(SUSPENDED_IFRAME_PREFIX)[1],
+          true
+        );
+        const curSettingsHash = getSettingsStateHash();
+        const tabSettingsHash = getSettingsHashForTabId(details.tabId);
+        const faviconMeta = getFaviconMetaForTabId(details.tabId);
+        const suspendedHtml = generateIframeContentsDataUrl(
+          suspendedProps,
+          faviconMeta
+        );
+        if (tabSettingsHash === curSettingsHash) {
+          console.log('cancel');
+          return { cancel: true };
+        } else {
+          setSettingsHashForTabId(details.tabId, curSettingsHash);
+          console.log('init');
+          return { redirectUrl: suspendedHtml };
+        }
+      }
+      if (details.url.indexOf(KEYBOARD_SHORTCUTS_PREFIX) > 0) {
+        return {
+          redirectUrl: browser.extension.getURL('shortcuts.html'),
+        };
       }
 
       return { cancel: false };
     },
+
     // { urls: [`*://${host}/${SUSPEND_URL_PREFIX}*`] },
     // { urls: [`${chrome.runtime.getURL('')}/${SUSPEND_URL_PREFIX}*`] },
     {
-      urls: [`${suspendRequestUrl}*`],
+      urls: [`${INTERNAL_MSG_URL}*`],
     },
     ['blocking']
   );

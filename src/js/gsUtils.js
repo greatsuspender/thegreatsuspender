@@ -21,7 +21,6 @@ import {
   ADD_CONTEXT,
 } from './gsStorage';
 import { sendUpdateToContentScriptOfTab } from './helpers/contentScripts';
-import {} from './gsUtils';
 import {
   tabsGet,
   tabsQuery,
@@ -30,9 +29,9 @@ import {
   windowsCreate,
 } from './gsChrome';
 import {
-  SUSPENDED_DATAURL_PREFIX,
-  SUSPENDED_METADATA_PREFIX,
-  SUSPENDED_METADATA_SUFFIX,
+  DATAURL_PREFIX,
+  INTERNAL_MSG_URL,
+  SUSPENDED_IFRAME_PREFIX,
 } from './actions/suspendTab';
 import { initAsPromised as gsTabSuspendManagerInit } from './gsTabSuspendManager';
 import { isInitialising, isFileUrlsAccessAllowed } from './gsSession';
@@ -46,6 +45,7 @@ import {
   resetAutoSuspendTimerForTab,
   buildContextMenu,
 } from './gsTgs';
+import { buildSettingsStateHash } from './helpers/extensionState';
 
 let debugInfo = __WEBPACK_DEBUG_INFO__;
 let debugError = __WEBPACK_DEBUG_ERROR__;
@@ -238,10 +238,8 @@ export const isSuspendedTab = tab => {
 
 export const isSuspendedUrl = url => {
   return (
-    url.indexOf(
-      `${SUSPENDED_DATAURL_PREFIX}${encodeString(SUSPENDED_METADATA_PREFIX)}`
-    ) === 0 ||
-    url.indexOf(`${SUSPENDED_DATAURL_PREFIX}${SUSPENDED_METADATA_PREFIX}`) === 0
+    url.indexOf(DATAURL_PREFIX) === 0 &&
+    url.indexOf(`${INTERNAL_MSG_URL}${SUSPENDED_IFRAME_PREFIX}`) > 0
   );
 };
 
@@ -474,17 +472,16 @@ export const getRootUrl = (url, includePath, includeScheme) => {
   return rootUrlStr;
 };
 
-export const generateQueryString = params => {
+export const generateEncodedQueryString = params => {
   return Object.keys(params)
-    .map(k => k + '=' + params[k])
+    .map(k => k + '=' + encodeURIComponent(params[k]))
     .join('&');
 };
 
-export const parseQueryString = (queryString, decode) => {
+export const parseEncodedQueryString = queryString => {
   const query = {};
-  if (decode) {
-    queryString = decodeURIComponent(queryString);
-  }
+  queryString = decodeEntities(queryString);
+
   const pairs = (queryString[0] === '?'
     ? queryString.substr(1)
     : queryString
@@ -495,44 +492,37 @@ export const parseQueryString = (queryString, decode) => {
       pairs[i].substring(0, splitIndex),
       pairs[i].substring(splitIndex + 1),
     ];
-    query[pair[0]] = pair[1] || '';
+    query[pair[0]] = decodeURIComponent(pair[1] || '');
   }
   return query;
 };
 
-const getMetadataValue = (key, urlStr) => {
-  if (
-    !urlStr ||
-    urlStr.length === 0 ||
-    urlStr.indexOf(SUSPENDED_METADATA_PREFIX) === -1
-  ) {
-    return false;
-  }
+const getIframeQueryParamsValue = (key, urlString) => {
+  if (!urlString || urlString.length === 0) return false;
 
-  //extract hash component from url
-  const replace = `.*${SUSPENDED_METADATA_PREFIX}(.*)${SUSPENDED_METADATA_SUFFIX}.*`;
-  const re = new RegExp(replace);
-  const hashStr = urlStr.replace(re, '$1');
+  const urlStringParts = urlString.split(
+    `src="${INTERNAL_MSG_URL}${SUSPENDED_IFRAME_PREFIX}`
+  );
+  if (urlStringParts.length < 2) return false;
 
-  if (hashStr.length === 0) {
-    return false;
-  }
+  const queryString = urlStringParts[1].split('"')[0];
+  if (queryString.length === 0) return false;
 
-  try {
-    const valuesByKey = JSON.parse(hashStr);
-    return valuesByKey[key] || false;
-  } catch (e) {
-    return false;
-  }
+  const queryParams = parseEncodedQueryString(queryString, true);
+  return queryParams[key];
 };
-// export const getSuspendedTitle = urlStr => {
-//   return getMetadataValue('t', decodeString(urlStr) || '');
-// };
-export const getSuspendedScrollPosition = urlStr => {
-  return getMetadataValue('p', decodeString(urlStr) || '');
+
+export const getTitleFromSuspendedUrl = urlStr => {
+  return getIframeQueryParamsValue('t', decodeString(urlStr) || '');
 };
-export const getOriginalUrl = urlStr => {
-  return getMetadataValue('u', decodeString(urlStr) || '');
+export const getSettingsHashFromSuspendedUrl = urlStr => {
+  return getIframeQueryParamsValue('i', decodeString(urlStr) || '');
+};
+export const getScrollPositionFromSuspendedUrl = urlStr => {
+  return getIframeQueryParamsValue('p', decodeString(urlStr) || '');
+};
+export const getOriginalUrlFromSuspendedUrl = urlStr => {
+  return getIframeQueryParamsValue('u', decodeString(urlStr) || '');
 };
 export const getCleanUrl = url => {
   // remove scheme
@@ -561,14 +551,29 @@ export const getCleanTabTitle = tab => {
   ) {
     if (isSuspendedTab(tab)) {
       // TODO: If url is a dataUrl, then use jsdom to get tab title from meta
-      // cleanedTitle = getSuspendedTitle(tab.url) || getOriginalUrl(tab.url);
-      cleanedTitle = getOriginalUrl(tab.url);
+      // cleanedTitle = getTitleFromSuspendedUrl(tab.url) || getOriginalUrlFromSuspendedUrl(tab.url);
+      cleanedTitle = getOriginalUrlFromSuspendedUrl(tab.url);
     } else {
       cleanedTitle = tab.url;
     }
   }
   return cleanedTitle;
 };
+export const encodeEntities = string => {
+  return string
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+};
+export const decodeEntities = string => {
+  return string
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"');
+};
+
 export const decodeString = string => {
   try {
     return decodeURIComponent(string);
@@ -583,7 +588,7 @@ export const encodeString = string => {
     return string;
   }
 };
-export const encodeString2 = string => {
+export const encodeStringForDataUrl = string => {
   // from here: https://stackoverflow.com/questions/9238890/convert-html-to-datatext-html-link-using-javascript
   return string
     .replace(/\s{2,}/g, '') // <-- Replace all consecutive spaces, 2+
@@ -678,21 +683,8 @@ export const performPostSaveUpdates = (
         //if theme or screenshot preferences have changed then refresh suspended tabs
         const _updateTheme = changedSettingKeys.includes(THEME);
         const _updatePreviewMode = changedSettingKeys.includes(SCREEN_CAPTURE);
-        if (_updateTheme || updatePreviewMode) {
-          const suspendedView = getInternalViewByTabId(tab.id);
-          if (suspendedView) {
-            if (_updateTheme) {
-              const theme = getOption(THEME);
-              getFaviconMetaData(tab).then(faviconMeta => {
-                const isLowContrastFavicon = faviconMeta.isDark || false;
-                updateTheme(suspendedView, tab, theme, isLowContrastFavicon);
-              });
-            }
-            if (_updatePreviewMode) {
-              const previewMode = getOption(SCREEN_CAPTURE);
-              updatePreviewMode(suspendedView, tab, previewMode); // async. unhandled promise.
-            }
-          }
+        if (_updateTheme || _updatePreviewMode) {
+          buildSettingsStateHash(); // async. unhandled promise.
         }
         return;
       }

@@ -18,7 +18,7 @@ import {
   performMigration,
   fetchLastSession,
 } from './gsIndexedDb';
-import { generateSuspendUrl, generateDataUrl } from './actions/suspendTab';
+import { generateSuspendUrl } from './actions/suspendTab';
 import {
   log,
   warning,
@@ -28,7 +28,7 @@ import {
   isSuspendedTab,
   isSpecialTab,
   isNormalTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   createTabAndWaitForFinishLoading,
   removeInternalUrlsFromSession,
   createWindowAndWaitForFinishLoading,
@@ -402,27 +402,6 @@ export const triggerDiscardOfAllTabs = async () => {
 export const checkForCrashRecovery = async currentSessionTabs => {
   log('gsSession', 'Checking for crash recovery: ' + new Date().toISOString());
 
-  //try to detect whether the extension has crashed as apposed to chrome restarting
-  //if it is an extension crash, then in theory all suspended tabs will be gone
-  //and all normal tabs will still exist with the same ids
-  const currentSessionSuspendedTabs = currentSessionTabs.filter(
-    tab => !isSpecialTab(tab) && isSuspendedTab(tab)
-  );
-  const currentSessionNonExtensionTabs = currentSessionTabs.filter(
-    tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
-  );
-
-  //TODO: Reenable this startup check?
-  // if (currentSessionSuspendedTabs.length > 0) {
-  //   log(
-  //     'gsSession',
-  //     'Aborting tab recovery. Browser has open suspended tabs.' +
-  //       ' Assuming user has "On start-up -> Continue where you left off" set' +
-  //       ' or is restarting with suspended pinned tabs.'
-  //   );
-  //   return false;
-  // }
-
   const lastSession = await fetchLastSession();
   if (!lastSession) {
     log('gsSession', 'Aborting tab recovery. Could not find last session.');
@@ -434,53 +413,127 @@ export const checkForCrashRecovery = async currentSessionTabs => {
     (a, o) => a.concat(o.tabs),
     []
   );
-  const lastSessionSuspendedTabs = lastSessionTabs.filter(o =>
-    isSuspendedTab(o)
-  );
-  const lastSessionNonExtensionTabs = lastSessionTabs.filter(
-    tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
-  );
 
-  if (lastSessionSuspendedTabs.length === 0) {
-    log(
-      'gsSession',
-      'Aborting tab recovery. Last session contained no suspended tabs.'
-    );
-    return false;
-  }
-
-  // Match against all tabIds from last session here, not just non-extension tabs
-  // as there is a chance during tabInitialisation of a suspended tab getting reloaded
-  // directly and hence keeping its tabId (ie: file:// tabs)
-  const matchingTabExists = tab => {
-    if (tab.url.indexOf('chrome://newtab') === 0 && tab.index === 0)
+  // Check tabs from this session with tabs from last session. If some of them match both
+  // tabId and URL, then assume we have just undergone an extension crash
+  const matchingTabFound = currentSessionTabs.some(curTab => {
+    if (curTab.url.indexOf('chrome://newtab') === 0 && curTab.index === 0)
       return false;
-    return lastSessionTabs.some(o => o.id === tab.id && o.url === tab.url);
-  };
-  const matchingTabIdsCount = currentSessionNonExtensionTabs.reduce(
-    (a, o) => (matchingTabExists(o) ? a + 1 : a),
-    0
-  );
-  const maxMatchableTabsCount = Math.max(
-    lastSessionNonExtensionTabs.length,
-    currentSessionNonExtensionTabs.length
-  );
-  log(
-    'gsSession',
-    matchingTabIdsCount +
-      ' / ' +
-      maxMatchableTabsCount +
-      ' tabs have the same id between the last session and the current session.'
-  );
-  if (
-    matchingTabIdsCount === 0 ||
-    maxMatchableTabsCount - matchingTabIdsCount > 1
-  ) {
+    return lastSessionTabs.some(
+      oldTab => oldTab.id === curTab.id && oldTab.url === curTab.url
+    );
+  });
+
+  if (!matchingTabFound) {
     log('gsSession', 'Aborting tab recovery. Tab IDs do not match.');
     return false;
   }
 
+  const missingSuspendedTabs = lastSessionTabs.filter(oldTab => {
+    if (!isSuspendedTab(oldTab)) return false;
+    return !currentSessionTabs.some(curTab => oldTab.url === curTab.url);
+  });
+
+  if (missingSuspendedTabs.length === 0) {
+    log('gsSession', 'Aborting tab recovery. No missing suspended tabs found.');
+    return false;
+  }
+
+  log(
+    'gsSession',
+    'Initiating tab recovery. Found the following missing suspended tabs: ',
+    missingSuspendedTabs
+  );
   return true;
+
+  // const matchingNonExtensionTabCount = currentSessionNonExtensionTabs.reduce(
+  //   (a, o) => (matchingTabExists(o) ? a + 1 : a),
+  //   0
+  // );
+  // const maxNonExtensionTabsCount = Math.max(
+  //   lastSessionNonExtensionTabs.length,
+  //   currentSessionNonExtensionTabs.length
+  // );
+
+  // //try to detect whether the extension has crashed as apposed to chrome restarting
+  // //if it is an extension crash, then in theory all suspended tabs will be gone
+  // //and all normal tabs will still exist with the same ids
+  // const currentSessionSuspendedTabs = currentSessionTabs.filter(
+  //   tab => !isSpecialTab(tab) && isSuspendedTab(tab)
+  // );
+  // const currentSessionNonExtensionTabs = currentSessionTabs.filter(
+  //   tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
+  // );
+
+  // //TODO: Reenable this startup check?
+  // // if (currentSessionSuspendedTabs.length > 0) {
+  // //   log(
+  // //     'gsSession',
+  // //     'Aborting tab recovery. Browser has open suspended tabs.' +
+  // //       ' Assuming user has "On start-up -> Continue where you left off" set' +
+  // //       ' or is restarting with suspended pinned tabs.'
+  // //   );
+  // //   return false;
+  // // }
+
+  // const lastSession = await fetchLastSession();
+  // if (!lastSession) {
+  //   log('gsSession', 'Aborting tab recovery. Could not find last session.');
+  //   return false;
+  // }
+  // log('gsSession', 'lastSession: ', lastSession);
+
+  // const lastSessionTabs = lastSession.windows.reduce(
+  //   (a, o) => a.concat(o.tabs),
+  //   []
+  // );
+  // const lastSessionSuspendedTabs = lastSessionTabs.filter(o =>
+  //   isSuspendedTab(o)
+  // );
+  // const lastSessionNonExtensionTabs = lastSessionTabs.filter(
+  //   tab => tab.url.indexOf(chrome.runtime.id) === -1 && !isSuspendedTab(tab)
+  // );
+
+  // if (lastSessionSuspendedTabs.length === 0) {
+  //   log(
+  //     'gsSession',
+  //     'Aborting tab recovery. Last session contained no suspended tabs.'
+  //   );
+  //   return false;
+  // }
+
+  // // Match against all tabIds from last session here, not just non-extension tabs
+  // // as there is a chance during tabInitialisation of a suspended tab getting reloaded
+  // // directly and hence keeping its tabId (ie: file:// tabs)
+  // const matchingTabExists = tab => {
+  //   if (tab.url.indexOf('chrome://newtab') === 0 && tab.index === 0)
+  //     return false;
+  //   return lastSessionTabs.some(o => o.id === tab.id && o.url === tab.url);
+  // };
+  // const matchingNonExtensionTabCount = currentSessionNonExtensionTabs.reduce(
+  //   (a, o) => (matchingTabExists(o) ? a + 1 : a),
+  //   0
+  // );
+  // const maxNonExtensionTabsCount = Math.max(
+  //   lastSessionNonExtensionTabs.length,
+  //   currentSessionNonExtensionTabs.length
+  // );
+  // log(
+  //   'gsSession',
+  //   matchingNonExtensionTabCount +
+  //     ' / ' +
+  //     maxNonExtensionTabsCount +
+  //     ' tabs have the same id between the last session and the current session.'
+  // );
+  // if (
+  //   matchingNonExtensionTabCount === 0 ||
+  //   maxNonExtensionTabsCount - matchingNonExtensionTabCount > 1
+  // ) {
+  //   log('gsSession', 'Aborting tab recovery. Tab IDs do not match.');
+  //   return false;
+  // }
+
+  // return true;
 };
 
 export const recoverLostTabs = async () => {
@@ -770,13 +823,9 @@ async function createNewTabFromSessionTab(
 ) {
   let url = sessionTab.url;
   if (suspendMode === 1 && isNormalTab(sessionTab)) {
-    const suspendDataUrl = generateDataUrl({
-      url: sessionTab.url,
-      title: sessionTab.title,
-    });
-    url = generateSuspendUrl(suspendDataUrl);
+    url = generateSuspendUrl(sessionTab);
   } else if (suspendMode === 2 && isSuspendedTab(sessionTab)) {
-    url = getOriginalUrl(sessionTab.url);
+    url = getOriginalUrlFromSuspendedUrl(sessionTab.url);
   }
   await tabsCreate({
     windowId: windowId,

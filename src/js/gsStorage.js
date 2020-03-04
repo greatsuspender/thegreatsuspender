@@ -9,6 +9,7 @@ import {
   performPostSaveUpdates,
   hasProperty,
 } from './gsUtils';
+import { getSuspensionToggleHotkey } from './helpers/extensionState';
 
 export const SCREEN_CAPTURE = 'screenCapture';
 export const SCREEN_CAPTURE_FORCE = 'screenCaptureForce';

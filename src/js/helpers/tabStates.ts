@@ -2,11 +2,13 @@ import { Tabs, browser } from 'webextension-polyfill-ts';
 
 import {
   log,
-  warning,
   error,
   isSuspendedTab,
-  getSuspendedScrollPosition,
+  getScrollPositionFromSuspendedUrl,
 } from '../gsUtils';
+
+import { FALLBACK_CHROME_FAVICON_META, getFaviconMetaData } from '../gsFavicon';
+import { FaviconMeta } from '../actions/suspendTab';
 
 export type STATE_UNKNOWN = 'unknown';
 export type STATE_UNSUSPENDING = 'unsuspending';
@@ -23,7 +25,9 @@ type TabStatus =
 
 export type TabState = {
   status: TabStatus;
+  settingsHash?: string;
   scrollPos?: number;
+  faviconMeta?: FaviconMeta;
 };
 
 type TabStateByTabId = {
@@ -45,17 +49,20 @@ export const init = async (): Promise<TabStateByTabId> => {
       const isSuspended = isSuspendedTab(tab);
       let scrollPos = 0;
       const status: TabStatus = 'unknown';
+      let faviconMeta;
       if (isSuspended) {
-        const suspendedScrollPos = getSuspendedScrollPosition(tab.url);
+        const suspendedScrollPos = getScrollPositionFromSuspendedUrl(tab.url);
         scrollPos = parseInt(suspendedScrollPos) || 0;
+        faviconMeta = await getFaviconMetaData(tab);
       }
       tabStateByTabId[tab.id] = {
         status,
         scrollPos,
+        faviconMeta,
       };
     }
   } catch (e) {
-    error(new Error('Failed to init tabStateByTabId'));
+    error(e);
   }
   logAllTabStates();
   return tabStateByTabId;
@@ -99,4 +106,38 @@ export const getScrollPosForTabId = (tabId: number): number => {
     return 0;
   }
   return tabState.scrollPos || 0;
+};
+
+export const setFaviconMetaForTabId = (
+  tabId: number,
+  faviconMeta: FaviconMeta
+): void => {
+  const tabState = findOrCreateTabState(tabId);
+  tabState.faviconMeta = faviconMeta;
+};
+
+export const getFaviconMetaForTabId = (tabId: number): FaviconMeta => {
+  const tabState = tabStateByTabId[tabId];
+  if (!tabState) {
+    log('gsTabStates', `Could not find tab for id: ${tabId}`);
+    return FALLBACK_CHROME_FAVICON_META;
+  }
+  return tabState.faviconMeta || FALLBACK_CHROME_FAVICON_META;
+};
+
+export const setSettingsHashForTabId = (
+  tabId: number,
+  settingsHash: string
+): void => {
+  const tabState = findOrCreateTabState(tabId);
+  tabState.settingsHash = settingsHash;
+};
+
+export const getSettingsHashForTabId = (tabId: number): string => {
+  const tabState = tabStateByTabId[tabId];
+  if (!tabState) {
+    log('gsTabStates', `Could not find tab for id: ${tabId}`);
+    return '';
+  }
+  return tabState.settingsHash || '';
 };

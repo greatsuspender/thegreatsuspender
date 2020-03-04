@@ -12,6 +12,7 @@ import { initAsPromised as gsFaviconInit } from './gsFavicon';
 import { initAsPromised as gsTabSuspendManagerInit } from './gsTabSuspendManager';
 import { initAsPromised as gsTabCheckManagerInit } from './gsTabCheckManager';
 import { init as gsTabStatesInit, logAllTabStates } from './helpers/tabStates';
+import { init as gsExtensionStateInit } from './helpers/extensionState';
 import {
   initAsPromised as gsSessionInit,
   runStartupChecks,
@@ -55,6 +56,7 @@ Promise.resolve()
       gsSessionInit(),
       // TODO: Set all tabs to be autoDiscardable: false
       gsTabStatesInit(),
+      gsExtensionStateInit(), // Needs to come after session init (as it uses sessionId)
     ]);
   })
   .catch(e => {
@@ -76,3 +78,7 @@ Promise.resolve()
     startSessionMetricsJob();
     startAnalyticsUpdateJob();
   });
+
+window.logStates = () => {
+  logAllTabStates();
+};

@@ -14,7 +14,7 @@ const {
   debounce,
   isSuspendedTab,
   isSuspendedUrl,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   checkWhiteList,
 } = gsGlobals.gsUtils;
 const {
@@ -222,7 +222,7 @@ documentReadyAndLocalisedAsPromsied(document).then(function() {
     e.preventDefault();
     const tabs = await tabsQuery();
     const tabUrls = tabs
-      .map(tab => (isSuspendedTab(tab) ? getOriginalUrl(tab.url) : tab.url))
+      .map(tab => (isSuspendedTab(tab) ? getOriginalUrlFromSuspendedUrl(tab.url) : tab.url))
       .filter(url => !isSuspendedUrl(url) && checkWhiteList(url))
       .map(url => (url.length > 55 ? url.substr(0, 52) + '...' : url));
     if (tabUrls.length === 0) {

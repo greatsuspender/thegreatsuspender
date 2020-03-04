@@ -6,7 +6,7 @@ import {
   log,
   warning,
   isSuspendedTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   isSpecialTab,
   isProtectedActiveTab,
   isProtectedPinnedTab,
@@ -21,6 +21,7 @@ import {
   getStatusForTabId,
   setScrollPosForTabId,
   setStatusForTabId,
+  setSettingsHashForTabId,
 } from './helpers/tabStates';
 import {
   getOption,
@@ -72,6 +73,7 @@ export const initAsPromised = () => {
 
 export const queueTabForSuspension = (tab, forceLevel) => {
   setStatusForTabId(tab.id, 'suspending');
+  setSettingsHashForTabId(tab.id, '');
   queueTabForSuspensionAsPromise(tab, forceLevel).catch(e => {
     log(tab.id, QUEUE_ID, e);
   });
@@ -103,96 +105,112 @@ async function performSuspension(
   reject,
   requeue
 ) {
-  // Check tab is still in need of suspension
-  const tabStatus = getStatusForTabId(tab.id);
-  if (tabStatus !== 'suspending') {
-    log(
-      tab.id,
-      QUEUE_ID,
-      `Tab has status of ${status}. Will ignore suspension request`
-    );
-    resolve(false);
-    return;
-  }
+  try {
+    // Check tab is still in need of suspension
+    const tabStatus = getStatusForTabId(tab.id);
+    if (tabStatus !== 'suspending') {
+      log(
+        tab.id,
+        QUEUE_ID,
+        `Tab has status of ${status}. Will ignore suspension request`
+      );
+      resolve(false);
+      return;
+    }
 
-  // Check tab is not already suspended
-  if (isSuspendedTab(tab)) {
-    log(
-      tab.id,
-      QUEUE_ID,
-      'Tab is already suspended. Will ignore tab suspension request'
-    );
-    resolve(false);
-    return;
-  }
+    // Check tab is not already suspended
+    if (isSuspendedTab(tab)) {
+      log(
+        tab.id,
+        QUEUE_ID,
+        'Tab is already suspended. Will ignore tab suspension request'
+      );
+      resolve(false);
+      return;
+    }
 
-  // Get most recent tab state
-  const _tab = await tabsGet(tab.id);
-  if (!_tab) {
-    log(
-      tab.id,
-      QUEUE_ID,
-      'Could not find tab with id. Will ignore suspension request'
-    );
-    resolve(false);
-    return;
-  }
-  tab = _tab;
+    // Get most recent tab state
+    let _tab;
+    try {
+      _tab = await tabsGet(tab.id);
+    } catch (e) {
+      warning(tab.id, e);
+    }
+    if (!_tab) {
+      log(
+        tab.id,
+        QUEUE_ID,
+        'Could not find tab with id. Will ignore suspension request'
+      );
+      resolve(false);
+      return;
+    }
+    tab = _tab;
 
-  // If tab is in loading state, try to suspend early if possible
-  // Note: doing so will bypass a few checks below. Namely:
-  // - Any temporary pause flag that has been set up on the tab
-  // - It may lose any scrollPos value
-  // Although if the tab is still loading then pause and scroll pos should
-  // not be set?
-  // Do not bypass loading state if screen capture is required
-  const screenCaptureMode = getOption(SCREEN_CAPTURE);
-  if (tab.status === 'loading') {
+    // If tab is in loading state, try to suspend early if possible
+    // Note: doing so will bypass a few checks below. Namely:
+    // - Any temporary pause flag that has been set up on the tab
+    // - It may lose any scrollPos value
+    // Although if the tab is still loading then pause and scroll pos should
+    // not be set?
+    // Do not bypass loading state if screen capture is required
+    const screenCaptureMode = getOption(SCREEN_CAPTURE);
+    if (tab.status === 'loading') {
+      if (screenCaptureMode === '0') {
+        log(tab.id, QUEUE_ID, 'Interrupting tab loading to resuspend tab');
+        const success = await suspendTab(tab);
+        resolve(success);
+      } else {
+        requeue(3000);
+      }
+      return;
+    }
+
+    let _tabInfo;
+    try {
+      _tabInfo = await sendRequestInfoToContentScript(tab.id);
+    } catch (e) {
+      warning(tab.id, e);
+    }
+    const tabInfo = _tabInfo || {
+      status: 'unknown',
+      scrollPos: '0',
+    };
+
+    const isEligible = checkContentScriptEligibilityForSuspension(
+      tabInfo.status,
+      executionProps.forceLevel
+    );
+    if (!isEligible) {
+      log(
+        tab.id,
+        QUEUE_ID,
+        `Content script status of ${tabInfo.status} not eligible for suspension. Removing tab from suspensionQueue.`
+      );
+      resolve(false);
+      return;
+    }
+
+    // Set scrollPos in tabState
+    setScrollPosForTabId(tab.id, tabInfo.scrollPos);
+
     if (screenCaptureMode === '0') {
-      log(tab.id, QUEUE_ID, 'Interrupting tab loading to resuspend tab');
       const success = await suspendTab(tab);
       resolve(success);
-    } else {
-      requeue(3000);
+      return;
     }
-    return;
-  }
 
-  let tabInfo = await sendRequestInfoToContentScript(tab.id);
-  tabInfo = tabInfo || {
-    status: 'unknown',
-    scrollPos: '0',
-  };
-
-  const isEligible = checkContentScriptEligibilityForSuspension(
-    tabInfo.status,
-    executionProps.forceLevel
-  );
-  if (!isEligible) {
-    log(
-      tab.id,
-      QUEUE_ID,
-      `Content script status of ${tabInfo.status} not eligible for suspension. Removing tab from suspensionQueue.`
-    );
+    // Hack. Save handle to resolve function so we can call it later
+    executionProps.resolveFn = resolve;
+    requestGeneratePreviewImage(tab); //async
+    log(tab.id, QUEUE_ID, 'Preview generation script started successfully.');
+    // handlePreviewImageResponse is called on the 'savePreviewData' message response
+    // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
+  } catch (e) {
+    //TODO: Remove this try/catch after working out where unhandled error is coming from
+    console.error(e);
     resolve(false);
-    return;
   }
-
-  // Set scrollPos in tabState
-  setScrollPosForTabId(tab.id, tabInfo.scrollPos);
-
-  if (screenCaptureMode === '0') {
-    const success = await suspendTab(tab);
-    resolve(success);
-    return;
-  }
-
-  // Hack. Save handle to resolve function so we can call it later
-  executionProps.resolveFn = resolve;
-  requestGeneratePreviewImage(tab); //async
-  log(tab.id, QUEUE_ID, 'Preview generation script started successfully.');
-  // handlePreviewImageResponse is called on the 'savePreviewData' message response
-  // this will refetch the queued tabDetails and call executionProps.resolveFn(true)
 }
 
 export const handlePreviewImageResponse = async (tab, previewUrl, errorMsg) => {
@@ -424,7 +442,7 @@ async function generatePreviewImageCanvasViaContentScript(
     return false;
   };
 
-  const generateDataUrl = canvas => {
+  const generateImageDataUrl = canvas => {
     let dataUrl = canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
     if (!dataUrl || dataUrl === 'data:,') {
       dataUrl = canvas.toDataURL();
@@ -442,7 +460,7 @@ async function generatePreviewImageCanvasViaContentScript(
     if (!isCanvasVisible(canvas)) {
       errorMsg = 'Canvas contains no visible pixels';
     } else {
-      dataUrl = generateDataUrl(canvas);
+      dataUrl = generateImageDataUrl(canvas);
     }
   } catch (err) {
     errorMsg = err.message;

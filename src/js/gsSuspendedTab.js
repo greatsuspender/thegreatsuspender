@@ -1,31 +1,23 @@
 import {
   log,
   warning,
-  getSuspendedTitle,
+  getTitleFromSuspendedUrl,
   htmlEncode,
   localiseHtml,
-  getOriginalUrl,
-  getSuspendedScrollPosition,
+  getOriginalUrlFromSuspendedUrl,
+  getScrollPositionFromSuspendedUrl,
 } from './gsUtils';
 import { getSessionId } from './gsSession';
 import { getFaviconMetaData } from './gsFavicon';
-import {
-  STATE_SHOW_NAG,
-  STATE_SUSPEND_REASON,
-  setTabStatePropForTabId,
-  getTabStatePropForTabId,
-} from './gsTabState';
+import { setTabStatePropForTabId, getTabStatePropForTabId } from './gsTabState';
 import { getSettings, NO_NAG, THEME, SCREEN_CAPTURE } from './gsStorage';
 import { fetchPreviewImage } from './gsIndexedDb';
-import {
-  registerViewGlobal,
-  VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND,
-} from './gsViews';
+import { registerViewGlobal } from './gsViews';
 
 import {
   unsuspendTab,
   isCurrentFocusedTab,
-  getSuspensionToggleHotkey,
+  // getSuspensionToggleHotkey,
 } from './gsTgs';
 
 export const initTab = async (tab, tabView, { showNag }) => {
@@ -44,7 +36,7 @@ export const initTab = async (tab, tabView, { showNag }) => {
   tabView.document;
 
   const options = getSettings();
-  const originalUrl = getOriginalUrl(suspendedUrl);
+  const originalUrl = getOriginalUrlFromSuspendedUrl(suspendedUrl);
 
   // Add event listeners
   setUnloadTabHandler(tabView.window, tab);
@@ -70,49 +62,38 @@ export const initTab = async (tab, tabView, { showNag }) => {
     //show dude and donate link (randomly 1 of 20 times)
     showNag = Math.random() > 0.95;
   }
-  setTabStatePropForTabId(tab.id, STATE_SHOW_NAG, showNag);
+  // setTabStatePropForTabId(tab.id, STATE_SHOW_NAG, showNag);
 
   if (showNag) {
     queueDonationPopup(tabView.window, tabView.document, tab.active, tab.id);
   }
 
   // Set command
-  const suspensionToggleHotkey = await getSuspensionToggleHotkey();
-  setCommand(tabView.document, suspensionToggleHotkey);
+  // const suspensionToggleHotkey = await getSuspensionToggleHotkey();
+  // setCommand(tabView.document, suspensionToggleHotkey);
 
   // Set url
   setUrl(tabView.document, originalUrl);
 
   // Set reason
-  const suspendReasonInt = getTabStatePropForTabId(
-    tab.id,
-    STATE_SUSPEND_REASON
-  );
-  let suspendReason = null;
-  if (suspendReasonInt === 3) {
-    suspendReason = chrome.i18n.getMessage('js_suspended_low_memory');
-  }
-  setReason(tabView.document, suspendReason);
+  // const suspendReasonInt = getTabStatePropForTabId(
+  //   tab.id,
+  //   STATE_SUSPEND_REASON
+  // );
+  // let suspendReason = null;
+  // if (suspendReasonInt === 3) {
+  //   suspendReason = chrome.i18n.getMessage('js_suspended_low_memory');
+  // }
+  // setReason(tabView.document, suspendReason);
 
   // Show the view
   showContents(tabView.document);
 
   // Set scrollPosition (must come after showing page contents)
-  const scrollPosition = getSuspendedScrollPosition(suspendedUrl);
+  const scrollPosition = getScrollPositionFromSuspendedUrl(suspendedUrl);
   setScrollPosition(tabView.document, scrollPosition, previewMode);
   // setTabStatePropForTabId(tab.id, STATE_SCROLL_POS, scrollPosition);
   // const whitelisted = checkWhiteList(originalUrl);
-};
-
-export const showNoConnectivityMessage = tabView => {
-  if (!tabView.document.getElementById('disconnectedNotice')) {
-    loadToastTemplate(tabView.document);
-  }
-  tabView.document.getElementById('disconnectedNotice').style.display = 'none';
-  setTimeout(function() {
-    tabView.document.getElementById('disconnectedNotice').style.display =
-      'block';
-  }, 50);
 };
 
 export const updateCommand = (tabView, suspensionToggleHotkey) => {
@@ -132,7 +113,7 @@ export const updatePreviewMode = async (tabView, tab, previewMode) => {
     previewUri
   );
 
-  const scrollPosition = getSuspendedScrollPosition(tab.url);
+  const scrollPosition = getScrollPositionFromSuspendedUrl(tab.url);
   setScrollPosition(tabView.document, scrollPosition, previewMode);
 };
 
@@ -206,16 +187,16 @@ export const queueDonationPopup = (_window, _document, tabActive, tabId) => {
       return;
     }
     const options = getSettings();
-    const showNag =
-      getTabStatePropForTabId(tabId, STATE_SHOW_NAG) && !options[NO_NAG];
+    // const showNag =
+    //   getTabStatePropForTabId(tabId, STATE_SHOW_NAG) && !options[NO_NAG];
     const dudeEl = _document.getElementById('dudePopup');
     const showingNag = dudeEl !== null && dudeEl.classList.contains('poppedup');
 
-    if (showNag && !showingNag) {
-      loadDonationPopupTemplate(_document);
-    } else if (!showNag && showingNag) {
-      hideDonationPopup(_document);
-    }
+    // if (showNag && !showingNag) {
+    //   loadDonationPopupTemplate(_document);
+    // } else if (!showNag && showingNag) {
+    //   hideDonationPopup(_document);
+    // }
   };
 
   _window.addEventListener('visibilitychange', donationPopupFocusListener);
@@ -230,7 +211,7 @@ export const hideDonationPopup = _document => {
 };
 
 export const getPreviewUri = async suspendedUrl => {
-  const originalUrl = getOriginalUrl(suspendedUrl);
+  const originalUrl = getOriginalUrlFromSuspendedUrl(suspendedUrl);
   const preview = await fetchPreviewImage(originalUrl);
   let previewUri = null;
   if (
@@ -451,8 +432,8 @@ export const cleanUrl = urlStr => {
   return urlStr;
 };
 
-registerViewGlobal(
-  window,
-  VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND,
-  updateCommand
-);
+// registerViewGlobal(
+//   window,
+//   VIEW_FUNC_SUSPENDED_TAB_UPDATE_COMMAND,
+//   updateCommand
+// );

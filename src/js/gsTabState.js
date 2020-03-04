@@ -7,8 +7,6 @@ export const STATE_TIMER_DETAILS = 'timerDetails';
 
 // Suspended tab props
 export const STATE_TEMP_WHITELIST_ON_RELOAD = 'whitelistOnReload';
-export const STATE_SHOW_NAG = 'showNag';
-export const STATE_SUSPEND_REASON = 'suspendReason'; // 1=auto-suspend, 2=manual-suspend, 3=discarded
 
 export function getTabStatePropForTabId(tabId, prop) {
   return _tabStateByTabId[tabId] ? _tabStateByTabId[tabId][prop] : undefined;

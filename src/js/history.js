@@ -10,7 +10,7 @@ try {
 const {
   getCleanTabTitle,
   isSuspendedTab,
-  getOriginalUrl,
+  getOriginalUrlFromSuspendedUrl,
   getWindowFromSession,
   removeInternalUrlsFromSession,
   documentReadyAndLocalisedAsPromsied,
@@ -125,7 +125,7 @@ const toggleSession = (element, sessionId) => {
         curTab.sessionId = curSession.sessionId;
         curTab.title = getCleanTabTitle(curTab);
         if (isSuspendedTab(curTab)) {
-          curTab.url = getOriginalUrl(curTab.url);
+          curTab.url = getOriginalUrlFromSuspendedUrl(curTab.url);
         }
         tabPromises.push(createTabElement(curSession, curWindow, curTab));
       }

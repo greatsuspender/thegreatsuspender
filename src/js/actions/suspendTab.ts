@@ -3,10 +3,12 @@ import render from 'preact-render-to-string';
 
 import SuspendedPage from '../components/Suspended';
 import PlaceholderPage from '../components/Placeholder';
+import IFrameContainerPage from '../components/IFrameContainer';
 
 import {
   buildFaviconMetaFromChromeFaviconCache,
   saveFaviconMetaDataToCache,
+  FALLBACK_CHROME_FAVICON_META,
 } from '../gsFavicon';
 
 import {
@@ -19,21 +21,31 @@ import { getSettings, NO_NAG, THEME, SCREEN_CAPTURE } from '../gsStorage';
 import {
   log,
   encodeString,
-  encodeString2,
-  generateQueryString,
+  encodeStringForDataUrl,
+  generateEncodedQueryString,
+  getOriginalUrlFromSuspendedUrl,
+  getTitleFromSuspendedUrl,
+  getScrollPositionFromSuspendedUrl,
   htmlEncode,
+  isSuspendedTab,
 } from '../gsUtils';
 import { getFaviconMetaData } from '../gsFavicon';
 import { setTabStatePropForTabId } from '../gsTabState';
-import { getScrollPosForTabId, setStatusForTabId } from '../helpers/tabStates';
+import {
+  getScrollPosForTabId,
+  setStatusForTabId,
+  getFaviconMetaForTabId,
+  setFaviconMetaForTabId,
+} from '../helpers/tabStates';
 import { isCurrentFocusedTab } from '../gsTgs';
+import { getSettingsStateHash } from '../helpers/extensionState';
 
-export const UNSUSPEND_URL_PREFIX = 'unsuspend?';
+export const DATAURL_PREFIX = 'data:text/html;charset=UTF-8,';
+export const INTERNAL_MSG_URL = 'https://thegreatsuspender.com/';
+export const KEYBOARD_SHORTCUTS_PREFIX = 'shortcuts?';
+export const SUSPENDED_IFRAME_PREFIX = 'iframe?';
 export const SUSPEND_URL_PREFIX = 'suspend?';
 export const SUSPEND_URL_KEY_DATA = 'data';
-export const SUSPENDED_DATAURL_PREFIX = 'data:text/html;charset=UTF-8,';
-export const SUSPENDED_METADATA_PREFIX = '<!--TGS';
-export const SUSPENDED_METADATA_SUFFIX = '-->';
 
 export type SuspendQueryStringProps = {
   [SUSPEND_URL_KEY_DATA]: string;
@@ -76,33 +88,29 @@ export type SuspendedProps = {
 //   }
 // };
 
-export const generateDataUrl: (
-  tab: Tabs.Tab,
-  scrollPos: number,
-  usePlaceholder: boolean
-) => Promise<string> = async (tab, scrollPos, usePlaceholder) => {
-  const url = tab.url || '';
-  let title = tab.title || '';
-  // Encode any raw html tags that might be used in the title
-  console.log('title', title);
-  if (title.indexOf('<') >= 0) {
-    title = htmlEncode(tab.title);
-  }
-  console.log('title', title);
+export const makeDataUrl: (text: string) => string = text => {
+  return `${DATAURL_PREFIX}${encodeStringForDataUrl(text)}`;
+};
 
-  const args: SuspendedProps = { u: url, p: scrollPos, t: title };
-  const argsString = JSON.stringify(args);
+export const generateIframeContainerDataUrl: (
+  suspendedProps: SuspendedProps,
+  faviconMeta: FaviconMeta
+) => string = (suspendedProps, faviconMeta) => {
+  const html = render(IFrameContainerPage(suspendedProps, faviconMeta));
+  return makeDataUrl(html);
+};
 
+export const generateIframeContentsDataUrl: (
+  suspendedProps: SuspendedProps,
+  faviconMeta: FaviconMeta
+) => string = (suspendedProps, faviconMeta) => {
+  const { t: title, u: url, p: scrollPos } = suspendedProps;
   const options = getSettings();
-
-  // TODO: Implement settings change hash system for comparison to last rendered suspended page
-  // const settingsHash = options.hash();
 
   const previewMode = options[SCREEN_CAPTURE] || '0';
   const theme = options[THEME];
-  const faviconMeta = await getFaviconMetaData(tab);
 
-  const initialisedHtml = render(
+  const suspendedPageHtml = render(
     SuspendedPage({
       title,
       url,
@@ -112,56 +120,38 @@ export const generateDataUrl: (
       theme,
     })
   );
-  const placeholderHtml = render(PlaceholderPage({ url, faviconMeta, title }));
 
-  // const iframeSrcString = browser.runtime.getURL(
-  //   `suspended.html?${generateQueryString(args)}`
-  // );
-
-  // console.log('iframeSrcString', iframeSrcString);
-
-  // const initialisedHtml = `<iframe src="${iframeSrcString}" style="position:fixed;top:0;left:0;width:100vw;height:100vh;border:none;"></iframe>`;
-  // const placeholderHtml = `<iframe style="position:fixed;top:0;left:0;width:100vw;height:100vh;border:none;"></iframe>
-  // <a href='${url}'>${url}</a>
-  // <script>
-  //     const h = () => {
-  //         console.log('initialising..');
-  //         document.removeEventListener('visibilitychange', h, false);
-  //         document.body.innerHTML = ${initialisedHtml};
-  //     };
-  //     document.addEventListener('visibilitychange', h, false);
-  // </script>`;
-
-  // const html = `
-  //   <!--${args.join(';')}-->
-  //   <title>${title}</title>
-  //   <link rel="icon" href=${favicon} />
-  // <iframe style="position:fixed;top:0;left:0;width:100vw;height:100vh;border:none;" />
-  // <script>
-  //   console.log('showing..');
-  //   const h = () => {
-  //     console.log('hidden', document.hidden);
-  //     if (!document.hidden) {
-  //       document.querySelector('iframe').setAttribute('src', '${iframeSrcString}');
-  //       document.querySelector('body').classList.remove('hide-initially');
-  //     }
-  //   };
-  //   document.addEventListener('visibilitychange', h, false);
-  //   </script>
-  // `;
-
-  const html = `${SUSPENDED_METADATA_PREFIX}${argsString}${SUSPENDED_METADATA_SUFFIX}
-    ${usePlaceholder ? placeholderHtml : initialisedHtml}`;
-
-  return `${SUSPENDED_DATAURL_PREFIX}${encodeString2(html)}`;
-  // return `${SUSPENDED_DATAURL_PREFIX}${encodeString(html)}`;
-  // return `data:text/html,${encodeString(html)}`;
+  return makeDataUrl(suspendedPageHtml);
 };
 
-export const generateSuspendUrl: (dataUrl: string) => string = dataUrl => {
-  return browser.runtime.getURL(
-    `${SUSPEND_URL_PREFIX}${SUSPEND_URL_KEY_DATA}=${dataUrl}`
-  );
+export const generateSuspendedPropsFromTab: (
+  tab: { url: string; title: string },
+  scrollPos: number
+) => SuspendedProps = (tab, scrollPos) => {
+  const url = tab.url || '';
+  let title = tab.title || '';
+  // Encode any raw html tags that might be used in the title
+  if (title.indexOf('<') >= 0) {
+    title = htmlEncode(tab.title);
+  }
+  const suspendedProps: SuspendedProps = {
+    u: url,
+    p: scrollPos,
+    t: title,
+  };
+  return suspendedProps;
+};
+
+export const generateSuspendUrl: (
+  tab: { url: string; title: string },
+  scrollPos?: number,
+  usePlaceholder?: boolean
+) => string = (tab, scrollPos = 0, usePlaceholder = false) => {
+  const suspendedProps = generateSuspendedPropsFromTab(tab, scrollPos);
+
+  return `${INTERNAL_MSG_URL}${SUSPEND_URL_PREFIX}${generateEncodedQueryString(
+    suspendedProps
+  )}`;
 };
 
 export const fetchYouTubeTimestampContentScript = () => {
@@ -206,6 +196,23 @@ export const saveSuspendData = async (tab: Tabs.Tab): Promise<void> => {
   }
 };
 
+export const reinitialiseSuspendedTab: (tab: Tabs.Tab) => void = tab => {
+  if (!tab.url || !tab.id || !isSuspendedTab(tab)) {
+    return false;
+  }
+
+  log(tab.id, 'Initialising suspended tab');
+
+  const scrollPos = getScrollPositionFromSuspendedUrl(tab.url);
+  const url = getOriginalUrlFromSuspendedUrl(tab.url);
+  const title = getTitleFromSuspendedUrl(tab.url);
+
+  const suspendUrl = generateSuspendUrl({ url, title }, scrollPos);
+  browser.tabs.update(tab.id, {
+    url: suspendUrl,
+  });
+};
+
 export const suspendTab: (tab: Tabs.Tab) => Promise<boolean> = async tab => {
   if (!tab.url || !tab.id) {
     return false;
@@ -218,9 +225,15 @@ export const suspendTab: (tab: Tabs.Tab) => Promise<boolean> = async tab => {
 
   const scrollPos = getScrollPosForTabId(tab.id);
   const usePlaceholder = !isCurrentFocusedTab(tab);
-  const dataUrl = await generateDataUrl(tab, scrollPos, usePlaceholder);
 
-  const suspendUrl = generateSuspendUrl(dataUrl);
+  const faviconMeta = await getFaviconMetaData(tab);
+  setFaviconMetaForTabId(tab.id, faviconMeta);
+
+  const suspendUrl = generateSuspendUrl(
+    { title: tab.title || '', url: tab.url || '' },
+    scrollPos,
+    usePlaceholder
+  );
   const updatedTab = await browser.tabs.update(tab.id, {
     url: suspendUrl,
   });
