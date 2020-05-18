@@ -107,7 +107,7 @@ var gsStorage = {
             }
             continue;
           }
-          // If donations are disabled locally, then ensure we disable them on synced profile
+          // If nags are disabled locally, then ensure we disable them on synced profile
           if (
             key === gsStorage.NO_NAG &&
             shouldSyncSettings &&
@@ -179,7 +179,7 @@ var gsStorage = {
         Object.keys(remoteSettings).forEach(function(key) {
           var remoteSetting = remoteSettings[key];
 
-          // If donations are disabled locally, then ensure we disable them on synced profile
+          // If nags are disabled locally, then ensure we disable them on synced profile
           if (key === gsStorage.NO_NAG) {
             if (remoteSetting.newValue === false) {
               return false; // don't process this key
