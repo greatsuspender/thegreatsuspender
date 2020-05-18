@@ -6,9 +6,6 @@
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/deanoemcke/thegreatsuspender/issues/). For other enquiries you can email me at greatsuspender@gmail.com.
 
-### New release!
-I am currently rolling out a new chrome webstore release. 
-
 **If you have lost tabs from your browser:** I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
 ).
 
