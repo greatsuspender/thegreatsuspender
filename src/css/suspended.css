@@ -89,6 +89,7 @@ body.suspended-page:not(.img-preview-mode) {
     position: fixed;
     background: #fafafa;
     top: 0;
+    left: 0;
     padding: 30px 40px 20px;
     width: 100%;
     text-align: center;
