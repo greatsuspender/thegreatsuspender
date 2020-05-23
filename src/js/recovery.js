@@ -41,12 +41,13 @@
 
     for (var i = 0; i < childLinks.length; i++) {
       const element = childLinks[i];
-      const url = gsUtils.isSuspendedTab(tabToRemove)
-        ? gsUtils.getOriginalUrl(tabToRemove.url)
-        : tabToRemove.url;
+      const url = tabToRemove.url || tabToRemove.pendingUrl;
+      const originalUrl = gsUtils.isSuspendedUrl(url)
+        ? gsUtils.getOriginalUrl(url)
+        : url;
 
       if (
-        element.getAttribute('data-url') === url ||
+        element.getAttribute('data-url') === originalUrl ||
         element.getAttribute('data-tabId') == tabToRemove.id
       ) {
         // eslint-disable-line eqeqeq
