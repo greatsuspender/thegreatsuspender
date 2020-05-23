@@ -560,7 +560,7 @@ var gsTabSuspendManager = (function() {
     if (useAlternateScreenCaptureLib) {
       // console.log('Generating via dom-to-image..');
       generateCanvas = () => {
-        return domtoimage.toCanvas(document.body, {}).then(canvas => {
+        return domtoimage.toCanvas(document.body, {width: width, height: height}).then(canvas => {
           const croppedCanvas = document.createElement('canvas');
           const context = croppedCanvas.getContext('2d');
           croppedCanvas.width = width;
