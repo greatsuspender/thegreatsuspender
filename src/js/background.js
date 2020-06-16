@@ -1217,7 +1217,7 @@ var tgs = (function() {
         ) {
           gsUtils.log(
             'background',
-            `Notice target extension version: ${noticeTargetExtensionVersion} 
+            `Notice target extension version: ${noticeTargetExtensionVersion}
             does not match actual extension version: ${
               chrome.runtime.getManifest().version
             }`
@@ -1886,6 +1886,7 @@ var tgs = (function() {
 Promise.resolve()
   .then(tgs.backgroundScriptsReadyAsPromised) // wait until all gsLibs have loaded
   .then(gsStorage.initSettingsAsPromised) // ensure settings have been loaded and synced
+  .then(gsStorage.checkManagedStorageAndOverride) // enforce managed settings
   .then(() => {
     // initialise other gsLibs
     return Promise.all([

@@ -1,7 +1,10 @@
 /*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
 'use strict';
 
-var gsStorage = {
+// Used to keep track of which settings were defined in the managed storage
+const managedOptions = []; // Example: ["gsTheme, gsWhitelist"]
+
+const gsStorageSettings = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
   SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',
@@ -22,7 +25,11 @@ var gsStorage = {
 
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
-  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
+  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib'
+};
+
+var gsStorage = {
+  ...gsStorageSettings,
 
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
@@ -161,6 +168,40 @@ var gsStorage = {
         gsUtils.log('gsStorage', 'init successful');
         resolve();
       });
+    });
+  },
+
+  /**
+   * Checks the managed storage for settings and overrides the local storage
+   * Settings in managed storage are stored by key
+   * Settings in local storage are stored by name
+   * Example: in managed storage you will find "SYNC_SETTINGS": true.
+   *          in local storage you will find "gsSyncSettings": true
+   * I did this because I think the key is easier to interpret for someone
+   * editing the managed storage manually.
+   */
+   checkManagedStorageAndOverride() {
+    const settingsList = Object.keys(gsStorageSettings);
+    chrome.storage.managed.get(settingsList, result => {
+      const settings = gsStorage.getSettings();
+
+      Object.keys(result).forEach(key => {
+        if (key === "WHITELIST") {
+          settings[gsStorage[key]] = result[key].replace(/[\s\n]+/g, "\n");
+        } else {
+          settings[gsStorage[key]] = result[key];
+        }
+
+        // Mark option as managed
+        managedOptions.push(gsStorage[key]);
+      });
+
+      gsStorage.saveSettings(settings);
+      gsUtils.log(
+        'gsStorage',
+        'overrode settings with managed storage config:',
+        settings
+      );
     });
   },
 
@@ -409,4 +450,12 @@ var gsStorage = {
       );
     }
   },
+
+  /**
+   * Used by the options page to tell whether an option is set in managed storage
+   * and thus should not be changed.
+   *
+   * @param option The option name, such as "gsWhitelist" (not "WHITELIST")
+   */
+  isOptionManaged: option => managedOptions.includes(option)
 };
