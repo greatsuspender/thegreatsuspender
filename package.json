@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/deanoemcke/thegreatsuspender.git"
+    "url": "git://github.com/greatsuspender/thegreatsuspender.git"
   },
   "keywords": [
     "chrome",
@@ -24,7 +24,7 @@
   "author": "deanoemcke",
   "license": "GPLv2",
   "bugs": {
-    "url": "https://github.com/deanoemcke/thegreatsuspender/issues"
+    "url": "https://github.com/greatsuspender/thegreatsuspender/issues"
   },
   "devDependencies": {
     "eslint": "^4.19.1",

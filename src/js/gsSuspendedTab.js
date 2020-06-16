@@ -3,7 +3,7 @@
 var gsSuspendedTab = (function() {
   'use strict';
 
-  async function initTab(tab, tabView, { showNag, quickInit }) {
+  async function initTab(tab, tabView, { quickInit }) {
     if (!tabView) {
       gsUtils.warning(
         tab.id,
@@ -54,20 +54,6 @@ var gsSuspendedTab = (function() {
     const theme = options[gsStorage.THEME];
     const isLowContrastFavicon = faviconMeta.isDark;
     setTheme(tabView.document, theme, isLowContrastFavicon);
-
-    // Set showNag
-    if (
-      !options[gsStorage.NO_NAG] &&
-      (showNag === undefined || showNag === null)
-    ) {
-      //show dude and donate link (randomly 1 of 20 times)
-      showNag = Math.random() > 0.95;
-    }
-    tgs.setTabStatePropForTabId(tab.id, tgs.STATE_SHOW_NAG, showNag);
-
-    if (showNag) {
-      queueDonationPopup(tabView.window, tabView.document, tab.active, tab.id);
-    }
 
     // Set command
     const suspensionToggleHotkey = await tgs.getSuspensionToggleHotkey();
@@ -204,37 +190,6 @@ var gsSuspendedTab = (function() {
       containerEl.insertBefore(reasonMsgEl, containerEl.firstChild);
     }
     reasonMsgEl.innerHTML = reason;
-  }
-
-  function queueDonationPopup(_window, _document, tabActive, tabId) {
-    const donationPopupFocusListener = function(e) {
-      if (e && e.target && e.target.visibilityState === 'hidden') {
-        return;
-      }
-      const options = gsStorage.getSettings();
-      const showNag =
-        tgs.getTabStatePropForTabId(tabId, tgs.STATE_SHOW_NAG) &&
-        !options[gsStorage.NO_NAG];
-      const dudeEl = _document.getElementById('dudePopup');
-      const showingNag =
-        dudeEl !== null && dudeEl.classList.contains('poppedup');
-
-      if (showNag && !showingNag) {
-        loadDonationPopupTemplate(_document);
-      } else if (!showNag && showingNag) {
-        hideDonationPopup(_document);
-      }
-    };
-
-    _window.addEventListener('visibilitychange', donationPopupFocusListener);
-    if (tabActive) {
-      donationPopupFocusListener();
-    }
-  }
-
-  function hideDonationPopup(_document) {
-    _document.getElementById('dudePopup').classList.remove('poppedup');
-    _document.getElementById('donateBubble').classList.remove('fadeIn');
   }
 
   async function getPreviewUri(suspendedUrl) {
@@ -393,62 +348,6 @@ var gsSuspendedTab = (function() {
     toastEl.innerHTML = _document.getElementById('toastTemplate').innerHTML;
     gsUtils.localiseHtml(toastEl);
     _document.getElementsByTagName('body')[0].appendChild(toastEl);
-  }
-
-  function loadDonationPopupTemplate(_document) {
-    const popupEl = _document.createElement('div');
-    popupEl.innerHTML = _document.getElementById('donateTemplate').innerHTML;
-
-    const cssEl = popupEl.querySelector('#donateCss');
-    const imgEl = popupEl.querySelector('#dudePopup');
-    const bubbleEl = popupEl.querySelector('#donateBubble');
-    // set display to 'none' to prevent TFOUC
-    imgEl.style.display = 'none';
-    bubbleEl.style.display = 'none';
-    gsUtils.localiseHtml(bubbleEl);
-
-    const headEl = _document.getElementsByTagName('head')[0];
-    const bodyEl = _document.getElementsByTagName('body')[0];
-    headEl.appendChild(cssEl);
-    bodyEl.appendChild(imgEl);
-    bodyEl.appendChild(bubbleEl);
-
-    const request = new XMLHttpRequest();
-    request.onload = () => {
-      loadDonateButtonsHtml(_document, request.responseText);
-    };
-    request.open('GET', 'support.html', true);
-    request.send();
-
-    _document.getElementById('dudePopup').classList.add('poppedup');
-    _document.getElementById('donateBubble').classList.add('fadeIn');
-  }
-
-  function loadDonateButtonsHtml(_document, responseText) {
-    _document.getElementById('donateButtons').innerHTML = responseText;
-    _document.getElementById('bitcoinBtn').innerHTML = chrome.i18n.getMessage(
-      'js_donate_bitcoin'
-    );
-    _document.getElementById('patreonBtn').innerHTML = chrome.i18n.getMessage(
-      'js_donate_patreon'
-    );
-    _document
-      .getElementById('paypalBtn')
-      .setAttribute('value', chrome.i18n.getMessage('js_donate_paypal'));
-    try {
-      const gsAnalytics = chrome.extension.getBackgroundPage().gsAnalytics;
-      _document.getElementById('bitcoinBtn').onclick = function() {
-        gsAnalytics.reportEvent('Donations', 'Click', 'coinbase');
-      };
-      _document.getElementById('patreonBtn').onclick = function() {
-        gsAnalytics.reportEvent('Donations', 'Click', 'patreon');
-      };
-      _document.getElementById('paypalBtn').onclick = function() {
-        gsAnalytics.reportEvent('Donations', 'Click', 'paypal');
-      };
-    } catch (error) {
-      gsUtils.warning(error);
-    }
   }
 
   function cleanUrl(urlStr) {

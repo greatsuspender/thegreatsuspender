@@ -278,10 +278,11 @@ var gsTabCheckManager = (function() {
 
     // If tab is a file:// tab and file is blocked then unsuspend tab
     if (!gsSession.isFileUrlsAccessAllowed()) {
-      const originalUrl = gsUtils.getOriginalUrl(tab.url);
+      const url = tab.url || tab.pendingUrl;
+      const originalUrl = gsUtils.getOriginalUrl(url);
       if (originalUrl && originalUrl.indexOf('file') === 0) {
         gsUtils.log(tab.id, QUEUE_ID, 'Unsuspending blocked local file tab.');
-        await unsuspendSuspendedTab(tab);
+        await gsChrome.tabsUpdate(tab.id, { url: originalUrl });
         requeue(DEFAULT_TAB_CHECK_REQUEUE_DELAY, { refetchTab: true });
         return;
       }
@@ -349,11 +350,6 @@ var gsTabCheckManager = (function() {
     }
     const reloadOk = await gsChrome.tabsReload(tab.id);
     return reloadOk;
-  }
-
-  async function unsuspendSuspendedTab(tab) {
-    const originalUrl = gsUtils.getOriginalUrl(tab.url);
-    await gsChrome.tabsUpdate(tab.id, { url: originalUrl });
   }
 
   function ensureSuspendedTabVisible(tabView) {

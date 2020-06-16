@@ -3,7 +3,7 @@
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
  * Available under GNU GENERAL PUBLIC LICENSE v2
- * http://github.com/deanoemcke/thegreatsuspender
+ * http://github.com/greatsuspender/thegreatsuspender
  * ლ(ಠ益ಠლ)
 */
 (function() {
