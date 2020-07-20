@@ -122,9 +122,9 @@
   }
   
   function addKeyDownListenerToElement (element, func) {
-	if (element) {
-	  element.onkeydown = func;
-	}
+    if (element) {
+      element.onkeydown = func;
+    }
   }
 
   function createSessionElement(session) {
@@ -136,12 +136,12 @@
         toggleSession(sessionEl, session.sessionId); //async. unhandled promise
       }
     );
-	addKeyDownListenerToElement(
+    addKeyDownListenerToElement(
       sessionEl.getElementsByClassName('sessionIcon')[0],
       function(event) {
-		if(event.keyCode === 13) {
-			toggleSession(sessionEl, session.sessionId); //async. unhandled promise
-		}
+        if(event.keyCode === 13) {
+	  toggleSession(sessionEl, session.sessionId); //async. unhandled promise
+	}
       }
     );
     addClickListenerToElement(
