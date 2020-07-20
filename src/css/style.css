@@ -336,6 +336,9 @@ a.historyLink:hover {
   cursor: pointer;
   margin: 0 10px 0 -3px;
 }
+.icon-minus-squared-alt ~ .groupLink {
+  visibility: visible;
+}
 .sessionContents div:last-child {
   padding-bottom: 10px;
 }
