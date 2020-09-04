@@ -121,6 +121,8 @@
     "html_options_suspend_on_low_memory_tooltip_line5": { "message": "specified in the Automatic tab suspension options." },
     "html_options_suspend_on_low_memory_tooltip_line6": { "message": "For more information on Chrome discarding refer to:" },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
+    "html_popup_pause_suspend": { "message": "Pause suspend" },
+    "html_popup_unpause_suspend": { "message": "Unpause suspend" },
     "html_popup_unsuspend_tab": { "message": "Unsuspend this tab" },
     "html_popup_suspend_tab": { "message": "Suspend this tab now" },
     "html_popup_dont_suspend_now": { "message": "Don't suspend for now" },

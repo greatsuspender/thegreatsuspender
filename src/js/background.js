@@ -50,6 +50,7 @@ var tgs = (function() {
   let _isCharging = false;
   let _triggerHotkeyUpdate = false;
   let _suspensionToggleHotkey;
+  let _pauseValue = 0;
 
   function getExtensionGlobals() {
     const globals = {
@@ -607,6 +608,23 @@ var tgs = (function() {
     gsUtils.log(tabId, 'Clearing tab state props:', _tabStateByTabId[tabId]);
     clearAutoSuspendTimerForTabId(tabId);
     delete _tabStateByTabId[tabId];
+  }
+
+  function pauseTgs() {
+    _pauseValue = gsStorage.getOption(gsStorage.SUSPEND_TIME);
+    if (_pauseValue === 0) return;
+
+    // store current timeout in _pauseValue, and set global timeout to never
+    gsStorage.setOption(gsStorage.SUSPEND_TIME, 0);
+    resetAutoSuspendTimerForAllTabs();
+  }
+
+  function unpauseTgs() {
+    if (_pauseValue === 0) return;
+
+    // restore global timeout from value in _pauseValue
+    gsStorage.setOption(gsStorage.SUSPEND_TIME, _pauseValue);
+    resetAutoSuspendTimerForAllTabs();
   }
 
   function unsuspendTab(tab) {
@@ -1868,6 +1886,8 @@ var tgs = (function() {
     resetAutoSuspendTimerForAllTabs,
     getSuspensionToggleHotkey,
 
+    pauseTgs,
+    unpauseTgs,
     unsuspendTab,
     unsuspendHighlightedTab,
     unwhitelistHighlightedTab,

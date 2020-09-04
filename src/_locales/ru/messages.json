@@ -121,6 +121,8 @@
     "html_options_suspend_on_low_memory_tooltip_line5": {"message": "в настройке \"Автоматически приостанавливать вкладки после\"." },
     "html_options_suspend_on_low_memory_tooltip_line6": {"message": "Для получения дополнительной информации о механизме выгрузки вкладок Chrome см.:"},
     "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
+    "html_popup_pause_suspend": { "message": "Pause suspend" },
+    "html_popup_unpause_suspend": { "message": "Unpause suspend" },
     "html_popup_unsuspend_tab": { "message": "Возобновить эту вкладку" },
     "html_popup_suspend_tab": { "message": "Приостановить эту вкладку" },
     "html_popup_dont_suspend_now": { "message": "Не приостанавливать" },

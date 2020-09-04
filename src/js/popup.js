@@ -73,6 +73,14 @@
   });
 
   function setSuspendCurrentVisibility(tabStatus) {
+    if (gsStorage.getOption(gsStorage.SUSPEND_TIME) > 0) {
+      document.getElementById('pauseSuspend').style.display = 'block';
+      document.getElementById('unpauseSuspend').style.display = 'none';
+    } else {
+      document.getElementById('pauseSuspend').style.display = 'none';
+      document.getElementById('unpauseSuspend').style.display = 'block';
+    }
+
     var suspendOneVisible = ![
         gsUtils.STATUS_SUSPENDED,
         gsUtils.STATUS_SPECIAL,
@@ -267,6 +275,18 @@
   }
 
   function addClickHandlers() {
+    document
+      .getElementById('pauseSuspend')
+      .addEventListener('click', function() {
+        tgs.pauseTgs();
+        window.close();
+      });
+    document
+      .getElementById('unpauseSuspend')
+      .addEventListener('click', function() {
+        tgs.unpauseTgs();
+        window.close();
+      });
     document
       .getElementById('unsuspendOne')
       .addEventListener('click', function(e) {

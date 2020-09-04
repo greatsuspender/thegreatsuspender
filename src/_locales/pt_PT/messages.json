@@ -121,6 +121,8 @@
   "html_options_suspend_on_low_memory_tooltip_line5": { "message": "especificada nas opções de suspensão de guia Automática." },
   "html_options_suspend_on_low_memory_tooltip_line6": { "message": "Para mais informações sobre o descarte do Chrome, consulte:" },
   "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
+  "html_popup_pause_suspend": { "message": "Pause suspend" },
+  "html_popup_unpause_suspend": { "message": "Unpause suspend" },
   "html_popup_unsuspend_tab": { "message": "Recarregar esta guia" },
   "html_popup_suspend_tab": { "message": "Suspender esta guia agora" },
   "html_popup_dont_suspend_now": { "message": "Não suspender agora" },
