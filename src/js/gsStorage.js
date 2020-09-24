@@ -25,7 +25,8 @@ const gsStorageSettings = {
 
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
-  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib'
+  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
+  TRACKING_OPT_OUT: 'trackingOptOut'
 };
 
 var gsStorage = {
@@ -64,6 +65,7 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
+    defaults[gsStorage.TRACKING_OPT_OUT] = true 
 
     return defaults;
   },
