@@ -16,9 +16,12 @@ var gsAnalytics = function() {
 
   function initAsPromised() {
     return new Promise(function(resolve) {
-      if(gsStorage.getOption("trackingOptOut")) {
-        gsUtils.log('gsAnalytics', 'init tracking aborted because tracking is disabled')
-        resolve()
+      if (gsStorage.getOption('trackingOptOut')) {
+        gsUtils.log(
+          'gsAnalytics',
+          'init tracking aborted because tracking is disabled'
+        );
+        resolve();
       }
       try {
         ga('create', 'UA-167314577-2', 'auto');
@@ -33,9 +36,12 @@ var gsAnalytics = function() {
   }
 
   function setUserDimensions() {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'setting dimensions aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'setting dimensions aborted because tracking is disabled'
+      );
+      return;
     }
     const dimensions = {
       [DIMENSION_VERSION]: chrome.runtime.getManifest().version + '',
@@ -52,9 +58,12 @@ var gsAnalytics = function() {
   }
 
   function performStartupReport() {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'perfomStartupReport aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'perfomStartupReport aborted because tracking is disabled'
+      );
+      return;
     }
     const category = 'System';
     const action = gsSession.getStartupType();
@@ -80,9 +89,12 @@ var gsAnalytics = function() {
   }
 
   function performVersionReport() {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'performVersionReport aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'performVersionReport aborted because tracking is disabled'
+      );
+      return;
     }
     const startupType = gsSession.getStartupType();
     if (!['Install', 'Update'].includes(startupType)) {
@@ -103,9 +115,12 @@ var gsAnalytics = function() {
   }
 
   function performPingReport() {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'performPingReport aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'performPingReport aborted because tracking is disabled'
+      );
+      return;
     }
     const category = 'System';
     const action = 'Ping';
@@ -123,30 +138,38 @@ var gsAnalytics = function() {
   }
 
   function reportPageView(pageName) {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'reportPageView aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportPageView aborted because tracking is disabled'
+      );
+      return;
     }
     ga('send', 'pageview', pageName);
   }
   function reportEvent(category, action, label) {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'reportEvent aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportEvent aborted because tracking is disabled'
+      );
+      return;
     }
     ga('send', 'event', category, action, label);
   }
   function reportException(errorMessage) {
-    if(gsStorage.getOption("trackingOptOut")) {
-      gsUtils.log('gsAnalytics', 'reportException aborted because tracking is disabled')
-      return
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportException aborted because tracking is disabled'
+      );
+      return;
     }
     ga('send', 'exception', {
       exDescription: errorMessage,
       exFatal: false,
     });
   }
-
   return {
     initAsPromised,
     performStartupReport,
@@ -160,7 +183,6 @@ var gsAnalytics = function() {
 };
 
 function loadGoogleAnalytics(i, s, o, g, r, a, m) {
-  //TODO this code seems to not get executed at all?!?
   i['GoogleAnalyticsObject'] = r;
   (i[r] =
     i[r] ||
@@ -174,18 +196,23 @@ function loadGoogleAnalytics(i, s, o, g, r, a, m) {
   m.parentNode.insertBefore(a, m);
 }
 
-
 function init() {
-  if(!gsStorage.getOption("trackingOptOut")) {
-    loadGoogleAnalytics(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga')
+  if (!gsStorage.getOption('trackingOptOut')) {
+    loadGoogleAnalytics(
+      window,
+      document,
+      'script',
+      'https://www.google-analytics.com/analytics.js',
+      'ga'
+    );
   }
-  gsAnalytics = gsAnalytics()
+  gsAnalytics = gsAnalytics();
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  init()
+document.addEventListener('DOMContentLoaded', function() {
+  init();
 });
 
-if(document.readyState == "complete") {
-  init()
+if (document.readyState == 'complete') {
+  init();
 }
