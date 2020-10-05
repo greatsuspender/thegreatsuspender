@@ -209,10 +209,10 @@ function init() {
   gsAnalytics = gsAnalytics();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  init();
-});
-
 if (document.readyState == 'complete') {
   init();
+} else {
+  document.addEventListener('DOMContentLoaded', function() {
+    init();
+  });
 }
