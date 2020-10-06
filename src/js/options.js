@@ -25,7 +25,8 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    enableAdblockOnCapturedScreens: gsStorage.ENABLE_ADBLOCK_ON_CAPTURED_SCREENS
+    enableAdblockOnCapturedScreens:
+      gsStorage.ENABLE_ADBLOCK_ON_CAPTURED_SCREENS,
   };
 
   function selectComboBox(element, key) {
@@ -42,7 +43,7 @@
 
   // Used to prevent options set in managed storage from being changed
   function blockOption(element) {
-    element.setAttribute("disabled", "");
+    element.setAttribute('disabled', '');
   }
 
   //populate settings from synced storage
@@ -62,6 +63,9 @@
     }
 
     setForceScreenCaptureVisibility(
+      gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
+    );
+    setCleanScreenCaptureVisibility(
       gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
     );
     setAutoSuspendOptionsVisibility(
@@ -118,6 +122,14 @@
     }
   }
 
+  function setCleanScreenCaptureVisibility(visible) {
+    if (visible) {
+      document.getElementById('cleanScreencaptures').style.display = 'block';
+    } else {
+      document.getElementById('cleanScreencaptures').style.display = 'none';
+    }
+  }
+
   function setSyncNoteVisibility(visible) {
     if (visible) {
       document.getElementById('syncNote').style.display = 'block';
@@ -147,6 +159,7 @@
       //add specific screen element listeners
       if (pref === gsStorage.SCREEN_CAPTURE) {
         setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
+        setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
       } else if (pref === gsStorage.SUSPEND_TIME) {
         interval = getOptionValue(element);
         setAutoSuspendOptionsVisibility(interval > 0);
