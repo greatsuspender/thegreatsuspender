@@ -560,14 +560,16 @@ var gsTabSuspendManager = (function() {
     if (useAlternateScreenCaptureLib) {
       // console.log('Generating via dom-to-image..');
       generateCanvas = () => {
-        return domtoimage.toCanvas(document.body, {width: width, height: height}).then(canvas => {
-          const croppedCanvas = document.createElement('canvas');
-          const context = croppedCanvas.getContext('2d');
-          croppedCanvas.width = width;
-          croppedCanvas.height = height;
-          context.drawImage(canvas, 0, 0);
-          return croppedCanvas;
-        });
+        return domtoimage
+          .toCanvas(document.body, { width: width, height: height })
+          .then(canvas => {
+            const croppedCanvas = document.createElement('canvas');
+            const context = croppedCanvas.getContext('2d');
+            croppedCanvas.width = width;
+            croppedCanvas.height = height;
+            context.drawImage(canvas, 0, 0);
+            return croppedCanvas;
+          });
       };
     } else {
       // console.log('Generating via html2canvas..');
@@ -578,6 +580,7 @@ var gsTabSuspendManager = (function() {
           logging: false,
           imageTimeout: 10000,
           removeContainer: false,
+          foreignObjectRendering: true,
           async: true,
         });
       };
