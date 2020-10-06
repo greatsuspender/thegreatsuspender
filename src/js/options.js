@@ -25,6 +25,7 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
+    enableAdblockOnCapturedScreens: gsStorage.ENABLE_ADBLOCK_ON_CAPTURED_SCREENS
   };
 
   function selectComboBox(element, key) {
