@@ -26,7 +26,7 @@ const gsStorageSettings = {
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
   USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
-  ENABLE_CLEAN_SCREENCAPS: 'enableCleanScreencaps',
+  ENABLE_CLEAN_SCREENCAP: 'enableCleanScreencaps',
 };
 
 var gsStorage = {
