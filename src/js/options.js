@@ -156,17 +156,20 @@
         interval;
 
       //add specific screen element listeners
-      if (pref === gsStorage.SCREEN_CAPTURE) {
-        setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
-        setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
-      } else if (pref === gsStorage.SUSPEND_TIME) {
-        interval = getOptionValue(element);
-        setAutoSuspendOptionsVisibility(interval > 0);
-      } else if (pref === gsStorage.SYNC_SETTINGS) {
-        // we only really want to show this on load. not on toggle
-        if (getOptionValue(element)) {
-          setSyncNoteVisibility(false);
-        }
+      switch (pref) {
+        case gsStorage.SCREEN_CAPTURE:
+          setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
+          setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
+          break;
+        case gsStorage.SUSPEND_TIME:
+          interval = getOptionValue(element);
+          setAutoSuspendOptionsVisibility(interval > 0);
+          break;
+        case gsStorage.SYNC_SETTINGS:
+          if (getOptionValue(element)) {
+            setSyncNoteVisibility(false);
+          }
+          break;
       }
 
       var [oldValue, newValue] = saveChange(element);
