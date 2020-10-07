@@ -10,7 +10,7 @@
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,
     forceScreenCapture: gsStorage.SCREEN_CAPTURE_FORCE,
-    cleanScreenCaptures: gsStorage.ENABLE_CLEAN_SCREENCAP,
+    cleanScreenCaptures: gsStorage.ENABLE_CLEAN_SCREENCAPS,
     suspendInPlaceOfDiscard: gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     onlineCheck: gsStorage.IGNORE_WHEN_OFFLINE,
     batteryCheck: gsStorage.IGNORE_WHEN_CHARGING,
@@ -123,9 +123,9 @@
 
   function setCleanScreenCaptureVisibility(visible) {
     if (visible) {
-      document.getElementById('cleanScreencapturesContainer').style.display = 'block';
+      document.getElementById('cleanScreenCapturesContainer').style.display = 'block';
     } else {
-      document.getElementById('cleanScreencapturesContainer').style.display = 'none';
+      document.getElementById('cleanScreenCapturesContainer').style.display = 'none';
     }
   }
 
@@ -152,11 +152,10 @@
 
   function handleChange(element) {
     return function() {
-      var pref = elementPrefMap[element.id],
+      let prefKey = elementPrefMap[element.id],
         interval;
-
       //add specific screen element listeners
-      switch (pref) {
+      switch (prefKey) {
         case gsStorage.SCREEN_CAPTURE:
           setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
           setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
@@ -170,11 +169,15 @@
             setSyncNoteVisibility(false);
           }
           break;
+        case gsStorage.ENABLE_CLEAN_SCREENCAPS:
+          if (getOptionValue(element)) {
+            chrome.runtime.sendMessage({ action: 'loadCleanScreencaptureBlocklist' })
+          }
+          break;
       }
 
       var [oldValue, newValue] = saveChange(element);
       if (oldValue !== newValue) {
-        var prefKey = elementPrefMap[element.id];
         gsUtils.performPostSaveUpdates(
           [prefKey],
           { [prefKey]: oldValue },
