@@ -10,6 +10,7 @@
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,
     forceScreenCapture: gsStorage.SCREEN_CAPTURE_FORCE,
+    cleanScreenCaptures: gsStorage.ENABLE_CLEAN_SCREENCAP,
     suspendInPlaceOfDiscard: gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     onlineCheck: gsStorage.IGNORE_WHEN_OFFLINE,
     batteryCheck: gsStorage.IGNORE_WHEN_CHARGING,
@@ -25,8 +26,6 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    enableAdblockOnCapturedScreens:
-      gsStorage.ENABLE_ADBLOCK_ON_CAPTURED_SCREENS,
   };
 
   function selectComboBox(element, key) {
@@ -124,9 +123,9 @@
 
   function setCleanScreenCaptureVisibility(visible) {
     if (visible) {
-      document.getElementById('cleanScreencaptures').style.display = 'block';
+      document.getElementById('cleanScreencapturesContainer').style.display = 'block';
     } else {
-      document.getElementById('cleanScreencaptures').style.display = 'none';
+      document.getElementById('cleanScreencapturesContainer').style.display = 'none';
     }
   }
 
