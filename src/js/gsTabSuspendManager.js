@@ -255,6 +255,9 @@ var gsTabSuspendManager = (function() {
       tab,
       queuedTabDetails.executionProps.suspendedUrl
     );
+
+    gsCleanScreencaps.removeListener(tab.id);
+
     queuedTabDetails.executionProps.resolveFn(success);
   }
 
@@ -274,8 +277,7 @@ var gsTabSuspendManager = (function() {
       gsUtils.log(
         tab.id,
         QUEUE_ID,
-        `Tab took more than ${
-          _suspensionQueue.getQueueProperties().jobTimeout
+        `Tab took more than ${_suspensionQueue.getQueueProperties().jobTimeout
         }ms to suspend. Will force suspension.`
       );
       const success = await executeTabSuspension(
@@ -493,6 +495,9 @@ var gsTabSuspendManager = (function() {
     const useAlternateScreenCaptureLib = gsStorage.getOption(
       gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
     );
+    const useCleanScreencap = gsStorage.getOption(
+      gsStorage.ENABLE_CLEAN_SCREENCAPS
+    );
     const screenCaptureLib = useAlternateScreenCaptureLib
       ? 'js/dom-to-image.js'
       : 'js/html2canvas.min.js';
@@ -501,6 +506,11 @@ var gsTabSuspendManager = (function() {
       QUEUE_ID,
       `Injecting ${screenCaptureLib} into content script`
     );
+
+    if (useCleanScreencap) {
+      gsCleanScreencaps.addListener(tab.id)
+    }
+
     gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
       if (error) {
         handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab'); //async. unhandled promise.
@@ -648,3 +658,4 @@ var gsTabSuspendManager = (function() {
     getQueuedTabDetails,
   };
 })();
+
