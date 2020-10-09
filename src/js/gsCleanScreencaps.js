@@ -12,7 +12,7 @@ var gsCleanScreencaps = {
     const listener = (details) => {
       try {
         const host = new URL(details.url).host
-        if (gsCleanScreencaps.blacklis[host]) { return { cancel: true }; }
+        if (gsCleanScreencaps.blacklist[host]) { return { cancel: true }; }
       } catch (err) {
         gsUtils.log('background', 'error while trying to block in gsCleanScreencaps', err)
       }
@@ -26,7 +26,7 @@ var gsCleanScreencaps = {
 
     // place a callback that will remove the listener as soon as the suspension
     // of the tab succeeded or failed
-    gsCleanScreencaps.listeners[tabId] = () => chrome.webRequest.onbeforeRequest.removeListener(listener)
+    gsCleanScreencaps.listeners[tabId] = () => chrome.webRequest.onBeforeRequest.removeListener(listener)
   },
 
   removeListener: (tabId) => {
@@ -68,7 +68,7 @@ var gsCleanScreencaps = {
         gsUtils.log('background', 'error while loading blocklist for clean screencapture:', err)
       }
     } else {
-      gsCleanScreencaps.blacklist = stored;
+      gsCleanScreencaps.blacklist = stored.blockedHosts;
       return stored;
     }
   }
