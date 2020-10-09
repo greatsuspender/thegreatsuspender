@@ -5,6 +5,20 @@ var gsCleanScreencaps = {
   // listeners for request coming from a tab that is being suspended
   listeners: {},
 
+  // load blacklist on initialization if option is enabled
+  initAsPromised: async ()=>
+  {
+    const useCleanScreencap = gsStorage.getOption(
+      gsStorage.ENABLE_CLEAN_SCREENCAPS
+    );
+
+    if (useCleanScreencap) {
+      await gsCleanScreencaps.loadList()
+    }
+
+    return;
+  },
+
   addListener: (tabId) => {
     // remove a listener if there is already one present. That might not be the case, but the function checks for that case.
     gsCleanScreencaps.removeListener(tabId);
@@ -29,6 +43,7 @@ var gsCleanScreencaps = {
     gsCleanScreencaps.listeners[tabId] = () => chrome.webRequest.onBeforeRequest.removeListener(listener)
   },
 
+  // call the remove listener func and remove it from the hashmap
   removeListener: (tabId) => {
     let tmp;
     if (tmp = gsCleanScreencaps[tabId]) {
@@ -37,6 +52,7 @@ var gsCleanScreencaps = {
     }
   },
 
+  // do nothing but get the data out of the chrome.local.storage
   storageData: () => {
     return new Promise((res, _) => {
       chrome.storage.local.get('gsCleanScreencapsBlacklist', (storage) => res(storage.gsCleanScreencapsBlacklist))

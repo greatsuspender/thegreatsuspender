@@ -1896,6 +1896,7 @@ Promise.resolve()
       gsTabCheckManager.initAsPromised(),
       gsTabDiscardManager.initAsPromised(),
       gsSession.initAsPromised(),
+      gsCleanScreencaps.initAsPromised()
     ]);
   })
   .catch(error => {
