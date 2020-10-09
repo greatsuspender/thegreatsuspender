@@ -65,7 +65,7 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
-    defaults[gsStorage.TRACKING_OPT_OUT] = true;
+    defaults[gsStorage.TRACKING_OPT_OUT] = false;
 
     return defaults;
   },
