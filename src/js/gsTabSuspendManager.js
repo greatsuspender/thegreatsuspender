@@ -212,6 +212,9 @@ var gsTabSuspendManager = (function() {
   }
 
   async function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
+    // remove listener if there is any
+    gsCleanScreencaps.removeListener(tab.id);
+
     const queuedTabDetails = getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(
@@ -255,8 +258,6 @@ var gsTabSuspendManager = (function() {
       tab,
       queuedTabDetails.executionProps.suspendedUrl
     );
-
-    gsCleanScreencaps.removeListener(tab.id);
 
     queuedTabDetails.executionProps.resolveFn(success);
   }
