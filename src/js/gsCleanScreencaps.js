@@ -46,7 +46,7 @@ var gsCleanScreencaps = {
   // call the remove listener func and remove it from the hashmap
   removeListener: (tabId) => {
     let tmp;
-    if (tmp = gsCleanScreencaps[tabId]) {
+    if (tmp = gsCleanScreencaps.listeners[tabId]) {
       delete gsCleanScreencaps[tabId];
       tmp();
     }
