@@ -102,6 +102,7 @@
     "html_options_clean_screen_captures": { "message": "Clean screencaps" },
     "html_options_clean_screen_captures_line1": { "message": "Enabling this option will block advertisements and other annoyances during suspension of a tab." },
     "html_options_clean_screen_captures_line2": { "message": "This will help with the recongnizability of a screencaptured website and save resources." },
+    "html_options_clean_screen_captures_line3": { "message": "It will make use of the following host block list: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts." },
     "html_options_whitelist_title": { "message": "Never suspend tabs with URLs from the following list:" },
     "html_options_whitelist_tooltip_line1": { "message": "Add the URL of each page you want to whitelist on a new line. For example:" },
     "html_options_whitelist_tooltip_line2": { "message": "To whitelist multiple sites in one line you can specify part of the url instead:" },
