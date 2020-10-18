@@ -1,6 +1,6 @@
 /*global ga, gsStorage, gsSession, gsUtils */
 // eslint-disable-next-line no-unused-vars
-var gsAnalytics = (function() {
+var gsAnalytics = function() {
   'use strict';
 
   const DIMENSION_VERSION = 'dimension1';
@@ -16,6 +16,13 @@ var gsAnalytics = (function() {
 
   function initAsPromised() {
     return new Promise(function(resolve) {
+      if (gsStorage.getOption('trackingOptOut')) {
+        gsUtils.log(
+          'gsAnalytics',
+          'init tracking aborted because tracking is disabled'
+        );
+        resolve();
+      }
       try {
         ga('create', 'UA-167314577-2', 'auto');
         ga('set', 'checkProtocolTask', function() {});
@@ -29,6 +36,13 @@ var gsAnalytics = (function() {
   }
 
   function setUserDimensions() {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'setting dimensions aborted because tracking is disabled'
+      );
+      return;
+    }
     const dimensions = {
       [DIMENSION_VERSION]: chrome.runtime.getManifest().version + '',
       [DIMENSION_SCREEN_CAPTURE]:
@@ -44,6 +58,13 @@ var gsAnalytics = (function() {
   }
 
   function performStartupReport() {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'perfomStartupReport aborted because tracking is disabled'
+      );
+      return;
+    }
     const category = 'System';
     const action = gsSession.getStartupType();
 
@@ -68,6 +89,13 @@ var gsAnalytics = (function() {
   }
 
   function performVersionReport() {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'performVersionReport aborted because tracking is disabled'
+      );
+      return;
+    }
     const startupType = gsSession.getStartupType();
     if (!['Install', 'Update'].includes(startupType)) {
       return;
@@ -87,6 +115,13 @@ var gsAnalytics = (function() {
   }
 
   function performPingReport() {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'performPingReport aborted because tracking is disabled'
+      );
+      return;
+    }
     const category = 'System';
     const action = 'Ping';
 
@@ -103,18 +138,38 @@ var gsAnalytics = (function() {
   }
 
   function reportPageView(pageName) {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportPageView aborted because tracking is disabled'
+      );
+      return;
+    }
     ga('send', 'pageview', pageName);
   }
   function reportEvent(category, action, label) {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportEvent aborted because tracking is disabled'
+      );
+      return;
+    }
     ga('send', 'event', category, action, label);
   }
   function reportException(errorMessage) {
+    if (gsStorage.getOption('trackingOptOut')) {
+      gsUtils.log(
+        'gsAnalytics',
+        'reportException aborted because tracking is disabled'
+      );
+      return;
+    }
     ga('send', 'exception', {
       exDescription: errorMessage,
       exFatal: false,
     });
   }
-
   return {
     initAsPromised,
     performStartupReport,
@@ -125,9 +180,9 @@ var gsAnalytics = (function() {
     reportEvent,
     reportException,
   };
-})();
+};
 
-(function(i, s, o, g, r, a, m) {
+function loadGoogleAnalytics(i, s, o, g, r, a, m) {
   i['GoogleAnalyticsObject'] = r;
   (i[r] =
     i[r] ||
@@ -139,10 +194,25 @@ var gsAnalytics = (function() {
   a.async = 1;
   a.src = g;
   m.parentNode.insertBefore(a, m);
-})(
-  window,
-  document,
-  'script',
-  'https://www.google-analytics.com/analytics.js',
-  'ga'
-);
+}
+
+function init() {
+  if (!gsStorage.getOption('trackingOptOut')) {
+    loadGoogleAnalytics(
+      window,
+      document,
+      'script',
+      'https://www.google-analytics.com/analytics.js',
+      'ga'
+    );
+  }
+  gsAnalytics = gsAnalytics();
+}
+
+if (document.readyState == 'complete') {
+  init();
+} else {
+  document.addEventListener('DOMContentLoaded', function() {
+    init();
+  });
+}

@@ -26,6 +26,7 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
+    trackingOptOut: gsStorage.TRACKING_OPT_OUT
   };
 
   function selectComboBox(element, key) {
