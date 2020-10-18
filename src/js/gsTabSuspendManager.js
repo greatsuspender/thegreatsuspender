@@ -212,6 +212,9 @@ var gsTabSuspendManager = (function() {
   }
 
   async function handlePreviewImageResponse(tab, previewUrl, errorMsg) {
+    // remove listener if there is any
+    gsCleanScreencaps.removeListener(tab.id);
+
     const queuedTabDetails = getQueuedTabDetails(tab);
     if (!queuedTabDetails) {
       gsUtils.log(
@@ -255,6 +258,7 @@ var gsTabSuspendManager = (function() {
       tab,
       queuedTabDetails.executionProps.suspendedUrl
     );
+
     queuedTabDetails.executionProps.resolveFn(success);
   }
 
@@ -274,8 +278,7 @@ var gsTabSuspendManager = (function() {
       gsUtils.log(
         tab.id,
         QUEUE_ID,
-        `Tab took more than ${
-          _suspensionQueue.getQueueProperties().jobTimeout
+        `Tab took more than ${_suspensionQueue.getQueueProperties().jobTimeout
         }ms to suspend. Will force suspension.`
       );
       const success = await executeTabSuspension(
@@ -493,6 +496,9 @@ var gsTabSuspendManager = (function() {
     const useAlternateScreenCaptureLib = gsStorage.getOption(
       gsStorage.USE_ALT_SCREEN_CAPTURE_LIB
     );
+    const useCleanScreencap = gsStorage.getOption(
+      gsStorage.ENABLE_CLEAN_SCREENCAPS
+    );
     const screenCaptureLib = useAlternateScreenCaptureLib
       ? 'js/dom-to-image.js'
       : 'js/html2canvas.min.js';
@@ -501,6 +507,11 @@ var gsTabSuspendManager = (function() {
       QUEUE_ID,
       `Injecting ${screenCaptureLib} into content script`
     );
+
+    if (useCleanScreencap) {
+      gsCleanScreencaps.addListener(tab.id)
+    }
+
     gsMessages.executeScriptOnTab(tab.id, screenCaptureLib, error => {
       if (error) {
         handlePreviewImageResponse(tab, null, 'Failed to executeScriptOnTab'); //async. unhandled promise.
@@ -560,14 +571,16 @@ var gsTabSuspendManager = (function() {
     if (useAlternateScreenCaptureLib) {
       // console.log('Generating via dom-to-image..');
       generateCanvas = () => {
-        return domtoimage.toCanvas(document.body, {width: width, height: height}).then(canvas => {
-          const croppedCanvas = document.createElement('canvas');
-          const context = croppedCanvas.getContext('2d');
-          croppedCanvas.width = width;
-          croppedCanvas.height = height;
-          context.drawImage(canvas, 0, 0);
-          return croppedCanvas;
-        });
+        return domtoimage
+          .toCanvas(document.body, { width: width, height: height })
+          .then(canvas => {
+            const croppedCanvas = document.createElement('canvas');
+            const context = croppedCanvas.getContext('2d');
+            croppedCanvas.width = width;
+            croppedCanvas.height = height;
+            context.drawImage(canvas, 0, 0);
+            return croppedCanvas;
+          });
       };
     } else {
       // console.log('Generating via html2canvas..');
@@ -578,6 +591,7 @@ var gsTabSuspendManager = (function() {
           logging: false,
           imageTimeout: 10000,
           removeContainer: false,
+          foreignObjectRendering: true,
           async: true,
         });
       };
@@ -645,3 +659,4 @@ var gsTabSuspendManager = (function() {
     getQueuedTabDetails,
   };
 })();
+
