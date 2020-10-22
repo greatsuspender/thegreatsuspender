@@ -50,35 +50,47 @@ The extension in crx format will be inside the build/crx/ directory. You can dra
 
 This extension has a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information. And please let me know about it so that I can try it out!
 
-### Windows Group Policies
+### Windows Group Policy & Registry
 
-It is possible to force settings by defining group policies on Microsoft
-Windows.
+Since extension version 7.1.8 it is possible to set the configuration using the system registy, which can be applied via group policies on Microsoft
+Windows. (Chrome Web Store version at 7.1.6 as of 22nd Oct 2020)
 
-The whitelist is stored internally as a string, with one URL per line.
+The whitelist consists of a list of domains seperated by a space char, without http:// or https:// E.G:
+```
+domain1.com www.domain2.com sub.domain3.com
+```
+
+Configuration stored in registry can be either `HKCU` or `HKLM` at
+`\Software\Policies\Google\Chrome\3rdparty\extensions\EXTENSION_ID\policy`
+
+Replace the EXTENSION_ID with the correct value
+
+* To enable function use `REG_DWORD` set to `1`
+* To disable function use `REG_DWORD` set to `0`
+* When using `REG_SZ` "quotes" are not required
 
 The following settings can be defined:
 
-* `SCREEN_CAPTURE` (string, default: '0')
-* `SCREEN_CAPTURE_FORCE` (boolean, default: false)
-* `SUSPEND_IN_PLACE_OF_DISCARD` (boolean, default: false)
-* `DISCARD_IN_PLACE_OF_SUSPEND` (boolean, default: false)
-* `USE_ALT_SCREEN_CAPTURE_LIB` (boolean, default: false)
-* `DISCARD_AFTER_SUSPEND` (boolean, default: false)
-* `IGNORE_WHEN_OFFLINE` (boolean, default: false)
-* `IGNORE_WHEN_CHARGING` (boolean, default: false)
-* `UNSUSPEND_ON_FOCUS` (boolean, default: false)
-* `IGNORE_PINNED` (boolean, default: true)
-* `IGNORE_FORMS` (boolean, default: true)
-* `IGNORE_AUDIO` (boolean, default: true)
-* `IGNORE_ACTIVE_TABS` (boolean, default: true)
-* `IGNORE_CACHE` (boolean, default: false)
-* `ADD_CONTEXT` (boolean, default: true)
-* `SYNC_SETTINGS` (boolean, default: true)
-* `SUSPEND_TIME` (string (minutes), default: '60')
-* `NO_NAG` (boolean, default: false)
-* `WHITELIST` (string (one URL per line), default: '')
-* `THEME` (string, default: 'light')
+* `SCREEN_CAPTURE` (string, default: 0) as `REG_SZ`
+* `SCREEN_CAPTURE_FORCE` (boolean, default: false) as `REG_DWORD`
+* `SUSPEND_IN_PLACE_OF_DISCARD` (boolean, default: false) as `REG_DWORD`
+* `DISCARD_IN_PLACE_OF_SUSPEND` (boolean, default: false) as `REG_DWORD`
+* `USE_ALT_SCREEN_CAPTURE_LIB` (boolean, default: false) as `REG_DWORD`
+* `DISCARD_AFTER_SUSPEND` (boolean, default: false) as `REG_DWORD`
+* `IGNORE_WHEN_OFFLINE` (boolean, default: false) as `REG_DWORD`
+* `IGNORE_WHEN_CHARGING` (boolean, default: false) as `REG_DWORD`
+* `UNSUSPEND_ON_FOCUS` (boolean, default: false) as `REG_DWORD`
+* `IGNORE_PINNED` (boolean, default: true) as `REG_DWORD`
+* `IGNORE_FORMS` (boolean, default: true) as `REG_DWORD`
+* `IGNORE_AUDIO` (boolean, default: true) as `REG_DWORD`
+* `IGNORE_ACTIVE_TABS` (boolean, default: true) as `REG_DWORD`
+* `IGNORE_CACHE` (boolean, default: false) as `REG_DWORD`
+* `ADD_CONTEXT` (boolean, default: true) as `REG_DWORD`
+* `SYNC_SETTINGS` (boolean, default: true) as `REG_DWORD`
+* `SUSPEND_TIME` (string (minutes), default: 60) as `REG_SZ`
+* `NO_NAG` (boolean, default: false) as `REG_DWORD`
+* `WHITELIST` (string (split URL with whitespace), default: <empty>) as `REG_SZ`
+* `THEME` (string, default: light) as `REG_SZ`
 
 ### Contributing to this extension
 
