@@ -122,6 +122,8 @@
   "html_popup_unsuspend_all_tabs": { "message": "Tüm sekmelerin askısını kaldır" },
   "html_popup_unsuspend_selected_tabs": { "message": "Seçilen sekmenin askısını kaldır" },
   "html_popup_unsuspend_tab": { "message": "Bu sekmenin askısını kaldır" },
+  "html_popup_pause_suspend": { "message": "Pause suspend" },
+  "html_popup_unpause_suspend": { "message": "Unpause suspend" },
   "html_recovery_description_line1": { "message": "Uzantının çökmesinden kurtuldunuz gibi görünüyor." },
   "html_recovery_description_line2": { "message": "Askıya alınan sekmeleriniz çökmüş veya kaybolmuş olabilir." },
   "html_recovery_disable_screen_capturing": { "message": "Ekran görüntüsü yakalama devre dışı" },

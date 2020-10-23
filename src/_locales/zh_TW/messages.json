@@ -121,6 +121,8 @@
     "html_options_suspend_on_low_memory_tooltip_line5": { "message": "" },
     "html_options_suspend_on_low_memory_tooltip_line6": { "message": "有關 Chrome discarding 的更多資訊，請參閱：" },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
+    "html_popup_pause_suspend": { "message": "Pause suspend" },
+    "html_popup_unpause_suspend": { "message": "Unpause suspend" },
     "html_popup_unsuspend_tab": { "message": "回復目前分頁" },
     "html_popup_suspend_tab": { "message": "凍結此分頁" },
     "html_popup_dont_suspend_now": { "message": "現在還不要凍結" },
