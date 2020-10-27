@@ -228,6 +228,8 @@ ul.unorderedList li {
   font-size: 20px;
 }
 .contentNav {
+  position: sticky;
+  top: 0;
   grid-area: n;
   border-right: 1px solid #ddd;
   padding-right: 15px;
