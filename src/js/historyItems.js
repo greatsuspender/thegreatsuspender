@@ -57,6 +57,7 @@ var historyItems = (function(global) {
 
     sessionIcon = createEl('i', {
       class: 'sessionIcon icon icon-plus-squared-alt',
+      tabindex: 0
     });
 
     sessionDiv = createEl('div', {

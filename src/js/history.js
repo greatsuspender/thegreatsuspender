@@ -120,6 +120,12 @@
       element.onclick = func;
     }
   }
+  
+  function addKeyDownListenerToElement (element, func) {
+    if (element) {
+      element.onkeydown = func;
+    }
+  }
 
   function createSessionElement(session) {
     var sessionEl = historyItems.createSessionHtml(session, true);
@@ -128,6 +134,14 @@
       sessionEl.getElementsByClassName('sessionIcon')[0],
       function() {
         toggleSession(sessionEl, session.sessionId); //async. unhandled promise
+      }
+    );
+    addKeyDownListenerToElement(
+      sessionEl.getElementsByClassName('sessionIcon')[0],
+      function(event) {
+        if(event.keyCode === 13) {
+	  toggleSession(sessionEl, session.sessionId); //async. unhandled promise
+	}
       }
     );
     addClickListenerToElement(
