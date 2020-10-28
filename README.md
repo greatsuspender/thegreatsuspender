@@ -53,7 +53,7 @@ This extension has a small external api to allow other extensions to request the
 ### Windows Group Policy & Registry
 
 Since extension version 7.1.8 it is possible to set the configuration using the system registy, which can be applied via group policies on Microsoft
-Windows. (Chrome Web Store version at 7.1.6 as of 22nd Oct 2020)
+Windows. 
 
 The whitelist consists of a list of domains seperated by a space char, without http:// or https:// E.G:
 ```
