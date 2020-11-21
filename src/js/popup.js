@@ -258,7 +258,7 @@
 
   function showPopupContents() {
     const theme = gsStorage.getOption(gsStorage.THEME);
-    if (theme === 'dark') {
+    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.body.classList.add('dark');
     }
     setTimeout(function() {

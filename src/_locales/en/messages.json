@@ -80,6 +80,7 @@
     "html_options_suspend_discard_after_suspend_tooltip_line3a": { "message": "For more information on Chrome discarding refer to:" },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
     "html_options_suspend_theme": { "message": "Theme" },
+    "html_options_suspend_theme_system": { "message": "Use system setting" },
     "html_options_suspend_theme_light": { "message": "Light" },
     "html_options_suspend_theme_dark": { "message": "Dark" },
     "html_options_suspend_screen_capturing": { "message": "Screen capturing" },

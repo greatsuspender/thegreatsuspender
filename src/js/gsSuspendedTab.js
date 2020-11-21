@@ -163,13 +163,13 @@ var gsSuspendedTab = (function() {
   }
 
   function setTheme(_document, theme, isLowContrastFavicon) {
-    if (theme === 'dark') {
+    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       _document.querySelector('body').classList.add('dark');
     } else {
       _document.querySelector('body').classList.remove('dark');
     }
 
-    if (theme === 'dark' && isLowContrastFavicon) {
+    if ((theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) && isLowContrastFavicon) {
       _document
         .getElementById('faviconWrap')
         .classList.add('faviconWrapLowContrast');
