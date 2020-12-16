@@ -63,16 +63,26 @@ The extension in crx format will be inside the build/crx/ directory. You can dra
 
 ### Integrating with another Chrome extension or app
 
-The extension has a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information. And please let me know about it so that I can try it out!
+The old extension had a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information.
 
 ### Windows Group Policies / Windows Registry configuration values
 
-It is possible to force settings by defining group policies on Microsoft
-Windows. [More Info](https://github.com/greatsuspender/thegreatsuspender/issues/1174)
+Since extension version 7.1.8 it is possible to set the configuration using the system registy, which can be applied via group policies on Microsoft Windows.
+[More Info](https://github.com/greatsuspender/thegreatsuspender/issues/1174)
 
-The whitelist is stored internally as a string, with one URL per line.
+The whitelist consists of a list of domains seperated by a space character, *do not include http:// or https://* Here's an example:
+  `domain1.com www.domain2.com sub.domain3.com`
 
-The following settings can be defined:
+Configuration stored in registry can be either HKCU or HKLM at 
+  `\Software\Policies\Google\Chrome\3rdparty\extensions\EXTENSION_ID\policy`
+
+Replace the EXTENSION_ID with the correct value
+
+- To enable function use REG_DWORD set to 1
+- To disable function use REG_DWORD set to 0
+- When using REG_SZ "quotes" are not required
+
+*The following settings can be defined:*
 
 * `SCREEN_CAPTURE` (string, default: '0')
 * `SCREEN_CAPTURE_FORCE` (boolean, default: false)
