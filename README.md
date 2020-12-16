@@ -4,9 +4,9 @@ Modified version of "The Great Suspender" to remove analytics tracking and rogue
 
 Read more:
 
-[New ownership announcement](https://github.com/aciidic/thegreatsuspender/issues/1175)
+[New ownership announcement](https://github.com/greatsuspender/thegreatsuspender/issues/1175)
 
-[New maintainer is probably malicious](https://github.com/aciidic/thegreatsuspender/issues/1263)
+[New maintainer is probably malicious](https://github.com/greatsuspender/thegreatsuspender/issues/1263)
 
 [Flagged as malware by Microsoft Edge](https://www.windowscentral.com/great-suspender-extension-now-flagged-malware-edge-has-built-replacement)
 
