@@ -65,10 +65,10 @@ The extension in crx format will be inside the build/crx/ directory. You can dra
 
 The extension has a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information. And please let me know about it so that I can try it out!
 
-### Windows Group Policies
+### Windows Group Policies / Windows Registry configuration values
 
 It is possible to force settings by defining group policies on Microsoft
-Windows.
+Windows. [More Info](https://github.com/greatsuspender/thegreatsuspender/issues/1174)
 
 The whitelist is stored internally as a string, with one URL per line.
 
@@ -90,10 +90,28 @@ The following settings can be defined:
 * `IGNORE_CACHE` (boolean, default: false)
 * `ADD_CONTEXT` (boolean, default: true)
 * `SYNC_SETTINGS` (boolean, default: true)
+* `ENABLE_CLEAN_SCREENCAPS` (boolean, default: false)
 * `SUSPEND_TIME` (string (minutes), default: '60')
 * `NO_NAG` (boolean, default: false)
 * `WHITELIST` (string (one URL per line), default: '')
 * `THEME` (string, default: 'light')
+
+
+**Step by Step:**
+
+*Note that config changes don't seem to apply until Chrome is restarted, sometimes requires closing/re-opening chrome for a second time*
+
+1. Copy the extension ID from chrome://extensions
+2. Create required registry keys (pick either HKLM or HKCU) obviously add your own extension ID, at:
+`\Software\Policies\Google\Chrome\3rdparty\extensions\EXTENSION_ID\policy`
+  - Use REG_SZ for string config values
+  - Use REG_DWORD for boolean config (1 for true, 0 for false)
+  - Use REG_SZ for WHITELIST, split each domain with a space char. Extension doesn't care for www.  but do not include http/s://
+    `domain1.com domain2.com www.domain3.com whatever.you.want.com`
+3. **Restart Chrome at least once, if not twice**
+4. Go to chrome://policy and click "Reload policies" in top left, you should see your configuration listed
+![Config Example](https://i.imgur.com/Vr6P7xp.png)
+
 
 ### Contributing to this extension
 
