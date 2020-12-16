@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsStorage, gsChrome, gsUtils */
+/*global chrome, gsStorage, gsChrome, gsUtils */
 (function(global) {
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
@@ -26,7 +26,6 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    trackingOptOut: gsStorage.TRACKING_OPT_OUT
   };
 
   function selectComboBox(element, key) {
@@ -275,5 +274,4 @@
   global.exports = {
     initSettings,
   };
-  gsAnalytics.reportPageView('options.html');
 })(this);

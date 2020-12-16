@@ -1,9 +1,9 @@
-/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
+/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
  * Available under GNU GENERAL PUBLIC LICENSE v2
- * http://github.com/greatsuspender/thegreatsuspender
+ * http://github.com/aciidic/thegreatsuspender
  * ༼ つ ◕_◕ ༽つ
 */
 var tgs = (function() {
@@ -35,7 +35,6 @@ var tgs = (function() {
   const focusDelay = 500;
   const noticeCheckInterval = 1000 * 60 * 60 * 12; // every 12 hours
   const sessionMetricsCheckInterval = 1000 * 60 * 15; // every 15 minutes
-  const analyticsCheckInterval = 1000 * 60 * 60 * 23.5; // every 23.5 hours
 
   const _tabStateByTabId = {};
   const _currentFocusedTabIdByWindowId = {};
@@ -56,7 +55,6 @@ var tgs = (function() {
       tgs,
       gsUtils,
       gsChrome,
-      gsAnalytics,
       gsStorage,
       gsIndexedDb,
       gsMessages,
@@ -142,9 +140,7 @@ var tgs = (function() {
   }
 
   function startTimers() {
-    startNoticeCheckerJob();
     startSessionMetricsJob();
-    startAnalyticsUpdateJob();
   }
 
   function getInternalViewByTabId(tabId) {
@@ -1183,70 +1179,6 @@ var tgs = (function() {
     });
   }
 
-  function checkForNotices() {
-    gsUtils.log('background', 'Checking for notices..');
-    var xhr = new XMLHttpRequest();
-    var lastShownNoticeVersion = gsStorage.fetchNoticeVersion();
-
-    xhr.open('GET', 'https://greatsuspender.github.io/notice.json', true);
-    xhr.timeout = 4000;
-    xhr.setRequestHeader('Cache-Control', 'no-cache');
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4 && xhr.responseText) {
-        var resp;
-        try {
-          resp = JSON.parse(xhr.responseText);
-        } catch (e) {
-          gsUtils.error(
-            'background',
-            'Failed to parse notice response',
-            xhr.responseText
-          );
-          return;
-        }
-
-        if (!resp || !resp.active || !resp.text) {
-          gsUtils.log('background', 'No new notice found');
-          return;
-        }
-
-        //only show notice if it is intended for this extension version
-        var noticeTargetExtensionVersion = String(resp.target);
-        if (
-          noticeTargetExtensionVersion !== chrome.runtime.getManifest().version
-        ) {
-          gsUtils.log(
-            'background',
-            `Notice target extension version: ${noticeTargetExtensionVersion}
-            does not match actual extension version: ${
-              chrome.runtime.getManifest().version
-            }`
-          );
-          return;
-        }
-
-        //only show notice if it has not already been shown
-        var noticeVersion = String(resp.version);
-        if (noticeVersion <= lastShownNoticeVersion) {
-          gsUtils.log(
-            'background',
-            `Notice version: ${noticeVersion} is not greater than last shown notice version: ${lastShownNoticeVersion}`
-          );
-          return;
-        }
-
-        //show notice - set global notice field (so that it can be trigger to show later)
-        _noticeToDisplay = resp;
-        gsAnalytics.reportEvent(
-          'Notice',
-          'Prep',
-          resp.target + ':' + resp.version
-        );
-      }
-    };
-    xhr.send();
-  }
-
   function requestNotice() {
     return _noticeToDisplay;
   }
@@ -1761,11 +1693,6 @@ var tgs = (function() {
       var noticeToDisplay = requestNotice();
       if (noticeToDisplay) {
         chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
-        gsAnalytics.reportEvent(
-          'Notice',
-          'Display',
-          noticeToDisplay.target + ':' + noticeToDisplay.version
-        );
       }
     });
     chrome.windows.onRemoved.addListener(function(windowId) {
@@ -1812,25 +1739,12 @@ var tgs = (function() {
     });
   }
 
-  function startNoticeCheckerJob() {
-    checkForNotices();
-    window.setInterval(checkForNotices, noticeCheckInterval);
-  }
-
   function startSessionMetricsJob() {
     gsSession.updateSessionMetrics(true);
     window.setInterval(
       gsSession.updateSessionMetrics,
       sessionMetricsCheckInterval
     );
-  }
-
-  function startAnalyticsUpdateJob() {
-    window.setInterval(() => {
-      gsAnalytics.performPingReport();
-      const reset = true;
-      gsSession.updateSessionMetrics(reset);
-    }, analyticsCheckInterval);
   }
 
   return {
@@ -1890,7 +1804,6 @@ Promise.resolve()
   .then(() => {
     // initialise other gsLibs
     return Promise.all([
-      gsAnalytics.initAsPromised(),
       gsFavicon.initAsPromised(),
       gsTabSuspendManager.initAsPromised(),
       gsTabCheckManager.initAsPromised(),
@@ -1911,7 +1824,5 @@ Promise.resolve()
     gsUtils.error('background init error: ', error);
   })
   .finally(() => {
-    gsAnalytics.performStartupReport();
-    gsAnalytics.performVersionReport();
     tgs.startTimers();
   });

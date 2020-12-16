@@ -1,25 +1,35 @@
-# The Great Suspender
+# The Great Suspender - Without Analytics Tracking
+
+Modified version of "The Great Suspender" to remove analytics tracking and rogue .js files from anonymous developer who is now in control of the GitHub source & web store versions. [Read More]()
+
+Read more:
+[New ownership announcement](https://github.com/aciidic/thegreatsuspender/issues/1175)
+[New maintainer is probably malicious](https://github.com/aciidic/thegreatsuspender/issues/1263)
+[Flagged as malware by Microsoft Edge](https://www.windowscentral.com/great-suspender-extension-now-flagged-malware-edge-has-built-replacement)
+[Reddit forum discussion](https://old.reddit.com/r/HobbyDrama/comments/jouwq7/open_source_development_the_great_suspender_saga/)
+[Medium Article](https://medium.com/nerd-for-tech/malware-in-browser-extensions-3805e8763dd5)
+
+This project is a fork from [v7.1.8 of The Great Suspender](https://github.com/greatsuspender/thegreatsuspender) with all tracking code removed, along with some annoying popups/prompts.
+
+This work carries no guarantees only to the best of my ability in 2 hours using notepad2 & AstroGrep. I am not a developer and do not intend to spend much time keeping this extension updated.
 
 <img src="/src/img/suspendy-guy.png" width="100px" />
 
 "The Great Suspender" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and cpu that the tab was consuming.
 
-If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/greatsuspender/thegreatsuspender/issues/). For other enquiries you can email me at greatsuspender@gmail.com.
+If you have suggestions or problems using the extension, please [submit a pull request](https://github.com/aciidic/thegreatsuspender/issues/). 
 
-**If you have lost tabs from your browser:** I have written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
+**If you have lost tabs from your browser:** The original developer has written a guide for how to recover your lost tabs [here](https://github.com/deanoemcke/thegreatsuspender/issues/526
 ).
 
 ### Chrome Web Store
 
-The Great Suspender is [available via the official Chrome Web Store](https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg).
+This version of The Great Suspender is not available on the Chrome Web Store.
 
-Please note that the webstore version may be behind the latest version here. That is because I try to keep webstore updates down to a minimum due to their [disruptive effect](https://github.com/greatsuspender/thegreatsuspender/issues/526).
 
-For more information on the permissions required for the extension, please refer to this gitHub issue: (https://github.com/greatsuspender/thegreatsuspender/issues/213)
+### You should install this extension from source
 
-### Install as an extension from source
-
-1. Download the **[latest available version](https://github.com/greatsuspender/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
+1. Download the **[latest available version](https://github.com/aciidic/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
 3. Click on the <kbd>Load unpacked extension...</kbd> button.
 4. Browse to the src directory of the unarchived folder and confirm.
@@ -28,7 +38,7 @@ If you have completed the above steps, the "welcome" page will open indicating s
 
 Be sure to unsuspend all suspended tabs before removing any other version of the extension or they will disappear forever!
 
-### Build from github
+### Build from github (untested in this release)
 
 Dependencies: openssl, npm.
 
@@ -48,7 +58,7 @@ The extension in crx format will be inside the build/crx/ directory. You can dra
 
 ### Integrating with another Chrome extension or app
 
-This extension has a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information. And please let me know about it so that I can try it out!
+The extension has a small external api to allow other extensions to request the suspension of a tab. See [this issue](https://github.com/greatsuspender/thegreatsuspender/issues/276) for more information. And please let me know about it so that I can try it out!
 
 ### Windows Group Policies
 
@@ -93,3 +103,4 @@ This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 This package uses the [html2canvas](https://github.com/niklasvh/html2canvas) library written by Niklas von Hertzen.
 It also uses the indexedDb wrapper [db.js](https://github.com/aaronpowell/db.js) written by Aaron Powell.
 Thank you also to [BrowserStack](https://www.browserstack.com) for providing free chrome testing tools.
+Original source from [The Great Suspender v7.1.8](https://github.com/greatsuspender/thegreatsuspender)

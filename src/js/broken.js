@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics */
+/*global chrome */
 (function(global) {
   'use strict';
 
@@ -20,7 +20,6 @@
       .addEventListener('click', function() {
         chrome.tabs.create({ url: chrome.extension.getURL('history.html') });
       });
-    gsAnalytics.reportPageView('broken.html');
   }
   if (document.readyState !== 'loading') {
     init();

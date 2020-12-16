@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsUtils */
+/*global chrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -45,5 +45,4 @@
     };
   });
 
-  gsAnalytics.reportPageView('shortcuts.html');
 })(this);

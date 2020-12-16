@@ -117,8 +117,6 @@
     "html_options_other_enable_sync_tooltip_line1b": { "message": "logged in with the same profile." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
     "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile" },
-    "html_options_tracking_opt_out": { "message": "Automatic deactivation of any kind of tracking" },
-    "html_options_tracking_opt_out_line1": { "message": "This option will disable tracking code, such as that from Google Analytics." },
     "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
     "html_options_suspend_on_low_memory_tooltip_line1": { "message": "This option will override Chrome's automatic tab discarding functionality." },
     "html_options_suspend_on_low_memory_tooltip_line2": { "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome." },

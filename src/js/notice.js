@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsStorage, gsUtils */
+/*global chrome, tgs, gsStorage, gsUtils */
 (function(global) {
   'use strict';
 
@@ -25,5 +25,4 @@
     //clear notice (to prevent it showing again)
     tgs.clearNotice();
   });
-  gsAnalytics.reportPageView('notice.html');
 })(this);
