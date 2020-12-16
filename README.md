@@ -3,10 +3,15 @@
 Modified version of "The Great Suspender" to remove analytics tracking and rogue .js files from anonymous developer who is now in control of the GitHub source & web store versions. [Read More]()
 
 Read more:
+
 [New ownership announcement](https://github.com/aciidic/thegreatsuspender/issues/1175)
+
 [New maintainer is probably malicious](https://github.com/aciidic/thegreatsuspender/issues/1263)
+
 [Flagged as malware by Microsoft Edge](https://www.windowscentral.com/great-suspender-extension-now-flagged-malware-edge-has-built-replacement)
+
 [Reddit forum discussion](https://old.reddit.com/r/HobbyDrama/comments/jouwq7/open_source_development_the_great_suspender_saga/)
+
 [Medium Article](https://medium.com/nerd-for-tech/malware-in-browser-extensions-3805e8763dd5)
 
 This project is a fork from [v7.1.8 of The Great Suspender](https://github.com/greatsuspender/thegreatsuspender) with all tracking code removed, along with some annoying popups/prompts.
