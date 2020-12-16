@@ -36,12 +36,40 @@ This version of The Great Suspender is not available on the Chrome Web Store.
 
 1. Download the **[latest available version](https://github.com/aciidic/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
 2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
-3. Click on the <kbd>Load unpacked extension...</kbd> button.
-4. Browse to the src directory of the unarchived folder and confirm.
+3. Click on "Load Unpacked" in top-left corner and select the src FOLDER from extracted data > click Open Folder
+  (Or you can try drag & drop the src folder in to your chrome://extensions window)
+4. Confirm The Great Suspender now appears in chrome://extensions AND in your chrome://policy
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
 
 Be sure to unsuspend all suspended tabs before removing any other version of the extension or they will disappear forever!
+
+
+### Local installation of extension .crx via Group Policy
+
+1. Get extension .crx following steps above or download from [releases](https://github.com/aciidic/thegreatsuspender-notrack/releases)
+2. Install Chrome admx/adml templates [from Google](https://support.google.com/chrome/a/answer/187202?hl=en) on a domain controller
+3. Create new file `Update.xml` on network filestore or similar, and enable read permissions for all relevent domain users/groups
+4. Populate `Update.xml` with code below
+```
+<?xml version='1.0' encoding='UTF-8'?>
+<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
+  <app appid='EXTENSION_ID'>
+    <updatecheck codebase='file://SERVER/SHARE/EXTENSIONS/thegreatsuspender-7.1.9-notrack.crx' version='7.1.9' />
+  </app>
+</gupdate>
+```
+5. Modify `Update.xml` with correct values: 
+  - `app appid=` you can find in chrome://extensions
+  - `codebase=` leads to extension .crx file. (SMB/network shared folder works fine) *Use forward slash not back slashes!*
+  - `version=` should be extension version shown in chrome://extensions
+6. Open Group Policy Editor (gpedit.msc) on a domain controller.
+8. Use either `Computer` or `User` policies, locate and enable the policy `Configure the list of force-installed apps and extensions`
+  Located at `Policies/Administrative Templates/Google/Google Chrome/Extensions/`
+7. Add the following (UNC path works well) to enforce automatic installation: `App IDs and update URLs to be force installed:`
+  - `EXTENSION_ID;\\SERVER\SHARE\PATH\TO\Update.xml`
+8. Run `gpupdate.exe` on client machines after adjusting Group Policy enforcement & permissions
+
 
 ### Build from github (untested in this release)
 
