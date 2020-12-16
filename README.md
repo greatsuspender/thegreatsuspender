@@ -1,6 +1,6 @@
 # The Great Suspender - Without Analytics Tracking
 
-Modified version of "The Great Suspender" to remove analytics tracking and rogue .js files from anonymous developer who is now in control of the GitHub source & web store versions. [Read More]()
+Modified version of "The Great Suspender" to remove analytics tracking and rogue .js files from anonymous developer who is now in control of the GitHub source & web store versions.
 
 Read more:
 
