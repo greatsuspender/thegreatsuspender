@@ -71,6 +71,7 @@ Be sure to unsuspend all suspended tabs before removing any other version of the
 7. Add the following (UNC path works well) to enforce automatic installation: `App IDs and update URLs to be force installed:`
   - `EXTENSION_ID;\\SERVER\SHARE\PATH\TO\Update.xml`
 8. Run `gpupdate.exe` on client machines after adjusting Group Policy enforcement & permissions
+9. **Once installed, if you update the extension & update.xml, but Chrome does not install the new extension version, try disabling the specific Group Policy, run `gpupdate` on clients then re-enable the policy & run `gpupdate` again. This appears to be a Chrome issue.**
 
 
 ### Build from github (untested in this release)
@@ -108,8 +109,8 @@ Configuration stored in registry can be either HKCU or HKLM at
 
 Replace the EXTENSION_ID with the correct value
 
-- To enable function use REG_DWORD set to 1
-- To disable function use REG_DWORD set to 0
+- To enable function `(true)` use REG_DWORD set to 1
+- To disable function `(false)` use REG_DWORD set to 0
 - When using REG_SZ "quotes" are not required
 
 *The following settings can be defined:*
