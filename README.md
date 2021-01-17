@@ -1,5 +1,7 @@
 # The Great Suspender - Without Analytics Tracking
 
+**PLEASE NOTE: If you are switching to this extension from a different version of TheGreatSuspender, you first need to unsuspend (or bookmark) your existing suspended tabs, otherwise they will be lost!**
+
 Modified version of "The Great Suspender" to remove analytics tracking and rogue .js files from anonymous developer who is now in control of the GitHub source & web store versions.
 
 Read more:
