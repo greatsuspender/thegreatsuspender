@@ -46,7 +46,7 @@
     "128": "img/ic_suspendy_128x128.png"
   },
   "web_accessible_resources": ["suspended.html"],
-  "content_security_policy": "script-src 'self'; object-src 'self'; child-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; default-src 'self'; data: chrome:",
+  "content_security_policy": "script-src 'self'; object-src 'self'; child-src 'self'; connect-src 'self'; img-src 'self' data: chrome:; style-src 'self'; default-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
   "minimum_chrome_version": "55",
