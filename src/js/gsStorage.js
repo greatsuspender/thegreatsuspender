@@ -1,10 +1,7 @@
-/*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
+/*global chrome, gsSession, localStorage, gsUtils */
 'use strict';
 
-// Used to keep track of which settings were defined in the managed storage
-const managedOptions = []; // Example: ["gsTheme, gsWhitelist"]
-
-const gsStorageSettings = {
+var gsStorage = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
   SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',
@@ -26,12 +23,6 @@ const gsStorageSettings = {
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
   USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
-  TRACKING_OPT_OUT: 'trackingOptOut',
-  ENABLE_CLEAN_SCREENCAPS: 'cleanScreencaps'
-};
-
-var gsStorage = {
-  ...gsStorageSettings,
 
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
@@ -66,8 +57,6 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
-    defaults[gsStorage.TRACKING_OPT_OUT] = false;
-    defaults[gsStorage.ENABLE_CLEAN_SCREENCAPS] = false;
 
     return defaults;
   },
@@ -175,40 +164,6 @@ var gsStorage = {
     });
   },
 
-  /**
-   * Checks the managed storage for settings and overrides the local storage
-   * Settings in managed storage are stored by key
-   * Settings in local storage are stored by name
-   * Example: in managed storage you will find "SYNC_SETTINGS": true.
-   *          in local storage you will find "gsSyncSettings": true
-   * I did this because I think the key is easier to interpret for someone
-   * editing the managed storage manually.
-   */
-  checkManagedStorageAndOverride() {
-    const settingsList = Object.keys(gsStorageSettings);
-    chrome.storage.managed.get(settingsList, result => {
-      const settings = gsStorage.getSettings();
-
-      Object.keys(result).forEach(key => {
-        if (key === 'WHITELIST') {
-          settings[gsStorage[key]] = result[key].replace(/[\s\n]+/g, '\n');
-        } else {
-          settings[gsStorage[key]] = result[key];
-        }
-
-        // Mark option as managed
-        managedOptions.push(gsStorage[key]);
-      });
-
-      gsStorage.saveSettings(settings);
-      gsUtils.log(
-        'gsStorage',
-        'overrode settings with managed storage config:',
-        settings
-      );
-    });
-  },
-
   // Listen for changes to synced settings
   addSettingsSyncListener: function() {
     chrome.storage.onChanged.addListener(function(remoteSettings, namespace) {
@@ -305,7 +260,6 @@ var gsStorage = {
   saveSettings: function(settings) {
     try {
       localStorage.setItem('gsSettings', JSON.stringify(settings));
-      gsAnalytics.setUserDimensions();
     } catch (e) {
       gsUtils.error(
         'gsStorage',
@@ -454,12 +408,4 @@ var gsStorage = {
       );
     }
   },
-
-  /**
-   * Used by the options page to tell whether an option is set in managed storage
-   * and thus should not be changed.
-   *
-   * @param option The option name, such as "gsWhitelist" (not "WHITELIST")
-   */
-  isOptionManaged: option => managedOptions.includes(option),
 };

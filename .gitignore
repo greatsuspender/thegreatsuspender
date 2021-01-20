@@ -1,9 +1,2 @@
 **/Thumbs.db
-**/*.pem
-/node_modules
-/assets/*
-/build/*
-/.idea/*
-/.debris/*
-build/zip/thegreatsuspender-6.30-dev/welcome.html
 .DS_Store

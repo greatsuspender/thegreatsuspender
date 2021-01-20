@@ -1,0 +1,12 @@
+<svg width="180" height="180" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <rect id="Rectangle-30" stroke="#4A4A4A" stroke-width="3" fill-opacity="0" fill="#D8D8D8" x="1.75" y="45.06248" width="177" height="127" rx="4"/>
+  <circle id="Oval-6" fill="#4A4A4A" cx="51" cy="98" r="9"/>
+  <circle id="Oval-6-Copy" fill="#4A4A4A" cx="137" cy="98" r="9"/>
+  <path d="m1.5,66.25l177,0" id="Line" stroke="#4A4A4A" stroke-width="3" stroke-linecap="square"/>
+  <circle id="Oval" fill="#4A4A4A" cx="38.5" cy="55.5" r="3.5"/>
+  <circle id="Oval-Copy" fill="#4A4A4A" cx="25.5" cy="55.5" r="3.5"/>
+  <circle id="Oval-Copy-2" fill="#4A4A4A" cx="12.5" cy="55.5" r="3.5"/>
+  <path d="m104.0437,105.56258l-15.58758,0c-0.80417,0 -1.45612,0.5885 -1.45612,1.31439l0,1.40709c0,4.60404 4.14934,8.3497 9.25,8.3497c5.10028,0 9.25,-3.74566 9.25,-8.3497l0,-1.40709c0,-0.7259 -0.65195,-1.31439 -1.45631,-1.31439l0.00001,0z" id="Shape" fill="#4A4A4A" stroke="null"/>
+ </g>
+</svg>

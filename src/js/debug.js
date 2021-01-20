@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsUtils, gsFavicon, gsStorage, gsChrome */
+/*global chrome, tgs, gsUtils, gsFavicon, gsStorage, gsChrome */
 (function(global) {
   'use strict';
 
@@ -144,5 +144,4 @@
         });
         */
   });
-  gsAnalytics.reportPageView('debug.html');
 })(this);

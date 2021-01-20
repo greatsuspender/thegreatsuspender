@@ -1,4 +1,4 @@
-/*global chrome, historyUtils, gsSession, gsChrome, gsUtils, gsAnalytics */
+/*global chrome, historyUtils, gsSession, gsChrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -24,5 +24,4 @@
       });
     };
   });
-  gsAnalytics.reportPageView('permissions.html');
 })(this);

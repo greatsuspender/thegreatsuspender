@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsStorage, gsChrome, gsUtils */
+/*global chrome, gsStorage, gsChrome, gsUtils */
 (function(global) {
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
@@ -10,7 +10,6 @@
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,
     forceScreenCapture: gsStorage.SCREEN_CAPTURE_FORCE,
-    cleanScreenCaptures: gsStorage.ENABLE_CLEAN_SCREENCAPS,
     suspendInPlaceOfDiscard: gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     onlineCheck: gsStorage.IGNORE_WHEN_OFFLINE,
     batteryCheck: gsStorage.IGNORE_WHEN_CHARGING,
@@ -26,7 +25,6 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    trackingOptOut: gsStorage.TRACKING_OPT_OUT
   };
 
   function selectComboBox(element, key) {
@@ -41,11 +39,6 @@
     }
   }
 
-  // Used to prevent options set in managed storage from being changed
-  function blockOption(element) {
-    element.setAttribute('disabled', '');
-  }
-
   //populate settings from synced storage
   function initSettings() {
     var optionEls = document.getElementsByClassName('option'),
@@ -57,15 +50,9 @@
       element = optionEls[i];
       pref = elementPrefMap[element.id];
       populateOption(element, gsStorage.getOption(pref));
-      if (gsStorage.isOptionManaged(pref)) {
-        blockOption(element);
-      }
     }
 
     setForceScreenCaptureVisibility(
-      gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
-    );
-    setCleanScreenCaptureVisibility(
       gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
     );
     setAutoSuspendOptionsVisibility(
@@ -122,14 +109,6 @@
     }
   }
 
-  function setCleanScreenCaptureVisibility(visible) {
-    if (visible) {
-      document.getElementById('cleanScreenCapturesContainer').style.display = 'block';
-    } else {
-      document.getElementById('cleanScreenCapturesContainer').style.display = 'none';
-    }
-  }
-
   function setSyncNoteVisibility(visible) {
     if (visible) {
       document.getElementById('syncNote').style.display = 'block';
@@ -153,32 +132,25 @@
 
   function handleChange(element) {
     return function() {
-      let prefKey = elementPrefMap[element.id],
+      var pref = elementPrefMap[element.id],
         interval;
+
       //add specific screen element listeners
-      switch (prefKey) {
-        case gsStorage.SCREEN_CAPTURE:
-          setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
-          setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
-          break;
-        case gsStorage.SUSPEND_TIME:
-          interval = getOptionValue(element);
-          setAutoSuspendOptionsVisibility(interval > 0);
-          break;
-        case gsStorage.SYNC_SETTINGS:
-          if (getOptionValue(element)) {
-            setSyncNoteVisibility(false);
-          }
-          break;
-        case gsStorage.ENABLE_CLEAN_SCREENCAPS:
-          if (getOptionValue(element)) {
-            chrome.runtime.sendMessage({ action: 'loadCleanScreencaptureBlocklist' })
-          }
-          break;
+      if (pref === gsStorage.SCREEN_CAPTURE) {
+        setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
+      } else if (pref === gsStorage.SUSPEND_TIME) {
+        interval = getOptionValue(element);
+        setAutoSuspendOptionsVisibility(interval > 0);
+      } else if (pref === gsStorage.SYNC_SETTINGS) {
+        // we only really want to show this on load. not on toggle
+        if (getOptionValue(element)) {
+          setSyncNoteVisibility(false);
+        }
       }
 
       var [oldValue, newValue] = saveChange(element);
       if (oldValue !== newValue) {
+        var prefKey = elementPrefMap[element.id];
         gsUtils.performPostSaveUpdates(
           [prefKey],
           { [prefKey]: oldValue },
@@ -275,5 +247,4 @@
   global.exports = {
     initSettings,
   };
-  gsAnalytics.reportPageView('options.html');
 })(this);

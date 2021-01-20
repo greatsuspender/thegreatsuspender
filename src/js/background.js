@@ -1,4 +1,4 @@
-/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsAnalytics, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
+/* global gsStorage, gsChrome, gsIndexedDb, gsUtils, gsFavicon, gsSession, gsMessages, gsTabSuspendManager, gsTabDiscardManager, gsTabCheckManager, gsSuspendedTab, chrome, XMLHttpRequest */
 /*
  * The Great Suspender
  * Copyright (C) 2017 Dean Oemcke
@@ -56,7 +56,6 @@ var tgs = (function() {
       tgs,
       gsUtils,
       gsChrome,
-      gsAnalytics,
       gsStorage,
       gsIndexedDb,
       gsMessages,
@@ -1217,7 +1216,7 @@ var tgs = (function() {
         ) {
           gsUtils.log(
             'background',
-            `Notice target extension version: ${noticeTargetExtensionVersion}
+            `Notice target extension version: ${noticeTargetExtensionVersion} 
             does not match actual extension version: ${
               chrome.runtime.getManifest().version
             }`
@@ -1237,11 +1236,6 @@ var tgs = (function() {
 
         //show notice - set global notice field (so that it can be trigger to show later)
         _noticeToDisplay = resp;
-        gsAnalytics.reportEvent(
-          'Notice',
-          'Prep',
-          resp.target + ':' + resp.version
-        );
       }
     };
     xhr.send();
@@ -1610,37 +1604,37 @@ var tgs = (function() {
       request.action
     );
 
-    switch (request.action) {
-      case 'loadCleanScreencaptureBlocklist':
-        gsCleanScreencaps.loadList()
-      case 'reportTabState':
-        var contentScriptStatus =
-          request && request.status ? request.status : null;
-        if (
-          contentScriptStatus === 'formInput' ||
-          contentScriptStatus === 'tempWhitelist'
-        ) {
-          chrome.tabs.update(sender.tab.id, { autoDiscardable: false });
-        } else if (!sender.tab.autoDiscardable) {
-          chrome.tabs.update(sender.tab.id, { autoDiscardable: true });
-        }
-        // If tab is currently visible then update popup icon
-        if (sender.tab && isCurrentFocusedTab(sender.tab)) {
-          calculateTabStatus(sender.tab, contentScriptStatus, function (status) {
-            setIconStatus(status, sender.tab.id);
-          });
-        }
-        sendResponse();
-        return false;
-      case 'savePreviewData':
-        gsTabSuspendManager.handlePreviewImageResponse(
-          sender.tab,
-          request.previewUrl,
-          request.errorMsg
-        ); // async. unhandled promise
-        sendResponse();
-        return false;
+    if (request.action === 'reportTabState') {
+      var contentScriptStatus =
+        request && request.status ? request.status : null;
+      if (
+        contentScriptStatus === 'formInput' ||
+        contentScriptStatus === 'tempWhitelist'
+      ) {
+        chrome.tabs.update(sender.tab.id, { autoDiscardable: false });
+      } else if (!sender.tab.autoDiscardable) {
+        chrome.tabs.update(sender.tab.id, { autoDiscardable: true });
+      }
+      // If tab is currently visible then update popup icon
+      if (sender.tab && isCurrentFocusedTab(sender.tab)) {
+        calculateTabStatus(sender.tab, contentScriptStatus, function(status) {
+          setIconStatus(status, sender.tab.id);
+        });
+      }
+      sendResponse();
+      return false;
     }
+
+    if (request.action === 'savePreviewData') {
+      gsTabSuspendManager.handlePreviewImageResponse(
+        sender.tab,
+        request.previewUrl,
+        request.errorMsg
+      ); // async. unhandled promise
+      sendResponse();
+      return false;
+    }
+
     // Fallback to empty response to ensure callback is made
     sendResponse();
     return false;
@@ -1761,11 +1755,6 @@ var tgs = (function() {
       var noticeToDisplay = requestNotice();
       if (noticeToDisplay) {
         chrome.tabs.create({ url: chrome.extension.getURL('notice.html') });
-        gsAnalytics.reportEvent(
-          'Notice',
-          'Display',
-          noticeToDisplay.target + ':' + noticeToDisplay.version
-        );
       }
     });
     chrome.windows.onRemoved.addListener(function(windowId) {
@@ -1827,7 +1816,6 @@ var tgs = (function() {
 
   function startAnalyticsUpdateJob() {
     window.setInterval(() => {
-      gsAnalytics.performPingReport();
       const reset = true;
       gsSession.updateSessionMetrics(reset);
     }, analyticsCheckInterval);
@@ -1886,17 +1874,14 @@ var tgs = (function() {
 Promise.resolve()
   .then(tgs.backgroundScriptsReadyAsPromised) // wait until all gsLibs have loaded
   .then(gsStorage.initSettingsAsPromised) // ensure settings have been loaded and synced
-  .then(gsStorage.checkManagedStorageAndOverride) // enforce managed settings
   .then(() => {
     // initialise other gsLibs
     return Promise.all([
-      gsAnalytics.initAsPromised(),
       gsFavicon.initAsPromised(),
       gsTabSuspendManager.initAsPromised(),
       gsTabCheckManager.initAsPromised(),
       gsTabDiscardManager.initAsPromised(),
       gsSession.initAsPromised(),
-      gsCleanScreencaps.initAsPromised()
     ]);
   })
   .catch(error => {
@@ -1911,7 +1896,5 @@ Promise.resolve()
     gsUtils.error('background init error: ', error);
   })
   .finally(() => {
-    gsAnalytics.performStartupReport();
-    gsAnalytics.performVersionReport();
     tgs.startTimers();
   });

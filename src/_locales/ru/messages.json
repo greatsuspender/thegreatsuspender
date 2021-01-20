@@ -1,242 +1,734 @@
 {
-    "ext_extension_name": { "message": "The Great Suspender" },
-    "ext_extension_description": { "message": "Заставь свой браузер работать быстрее, приостанавливая неактивные вкладки" },
-    "ext_default_title": { "message": "The Great Suspender" },
-    "ext_cmd_toggle_tab_suspension_description": { "message": "Приостановить/Возобновить активную вкладку" },
-    "ext_cmd_toggle_tab_pause_description": { "message": "Поставить на паузу/Возобновить приостановку активной вкладки" },
-    "ext_cmd_suspend_selected_tabs_description": { "message": "Приостановить выбранные вкладки" },
-    "ext_cmd_unsuspend_selected_tabs_description": { "message": "Возобновить выбранные вкладки" },
-    "ext_cmd_soft_suspend_active_window_description": { "message": "Приостановить все остальные вкладки в активном окне" },
-    "ext_cmd_force_suspend_active_window_description": { "message": "Принудительно приостановить все остальные вкладки в активном окне" },
-    "ext_cmd_unsuspend_active_window_description": { "message": "Возобновить все вкладки в активном окне" },
-    "ext_cmd_soft_suspend_all_windows_description": { "message": "Приостановить все вкладки во всех окнах" },
-    "ext_cmd_force_suspend_all_windows_description": { "message": "Принудительно приостановить все вкладки во всех окнах" },
-    "ext_cmd_unsuspend_all_windows_description": { "message": "Возобновить все вкладки во всех окнах" },
-    "js_context_open_link_in_suspended_tab": { "message": "Открыть ссылку в новой приостановленной вкладке" },
-    "js_context_toggle_suspend_state": { "message": "Приостановить/Возобновить эту вкладку" },
-    "js_context_toggle_pause_suspension": { "message": "Поставить на паузу/Возобновить приостановку этой вкладки" },
-    "js_context_never_suspend_domain": { "message": "Никогда не приостанавливать этот домен" },
-    "js_context_never_suspend_page": { "message": "Никогда не приостанавливать этот URL" },
-    "js_context_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
-    "js_context_unsuspend_selected_tabs": { "message": "Возобновить выбранные вкладки" },
-    "js_context_soft_suspend_other_tabs_in_window": { "message": "Приостановить все остальные вкладки в этом окне" },
-    "js_context_force_suspend_other_tabs_in_window": { "message": "Принудительно приостановить все остальные вкладки в этом окне" },
-    "js_context_unsuspend_all_tabs_in_window": { "message": "Возобновить все вкладки в этом окне" },
-    "js_context_soft_suspend_all_tabs": { "message": "Приостановить все вкладки во всех окнах" },
-    "js_context_force_suspend_all_tabs": { "message": "Принудительно приостановить все вкладки во всех окнах" },
-    "js_context_unsuspend_all_tabs": { "message": "Возобновить все вкладки во всех окнах" },
-    "html_about_title": { "message": "О расширении" },
-    "html_about_github_title": { "message": "GitHub" },
-    "html_about_twitter_title": { "message": "Twitter" },
-    "html_about_report_issues_prefix": { "message": "Связаться с нами или сообщить о баге можно на" },
-    "html_about_report_issues_suffix": { "message": ". Пожалуйста, убедитесь, что Ваша идея или предложение не были опубликованы ранее. Спасибо!" },
-    "html_about_debugging_prefix": { "message": "Чтобы включить ведение журнала или установить флаги отладки, перейдите на " },
-    "html_about_debugging_suffix": { "message": "страницу отладки." },
-    "html_about_the_github_issues_page": { "message": "странице предложений GitHub" },
-    "html_about_html2canvas": { "message": "html2canvas" },
-    "html_about_html2canvas_prefix": { "message": "Это расширение использует" },
-    "html_about_html2canvas_suffix": { "message": "библиотеку Niklas von Hertzen." },
-    "html_about_indexedDb": { "message": "db.js" },
-    "html_about_indexedDb_prefix": { "message": "Также используется " },
-    "html_about_indexedDb_suffix": { "message": "обёртка для indexedDb от Aaron Powell." },
-    "html_about_browserstack": { "message": "browserstack" },
-    "html_about_browserstack_prefix": { "message": "Отдельное спасибо" },
-    "html_about_browserstack_suffix": { "message": "за бесплатные средства отладки Chrome." },
-    "html_history_title": { "message": "Управление сессиями" },
-    "html_history_current_session": { "message": "Текущая сессия" },
-    "html_history_recent_sessions": { "message": "Предыдущие сессии" },
-    "html_history_saved_sessions": { "message": "Сохранённые сессии" },
-    "html_history_import_session": { "message": "Импорт сессии" },
-    "html_notice_title": { "message": "Уведомление" },
-    "html_notice_important_notice": { "message": "Важное уведомление от The Great Suspender" },
-    "html_options_title": { "message": "Настройки" },
-    "html_options_suspend_title": { "message": "Автоматическая приостановка вкладок" },
-    "html_options_suspended_title": { "message": "Приостановленные вкладки" },
-    "html_options_other_title": { "message": "Прочее" },
-    "html_options_suspend_automatically_after": { "message": "Автоматически приостанавливать вкладки после" },
-    "html_options_suspend_never": { "message": "никогда" },
-    "html_options_suspend_seconds": { "message": "секунд" },
-    "html_options_suspend_minute": { "message": "минуты" },
-    "html_options_suspend_minutes": { "message": "минут" },
-    "html_options_suspend_hour": { "message": "часа" },
-    "html_options_suspend_hours": { "message": "часов" },
-    "html_options_suspend_day": { "message": "дня" },
-    "html_options_suspend_days": { "message": "дней" },
-    "html_options_suspend_week": { "message": "недели" },
-    "html_options_suspend_weeks": { "message": "недель" },
-    "html_options_suspend_no_pinned": { "message": "Никогда не приостанавливать закреплённые вкладки" },
-    "html_options_suspend_no_forms": { "message": "Никогда не приостанавливать вкладки с несохранёнными полями ввода" },
-    "html_options_suspend_no_audio": { "message": "Никогда не приостанавливать вкладки с проигрывающимся аудио" },
-    "html_options_suspend_only_connected": { "message": "Никогда не приостанавливать вкладки в режиме оффлайн" },
-    "html_options_suspend_only_on_battery": { "message": "Никогда не приостанавливать вкладки, когда подключён источник питания" },
-    "html_options_suspend_no_active_tabs": { "message": "Никогда не приостанавливать активную вкладку в каждом окне" },
-    "html_options_suspend_automatically_unsuspend": { "message": "Автоматически возобновлять приостановленную вкладку при переходе на неё" },
-    "html_options_suspend_discard_after_suspend": { "message": "Использовать встроенный в Chrome механизм экономии памяти для приостановленных вкладок" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1a": { "message": "Ещё больше уменьшает потребление памяти для приостановленных вкладок, используя" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1b": { "message": "встроенный в Chrome механизм выгрузки вкладок. Это позволит уменьшить" },
-    "html_options_suspend_discard_after_suspend_tooltip_line1c": { "message": "потребление памяти до 500% (при работе с большим количеством вкладок)." },
-    "html_options_suspend_discard_after_suspend_tooltip_line2a": { "message": "Однако, это может привести к небольшой задержке прорисовки приостановленной" },
-    "html_options_suspend_discard_after_suspend_tooltip_line2b": { "message": "вкладки при переходе на неё." },
-    "html_options_suspend_discard_after_suspend_tooltip_line3a": {"message": "Для получения дополнительной информации о механизме выгрузки вкладок Chrome см.:"},
-    "html_options_suspend_discard_after_suspend_tooltip_line3b": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
-    "html_options_suspend_theme": { "message": "Тема" },
-    "html_options_suspend_theme_light": { "message": "Светлая" },
-    "html_options_suspend_theme_dark": { "message": "Тёмная" },
-    "html_options_suspend_screen_capturing": { "message": "Скриншот страницы" },
-    "html_options_suspend_screen_capturing_disabled": { "message": "Отключено" },
-    "html_options_suspend_screen_capturing_screen_only": { "message": "Захватывать только верх страницы" },
-    "html_options_suspend_screen_capturing_entire_page": { "message": "Захватывать всю страницу" },
-    "html_options_suspend_screen_capturing_tooltip_line1a": {"message": "На приостановленной вкладке расширение будет отображать скриншот страницы"},
-    "html_options_suspend_screen_capturing_tooltip_line1b": {"message": "до её приостановки." },
-    "html_options_suspend_screen_capturing_tooltip_line2a": {"message": "Скриншот страницы является экспериментальной функцией и может привести к значительной"},
-    "html_options_suspend_screen_capturing_tooltip_line2b": {"message": "нагрузке на процессор, а также к повышенному потреблению памяти." },
-    "html_options_suspend_screen_capturing_tooltip_line3a": { "message": "Если Вы заметили странное поведение, например, долгую приостановку вкладки или" },
-    "html_options_suspend_screen_capturing_tooltip_line3b": { "message": "внезапные вылеты Chrome, попробуйте отключить эту функцию." },
-    "html_options_suspend_force_screen_capture": { "message": "Использовать более высокое качество скриншотов страниц" },
-    "html_options_suspend_force_screen_capture_tooltip_line1": { "message": "Когда отключено, снимки экрана имеют следующие ограничения:" },
-    "html_options_suspend_force_screen_capture_tooltip_line2": {"message": "- Низкое качество скриншота страницы"},
-    "html_options_suspend_force_screen_capture_tooltip_line4": {"message": "- Скриншота страницы не будет, если для генерации изображения требуется более 1 минуты"},
-    "html_options_suspend_force_screen_capture_tooltip_line5": {"message": "- Максимальная высота скриншота страницы 5000px"},
-    "html_options_suspend_force_screen_capture_tooltip_line6": {"message": "Использование скриншотов страниц высокого качества может значительно увеличить"},
-    "html_options_suspend_force_screen_capture_tooltip_line7": {"message": "нагрузку на процессор и потребление памяти." },
-    "html_options_whitelist_title": { "message": "Никогда не приостанавливать вкладки с URL-адресами из следующего списка:" },
-    "html_options_whitelist_tooltip_line1": {"message": "Добавьте URL-адрес каждой страницы, которую Вы хотите добавить в белый список, например:"},
-    "html_options_whitelist_tooltip_line2": {"message": "Чтобы не перечислять несколько сайтов, Вы можете указать совпадающую часть URL:"},
-    "html_options_whitelist_tooltip_line3": {"message": "Вы также можете использовать регулярные выражения, используя в тексте косые черты:"},
-    "html_options_whitelist_test": { "message": "Протестировать белый список" },
-    "html_options_other_enable_context_menu": {"message": "Добавить The Great Suspender в контекстное меню правой кнопки мыши"},
-    "html_options_other_enable_context_menu_tooltip_line1": { "message": "Добавить элементы управления для этого расширения в контекстное меню веб-страницы." },
-    "html_options_other_enable_context_menu_tooltip_line2": { "message": "Это даст Вам доступ к дополнительным действиям с вкладками, которые" },
-    "html_options_other_enable_context_menu_tooltip_line3": { "message": "недоступны в другом месте расширения." },
-    "html_options_other_enable_sync": { "message": "Синхронизировать настройки с Вашим профилем Chrome" },
-    "html_options_other_enable_sync_tooltip_line1a": { "message": "Настройки расширения будут синхронизированы с Вашим профилем между" },
-    "html_options_other_enable_sync_tooltip_line1b": { "message": "всеми браузерами Chrome." },
-    "html_options_other_enable_sync_tooltip_line2": { "message": "Также синхронизирует настройки в режиме инкогнито." },
-    "html_options_other_enable_sync_warning": { "message": "Включение этой опции приведет к перезаписыванию настроек расширения для Вашего профиля между всеми браузерами Chrome" },
-    "html_options_suspend_on_low_memory": { "message": "Приостанавливать вкладки при нехватке системной памяти" },
-    "html_options_suspend_on_low_memory_tooltip_line1": {"message": "Этот параметр заменяет встроенный в Chrome механизм выгрузки вкладок." },
-    "html_options_suspend_on_low_memory_tooltip_line2": {"message": "Если включено, вкладка будет принудительно приостанавливаться, вместо использования механизма выгрузки Chrome." },
-    "html_options_suspend_on_low_memory_tooltip_line3": {"message": "Как правило, Chrome выгружает вкладки, только когда системной памяти остаётся очень мало." },
-    "html_options_suspend_on_low_memory_tooltip_line4": {"message": "Обратите внимание: это может привести к приостановке вкладок раньше, чем выбрано"},
-    "html_options_suspend_on_low_memory_tooltip_line5": {"message": "в настройке \"Автоматически приостанавливать вкладки после\"." },
-    "html_options_suspend_on_low_memory_tooltip_line6": {"message": "Для получения дополнительной информации о механизме выгрузки вкладок Chrome см.:"},
-    "html_options_suspend_on_low_memory_tooltip_discarding_link": { "message": "https://developers.google.com/web/updates/2015/09/tab-discarding" },
-    "html_popup_unsuspend_tab": { "message": "Возобновить эту вкладку" },
-    "html_popup_suspend_tab": { "message": "Приостановить эту вкладку" },
-    "html_popup_dont_suspend_now": { "message": "Не приостанавливать" },
-    "html_popup_never_suspend_domain": { "message": "Никогда не приостанавливать этот домен" },
-    "html_popup_never_suspend_page": { "message": "Никогда не приостанавливать этот URL" },
-    "html_popup_suspend_other_tabs": { "message": "Приостановить все остальные вкладки" },
-    "html_popup_unsuspend_all_tabs": { "message": "Возобновить все вкладки" },
-    "html_popup_suspend_selected_tabs": { "message": "Приостановить выбранные вкладки" },
-    "html_popup_unsuspend_selected_tabs": { "message": "Возобновить выбранные вкладки" },
-    "html_popup_settings": { "message": "Настройки" },
-    "html_restoring_title": { "message": "Восстановление окна" },
-    "html_restoring_heading": { "message": "Восстановление вкладок" },
-    "html_restoring_detail": { "message": "Пожалуйста, подождите, пока я восстановлю это окно..." },
-    "html_recovery_title": { "message": "Восстановление" },
-    "html_recovery_ruh_roh": { "message": "Ой-ой!" },
-    "html_recovery_description_line1": { "message": "Кажется, расширение завершило работу некорректно." },
-    "html_recovery_description_line2": { "message": "Ваши приостановленные вкладки могли пропасть." },
-    "html_recovery_restore_tabs_automatically": { "message": "Автоматическое восстановление вкладок" },
-    "html_recovery_go_to_session_manager": { "message": "Перейти к управлению сессиями" },
-    "html_recovery_important_message": { "message": "У Вас включена функция скриншота страницы. Рекомендуется отключить её, если наблюдаются проблемы с расширением." },
-    "html_recovery_disable_screen_capturing": { "message": "Выключить функцию скриншота страницы" },
-    "html_recovery_tabs_to_restore": { "message": "Восстановить вкладки" },
-    "html_shortcuts_title": { "message": "Горячие клавиши" },
-    "html_shortcuts_keyboard_shortcuts": { "message": "Горячие клавиши" },
-    "html_shortcuts_context_menu_note": { "message": "Примечание: эти действия также доступны из контекстного меню правой кнопки мыши." },
-    "html_shortcuts_remap_keys": { "message": "Изменить горячие клавиши" },
-    "html_sidebar_general_settings": { "message": "Настройки" },
-    "html_sidebar_session_management": { "message": "Управление сессиями" },
-    "html_sidebar_shortcuts": { "message": "Горячие клавиши" },
-    "html_sidebar_support": { "message": "О расширении" },
-    "html_success_great_success": { "message": "Отлично!" },
-    "html_success_all_tabs_restored": { "message": "Все Ваши вкладки были восстановлены." },
-    "html_success_goto_advanced_prefix": { "message": "Более продвинутое управление сессиями доступно в разделе " },
-    "html_success_goto_advanced_suffix": { "message": "" },
-    "html_session_manager": { "message": "управление сессиями" },
-    "html_suspended_title": { "message": "Приостановленная вкладка" },
-    "html_suspended_tab_suspended": { "message": "Вкладка приостановлена" },
-    "html_suspended_tab_reload": { "message": "Обновить вкладку" },
-    "html_suspended_tab_whitelist_prefix": { "message": "Никогда не приостанавливать" },
-    "html_suspended_tab_whitelist_suffix": { "message": "..." },
-    "html_suspended_click_to_reload": { "message": "Обновите или нажмите для обновления" },
-    "html_suspended_toast_not_connected": { "message": "Нет подключения к интернету" },
-    "html_suspended_toast_reload_disabled": { "message": "Автоматическое обновление вкладок временно отключено." },
-    "html_permissions_title": { "message": "Разрешения" },
-    "html_permissions_heading": { "message": "Пожалуйста, разрешите доступ к локальным файлам" },
-    "html_permissions_info": { "message": "У расширения в данный момент нет разрешения приостанавливать вкладки с URL-адресами, начинающимися со слова \"file\".\nЧтобы это изменить, включите \"Разрешить открывать локальные файлы по ссылкам\" со страницы настроек расширения." },
-    "html_permissions_backup": { "message": "Примечание: изменение этой опции приведет к временному исчезновению всех приостановленных вкладок.\nНа всякий случай рекомендуем сделать резервную копию вкладок текущей сессии в разделе \"Управление сессиями\"." },
-    "html_update_title": { "message": "Обновление" },
-    "html_update_heading2": { "message": "становится всё лучше" },
-    "html_update_info": { "message": "Новая версия The Great Suspender готова к установке.\nПримечание: в процессе обновления приостановленные вкладки могут временно пропасть." },
-    "html_update_info_withbackup": { "message": "На всякий случай рекомендуется сделать резервную копию вкладок текущей сессии." },
-    "html_update_info_nobackup_prefix": { "message": "Рекомендуется сделать экспорт текущей сессии" },
-    "html_update_info_nobackup_suffix": { "message": " перед обновлением расширения." },
-    "html_updated_title": { "message": "Обновлено" },
-    "html_updating_heading": { "message": "обновляется" },
-    "html_updating_message": { "message": "Восстанавливаются приостановленные вкладки..." },
-    "html_updated_great_suspender_updated": { "message": "успешно обновлён" },
-    "html_updated_info_line1": { "message": "Перед обновлением была создана резервная копия Ваших вкладок." },
-    "html_updated_info_line2_prefix": { "message": "Если во время обновления возникли проблемы, то Вы можете восстановить потерянные вкладки из резервной копии в разделе " },
-    "html_updated_info_line2_suffix": { "message": "." },
-    "html_updated_detail_header_prefix": { "message": "Что нового в " },
-    "html_updated_detail_header_suffix": { "message": "?" },
-    "html_updated_new_features_header": { "message": "Новый функционал:" },
-    "html_updated_bug_fixes_header": { "message": "Исправлены баги:" },
-    "html_updated_release_notes": { "message": "Прочитать на странице расширения в GitHub: " },
-    "html_updated_patch_message": { "message": "Извините за беспокойство. Мне просто нужно было выполнить небольшое техобслуживание." },
-    "html_welcome_title": { "message": "Добро пожаловать" },
-    "html_welcome_text_line1": { "message": "Спасибо за использование" },
-    "html_welcome_text_line2": { "message": "Я ускорю Ваш компьютер, приостанавливая неиспользуемые вкладки." },
-    "html_welcome_text_line3": { "message": "Вы можете настроить параметры ниже." },
-    "js_popup_normal": { "message": "Вкладка будет приостановлена автоматически." },
-    "js_popup_normal_pause": { "message": "Не сейчас" },
-    "js_popup_special": { "message": "Вкладка не может быть приостановлена" },
-    "js_popup_suspended": { "message": "Вкладка приостановлена" },
-    "js_popup_suspended_pause": { "message": "Не приостанавливать" },
-    "js_popup_whitelisted": { "message": "Сайт добавлен в белый список." },
-    "js_popup_whitelisted_remove": { "message": "Удалить из белого списка" },
-    "js_popup_audible": { "message": "Вкладка проигрывает аудио." },
-    "js_popup_form_input": { "message": "Вкладка имеет несохранённые поля ввода." },
-    "js_popup_form_input_unpause": { "message": "Снять с паузы" },
-    "js_popup_pinned": { "message": "Вкладка закреплена" },
-    "js_popup_temp_whitelist": { "message": "Приостановка вкладки поставлена на паузу." },
-    "js_popup_temp_whitelist_unpause": { "message": "Снять с паузы" },
-    "js_popup_never": { "message": "Автоматическая приостановка вкладок отключена." },
-    "js_popup_no_connectivity": { "message": "Нет соединения" },
-    "js_popup_charging": { "message": "Подключено к источнику питания" },
-    "js_popup_blockedFile": { "message": "Локальные файлы не могут быть приостановлены." },
-    "js_popup_blockedFile_enable": { "message": "Разрешить" },
-    "js_popup_unknown": { "message": "Вкладка загружается..." },
-    "js_popup_initialising": { "message": "Расширение запускается..." },
-    "js_popup_error": { "message": "Авто-приостановка недоступна для этой вкладки" },
-    "js_history_delete": { "message": "удалить" },
-    "js_history_export": { "message": "экспортировать" },
-    "js_history_reload": { "message": "открыть и загрузить" },
-    "js_history_resuspend": { "message": "открыть и приостановить" },
-    "js_history_save": { "message": "сохранить" },
-    "js_history_window": { "message": "Окно" },
-    "js_history_tab": { "message": "Вкладка" },
-    "js_history_plural": { "message": "" },
-    "js_history_enter_name_for_session": { "message": "Введите имя для сессии" },
-    "js_history_confirm_delete": { "message": "Вы точно хотите удалить эту сессию?" },
-    "js_history_confirm_session_overwrite": { "message": "Сессия с таким именем уже существует. Перезаписать?" },
-    "js_history_import_fail": { "message": "Ошибка при загрузке файла. Убедитесь, что это текстовый файл, и что он содержит не более одного URL-адреса в каждой строке." },
-    "js_suspended_remove_from_whitelist": { "message": "Удалить сайт из белого списка" },
-    "js_suspended_hotkey_to_reload": { "message": "Назначить горячие клавиши" },
-    "js_suspended_low_memory": { "message": "Вкладка приостановлена из-за нехватки памяти" },
-    "js_options_incognito_warning": { "message": "Вы находитесь в режиме инкогнито. Некоторые функции будут недоступны." },
-    "js_options_whitelist_no_matches": { "message": "Нет открытых вкладок, подходящих под текущий белый список." },
-    "js_options_whitelist_matches_heading": { "message": "Открытые вкладки, подходящие под текущий белый список:" },
-    "js_options_whitelist_matches_overflow_prefix": { "message": "и" },
-    "js_options_whitelist_matches_overflow_suffix": { "message": "ещё." },
-    "js_permissions_button_export": { "message": "Сохранить резервную копию" },
-    "js_permissions_button_set": { "message": "Открыть настройки расширения" },
-    "js_update_confirm": { "message": "Вы ещё не сделали резервную копию. Всё равно обновить?" },
-    "js_update_button_export": { "message": "Сохранить резервную копию" },
-    "js_update_button_reload": { "message": "Обновить расширение" },
-    "js_shortcuts_not_set": { "message": "не задано" },
-    "js_session_save_point": { "message": "Автоматическая точка восстановления для версии " }
+    "ext_extension_name": {
+        "message": "The Marvellous Suspender"
+    },
+    "ext_extension_description": {
+        "message": "Заставь свой браузер работать быстрее, приостанавливая неактивные вкладки"
+    },
+    "ext_default_title": {
+        "message": "The Marvellous Suspender"
+    },
+    "ext_cmd_toggle_tab_suspension_description": {
+        "message": "Приостановить/Возобновить активную вкладку"
+    },
+    "ext_cmd_toggle_tab_pause_description": {
+        "message": "Поставить на паузу/Возобновить приостановку активной вкладки"
+    },
+    "ext_cmd_suspend_selected_tabs_description": {
+        "message": "Приостановить выбранные вкладки"
+    },
+    "ext_cmd_unsuspend_selected_tabs_description": {
+        "message": "Возобновить выбранные вкладки"
+    },
+    "ext_cmd_soft_suspend_active_window_description": {
+        "message": "Приостановить все остальные вкладки в активном окне"
+    },
+    "ext_cmd_force_suspend_active_window_description": {
+        "message": "Принудительно приостановить все остальные вкладки в активном окне"
+    },
+    "ext_cmd_unsuspend_active_window_description": {
+        "message": "Возобновить все вкладки в активном окне"
+    },
+    "ext_cmd_soft_suspend_all_windows_description": {
+        "message": "Приостановить все вкладки во всех окнах"
+    },
+    "ext_cmd_force_suspend_all_windows_description": {
+        "message": "Принудительно приостановить все вкладки во всех окнах"
+    },
+    "ext_cmd_unsuspend_all_windows_description": {
+        "message": "Возобновить все вкладки во всех окнах"
+    },
+    "js_context_open_link_in_suspended_tab": {
+        "message": "Открыть ссылку в новой приостановленной вкладке"
+    },
+    "js_context_toggle_suspend_state": {
+        "message": "Приостановить/Возобновить эту вкладку"
+    },
+    "js_context_toggle_pause_suspension": {
+        "message": "Поставить на паузу/Возобновить приостановку этой вкладки"
+    },
+    "js_context_never_suspend_domain": {
+        "message": "Никогда не приостанавливать этот домен"
+    },
+    "js_context_never_suspend_page": {
+        "message": "Никогда не приостанавливать этот URL"
+    },
+    "js_context_suspend_selected_tabs": {
+        "message": "Приостановить выбранные вкладки"
+    },
+    "js_context_unsuspend_selected_tabs": {
+        "message": "Возобновить выбранные вкладки"
+    },
+    "js_context_soft_suspend_other_tabs_in_window": {
+        "message": "Приостановить все остальные вкладки в этом окне"
+    },
+    "js_context_force_suspend_other_tabs_in_window": {
+        "message": "Принудительно приостановить все остальные вкладки в этом окне"
+    },
+    "js_context_unsuspend_all_tabs_in_window": {
+        "message": "Возобновить все вкладки в этом окне"
+    },
+    "js_context_soft_suspend_all_tabs": {
+        "message": "Приостановить все вкладки во всех окнах"
+    },
+    "js_context_force_suspend_all_tabs": {
+        "message": "Принудительно приостановить все вкладки во всех окнах"
+    },
+    "js_context_unsuspend_all_tabs": {
+        "message": "Возобновить все вкладки во всех окнах"
+    },
+    "html_about_title": {
+        "message": "О расширении"
+    },
+    "html_about_fork_beginning": {
+        "message": "Based on the original"
+    },
+    "html_about_fork_mid": {
+        "message": "available on GitHub, without ADS tracking (more information available on"
+    },
+    "html_about_fork_end": {
+        "message": ")"
+    },
+    "html_about_github_title": {
+        "message": "GitHub"
+    },
+    "html_about_blog_title": {
+        "message": "Blog"
+    },
+    "html_about_twitter_title": {
+        "message": "Twitter"
+    },
+    "html_about_report_issues_prefix": {
+        "message": "Связаться с нами или сообщить о баге можно на"
+    },
+    "html_about_report_issues_suffix": {
+        "message": ". Пожалуйста, убедитесь, что Ваша идея или предложение не были опубликованы ранее. Спасибо!"
+    },
+    "html_about_debugging_prefix": {
+        "message": "Чтобы включить ведение журнала или установить флаги отладки, перейдите на "
+    },
+    "html_about_debugging_suffix": {
+        "message": "страницу отладки."
+    },
+    "html_about_the_github_issues_page": {
+        "message": "странице предложений GitHub"
+    },
+    "html_about_html2canvas": {
+        "message": "html2canvas"
+    },
+    "html_about_html2canvas_prefix": {
+        "message": "Это расширение использует"
+    },
+    "html_about_html2canvas_suffix": {
+        "message": "библиотеку Niklas von Hertzen."
+    },
+    "html_about_indexedDb": {
+        "message": "db.js"
+    },
+    "html_about_indexedDb_prefix": {
+        "message": "Также используется "
+    },
+    "html_about_indexedDb_suffix": {
+        "message": "обёртка для indexedDb от Aaron Powell."
+    },
+    "html_about_browserstack": {
+        "message": "browserstack"
+    },
+    "html_about_browserstack_prefix": {
+        "message": "Отдельное спасибо"
+    },
+    "html_about_browserstack_suffix": {
+        "message": "за бесплатные средства отладки Chrome."
+    },
+    "html_history_title": {
+        "message": "Управление сессиями"
+    },
+    "html_history_current_session": {
+        "message": "Текущая сессия"
+    },
+    "html_history_recent_sessions": {
+        "message": "Предыдущие сессии"
+    },
+    "html_history_saved_sessions": {
+        "message": "Сохранённые сессии"
+    },
+    "html_history_import_session": {
+        "message": "Импорт сессии"
+    },
+    "html_notice_title": {
+        "message": "Уведомление"
+    },
+    "html_notice_important_notice": {
+        "message": "Важное уведомление от The Marvellous Suspender"
+    },
+    "html_options_title": {
+        "message": "Настройки"
+    },
+    "html_options_suspend_title": {
+        "message": "Автоматическая приостановка вкладок"
+    },
+    "html_options_suspended_title": {
+        "message": "Приостановленные вкладки"
+    },
+    "html_options_other_title": {
+        "message": "Прочее"
+    },
+    "html_options_suspend_automatically_after": {
+        "message": "Автоматически приостанавливать вкладки после"
+    },
+    "html_options_suspend_never": {
+        "message": "никогда"
+    },
+    "html_options_suspend_seconds": {
+        "message": "секунд"
+    },
+    "html_options_suspend_minute": {
+        "message": "минуты"
+    },
+    "html_options_suspend_minutes": {
+        "message": "минут"
+    },
+    "html_options_suspend_hour": {
+        "message": "часа"
+    },
+    "html_options_suspend_hours": {
+        "message": "часов"
+    },
+    "html_options_suspend_day": {
+        "message": "дня"
+    },
+    "html_options_suspend_days": {
+        "message": "дней"
+    },
+    "html_options_suspend_week": {
+        "message": "недели"
+    },
+    "html_options_suspend_weeks": {
+        "message": "недель"
+    },
+    "html_options_suspend_no_pinned": {
+        "message": "Никогда не приостанавливать закреплённые вкладки"
+    },
+    "html_options_suspend_no_forms": {
+        "message": "Никогда не приостанавливать вкладки с несохранёнными полями ввода"
+    },
+    "html_options_suspend_no_audio": {
+        "message": "Никогда не приостанавливать вкладки с проигрывающимся аудио"
+    },
+    "html_options_suspend_only_connected": {
+        "message": "Никогда не приостанавливать вкладки в режиме оффлайн"
+    },
+    "html_options_suspend_only_on_battery": {
+        "message": "Никогда не приостанавливать вкладки, когда подключён источник питания"
+    },
+    "html_options_suspend_no_active_tabs": {
+        "message": "Никогда не приостанавливать активную вкладку в каждом окне"
+    },
+    "html_options_suspend_automatically_unsuspend": {
+        "message": "Автоматически возобновлять приостановленную вкладку при переходе на неё"
+    },
+    "html_options_suspend_discard_after_suspend": {
+        "message": "Использовать встроенный в Chrome механизм экономии памяти для приостановленных вкладок"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1a": {
+        "message": "Ещё больше уменьшает потребление памяти для приостановленных вкладок, используя"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1b": {
+        "message": "встроенный в Chrome механизм выгрузки вкладок. Это позволит уменьшить"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1c": {
+        "message": "потребление памяти до 500% (при работе с большим количеством вкладок)."
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line2a": {
+        "message": "Однако, это может привести к небольшой задержке прорисовки приостановленной"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line2b": {
+        "message": "вкладки при переходе на неё."
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line3a": {
+        "message": "Для получения дополнительной информации о механизме выгрузки вкладок Chrome см.:"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line3b": {
+        "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
+    },
+    "html_options_suspend_theme": {
+        "message": "Тема"
+    },
+    "html_options_suspend_theme_light": {
+        "message": "Светлая"
+    },
+    "html_options_suspend_theme_dark": {
+        "message": "Тёмная"
+    },
+    "html_options_suspend_screen_capturing": {
+        "message": "Скриншот страницы"
+    },
+    "html_options_suspend_screen_capturing_disabled": {
+        "message": "Отключено"
+    },
+    "html_options_suspend_screen_capturing_screen_only": {
+        "message": "Захватывать только верх страницы"
+    },
+    "html_options_suspend_screen_capturing_entire_page": {
+        "message": "Захватывать всю страницу"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line1a": {
+        "message": "На приостановленной вкладке расширение будет отображать скриншот страницы"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line1b": {
+        "message": "до её приостановки."
+    },
+    "html_options_suspend_screen_capturing_tooltip_line2a": {
+        "message": "Скриншот страницы является экспериментальной функцией и может привести к значительной"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line2b": {
+        "message": "нагрузке на процессор, а также к повышенному потреблению памяти."
+    },
+    "html_options_suspend_screen_capturing_tooltip_line3a": {
+        "message": "Если Вы заметили странное поведение, например, долгую приостановку вкладки или"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line3b": {
+        "message": "внезапные вылеты Chrome, попробуйте отключить эту функцию."
+    },
+    "html_options_suspend_force_screen_capture": {
+        "message": "Использовать более высокое качество скриншотов страниц"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line1": {
+        "message": "Когда отключено, снимки экрана имеют следующие ограничения:"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line2": {
+        "message": "- Низкое качество скриншота страницы"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line4": {
+        "message": "- Скриншота страницы не будет, если для генерации изображения требуется более 1 минуты"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line5": {
+        "message": "- Максимальная высота скриншота страницы 5000px"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line6": {
+        "message": "Использование скриншотов страниц высокого качества может значительно увеличить"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line7": {
+        "message": "нагрузку на процессор и потребление памяти."
+    },
+    "html_options_whitelist_title": {
+        "message": "Никогда не приостанавливать вкладки с URL-адресами из следующего списка:"
+    },
+    "html_options_whitelist_tooltip_line1": {
+        "message": "Добавьте URL-адрес каждой страницы, которую Вы хотите добавить в белый список, например:"
+    },
+    "html_options_whitelist_tooltip_line2": {
+        "message": "Чтобы не перечислять несколько сайтов, Вы можете указать совпадающую часть URL:"
+    },
+    "html_options_whitelist_tooltip_line3": {
+        "message": "Вы также можете использовать регулярные выражения, используя в тексте косые черты:"
+    },
+    "html_options_whitelist_test": {
+        "message": "Протестировать белый список"
+    },
+    "html_options_other_enable_context_menu": {
+        "message": "Добавить The Marvellous Suspender в контекстное меню правой кнопки мыши"
+    },
+    "html_options_other_enable_context_menu_tooltip_line1": {
+        "message": "Добавить элементы управления для этого расширения в контекстное меню веб-страницы."
+    },
+    "html_options_other_enable_context_menu_tooltip_line2": {
+        "message": "Это даст Вам доступ к дополнительным действиям с вкладками, которые"
+    },
+    "html_options_other_enable_context_menu_tooltip_line3": {
+        "message": "недоступны в другом месте расширения."
+    },
+    "html_options_other_enable_sync": {
+        "message": "Синхронизировать настройки с Вашим профилем Chrome"
+    },
+    "html_options_other_enable_sync_tooltip_line1a": {
+        "message": "Настройки расширения будут синхронизированы с Вашим профилем между"
+    },
+    "html_options_other_enable_sync_tooltip_line1b": {
+        "message": "всеми браузерами Chrome."
+    },
+    "html_options_other_enable_sync_tooltip_line2": {
+        "message": "Также синхронизирует настройки в режиме инкогнито."
+    },
+    "html_options_other_enable_sync_warning": {
+        "message": "Включение этой опции приведет к перезаписыванию настроек расширения для Вашего профиля между всеми браузерами Chrome"
+    },
+    "html_options_suspend_on_low_memory": {
+        "message": "Приостанавливать вкладки при нехватке системной памяти"
+    },
+    "html_options_suspend_on_low_memory_tooltip_line1": {
+        "message": "Этот параметр заменяет встроенный в Chrome механизм выгрузки вкладок."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line2": {
+        "message": "Если включено, вкладка будет принудительно приостанавливаться, вместо использования механизма выгрузки Chrome."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line3": {
+        "message": "Как правило, Chrome выгружает вкладки, только когда системной памяти остаётся очень мало."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line4": {
+        "message": "Обратите внимание: это может привести к приостановке вкладок раньше, чем выбрано"
+    },
+    "html_options_suspend_on_low_memory_tooltip_line5": {
+        "message": "в настройке \"Автоматически приостанавливать вкладки после\"."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line6": {
+        "message": "Для получения дополнительной информации о механизме выгрузки вкладок Chrome см.:"
+    },
+    "html_options_suspend_on_low_memory_tooltip_discarding_link": {
+        "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
+    },
+    "html_popup_unsuspend_tab": {
+        "message": "Возобновить эту вкладку"
+    },
+    "html_popup_suspend_tab": {
+        "message": "Приостановить эту вкладку"
+    },
+    "html_popup_dont_suspend_now": {
+        "message": "Не приостанавливать"
+    },
+    "html_popup_never_suspend_domain": {
+        "message": "Никогда не приостанавливать этот домен"
+    },
+    "html_popup_never_suspend_page": {
+        "message": "Никогда не приостанавливать этот URL"
+    },
+    "html_popup_suspend_other_tabs": {
+        "message": "Приостановить все остальные вкладки"
+    },
+    "html_popup_unsuspend_all_tabs": {
+        "message": "Возобновить все вкладки"
+    },
+    "html_popup_suspend_selected_tabs": {
+        "message": "Приостановить выбранные вкладки"
+    },
+    "html_popup_unsuspend_selected_tabs": {
+        "message": "Возобновить выбранные вкладки"
+    },
+    "html_popup_settings": {
+        "message": "Настройки"
+    },
+    "html_restoring_title": {
+        "message": "Восстановление окна"
+    },
+    "html_restoring_heading": {
+        "message": "Восстановление вкладок"
+    },
+    "html_restoring_detail": {
+        "message": "Пожалуйста, подождите, пока я восстановлю это окно..."
+    },
+    "html_recovery_title": {
+        "message": "Восстановление"
+    },
+    "html_recovery_ruh_roh": {
+        "message": "Ой-ой!"
+    },
+    "html_recovery_description_line1": {
+        "message": "Кажется, расширение завершило работу некорректно."
+    },
+    "html_recovery_description_line2": {
+        "message": "Ваши приостановленные вкладки могли пропасть."
+    },
+    "html_recovery_restore_tabs_automatically": {
+        "message": "Автоматическое восстановление вкладок"
+    },
+    "html_recovery_go_to_session_manager": {
+        "message": "Перейти к управлению сессиями"
+    },
+    "html_recovery_important_message": {
+        "message": "У Вас включена функция скриншота страницы. Рекомендуется отключить её, если наблюдаются проблемы с расширением."
+    },
+    "html_recovery_disable_screen_capturing": {
+        "message": "Выключить функцию скриншота страницы"
+    },
+    "html_recovery_tabs_to_restore": {
+        "message": "Восстановить вкладки"
+    },
+    "html_shortcuts_title": {
+        "message": "Горячие клавиши"
+    },
+    "html_shortcuts_keyboard_shortcuts": {
+        "message": "Горячие клавиши"
+    },
+    "html_shortcuts_context_menu_note": {
+        "message": "Примечание: эти действия также доступны из контекстного меню правой кнопки мыши."
+    },
+    "html_shortcuts_remap_keys": {
+        "message": "Изменить горячие клавиши"
+    },
+    "html_sidebar_general_settings": {
+        "message": "Настройки"
+    },
+    "html_sidebar_session_management": {
+        "message": "Управление сессиями"
+    },
+    "html_sidebar_shortcuts": {
+        "message": "Горячие клавиши"
+    },
+    "html_sidebar_support": {
+        "message": "О расширении"
+    },
+    "html_success_great_success": {
+        "message": "Отлично!"
+    },
+    "html_success_all_tabs_restored": {
+        "message": "Все Ваши вкладки были восстановлены."
+    },
+    "html_success_goto_advanced_prefix": {
+        "message": "Более продвинутое управление сессиями доступно в разделе "
+    },
+    "html_success_goto_advanced_suffix": {
+        "message": "page"
+    },
+    "html_session_manager": {
+        "message": "управление сессиями"
+    },
+    "html_suspended_title": {
+        "message": "Приостановленная вкладка"
+    },
+    "html_suspended_tab_suspended": {
+        "message": "Вкладка приостановлена"
+    },
+    "html_suspended_tab_reload": {
+        "message": "Обновить вкладку"
+    },
+    "html_suspended_tab_whitelist_prefix": {
+        "message": "Никогда не приостанавливать"
+    },
+    "html_suspended_tab_whitelist_suffix": {
+        "message": "..."
+    },
+    "html_suspended_click_to_reload": {
+        "message": "Обновите или нажмите для обновления"
+    },
+    "html_suspended_toast_not_connected": {
+        "message": "Нет подключения к интернету"
+    },
+    "html_suspended_toast_reload_disabled": {
+        "message": "Автоматическое обновление вкладок временно отключено."
+    },
+    "html_permissions_title": {
+        "message": "Разрешения"
+    },
+    "html_permissions_heading": {
+        "message": "Пожалуйста, разрешите доступ к локальным файлам"
+    },
+    "html_permissions_info": {
+        "message": "У расширения в данный момент нет разрешения приостанавливать вкладки с URL-адресами, начинающимися со слова \"file\".\nЧтобы это изменить, включите \"Разрешить открывать локальные файлы по ссылкам\" со страницы настроек расширения."
+    },
+    "html_permissions_backup": {
+        "message": "Примечание: изменение этой опции приведет к временному исчезновению всех приостановленных вкладок.\nНа всякий случай рекомендуем сделать резервную копию вкладок текущей сессии в разделе \"Управление сессиями\"."
+    },
+    "html_update_title": {
+        "message": "Обновление"
+    },
+    "html_update_heading2": {
+        "message": "становится всё лучше"
+    },
+    "html_update_info": {
+        "message": "Новая версия The Marvellous Suspender готова к установке.\nПримечание: в процессе обновления приостановленные вкладки могут временно пропасть."
+    },
+    "html_update_info_withbackup": {
+        "message": "На всякий случай рекомендуется сделать резервную копию вкладок текущей сессии."
+    },
+    "html_update_info_nobackup_prefix": {
+        "message": "Рекомендуется сделать экспорт текущей сессии"
+    },
+    "html_update_info_nobackup_suffix": {
+        "message": " перед обновлением расширения."
+    },
+    "html_updated_title": {
+        "message": "Обновлено"
+    },
+    "html_updating_heading": {
+        "message": "обновляется"
+    },
+    "html_updating_message": {
+        "message": "Восстанавливаются приостановленные вкладки..."
+    },
+    "html_updated_great_suspender_updated": {
+        "message": "успешно обновлён"
+    },
+    "html_updated_info_line1": {
+        "message": "Перед обновлением была создана резервная копия Ваших вкладок."
+    },
+    "html_updated_info_line2_prefix": {
+        "message": "Если во время обновления возникли проблемы, то Вы можете восстановить потерянные вкладки из резервной копии в разделе "
+    },
+    "html_updated_info_line2_suffix": {
+        "message": "."
+    },
+    "html_updated_detail_header_prefix": {
+        "message": "Что нового в "
+    },
+    "html_updated_detail_header_suffix": {
+        "message": "?"
+    },
+    "html_updated_new_features_header": {
+        "message": "Новый функционал:"
+    },
+    "html_updated_bug_fixes_header": {
+        "message": "Исправлены баги:"
+    },
+    "html_updated_release_notes": {
+        "message": "Прочитать на странице расширения в GitHub: "
+    },
+    "html_updated_patch_message": {
+        "message": "Извините за беспокойство. Мне просто нужно было выполнить небольшое техобслуживание."
+    },
+    "html_welcome_title": {
+        "message": "Добро пожаловать"
+    },
+    "html_welcome_text_line1": {
+        "message": "Спасибо за использование"
+    },
+    "html_welcome_text_line2": {
+        "message": "Я ускорю Ваш компьютер, приостанавливая неиспользуемые вкладки."
+    },
+    "html_welcome_text_line3": {
+        "message": "Вы можете настроить параметры ниже."
+    },
+    "js_popup_normal": {
+        "message": "Вкладка будет приостановлена автоматически."
+    },
+    "js_popup_normal_pause": {
+        "message": "Не сейчас"
+    },
+    "js_popup_special": {
+        "message": "Вкладка не может быть приостановлена"
+    },
+    "js_popup_suspended": {
+        "message": "Вкладка приостановлена"
+    },
+    "js_popup_suspended_pause": {
+        "message": "Не приостанавливать"
+    },
+    "js_popup_whitelisted": {
+        "message": "Сайт добавлен в белый список."
+    },
+    "js_popup_whitelisted_remove": {
+        "message": "Удалить из белого списка"
+    },
+    "js_popup_audible": {
+        "message": "Вкладка проигрывает аудио."
+    },
+    "js_popup_form_input": {
+        "message": "Вкладка имеет несохранённые поля ввода."
+    },
+    "js_popup_form_input_unpause": {
+        "message": "Снять с паузы"
+    },
+    "js_popup_pinned": {
+        "message": "Вкладка закреплена"
+    },
+    "js_popup_temp_whitelist": {
+        "message": "Приостановка вкладки поставлена на паузу."
+    },
+    "js_popup_temp_whitelist_unpause": {
+        "message": "Снять с паузы"
+    },
+    "js_popup_never": {
+        "message": "Автоматическая приостановка вкладок отключена."
+    },
+    "js_popup_no_connectivity": {
+        "message": "Нет соединения"
+    },
+    "js_popup_charging": {
+        "message": "Подключено к источнику питания"
+    },
+    "js_popup_blockedFile": {
+        "message": "Локальные файлы не могут быть приостановлены."
+    },
+    "js_popup_blockedFile_enable": {
+        "message": "Разрешить"
+    },
+    "js_popup_unknown": {
+        "message": "Вкладка загружается..."
+    },
+    "js_popup_initialising": {
+        "message": "Расширение запускается..."
+    },
+    "js_popup_error": {
+        "message": "Авто-приостановка недоступна для этой вкладки"
+    },
+    "js_history_delete": {
+        "message": "удалить"
+    },
+    "js_history_export": {
+        "message": "экспортировать"
+    },
+    "js_history_reload": {
+        "message": "открыть и загрузить"
+    },
+    "js_history_resuspend": {
+        "message": "открыть и приостановить"
+    },
+    "js_history_save": {
+        "message": "сохранить"
+    },
+    "js_history_window": {
+        "message": "Окно"
+    },
+    "js_history_tab": {
+        "message": "Вкладка"
+    },
+    "js_history_plural": {
+        "message": "s"
+    },
+    "js_history_enter_name_for_session": {
+        "message": "Введите имя для сессии"
+    },
+    "js_history_confirm_delete": {
+        "message": "Вы точно хотите удалить эту сессию?"
+    },
+    "js_history_confirm_session_overwrite": {
+        "message": "Сессия с таким именем уже существует. Перезаписать?"
+    },
+    "js_history_import_fail": {
+        "message": "Ошибка при загрузке файла. Убедитесь, что это текстовый файл, и что он содержит не более одного URL-адреса в каждой строке."
+    },
+    "js_suspended_remove_from_whitelist": {
+        "message": "Удалить сайт из белого списка"
+    },
+    "js_suspended_hotkey_to_reload": {
+        "message": "Назначить горячие клавиши"
+    },
+    "js_suspended_low_memory": {
+        "message": "Вкладка приостановлена из-за нехватки памяти"
+    },
+    "js_options_incognito_warning": {
+        "message": "Вы находитесь в режиме инкогнито. Некоторые функции будут недоступны."
+    },
+    "js_options_whitelist_no_matches": {
+        "message": "Нет открытых вкладок, подходящих под текущий белый список."
+    },
+    "js_options_whitelist_matches_heading": {
+        "message": "Открытые вкладки, подходящие под текущий белый список:"
+    },
+    "js_options_whitelist_matches_overflow_prefix": {
+        "message": "и"
+    },
+    "js_options_whitelist_matches_overflow_suffix": {
+        "message": "ещё."
+    },
+    "js_permissions_button_export": {
+        "message": "Сохранить резервную копию"
+    },
+    "js_permissions_button_set": {
+        "message": "Открыть настройки расширения"
+    },
+    "js_update_confirm": {
+        "message": "Вы ещё не сделали резервную копию. Всё равно обновить?"
+    },
+    "js_update_button_export": {
+        "message": "Сохранить резервную копию"
+    },
+    "js_update_button_reload": {
+        "message": "Обновить расширение"
+    },
+    "js_shortcuts_not_set": {
+        "message": "не задано"
+    },
+    "js_session_save_point": {
+        "message": "Автоматическая точка восстановления для версии "
+    }
 }

@@ -5,6 +5,7 @@ var gsSession = (function() {
 
   const tabsToRestorePerSecond = 12;
 
+  let updateUrl;
   let updatedUrl;
 
   let initialisationMode = true;
@@ -20,6 +21,7 @@ var gsSession = (function() {
   let syncedSettingsOnInit;
 
   async function initAsPromised() {
+    updateUrl = chrome.extension.getURL('update.html');
     updatedUrl = chrome.extension.getURL('updated.html');
 
     // Set fileUrlsAccessAllowed to determine if extension can work on file:// URLs
@@ -32,6 +34,7 @@ var gsSession = (function() {
 
     //remove any update screens
     await Promise.all([
+      gsUtils.removeTabsByUrlAsPromised(updateUrl),
       gsUtils.removeTabsByUrlAsPromised(updatedUrl),
     ]);
 
@@ -61,12 +64,14 @@ var gsSession = (function() {
     }
 
     const suspendedTabCount = await gsUtils.getSuspendedTabCount();
-    if (suspendedTabCount === 0) {
+    if (!sessionRestorePoint || suspendedTabCount > 0) {
+      //show update screen
+      await gsChrome.tabsCreate(updateUrl);
+      //ensure we don't leave any windows with no unsuspended tabs
+      await unsuspendActiveTabInEachWindow();
+    } else {
       // if there are no suspended tabs then simply install the update immediately
       chrome.runtime.reload();
-    } else {
-      //do nothing. this prevents chrome from automatically updating and will instead wait
-      //until a browser restart to update
     }
   }
 
@@ -299,6 +304,7 @@ var gsSession = (function() {
       }
     }
 
+    await gsUtils.removeTabsByUrlAsPromised(updateUrl);
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
 
     await gsIndexedDb.performMigration(lastVersion);
@@ -793,6 +799,21 @@ var gsSession = (function() {
     return sessionMetrics;
   }
 
+  async function unsuspendActiveTabInEachWindow() {
+    const activeTabs = await gsChrome.tabsQuery({ active: true });
+    const suspendedActiveTabs = activeTabs.filter(tab =>
+      gsUtils.isSuspendedTab(tab)
+    );
+    if (suspendedActiveTabs.length === 0) {
+      return;
+    }
+    for (let suspendedActiveTab of suspendedActiveTabs) {
+      tgs.unsuspendTab(suspendedActiveTab);
+    }
+    await gsUtils.setTimeout(1000);
+    await unsuspendActiveTabInEachWindow();
+  }
+
   return {
     initAsPromised,
     runStartupChecks,
@@ -813,5 +834,6 @@ var gsSession = (function() {
     prepareForUpdate,
     getUpdateType,
     updateSessionMetrics,
+    unsuspendActiveTabInEachWindow,
   };
 })();
