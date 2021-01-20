@@ -36,7 +36,7 @@ Feel free to help me to localize this extension in any language, you can do it u
 
 ## License
 
-This work is licensed under a GNU GENERAL PUBLIC LICENSE (v3)
+This work is licensed under a GNU GENERAL PUBLIC LICENSE (v2)
 
 ### Shoutouts
 
