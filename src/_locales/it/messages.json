@@ -3,88 +3,88 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "Fai funzionare il computer senza intoppi sospendendo le schede che non stai usando"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "Sospendi/Riattiva la scheda attiva"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "Ferma/Riprendi la sospensione della scheda attiva"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "Sospendi le schede selezionate"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "Riattiva le schede selezionate"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "Sospendi tutte le altre schede nella finestra attiva"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "Forza la sospensione delle altre schede nella finestra attiva"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "Riattiva tutte le schede nella finestra attiva"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Sospendi tutte le schede in ogni finestra"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Forza la sospensione di tutte le schede in ogni finestra"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Riattiva tutte le schede in ogni finestra"
     },
     "js_context_open_link_in_suspended_tab": {
         "message": "Open Link in New Suspended Tab"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "Sospendi/Riattiva questa scheda"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "Ferma/Riprendi la sospensione di questa scheda"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Non sospendere mai questo dominio"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Non sospendere mai questo indirizzo"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Sospendi le schede selezionate"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Riattiva le schede selezionate"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Sospendi tutte le altre schede in questa finestra"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Forza la sospensione delle altre schede in questa finestra"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "Riattiva tutte le schede in questa finestra"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Sospendi tutte le schede in ogni finestra"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Forza la sospensione di tutte le schede in ogni finestra"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Riattiva tutte le schede in ogni finestra"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "Informazioni"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Basata sull'originale"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "disponibile su GitHub, senza tracciamento pubblicitario (maggiori informazioni disponibili su"
     },
     "html_about_fork_end": {
         "message": ")"
@@ -135,7 +135,7 @@
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "Grazie inoltre a"
     },
     "html_about_browserstack_suffix": {
         "message": "for providing free chrome testing tools."
@@ -144,16 +144,16 @@
         "message": "Session management"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "Sessione corrente"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "Sessioni recenti"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "Sessioni salvate"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "Importa sessione"
     },
     "html_notice_title": {
         "message": "Notice"
@@ -162,67 +162,67 @@
         "message": "Important notice from The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "Impostazioni"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "Sospensione automatica delle schede"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "Schede sospese"
     },
     "html_options_other_title": {
         "message": "Other"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "Sospendi automaticamente le schede dopo"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "Mai"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "secondi"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "minuto"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "minuti"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "ora"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "ore"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "giorno"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "giorni"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "settimana"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "settimane"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "Non sospendere mai le schede fissate"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "Non sospendere le schede che contengono moduli compilati non salvati"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "Non sospendere mai le schede che stanno riproducendo audio"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "Non sospendere mai le schede quando non sei connesso a Internet"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "Non sospendere mai le schede quando il PC è collegato all'alimentazione"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "Non sospendere mai la scheda attiva in ogni finestra"
     },
     "html_options_suspend_automatically_unsuspend": {
         "message": "Automatically unsuspend tab when it is viewed"
@@ -252,25 +252,25 @@
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "Tema"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "Chiaro"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "Scuro"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "Cattura dello schermo"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "Disabilitata"
     },
     "html_options_suspend_screen_capturing_screen_only": {
         "message": "Capture top of screen only"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "Cattura l'intera pagina"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
         "message": "On a suspended tab, the extension can display an image preview of the what the tab"
@@ -291,13 +291,13 @@
         "message": "crashing unexpectedly, try turning this feature off."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "Abilita la modalità di cattura dello schermo in alta qualità"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
         "message": "When disabled, screen captures have the following limitations to aid in performance:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- Cattura dello schermo di bassa qualità"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
         "message": "- Will not capture screen if it takes more than 1 minute to generate image"
@@ -312,22 +312,22 @@
         "message": "and memory usage."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "Non sospendere mai le schede contenenti i seguenti indirizzi:"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "Aggiungi l'indirizzo di ogni pagina che desideri inserire nella lista bianca, uno per riga. Per esempio:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "Per autorizzare più siti in una riga puoi invece specificare una parte dell'indirizzo:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "Puoi anche usare le espressioni regolari racchiudendo il testo tra due slash:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "Verifica il funzionamento della lista bianca"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "Aggiungi The Marvellous Suspender al menu contestuale del tasto destro del mouse"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
         "message": "Add controls for this extension to the right-click menu of a web page."
@@ -354,13 +354,13 @@
         "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "Sospendi istantaneamente quando la memoria di sistema diventa molto bassa"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
         "message": "This option will override Chrome's automatic tab discarding functionality."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "Se abilitata, forzerà la sospensione di una scheda invece di essere scartata da Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
         "message": "Typically, Chrome will only discard tabs once system memory gets very low."
@@ -378,40 +378,40 @@
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "Riattiva questa scheda"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "Sospendi questa scheda ora"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "Non sospendere per ora"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Non sospendere mai questo dominio"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Non sospendere mai questo indirizzo"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "Sospendi tutte le altre schede"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "Riattiva tutte le schede"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Sospendi le schede selezionate"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Riattiva le schede selezionate"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "Impostazioni"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "Ripristino la finestra"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "Ripristino le schede"
     },
     "html_restoring_detail": {
         "message": "Please wait while I restore this window..."
@@ -420,7 +420,7 @@
         "message": "Recovery"
     },
     "html_recovery_ruh_roh": {
-        "message": "Ruh roh!"
+        "message": "D'oh!"
     },
     "html_recovery_description_line1": {
         "message": "Looks like you're recovering from an extension crash."
@@ -429,7 +429,7 @@
         "message": "Your suspended tabs may have crashed or disappeared."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "Ripristina automaticamente le schede"
     },
     "html_recovery_go_to_session_manager": {
         "message": "Go to session manager"
@@ -600,7 +600,7 @@
         "message": "Tab suspended"
     },
     "js_popup_suspended_pause": {
-        "message": "Non sospendere"
+        "message": "Don't suspend"
     },
     "js_popup_whitelisted": {
         "message": "Site whitelisted."
@@ -705,7 +705,7 @@
         "message": "Whitelisted open tabs:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "e"
+        "message": "and"
     },
     "js_options_whitelist_matches_overflow_suffix": {
         "message": "altro."
