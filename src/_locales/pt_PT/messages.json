@@ -3,82 +3,82 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Faça o seu computador funcionar sem problemas suspendendo as guias que você não está usando"
+        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspender/Recarregar a guia ativa"
+        "message": "Suspend/Unsuspend active tab"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pausar/Retomar suspensão da guia ativa"
+        "message": "Pause/Unpause suspension of active tab"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspender guias selecionadas"
+        "message": "Suspend selected tabs"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Recarregar guias selecionadas"
+        "message": "Unsuspend selected tabs"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspender todas as outras guias na janela ativa"
+        "message": "Suspend all other tabs in active window"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Forçar suspender todas as outras guias na janela ativa"
+        "message": "Force suspend all other tabs in active window"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Recarregar todas as guias na janela ativa"
+        "message": "Unsuspend all tabs in active window"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspender todas as guias em todas as janelas"
+        "message": "Suspend all tabs in all windows"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Forçar suspensão de todas as guias em todas as janelas"
+        "message": "Force suspend all tabs in all windows"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Recarregar todas as guias em todas as janelas"
+        "message": "Unsuspend all tabs in all windows"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Abrir Link em Nova Guia Suspensa"
+        "message": "Open Link in New Suspended Tab"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspender/Recarregar esta guia"
+        "message": "Suspend/Unsuspend this tab"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pausar/Retomar a suspensão desta guia"
+        "message": "Pause/Unpause suspension of this tab"
     },
     "js_context_never_suspend_domain": {
-        "message": "Nunca suspender este domínio"
+        "message": "Never suspend this domain"
     },
     "js_context_never_suspend_page": {
-        "message": "Nunca suspender esta URL"
+        "message": "Never suspend this URL"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspender as guias selecionadas"
+        "message": "Suspend selected tabs"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Recarregar as guias selecionadas"
+        "message": "Unsuspend selected tabs"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspender todas as outras guias nessa janela"
+        "message": "Suspend all other tabs in this window"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Forçar a suspensão de todas as outras guias nessa janela"
+        "message": "Force suspend all other tabs in this window"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Recarregar todas as guias nessa janela"
+        "message": "Unsuspend all tabs in this window"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspender todas as guias em todas as janelas"
+        "message": "Suspend all tabs in all windows"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Forçar a suspensão de todas as guias em todas as janelas"
+        "message": "Force suspend all tabs in all windows"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Recarregar todas as guias em todas as janelas"
+        "message": "Unsuspend all tabs in all windows"
     },
     "html_about_title": {
-        "message": "Sobre"
+        "message": "About"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
@@ -99,88 +99,88 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "Se você tiver comentários ou quiser denunciar um problema, poderá fazer isso no"
+        "message": "If you have feedback or would like to report an issue, you can do so on the"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Por favor, verifique se a sua ideia ou problema já existe antes de criar um novo. Obrigado!"
+        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
     },
     "html_about_debugging_prefix": {
-        "message": "Para habilitar o log, ou para definir sinalizadores de depuração, vá para a "
+        "message": "To enable logging, or to set debugging flags, go to the "
     },
     "html_about_debugging_suffix": {
-        "message": "página de depuração."
+        "message": "debug page."
     },
     "html_about_the_github_issues_page": {
-        "message": "Página de problemas do GitHub"
+        "message": "GitHub issues page"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "Esta extensão usa a"
+        "message": "This extension uses the"
     },
     "html_about_html2canvas_suffix": {
-        "message": "biblioteca escrita por Niklas von Hertzen."
+        "message": "library written by Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "Ela também usa o indexedDb wrapper"
+        "message": "It also uses the indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
-        "message": "escrito por Aaron Powell."
+        "message": "written by Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Obrigado também por"
+        "message": "Thank you also to"
     },
     "html_about_browserstack_suffix": {
-        "message": "disponibilizar ferramentas gratuitas de teste do Chrome."
+        "message": "for providing free chrome testing tools."
     },
     "html_history_title": {
-        "message": "Gerenciamento de sessão"
+        "message": "Session management"
     },
     "html_history_current_session": {
-        "message": "Sessão atual"
+        "message": "Current session"
     },
     "html_history_recent_sessions": {
-        "message": "Sessões recentes"
+        "message": "Recent sessions"
     },
     "html_history_saved_sessions": {
-        "message": "Sessões salvas"
+        "message": "Saved sessions"
     },
     "html_history_import_session": {
-        "message": "Importar sessão"
+        "message": "Import session"
     },
     "html_notice_title": {
-        "message": "Aviso"
+        "message": "Notice"
     },
     "html_notice_important_notice": {
-        "message": "Aviso importante do The Marvellous Suspender"
+        "message": "Important notice from The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Configurações"
+        "message": "Settings"
     },
     "html_options_suspend_title": {
-        "message": "Suspensão de aba automática"
+        "message": "Automatic tab suspension"
     },
     "html_options_suspended_title": {
-        "message": "Guias suspensas"
+        "message": "Suspended tabs"
     },
     "html_options_other_title": {
-        "message": "Outros"
+        "message": "Other"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Suspender automaticamente as guias depois de"
+        "message": "Automatically suspend tabs after"
     },
     "html_options_suspend_never": {
-        "message": "Nunca"
+        "message": "Never"
     },
     "html_options_suspend_seconds": {
-        "message": "segundos"
+        "message": "seconds"
     },
     "html_options_suspend_minute": {
         "message": "min"
@@ -189,546 +189,546 @@
         "message": "mins"
     },
     "html_options_suspend_hour": {
-        "message": "hora"
+        "message": "hour"
     },
     "html_options_suspend_hours": {
-        "message": "horas"
+        "message": "hours"
     },
     "html_options_suspend_day": {
-        "message": "dia"
+        "message": "day"
     },
     "html_options_suspend_days": {
-        "message": "dias"
+        "message": "days"
     },
     "html_options_suspend_week": {
-        "message": "semana"
+        "message": "week"
     },
     "html_options_suspend_weeks": {
-        "message": "semanas"
+        "message": "weeks"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Nunca suspender as guias fixadas"
+        "message": "Never suspend pinned tabs"
     },
     "html_options_suspend_no_forms": {
-        "message": "Nunca suspender as guias que contenham entradas de formulário não salvas"
+        "message": "Never suspend tabs that contain unsaved form inputs"
     },
     "html_options_suspend_no_audio": {
-        "message": "Nunca suspender as guias que estiverem reproduzindo áudio"
+        "message": "Never suspend tabs that are playing audio"
     },
     "html_options_suspend_only_connected": {
-        "message": "Nunca suspender as guias quando estiver off-line"
+        "message": "Never suspend tabs when offline"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Nunca suspender as guias quando estiver conectado à fonte de energia"
+        "message": "Never suspend tabs when connected to power source"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Nunca suspender a guia ativa em cada janela"
+        "message": "Never suspend active tab in each window"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Recarregar automaticamente quando a guia for visualizada"
+        "message": "Automatically unsuspend tab when it is viewed"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Aplicar a economia de memória integrada do Chrome ao suspender"
+        "message": "Apply Chrome's built-in memory-saving when suspending"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduz ainda mais o uso de memória de uma guia suspensa, utilizando a"
+        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "funcionalidade de \"descartar de guias\" do Chrome. Isso pode resultar em"
+        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "até 500% de economia de memória ao trabalhar com um grande número de abas."
+        "message": "to 500% memory savings when working with large numbers of tabs."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "No entanto, isso também causará um pequeno atraso na renderização ao selecionar"
+        "message": "However, it will also cause a slight rendering delay when selecting"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "uma guia suspensa."
+        "message": "a suspended tab."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "Para mais informações sobre o descarte do Chrome, consulte:"
+        "message": "For more information on Chrome discarding refer to:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Tema"
+        "message": "Theme"
     },
     "html_options_suspend_theme_light": {
-        "message": "Claro"
+        "message": "Light"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Escuro"
+        "message": "Dark"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Captura de tela"
+        "message": "Screen capturing"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Desativado"
+        "message": "Disabled"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture somente a parte superior da tela"
+        "message": "Capture top of screen only"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capturar a página inteira"
+        "message": "Capture entire page"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "Em uma guia suspensa, a extensão poderá exibir uma visualização de imagem da"
+        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "aparência da guia bem antes de ser suspensa."
+        "message": "looked like just before it was suspended."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "O recurso de captura de tela é experimental e pode causar um uso significativo da CPU, bem como"
+        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "um aumento pequeno no uso de memória."
+        "message": "well as slightly increased memory usage."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "Se você notar algum comportamento estranho, como as guias demorarem muito tempo para serem suspensas, ou se o Chrome"
+        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "travar inesperadamente, tente desativar esse recurso."
+        "message": "crashing unexpectedly, try turning this feature off."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Ativar o modo de captura de tela de alta qualidade"
+        "message": "Enable high quality screen capture mode"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "Quando desativada, as capturas de tela têm as seguintes limitações para auxiliar no desempenho:"
+        "message": "When disabled, screen captures have the following limitations to aid in performance:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Captura de tela de baixa qualidade"
+        "message": "- Low quality screen capture"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Não irá capturar a tela se levar mais de 1 minuto para gerar a imagem"
+        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- A altura máxima de captura de tela é limitada a 5000px"
+        "message": "- Maximum height of screen capture limited to 5000px"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Ativar o modo de captura de tela de alta qualidade pode aumentar significativamente a carga da CPU"
+        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "e o uso de memória."
+        "message": "and memory usage."
     },
     "html_options_whitelist_title": {
-        "message": "Nunca suspender as guias com URLs da lista a seguir:"
+        "message": "Never suspend tabs with URLs from the following list:"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Adicione a URL de cada página que você deseja colocar na lista branca em uma nova linha. Por exemplo:"
+        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "Para colocar na lista branca vários sites em uma linha, você pode especificar parte da URL:"
+        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "Você também pode especificar expressões regulares colocando o texto em barras:"
+        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
     },
     "html_options_whitelist_test": {
-        "message": "Lista branca de teste"
+        "message": "Test whitelist"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Adicionar The Marvellous Suspender no menu de contexto do clique do botão direito"
+        "message": "Add The Marvellous Suspender to right-click context menu"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Adicione controles para esta extensão no menu do botão direito de uma página da web."
+        "message": "Add controls for this extension to the right-click menu of a web page."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "Isso lhe dará acesso a ações avançadas de suspensão que não estão disponíveis"
+        "message": "This will give you access to advanced suspending actions not available"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "em outro lugar na extensão."
+        "message": "elsewhere in the extension."
     },
     "html_options_other_enable_sync": {
-        "message": "Sincronizar as configurações com seu perfil do Chrome"
+        "message": "Sync settings with your Chrome profile"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "As configurações de extensão serão sincronizadas em todos os navegadores Chrome que estiverem"
+        "message": "Extension settings will be synchronised across all chrome browsers which are"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "conectados com o mesmo perfil."
+        "message": "logged in with the same profile."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "Isso também sincronizará as configurações no modo de navegação anônima."
+        "message": "This will also synchronise settings in incognito mode."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Ativar essa opção substituirá as configurações de todos os outros navegadores conectados ao mesmo perfil do Chrome."
+        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Suspender instantaneamente quando a memória do sistema ficar muito baixa"
+        "message": "Instantly suspend when system memory gets very low"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "Essa opção substituirá a funcionalidade de descarte de guia automático do Chrome."
+        "message": "This option will override Chrome's automatic tab discarding functionality."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "Se ativado, isso forçará uma guia a ser suspensa, em vez de ser descartada pelo Chrome."
+        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Normalmente, o Chrome só irá descartar as guias quando a memória do sistema ficar muito baixa."
+        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Observação: Isso pode fazer com que as guias sejam suspensas mais cedo do que a hora"
+        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "especificada nas opções de suspensão de guia Automática."
+        "message": "specified in the Automatic tab suspension options."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "Para mais informações sobre o descarte do Chrome, consulte:"
+        "message": "For more information on Chrome discarding refer to:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Recarregar esta guia"
+        "message": "Unsuspend this tab"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspender esta guia agora"
+        "message": "Suspend this tab now"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Não suspender agora"
+        "message": "Don't suspend for now"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Nunca suspender este domínio"
+        "message": "Never suspend this domain"
     },
     "html_popup_never_suspend_page": {
-        "message": "Nunca suspender esta URL"
+        "message": "Never suspend this URL"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspender todas as outras guias"
+        "message": "Suspend all other tabs"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Recarregar todas as outras guias"
+        "message": "Unsuspend all tabs"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspender as guias selecionadas"
+        "message": "Suspend selected tabs"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Recarregar as guias selecionadas"
+        "message": "Unsuspend selected tabs"
     },
     "html_popup_settings": {
-        "message": "Configurações"
+        "message": "Settings"
     },
     "html_restoring_title": {
-        "message": "Restaurando janela"
+        "message": "Restoring window"
     },
     "html_restoring_heading": {
-        "message": "Restaurando abas"
+        "message": "Restoring tabs"
     },
     "html_restoring_detail": {
-        "message": "Por favor, aguarde enquanto eu restauro esta janela..."
+        "message": "Please wait while I restore this window..."
     },
     "html_recovery_title": {
-        "message": "Recuperação"
+        "message": "Recovery"
     },
     "html_recovery_ruh_roh": {
-        "message": "Opa!"
+        "message": "Ruh roh!"
     },
     "html_recovery_description_line1": {
-        "message": "Parece que você está recuperando de uma falha na extensão."
+        "message": "Looks like you're recovering from an extension crash."
     },
     "html_recovery_description_line2": {
-        "message": "Suas guias suspensas podem ter travado ou desaparecido."
+        "message": "Your suspended tabs may have crashed or disappeared."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restaurar guias automaticamente"
+        "message": "Restore tabs automatically"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Ir para o gerenciador de sessões"
+        "message": "Go to session manager"
     },
     "html_recovery_important_message": {
-        "message": "No momento, você está com a captura de tela ativada. Se esta extensão estiver falhando repetidamente, recomenda-se que você desative essa opção."
+        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Desligue a captura de tela"
+        "message": "Turn off screen capturing"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Guias a restaurar"
+        "message": "Tabs to restore"
     },
     "html_shortcuts_title": {
-        "message": "Atalhos do teclado"
+        "message": "Keyboard shortcuts"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Atalhos do teclado"
+        "message": "Keyboard shortcuts"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Nota: Essas ações também estão disponíveis através do menu de contexto do botão direito do mouse."
+        "message": "Note: These actions are also available via the right-click context menu."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Alterar atalhos"
+        "message": "Change shortcuts"
     },
     "html_sidebar_general_settings": {
-        "message": "Configurações"
+        "message": "Settings"
     },
     "html_sidebar_session_management": {
-        "message": "Gerenciamento de sessões"
+        "message": "Session management"
     },
     "html_sidebar_shortcuts": {
-        "message": "Atalhos do teclado"
+        "message": "Keyboard shortcuts"
     },
     "html_sidebar_support": {
-        "message": "Sobre"
+        "message": "About"
     },
     "html_success_great_success": {
-        "message": "Grande sucesso!"
+        "message": "Marvellous success!"
     },
     "html_success_all_tabs_restored": {
-        "message": "Todas as suas guias foram restauradas."
+        "message": "All your tabs have been restored."
     },
     "html_success_goto_advanced_prefix": {
         "message": "For advanced session management, visit the"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "página"
+        "message": "page"
     },
     "html_session_manager": {
-        "message": "gerenciamento de sessões"
+        "message": "session management"
     },
     "html_suspended_title": {
-        "message": "Guia suspensa"
+        "message": "Suspended Tab"
     },
     "html_suspended_tab_suspended": {
-        "message": "Guia suspensa"
+        "message": "Tab suspended"
     },
     "html_suspended_tab_reload": {
-        "message": "Recarregar guia"
+        "message": "Reload tab"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Nunca suspender"
+        "message": "Never suspend"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Atualize ou clique para recarregar"
+        "message": "Refresh or click to reload"
     },
     "html_suspended_toast_not_connected": {
-        "message": "Você não está conectado à Internet"
+        "message": "You are not connected to the internet"
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "O recarregamento automático de guias está temporariamente desativado."
+        "message": "Automatic tab reloading is temporarily disabled."
     },
     "html_permissions_title": {
-        "message": "Permissões"
+        "message": "Permissions"
     },
     "html_permissions_heading": {
-        "message": "Por favor, me dê acesso a URLs de arquivos locais"
+        "message": "Please give me access to local file URLs"
     },
     "html_permissions_info": {
-        "message": "No momento, esta extensão não está permitida a suspender as URLs que começam com a palavra \"file\".\nPara mudar isso, ative \"Permitir acesso a URLs de arquivo\" na página de configurações da extensão."
+        "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
     },
     "html_permissions_backup": {
-        "message": "Observação: a alteração dessa opção fará com que todas as suas guias suspensas desapareçam brevemente.\nNeste caso, agora pode ser um bom momento para fazer um backup da sua sessão de guias atuais."
+        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
     },
     "html_update_title": {
-        "message": "Atualização"
+        "message": "Update"
     },
     "html_update_heading2": {
-        "message": "está prestes a ficar maior"
+        "message": "is about to get greater"
     },
     "html_update_info": {
-        "message": "Uma nova versão do The Marvellous Suspender está pronta para ser instalada.\nObservação: durante a atualização, suas guias suspensas desaparecerão brevemente."
+        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
     },
     "html_update_info_withbackup": {
-        "message": "este caso, agora pode ser um bom momento para fazer um backup da sua sessão de guias atuais."
+        "message": "Just in case, now might be a good time to save a backup of your current tab session."
     },
     "html_update_info_nobackup_prefix": {
-        "message": "É altamente recomendável que você exporte uma cópia de sua sessão atual de "
+        "message": "It is strongly recommended that you export a copy of your current session from "
     },
     "html_update_info_nobackup_suffix": {
-        "message": " antes de continuar com a atualização."
+        "message": " before continuing with the update."
     },
     "html_updated_title": {
-        "message": "Atualizado"
+        "message": "Updated"
     },
     "html_updating_heading": {
-        "message": "está atualizando"
+        "message": "is updating"
     },
     "html_updating_message": {
-        "message": "Por favor, aguarde enquanto eu restauro as suas guias suspensas..."
+        "message": "Please wait while I restore your suspended tabs..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "foi atualizado"
+        "message": "has been updated"
     },
     "html_updated_info_line1": {
-        "message": "Um backup automático foi feito de suas guias antes da atualização."
+        "message": "An automatic backup was made of your tabs before the update."
     },
     "html_updated_info_line2_prefix": {
-        "message": "Se você encontrou algum problema durante a atualização, você pode recuperar as guias perdidas da "
+        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
     },
     "html_updated_info_line2_suffix": {
-        "message": " página."
+        "message": " page."
     },
     "html_updated_detail_header_prefix": {
-        "message": "O que há de novo em "
+        "message": "What's new in "
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "Novos recursos:"
+        "message": "New features:"
     },
     "html_updated_bug_fixes_header": {
-        "message": "Correções de bugs:"
+        "message": "Bug fixes:"
     },
     "html_updated_release_notes": {
-        "message": "Visite o GitHub para obter notas da versão completas: "
+        "message": "Visit GitHub for full release notes: "
     },
     "html_updated_patch_message": {
-        "message": "Desculpe pelo incômodo. Eu só precisava fazer uma pequena manutenção."
+        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
     },
     "html_welcome_title": {
-        "message": "Bem-vindo"
+        "message": "Welcome"
     },
     "html_welcome_text_line1": {
-        "message": "Obrigado por experimentar"
+        "message": "Thanks for trying"
     },
     "html_welcome_text_line2": {
-        "message": "Eu deixo seu computador funcionar sem problemas suspendendo as guias que você não está usando."
+        "message": "I make your computer run smoothly by suspending the tabs you aren't using."
     },
     "html_welcome_text_line3": {
-        "message": "Você pode ajustar bem as configurações abaixo."
+        "message": "You can fine-tune the settings below."
     },
     "js_popup_normal": {
-        "message": "A guia será suspensa automaticamente."
+        "message": "Tab will suspend automatically."
     },
     "js_popup_normal_pause": {
-        "message": "Agora não"
+        "message": "Not now"
     },
     "js_popup_special": {
-        "message": "A guia não pôde ser suspensa"
+        "message": "Tab cannot be suspended"
     },
     "js_popup_suspended": {
-        "message": "Guia suspensa"
+        "message": "Tab suspended"
     },
     "js_popup_suspended_pause": {
-        "message": "Não suspender"
+        "message": "Don't suspend"
     },
     "js_popup_whitelisted": {
-        "message": "Site adicionado à lista branca."
+        "message": "Site whitelisted."
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remover da lista branca"
+        "message": "Remove from whitelist"
     },
     "js_popup_audible": {
-        "message": "Esta guia está reproduzindo áudio."
+        "message": "Tab is playing audio."
     },
     "js_popup_form_input": {
-        "message": "A guia está recebendo entrada de formulário."
+        "message": "Tab is receiving form input."
     },
     "js_popup_form_input_unpause": {
-        "message": "Retomar"
+        "message": "Unpause"
     },
     "js_popup_pinned": {
-        "message": "A guia foi fixada"
+        "message": "Tab has been pinned"
     },
     "js_popup_temp_whitelist": {
-        "message": "Suspensão de guias pausada."
+        "message": "Tab suspension paused."
     },
     "js_popup_temp_whitelist_unpause": {
-        "message": "Retomar"
+        "message": "Unpause"
     },
     "js_popup_never": {
-        "message": "Suspensão automática de guias desativada."
+        "message": "Automatic tab suspension disabled."
     },
     "js_popup_no_connectivity": {
-        "message": "Sem conexão de rede"
+        "message": "No network connection"
     },
     "js_popup_charging": {
-        "message": "Conectado à fonte de energia"
+        "message": "Connected to power source"
     },
     "js_popup_blockedFile": {
-        "message": "Arquivos locais não podem ser suspensos."
+        "message": "Local files cannot be suspended."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Habilitar"
+        "message": "Enable"
     },
     "js_popup_unknown": {
-        "message": "Aguardando a guia carregar..."
+        "message": "Waiting for tab to load..."
     },
     "js_popup_initialising": {
-        "message": "Aguardando a extensão inicializar..."
+        "message": "Waiting for extension to initialize..."
     },
     "js_popup_error": {
-        "message": "Suspensão automática indisponível para esta guia"
+        "message": "Auto-suspend unavailable for this tab"
     },
     "js_history_delete": {
-        "message": "excluir"
+        "message": "delete"
     },
     "js_history_export": {
-        "message": "exportar"
+        "message": "export"
     },
     "js_history_reload": {
-        "message": "abrir e carregar"
+        "message": "open and load"
     },
     "js_history_resuspend": {
-        "message": "abrir e suspender"
+        "message": "open and suspend"
     },
     "js_history_save": {
-        "message": "salvar"
+        "message": "save"
     },
     "js_history_window": {
-        "message": "Janela"
+        "message": "Window"
     },
     "js_history_tab": {
-        "message": "Guia"
+        "message": "Tab"
     },
     "js_history_plural": {
         "message": "s"
     },
     "js_history_enter_name_for_session": {
-        "message": "Digite um nome para esta sessão"
+        "message": "Enter a name for this session"
     },
     "js_history_confirm_delete": {
-        "message": "Tem certeza de que deseja excluir esta sessão?"
+        "message": "Are you sure you want to delete this session?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "Já existe uma sessão salva com este nome. Sobrescrever a sessão existente?"
+        "message": "There is already a saved session with this name. Overwrite existing session?"
     },
     "js_history_import_fail": {
-        "message": "Falha ao carregar o arquivo. Certifique-se de que o arquivo seja um texto simples e contenha uma única URL por linha."
+        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remover site da lista branca"
+        "message": "Remove site from whitelist"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Definir atalhos do teclado"
+        "message": "Set keyboard shortcuts"
     },
     "js_suspended_low_memory": {
-        "message": "Guia suspensa devido a baixa memória do sistema"
+        "message": "Tab suspended due to low system memory"
     },
     "js_options_incognito_warning": {
-        "message": "Você está no modo de navegação anônima. Alguns recursos não estarão disponíveis."
+        "message": "You are in incognito mode. Some features will not be available."
     },
     "js_options_whitelist_no_matches": {
-        "message": "Não há guias abertas que correspondam à lista branca atual."
+        "message": "There are no open tabs that match the current whitelist."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Guias permitidas abertas:"
+        "message": "Whitelisted open tabs:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "e"
+        "message": "and"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "mais."
+        "message": "more."
     },
     "js_permissions_button_export": {
-        "message": "Salvar backup"
+        "message": "Save backup"
     },
     "js_permissions_button_set": {
-        "message": "Abrir configurações da extensão"
+        "message": "Open extension settings"
     },
     "js_update_confirm": {
-        "message": "Você ainda não salvou um backup. Quer atualizar a extensão mesmo assim?"
+        "message": "You have not saved a backup yet. Update the extension anyway?"
     },
     "js_update_button_export": {
-        "message": "Salvar backup"
+        "message": "Save backup"
     },
     "js_update_button_reload": {
-        "message": "Atualizar a extensão agora"
+        "message": "Update extension now"
     },
     "js_shortcuts_not_set": {
-        "message": "não definido"
+        "message": "not set"
     },
     "js_session_save_point": {
-        "message": "Ponto de salvamento automático para v"
+        "message": "Automatic save point for v"
     }
 }
