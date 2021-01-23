@@ -129,7 +129,7 @@
         "message": "It also uses the indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
-        "message": "scritto da Aaron Powell."
+        "message": "written by Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "browserstack"
@@ -600,7 +600,7 @@
         "message": "Tab suspended"
     },
     "js_popup_suspended_pause": {
-        "message": "Non sospendere"
+        "message": "Don't suspend"
     },
     "js_popup_whitelisted": {
         "message": "Site whitelisted."
@@ -705,7 +705,7 @@
         "message": "Whitelisted open tabs:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "e"
+        "message": "and"
     },
     "js_options_whitelist_matches_overflow_suffix": {
         "message": "altro."
