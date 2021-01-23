@@ -3,82 +3,82 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "凍結暫時用不到的分頁，達到系統資源釋放。"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "凍結/回復目前分頁"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "暫停/取消暫停目前分頁的凍結"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "凍結已選擇分頁"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "回復已選擇分頁"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "凍結目前視窗中所有的分頁"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "強制凍結當前視窗中的所有分頁"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "凍結目前視窗中所有的分頁"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "凍結所有視窗的所有分頁"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "強制凍結所有視窗的所有分頁"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "回復所有視窗的所有分頁"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "在新的凍結分頁打開連結"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "凍結/回復此分頁"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "暫停/取消暫停此分頁的凍結"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "永遠不要凍結此網域"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "永遠不要凍結此網頁"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "凍結已選擇分頁"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "回復已選擇分頁"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "凍結目前視窗中所有的分頁"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "強制凍結當前視窗中的所有分頁"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "回復目前視窗中所有的分頁"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "凍結所有視窗的所有分頁"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "強制凍結所有視窗的所有分頁"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "回復所有視窗的所有分頁"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "關於"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
@@ -99,636 +99,636 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "如果您有建議或想回報問題，可以在"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". 在建立新的想法或問題之前，請檢查您的想法或問題是否存在。謝謝！"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "要啟用日誌記錄或設置調試標誌，請轉至"
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "測試分頁。"
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "GitHub issues 網頁上提問"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "這個擴充功能使用 Niklas von Hertzen 撰寫的"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "元件庫。"
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "也用了 Aaron Powell 撰寫的"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "元件庫。"
     },
     "html_about_browserstack": {
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "同時也謝謝"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "提供免費的 Chrome 測試工具"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "記錄管理"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "目前記錄"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "最近記錄"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "已儲存記錄"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "匯入記錄"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "通知"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "來自 The Marvellous Suspender 的重要通知"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "設定"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "自動凍結分頁"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "凍結的分頁"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "其他設定"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "多久後自動凍結"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "永不"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "秒"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "分鐘"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "分鐘"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "小時"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "小時"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "天"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "天"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "週"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "週"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "不要凍結已固定的分頁"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "不要凍結輸入框有文字且尚未儲存的分頁"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "不要凍結正在播放聲音的分頁"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "只在網路連接下才自動凍結"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "只在電腦未接上電源時才自動凍結"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "不要凍結每個視窗的正在使用中的分頁"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "當分頁被瀏覽就自動回復分頁"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "使用 Chrome 內建的凍結/暫停分頁釋放系統記憶體功能"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "通過利用 Chrome 內建的分頁凍結/暫停功能，可以更多的降低記憶體使用。"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "當多個分頁同時打開時，可以降低500%的系統記憶體消耗。"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
         "message": "to 500% memory savings when working with large numbers of tabs."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "盡管如此，當重新打開一個的凍結/暫停分頁時，將會有微小的分頁加載延時。"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
         "message": "a suspended tab."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "有關 Chrome discarding 的更多資訊，請參閱："
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "主題"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "明亮"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "深色"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "螢幕擷取"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "停用"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "只擷取可見的畫面"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "擷取整個分頁"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "在暫停的分頁上，擴充功能可以在分頁被暫停前顯示圖片預覽。"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
         "message": "looked like just before it was suspended."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "螢幕擷取功能是實驗性的，可能會讓 CPU 使用率以及記憶體使用量明顯地提高。"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
         "message": "well as slightly increased memory usage."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "如果您注意到奇怪的行為，如分頁需要很長時間才能掛起，或者 Chrome 意外當機，請嘗試關閉此功能。"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
         "message": "crashing unexpectedly, try turning this feature off."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "啟用高畫質的螢幕擷取模式"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "禁用時，螢幕擷取具有以下限制以幫助提高效能："
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- 低品質的螢幕擷取"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- 如果產生圖片需要 1 分鐘以上，將不會螢幕擷取"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- 圖片的最大高度限制為 5000 像素"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "啟用高品質的畫面捕捉模式可能會讓 CPU 使用率和記憶體使用量明顯提高。"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
         "message": "and memory usage."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "白名單"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "在新的一列上新增要列入白名單的每個分頁的 URL。例如："
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "要在一列中將多個網站列入白名單，可以指定網址的一部分："
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "您還可以使用斜線包起來的文字來指定正規表示式："
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "測試白名單"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "把 The Marvellous Suspender 加到右鍵選單"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "將擴充套件新增到網頁的右鍵選單。"
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "這樣，您就可以訪問程序中其他位置無法使用的進階凍結操作。"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
         "message": "elsewhere in the extension."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "使用Chrome 使用者設定檔同步設定"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "登入 Chrome 後，擴充功能將同步相同的設定"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "。"
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "這也將使無痕模式下的設定同步。"
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "打開此項將覆蓋 Chrome 使用者設定並同步所有已登入的系統"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "當系統記憶體非常少時凍結分頁"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "此選項會覆蓋 Chrome 的 automatic tab discarding 功能。"
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "如果啟用，該分頁將被強制凍結，而不是被 Chrome 刪除。"
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "正常時 Chrome 僅在系統記憶體非常低時刪除分頁。"
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "注意：這可能導致分頁在「自動分頁凍結」選項中指定的時間之前凍結。"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
         "message": "specified in the Automatic tab suspension options."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "有關 Chrome discarding 的更多資訊，請參閱："
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "回復目前分頁"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "凍結此分頁"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "現在還不要凍結"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "永遠不要凍結此網域"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "永遠不要凍結此網頁"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "凍結其他分頁"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "回復所有分頁"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "凍結已選擇分頁"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "回復已選擇分頁"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "設定"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "回復視窗"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "回復分頁"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "請等待回復此視窗"
     },
     "html_recovery_title": {
-        "message": "Recovery"
+        "message": "回復"
     },
     "html_recovery_ruh_roh": {
-        "message": "Ruh roh!"
+        "message": "噢！"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "看來你剛從當掉的擴充功能回復過來。"
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "之前凍結的分頁可能無法還原。"
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "自動回復分頁"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "前往記錄管理器"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "你目前已開啟螢幕擷取，如果擴充功能多次發生故障，建議你取消勾選。"
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "關閉螢幕擷取"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "分頁回復"
     },
     "html_shortcuts_title": {
-        "message": "Keyboard shortcuts"
+        "message": "鍵盤快速鍵"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "鍵盤快速鍵"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "注意：您也可以通過右鍵選單來使用這些操作。"
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "修改鍵盤快速鍵"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "設定"
     },
     "html_sidebar_session_management": {
-        "message": "Session management"
+        "message": "記錄管理"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "鍵盤快速鍵"
     },
     "html_sidebar_support": {
-        "message": "About"
+        "message": "關於"
     },
     "html_success_great_success": {
-        "message": "Marvellous success!"
+        "message": "成功！"
     },
     "html_success_all_tabs_restored": {
-        "message": "All your tabs have been restored."
+        "message": "你的所有分頁已經回復完成。"
     },
     "html_success_goto_advanced_prefix": {
-        "message": "For advanced session management, visit the"
+        "message": "進階的記錄管理，請前往"
     },
     "html_success_goto_advanced_suffix": {
         "message": "page"
     },
     "html_session_manager": {
-        "message": "session management"
+        "message": "記錄管理分頁"
     },
     "html_suspended_title": {
-        "message": "Suspended Tab"
+        "message": "分頁已經被凍結"
     },
     "html_suspended_tab_suspended": {
-        "message": "Tab suspended"
+        "message": "分頁已經被凍結"
     },
     "html_suspended_tab_reload": {
-        "message": "Reload tab"
+        "message": "重新載入"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Never suspend"
+        "message": "永遠不要凍結"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Refresh or click to reload"
+        "message": "點擊此處重新載入"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "您沒有連接到網絡"
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "Automatic tab reloading is temporarily disabled."
+        "message": "禁用自動重新載入。"
     },
     "html_permissions_title": {
-        "message": "Permissions"
+        "message": "許可權限"
     },
     "html_permissions_heading": {
-        "message": "Please give me access to local file URLs"
+        "message": "請提供允許存取本機檔案 URL 的權限"
     },
     "html_permissions_info": {
-        "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
+        "message": "這個擴充功能目前不允許暫停那些以 file（檔案）開頭的 URL 連結。\n想要改變這個設定， 可以在擴充功能設定分頁打開允許存取檔案URL的設定。"
     },
     "html_permissions_backup": {
-        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
+        "message": "請註意：改變這個設定可能會使你當前所有的暫停分頁短暫的消失。\n以防萬一，最好對當前分頁的瀏覽階段的做備份。"
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "更新"
     },
     "html_update_heading2": {
-        "message": "is about to get greater"
+        "message": "即將變得更好"
     },
     "html_update_info": {
-        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
+        "message": "一個新版本的 The Marvellous Suspender 已準備好安裝。\n請注意：凍結分頁將在更新過程中暫時消失。"
     },
     "html_update_info_withbackup": {
-        "message": "Just in case, now might be a good time to save a backup of your current tab session."
+        "message": "請在繼續之前儲存目前瀏覽階段的備份。"
     },
     "html_update_info_nobackup_prefix": {
-        "message": "It is strongly recommended that you export a copy of your current session from "
+        "message": "強烈建議您在繼續之前從"
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " 儲存目前瀏覽階段的備份。"
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "更新"
     },
     "html_updating_heading": {
-        "message": "is updating"
+        "message": "正在更新"
     },
     "html_updating_message": {
-        "message": "Please wait while I restore your suspended tabs..."
+        "message": "請等我回復被暫停的分頁..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "已更新"
     },
     "html_updated_info_line1": {
-        "message": "An automatic backup was made of your tabs before the update."
+        "message": "更新之前，您的分頁已被自動儲存。"
     },
     "html_updated_info_line2_prefix": {
-        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
+        "message": "如果在更新過程中遇到任何問題，可以從 "
     },
     "html_updated_info_line2_suffix": {
-        "message": " page."
+        "message": " 分頁中回復遺失的分頁。"
     },
     "html_updated_detail_header_prefix": {
-        "message": "What's new in "
+        "message": "在 "
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "New features:"
+        "message": "新的功能："
     },
     "html_updated_bug_fixes_header": {
-        "message": "Bug fixes:"
+        "message": "錯誤修復："
     },
     "html_updated_release_notes": {
-        "message": "Visit GitHub for full release notes: "
+        "message": "請瀏覽 GitHub 取得完整的發行說明："
     },
     "html_updated_patch_message": {
-        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
+        "message": "很抱歉打擾你。我們做了一些維護。"
     },
     "html_welcome_title": {
-        "message": "Welcome"
+        "message": "歡迎來到"
     },
     "html_welcome_text_line1": {
-        "message": "Thanks for trying"
+        "message": "謝謝你安裝"
     },
     "html_welcome_text_line2": {
-        "message": "I make your computer run smoothly by suspending the tabs you aren't using."
+        "message": "通過暫停不使用的分頁，可以讓您的電腦減少記憶體的使用。"
     },
     "html_welcome_text_line3": {
-        "message": "You can fine-tune the settings below."
+        "message": "您可以在下面更改設定"
     },
     "js_popup_normal": {
-        "message": "Tab will suspend automatically."
+        "message": "分頁將會自動被凍結。"
     },
     "js_popup_normal_pause": {
-        "message": "Not now"
+        "message": "暫時不要凍結"
     },
     "js_popup_special": {
-        "message": "Tab cannot be suspended"
+        "message": "分頁無法被凍結"
     },
     "js_popup_suspended": {
-        "message": "Tab suspended"
+        "message": "分頁已經被凍結"
     },
     "js_popup_suspended_pause": {
-        "message": "Don't suspend"
+        "message": "暫時不要凍結"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "例外清單。"
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remove from whitelist"
+        "message": "從例外清單移除"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "分頁正在播放聲音。"
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "分頁有文字還在輸入。"
     },
     "js_popup_form_input_unpause": {
-        "message": "Unpause"
+        "message": "取消暫停"
     },
     "js_popup_pinned": {
-        "message": "Tab has been pinned"
+        "message": "分頁已經被固定"
     },
     "js_popup_temp_whitelist": {
-        "message": "Tab suspension paused."
+        "message": "分頁凍結暫停。"
     },
     "js_popup_temp_whitelist_unpause": {
-        "message": "Unpause"
+        "message": "取消暫停"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "禁止自動凍結分頁。"
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "未連接網路"
     },
     "js_popup_charging": {
-        "message": "Connected to power source"
+        "message": "已接上電源"
     },
     "js_popup_blockedFile": {
-        "message": "Local files cannot be suspended."
+        "message": "本機檔案無法暫停。"
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "啟用"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "等待分頁載入..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "等待擴充功能初始化..."
     },
     "js_popup_error": {
-        "message": "Auto-suspend unavailable for this tab"
+        "message": "自動凍結在此分頁上不可用"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "刪除"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "匯出"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "讀取和載入"
     },
     "js_history_resuspend": {
-        "message": "open and suspend"
+        "message": "重新凍結"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "儲存"
     },
     "js_history_window": {
-        "message": "Window"
+        "message": "個視窗"
     },
     "js_history_tab": {
-        "message": "Tab"
+        "message": "個分頁"
     },
     "js_history_plural": {
         "message": "s"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "命名這個記錄"
     },
     "js_history_confirm_delete": {
-        "message": "Are you sure you want to delete this session?"
+        "message": "您確定要刪除此記錄嗎？"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "已經有儲存的名稱的記錄。要覆蓋現有記錄嗎？"
     },
     "js_history_import_fail": {
-        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
+        "message": "無法匯入文件。確保文件是純文字檔案，並且每列只有一個 URL。"
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remove site from whitelist"
+        "message": "從白名單移除"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "設定鍵盤快捷鍵"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "由於系統記憶體不足而凍結的分頁"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "你目前使用隱私模式。某些功能將無法使用。"
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "沒有與當前白名單匹配的打開選項卡。"
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "這些打開的選項卡與當前白名單相匹配："
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "和另外"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "個。"
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "儲存備份"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "打開擴充套件設定"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "您尚未匯出備份。更新擴充功能？"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "匯出備份"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "現在更新擴充功能"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "沒有設定"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "自動保存點 v"
     }
 }
