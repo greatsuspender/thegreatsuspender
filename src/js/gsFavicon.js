@@ -226,37 +226,6 @@ var gsFavicon = (function() {
     await gsIndexedDb.addFaviconMeta(rootUrl, Object.assign({}, faviconMeta));
   }
 
-  // dont use this function as it causes rate limit issues
-  // eslint-disable-next-line no-unused-vars
-  // function fetchFallbackFaviconDataUrl(url) {
-  //   return new Promise(resolve => {
-  //     let imageLoaded = false;
-  //
-  //     const rootUrl = gsUtils.encodeString(gsUtils.getRootUrl(url));
-  //     const requestUrl = GOOGLE_S2_URL + rootUrl;
-  //
-  //     const xmlHTTP = new XMLHttpRequest();
-  //     xmlHTTP.open('GET', requestUrl, true);
-  //
-  //     xmlHTTP.responseType = 'arraybuffer';
-  //     xmlHTTP.onload = function(e) {
-  //       imageLoaded = true;
-  //       const arr = new Uint8Array(xmlHTTP.response);
-  //       const raw = String.fromCharCode.apply(null, arr);
-  //       const b64 = btoa(raw);
-  //       const dataUrl = 'data:image/png;base64,' + b64;
-  //       resolve(dataUrl);
-  //     };
-  //     xmlHTTP.send();
-  //     setTimeout(() => {
-  //       if (!imageLoaded) {
-  //         gsUtils.log('gsFavicon', 'Failed to load image from: ' + url);
-  //         resolve(null);
-  //       }
-  //     }, 3000);
-  //   });
-  // }
-
   async function isFaviconMetaValid(faviconMeta) {
     if (
       !faviconMeta ||

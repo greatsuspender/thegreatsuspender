@@ -35,39 +35,7 @@ var gsSession = (function() {
       gsUtils.removeTabsByUrlAsPromised(updatedUrl),
     ]);
 
-    //handle special event where an extension update is available
-    chrome.runtime.onUpdateAvailable.addListener(details => {
-      prepareForUpdate(details); //async
-    });
     gsUtils.log('gsSession', 'init successful');
-  }
-
-  async function prepareForUpdate(newVersionDetails) {
-    const currentVersion = chrome.runtime.getManifest().version;
-    const newVersion = newVersionDetails.version;
-
-    gsUtils.log(
-      'gsSession',
-      'A new version is available: ' + currentVersion + ' -> ' + newVersion
-    );
-
-    let sessionRestorePoint;
-    const currentSession = await buildCurrentSession();
-    if (currentSession) {
-      sessionRestorePoint = await gsIndexedDb.createOrUpdateSessionRestorePoint(
-        currentSession,
-        currentVersion
-      );
-    }
-
-    const suspendedTabCount = await gsUtils.getSuspendedTabCount();
-    if (suspendedTabCount === 0) {
-      // if there are no suspended tabs then simply install the update immediately
-      chrome.runtime.reload();
-    } else {
-      //do nothing. this prevents chrome from automatically updating and will instead wait
-      //until a browser restart to update
-    }
   }
 
   function getSessionId() {
@@ -302,7 +270,6 @@ var gsSession = (function() {
     await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
 
     await gsIndexedDb.performMigration(lastVersion);
-    gsStorage.setNoticeVersion('0');
     const shouldRecoverTabs = await checkForCrashRecovery(currentSessionTabs);
     if (shouldRecoverTabs) {
       await gsUtils.createTabAndWaitForFinishLoading(updatedUrl, 10000);
@@ -810,7 +777,6 @@ var gsSession = (function() {
     recoverLostTabs,
     triggerDiscardOfAllTabs,
     restoreSessionWindow,
-    prepareForUpdate,
     getUpdateType,
     updateSessionMetrics,
   };

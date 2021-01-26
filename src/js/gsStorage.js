@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
+/*global chrome, gsSession, localStorage, gsUtils */
 'use strict';
 
 // Used to keep track of which settings were defined in the managed storage
@@ -34,7 +34,6 @@ var gsStorage = {
   ...gsStorageSettings,
 
   APP_VERSION: 'gsVersion',
-  LAST_NOTICE: 'gsNotice',
   LAST_EXTENSION_RECOVERY: 'gsExtensionRecovery',
 
   SM_SESSION_METRICS: 'gsSessionMetrics',
@@ -66,8 +65,8 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
-    defaults[gsStorage.TRACKING_OPT_OUT] = false;
-    defaults[gsStorage.ENABLE_CLEAN_SCREENCAPS] = false;
+    defaults[gsStorage.TRACKING_OPT_OUT] = true;
+    defaults[gsStorage.ENABLE_CLEAN_SCREENCAPS] = true;
 
     return defaults;
   },
@@ -305,7 +304,6 @@ var gsStorage = {
   saveSettings: function(settings) {
     try {
       localStorage.setItem('gsSettings', JSON.stringify(settings));
-      gsAnalytics.setUserDimensions();
     } catch (e) {
       gsUtils.error(
         'gsStorage',
@@ -360,34 +358,6 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'failed to save ' + gsStorage.APP_VERSION + ' to local storage',
-        e
-      );
-    }
-  },
-
-  fetchNoticeVersion: function() {
-    var lastNoticeVersion;
-    try {
-      lastNoticeVersion = JSON.parse(
-        localStorage.getItem(gsStorage.LAST_NOTICE)
-      );
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'Failed to parse ' + gsStorage.LAST_NOTICE + ': ',
-        localStorage.getItem(gsStorage.LAST_NOTICE)
-      );
-    }
-    lastNoticeVersion = lastNoticeVersion || '0';
-    return lastNoticeVersion + '';
-  },
-  setNoticeVersion: function(newVersion) {
-    try {
-      localStorage.setItem(gsStorage.LAST_NOTICE, JSON.stringify(newVersion));
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'failed to save ' + gsStorage.LAST_NOTICE + ' to local storage',
         e
       );
     }

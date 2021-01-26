@@ -102,16 +102,16 @@ module.exports = function(grunt) {
   grunt.registerTask('default', [
     'copy',
     'string-replace:debugoff',
-    'crx:public',
-    'crx:private',
-    'clean',
+    // 'crx:public',
+    // 'crx:private',
+    // 'clean',
   ]);
   grunt.registerTask('tgut', [
     'copy',
     'string-replace:debugon',
     'string-replace:localesTgut',
-    'crx:public',
-    'crx:private',
-    'clean',
+    // 'crx:public',
+    // 'crx:private',
+    // 'clean',
   ]);
 };

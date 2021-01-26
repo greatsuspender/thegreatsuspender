@@ -9,7 +9,6 @@ testSuites.push(
     const tests = [
       // Test create session restore point. Should create a session from the currently open windows
       async () => {
-        // Simulate gsSession.prepareForUpdate
         const session1 = await getFixture(
           FIXTURE_CURRENT_SESSIONS,
           'currentSession1'

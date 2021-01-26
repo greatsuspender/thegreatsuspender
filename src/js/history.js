@@ -1,4 +1,4 @@
-/*global chrome, historyItems, historyUtils, gsAnalytics, gsSession, gsIndexedDb, gsUtils */
+/*global chrome, historyItems, historyUtils, gsSession, gsIndexedDb, gsUtils */
 (function(global) {
   'use strict';
 
@@ -257,6 +257,4 @@
   gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
     render();
   });
-
-  gsAnalytics.reportPageView('history.html');
 })(this);

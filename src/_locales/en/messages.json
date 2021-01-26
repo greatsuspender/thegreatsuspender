@@ -1,5 +1,5 @@
 {
-    "ext_extension_name": { "message": "The Great Suspender" },
+    "ext_extension_name": { "message": "The Great SAFE Suspender" },
     "ext_extension_description": { "message": "Make your computer run smoothly by suspending the tabs you aren't using" },
     "ext_default_title": { "message": "The Great Suspender" },
     "ext_cmd_toggle_tab_suspension_description": { "message": "Suspend/Unsuspend active tab" },

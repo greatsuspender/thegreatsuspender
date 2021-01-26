@@ -88,11 +88,6 @@ var gsUtils = {
       console.error(
         gsUtils.getPrintableError(errorMessage, stackTrace, ...args)
       );
-    } else {
-      // const logString = errorObj.hasOwnProperty('stack')
-      //   ? errorObj.stack
-      //   : `${JSON.stringify(errorObj)}\n${gsUtils.getStackTrace()}`;
-      // gsAnalytics.reportException(logString, false);
     }
   },
   // Puts all the error args into a single printable string so that all the info

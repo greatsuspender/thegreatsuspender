@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsUtils */
+/*global chrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -44,6 +44,4 @@
       chrome.tabs.update({ url: 'chrome://extensions/shortcuts' });
     };
   });
-
-  gsAnalytics.reportPageView('shortcuts.html');
 })(this);

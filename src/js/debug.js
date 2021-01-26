@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsUtils, gsFavicon, gsStorage, gsChrome */
+/*global chrome, tgs, gsUtils, gsFavicon, gsStorage, gsChrome */
 (function(global) {
   'use strict';
 
@@ -131,18 +131,5 @@
     document.getElementById('backgroundPage').onclick = function() {
       chrome.tabs.create({ url: extensionsUrl });
     };
-
-    /*
-        chrome.processes.onUpdatedWithMemory.addListener(function (processes) {
-            chrome.tabs.query({}, function (tabs) {
-                var html = '';
-                html += generateMemStats(processes);
-                html += '<br />';
-                html += generateTabStats(tabs);
-                document.getElementById('gsProfiler').innerHTML = html;
-            });
-        });
-        */
   });
-  gsAnalytics.reportPageView('debug.html');
 })(this);
