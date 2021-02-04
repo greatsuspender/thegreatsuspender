@@ -81,10 +81,10 @@
         "message": "О расширении"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "На основе оригинала"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "доступно на GitHub, без отслеживания ADS (более подробная информация доступна на"
     },
     "html_about_fork_end": {
         "message": ")"
