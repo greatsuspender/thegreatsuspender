@@ -1,0 +1,40 @@
+{
+  "root": true,
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "env": {
+    "browser": true,
+    "es6": true,
+    "webextensions": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  "rules": {
+    "no-console": 0,
+    "no-unused-vars": [
+          "error",
+      { "vars": "all", "args": "none", "ignoreRestSiblings": false }
+    ],
+    "no-undef": ["error"],
+    "no-proto": ["error"],
+    //        "prefer-arrow-callback": ["warn"],  TODO: refactor to use arrow functions
+    //        "no-var": ["error"],  TODO: refactor to use let and const
+    "prefer-spread": ["warn"],
+//    "semi": ["error", "always"],
+    "padded-blocks": ["off", { "blocks": "never" }],
+//    "indent": ["error", 2],
+    "one-var": ["off", "never"],
+    "spaced-comment": ["off", "always"]
+//    "space-before-function-paren": [
+//      "error",
+//      {
+//        "anonymous": "always",
+//        "named": "never",
+//        "asyncArrow": "always"
+//      }
+//    ]
+  }
+}
