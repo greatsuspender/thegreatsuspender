@@ -81,10 +81,10 @@
         "message": "Sobre"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Baseado no original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "disponível no Github, set rastreamento ADS (mais informações disponíveis em"
     },
     "html_about_fork_end": {
         "message": ")"
