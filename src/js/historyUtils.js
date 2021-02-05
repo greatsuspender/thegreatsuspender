@@ -185,11 +185,33 @@ var historyUtils = (function(global) {
     });
   }
 
+  function migrateTabs(from_id) {
+    if (from_id.length == 32) {
+      chrome.tabs.query({}, function(tabs){
+        var count = 0;
+        var prefix_before = 'chrome-extension://' + from_id;
+        var prefix_after  = 'chrome-extension://' + chrome.i18n.getMessage('@@extension_id');
+        for (var tab of tabs) {
+          if (!tab.url.startsWith(prefix_before)) {
+            continue;
+          }
+          count += 1;
+          var migrated_url = prefix_after + tab.url.substr(prefix_before.length);
+          chrome.tabs.update(tab.id, {url: migrated_url});
+        }
+        alert(chrome.i18n.getMessage('js_history_migrate_success', '' + count));
+      });
+    } else {
+      alert(chrome.i18n.getMessage('js_history_migrate_fail'));
+    }
+  }
+
   return {
     importSession,
     exportSession,
     exportSessionWithId,
     validateNewSessionName,
     saveSession,
+    migrateTabs
   };
 })(this);
