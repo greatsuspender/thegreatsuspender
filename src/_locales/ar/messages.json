@@ -45,16 +45,16 @@
         "message": "تعليق/إلغاء تعليق التبويب هذا"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "إيقاف مؤقت/إلغاء إيقاف هذا التبويب"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "عدم تعليق هذا النطاق مطلقاً"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "عدم تعليق هذا الرابط مطلقاً"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "تعليق علامات التبويب المحددة"
     },
     "js_context_unsuspend_selected_tabs": {
         "message": "Unsuspend selected tabs"
@@ -154,6 +154,12 @@
     },
     "html_history_import_session": {
         "message": "Import session"
+    },
+    "html_history_migrate_tabs": {
+        "message": "Migrate tabs"
+    },
+    "html_history_migrate_old_id": {
+        "message": "Old TGS Extension id"
     },
     "html_notice_title": {
         "message": "Notice"
@@ -675,60 +681,71 @@
         "message": "s"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "أدخل إسم لهذه الجلسة"
     },
     "js_history_confirm_delete": {
-        "message": "Are you sure you want to delete this session?"
+        "message": "هل أنت متأكد أنك تريد حذف هذه الجلسة؟"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "هناك بالفعل جلسة محفوظة بهذا الاسم. هل تريد الكتابة فوق جلسة العمل الحالية؟"
     },
     "js_history_import_fail": {
-        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
+        "message": "فشل تحميل الملف. تأكد من أن الملف نص عادي ويحتوي على عنوان URL واحد لكل سطر."
+    },
+    "js_history_migrate_fail": {
+        "message": "Need 32-character extension id to migrate from"
+    },
+    "js_history_migrate_success": {
+        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "placeholders": {
+            "tabcount": {
+                "content": "$1"
+            }
+        }
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remove site from whitelist"
+        "message": "إزالة الموقع من القائمة البيضاء"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "تعيين اختصارات لوحة المفاتيح"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "تم تعليق علامة التبويب بسبب انخفاض ذاكرة النظام"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "أنت في وضع التخفي. بعض الميزات لن تكون متاحة."
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "لا توجد علامات تبويب مفتوحة تتطابق مع القائمة البيضاء الحالية."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "علامات التبويب المفتوحة في القائمة البيضاء:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "و"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "المزيد."
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "حفظ النسخة الاحتياطية"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "فتح إعدادات الإضافة"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "لم تقم بحفظ نسخة احتياطية بعد. هل تريد تحديث الإضافة على أية حال؟"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "حفظ النسخة الاحتياطية"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "تحديث الإضافة الآن"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "لم يتم تعيينه"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "نقطة الحفظ التلقائي لـ v"
     }
 }
