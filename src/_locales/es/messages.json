@@ -3,58 +3,58 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "اجعل جهاز الكمبيوتر يعمل بسلاسة عن طريق تعليق علامات التبويب التي لا تستخدمها"
+        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "إيقاف / إلغاء تعليق التبويب النشط"
+        "message": "Suspend/Unsuspend active tab"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "إيقاف مؤقت/إلغاء إيقاف التبويب النشط"
+        "message": "Pause/Unpause suspension of active tab"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "تعليق علامات التبويب المحددة"
+        "message": "Suspend selected tabs"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "إلغاء تعليق علامات التبويب المحددة"
+        "message": "Unsuspend selected tabs"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+        "message": "Suspend all other tabs in active window"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+        "message": "Force suspend all other tabs in active window"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "إلغاء تعليق جميع علامات التبويب في النافذة النشطة"
+        "message": "Unsuspend all tabs in active window"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
+        "message": "Suspend all tabs in all windows"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
+        "message": "Force suspend all tabs in all windows"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "إلغاء تعليق جميع علامات التبويب في جميع النوافذ"
+        "message": "Unsuspend all tabs in all windows"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "فتح الرابط في علامة تبويب معلق جديدة"
+        "message": "Open Link in New Suspended Tab"
     },
     "js_context_toggle_suspend_state": {
-        "message": "تعليق/إلغاء تعليق التبويب هذا"
+        "message": "Suspend/Unsuspend this tab"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "إيقاف مؤقت/إلغاء إيقاف هذا التبويب"
+        "message": "Pause/Unpause suspension of this tab"
     },
     "js_context_never_suspend_domain": {
-        "message": "عدم تعليق هذا النطاق مطلقاً"
+        "message": "Never suspend this domain"
     },
     "js_context_never_suspend_page": {
-        "message": "عدم تعليق هذا الرابط مطلقاً"
+        "message": "Never suspend this URL"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "تعليق علامات التبويب المحددة"
+        "message": "Suspend selected tabs"
     },
     "js_context_unsuspend_selected_tabs": {
         "message": "Unsuspend selected tabs"
@@ -681,16 +681,16 @@
         "message": "s"
     },
     "js_history_enter_name_for_session": {
-        "message": "أدخل إسم لهذه الجلسة"
+        "message": "Enter a name for this session"
     },
     "js_history_confirm_delete": {
-        "message": "هل أنت متأكد أنك تريد حذف هذه الجلسة؟"
+        "message": "Are you sure you want to delete this session?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "هناك بالفعل جلسة محفوظة بهذا الاسم. هل تريد الكتابة فوق جلسة العمل الحالية؟"
+        "message": "There is already a saved session with this name. Overwrite existing session?"
     },
     "js_history_import_fail": {
-        "message": "فشل تحميل الملف. تأكد من أن الملف نص عادي ويحتوي على عنوان URL واحد لكل سطر."
+        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
     },
     "js_history_migrate_fail": {
         "message": "Need 32-character extension id to migrate from"
@@ -704,48 +704,48 @@
         }
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "إزالة الموقع من القائمة البيضاء"
+        "message": "Remove site from whitelist"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "تعيين اختصارات لوحة المفاتيح"
+        "message": "Set keyboard shortcuts"
     },
     "js_suspended_low_memory": {
-        "message": "تم تعليق علامة التبويب بسبب انخفاض ذاكرة النظام"
+        "message": "Tab suspended due to low system memory"
     },
     "js_options_incognito_warning": {
-        "message": "أنت في وضع التخفي. بعض الميزات لن تكون متاحة."
+        "message": "You are in incognito mode. Some features will not be available."
     },
     "js_options_whitelist_no_matches": {
-        "message": "لا توجد علامات تبويب مفتوحة تتطابق مع القائمة البيضاء الحالية."
+        "message": "There are no open tabs that match the current whitelist."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "علامات التبويب المفتوحة في القائمة البيضاء:"
+        "message": "Whitelisted open tabs:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "و"
+        "message": "and"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "المزيد."
+        "message": "more."
     },
     "js_permissions_button_export": {
-        "message": "حفظ النسخة الاحتياطية"
+        "message": "Save backup"
     },
     "js_permissions_button_set": {
-        "message": "فتح إعدادات الإضافة"
+        "message": "Open extension settings"
     },
     "js_update_confirm": {
-        "message": "لم تقم بحفظ نسخة احتياطية بعد. هل تريد تحديث الإضافة على أية حال؟"
+        "message": "You have not saved a backup yet. Update the extension anyway?"
     },
     "js_update_button_export": {
-        "message": "حفظ النسخة الاحتياطية"
+        "message": "Save backup"
     },
     "js_update_button_reload": {
-        "message": "تحديث الإضافة الآن"
+        "message": "Update extension now"
     },
     "js_shortcuts_not_set": {
-        "message": "لم يتم تعيينه"
+        "message": "not set"
     },
     "js_session_save_point": {
-        "message": "نقطة الحفظ التلقائي لـ v"
+        "message": "Automatic save point for v"
     }
 }

@@ -155,6 +155,12 @@
     "html_history_import_session": {
         "message": "匯入記錄"
     },
+    "html_history_migrate_tabs": {
+        "message": "Migrate tabs"
+    },
+    "html_history_migrate_old_id": {
+        "message": "Old TGS Extension id"
+    },
     "html_notice_title": {
         "message": "通知"
     },
@@ -685,6 +691,17 @@
     },
     "js_history_import_fail": {
         "message": "無法匯入文件。確保文件是純文字檔案，並且每列只有一個 URL。"
+    },
+    "js_history_migrate_fail": {
+        "message": "Need 32-character extension id to migrate from"
+    },
+    "js_history_migrate_success": {
+        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "placeholders": {
+            "tabcount": {
+                "content": "$1"
+            }
+        }
     },
     "js_suspended_remove_from_whitelist": {
         "message": "從白名單移除"
