@@ -156,10 +156,10 @@
         "message": "Importar sessão"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migrar abas"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "ID da extensão TGS antiga"
     },
     "html_notice_title": {
         "message": "Aviso"
@@ -693,10 +693,10 @@
         "message": "Falha ao carregar o arquivo. Certifique-se de que o arquivo seja um texto simples e contenha uma única URL por linha."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "É necessário o is de 32 caracteres para migrar"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "Foram migradas $TABCOUNT$ abas com sucesso",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
