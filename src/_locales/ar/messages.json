@@ -57,37 +57,37 @@
         "message": "تعليق علامات التبويب المحددة"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Sekmeleri taşı"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Bu penceredeki diğer tüm sekmeleri askıya alın"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Bu penceredeki diğer tüm sekmeleri askıya almaya zorla"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "Bu penceredeki tüm sekmeleri askıya al"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Tüm pencerelerde tüm sekmeleri askıya alın"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Tüm pencerelerde tüm sekmeleri askıya almaya zorla"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Tüm pencerelerde tüm sekmeleri askıya alma"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "hakkında"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Orijinale göre"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "ADS takibi olmadan GitHub'da mevcuttur (daha fazla bilgi için"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": "("
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -99,13 +99,13 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Geri bildiriminiz varsa veya bir sorunu bildirmek istiyorsanız, bunu şu adresten yapabilirsiniz:"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Lütfen yeni bir fikir oluşturmadan önce fikrinizin veya sorunun zaten var olup olmadığını kontrol edin. Teşekkürler!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Günlüğe kaydetmeyi etkinleştirmek veya hata ayıklama bayraklarını ayarlamak için,"
     },
     "html_about_debugging_suffix": {
         "message": "debug page."
@@ -156,10 +156,10 @@
         "message": "Import session"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "ترحيل علامات التبويب"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "معرف اضافة TGS القديم"
     },
     "html_notice_title": {
         "message": "Notice"
@@ -693,10 +693,10 @@
         "message": "فشل تحميل الملف. تأكد من أن الملف نص عادي ويحتوي على عنوان URL واحد لكل سطر."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "تحتاج إلى معرف اضافة 32 حرف للانتقال من"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "تم ترحيل $TABCOUNT$ علامات التبويب بنجاح",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
