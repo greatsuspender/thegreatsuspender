@@ -84,7 +84,7 @@
         "message": "Baseado no original"
     },
     "html_about_fork_mid": {
-        "message": "disponível no Github, set rastreamento ADS (mais informações disponíveis em"
+        "message": "disponível no GitHub, sem rastreamento ADS (mais informações disponíveis em"
     },
     "html_about_fork_end": {
         "message": ")"
@@ -696,7 +696,7 @@
         "message": "É necessário o is de 32 caracteres para migrar"
     },
     "js_history_migrate_success": {
-        "message": "Foram migradas $TABCOUNT$ abas com sucesso",
+        "message": "Foram migradas $TABCOUNT$ guias com sucesso",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
