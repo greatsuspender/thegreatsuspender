@@ -140,6 +140,9 @@
     "html_about_browserstack_suffix": {
         "message": "für die kostenlosen Chrome Testwerkzeuge."
     },
+    "html_about_tgs_prefix": {
+        "message": "This extension could never have existed without"
+    },
     "html_history_title": {
         "message": "Sitzungsverwaltung"
     },
