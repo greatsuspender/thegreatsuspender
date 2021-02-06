@@ -155,6 +155,12 @@
     "html_history_import_session": {
         "message": "Importar sessão"
     },
+    "html_history_migrate_tabs": {
+        "message": "Migrate tabs"
+    },
+    "html_history_migrate_old_id": {
+        "message": "Old TGS Extension id"
+    },
     "html_notice_title": {
         "message": "Aviso"
     },
@@ -685,6 +691,17 @@
     },
     "js_history_import_fail": {
         "message": "Falha ao carregar o arquivo. Certifique-se de que o arquivo seja um texto simples e contenha uma única URL por linha."
+    },
+    "js_history_migrate_fail": {
+        "message": "Need 32-character extension id to migrate from"
+    },
+    "js_history_migrate_success": {
+        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "placeholders": {
+            "tabcount": {
+                "content": "$1"
+            }
+        }
     },
     "js_suspended_remove_from_whitelist": {
         "message": "Remover site da lista branca"
