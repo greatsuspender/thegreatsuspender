@@ -12,7 +12,6 @@
     "https://*/*",
     "file://*/*",
     "chrome://favicon/*",
-    "https://greatsuspender.github.io/",
     "contextMenus",
     "cookies"
   ],
@@ -44,7 +43,7 @@
     "128": "img/ic_suspendy_128x128.png"
   },
   "web_accessible_resources": ["suspended.html"],
-  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'; child-src 'self'; connect-src 'self' https://greatsuspender.github.io https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' data: chrome: https://www.google-analytics.com www.google-analytics.com https://stats.g.doubleclick.net https://greatsuspender.github.io; style-src 'self' https://greatsuspender.github.io; default-src 'self'",
+  "content_security_policy": "script-src 'self'; object-src 'self'; child-src 'self'; connect-src 'self'; img-src 'self' data: chrome:; style-src 'self'; default-src 'self'",
   "incognito": "split",
   "manifest_version": 2,
   "minimum_chrome_version": "55",

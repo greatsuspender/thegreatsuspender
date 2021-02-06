@@ -46,6 +46,7 @@
     "html_about_browserstack": { "message": "browserstack" },
     "html_about_browserstack_prefix": { "message": "Thank you also to" },
     "html_about_browserstack_suffix": { "message": "for providing free chrome testing tools." },
+    "html_about_tgs_prefix": { "message": "This extension could never have existed without" },
     "html_history_title": { "message": "Session management" },
     "html_history_current_session": { "message": "Current session" },
     "html_history_recent_sessions": { "message": "Recent sessions" },
