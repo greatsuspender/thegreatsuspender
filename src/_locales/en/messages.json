@@ -47,6 +47,8 @@
     "html_history_recent_sessions": { "message": "Recent sessions" },
     "html_history_saved_sessions": { "message": "Saved sessions" },
     "html_history_import_session": { "message": "Import session" },
+    "html_history_migrate_tabs": { "message": "Migrate tabs" },
+    "html_history_migrate_old_id": { "message": "Old TGS Extension id" },
     "html_notice_title": { "message": "Notice" },
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
     "html_options_title": { "message": "Settings" },
@@ -228,6 +230,15 @@
     "js_history_confirm_delete": { "message": "Are you sure you want to delete this session?" },
     "js_history_confirm_session_overwrite": { "message": "There is already a saved session with this name. Overwrite existing session?" },
     "js_history_import_fail": { "message": "Failed to load file. Ensure file is plain text and contains a single url per line." },
+    "js_history_migrate_fail": { "message": "Need 32-character extension id to migrate from" },
+    "js_history_migrate_success": {
+      "message": "Successfully migrated $TABCOUNT$ tabs",
+      "placeholders": {
+        "tabcount": {
+          "content": "$1"
+        }
+      }
+    },
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
     "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
     "js_suspended_low_memory": { "message": "Tab suspended due to low system memory" },
