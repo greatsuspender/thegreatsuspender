@@ -81,13 +81,13 @@
         "message": "Hakkında"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Orijinal eklentiye dayalıdır"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "GitHub üzerinde, reklam takibi kodlarından arındırılmış vaziyette erişilebilir durumda (daha fazla bilgi için"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": "linkini ziyaret edebilirsiniz)"
     },
     "html_about_github_title": {
         "message": "GitHub"
