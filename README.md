@@ -26,6 +26,24 @@ If you have completed the above steps, the "welcome" page will open indicating s
 
 Be sure to unsuspend all suspended tabs before removing any other version of the extension or they will disappear forever!
 
+### Build from github
+
+Dependencies: openssl, npm.
+
+Clone the repository and run these commands:
+```
+npm install
+npm run generate-key
+npm run build
+```
+
+It should say:
+```
+Done, without errors.
+```
+
+The extension in crx format will be inside the build/crx/ directory. You can drag it into [extensions] (chrome://extensions) to install locally.
+
 ## Contributing to this extension
 
 Contributions are very welcome. Feel free to submit pull requests for new features and bug fixes. For new features, ideally you would raise an issue for the proposed change first so that we can discuss ideas. This will go a long way to ensuring your pull request is accepted.

@@ -1,2 +1,8 @@
 **/Thumbs.db
+**/*.pem
+/node_modules
+/assets/*
+/build/*
+/.idea/*
+/.debris/*
 .DS_Store
