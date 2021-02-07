@@ -1,3 +1,5 @@
 Thumbs.db
 .DS_Store
 *.zip
+.dccache
+.vscode*
