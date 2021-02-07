@@ -140,6 +140,9 @@
     "html_about_browserstack_suffix": {
         "message": "for providing free chrome testing tools."
     },
+    "html_about_tgs_prefix": {
+        "message": "هذا التمديد لم يكن ليتحقق بدون"
+    },
     "html_history_title": {
         "message": "Session management"
     },

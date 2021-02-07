@@ -24,7 +24,7 @@
         "message": "Suspender todas as outras guias na janela ativa"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Forçar suspender todas as outras guias na janela ativa"
+        "message": "Forçar a suspensão de todas as guias na janela ativa"
     },
     "ext_cmd_unsuspend_active_window_description": {
         "message": "Recarregar todas as guias na janela ativa"
@@ -139,6 +139,9 @@
     },
     "html_about_browserstack_suffix": {
         "message": "disponibilizar ferramentas gratuitas de teste do Chrome."
+    },
+    "html_about_tgs_prefix": {
+        "message": "Esta extensão nunca teria existido sem"
     },
     "html_history_title": {
         "message": "Gerenciamento de sessão"
@@ -591,7 +594,7 @@
         "message": "Eu deixo seu computador funcionar sem problemas suspendendo as guias que você não está usando."
     },
     "html_welcome_text_line3": {
-        "message": "Você pode ajustar bem as configurações abaixo."
+        "message": "Você pode ajustar as configurações abaixo."
     },
     "js_popup_normal": {
         "message": "A guia será suspensa automaticamente."
