@@ -1,4 +1,4 @@
-/*global chrome, historyItems, historyUtils, gsSession, gsIndexedDb, gsUtils */
+/*global chrome, historyItems, historyUtils, gsSession, gsIndexedDb, gsUtils, gsStorage */
 (function(global) {
   'use strict';
 
@@ -202,6 +202,9 @@
   }
 
   function render() {
+    //Set theme
+    document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
+
     var currentDiv = document.getElementById('currentSessions'),
       sessionsDiv = document.getElementById('recoverySessions'),
       historyDiv = document.getElementById('historySessions'),

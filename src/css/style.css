@@ -511,3 +511,10 @@ input[type='checkbox']:checked + label:before {
   border-top-color: #333;
   animation: spinner .6s linear infinite;
 }
+
+
+/* dark theme for night lurkers */
+.dark {
+  background: #353535;
+  color: #b8b8b8;
+}
