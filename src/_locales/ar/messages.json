@@ -108,55 +108,55 @@
         "message": "Günlüğe kaydetmeyi etkinleştirmek veya hata ayıklama bayraklarını ayarlamak için,"
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "صفحة التصحيح."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "صفحة مشكلات GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "هذه الإضافة تستخدم"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "المكتبة العامة التي كتبتها Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "كما أنها تستخدم تغليف فليديب"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "كتب بواسطة آرون باول."
     },
     "html_about_browserstack": {
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "شكراً لك أيضاً"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "لتوفير أدوات اختبار متصفح الكروم مجانية."
     },
     "html_about_tgs_prefix": {
         "message": "هذا التمديد لم يكن ليتحقق بدون"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "إدارة الجلسة"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "الجلسة الحالية"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "الجلسات الأخيرة"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "الجلسات المحفوظة"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "استيراد الجلسة"
     },
     "html_history_migrate_tabs": {
         "message": "ترحيل علامات التبويب"
@@ -165,55 +165,55 @@
         "message": "معرف اضافة TGS القديم"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "إشعار"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "إشعار هام من The Marvelous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "الإعدادات"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "تعليق علامة التبويب التلقائي"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "علامات التبويب المعلقة"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "آخر"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "تعليق علامات التبويب تلقائياً بعد"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "أبدا"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "ثواني"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "دقيقة"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "دقائق"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "ساعة"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "ساعات"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "يوم"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "أيام"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "أسبوع"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "أسابيع"
     },
     "html_options_suspend_no_pinned": {
         "message": "Never suspend pinned tabs"
