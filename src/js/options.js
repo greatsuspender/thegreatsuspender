@@ -149,6 +149,9 @@
         if (getOptionValue(element)) {
           setSyncNoteVisibility(false);
         }
+      } else if (pref === gsStorage.THEME) {
+        // when the user changes the theme, it reloads the page to apply instantly the modification
+        window.location.reload();
       }
 
       var [oldValue, newValue] = saveChange(element);
