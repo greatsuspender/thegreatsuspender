@@ -72,19 +72,19 @@
         "message": "Suspender todas las pestañas en todas las ventanas"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Forzar suspensión de todas las pestañas en todas las ventanas"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Anular suspensión de todas las pestañas en todas las ventanas"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "Acerca de"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Basado en el original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "disponible en GitHub, sin seguimiento de ADS (más información disponible en"
     },
     "html_about_fork_end": {
         "message": ")"
@@ -99,79 +99,79 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Si tiene comentarios o desea reportar un problema, puede hacerlo en el"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Por favor, compruebe si su idea o problema ya existe antes de crear una nueva. ¡Gracias!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Para habilitar el registro, o para establecer banderas de depuración, vaya a la "
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "pagina de depuración."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "Página de incidencias de GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Esta extensión utiliza el"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "biblioteca escrita por Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "También utiliza el envoltorio indexedDb"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "escrito por Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "Gracias también a"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "por proporcionar herramientas gratuitas de prueba chrome."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Esta extensión nunca podría haber existido sin"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "Administración de sesión"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "Sesión actual"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "Sesiones recientes"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "Sesiones guardadas"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "Importar sesión"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migrar pestañas"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "Anterior id de extensión TGS"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "Aviso"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "Nota importante de The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "Configuración"
     },
     "html_options_suspend_title": {
         "message": "Automatic tab suspension"
@@ -327,157 +327,157 @@
         "message": "Add the URL of each page you want to whitelist on a new line. For example:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "Para incluir múltiples sitios en una línea, puede especificar parte de la url en su lugar:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "También puede especificar expresiones regulares adjuntando el texto en las barras delanteras:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "Probar lista blanca"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "Añadir The Marvellous Suspender al menú contextual del clic derecho"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "Añadir controles para esta extensión al menú de clic derecho de una página web."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "Esto le dará acceso a acciones avanzadas de suspensión no disponibles"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "en otra parte de la extensión."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "Sincronice la configuración con su perfil de Chrome"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "Los ajustes de extensión se sincronizarán con todos los navegadores Chrome en los que esté"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "conectado con el mismo perfil."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "Esto también sincronizará los ajustes en modo incógnito."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "Activar esto sobrescribirá la configuración en todos los otros navegadores conectados al mismo perfil de Chrome"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "Suspender instantáneamente cuando la memoria del sistema es muy baja"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "Esta opción anulará la funcionalidad de descarte automático de pestañas de Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "Si está activado, forzará la suspensión de la pestaña en vez de ser descartada por Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "Por lo general, Chrome sólo descartará las pestañas una vez que la memoria del sistema sea muy baja."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "Tenga en cuenta: Esto puede causar que las pestañas se suspendan antes del tiempo que ha"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "especificado en las opciones de suspensión Automática de pestañas."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Para más información sobre el descarte de Chrome refiérase a:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "Anular suspensión de esta pestaña"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "Suspender esta pestaña ahora"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "No suspender por ahora"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Nunca suspenda este dominio"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Nunca suspenda esta URL"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "Suspender el resto de pestañas"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "Anular suspensión de todas las pestañas"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Suspender pestañas seleccionadas"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Anular suspensión de las pestañas seleccionadas"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "Configuración"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "Restaurando ventana"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "Restaurando pestañas"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "Por favor, espere mientras restauro esta ventana..."
     },
     "html_recovery_title": {
-        "message": "Recovery"
+        "message": "Recuperación"
     },
     "html_recovery_ruh_roh": {
-        "message": "Ruh roh!"
+        "message": "¡Oh oh!"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "Parece que está recuperando de un fallo de extensión."
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "Es posible que las pestañas suspendidas hayan fallado o desaparecido."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "Restaurar pestañas automáticamente"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "Ir al gestor de sesiones"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "Actualmente tiene activada la captura de pantalla. Si esta extensión se bloquea repetidamente, se recomienda desactivar esta opción."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "Desactivar captura de pantalla"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "Pestañas a restaurar"
     },
     "html_shortcuts_title": {
-        "message": "Keyboard shortcuts"
+        "message": "Atajos del teclado"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Atajos del teclado"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "Nota: Estas acciones también están disponibles a través del menú contextual del clic derecho."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "Cambiar atajos"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "Configuración"
     },
     "html_sidebar_session_management": {
-        "message": "Session management"
+        "message": "Administración de sesión"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Atajos del teclado"
     },
     "html_sidebar_support": {
-        "message": "About"
+        "message": "Acerca de"
     },
     "html_success_great_success": {
-        "message": "Marvellous success!"
+        "message": "¡Maravilloso éxito!"
     },
     "html_success_all_tabs_restored": {
         "message": "All your tabs have been restored."
@@ -636,70 +636,70 @@
         "message": "Unpause"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "Suspensión automática de pestañas desactivada."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "No hay conexion de red"
     },
     "js_popup_charging": {
-        "message": "Connected to power source"
+        "message": "Conectado a fuente de energía"
     },
     "js_popup_blockedFile": {
-        "message": "Local files cannot be suspended."
+        "message": "Los archivos locales no pueden ser suspendidos."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "Habilitar"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "Esperando a que la pestaña se cargue..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "Esperando a que la extensión se inicialice..."
     },
     "js_popup_error": {
-        "message": "Auto-suspend unavailable for this tab"
+        "message": "Auto-suspensión no disponible para esta pestaña"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "eliminar"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "exportar"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "abrir y cargar"
     },
     "js_history_resuspend": {
-        "message": "open and suspend"
+        "message": "abrir y suspender"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "guardar"
     },
     "js_history_window": {
-        "message": "Window"
+        "message": "Ventana"
     },
     "js_history_tab": {
-        "message": "Tab"
+        "message": "Pestaña"
     },
     "js_history_plural": {
         "message": "s"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "Introduzca un nombre para esta sesión"
     },
     "js_history_confirm_delete": {
-        "message": "Are you sure you want to delete this session?"
+        "message": "¿Está seguro de que desea eliminar esta sesión?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "Ya hay una sesión guardada con este nombre. ¿Sobrescribir sesión existente?"
     },
     "js_history_import_fail": {
-        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
+        "message": "Error al cargar el archivo. Asegúrese de que el archivo es de texto plano y contiene una única url por línea."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Necesita un id de extensión de 32 caracteres para migrar desde"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "$TABCOUNT$ pestañas migradas con éxito",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
@@ -707,48 +707,48 @@
         }
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remove site from whitelist"
+        "message": "Eliminar sitio de la lista blanca"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "Definir los atajos del teclado"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "Pestaña suspendida debido a poca memoria del sistema"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "Está en modo incógnito. Algunas características no estarán disponibles."
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "No hay pestañas abiertas que coincidan con la lista blanca actual."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "Pestañas abiertas de la lista blanca:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "y"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "más."
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "Hacer copia de seguridad"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "Abrir ajustes de extensión"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "Aún no ha guardado una copia de seguridad. ¿Actualizar la extensión de todos modos?"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "Hacer copia de seguridad"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "Actualizar extensión ahora"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "no establecido"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "Punto de guardado automático para v"
     }
 }
