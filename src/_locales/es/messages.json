@@ -3,73 +3,73 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "Haz que tu ordenador funcione sin problemas al suspender las pestañas que no estás usando"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "Suspender/Anular suspensión de la pestaña activa"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "Pausar/Reanudar suspensión de la pestaña activa"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "Suspender pestañas seleccionadas"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "Anular suspensión de las pestañas seleccionadas"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "Suspender todas las demás pestañas en la ventana activa"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "Forzar suspensión de todas las otras pestañas en la ventana activa"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "Anular suspensión de todas las pestañas en la ventana activa"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Suspender todas las pestañas en todas las ventanas"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Forzar suspensión de todas las pestañas en todas las ventanas"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Anular suspensión de todas las pestañas en todas las ventanas"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Abrir Enlace en una Nueva Pestaña Suspendida"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "Suspender/Anular suspensión de esta pestaña"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "Pausar/Reanudar suspensión de esta pestaña"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Nunca suspender este dominio"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Nunca suspenda esta URL"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Suspender pestañas seleccionadas"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Anular suspensión de las pestañas seleccionadas"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Suspender todas las demás pestañas en esta ventana"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Forzar suspensión de todas las otras pestañas en esta ventana"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "Anular suspensión de todas las pestañas en esta ventana"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Suspender todas las pestañas en todas las ventanas"
     },
     "js_context_force_suspend_all_tabs": {
         "message": "Force suspend all tabs in all windows"
