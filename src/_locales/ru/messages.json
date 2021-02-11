@@ -159,10 +159,10 @@
         "message": "Импорт сессии"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Перенести вкладки"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "Старый идентификатор расширения TGS"
     },
     "html_notice_title": {
         "message": "Уведомление"
@@ -696,10 +696,10 @@
         "message": "Ошибка при загрузке файла. Убедитесь, что это текстовый файл, и что он содержит не более одного URL-адреса в каждой строке."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Для миграции требуется 32-символьный идентификатор расширения"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "Успешно перенесено $ TABCOUNT $ вкладок",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
