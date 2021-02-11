@@ -39,7 +39,7 @@
         "message": "Riattiva tutte le schede in ogni finestra"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Apri collegamento in una nuova scheda sospesa"
     },
     "js_context_toggle_suspend_state": {
         "message": "Sospendi/Riattiva questa scheda"
