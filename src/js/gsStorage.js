@@ -9,6 +9,7 @@ var gsStorage = {
   SUSPEND_TIME: 'gsTimeToSuspend',
   IGNORE_WHEN_OFFLINE: 'onlineCheck',
   IGNORE_WHEN_CHARGING: 'batteryCheck',
+  CLAIM_BY_DEFAULT: 'claimByDefault',
   IGNORE_PINNED: 'gsDontSuspendPinned',
   IGNORE_FORMS: 'gsDontSuspendForms',
   IGNORE_AUDIO: 'gsDontSuspendAudio',
@@ -41,6 +42,7 @@ var gsStorage = {
     defaults[gsStorage.DISCARD_AFTER_SUSPEND] = false;
     defaults[gsStorage.IGNORE_WHEN_OFFLINE] = false;
     defaults[gsStorage.IGNORE_WHEN_CHARGING] = false;
+    defaults[gsStorage.CLAIM_BY_DEFAULT] = false;
     defaults[gsStorage.UNSUSPEND_ON_FOCUS] = false;
     defaults[gsStorage.IGNORE_PINNED] = true;
     defaults[gsStorage.IGNORE_FORMS] = true;
