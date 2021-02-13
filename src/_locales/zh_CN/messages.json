@@ -81,13 +81,13 @@
         "message": "关于"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "基于最初的"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -141,7 +141,7 @@
         "message": "提供免费的 Chrome 测试工具"
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "如果没有这个扩展，就不可能存在"
     },
     "html_history_title": {
         "message": "会话管理"
@@ -159,10 +159,10 @@
         "message": "导入会话"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "迁移标签"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "旧TGS 扩展 id"
     },
     "html_notice_title": {
         "message": "通知"
@@ -696,10 +696,10 @@
         "message": "无法导入文件。确保文件是纯文本，并且每行只有一条 URL。"
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "需要32个字符扩展ID进行迁移"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "成功迁移 $TABCOUNT$ 标签",
         "placeholders": {
             "tabcount": {
                 "content": "$1"

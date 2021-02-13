@@ -84,10 +84,10 @@
         "message": "Orijinal eklentiye dayalıdır"
     },
     "html_about_fork_mid": {
-        "message": "GitHub üzerinde, reklam takibi kodlarından arındırılmış vaziyette erişilebilir durumda (daha fazla bilgi için"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": "linkini ziyaret edebilirsiniz)"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -141,7 +141,7 @@
         "message": "ücretsiz Chrome test araçları sağladığı için."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Bu uzantı olmadan asla var olamazdı"
     },
     "html_history_title": {
         "message": "Oturum yönetimi"
@@ -159,10 +159,10 @@
         "message": "Oturum Al"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Sekmeleri taşı"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "Eski TGS Uzantı kimliği"
     },
     "html_notice_title": {
         "message": "Not"
@@ -696,10 +696,10 @@
         "message": "Dosya yükleme başarısız. Dosyanın düz metin olduğundan ve satır başına tek bir URL içerdiğinden emin olunuz."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Şuradan taşımak için 32 karakterlik uzantı kimliği gerekli"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "$ TABCOUNT $ sekme başarıyla taşındı",
         "placeholders": {
             "tabcount": {
                 "content": "$1"

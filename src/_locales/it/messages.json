@@ -39,7 +39,7 @@
         "message": "Riattiva tutte le schede in ogni finestra"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Apri collegamento in una nuova scheda sospesa"
     },
     "js_context_toggle_suspend_state": {
         "message": "Sospendi/Riattiva questa scheda"
@@ -84,10 +84,10 @@
         "message": "Basata sull'originale"
     },
     "html_about_fork_mid": {
-        "message": "disponibile su GitHub, senza tracciamento pubblicitario (maggiori informazioni disponibili su"
+        "message": "disponibile su GitHub, senza tracciamento ADS"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": ", maggiori informazioni disponibili su"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -129,7 +129,7 @@
         "message": "It also uses the indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "scritto da Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "browserstack"
@@ -318,7 +318,7 @@
         "message": "Enabling high quality screen capture mode may significantly increase CPU load"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "e utilizzo della memoria."
     },
     "html_options_whitelist_title": {
         "message": "Non sospendere mai le schede contenenti i seguenti indirizzi:"
@@ -339,7 +339,7 @@
         "message": "Aggiungi The Marvellous Suspender al menu contestuale del tasto destro del mouse"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "Aggiungi i controlli per questa estensione al menu di clic destro di una pagina web."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
         "message": "This will give you access to advanced suspending actions not available"
@@ -348,7 +348,7 @@
         "message": "elsewhere in the extension."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "Sincronizza le impostazioni con il tuo profilo Chrome"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
         "message": "Extension settings will be synchronised across all chrome browsers which are"

@@ -84,10 +84,10 @@
         "message": "基於 GitHub上的原版TGS 7.1.6 ，無ADS跟踪"
     },
     "html_about_fork_mid": {
-        "message": "(更多信息，請訪問"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": "了解)"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -141,7 +141,7 @@
         "message": "提供免費的 Chrome 測試工具"
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "没有这个扩展，就不可能存在"
     },
     "html_history_title": {
         "message": "記錄管理"
@@ -159,10 +159,10 @@
         "message": "匯入記錄"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "迁移标签"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "旧的TGS扩展ID"
     },
     "html_notice_title": {
         "message": "通知"
@@ -696,10 +696,10 @@
         "message": "無法匯入文件。確保文件是純文字檔案，並且每列只有一個 URL。"
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "需要32个字符的扩展名才能从中迁移"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "成功迁移了$ TABCOUNT $个标签",
         "placeholders": {
             "tabcount": {
                 "content": "$1"

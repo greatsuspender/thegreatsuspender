@@ -84,10 +84,10 @@
         "message": "Orijinale göre"
     },
     "html_about_fork_mid": {
-        "message": "ADS takibi olmadan GitHub'da mevcuttur (daha fazla bilgi için"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": "("
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -108,55 +108,55 @@
         "message": "Günlüğe kaydetmeyi etkinleştirmek veya hata ayıklama bayraklarını ayarlamak için,"
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "صفحة التصحيح."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "صفحة مشكلات GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "هذه الإضافة تستخدم"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "المكتبة العامة التي كتبتها Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "كما أنها تستخدم تغليف فليديب"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "كتب بواسطة آرون باول."
     },
     "html_about_browserstack": {
         "message": "browserstack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "شكراً لك أيضاً"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "لتوفير أدوات اختبار متصفح الكروم مجانية."
     },
     "html_about_tgs_prefix": {
         "message": "هذا التمديد لم يكن ليتحقق بدون"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "إدارة الجلسة"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "الجلسة الحالية"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "الجلسات الأخيرة"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "الجلسات المحفوظة"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "استيراد الجلسة"
     },
     "html_history_migrate_tabs": {
         "message": "ترحيل علامات التبويب"
@@ -165,523 +165,523 @@
         "message": "معرف اضافة TGS القديم"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "إشعار"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "إشعار هام من The Marvelous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "الإعدادات"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "تعليق علامة التبويب التلقائي"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "علامات التبويب المعلقة"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "آخر"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "تعليق علامات التبويب تلقائياً بعد"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "أبدا"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "ثواني"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "دقيقة"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "دقائق"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "ساعة"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "ساعات"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "يوم"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "أيام"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "أسبوع"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "أسابيع"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "لا تعلق أبداً علامات التبويب الثابتة"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "لا تعلق أبداً علامات التبويب التي تحتوي على مدخلات نموذج غير محفوظة"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "لا تقم أبدا بتعليق علامات التبويب التي تشغل الصوت"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "لا توقف أبداً علامات التبويب عند عدم الاتصال"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "لا توقف أبداً علامات التبويب عند الاتصال بمصدر الطاقة"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "عدم تعليق علامة التبويب النشطة أبدا في كل نافذة"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "إلغاء تعليق علامة التبويب تلقائياً عند عرضها"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "تطبيق تطبيق كروم المدمج لحفظ الذاكرة عند التعليق"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "يقلل من استخدام ذاكرة التبويب المعلق أكثر، من خلال استخدام"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "وظيفة كروم المدمجة في 'تجاهل التبويب'. يمكن أن يؤدي هذا إلى أعلى"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "إلى 500٪ مدخرات الذاكرة عند العمل مع عدد كبير من علامات التبويب."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "غير أنه سيؤدي أيضا إلى تأخير طفيف عند الاختيار"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "علامة التبويب المعلقة."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "وللحصول على مزيد من المعلومات، يرجى الرجوع إلى المرجع التالي:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "موضوع"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "الضوء"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "مظلم"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "التقاط الشاشة"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "معطل"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "التقاط أعلى الشاشة فقط"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "التقاط صفحة كاملة"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "في علامة التبويب المعلقة، يمكن للأضافة أن يعرض صورة معاينة لما تبويب"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "يبدو وكأنه قبل أن يتم تعليقه."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "خاصية التقاط الشاشة تجريبية ويمكن أن تسبب استخداما كبيرا لوحدة المعالجة المركزية"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "بالإضافة إلى زيادة طفيفة في استخدام الذاكرة."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "إذا لاحظت سلوك غريب، مثل علامات التبويب التي تستغرق وقتاً طويلاً لتعليقها، أو كرم"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "تعطل بشكل غير متوقع، حاول إيقاف تشغيل هذه الميزة."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "تمكين وضع التقاط الشاشة بجودة عالية"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "عند التعطيل، يكون لالتقاط الشاشة القيود التالية للمساعدة في الأداء:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- التقاط شاشة منخفضة الجودة"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- لن يتم التقاط الشاشة إذا استغرق إنشاء الصورة أكثر من دقيقة واحدة"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- أقصى ارتفاع لالتقاط الشاشة يقتصر على 5000px"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "تمكين وضع التقاط الشاشة عالي الجودة قد يزيد بشكل كبير من تحميل المعالج"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "و استخدام الذاكرة."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "لا تعلق أبداً علامات التبويب مع عناوين URL من القائمة التالية:"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "إضافة عنوان URL لكل صفحة تريد القائمة البيضاء على سطر جديد. على سبيل المثال:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "لقائمة بيضاء متعددة المواقع في سطر واحد يمكنك تحديد جزء من url بدلاً من ذلك:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "يمكنك أيضا تحديد التعبيرات العادية عن طريق إرفاق النص في الخطوط الأمامية:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "اختبار القائمة البيضاء"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "أضف الموصل المبتكر إلى قائمة السياق بالنقر الأيمن"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "إضافة عناصر تحكم لهذا الملحق إلى قائمة انقر بالزر الأيمن لصفحة ويب."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "هذا سيعطيك الوصول إلى إجراءات التعليق المتقدمة غير متوفرة"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "في مكان آخر من التمديد."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "مزامنة الإعدادات مع ملف تعريف كروم"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "سيتم مزامنة إعدادات الملحق عبر جميع متصفحات الكروم"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "تم تسجيل الدخول بنفس الملف الشخصي."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "سيؤدي هذا أيضا إلى مزامنة الإعدادات في الوضع المخفي."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "تشغيل هذا سوف يستبدل الإعدادات في جميع المتصفحات الأخرى التي تم تسجيلها في نفس ملف كروم"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "التعليق فوراً عندما تصبح ذاكرة النظام منخفضة جداً"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "هذا الخيار سيتجاوز خاصية التبويب التلقائي لـ Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "إذا تم تفعيله، فإنه سيجبر علامة التبويب على التعليق بدلاً من أن يتم تجاهلها من قبل كروم."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "عادة ، لن يتم تجاهل علامات التبويب إلا بمجرد أن تصبح ذاكرة النظام منخفضة جداً."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "يرجى ملاحظة: قد يتسبب هذا في تعليق علامات التبويب قبل الوقت الذي لديك فيه"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "محدد في خيارات التعليق التلقائي للتبويب."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "وللحصول على مزيد من المعلومات عن رفض كروم يرجى الرجوع إلى ما يلي:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "إلغاء تعليق علامة التبويب"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "تعليق علامة التبويب هذه الآن"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "لا تقم بالتعليق الآن"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "عدم تعليق هذا الرابط مطلقاً"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "عدم تعليق هذا الرابط مطلقاً"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "تعليق جميع علامات التبويب الأخرى"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "إلغاء تعليق كل علامات التبويب"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "إلغاء تعليق علامات التبويب المحددة"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "إلغاء تعليق علامات التبويب المحددة"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "الإعدادات"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "إستعادة النافذة"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "إستعادة علامات التبويب"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "الرجاء الانتظار بينما استعيد هذه النافذة..."
     },
     "html_recovery_title": {
-        "message": "Recovery"
+        "message": "استرداد"
     },
     "html_recovery_ruh_roh": {
-        "message": "Ruh roh!"
+        "message": "روه روه!"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "يبدو أنك تستعيد عافيتك من تحطم الملحق."
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "قد تكون علامات التبويب المعلقة الخاصة بك قد تحطمت أو اختفت."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "استعادة علامات التبويب تلقائياً"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "اذهب إلى مدير الجلسة"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "لديك حاليا تشغيل التقاط الشاشة. إذا كان هذا الملحق يتعطل مرارا وتكرارا، فإنه من المستحسن تعطيل هذا الخيار."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "إيقاف تشغيل التقاط الشاشة"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "علامات التبويب لإستعادتها"
     },
     "html_shortcuts_title": {
-        "message": "Keyboard shortcuts"
+        "message": "اختصارات لوحة المفاتيح"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "اختصارات لوحة المفاتيح"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "ملاحظة: هذه الإجراءات متاحة أيضا عن طريق قائمة السياق بالنقر الأيمن."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "تغيير الاختصارات"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "الإعدادات"
     },
     "html_sidebar_session_management": {
-        "message": "Session management"
+        "message": "إدارة الجلسة"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "اختصارات لوحة المفاتيح"
     },
     "html_sidebar_support": {
-        "message": "About"
+        "message": "حول عن اضافة"
     },
     "html_success_great_success": {
-        "message": "Marvellous success!"
+        "message": "نجاح رائع!"
     },
     "html_success_all_tabs_restored": {
-        "message": "All your tabs have been restored."
+        "message": "تم استعادة جميع علامات التبويب الخاصة بك."
     },
     "html_success_goto_advanced_prefix": {
-        "message": "For advanced session management, visit the"
+        "message": "لإدارة الدورات المتقدمة، قم بزيارة"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "page"
+        "message": "الصفحة"
     },
     "html_session_manager": {
-        "message": "session management"
+        "message": "إدارة الجلسة"
     },
     "html_suspended_title": {
-        "message": "Suspended Tab"
+        "message": "علامات التبويب المعلقة"
     },
     "html_suspended_tab_suspended": {
-        "message": "Tab suspended"
+        "message": "علامة التبويب معلقة"
     },
     "html_suspended_tab_reload": {
-        "message": "Reload tab"
+        "message": "أعد تحميل الصفحة"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Never suspend"
+        "message": "لا تعلق مطلقاً"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Refresh or click to reload"
+        "message": "قم بتحديث أو انقر لإعادة التحميل"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "يجب ان تكون متصلاً بالانترنت."
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "Automatic tab reloading is temporarily disabled."
+        "message": "إعادة تحميل التبويب التلقائي معطل مؤقتاً."
     },
     "html_permissions_title": {
-        "message": "Permissions"
+        "message": "الأذونات"
     },
     "html_permissions_heading": {
-        "message": "Please give me access to local file URLs"
+        "message": "الرجاء منحي حق الوصول إلى عناوين URL للملف المحلي"
     },
     "html_permissions_info": {
-        "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
+        "message": "هذا التمديد غير مسموح به حاليا لتعليق عناوين URL بدءاً بكلمة \"ملف\".\nلتغيير هذا، يرجى تشغيل \"السماح بالوصول إلى عناوين URLs\" من صفحة إعدادات الملحق."
     },
     "html_permissions_backup": {
-        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
+        "message": "يرجى ملاحظة أن تغيير هذا الخيار سيؤدي إلى اختفاء جميع علامات التبويب المعلقة الخاصة بك لفترة وجيزة.\nفقط في الحالة ، قد يكون الوقت جيدا لتوفير نسخة احتياطية من جلسة التبويب الحالية."
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "التحديث"
     },
     "html_update_heading2": {
-        "message": "is about to get greater"
+        "message": "على وشك الحصول على أكبر"
     },
     "html_update_info": {
-        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
+        "message": "نسخة جديدة من الموصوف الجديد جاهزة للتثبيت.\nيرجى ملاحظة: خلال التحديث، ستختفي علامات التبويب المعلقة الخاصة بك لفترة وجيزة."
     },
     "html_update_info_withbackup": {
-        "message": "Just in case, now might be a good time to save a backup of your current tab session."
+        "message": "فقط في الحالة، الآن قد يكون وقتاً جيداً لتوفير نسخة احتياطية من جلسة التبويب الحالية."
     },
     "html_update_info_nobackup_prefix": {
-        "message": "It is strongly recommended that you export a copy of your current session from "
+        "message": "يوصى بشدة بأن تقوم بتصدير نسخة من الجلسة الحالية من "
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " قبل الاستمرار في التحديث."
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "التحديث"
     },
     "html_updating_heading": {
-        "message": "is updating"
+        "message": "يتم التحديث"
     },
     "html_updating_message": {
-        "message": "Please wait while I restore your suspended tabs..."
+        "message": "الرجاء الانتظار بينما أستعيد علامات التبويب المعلقة الخاصة بك..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "لقد تم تحديثها"
     },
     "html_updated_info_line1": {
-        "message": "An automatic backup was made of your tabs before the update."
+        "message": "تم إنشاء نسخة احتياطية تلقائية من علامات التبويب الخاصة بك قبل التحديث."
     },
     "html_updated_info_line2_prefix": {
-        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
+        "message": "إذا واجهت أي مشاكل أثناء التحديث، يمكنك استعادة علامات التبويب المفقودة من "
     },
     "html_updated_info_line2_suffix": {
-        "message": " page."
+        "message": " الصفحة."
     },
     "html_updated_detail_header_prefix": {
-        "message": "What's new in "
+        "message": "ما هو الجديد في "
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "New features:"
+        "message": "المميزات الجديدة :"
     },
     "html_updated_bug_fixes_header": {
-        "message": "Bug fixes:"
+        "message": "إصلاح الأخطاء :"
     },
     "html_updated_release_notes": {
-        "message": "Visit GitHub for full release notes: "
+        "message": "قم بزيارة GitHub للحصول على ملاحظات الإصدار الكامل : "
     },
     "html_updated_patch_message": {
-        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
+        "message": "عذرا على الإزعاج. كنت بحاجة للتو للقيام بصيانة صغيرة."
     },
     "html_welcome_title": {
-        "message": "Welcome"
+        "message": "أهلاً بك"
     },
     "html_welcome_text_line1": {
-        "message": "Thanks for trying"
+        "message": "شكراً على المحاولة"
     },
     "html_welcome_text_line2": {
-        "message": "I make your computer run smoothly by suspending the tabs you aren't using."
+        "message": "أجعل جهاز الكمبيوتر يعمل بسلاسة عن طريق تعليق علامات التبويب التي لا تستخدمها."
     },
     "html_welcome_text_line3": {
-        "message": "You can fine-tune the settings below."
+        "message": "يمكنك ضبط الإعدادات أدناه."
     },
     "js_popup_normal": {
-        "message": "Tab will suspend automatically."
+        "message": "سيتم تعليق علامة التبويب تلقائياً."
     },
     "js_popup_normal_pause": {
-        "message": "Not now"
+        "message": "ليس الآن"
     },
     "js_popup_special": {
-        "message": "Tab cannot be suspended"
+        "message": "لا يمكن تعليق علامة التبويب"
     },
     "js_popup_suspended": {
-        "message": "Tab suspended"
+        "message": "علامة التبويب معلقة"
     },
     "js_popup_suspended_pause": {
-        "message": "Don't suspend"
+        "message": "عدم التعليق"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "قائمة بيضاء بالموقع."
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remove from whitelist"
+        "message": "إزالة من القائمة البيضاء"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "علامة التبويب تقوم بتشغيل الصوت."
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "علامة التبويب تتلقى مدخلات النموذج."
     },
     "js_popup_form_input_unpause": {
-        "message": "Unpause"
+        "message": "إلغاء الإيقاف المؤقت"
     },
     "js_popup_pinned": {
-        "message": "Tab has been pinned"
+        "message": "تم تثبيت علامة التبويب"
     },
     "js_popup_temp_whitelist": {
-        "message": "Tab suspension paused."
+        "message": "تعليق علامة التبويب مؤقتاً."
     },
     "js_popup_temp_whitelist_unpause": {
-        "message": "Unpause"
+        "message": "إلغاء الإيقاف المؤقت"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "تم تعطيل تعليق التبويب التلقائي."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "لا يوجد إتصال بالشبكة"
     },
     "js_popup_charging": {
-        "message": "Connected to power source"
+        "message": "متصل بمصدر الطاقة"
     },
     "js_popup_blockedFile": {
-        "message": "Local files cannot be suspended."
+        "message": "لا يمكن تعليق الملفات المحلية."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "تمكين"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "في انتظار علامة التبويب للتحميل..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "في انتظار التمديد للتهيئة..."
     },
     "js_popup_error": {
-        "message": "Auto-suspend unavailable for this tab"
+        "message": "التعليق التلقائي غير متوفر لهذا التبويب"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "احذف"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "استخراج"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "افتح و تحميل"
     },
     "js_history_resuspend": {
-        "message": "open and suspend"
+        "message": "افتح و تعليق"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "احفظ"
     },
     "js_history_window": {
-        "message": "Window"
+        "message": "نافذة"
     },
     "js_history_tab": {
-        "message": "Tab"
+        "message": "علامة التبويب"
     },
     "js_history_plural": {
-        "message": "s"
+        "message": "ثانية"
     },
     "js_history_enter_name_for_session": {
         "message": "أدخل إسم لهذه الجلسة"

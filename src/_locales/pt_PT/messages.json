@@ -81,13 +81,13 @@
         "message": "Sobre"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Baseado no original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking (more information available on"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -141,7 +141,7 @@
         "message": "disponibilizar ferramentas gratuitas de teste do Chrome."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Esta extensão nunca poderia ter existido sem"
     },
     "html_history_title": {
         "message": "Gerenciamento de sessão"
@@ -159,10 +159,10 @@
         "message": "Importar sessão"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migrar guias"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "ID de extensão TGS antigo"
     },
     "html_notice_title": {
         "message": "Aviso"
@@ -696,10 +696,10 @@
         "message": "Falha ao carregar o arquivo. Certifique-se de que o arquivo seja um texto simples e contenha uma única URL por linha."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Necessita de id de extensão de 32 caracteres para migrar de"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "Migração de $ TABCOUNT $ guias com sucesso",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
