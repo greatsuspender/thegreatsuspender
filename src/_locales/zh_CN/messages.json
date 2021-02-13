@@ -150,7 +150,7 @@
         "message": "Ruh Roh!"
     },
     "html_broken_line1": {
-        "message": "The Marvellous Suspender failed to start. Perhaps you are using an incompatible version of chrome?"
+        "message": "failed to start. Perhaps you are using an incompatible version of chrome?"
     },
     "html_broken_line2": {
         "message": "Try to restart the extension. If the problem persists, ask for help on the"
