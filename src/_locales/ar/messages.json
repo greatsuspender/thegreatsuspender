@@ -150,7 +150,7 @@
         "message": "روه روه!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "فشل في البدء. ربما أنت تستخدم نسخة غير متوافقة من متصفح الكروم ؟"
     },
     "html_broken_line2": {
         "message": "حاول إعادة تشغيل الإضافة. إذا استمرت المشكلة، اطلب المساعدة على"
