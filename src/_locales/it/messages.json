@@ -105,10 +105,10 @@
         "message": ". Ti prego di verificare se la tua idea o problema esiste già prima di aprire una nuova richiesta. Grazie!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Per abilitare la registrazione degli eventi (logging), o per impostare i flag di debug, vai alla "
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "pagina di debug."
     },
     "html_about_the_github_issues_page": {
         "message": "la pagina problemi su GitHub"
@@ -117,16 +117,16 @@
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Questa estensione utilizza la libreria"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "scritta da Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Utilizza anche il wrapper indexedDb"
     },
     "html_about_indexedDb_suffix": {
         "message": "scritto da Aaron Powell."
@@ -138,10 +138,10 @@
         "message": "Grazie inoltre a"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "per fornire strumenti liberi di collaudo Chrome."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Questa estensione non sarebbe mai esistita senza"
     },
     "html_history_title": {
         "message": "Session management"
@@ -159,7 +159,7 @@
         "message": "Importa sessione"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migra le schede"
     },
     "html_history_migrate_old_id": {
         "message": "Vecchio ID estensione TGS"
@@ -180,7 +180,7 @@
         "message": "Schede sospese"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "Altro"
     },
     "html_options_suspend_automatically_after": {
         "message": "Sospendi automaticamente le schede dopo"
@@ -234,28 +234,28 @@
         "message": "Non sospendere mai la scheda attiva in ogni finestra"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "Riattiva automaticamente la scheda quando viene visualizzata"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "Applica il risparmio di memoria integrato di Chrome durante la sospensione"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Riduce ancora di più l'utilizzo della memoria di una scheda sospesa, utilizzando"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "la funzionalità integrata 'tab discarding' di Chrome. Questo può portare a un"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "risparmio di memoria fino al 500% quando si lavora con un gran numero di schede."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "Tuttavia, causerà anche un leggero ritardo di rendering quando si seleziona"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "una schede sospesa."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Per ulteriori informazioni su Chrome discarding fai riferimento a:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
@@ -276,28 +276,28 @@
         "message": "Disabilitata"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "Cattura solo la parte visibile della pagina"
     },
     "html_options_suspend_screen_capturing_entire_page": {
         "message": "Cattura l'intera pagina"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "In una scheda sospesa, l'estensione può mostrare un'immagine di ciò che la scheda"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "conteneva appena prima che fosse sospesa."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "La funzione di cattura dello schermo è sperimentale e può causare un uso significativo della CPU"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "e un leggero aumento della memoria."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "Se noti comportamenti strani come schede che impiegano molto tempo a sospendersi, o Chrome"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "che si blocca inaspettatamente, prova a disattivare questa funzione."
     },
     "html_options_suspend_force_screen_capture": {
         "message": "Abilita la modalità di cattura dello schermo in alta qualità"
@@ -339,25 +339,25 @@
         "message": "Aggiungi The Marvellous Suspender al menu contestuale del tasto destro del mouse"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Aggiungi i controlli per questa estensione al menu di clic destro di una pagina web."
+        "message": "Aggiungi i controlli per questa estensione al menu del clic destro di una pagina web."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "Questo ti darà accesso alle azioni di sospensione avanzate non disponibili"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "altrove nell'estensione."
     },
     "html_options_other_enable_sync": {
         "message": "Sincronizza le impostazioni con il tuo profilo Chrome"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "Le impostazioni dell'estensione saranno sincronizzate su tutti i browser Chrome che sono"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "connessi con lo stesso profilo."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "Questo sincronizzerà anche le impostazioni in modalità incognito."
     },
     "html_options_other_enable_sync_warning": {
         "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
@@ -381,7 +381,7 @@
         "message": "specified in the Automatic tab suspension options."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Per ulteriori informazioni su Chrome discarding fai riferimento a:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
@@ -666,7 +666,7 @@
         "message": "esporta"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "apri e carica"
     },
     "js_history_resuspend": {
         "message": "apri e sospendi"
@@ -699,7 +699,7 @@
         "message": "Need 32-character extension id to migrate from"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "Ho migrato con successo $TABCOUNT$ schede",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
@@ -746,7 +746,7 @@
         "message": "Aggiorna l'estensione ora"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "non impostato"
     },
     "js_session_save_point": {
         "message": "Automatic save point for v"
