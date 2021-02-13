@@ -84,10 +84,10 @@
         "message": "基於 GitHub上的原版TGS 7.1.6 ，無ADS跟踪"
     },
     "html_about_fork_mid": {
-        "message": "(更多信息，請訪問"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": "了解)"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
