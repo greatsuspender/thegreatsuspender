@@ -84,10 +84,10 @@
         "message": "На основе оригинала"
     },
     "html_about_fork_mid": {
-        "message": "доступно на GitHub, без отслеживания ADS (более подробная информация доступна на"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": ")"
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
