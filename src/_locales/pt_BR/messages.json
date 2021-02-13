@@ -150,7 +150,7 @@
         "message": "Opa!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "falha ao iniciar. Será que você está usando uma versão incompatível do chrome?"
     },
     "html_broken_line2": {
         "message": "Tente reiniciar a extensão. Se o problema persistir, peça ajuda na"
