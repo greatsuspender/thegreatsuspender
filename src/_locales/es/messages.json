@@ -84,10 +84,10 @@
         "message": "Basado en el original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "disponible en GitHub, sin seguimiento ADS"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", más información disponible en"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -132,7 +132,7 @@
         "message": "escrito por Aaron Powell."
     },
     "html_about_browserstack": {
-        "message": "browserstack"
+        "message": "BrowserStack"
     },
     "html_about_browserstack_prefix": {
         "message": "Gracias también a"
@@ -174,64 +174,64 @@
         "message": "Configuración"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "Suspensión automática de pestaña"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "Pestañas suspendidas"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "Otro"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "Suspender automáticamente las pestañas después de"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "Nunca"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "segundos"
     },
     "html_options_suspend_minute": {
         "message": "min"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "minutos"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "hora"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "horas"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "día"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "días"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "semana"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "semanas"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "Nunca suspender pestañas fijadas"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "Nunca suspender pestañas que contengan entradas de formulario no guardadas"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "Nunca suspender pestañas que estén reproduciendo audio"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "Nunca suspender pestañas cuando estén fuera de línea"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "Nunca suspender pestañas cuando esté conectado a la fuente de alimentación"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "Nunca suspender la pestaña activa en cada ventana"
     },
     "html_options_suspend_automatically_unsuspend": {
         "message": "Automatically unsuspend tab when it is viewed"
