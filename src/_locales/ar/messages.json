@@ -84,10 +84,10 @@
         "message": "Orijinale göre"
     },
     "html_about_fork_mid": {
-        "message": "ADS takibi olmadan GitHub'da mevcuttur (daha fazla bilgi için"
+        "message": "available on GitHub, without ADS tracking"
     },
     "html_about_fork_end": {
-        "message": "("
+        "message": ", more information available on"
     },
     "html_about_github_title": {
         "message": "GitHub"
