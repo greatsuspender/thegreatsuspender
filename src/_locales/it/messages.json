@@ -99,10 +99,10 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Se vuoi lasciare un tuo un feedback o segnalare un problema, puoi farlo tramite"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Ti prego di verificare se la tua idea o problema esiste già prima di aprire una nuova richiesta. Grazie!"
     },
     "html_about_debugging_prefix": {
         "message": "To enable logging, or to set debugging flags, go to the "
@@ -111,7 +111,7 @@
         "message": "debug page."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "la pagina problemi su GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
@@ -132,7 +132,7 @@
         "message": "scritto da Aaron Powell."
     },
     "html_about_browserstack": {
-        "message": "browserstack"
+        "message": "BrowserStack"
     },
     "html_about_browserstack_prefix": {
         "message": "Grazie inoltre a"
@@ -423,7 +423,7 @@
         "message": "Ripristino le schede"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "Attendi mentre ripristino questa finestra ..."
     },
     "html_recovery_title": {
         "message": "Recovery"
@@ -453,16 +453,16 @@
         "message": "Tabs to restore"
     },
     "html_shortcuts_title": {
-        "message": "Keyboard shortcuts"
+        "message": "Scorciatoie da tastiera"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Scorciatoie da tastiera"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "Nota: queste azioni sono disponibili anche tramite il menu di scelta rapida del tasto destro."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "Imposta scorciatoie"
     },
     "html_sidebar_general_settings": {
         "message": "Impostazioni"
@@ -471,7 +471,7 @@
         "message": "Gestione delle sessioni"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Scorciatoie da tastiera"
     },
     "html_sidebar_support": {
         "message": "Informazioni"
@@ -710,7 +710,7 @@
         "message": "Rimuovi sito dalla lista bianca"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "Configura scorciatoie da tastiera"
     },
     "js_suspended_low_memory": {
         "message": "Tab suspended due to low system memory"
