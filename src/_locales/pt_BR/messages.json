@@ -84,10 +84,10 @@
         "message": "Baseado no original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "disponível no GitHub, sem rastreamento ADS"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", mais informações disponíveis no"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -144,28 +144,28 @@
         "message": "Esta extensão nunca teria existido sem"
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "está quebrado"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "Opa!"
     },
     "html_broken_line1": {
-        "message": "The Marvellous Suspender failed to start. Perhaps you are using an incompatible version of chrome?"
+        "message": "failed to start. Perhaps you are using an incompatible version of chrome?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Tente reiniciar a extensão. Se o problema persistir, peça ajuda na"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "Página do projeto no Github"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Você pode recuperar as abas perdidas do"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "página de gerenciamento de sessões"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Reiniciar extensão"
     },
     "html_history_title": {
         "message": "Gerenciamento de sessão"
@@ -708,7 +708,7 @@
         "message": "Guia"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Abas"
     },
     "js_history_plural": {
         "message": "s"
