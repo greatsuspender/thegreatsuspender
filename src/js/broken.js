@@ -1,4 +1,4 @@
-/*global chrome */
+/* global chrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -28,4 +28,9 @@
       init();
     });
   }
+
+  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+    render();
+  });
+  
 })(this);
