@@ -43,7 +43,7 @@
     "html_about_indexedDb": { "message": "db.js" },
     "html_about_indexedDb_prefix": { "message": "It also uses the indexedDb wrapper" },
     "html_about_indexedDb_suffix": { "message": "written by Aaron Powell." },
-    "html_about_browserstack": { "message": "browserstack" },
+    "html_about_browserstack": { "message": "BrowserStack" },
     "html_about_browserstack_prefix": { "message": "Thank you also to" },
     "html_about_browserstack_suffix": { "message": "for providing free chrome testing tools." },
     "html_about_tgs_prefix": { "message": "This extension could never have existed without" },
