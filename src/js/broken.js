@@ -29,8 +29,6 @@
     });
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
-    render();
-  });
-  
+  gsUtils.documentReadyAndLocalisedAsPromsied(document);
+
 })(this);
