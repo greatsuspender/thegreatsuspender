@@ -105,7 +105,7 @@
         "message": ". Ti prego di verificare se la tua idea o problema esiste già prima di aprire una nuova richiesta. Grazie!"
     },
     "html_about_debugging_prefix": {
-        "message": "Per abilitare la registrazione degli eventi (logging), o per impostare i flag di debug, vai alla "
+        "message": "Per abilitare la registrazione degli eventi (logging) o per impostare i flag di debug, vai alla "
     },
     "html_about_debugging_suffix": {
         "message": "pagina di debug."
@@ -143,8 +143,32 @@
     "html_about_tgs_prefix": {
         "message": "Questa estensione non sarebbe mai esistita senza"
     },
+    "html_broken_title": {
+        "message": "is broken"
+    },
+    "html_broken_ruh_roh": {
+        "message": "Ruh Roh!"
+    },
+    "html_broken_line1": {
+        "message": "The Marvellous Suspender failed to start. Perhaps you are using an incompatible version of chrome?"
+    },
+    "html_broken_line2": {
+        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+    },
+    "html_broken_line2_github_page": {
+        "message": "GitHub project page"
+    },
+    "html_broken_line3": {
+        "message": "You can recover lost tabs from the"
+    },
+    "html_broken_line3_session_management": {
+        "message": "session management page"
+    },
+    "html_broken_button_restart_extension": {
+        "message": "Restart extension"
+    },
     "html_history_title": {
-        "message": "Session management"
+        "message": "Gestione delle sessioni"
     },
     "html_history_current_session": {
         "message": "Sessione corrente"
@@ -366,19 +390,19 @@
         "message": "Sospendi istantaneamente quando la memoria di sistema diventa molto bassa"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "Questa opzione sovrascriverà la funzionalità di scarto schede automatica di Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
         "message": "Se abilitata, forzerà la sospensione di una scheda invece di essere scartata da Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "Generalmente Chrome scarta le schede solo quando la memoria di sistema diventa molto bassa."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "Nota: questo può causare la sospensione delle schede prima del tempo"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "che hai specificato nelle opzioni di sospensione automatica delle schede."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
         "message": "Per ulteriori informazioni su Chrome discarding fai riferimento a:"
@@ -447,10 +471,10 @@
         "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "Disattiva cattura dello schermo"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "Schede da ripristinare"
     },
     "html_shortcuts_title": {
         "message": "Scorciatoie da tastiera"
@@ -483,10 +507,10 @@
         "message": "Tutte le schede sono state ripristinate."
     },
     "html_success_goto_advanced_prefix": {
-        "message": "For advanced session management, visit the"
+        "message": "Per la gestione avanzata delle sessioni, visita la"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "page"
+        "message": "pagina"
     },
     "html_session_manager": {
         "message": "gestione delle sessioni"
@@ -677,8 +701,14 @@
     "js_history_window": {
         "message": "Finestra"
     },
+    "js_history_windows": {
+        "message": "Windows"
+    },
     "js_history_tab": {
         "message": "Scheda"
+    },
+    "js_history_tabs": {
+        "message": "Tabs"
     },
     "js_history_plural": {
         "message": "s"
