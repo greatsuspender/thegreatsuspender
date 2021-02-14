@@ -251,6 +251,9 @@
     "html_options_suspend_only_connected": {
         "message": "Tabs nicht aussetzen im Offline-Modus"
     },
+    "html_options_suspend_claim_by_default": {
+        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+    },
     "html_options_suspend_only_on_battery": {
         "message": "Tabs nicht aussetzen bei aktiver Stromversorgung"
     },
@@ -709,9 +712,6 @@
     },
     "js_history_tabs": {
         "message": "Tabs"
-    },
-    "js_history_plural": {
-        "message": "s"
     },
     "js_history_enter_name_for_session": {
         "message": "Benenne diese Sitzung"
