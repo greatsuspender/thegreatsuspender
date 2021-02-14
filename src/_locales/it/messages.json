@@ -251,6 +251,9 @@
     "html_options_suspend_only_connected": {
         "message": "Non sospendere mai le schede quando non sei connesso a Internet"
     },
+    "html_options_suspend_claim_by_default": {
+        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+    },
     "html_options_suspend_only_on_battery": {
         "message": "Non sospendere mai le schede quando il PC è collegato all'alimentazione"
     },
@@ -709,9 +712,6 @@
     },
     "js_history_tabs": {
         "message": "Schede"
-    },
-    "js_history_plural": {
-        "message": "s"
     },
     "js_history_enter_name_for_session": {
         "message": "Inserisci un nome per questa sessione"

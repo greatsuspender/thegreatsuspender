@@ -251,6 +251,9 @@
     "html_options_suspend_only_connected": {
         "message": "只在網路連接下才自動凍結"
     },
+    "html_options_suspend_claim_by_default": {
+        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+    },
     "html_options_suspend_only_on_battery": {
         "message": "只在電腦未接上電源時才自動凍結"
     },
@@ -709,9 +712,6 @@
     },
     "js_history_tabs": {
         "message": "Tabs"
-    },
-    "js_history_plural": {
-        "message": "s"
     },
     "js_history_enter_name_for_session": {
         "message": "命名這個記錄"
