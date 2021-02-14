@@ -137,6 +137,7 @@ var historyItems = (function(global) {
 
     groupHeading = createEl('div', {
       class: 'windowContainer',
+      id: 'main-div-' + index,
     });
 
     var windowString = chrome.i18n.getMessage('js_history_window');
@@ -150,7 +151,7 @@ var historyItems = (function(global) {
       'a',
       {
         class: 'groupLink resuspendLink ',
-        href: '#',
+        href: '#main-div-' + index,
       },
       chrome.i18n.getMessage('js_history_resuspend'),
     );
@@ -159,7 +160,7 @@ var historyItems = (function(global) {
       'a',
       {
         class: 'groupLink reloadLink',
-        href: '#',
+        href: '#main-div-' + index,
       },
       chrome.i18n.getMessage('js_history_reload'),
     );
