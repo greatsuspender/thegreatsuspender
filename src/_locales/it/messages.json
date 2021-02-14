@@ -150,22 +150,22 @@
         "message": "D'oh!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of chrome?"
+        "message": "non è riuscito ad avviarsi. Forse stai usando una versione incompatibile di Chrome?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Prova a riavviare l'estensione. Se il problema persiste, chiedi aiuto sulla"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "pagina del progetto su Github"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "È possibile recuperare le schede perse dalla"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "pagina di gestione delle sessioni"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Riavvia l'estensione"
     },
     "html_history_title": {
         "message": "Gestione delle sessioni"
@@ -555,31 +555,31 @@
         "message": "Update"
     },
     "html_update_heading2": {
-        "message": "is about to get greater"
+        "message": "sta per diventare ancora più meraviglioso"
     },
     "html_update_info": {
-        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
+        "message": "Una nuova versione di The Marvellous Suspender è pronta per essere installata.\nAttenzione: durante l'aggiornamento le schede sospese scompariranno temporaneamente."
     },
     "html_update_info_withbackup": {
         "message": "Just in case, now might be a good time to save a backup of your current tab session."
     },
     "html_update_info_nobackup_prefix": {
-        "message": "It is strongly recommended that you export a copy of your current session from "
+        "message": "È caldamente raccomandato di esportare una copia della sessione attuale dalla pagina di "
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " prima di proseguire con l'aggiornamento."
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "Aggiornato"
     },
     "html_updating_heading": {
-        "message": "è in aggiornamento"
+        "message": "si sta aggiornando"
     },
     "html_updating_message": {
-        "message": "Please wait while I restore your suspended tabs..."
+        "message": "Attendi mentre ripristino le schede sospese ..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "è stato aggiornato"
     },
     "html_updated_info_line1": {
         "message": "An automatic backup was made of your tabs before the update."
@@ -663,7 +663,7 @@
         "message": "Automatic tab suspension disabled."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "Nessuna connessione di rete"
     },
     "js_popup_charging": {
         "message": "Collegato all'alimentazione elettrica"
@@ -702,13 +702,13 @@
         "message": "Finestra"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "Finestre"
     },
     "js_history_tab": {
         "message": "Scheda"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Schede"
     },
     "js_history_plural": {
         "message": "s"

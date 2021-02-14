@@ -84,10 +84,10 @@
         "message": "Orijinale göre"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "متاح في جيثب، بدون تتبع ADS"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": "المزيد من المعلومات عن"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -144,28 +144,28 @@
         "message": "هذا التمديد لم يكن ليتحقق بدون"
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "يتم كسر"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "روه روه!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of chrome?"
+        "message": "فشل في البدء. ربما أنت تستخدم نسخة غير متوافقة من متصفح الكروم ؟"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "حاول إعادة تشغيل الإضافة. إذا استمرت المشكلة، اطلب المساعدة على"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "صفحة مشروع جيثب"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "يمكنك استعادة علامات التبويب المفقودة من"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "إدارة الجلسة"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "إعادة تشغيل الإضافة"
     },
     "html_history_title": {
         "message": "إدارة الجلسة"
@@ -702,13 +702,13 @@
         "message": "نافذة"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "ويندوز"
     },
     "js_history_tab": {
         "message": "علامة التبويب"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "علامات التبويب"
     },
     "js_history_plural": {
         "message": "ثانية"
