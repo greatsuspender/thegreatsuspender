@@ -1682,8 +1682,37 @@ var tgs = (function () {
       queueSessionTimer();
       removeTabIdReferences(tabId);
     });
+    
+    function isItOurUrl(url) {
+            // return true is suspended.html follows extenstion's id immediately
+            // which means that this url is likely belongs to our extenstion (no other extensions handle it now)
+            return url.match('^chrome-extension:\/\/[^\/]*\/suspended\.html')
+    }
+
+    async function claimTab(tabId) {
+      const tabs = await gsChrome.tabsQuery();
+      for (const tab of tabs) {
+        if (
+          tab.id == tabId &&
+          isItOurUrl(tab.url) &&
+          gsUtils.isSuspendedTab(tab, true) &&
+          tab.url.indexOf(chrome.runtime.id) < 0
+        ) {
+          const newUrl = tab.url.replace(
+            gsUtils.getRootUrl(tab.url),
+            chrome.runtime.id
+          );
+          await gsChrome.tabsUpdate(tab.id, { url: newUrl });
+        }
+      }
+    };
+
     chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       if (!changeInfo) return;
+
+      if (gsStorage.getOption(gsStorage.CLAIM_BY_DEFAULT) && changeInfo.status === 'complete') {
+              claimTab(tabId);
+      }
 
       // if url has changed
       if (changeInfo.url) {
