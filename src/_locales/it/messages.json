@@ -150,7 +150,7 @@
         "message": "D'oh!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "non è riuscito ad avviarsi. Forse stai usando una versione incompatibile di Chrome?"
     },
     "html_broken_line2": {
         "message": "Prova a riavviare l'estensione. Se il problema persiste, chiedi aiuto sulla"
@@ -663,7 +663,7 @@
         "message": "Automatic tab suspension disabled."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "Nessuna connessione di rete"
     },
     "js_popup_charging": {
         "message": "Collegato all'alimentazione elettrica"
@@ -702,13 +702,13 @@
         "message": "Finestra"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "Finestre"
     },
     "js_history_tab": {
         "message": "Scheda"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Schede"
     },
     "js_history_plural": {
         "message": "s"
