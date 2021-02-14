@@ -9,7 +9,7 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     //Set theme
     document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
 

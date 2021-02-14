@@ -9,7 +9,7 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     var notice = tgs.requestNotice();
     if (
       notice &&

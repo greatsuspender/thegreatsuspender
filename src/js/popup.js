@@ -53,7 +53,7 @@
   }
 
   Promise.all([
-    gsUtils.documentReadyAndLocalisedAsPromsied(document),
+    gsUtils.documentReadyAndLocalisedAsPromised(document),
     getTabStatusAsPromise(0, true),
     getSelectedTabsAsPromise(),
   ]).then(function([domLoadedEvent, initialTabStatus, selectedTabs]) {

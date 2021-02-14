@@ -212,6 +212,6 @@ var historyUtils = (function(global) {
     exportSessionWithId,
     validateNewSessionName,
     saveSession,
-    migrateTabs
+    migrateTabs,
   };
 })(this);

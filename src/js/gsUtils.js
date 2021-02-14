@@ -368,7 +368,7 @@ var gsUtils = {
     }
   },
 
-  documentReadyAsPromsied: function(doc) {
+  documentReadyAsPromised: function(doc) {
     return new Promise(function(resolve) {
       if (doc.readyState !== 'loading') {
         resolve();
@@ -381,7 +381,7 @@ var gsUtils = {
   },
 
   localiseHtml: function(parentEl) {
-    var replaceTagFunc = function(match, p1) {
+    let replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
     for (let el of parentEl.getElementsByTagName('*')) {
@@ -402,8 +402,8 @@ var gsUtils = {
     }
   },
 
-  documentReadyAndLocalisedAsPromsied: async function(doc) {
-    await gsUtils.documentReadyAsPromsied(doc);
+  documentReadyAndLocalisedAsPromised: async function(doc) {
+    await gsUtils.documentReadyAsPromised(doc);
     gsUtils.localiseHtml(doc);
     if (doc.body && doc.body.hidden) {
       doc.body.hidden = false;

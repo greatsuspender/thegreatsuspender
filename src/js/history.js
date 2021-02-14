@@ -34,7 +34,7 @@
 
   function deleteSession(sessionId) {
     var result = window.confirm(
-      chrome.i18n.getMessage('js_history_confirm_delete')
+      chrome.i18n.getMessage('js_history_confirm_delete'),
     );
     if (result) {
       gsIndexedDb.removeSessionFromHistory(sessionId).then(function() {
@@ -66,7 +66,7 @@
 
   async function toggleSession(element, sessionId) {
     var sessionContentsEl = element.getElementsByClassName(
-      'sessionContents'
+      'sessionContents',
     )[0];
     var sessionIcon = element.getElementsByClassName('sessionIcon')[0];
     if (sessionIcon.classList.contains('icon-plus-squared-alt')) {
@@ -94,7 +94,7 @@
         for (const [i, curWindow] of curSession.windows.entries()) {
           curWindow.sessionId = curSession.sessionId;
           sessionContentsEl.appendChild(
-            createWindowElement(curSession, curWindow, i)
+            createWindowElement(curSession, curWindow, i),
           );
 
           const tabPromises = [];
@@ -128,43 +128,43 @@
       sessionEl.getElementsByClassName('sessionIcon')[0],
       function() {
         toggleSession(sessionEl, session.sessionId); //async. unhandled promise
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('sessionLink')[0],
       function() {
         toggleSession(sessionEl, session.sessionId); //async. unhandled promise
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('exportLink')[0],
       function() {
         historyUtils.exportSessionWithId(session.sessionId);
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('resuspendLink')[0],
       function() {
         reloadTabs(session.sessionId, null, true); // async
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('reloadLink')[0],
       function() {
         reloadTabs(session.sessionId, null, false); // async
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('saveLink')[0],
       function() {
         historyUtils.saveSession(session.sessionId);
-      }
+      },
     );
     addClickListenerToElement(
       sessionEl.getElementsByClassName('deleteLink')[0],
       function() {
         deleteSession(session.sessionId);
-      }
+      },
     );
     return sessionEl;
   }
@@ -177,13 +177,13 @@
       windowEl.getElementsByClassName('resuspendLink')[0],
       function() {
         reloadTabs(session.sessionId, window.id, true); // async
-      }
+      },
     );
     addClickListenerToElement(
       windowEl.getElementsByClassName('reloadLink')[0],
       function() {
         reloadTabs(session.sessionId, window.id, false); // async
-      }
+      },
     );
     return windowEl;
   }
@@ -196,7 +196,7 @@
       tabEl.getElementsByClassName('removeLink')[0],
       function() {
         removeTab(tabEl, session.sessionId, window.id, tab.id);
-      }
+      },
     );
     return tabEl;
   }
@@ -205,7 +205,7 @@
     //Set theme
     document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
 
-    var currentDiv = document.getElementById('currentSessions'),
+    let currentDiv = document.getElementById('currentSessions'),
       sessionsDiv = document.getElementById('recoverySessions'),
       historyDiv = document.getElementById('historySessions'),
       importSessionEl = document.getElementById('importSession'),
@@ -240,7 +240,7 @@
     importSessionActionEl.addEventListener(
       'change',
       historyUtils.importSession,
-      false
+      false,
     );
     importSessionEl.onclick = function() {
       importSessionActionEl.click();
@@ -258,12 +258,12 @@
         document.getElementsByClassName('noIncognito'),
         function(el) {
           el.style.display = 'none';
-        }
+        },
       );
     }
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     render();
   });
 

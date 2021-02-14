@@ -9,7 +9,7 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     document.getElementById('exportBackupBtn').onclick = async function(e) {
       const currentSession = await gsSession.buildCurrentSession();
       historyUtils.exportSession(currentSession, function() {

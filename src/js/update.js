@@ -59,7 +59,7 @@
     };
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     setSessionManagerClickHandler();
     setRestartExtensionClickHandler(true);
     setExportBackupClickHandler();

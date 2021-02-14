@@ -76,7 +76,7 @@
     };
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(async function() {
     //Set theme
     document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
     await fetchInfo();

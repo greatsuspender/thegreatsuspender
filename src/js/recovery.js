@@ -95,7 +95,7 @@
     document.getElementById('restoreSession').style.display = 'none';
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(async function() {
     var restoreEl = document.getElementById('restoreSession'),
       manageEl = document.getElementById('manageManuallyLink'),
       previewsEl = document.getElementById('previewsOffBtn'),

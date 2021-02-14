@@ -185,7 +185,7 @@
     return [oldValue, newValue];
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     initSettings();
 
     var optionEls = document.getElementsByClassName('option'),

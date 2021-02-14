@@ -29,6 +29,6 @@
     });
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document);
+  gsUtils.documentReadyAndLocalisedAsPromised(document);
 
 })(this);
