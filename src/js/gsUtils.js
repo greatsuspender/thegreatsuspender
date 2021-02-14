@@ -898,7 +898,6 @@ var gsUtils = {
         return await retryFn(retries);
       }
     };
-    const result = await retryFn(0);
-    return result;
+    return await retryFn(0);
   },
 };

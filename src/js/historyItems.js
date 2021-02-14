@@ -14,12 +14,12 @@ var historyItems = (function(global) {
   function createSessionHtml(session, showLinks) {
     session.windows = session.windows || [];
 
-    var sessionType =
+    let sessionType =
         session.sessionId === gsSession.getSessionId()
           ? 'current'
           : session.name
-            ? 'saved'
-            : 'recent',
+          ? 'saved'
+          : 'recent',
       sessionContainer,
       sessionTitle,
       sessionSave,
@@ -35,24 +35,19 @@ var historyItems = (function(global) {
         return a + b.tabs.length;
       }, 0);
 
-    if (sessionType === 'saved') {
-      titleText = session.name;
-    } else {
-      titleText = gsUtils.getHumanDate(session.date);
-    }
-    titleText +=
+    let winText = winCnt > 1 ? 'js_history_windows' : 'js_history_window';
+    let tabText = tabCnt > 1 ? 'js_history_tabs' : 'js_history_tab';
+
+    titleText =
+      ((sessionType === 'saved') ? session.name : gsUtils.getHumanDate(session.date)) +
       '&nbsp;&nbsp;<small>(' +
       winCnt +
-      pluralise(
-        ' ' + chrome.i18n.getMessage('js_history_window').toLowerCase(),
-        winCnt
-      ) +
+      ' ' +
+      chrome.i18n.getMessage(winText).toLowerCase() +
       ', ' +
       tabCnt +
-      pluralise(
-        ' ' + chrome.i18n.getMessage('js_history_tab').toLowerCase(),
-        tabCnt
-      ) +
+      ' ' +
+      chrome.i18n.getMessage(tabText).toLowerCase() +
       ')</small>';
 
     sessionIcon = createEl('i', {
@@ -74,7 +69,7 @@ var historyItems = (function(global) {
         class: 'groupLink saveLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_save')
+      chrome.i18n.getMessage('js_history_save'),
     );
 
     sessionDelete = createEl(
@@ -83,7 +78,7 @@ var historyItems = (function(global) {
         class: 'groupLink deleteLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_delete')
+      chrome.i18n.getMessage('js_history_delete'),
     );
 
     windowResuspend = createEl(
@@ -92,7 +87,7 @@ var historyItems = (function(global) {
         class: 'groupLink resuspendLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_resuspend')
+      chrome.i18n.getMessage('js_history_resuspend'),
     );
 
     windowReload = createEl(
@@ -101,7 +96,7 @@ var historyItems = (function(global) {
         class: 'groupLink reloadLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_reload')
+      chrome.i18n.getMessage('js_history_reload'),
     );
 
     sessionExport = createEl(
@@ -110,7 +105,7 @@ var historyItems = (function(global) {
         class: 'groupLink exportLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_export')
+      chrome.i18n.getMessage('js_history_export'),
     );
 
     sessionContainer = createEl('div', {
@@ -138,7 +133,7 @@ var historyItems = (function(global) {
   }
 
   function createWindowHtml(window, index, showLinks) {
-    var groupHeading, windowContainer, groupUnsuspendCurrent, groupUnsuspendNew;
+    let groupHeading, windowContainer, groupUnsuspendCurrent, groupUnsuspendNew;
 
     groupHeading = createEl('div', {
       class: 'windowContainer',
@@ -148,7 +143,7 @@ var historyItems = (function(global) {
     windowContainer = createEl(
       'span',
       {},
-      windowString + ' ' + (index + 1) + ':\u00A0'
+      windowString + ' ' + (index + 1) + ':\u00A0',
     );
 
     groupUnsuspendCurrent = createEl(
@@ -157,7 +152,7 @@ var historyItems = (function(global) {
         class: 'groupLink resuspendLink ',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_resuspend')
+      chrome.i18n.getMessage('js_history_resuspend'),
     );
 
     groupUnsuspendNew = createEl(
@@ -166,7 +161,7 @@ var historyItems = (function(global) {
         class: 'groupLink reloadLink',
         href: '#',
       },
-      chrome.i18n.getMessage('js_history_reload')
+      chrome.i18n.getMessage('js_history_reload'),
     );
 
     groupHeading.appendChild(windowContainer);
@@ -179,7 +174,7 @@ var historyItems = (function(global) {
   }
 
   async function createTabHtml(tab, showLinks) {
-    var linksSpan, listImg, listLink, listHover;
+    let linksSpan, listImg, listLink, listHover;
 
     if (tab.sessionId) {
       linksSpan = createEl('div', {
@@ -199,7 +194,7 @@ var historyItems = (function(global) {
       {
         class: 'itemHover removeLink',
       },
-      '\u2716'
+      '\u2716',
     );
 
     const faviconMeta = await gsFavicon.getFaviconMetaData(tab);
@@ -217,7 +212,7 @@ var historyItems = (function(global) {
         href: tab.url,
         target: '_blank',
       },
-      tab.title && tab.title.length > 1 ? tab.title : tab.url
+      tab.title && tab.title.length > 1 ? tab.title : tab.url,
     );
 
     if (showLinks) {
@@ -237,19 +232,14 @@ var historyItems = (function(global) {
     el.innerHTML = gsUtils.htmlEncode(text || '');
     return el;
   }
+
   function setElAttributes(el, attributes) {
-    for (var key in attributes) {
+    for (let key in attributes) {
       if (attributes.hasOwnProperty(key)) {
         el.setAttribute(key, attributes[key]);
       }
     }
     return el;
-  }
-
-  function pluralise(text, count) {
-    return (
-      text + (count > 1 ? chrome.i18n.getMessage('js_history_plural') : '')
-    );
   }
 
   return {
