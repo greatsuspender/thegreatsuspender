@@ -729,7 +729,7 @@
         "message": "Şuradan taşımak için 32 karakterlik uzantı kimliği gerekli"
     },
     "js_history_migrate_success": {
-        "message": "$ TABCOUNT $ sekme başarıyla taşındı",
+        "message": "$TABCOUNT$ sekme başarıyla taşındı",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
