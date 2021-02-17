@@ -3,3 +3,6 @@ Thumbs.db
 *.zip
 .dccache
 .vscode*
+node_modules
+*.pem
+build
