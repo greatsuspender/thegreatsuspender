@@ -81,13 +81,13 @@
         "message": "關於"
     },
     "html_about_fork_beginning": {
-        "message": "基於 GitHub上的原版TGS 7.1.6 ，無ADS跟踪"
+        "message": "基於 GitHub 上的原版"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "，去除廣告追蹤"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": "，詳情請見："
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -159,13 +159,13 @@
         "message": "GitHub project page"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "您可以在這裡找到遺失的分頁："
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "記錄管理頁面"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "重新啟動擴充功能"
     },
     "html_history_title": {
         "message": "記錄管理"
@@ -375,7 +375,7 @@
         "message": "elsewhere in the extension."
     },
     "html_options_other_enable_sync": {
-        "message": "使用Chrome 使用者設定檔同步設定"
+        "message": "使用 Chrome 使用者設定檔同步設定"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
         "message": "登入 Chrome 後，擴充功能將同步相同的設定"
@@ -705,13 +705,13 @@
         "message": "個視窗"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "個視窗"
     },
     "js_history_tab": {
         "message": "個分頁"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "個分頁"
     },
     "js_history_enter_name_for_session": {
         "message": "命名這個記錄"
@@ -729,7 +729,7 @@
         "message": "需要32个字符的扩展名才能从中迁移"
     },
     "js_history_migrate_success": {
-        "message": "成功迁移了 $TABCOUNT$ 个标签",
+        "message": "成功移轉了 $TABCOUNT$ 個分頁",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
