@@ -729,7 +729,7 @@
         "message": "需要32个字符的扩展名才能从中迁移"
     },
     "js_history_migrate_success": {
-        "message": "成功迁移了$ TABCOUNT $个标签",
+        "message": "成功迁移了 $TABCOUNT$ 个标签",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
