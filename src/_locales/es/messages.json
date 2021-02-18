@@ -165,7 +165,7 @@
         "message": "página de gestión de sesión"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Reiniciar extensión"
     },
     "html_history_title": {
         "message": "Administración de sesión"
@@ -261,34 +261,34 @@
         "message": "Nunca suspender la pestaña activa en cada ventana"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "Dessuspender automáticamente la pestaña cuando sea vista"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "Aplicar el ahorro de memoria integrado de Chrome al suspender"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Reduce el uso de memoria de una pestaña suspendida aún más, mediante la utilización"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "Función integrada de 'Descartar pestañas' de Chrome. Esto puede resultar en"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "al 500% de ahorro de memoria cuando se trabaja con un gran número de pestañas."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "Sin embargo, también causará un ligero retraso al seleccionar"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "pestañas suspendidas"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Para más información sobre el descarte de Chrome refiérase a:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "Tema"
     },
     "html_options_suspend_theme_light": {
         "message": "Light"

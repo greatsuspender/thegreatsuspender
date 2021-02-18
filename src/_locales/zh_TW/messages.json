@@ -81,13 +81,13 @@
         "message": "關於"
     },
     "html_about_fork_beginning": {
-        "message": "基於 GitHub上的原版TGS 7.1.6 ，無ADS跟踪"
+        "message": "基於 GitHub 上的原版"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "，去除廣告追蹤"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": "，詳情請見："
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -138,34 +138,34 @@
         "message": "同時也謝謝"
     },
     "html_about_browserstack_suffix": {
-        "message": "提供免費的 Chrome 測試工具"
+        "message": "提供免費的 Chrome 測試工具。"
     },
     "html_about_tgs_prefix": {
         "message": "没有这个扩展，就不可能存在"
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "故障了"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "噢！"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "重新啟動失敗。您是否正在使用不相容的 Chrome 版本？"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "請嘗試重新啟動擴充功能。若問題持續發生，請您透過此連結尋求協助："
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "GitHub 專案頁面"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "您可以在這裡找到遺失的分頁："
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "記錄管理頁面"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "重新啟動擴充功能"
     },
     "html_history_title": {
         "message": "記錄管理"
@@ -183,10 +183,10 @@
         "message": "匯入記錄"
     },
     "html_history_migrate_tabs": {
-        "message": "迁移标签"
+        "message": "移轉分頁"
     },
     "html_history_migrate_old_id": {
-        "message": "旧的TGS扩展ID"
+        "message": "舊的 TGS 擴充功能 ID"
     },
     "html_notice_title": {
         "message": "通知"
@@ -264,22 +264,22 @@
         "message": "當分頁被瀏覽就自動回復分頁"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "使用 Chrome 內建的凍結/暫停分頁釋放系統記憶體功能"
+        "message": "凍結分頁時使用 Chrome 內建的系統記憶體釋放功能"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "通過利用 Chrome 內建的分頁凍結/暫停功能，可以更多的降低記憶體使用。"
+        "message": "通過利用 Chrome 內建的分頁凍結功能，"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "當多個分頁同時打開時，可以降低500%的系統記憶體消耗。"
+        "message": "可以更多的降低記憶體使用。當同時打開多個分頁時，"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "可以降低500%的系統記憶體消耗。"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "盡管如此，當重新打開一個的凍結/暫停分頁時，將會有微小的分頁加載延時。"
+        "message": "盡管如此，當重新打開一個凍結的分頁時，"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "將會有微小的分頁加載延時。"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
         "message": "有關 Chrome discarding 的更多資訊，請參閱："
@@ -309,22 +309,22 @@
         "message": "擷取整個分頁"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "在暫停的分頁上，擴充功能可以在分頁被暫停前顯示圖片預覽。"
+        "message": "在凍結的分頁上，"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "顯示分頁被凍結前的最後畫面。"
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "螢幕擷取功能是實驗性的，可能會讓 CPU 使用率以及記憶體使用量明顯地提高。"
+        "message": "螢幕擷取功能是實驗性的，"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "可能會讓 CPU 使用率大幅提高，並讓記憶體使用量些微地提高。"
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "如果您注意到奇怪的行為，如分頁需要很長時間才能掛起，或者 Chrome 意外當機，請嘗試關閉此功能。"
+        "message": "如果您注意到奇怪的狀況，例如需要很長時間才能凍結分頁，"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "或者 Chrome 意外當機，請嘗試關閉此功能。"
     },
     "html_options_suspend_force_screen_capture": {
         "message": "啟用高畫質的螢幕擷取模式"
@@ -342,10 +342,10 @@
         "message": "- 圖片的最大高度限制為 5000 像素"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "啟用高品質的畫面捕捉模式可能會讓 CPU 使用率和記憶體使用量明顯提高。"
+        "message": "啟用高品質的畫面捕捉模式可能會讓 CPU 使用率"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "和記憶體使用量明顯提高。"
     },
     "html_options_whitelist_title": {
         "message": "白名單"
@@ -369,25 +369,25 @@
         "message": "將擴充套件新增到網頁的右鍵選單。"
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "這樣，您就可以訪問程序中其他位置無法使用的進階凍結操作。"
+        "message": "這樣，您就可以使用擴充功能中其他位置無法使用的"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "進階凍結操作。"
     },
     "html_options_other_enable_sync": {
-        "message": "使用Chrome 使用者設定檔同步設定"
+        "message": "使用 Chrome 使用者設定檔同步設定"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "登入 Chrome 後，擴充功能將同步相同的設定"
+        "message": "將擴充功能的設定將同步至"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "。"
+        "message": "登入相同帳號的 Chrome。"
     },
     "html_options_other_enable_sync_tooltip_line2": {
         "message": "這也將使無痕模式下的設定同步。"
     },
     "html_options_other_enable_sync_warning": {
-        "message": "打開此項將覆蓋 Chrome 使用者設定並同步所有已登入的系統"
+        "message": "打開此選項將覆蓋掉其他登入相同帳號的 Chrome 的擴充功能設定"
     },
     "html_options_suspend_on_low_memory": {
         "message": "當系統記憶體非常少時凍結分頁"
@@ -402,10 +402,10 @@
         "message": "正常時 Chrome 僅在系統記憶體非常低時刪除分頁。"
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "注意：這可能導致分頁在「自動分頁凍結」選項中指定的時間之前凍結。"
+        "message": "注意："
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "這可能導致分頁在「自動分頁凍結」選項中指定的時間到達之前凍結。"
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
         "message": "有關 Chrome discarding 的更多資訊，請參閱："
@@ -705,13 +705,13 @@
         "message": "個視窗"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "個視窗"
     },
     "js_history_tab": {
         "message": "個分頁"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "個分頁"
     },
     "js_history_enter_name_for_session": {
         "message": "命名這個記錄"
@@ -726,10 +726,10 @@
         "message": "無法匯入文件。確保文件是純文字檔案，並且每列只有一個 URL。"
     },
     "js_history_migrate_fail": {
-        "message": "需要32个字符的扩展名才能从中迁移"
+        "message": "需要長度 32 個字的擴充元件 ID 以供移轉"
     },
     "js_history_migrate_success": {
-        "message": "成功迁移了$ TABCOUNT $个标签",
+        "message": "成功移轉了 $TABCOUNT$ 個分頁",
         "placeholders": {
             "tabcount": {
                 "content": "$1"

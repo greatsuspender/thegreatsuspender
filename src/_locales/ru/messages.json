@@ -729,7 +729,7 @@
         "message": "Для миграции требуется 32-символьный идентификатор расширения"
     },
     "js_history_migrate_success": {
-        "message": "Успешно перенесено $ TABCOUNT $ вкладок",
+        "message": "Успешно перенесено $TABCOUNT$ вкладок",
         "placeholders": {
             "tabcount": {
                 "content": "$1"

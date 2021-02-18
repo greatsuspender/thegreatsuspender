@@ -729,7 +729,7 @@
         "message": "Necessita de id de extensão de 32 caracteres para migrar de"
     },
     "js_history_migrate_success": {
-        "message": "Migração de $ TABCOUNT $ guias com sucesso",
+        "message": "Migração de $TABCOUNT$ guias com sucesso",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
