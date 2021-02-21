@@ -56,6 +56,8 @@
       populateOption(element, gsStorage.getOption(pref));
     }
 
+    addClickHandlers();
+
     setForceScreenCaptureVisibility(
       gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0',
     );
@@ -71,6 +73,27 @@
         .classList.remove('reallyHidden');
       document.querySelector('#options-heading').classList.add('reallyHidden');
     }
+  }
+
+  function addClickHandlers() {
+    document.getElementById('preview').addEventListener('change', function() {
+      if (this.value === '1' || this.value === '2') {
+        chrome.permissions.request({
+          origins: [
+            'http://*/*',
+            'https://*/*',
+            'file://*/*',
+          ],
+        }, function(granted) {
+          if (!granted) {
+            let select = document.getElementById('preview');
+            select.value = '0';
+            select.dispatchEvent(new Event('change'));
+          }
+        });
+      }
+    });
+
   }
 
   function populateOption(element, value) {

@@ -2,111 +2,113 @@
 <html>
 
 <head>
-	<link type="text/css" href="css/fontello.css" rel="stylesheet">
-	<link type="text/css" href="css/style.css" rel="stylesheet">
-	<script type="text/javascript" src="js/options.js"></script>
-	<title data-i18n="__MSG_ext_extension_name__ - __MSG_html_options_title__"></title>
+  <link type='text/css' href='css/fontello.css' rel='stylesheet'>
+  <link type='text/css' href='css/style.css' rel='stylesheet'>
+  <script type='text/javascript' src='js/options.js'></script>
+  <title data-i18n='__MSG_ext_extension_name__ - __MSG_html_options_title__'></title>
 </head>
 
 <body hidden>
 
-	<div class="mainContent">
+<div class='mainContent'>
 
-		<div class="pageHeader">
-			<h1 id="options-heading" data-i18n="__MSG_ext_extension_name__"></h1>
-			<div class="splash reallyHidden welcome-message card">
+  <div class='pageHeader'>
+    <h1 id='options-heading' data-i18n='__MSG_ext_extension_name__'></h1>
+    <div class='splash reallyHidden welcome-message card'>
 
-				<img class="suspendy-guy" src="img/suspendy-guy.png" />
+      <img class='suspendy-guy' src='img/suspendy-guy.png' />
 
-				<div>
-					<h1>
-						<span data-i18n="__MSG_html_welcome_text_line1__"></span>
-						<span data-i18n="__MSG_ext_extension_name__"></span>
-					</h1>
-					<p data-i18n="__MSG_html_welcome_text_line2__"></p>
-					<p data-i18n="__MSG_html_welcome_text_line3__"></p>
-				</div>
-			</div>
-		</div>
+      <div>
+        <h1>
+          <span data-i18n='__MSG_html_welcome_text_line1__'></span>
+          <span data-i18n='__MSG_ext_extension_name__'></span>
+        </h1>
+        <p data-i18n='__MSG_html_welcome_text_line2__'></p>
+        <p data-i18n='__MSG_html_welcome_text_line3__'></p>
+      </div>
+    </div>
+  </div>
 
-		<div class="contentNav">
-			<ul>
-				<li>
-					<a class="active" href='options.html' data-i18n="__MSG_html_sidebar_general_settings__"></a>
-				</li>
-				<li class="noIncognito">
-					<a href="history.html" data-i18n="__MSG_html_sidebar_session_management__"></a>
-				</li>
-				<li class="noIncognito">
-					<a href='shortcuts.html' data-i18n="__MSG_html_sidebar_shortcuts__"></a>
-				</li>
-				<li>
-					<a href="about.html" data-i18n="__MSG_html_sidebar_support__"></a>
-				</li>
-			</ul>
-		</div>
+  <div class='contentNav'>
+    <ul>
+      <li>
+        <a class='active' href='options.html' data-i18n='__MSG_html_sidebar_general_settings__'></a>
+      </li>
+      <li class='noIncognito'>
+        <a href='history.html' data-i18n='__MSG_html_sidebar_session_management__'></a>
+      </li>
+      <li class='noIncognito'>
+        <a href='shortcuts.html' data-i18n='__MSG_html_sidebar_shortcuts__'></a>
+      </li>
+      <li>
+        <a href='about.html' data-i18n='__MSG_html_sidebar_support__'></a>
+      </li>
+    </ul>
+  </div>
 
-		<div class="content">
-			<div class="sub-section">
-				<h2 data-i18n="__MSG_html_options_suspend_title__"></h2>
-				<div class="formRow">
-					<label id="timeToSuspendLbl" class="topLabel" for="timeToSuspend" data-i18n="__MSG_html_options_suspend_automatically_after__:"></label>
-					<br />
-					<div class="select-wrapper">
-						<select id="timeToSuspend" class='option'>
+  <div class='content'>
+    <div class='sub-section'>
+      <h2 data-i18n='__MSG_html_options_suspend_title__'></h2>
+      <div class='formRow'>
+        <label id='timeToSuspendLbl' class='topLabel' for='timeToSuspend'
+               data-i18n='__MSG_html_options_suspend_automatically_after__:'></label>
+        <br />
+        <div class='select-wrapper'>
+          <select id='timeToSuspend' class='option'>
 
-							<option value="0" data-i18n="__MSG_html_options_suspend_never__"></option>
-							<option value="0.33" data-i18n="20 __MSG_html_options_suspend_seconds__"></option>
-							<option value="1" data-i18n="1 __MSG_html_options_suspend_minute__"></option>
-							<option value="5" data-i18n="5 __MSG_html_options_suspend_minutes__"></option>
-							<option value="10" data-i18n="10 __MSG_html_options_suspend_minutes__"></option>
-							<option value="15" data-i18n="15 __MSG_html_options_suspend_minutes__"></option>
-							<option value="30" data-i18n="30 __MSG_html_options_suspend_minutes__"></option>
-							<option value="60" data-i18n="1 __MSG_html_options_suspend_hour__"></option>
-							<option value="120" data-i18n="2 __MSG_html_options_suspend_hours__"></option>
-							<option value="240" data-i18n="4 __MSG_html_options_suspend_hours__"></option>
-							<option value="360" data-i18n="6 __MSG_html_options_suspend_hours__"></option>
-							<option value="720" data-i18n="12 __MSG_html_options_suspend_hours__"></option>
-							<option value="1440" data-i18n="1 __MSG_html_options_suspend_day__"></option>
-							<option value="2880" data-i18n="2 __MSG_html_options_suspend_days__"></option>
-							<option value="4320" data-i18n="3 __MSG_html_options_suspend_days__"></option>
-							<option value="10080" data-i18n="1 __MSG_html_options_suspend_week__"></option>
-							<option value="20160" data-i18n="2 __MSG_html_options_suspend_weeks__"></option>
-						</select>
-					</div>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="dontSuspendPinned" class='option' />
-					<label for="dontSuspendPinned" class="cbLabel" data-i18n="__MSG_html_options_suspend_no_pinned__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="dontSuspendForms" class='option' />
-					<label for="dontSuspendForms" class="cbLabel" data-i18n="__MSG_html_options_suspend_no_forms__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="dontSuspendAudio" class='option' />
-					<label for="dontSuspendAudio" class="cbLabel" data-i18n="__MSG_html_options_suspend_no_audio__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="dontSuspendActiveTabs" class='option' />
-					<label for="dontSuspendActiveTabs" class="cbLabel" data-i18n="__MSG_html_options_suspend_no_active_tabs__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="onlineCheck" class='option' />
-					<label for="onlineCheck" class="cbLabel" data-i18n="__MSG_html_options_suspend_only_connected__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="batteryCheck" class='option' />
-					<label for="batteryCheck" class="cbLabel" data-i18n="__MSG_html_options_suspend_only_on_battery__"></label>
-				</div>
-				<div class="formRow autoSuspendOption">
-					<input type="checkbox" id="claimByDefault" class='option' />
-                    			<label for="claimByDefault" class="cbLabel" data-i18n="__MSG_html_options_suspend_claim_by_default__"></label>
-               			 </div>
+            <option value='0' data-i18n='__MSG_html_options_suspend_never__'></option>
+            <option value='0.33' data-i18n='20 __MSG_html_options_suspend_seconds__'></option>
+            <option value='1' data-i18n='1 __MSG_html_options_suspend_minute__'></option>
+            <option value='5' data-i18n='5 __MSG_html_options_suspend_minutes__'></option>
+            <option value='10' data-i18n='10 __MSG_html_options_suspend_minutes__'></option>
+            <option value='15' data-i18n='15 __MSG_html_options_suspend_minutes__'></option>
+            <option value='30' data-i18n='30 __MSG_html_options_suspend_minutes__'></option>
+            <option value='60' data-i18n='1 __MSG_html_options_suspend_hour__'></option>
+            <option value='120' data-i18n='2 __MSG_html_options_suspend_hours__'></option>
+            <option value='240' data-i18n='4 __MSG_html_options_suspend_hours__'></option>
+            <option value='360' data-i18n='6 __MSG_html_options_suspend_hours__'></option>
+            <option value='720' data-i18n='12 __MSG_html_options_suspend_hours__'></option>
+            <option value='1440' data-i18n='1 __MSG_html_options_suspend_day__'></option>
+            <option value='2880' data-i18n='2 __MSG_html_options_suspend_days__'></option>
+            <option value='4320' data-i18n='3 __MSG_html_options_suspend_days__'></option>
+            <option value='10080' data-i18n='1 __MSG_html_options_suspend_week__'></option>
+            <option value='20160' data-i18n='2 __MSG_html_options_suspend_weeks__'></option>
+          </select>
+        </div>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='dontSuspendPinned' class='option' />
+        <label for='dontSuspendPinned' class='cbLabel' data-i18n='__MSG_html_options_suspend_no_pinned__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='dontSuspendForms' class='option' />
+        <label for='dontSuspendForms' class='cbLabel' data-i18n='__MSG_html_options_suspend_no_forms__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='dontSuspendAudio' class='option' />
+        <label for='dontSuspendAudio' class='cbLabel' data-i18n='__MSG_html_options_suspend_no_audio__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='dontSuspendActiveTabs' class='option' />
+        <label for='dontSuspendActiveTabs' class='cbLabel'
+               data-i18n='__MSG_html_options_suspend_no_active_tabs__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='onlineCheck' class='option' />
+        <label for='onlineCheck' class='cbLabel' data-i18n='__MSG_html_options_suspend_only_connected__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='batteryCheck' class='option' />
+        <label for='batteryCheck' class='cbLabel' data-i18n='__MSG_html_options_suspend_only_on_battery__'></label>
+      </div>
+      <div class='formRow autoSuspendOption'>
+        <input type='checkbox' id='claimByDefault' class='option' />
+        <label for='claimByDefault' class='cbLabel' data-i18n='__MSG_html_options_suspend_claim_by_default__'></label>
+      </div>
 
-				<div class="formRow autoSuspendOption">
-					<label id="whitelistLbl" for="whitelist" data-i18n="__MSG_html_options_whitelist_title__&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_whitelist_tooltip_line1__
+      <div class='formRow autoSuspendOption'>
+        <label id='whitelistLbl' for='whitelist' data-i18n='__MSG_html_options_whitelist_title__&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_whitelist_tooltip_line1__
 &nbsp;&nbsp;&nbsp;&nbsp;https://play.google.com/music/listen
 &nbsp;&nbsp;&nbsp;&nbsp;https://mail.google.com
 
@@ -114,25 +116,27 @@ __MSG_html_options_whitelist_tooltip_line2__
 &nbsp;&nbsp;&nbsp;&nbsp;google.com
 
 __MSG_html_options_whitelist_tooltip_line3__
-&nbsp;&nbsp;&nbsp;&nbsp;/^https:.*google\.com/">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+&nbsp;&nbsp;&nbsp;&nbsp;/^https:.*google\.com/'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-					<textarea id="whitelist" class="option" rows="10" cols="50"></textarea>
-					<a id="testWhitelistBtn" href='#whitelistLbl' data-i18n="__MSG_html_options_whitelist_test__"></a>
-				</div>
-			</div>
-			<div class="sub-section">
+        <textarea id='whitelist' class='option' rows='10' cols='50'></textarea>
+        <a id='testWhitelistBtn' href='#whitelistLbl' data-i18n='__MSG_html_options_whitelist_test__'></a>
+      </div>
+    </div>
+    <div class='sub-section'>
 
-				<h2 data-i18n="__MSG_html_options_suspended_title__"></h2>
-				<div class="formRow">
-					<input type="checkbox" id="unsuspendOnFocus" class='option' />
-					<label for="unsuspendOnFocus" class="cbLabel" data-i18n="__MSG_html_options_suspend_automatically_unsuspend__"></label>
-				</div>
+      <h2 data-i18n='__MSG_html_options_suspended_title__'></h2>
+      <div class='formRow'>
+        <input type='checkbox' id='unsuspendOnFocus' class='option' />
+        <label for='unsuspendOnFocus' class='cbLabel'
+               data-i18n='__MSG_html_options_suspend_automatically_unsuspend__'></label>
+      </div>
 
-				<div class="formRow">
-					<input type="checkbox" id="discardAfterSuspend" class='option' />
-					<label for="discardAfterSuspend" class="cbLabel" data-i18n="__MSG_html_options_suspend_discard_after_suspend__"></label>
-					<span data-i18n-tooltip="__MSG_html_options_suspend_discard_after_suspend_tooltip_line1a__
+      <div class='formRow'>
+        <input type='checkbox' id='discardAfterSuspend' class='option' />
+        <label for='discardAfterSuspend' class='cbLabel'
+               data-i18n='__MSG_html_options_suspend_discard_after_suspend__'></label>
+        <span data-i18n-tooltip='__MSG_html_options_suspend_discard_after_suspend_tooltip_line1a__
 __MSG_html_options_suspend_discard_after_suspend_tooltip_line1b__
 __MSG_html_options_suspend_discard_after_suspend_tooltip_line1c__
 
@@ -140,86 +144,91 @@ __MSG_html_options_suspend_discard_after_suspend_tooltip_line2a__
 __MSG_html_options_suspend_discard_after_suspend_tooltip_line2b__
 
 __MSG_html_options_suspend_discard_after_suspend_tooltip_line3a__
-__MSG_html_options_suspend_discard_after_suspend_tooltip_line3b__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_suspend_discard_after_suspend_tooltip_line3b__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-				</div>
+      </div>
 
-				<div class="formRow">
-					<label id="themeLbl" class="topLabel" for="theme" data-i18n="__MSG_html_options_suspend_theme__:"></label>
-					<br />
-					<div class="select-wrapper">
-						<select id="theme" class='option'>
-							<option value="light" data-i18n="__MSG_html_options_suspend_theme_light__"></option>
-							<option value="dark" data-i18n="__MSG_html_options_suspend_theme_dark__"></option>
-						</select>
-					</div>
+      <div class='formRow'>
+        <label id='themeLbl' class='topLabel' for='theme' data-i18n='__MSG_html_options_suspend_theme__:'></label>
+        <br />
+        <div class='select-wrapper'>
+          <select id='theme' class='option'>
+            <option value='light' data-i18n='__MSG_html_options_suspend_theme_light__'></option>
+            <option value='dark' data-i18n='__MSG_html_options_suspend_theme_dark__'></option>
+          </select>
+        </div>
 
-				</div>
+      </div>
 
-				<div class="formRow">
-					<label id="previewLbl" class="topLabel" for="preview" data-i18n="__MSG_html_options_suspend_screen_capturing__:&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_suspend_screen_capturing_tooltip_line1a__
+      <div class='formRow'>
+        <label id='previewLbl' class='topLabel' for='preview'
+               data-i18n='__MSG_html_options_suspend_screen_capturing__:&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_suspend_screen_capturing_tooltip_line1a__
 __MSG_html_options_suspend_screen_capturing_tooltip_line1b__
 
 __MSG_html_options_suspend_screen_capturing_tooltip_line2a__
 __MSG_html_options_suspend_screen_capturing_tooltip_line2b__
 
 __MSG_html_options_suspend_screen_capturing_tooltip_line3a__
-__MSG_html_options_suspend_screen_capturing_tooltip_line3b__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_suspend_screen_capturing_tooltip_line3b__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-					<br />
-					<div class="select-wrapper">
-						<select id="preview" class='option'>
-							<option value="0" data-i18n="__MSG_html_options_suspend_screen_capturing_disabled__"></option>
-							<option value="1" data-i18n="__MSG_html_options_suspend_screen_capturing_screen_only__"></option>
-							<option value="2" data-i18n="__MSG_html_options_suspend_screen_capturing_entire_page__"></option>
-						</select>
-					</div>
-				</div>
-				<div class="formRow" id="forceScreenCaptureContainer">
-					<input type="checkbox" id="forceScreenCapture" class='option' />
-					<label for="forceScreenCapture" class="cbLabel" data-i18n="__MSG_html_options_suspend_force_screen_capture__&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_suspend_force_screen_capture_tooltip_line1__
+        <br />
+        <div class='select-wrapper'>
+          <select id='preview' class='option'>
+            <option value='0' data-i18n='__MSG_html_options_suspend_screen_capturing_disabled__'></option>
+            <option value='1' data-i18n='__MSG_html_options_suspend_screen_capturing_screen_only__'></option>
+            <option value='2' data-i18n='__MSG_html_options_suspend_screen_capturing_entire_page__'></option>
+          </select>
+        </div>
+      </div>
+      <div class='formRow' id='forceScreenCaptureContainer'>
+        <input type='checkbox' id='forceScreenCapture' class='option' />
+        <label for='forceScreenCapture' class='cbLabel'
+               data-i18n='__MSG_html_options_suspend_force_screen_capture__&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_suspend_force_screen_capture_tooltip_line1__
 __MSG_html_options_suspend_force_screen_capture_tooltip_line2__
 __MSG_html_options_suspend_force_screen_capture_tooltip_line4__
 __MSG_html_options_suspend_force_screen_capture_tooltip_line5__
 
 __MSG_html_options_suspend_force_screen_capture_tooltip_line6__
-__MSG_html_options_suspend_force_screen_capture_tooltip_line7__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_suspend_force_screen_capture_tooltip_line7__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-				</div>
-			</div>
-			<div class="sub-section">
+      </div>
+    </div>
+    <div class='sub-section'>
 
-				<h2 data-i18n="__MSG_html_options_other_title__"></h2>
-				<div class="formRow noIncognito">
-					<input type="checkbox" id="addContextMenu" class='option' />
-					<label for="addContextMenu" class="cbLabel" data-i18n="__MSG_html_options_other_enable_context_menu__&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_other_enable_context_menu_tooltip_line1__
+      <h2 data-i18n='__MSG_html_options_other_title__'></h2>
+      <div class='formRow noIncognito'>
+        <input type='checkbox' id='addContextMenu' class='option' />
+        <label for='addContextMenu' class='cbLabel'
+               data-i18n='__MSG_html_options_other_enable_context_menu__&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_other_enable_context_menu_tooltip_line1__
 
 __MSG_html_options_other_enable_context_menu_tooltip_line2__
-__MSG_html_options_other_enable_context_menu_tooltip_line3__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_other_enable_context_menu_tooltip_line3__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-				</div>
-				<div class="formRow noIncognito">
-					<input type="checkbox" id="syncSettings" class='option' />
-					<label for="syncSettings" class="cbLabel" data-i18n="__MSG_html_options_other_enable_sync__&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_other_enable_sync_tooltip_line1a__
+      </div>
+      <div class='formRow noIncognito'>
+        <input type='checkbox' id='syncSettings' class='option' />
+        <label for='syncSettings' class='cbLabel'
+               data-i18n='__MSG_html_options_other_enable_sync__&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_other_enable_sync_tooltip_line1a__
 __MSG_html_options_other_enable_sync_tooltip_line1b__
 
-__MSG_html_options_other_enable_sync_tooltip_line2__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_other_enable_sync_tooltip_line2__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-					<div id="syncNote" class="gsNote" data-i18n="__MSG_html_options_other_enable_sync_warning__"></div>
-				</div>
-				<div class="formRow">
-					<input type="checkbox" id="suspendInPlaceOfDiscard" class='option' />
-					<label for="suspendInPlaceOfDiscard" class="cbLabel" data-i18n="__MSG_html_options_suspend_on_low_memory__&nbsp;&nbsp;"></label>
-					<span data-i18n-tooltip="__MSG_html_options_suspend_on_low_memory_tooltip_line1__
+        <div id='syncNote' class='gsNote' data-i18n='__MSG_html_options_other_enable_sync_warning__'></div>
+      </div>
+      <div class='formRow'>
+        <input type='checkbox' id='suspendInPlaceOfDiscard' class='option' />
+        <label for='suspendInPlaceOfDiscard' class='cbLabel'
+               data-i18n='__MSG_html_options_suspend_on_low_memory__&nbsp;&nbsp;'></label>
+        <span data-i18n-tooltip='__MSG_html_options_suspend_on_low_memory_tooltip_line1__
 __MSG_html_options_suspend_on_low_memory_tooltip_line2__
 __MSG_html_options_suspend_on_low_memory_tooltip_line3__
 
@@ -227,14 +236,14 @@ __MSG_html_options_suspend_on_low_memory_tooltip_line4__
 __MSG_html_options_suspend_on_low_memory_tooltip_line5__
 
 __MSG_html_options_suspend_on_low_memory_tooltip_line6__
-__MSG_html_options_suspend_on_low_memory_tooltip_discarding_link__">
-						<i class="tooltipIcon icon icon-help-circled"></i>
+__MSG_html_options_suspend_on_low_memory_tooltip_discarding_link__'>
+						<i class='tooltipIcon icon icon-help-circled'></i>
 					</span>
-				</div>
-			</div>
-		</div>
+      </div>
+    </div>
+  </div>
 
-	</div>
+</div>
 
 </body>
 
