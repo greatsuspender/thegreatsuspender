@@ -23,7 +23,6 @@ var gsStorage = {
 
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
-  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
 
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
@@ -38,7 +37,6 @@ var gsStorage = {
     defaults[gsStorage.SCREEN_CAPTURE_FORCE] = false;
     defaults[gsStorage.SUSPEND_IN_PLACE_OF_DISCARD] = false;
     defaults[gsStorage.DISCARD_IN_PLACE_OF_SUSPEND] = false;
-    defaults[gsStorage.USE_ALT_SCREEN_CAPTURE_LIB] = false;
     defaults[gsStorage.DISCARD_AFTER_SUSPEND] = false;
     defaults[gsStorage.IGNORE_WHEN_OFFLINE] = false;
     defaults[gsStorage.IGNORE_WHEN_CHARGING] = false;

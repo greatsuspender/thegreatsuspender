@@ -100,16 +100,6 @@
         );
       }
     );
-    addFlagHtml(
-      'toggleUseAlternateScreenCaptureLib',
-      () => gsStorage.getOption(gsStorage.USE_ALT_SCREEN_CAPTURE_LIB),
-      newVal => {
-        gsStorage.setOptionAndSync(
-          gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
-          newVal
-        );
-      }
-    );
     document.getElementById('claimSuspendedTabs').onclick = async function(e) {
       const tabs = await gsChrome.tabsQuery();
       for (const tab of tabs) {
