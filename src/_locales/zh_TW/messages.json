@@ -252,7 +252,7 @@
         "message": "只在網路連接下才自動凍結"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "設為預設的 Suspender 擴充功能（自動無痛轉移來自其他 Suspender 擴充功能、且網址內含有「suspended.html」的凍結分頁）"
     },
     "html_options_suspend_only_on_battery": {
         "message": "只在電腦未接上電源時才自動凍結"
