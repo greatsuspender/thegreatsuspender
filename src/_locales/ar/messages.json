@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "هذا التمديد لم يكن ليتحقق بدون"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "يتم كسر"
     },
