@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "Ohne diese Erweiterung hätte es nie geben können"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "is broken"
     },
