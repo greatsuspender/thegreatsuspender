@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "Это расширение не могло бы существовать без"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "is broken"
     },
