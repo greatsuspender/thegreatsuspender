@@ -84,7 +84,7 @@
         "message": "На основе оригинала"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "доступно на GitHub, без рекламных трекеров"
     },
     "html_about_fork_end": {
         "message": ", more information available on"
@@ -711,7 +711,7 @@
         "message": "Вкладка"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Вкладки"
     },
     "js_history_enter_name_for_session": {
         "message": "Введите имя для сессии"
