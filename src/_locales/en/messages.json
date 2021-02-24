@@ -47,6 +47,7 @@
     "html_about_browserstack_prefix": { "message": "Thank you also to" },
     "html_about_browserstack_suffix": { "message": "for providing free chrome testing tools." },
     "html_about_tgs_prefix": { "message": "This extension could never have existed without" },
+    "html_about_tgs_suffix": { "message": "." },
     "html_broken_title": { "message": "is broken" },
     "html_broken_ruh_roh": { "message": "Ruh Roh!" },
     "html_broken_line1": { "message": "failed to start. Perhaps you are using an incompatible version of Chrome?" },
