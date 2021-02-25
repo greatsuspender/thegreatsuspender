@@ -144,7 +144,7 @@
         "message": "没有这个扩展，就不可能存在"
     },
     "html_about_tgs_suffix": {
-        "message": "."
+        "message": "，這個擴充功能就不可能存在。"
     },
     "html_broken_title": {
         "message": "故障了"
