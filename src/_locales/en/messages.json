@@ -114,6 +114,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "Add controls for this extension to the right-click menu of a web page." },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "This will give you access to advanced suspending actions not available" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "elsewhere in the extension." },
+    "html_options_other_enable_nonag": { "message": "Disable notification tab popups on first run and after extension update" },
     "html_options_other_enable_sync": { "message": "Sync settings with your Chrome profile" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "logged in with the same profile." },
