@@ -1,7 +1,7 @@
 {
   "name": "__MSG_ext_extension_name__",
   "description": "__MSG_ext_extension_description__",
-  "version": "7.1.10",
+  "version": "7.1.12",
   "default_locale": "en",
   "permissions": [
     "tabs",
