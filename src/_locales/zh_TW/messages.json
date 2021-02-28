@@ -108,6 +108,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "將擴充套件新增到網頁的右鍵選單。" },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "這樣，您就可以訪問程序中其他位置無法使用的進階凍結操作。" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
+    "html_options_other_enable_nonag": { "message": "在首次运行和更新后禁用通知弹出窗口" },
     "html_options_other_enable_sync": { "message": "使用Chrome 使用者設定檔同步設定" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "登入 Chrome 後，擴充功能將同步相同的設定" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
