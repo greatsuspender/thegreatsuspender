@@ -108,6 +108,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "Добавить элементы управления для этого расширения в контекстное меню веб-страницы." },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "Это даст Вам доступ к дополнительным действиям с вкладками, которые" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "недоступны в другом месте расширения." },
+    "html_options_other_enable_nonag": { "message": "Отключить всплывающие окна уведомлений при первом запуске и после обновления" },
     "html_options_other_enable_sync": { "message": "Синхронизировать настройки с Вашим профилем Chrome" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Настройки расширения будут синхронизированы с Вашим профилем между" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "всеми браузерами Chrome." },
