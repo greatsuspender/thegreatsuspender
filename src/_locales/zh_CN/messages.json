@@ -108,6 +108,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "将控件添加到网页的右键单击菜单。" },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "这样，您就可以访问扩展中在其他地方无法使用的高级冻结操作了。" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "" },
+    "html_options_other_enable_nonag": { "message": "在首次运行和更新后禁用通知弹出式窗口" },
     "html_options_other_enable_sync": { "message": "在不同系统之间同步设置" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "扩展的设置将在所有使用相同配置文件登录的 Chrome 浏览器中同步" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "。" },
