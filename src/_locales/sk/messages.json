@@ -3,70 +3,70 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "Zabezpečte plynulý chod počítača pozastavením tabov, ktoré nepoužívate"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "Pozastav / obnov aktívny tab"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "Preruš / obnov pozastavovanie aktívneho tabu"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "Pozastav vybrané taby"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "Obnov vybrané taby"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "Pozastav ostatné taby v aktívnom okne"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "Vynútiť pozastavenie ostatných tabov v aktívnom okne"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "Obnov všetky taby v aktívnom okne"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Pozastav všetky taby vo všetkých oknách"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Vynútiť pozastavenie všetkých tabov vo všetkých oknách"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Obnov všetky taby vo všetkých oknách"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Otvor linku v novom pozastavenom tabe"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "Pozastav / obnov tento tab"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "Preruš / obnov pozastavovanie aktuálneho tabu"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Nikdy nepozastavuj túto doménu"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Nikdy nepozastavuj túto adresu"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Pozastav vybrané taby"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Obnov vybrané taby"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Pozastav ostatné taby v tomto okne"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Vynútiť pozastavenie ostatných tabov v tomto okne"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "Obnov všetky taby v tomto okne"
     },
     "js_context_soft_suspend_all_tabs": {
         "message": "Suspend all tabs in all windows"
