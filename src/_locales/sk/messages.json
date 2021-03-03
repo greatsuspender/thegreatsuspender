@@ -69,25 +69,25 @@
         "message": "Obnov všetky taby v tomto okne"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Pozastav všetky taby vo všetkých oknách"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Vynútiť pozastavenie všetkých tabov vo všetkých oknách"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Obnov všetky taby vo všetkých oknách"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "O aplikácií"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Odvodené z originálneho"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "dostupného na GitHube, ale bez sledovania zobrazovaných reklám"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", viac informácií na"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -99,43 +99,43 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Ak máte spätnú väzbu alebo chcete nahlásiť problém, môžete tak spraviť na"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Pred vytvorením nového zázamu prosím skontrolujte, či Váš nápad alebo problém nie je už zapísaný. Vďaka!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Logovanie alebo debuggovacie flagy nastavíte na "
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "debugovacej stránke."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "stránke GitHub problémov"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Toto rozšírenie používa"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "knižnicu, ktorú napísal Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Tiež používa indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": ", ktorý napísal Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "BrowserStack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "Ďakujem tiež"
     },
     "html_about_browserstack_suffix": {
         "message": "for providing free chrome testing tools."
