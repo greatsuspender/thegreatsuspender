@@ -162,97 +162,97 @@
         "message": "GitHub projektová stránka"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Múžete obnoviť stratené taby zo"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "stránky správy relácie"
     },
     "html_broken_button_restart_extension": {
         "message": "Reštartovať rozšírenie"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "Správa relácie"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "Aktuálna relácia"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "Minulé relácie"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "Uložené relácie"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "Import relácie"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Presun tabov"
     },
     "html_history_migrate_old_id": {
         "message": "Staré id TGS rozšírenia"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "Poznámka"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "Dôležité oznámenie od The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "Nastavenia"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "Automatické pozastavenie tabov"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "Pozastavené taby"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "Ostatné"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "Automaticky pozastav taby po"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "Nikdy"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "sekúnd"
     },
     "html_options_suspend_minute": {
         "message": "min"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "minút"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "hodina"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "hodín"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "deň"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "dni"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "týždeň"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "týždňov"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "Nikdy nepozastav pripnuté taby"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "Nikdy nepozastav taby s neuloženými vstupmi"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "Nikdy nepozastav tab hrajúci zvuky"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "Nikdy nepozastav tab v móde bez siete"
     },
     "html_options_suspend_claim_by_default": {
         "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
