@@ -153,7 +153,7 @@
         "message": "Ruh Roh!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "konnte nicht starten. Vielleicht verwendest du eine inkompatible Version von Chrome?"
     },
     "html_broken_line2": {
         "message": "Try to restart the extension. If the problem persists, ask for help on the"
@@ -168,7 +168,7 @@
         "message": "session management page"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Erweiterung neu starten"
     },
     "html_history_title": {
         "message": "Sitzungsverwaltung"
