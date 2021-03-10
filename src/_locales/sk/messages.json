@@ -258,16 +258,16 @@
         "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "Nikdy nepozastav tab ak je počítač pripojený k elektrickej sieti"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "Nepozastav aktívny tab v každom okne"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "Automaticky obnov práve zobrazený tab"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "Pri pozastavení použi šetrenie pamäti zabudované v Chrome"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
         "message": "Reduces a suspended tab's memory usage even more, by utilizing"
