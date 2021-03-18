@@ -255,7 +255,7 @@
         "message": "只在联网时才自动冻结"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "只在未充电时才自动冻结"
