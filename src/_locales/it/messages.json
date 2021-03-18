@@ -255,7 +255,7 @@
         "message": "Non sospendere mai le schede quando non sei connesso a Internet"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Ottieni per default (migrazione senza interruzioni; la tab è considerata sospesa se 'suspended.html' è in url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Non sospendere mai le schede quando il PC è collegato all'alimentazione"
