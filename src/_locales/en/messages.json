@@ -84,7 +84,7 @@
     "html_options_suspend_no_forms": { "message": "Never suspend tabs that contain unsaved form inputs" },
     "html_options_suspend_no_audio": { "message": "Never suspend tabs that are playing audio" },
     "html_options_suspend_only_connected": { "message": "Never suspend tabs when offline" },
-    "html_options_suspend_claim_by_default": { "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)" },
+    "html_options_suspend_claim_by_default": { "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)" },
     "html_options_suspend_only_on_battery": { "message": "Never suspend tabs when connected to power source" },
     "html_options_suspend_no_active_tabs": { "message": "Never suspend active tab in each window" },
     "html_options_suspend_automatically_unsuspend": { "message": "Automatically unsuspend tab when it is viewed" },
