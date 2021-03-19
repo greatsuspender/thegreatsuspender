@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "Esta extensão nunca poderia ter existido sem"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "is broken"
     },
@@ -252,7 +255,7 @@
         "message": "Nunca suspender as guias quando estiver off-line"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Nunca suspender as guias quando estiver conectado à fonte de energia"

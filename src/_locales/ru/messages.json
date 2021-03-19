@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "Это расширение не могло бы существовать без"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "is broken"
     },
@@ -252,7 +255,7 @@
         "message": "Никогда не приостанавливать вкладки в режиме оффлайн"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Никогда не приостанавливать вкладки, когда подключён источник питания"

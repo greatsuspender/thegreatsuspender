@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "هذا التمديد لم يكن ليتحقق بدون"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "يتم كسر"
     },
@@ -252,7 +255,7 @@
         "message": "لا توقف أبداً علامات التبويب عند عدم الاتصال"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "المطالبة بوفاة (هجرة سلسلة؛ علامة التبويب تعتبر معلقة إذا كان 'معلقة.html' في url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "لا توقف أبداً علامات التبويب عند الاتصال بمصدر الطاقة"

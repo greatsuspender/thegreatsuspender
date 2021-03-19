@@ -141,7 +141,10 @@
         "message": "提供免費的 Chrome 測試工具。"
     },
     "html_about_tgs_prefix": {
-        "message": "没有这个扩展，就不可能存在"
+        "message": "如果沒有 "
+    },
+    "html_about_tgs_suffix": {
+        "message": "，這個擴充功能就不可能存在。"
     },
     "html_broken_title": {
         "message": "故障了"

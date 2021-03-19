@@ -143,6 +143,9 @@
     "html_about_tgs_prefix": {
         "message": "Questa estensione non sarebbe mai esistita senza"
     },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
     "html_broken_title": {
         "message": "si è rotto"
     },
@@ -189,10 +192,10 @@
         "message": "Vecchio ID estensione TGS"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "Avviso"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "Informazioni importanti da The Marvellous Suspender"
     },
     "html_options_title": {
         "message": "Impostazioni"
@@ -252,7 +255,7 @@
         "message": "Non sospendere mai le schede quando non sei connesso a Internet"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by deafult (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Non sospendere mai le schede quando il PC è collegato all'alimentazione"
@@ -330,19 +333,19 @@
         "message": "Abilita la modalità di cattura dello schermo in alta qualità"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "Quando disabilitato, le schermate hanno le seguenti limitazioni per migliorare le prestazioni:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
         "message": "- Cattura dello schermo di bassa qualità"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- Lo schermo non sarà catturato se verrà impiegato più di 1 minuto per generare l'immagine"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- Altezza massima dello schermo limitata a 5000px"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "Abilitare la modalità di cattura dello schermo in alta qualità potrebbe aumentare significativamente il carico della CPU"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
         "message": "e utilizzo della memoria."
@@ -387,7 +390,7 @@
         "message": "Questo sincronizzerà anche le impostazioni in modalità incognito."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "Attivando questa opzione sovrascriverai le impostazioni su tutti gli altri browser registrati nello stesso profilo Chrome"
     },
     "html_options_suspend_on_low_memory": {
         "message": "Sospendi istantaneamente quando la memoria di sistema diventa molto bassa"
@@ -453,25 +456,25 @@
         "message": "Attendi mentre ripristino questa finestra ..."
     },
     "html_recovery_title": {
-        "message": "Recovery"
+        "message": "Ripristino"
     },
     "html_recovery_ruh_roh": {
         "message": "D'oh!"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "Sembra che tu stia effettuando un ripristino da un crash dell'estensione."
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "Le tab sospese potrebbero essere crashate o scomparse."
     },
     "html_recovery_restore_tabs_automatically": {
         "message": "Ripristina automaticamente le schede"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "Vai al gestore delle sessioni"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "Al momento è attivata la cattura dello schermo. Se questa estensione si blocca ripetutamente, è consigliabile disabilitare questa opzione."
     },
     "html_recovery_disable_screen_capturing": {
         "message": "Disattiva cattura dello schermo"
@@ -537,13 +540,13 @@
         "message": "Aggiorna o fai clic per ricaricare"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "Non sei connesso a Internet"
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "Automatic tab reloading is temporarily disabled."
+        "message": "Il caricamento automatico delle tab è temporaneamente disabilitato."
     },
     "html_permissions_title": {
-        "message": "Permissions"
+        "message": "Autorizzazioni"
     },
     "html_permissions_heading": {
         "message": "Per favore dammi accesso agli indirizzi dei file locali"
@@ -552,10 +555,10 @@
         "message": "Questa estensione non è attualmente autorizzata a sospendere gli indirizzi che cominciano per \"file\".\nPer modificare questo comportamento attiva \"Consenti accesso agli indirizzi dei file\" dalla pagina delle impostazioni dell'estensione."
     },
     "html_permissions_backup": {
-        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
+        "message": "Nota: la modifica di questa opzione causerà la scomparsa di tutte le tab sospese.\nPer l'evenienza, ora potrebbe essere un buon momento per salvare un backup della sessione di tab correnti."
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "Aggiorna"
     },
     "html_update_heading2": {
         "message": "sta per diventare ancora più meraviglioso"
@@ -564,7 +567,7 @@
         "message": "Una nuova versione di The Marvellous Suspender è pronta per essere installata.\nAttenzione: durante l'aggiornamento le schede sospese scompariranno temporaneamente."
     },
     "html_update_info_withbackup": {
-        "message": "Just in case, now might be a good time to save a backup of your current tab session."
+        "message": "Per l'evenienza, ora potrebbe essere un buon momento per salvare un backup della sessione delle tab correnti."
     },
     "html_update_info_nobackup_prefix": {
         "message": "È caldamente raccomandato di esportare una copia della sessione attuale dalla pagina di "
@@ -585,31 +588,31 @@
         "message": "è stato aggiornato"
     },
     "html_updated_info_line1": {
-        "message": "An automatic backup was made of your tabs before the update."
+        "message": "È stato effettuato un backup automatico delle tab prima dell'aggiornamento."
     },
     "html_updated_info_line2_prefix": {
-        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
+        "message": "Se hai incontrato problemi durante l'aggiornamento, è possibile recuperare le tab perse dal "
     },
     "html_updated_info_line2_suffix": {
-        "message": " page."
+        "message": " pagina."
     },
     "html_updated_detail_header_prefix": {
-        "message": "What's new in "
+        "message": "Cosa c'è di nuovo in "
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "New features:"
+        "message": "Nuove funzionalità:"
     },
     "html_updated_bug_fixes_header": {
-        "message": "Bug fixes:"
+        "message": "Risoluzioni di bug:"
     },
     "html_updated_release_notes": {
         "message": "Visita GitHub per le note di rilascio complete: "
     },
     "html_updated_patch_message": {
-        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
+        "message": "Mi spiace per il disturbo. Avevo solo bisogno di eseguire un pò di manutenzione."
     },
     "html_welcome_title": {
         "message": "Ciao"
@@ -633,22 +636,22 @@
         "message": "La scheda non può essere sospesa"
     },
     "js_popup_suspended": {
-        "message": "Tab suspended"
+        "message": "Tab sospesa"
     },
     "js_popup_suspended_pause": {
-        "message": "Don't suspend"
+        "message": "Non sospendere"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "Sito inserito nella whitelist."
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remove from whitelist"
+        "message": "Rimuovi dalla whitelist"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "La tab sta riproducendo audio."
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "La tab sta ricevendo dati dalle form."
     },
     "js_popup_form_input_unpause": {
         "message": "Riprendi"
@@ -663,7 +666,7 @@
         "message": "Riprendi"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "Sospensione automatica delle tab disabilitata."
     },
     "js_popup_no_connectivity": {
         "message": "Nessuna connessione di rete"
@@ -678,10 +681,10 @@
         "message": "Abilita"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "In attesa del caricamento della tab..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "In attesa dell'avvio dell'estensione..."
     },
     "js_popup_error": {
         "message": "Sospensione automatica non disponibile per questa scheda"
@@ -720,13 +723,13 @@
         "message": "Sei sicuro di voler eliminare questa sessione?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "C'è già una sessione salvata con questo nome. Sovrascrivere la sessione esistente?"
     },
     "js_history_import_fail": {
         "message": "Caricamento del file non riuscito. Assicurati che il file sia composto da puro testo e che contenga un singolo indirizzo per riga."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Devi inserire i 32 caratteri dell'id dell'estensione da cui migrare"
     },
     "js_history_migrate_success": {
         "message": "Ho migrato con successo $TABCOUNT$ schede",
@@ -743,19 +746,19 @@
         "message": "Configura scorciatoie da tastiera"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "Tab sospesa a causa della bassa memoria del sistema"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "Sei in modalità incognito. Molte impostazioni non saranno disponibili."
     },
     "js_options_whitelist_no_matches": {
         "message": "Non ci sono schede aperte che corrispondono all'attuale lista bianca."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "Tab aperte in whitelist:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "e"
     },
     "js_options_whitelist_matches_overflow_suffix": {
         "message": "altro."
@@ -764,10 +767,10 @@
         "message": "Salva backup"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "Apri impostazioni dell'estensione"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "Non hai ancora effettuato un backup. Vuoi aggiornare comunque l'estensione?"
     },
     "js_update_button_export": {
         "message": "Salva backup"
@@ -779,6 +782,6 @@
         "message": "non impostato"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "Punto di salvataggio automatico per v"
     }
 }
