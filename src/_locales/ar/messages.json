@@ -255,7 +255,7 @@
         "message": "لا توقف أبداً علامات التبويب عند عدم الاتصال"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "المطالبة بشكل افتراضي (هجرة سلسة؛ علامة التبويب تعتبر معلقة إذا كان 'suspended.html' في عنوان url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "لا توقف أبداً علامات التبويب عند الاتصال بمصدر الطاقة"
