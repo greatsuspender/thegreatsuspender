@@ -270,7 +270,7 @@
         "message": "Pri pozastavení použi šetrenie pamäti zabudované v Chrome"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Ešte viac znižuje pamäťové nároky pomocou"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
         "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
