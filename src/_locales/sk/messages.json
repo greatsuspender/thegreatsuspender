@@ -270,52 +270,52 @@
         "message": "Pri pozastavení použi šetrenie pamäti zabudované v Chrome"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Ešte viac znižuje pamäťové nároky pomocou"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "zabudovaného mechanizmu 'vyraďovania tabov' prehliadača Chrome. Výsledkom čoho môže byť až"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "500% ušetrenie pamäte v prípade, že pracujete s veľkým množstvom tabov."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "Takéto šetrenie však spôsobuje určité oneskorenie vykresľovania pri vybraní"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "pozastaveného tabu."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Pre viac informácií o vyraďovaní tabov prehliadačom Chrome pozrite na:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "Téma"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "Svetlý"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "Tmavý"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "Zachytávanie obrazovky"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "Vypnuté"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "Zachyť len vrch obrazovky"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "Zachyť celú stránku"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "Na pozastavenom tabe môže rozšírenie zobraziť náhľad vzhľadu tabu"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "v čase tesne pred pozastavením."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
         "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
