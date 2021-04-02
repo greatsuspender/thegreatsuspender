@@ -40,9 +40,15 @@ This version of The Great Suspender is not available on the Chrome Web Store.
 ### You should install this extension from source
 
 1. Download the **[latest available version](https://github.com/aciidic/thegreatsuspender/releases)** and unarchive to your preferred location (whichever suits you).
-2. Using **Google Chrome** browser, navigate to chrome://extensions/ and enable "Developer mode" in the upper right corner.
-3. Click on "Load Unpacked" in top-left corner and select the src FOLDER from extracted data > click Open Folder
+2. Using **Google Chrome** browser, navigate to [chrome://extensions/](chrome://extensions/) and enable "Developer mode" in the upper right corner.
+
+![image](https://user-images.githubusercontent.com/1906321/113394317-db3df380-934c-11eb-9629-f31597bcbec6.png)
+
+3. Click on "Load Unpacked" in top-left corner and select the `src` FOLDER from extracted data > click Open Folder
   (Or you can try drag & drop the src folder in to your chrome://extensions window)
+  
+  ![image](https://user-images.githubusercontent.com/1906321/113394341-e5f88880-934c-11eb-864c-66c4a3672e38.png)
+
 4. Confirm The Great Suspender now appears in chrome://extensions AND in your chrome://policy
 
 If you have completed the above steps, the "welcome" page will open indicating successful installation of the extension.
