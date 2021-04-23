@@ -1,4 +1,4 @@
-/*global chrome, historyItems, gsAnalytics, gsMessages, gsSession, gsStorage, gsIndexedDb, gsChrome, gsUtils */
+/*global chrome, historyItems, gsMessages, gsSession, gsStorage, gsIndexedDb, gsChrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -171,5 +171,4 @@
   global.exports = {
     removeTabFromList,
   };
-  gsAnalytics.reportPageView('recovery.html');
 })(this);

@@ -47,6 +47,8 @@
     "html_history_recent_sessions": { "message": "Recent sessions" },
     "html_history_saved_sessions": { "message": "Saved sessions" },
     "html_history_import_session": { "message": "Import session" },
+    "html_history_migrate_tabs": { "message": "Migrate tabs" },
+    "html_history_migrate_old_id": { "message": "Old TGS Extension id" },
     "html_notice_title": { "message": "Notice" },
     "html_notice_important_notice": { "message": "Important notice from The Great Suspender" },
     "html_options_title": { "message": "Settings" },
@@ -112,13 +114,12 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "Add controls for this extension to the right-click menu of a web page." },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "This will give you access to advanced suspending actions not available" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "elsewhere in the extension." },
+    "html_options_other_enable_nonag": { "message": "Disable notification tab popups on first run and after extension update" },
     "html_options_other_enable_sync": { "message": "Sync settings with your Chrome profile" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Extension settings will be synchronised across all chrome browsers which are" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "logged in with the same profile." },
     "html_options_other_enable_sync_tooltip_line2": { "message": "This will also synchronise settings in incognito mode." },
     "html_options_other_enable_sync_warning": { "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile" },
-    "html_options_tracking_opt_out": { "message": "Automatic deactivation of any kind of tracking" },
-    "html_options_tracking_opt_out_line1": { "message": "This option will disable tracking code, such as that from Google Analytics." },
     "html_options_suspend_on_low_memory": { "message": "Instantly suspend when system memory gets very low" },
     "html_options_suspend_on_low_memory_tooltip_line1": { "message": "This option will override Chrome's automatic tab discarding functionality." },
     "html_options_suspend_on_low_memory_tooltip_line2": { "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome." },
@@ -230,6 +231,15 @@
     "js_history_confirm_delete": { "message": "Are you sure you want to delete this session?" },
     "js_history_confirm_session_overwrite": { "message": "There is already a saved session with this name. Overwrite existing session?" },
     "js_history_import_fail": { "message": "Failed to load file. Ensure file is plain text and contains a single url per line." },
+    "js_history_migrate_fail": { "message": "Need 32-character extension id to migrate from" },
+    "js_history_migrate_success": {
+      "message": "Successfully migrated $TABCOUNT$ tabs",
+      "placeholders": {
+        "tabcount": {
+          "content": "$1"
+        }
+      }
+    },
     "js_suspended_remove_from_whitelist": { "message": "Remove site from whitelist" },
     "js_suspended_hotkey_to_reload": { "message": "Set keyboard shortcuts" },
     "js_suspended_low_memory": { "message": "Tab suspended due to low system memory" },

@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsStorage, gsChrome, gsUtils */
+/*global chrome, gsStorage, gsChrome, gsUtils */
 (function(global) {
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
@@ -23,10 +23,10 @@
     ignoreCache: gsStorage.IGNORE_CACHE,
     addContextMenu: gsStorage.ADD_CONTEXT,
     syncSettings: gsStorage.SYNC_SETTINGS,
+    noNag: gsStorage.NO_NAG,
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    trackingOptOut: gsStorage.TRACKING_OPT_OUT
   };
 
   function selectComboBox(element, key) {
@@ -74,7 +74,7 @@
     setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
 
     let searchParams = new URL(location.href).searchParams;
-    if (searchParams.has('firstTime')) {
+    if (searchParams.has('firstTime') && !gsStorage.getOption(gsStorage.NO_NAG)) {
       document
         .querySelector('.welcome-message')
         .classList.remove('reallyHidden');
@@ -275,5 +275,4 @@
   global.exports = {
     initSettings,
   };
-  gsAnalytics.reportPageView('options.html');
 })(this);

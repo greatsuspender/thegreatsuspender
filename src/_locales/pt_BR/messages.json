@@ -108,6 +108,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "Adicione controles para esta extensão no menu do botão direito de uma página da web." },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "Isso lhe dará acesso a ações avançadas de suspensão que não estão disponíveis" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "em outro lugar na extensão." },
+    "html_options_other_enable_nonag": { "message": "Desativar popups de notificação na primeira execução e após atualização" },
     "html_options_other_enable_sync": { "message": "Sincronizar as configurações com seu perfil do Chrome" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "As configurações de extensão serão sincronizadas em todos os navegadores Chrome que estiverem" },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "conectados com o mesmo perfil." },

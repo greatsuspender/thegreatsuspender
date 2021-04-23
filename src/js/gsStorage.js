@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
+/*global chrome, gsSession, localStorage, gsUtils */
 'use strict';
 
 // Used to keep track of which settings were defined in the managed storage
@@ -26,7 +26,6 @@ const gsStorageSettings = {
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
   USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
-  TRACKING_OPT_OUT: 'trackingOptOut',
   ENABLE_CLEAN_SCREENCAPS: 'cleanScreencaps'
 };
 
@@ -66,7 +65,6 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
-    defaults[gsStorage.TRACKING_OPT_OUT] = false;
     defaults[gsStorage.ENABLE_CLEAN_SCREENCAPS] = false;
 
     return defaults;
@@ -305,7 +303,6 @@ var gsStorage = {
   saveSettings: function(settings) {
     try {
       localStorage.setItem('gsSettings', JSON.stringify(settings));
-      gsAnalytics.setUserDimensions();
     } catch (e) {
       gsUtils.error(
         'gsStorage',

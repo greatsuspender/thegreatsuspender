@@ -108,6 +108,7 @@
     "html_options_other_enable_context_menu_tooltip_line1": { "message": "Macht Einstellungen der Erweiterung im Rechtsklick-Kontextmenü einer Webseite verfügbar." },
     "html_options_other_enable_context_menu_tooltip_line2": { "message": "Das ermöglicht den Zugriff auf umfangreichere Aktionen, die sonst" },
     "html_options_other_enable_context_menu_tooltip_line3": { "message": "nicht in der Erweiterung zu finden sind." },
+    "html_options_other_enable_nonag": { "message": "Deaktivieren von Benachrichtigungs-Popups beim ersten Start und nach einem Update" },
     "html_options_other_enable_sync": { "message": "Synchronisiere die Einstellungen mit deinem Chrome Profil" },
     "html_options_other_enable_sync_tooltip_line1a": { "message": "Einstellungen der Erweiterung werden zu allen Chrome Browsern synchronisiert," },
     "html_options_other_enable_sync_tooltip_line1b": { "message": "auf denen das gleiche Profil angemeldet ist." },

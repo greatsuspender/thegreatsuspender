@@ -263,7 +263,10 @@ var gsSession = (function() {
     ) {
       //show welcome message
       const optionsUrl = chrome.extension.getURL('options.html?firstTime');
-      await gsChrome.tabsCreate(optionsUrl);
+      const noNag = gsStorage.getOption(gsStorage.NO_NAG);
+      if (!noNag) {
+        await gsChrome.tabsCreate(optionsUrl);
+      }
     }
   }
 
@@ -303,9 +306,12 @@ var gsSession = (function() {
 
     await gsIndexedDb.performMigration(lastVersion);
     gsStorage.setNoticeVersion('0');
+    const noNag = gsStorage.getOption(gsStorage.NO_NAG);
     const shouldRecoverTabs = await checkForCrashRecovery(currentSessionTabs);
     if (shouldRecoverTabs) {
-      await gsUtils.createTabAndWaitForFinishLoading(updatedUrl, 10000);
+      if (!noNag) {
+        await gsUtils.createTabAndWaitForFinishLoading(updatedUrl, 10000);
+      }  
 
       await recoverLostTabs();
       updated = true;
@@ -318,11 +324,15 @@ var gsSession = (function() {
         }
       } else {
         await gsUtils.removeTabsByUrlAsPromised(updatedUrl);
-        await gsChrome.tabsCreate({ url: updatedUrl });
+        if (!noNag) {
+          await gsChrome.tabsCreate({ url: updatedUrl });
+        }  
       }
     } else {
       updated = true;
-      await gsChrome.tabsCreate({ url: updatedUrl });
+      if (!noNag) {
+        await gsChrome.tabsCreate({ url: updatedUrl });
+      }  
     }
   }
 

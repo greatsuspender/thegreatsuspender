@@ -1,4 +1,4 @@
-/*global chrome, historyItems, historyUtils, gsAnalytics, gsSession, gsIndexedDb, gsUtils */
+/*global chrome, historyItems, historyUtils, gsSession, gsIndexedDb, gsUtils */
 (function(global) {
   'use strict';
 
@@ -243,6 +243,12 @@
       importSessionActionEl.click();
     };
 
+    var migrateTabsEl = document.getElementById('migrateTabs');
+    migrateTabsEl.onclick = function() {
+      var migrateTabsFromIdEl = document.getElementById('migrateFromId');
+      historyUtils.migrateTabs(migrateTabsFromIdEl.value);
+    };
+
     //hide incompatible sidebar items if in incognito mode
     if (chrome.extension.inIncognitoContext) {
       Array.prototype.forEach.call(
@@ -258,5 +264,4 @@
     render();
   });
 
-  gsAnalytics.reportPageView('history.html');
 })(this);
