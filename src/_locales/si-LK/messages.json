@@ -78,7 +78,7 @@
         "message": "Unsuspend all tabs in all windows"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "පිළිබඳව"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
@@ -198,7 +198,7 @@
         "message": "Important notice from The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "සැකසුම්"
     },
     "html_options_suspend_title": {
         "message": "Automatic tab suspension"
@@ -207,7 +207,7 @@
         "message": "Suspended tabs"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "වෙනත්"
     },
     "html_options_suspend_automatically_after": {
         "message": "Automatically suspend tabs after"
@@ -216,31 +216,31 @@
         "message": "Never"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "තත්පර"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "විනාඩිය"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "විනාඩි"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "පැය"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "පැය"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "දිනය"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "දින"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "සතිය"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "සති"
     },
     "html_options_suspend_no_pinned": {
         "message": "Never suspend pinned tabs"
@@ -291,19 +291,19 @@
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "තේමාව"
     },
     "html_options_suspend_theme_light": {
         "message": "Light"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "අඳුරු"
     },
     "html_options_suspend_screen_capturing": {
         "message": "Screen capturing"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "අබල කර ඇත"
     },
     "html_options_suspend_screen_capturing_screen_only": {
         "message": "Capture top of screen only"
@@ -444,7 +444,7 @@
         "message": "Unsuspend selected tabs"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "සැකසුම්"
     },
     "html_restoring_title": {
         "message": "Restoring window"
@@ -492,19 +492,19 @@
         "message": "Note: These actions are also available via the right-click context menu."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "කෙටිමං වෙනස් කරන්න"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "සැකසුම්"
     },
     "html_sidebar_session_management": {
         "message": "Session management"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "යතුරුපුවරු කෙටිමං"
     },
     "html_sidebar_support": {
-        "message": "About"
+        "message": "පිළිබඳව"
     },
     "html_success_great_success": {
         "message": "Marvellous success!"
@@ -516,7 +516,7 @@
         "message": "For advanced session management, visit the"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "page"
+        "message": "පිටුව"
     },
     "html_session_manager": {
         "message": "session management"
@@ -558,7 +558,7 @@
         "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "යාවත්කාල කරන්න "
     },
     "html_update_heading2": {
         "message": "is about to get greater"
@@ -576,10 +576,10 @@
         "message": " before continuing with the update."
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "යාවත්කාල වී ඇත"
     },
     "html_updating_heading": {
-        "message": "is updating"
+        "message": "යාවත්කාල වෙමින්"
     },
     "html_updating_message": {
         "message": "Please wait while I restore your suspended tabs..."
@@ -594,7 +594,7 @@
         "message": "If you encountered any issues during the update, you can recover lost tabs from the "
     },
     "html_updated_info_line2_suffix": {
-        "message": " page."
+        "message": " පිටුව."
     },
     "html_updated_detail_header_prefix": {
         "message": "What's new in "
@@ -603,7 +603,7 @@
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "New features:"
+        "message": "නව විශේෂාංග:"
     },
     "html_updated_bug_fixes_header": {
         "message": "Bug fixes:"
@@ -615,7 +615,7 @@
         "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
     },
     "html_welcome_title": {
-        "message": "Welcome"
+        "message": "සාදරයෙන් පිළිගනිමු"
     },
     "html_welcome_text_line1": {
         "message": "Thanks for trying"
@@ -630,7 +630,7 @@
         "message": "Tab will suspend automatically."
     },
     "js_popup_normal_pause": {
-        "message": "Not now"
+        "message": "දැන් නොවේ"
     },
     "js_popup_special": {
         "message": "Tab cannot be suspended"
@@ -669,7 +669,7 @@
         "message": "Automatic tab suspension disabled."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "ජාල සම්බන්ධතාවයක් නොමැත"
     },
     "js_popup_charging": {
         "message": "Connected to power source"
@@ -678,7 +678,7 @@
         "message": "Local files cannot be suspended."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "සබල කරන්න"
     },
     "js_popup_unknown": {
         "message": "Waiting for tab to load..."
@@ -758,7 +758,7 @@
         "message": "Whitelisted open tabs:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "සහ"
     },
     "js_options_whitelist_matches_overflow_suffix": {
         "message": "more."
