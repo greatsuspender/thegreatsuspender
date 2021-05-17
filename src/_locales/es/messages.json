@@ -294,16 +294,16 @@
         "message": "Tema"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "Brillante"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "Oscuro"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "Pantalla de grabación"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "Discapacitada"
     },
     "html_options_suspend_screen_capturing_screen_only": {
         "message": "Capture top of screen only"
@@ -516,37 +516,37 @@
         "message": "For advanced session management, visit the"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "page"
+        "message": "página"
     },
     "html_session_manager": {
         "message": "session management"
     },
     "html_suspended_title": {
-        "message": "Suspended Tab"
+        "message": "Pestañas suspendidos"
     },
     "html_suspended_tab_suspended": {
-        "message": "Tab suspended"
+        "message": "Tab suspendidos"
     },
     "html_suspended_tab_reload": {
-        "message": "Reload tab"
+        "message": "Recargar pestaña"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Never suspend"
+        "message": "Nunca suspender"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Refresh or click to reload"
+        "message": "Actualizar o hacer clic para recargar"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "No estás conectado a internet"
     },
     "html_suspended_toast_reload_disabled": {
         "message": "Automatic tab reloading is temporarily disabled."
     },
     "html_permissions_title": {
-        "message": "Permissions"
+        "message": "Permisos"
     },
     "html_permissions_heading": {
         "message": "Please give me access to local file URLs"
@@ -558,10 +558,10 @@
         "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "Actualizar"
     },
     "html_update_heading2": {
-        "message": "is about to get greater"
+        "message": "está a punto de hacerse más grande"
     },
     "html_update_info": {
         "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
@@ -573,19 +573,19 @@
         "message": "It is strongly recommended that you export a copy of your current session from "
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " antes de continuar con la actualización."
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "Actualizado"
     },
     "html_updating_heading": {
-        "message": "is updating"
+        "message": "actualizando"
     },
     "html_updating_message": {
         "message": "Please wait while I restore your suspended tabs..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "ha sido actualizado"
     },
     "html_updated_info_line1": {
         "message": "An automatic backup was made of your tabs before the update."
