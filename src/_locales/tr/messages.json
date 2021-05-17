@@ -708,13 +708,13 @@
         "message": "Pencere"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "Pencere"
     },
     "js_history_tab": {
         "message": "Sekme"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Sekmeler"
     },
     "js_history_enter_name_for_session": {
         "message": "Bu oturum için bir isim girin"
