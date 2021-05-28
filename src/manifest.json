@@ -39,6 +39,8 @@
   "content_scripts": [
     {
       "matches": [
+        "http://*/*",
+        "https://*/*",
         "file://*/*"
       ],
       "js": [
