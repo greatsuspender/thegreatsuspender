@@ -143,9 +143,29 @@ var historyItems = (function(global) {
     var windowString = chrome.i18n.getMessage('js_history_window');
     windowContainer = createEl(
       'span',
+
       {},
       windowString + ' ' + (index + 1) + ':\u00A0',
     );
+
+    windowContainer.appendChild(createEl(
+      'a',
+      {
+        class: 'groupLink exportLink' + index,
+        href: '#',
+      },
+      chrome.i18n.getMessage('js_history_export'),
+    ));
+
+    windowContainer.appendChild(createEl(
+      'a',
+      {
+        class: 'groupLink saveLink' + index,
+        href: '#',
+      },
+      chrome.i18n.getMessage('js_history_save'),
+    ));
+
 
     groupUnsuspendCurrent = createEl(
       'a',

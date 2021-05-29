@@ -139,7 +139,7 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('exportLink')[0],
       function() {
-        historyUtils.exportSessionWithId(session.sessionId);
+        historyUtils.exportSessionWithId(null, session.sessionId);
       },
     );
     addClickListenerToElement(
@@ -157,7 +157,7 @@
     addClickListenerToElement(
       sessionEl.getElementsByClassName('saveLink')[0],
       function() {
-        historyUtils.saveSession(session.sessionId);
+        historyUtils.saveSession(session.sessionId, null);
       },
     );
     addClickListenerToElement(
@@ -183,6 +183,20 @@
       windowEl.getElementsByClassName('reloadLink')[0],
       function() {
         reloadTabs(session.sessionId, window.id, false); // async
+      },
+    );
+    addClickListenerToElement(
+      windowEl.getElementsByClassName('exportLink' + index)[0],
+      function() {
+        // document.getElementById('debugWindowId').innerText = 'Window ID sent: ' + window.id;
+        historyUtils.exportSessionWithId(window.id, session.sessionId);
+      },
+    );
+    addClickListenerToElement(
+      windowEl.getElementsByClassName('saveLink' + index)[0],
+      function() {
+        // document.getElementById('debugWindowId').innerText = 'Window ID sent: ' + window.id;
+        historyUtils.saveSession(session.sessionId, window.id);
       },
     );
     return windowEl;

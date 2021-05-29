@@ -380,7 +380,7 @@ var gsIndexedDb = {
       session.sessionId = '_' + gsUtils.generateHashCode(session.name);
     }
 
-    //clear id as it will be either readded (if sessionId match found) or generated (if creating a new session)
+    //clear id as it will be either read (if sessionId match found) or generated (if creating a new session)
     delete session.id;
     await gsIndexedDb.updateSession(session);
   },
