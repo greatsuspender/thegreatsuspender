@@ -3,91 +3,91 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "Jadikan komputer Anda berjalan dengan lancar dengan menangguhkan tab yang tidak Anda gunakan"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "Tangguhkan/BatalTangguhkan tab aktif"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "Jeda/BatalJeda penangguhan dari tab aktif"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "Tangguhkan tab yang dipilih"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "BatalTangguhkan tab yang dipilih"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "Tangguhkan semua tab lainnya di jendela aktif"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "Tangguhkan secara paksa semua tab lainnya di jendela aktif"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "BatalTangguhkan semua tab di jendela aktif"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Tangguhkan semua tab di semua jendela"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Paksa tangguhkan semua tab di semua jendela"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "BatalTangguhkan semua tab di semua jendela"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Buka tautan di Tab Baru yang Ditangguhkan"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "Tangguhkan/BatalTangguhkan tab ini"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "Jeda/BatalJeda penangguhan tab ini"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Jangan pernah menangguhkan domain ini"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Jangan pernah menangguhkan URL ini"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Tangguhkan tab yang dipilih"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "BatalTangguhkan tab yang dipilih"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Tangguhkan semua tab lain di jendela ini"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Pakasa tangguhkan semua tab lainnya di jendela ini"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "BatalTangguhkan semua tab di jendela ini"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Tangguhkan semua tab di semua jendela"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Paksa tangguhkan semua tab di semua jendela"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "BatalTangguhkan semua tab di semua Windows"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "Tentang"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Berdasarkan versi yang asli"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "tersedia di GitHub, tanpa pelacakan IKLAN"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", informasi lebih lanjut tersedia di"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -99,640 +99,640 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Jika Anda memiliki umpan balik atau ingin melaporkan sebuah isu/masalah, Anda dapat melakukannya pada"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Silakan periksa untuk melihat apakah ide/usulan atau isu/masalah Anda sudah ada sebelum membuat yang baru. Terima kasih!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Untuk mengaktifkan pencatatan log, atau untuk mengatur flag debugging, pergi ke"
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "halaman debug."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "Halaman isu/masalah GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Ekstensi ini menggunakan"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "pustaka data yang ditulis oleh Niklas von Hertzen."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Dan juga menggunakan pembungkus indexedDb"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "yang ditulis oleh Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "BrowserStack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "Terima kasih juga kepada"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "untuk menyediakan alat pengujian chrome gratis."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Ekstensi ini tidak akan pernah ada tanpa"
     },
     "html_about_tgs_suffix": {
         "message": "."
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "rusak"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "Ya Pakde!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "gagal untuk memulai. Mungkin Anda menggunakan versi Chrome yang tidak kompatibel?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Cobalah untuk memulai kembali ekstensi. Jika masalah tersebut berlanjut, silahkan minta bantuan di"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "Halaman proyek GitHub"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Anda dapat memulihkan tab yang hilang dari"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "halaman manajemen sesi peramban web"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Mulai ulang ekstensi"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "Manajemen sesi peramban web"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "Sesi saat ini"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "Sesi terbaru"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "Sesi yang disimpan"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "Impor sesi"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migrasikan tab"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "ID Ekstensi TGS Lama"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "Pemberitahuan"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "Pemberitahuan penting dari The Marvellous Suspender"
     },
     "html_options_title": {
-        "message": "Settings"
+        "message": "Pengaturan"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "Penagguhan tab secara otomatis"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "Tab yang ditangguhkan"
     },
     "html_options_other_title": {
-        "message": "Other"
+        "message": "Lainnya"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "Secara otomatis menangguhkan tab setelah"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "Tidak pernah"
     },
     "html_options_suspend_seconds": {
-        "message": "seconds"
+        "message": "detik"
     },
     "html_options_suspend_minute": {
-        "message": "min"
+        "message": "mnt"
     },
     "html_options_suspend_minutes": {
-        "message": "mins"
+        "message": "menit"
     },
     "html_options_suspend_hour": {
-        "message": "hour"
+        "message": "jam"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "jam"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "hari"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "Hari"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "minggu"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "minggu"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "Jangan pernah menangguhkan tab yang disematkan"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "Jangan pernah menangguhkan tab yang berisi input formulir yang belum disimpan"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "Jangan pernah menangguhkan tab yang memutar audio"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "Jangan pernah menangguhkan tab saat offline"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Klaim secara bawaan (migrasi yang lancar; tab dipertimbangkan ditangguhkan jika 'suspended.html' ada dalam URL)"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "Jangan pernah menangguhkan tab saat terhubung ke sumber daya (listrik)"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "Jangan pernah menangguhkan tab aktif di setiap jendela"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "Secara otomatis batal tangguhkan tab saat dilihat"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "Terapkan penghematan memori bawaan Chrome saat menangguhkan"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Mengurangi sebuah penggunaan memori tab yang ditangguhkan lebih lagi, dengan memanfaatkan"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "fungsionalitas 'pengabaian tab' bawaan Chrome. Ini dapat berdampak sampai"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "penghematan memori 500% saat bekerja dengan jumlah tab yang banyak."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "Namun, itu juga akan menyebabkan sedikit sebuah penundaan rendering saat memilih"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "sebuah tab yang ditangguhkan."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Untuk informasi lebih lanjut tentang fitur pengabaian Chrome, lihat:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "Tema"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "Terang"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "Gelap"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "Penangkapan layar"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "Dinonaktifkan"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "Tangkap bagian atas layar saja"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "Tangkap seluruh halaman"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "Pada sebuah tab yang ditangguhkan, ekstensi dapat menampilkan pratinjau gambar dari "
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "seperti apa tab sebelum ditangguhkan."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "Fitur penangkapan layar bersifat eksperimental dan dapat menyebabkan penggunaan CPU yang signifikan dan juga"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "penggunaan memori sedikit meningkat."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "Jika Anda merasakan dan melihat perilaku aneh seperti tab membutuhkan waktu lama untuk menangguhkan, atau Chrome"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "crash secara tidak terduga, cobalah mematikan fitur ini."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "Aktifkan mode penangkapan layar berkualitas tinggi"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "Ketika dinonaktifkan, tangkapan layar memiliki keterbatasan berikut untuk membantu dalam kinerja:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- Pengambilan layar berkualitas rendah"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- Tidak akan menangkap layar jika dibutuhkan lebih dari 1 menit untuk menghasilkan gambar"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- Tinggi maksimum tangkapan layar terbatas pada 5000px"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "Mengaktifkan mode pengambilan layar berkualitas tinggi dapat secara signifikan meningkatkan beban CPU"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "dan penggunaan memori."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "Jangan pernah menangguhkan tab dengan URL dari daftar berikut:"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "Tambahkan URL dari setiap halaman yang ingin Anda masukkan ke daftar putih pada baris baru. Misalnya:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "Untuk memberikan daftar putih pada banyak situs dalam satu baris Anda dapat menentukan bagian dari URL sebagai gantinya:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "Anda juga dapat menentukan ekspresi reguler dengan melampirkan teks dalam garis miring:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "Uji daftar putih"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "Tambahkan The Marvellous Suspender ke menu konteks klik-kanan"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "Tambahkan kontrol untuk ekstensi ini ke klik-kanan menu dari sebuah halaman web."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "Ini akan memberi Anda akses ke tindakan menangguhkan lanjutan yang tidak tersedia"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "ditempat lain dalam ekstensi."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "Pengaturan sinkronisasi dengan profil Chrome Anda"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "Pengaturan ekstensi akan disinkronkan di semua browser Chrome yang"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "masuk dengan profil yang sama."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "Ini juga akan menyinkronkan pengaturan dalam mode penyamaran."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "Menghidupkan ini akan menimpa pengaturan pada semua browser lain yang masuk ke profil Chrome yang sama"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "Secara instan menangguhkan ketika memori sistem menjadi sangat rendah"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "Opsi ini akan menimpa fungsionalitas pembuangan tab Chrome secara otomatis."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "Jika diaktifkan, itu akan memaksa tab untuk ditangguhkan dibandingkan dibuang oleh Chrome."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "Biasanya, Chrome hanya akan membuang tab begitu memori sistem menjadi sangat rendah."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "Harap diperhatikan: Ini dapat menyebabkan tab untuk ditangguhkan lebih awal dari waktu yang Anda telah"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "tentukan dalam opsi penagguhan tab secara otomatis."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Untuk informasi lebih lanjut tentang pengabaian tab oleh Chrome, lihat:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "BatalTangguhkan Tab ini"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "Tangguhkan tab ini sekarang"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "Jangan tangguhkan untuk saat ini"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Jangan pernah menangguhkan domain ini"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Jangan pernah menangguhkan URL ini"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "Tangguhkan semua tab lain"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "Menangguhkan semua tab"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Tangguhkan tab yang dipilih"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Menangguhkan tab yang dipilih"
     },
     "html_popup_settings": {
-        "message": "Settings"
+        "message": "Pengaturan"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "Memulihkan jendela"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "Memulihkan Tab"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "Tolong tunggu sementara aku mengembalikan jendela ini ..."
     },
     "html_recovery_title": {
-        "message": "Recovery"
+        "message": "Pemulihan"
     },
     "html_recovery_ruh_roh": {
-        "message": "Ruh roh!"
+        "message": "Ruh Roh!"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "Sepertinya kamu sudah pulih dari kecelakaan ekstensi."
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "Tab tersuspensi Anda mungkin telah jatuh atau menghilang."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "Kembalikan tab secara otomatis"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "Pergi ke Sesi Manager"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "Saat ini Anda memiliki pengambilan layar dihidupkan. Jika ekstensi ini berulang kali mogok, disarankan Anda menonaktifkan opsi ini."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "Matikan penangkapan layar"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "Tab untuk memulihkan"
     },
     "html_shortcuts_title": {
-        "message": "Keyboard shortcuts"
+        "message": "Pintasan Keyboard"
     },
     "html_shortcuts_keyboard_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Pintasan Keyboard"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "Catatan: Tindakan ini juga tersedia melalui menu konteks klik kanan."
     },
     "html_shortcuts_remap_keys": {
-        "message": "Change shortcuts"
+        "message": "Ubah pintasan"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "Pengaturan"
     },
     "html_sidebar_session_management": {
-        "message": "Session management"
+        "message": "Manajemen sesi"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Pintasan Keyboard"
     },
     "html_sidebar_support": {
-        "message": "About"
+        "message": "Tentang"
     },
     "html_success_great_success": {
-        "message": "Marvellous success!"
+        "message": "Keberhasilan luar biasa!"
     },
     "html_success_all_tabs_restored": {
-        "message": "All your tabs have been restored."
+        "message": "Semua tabmu telah dipulihkan."
     },
     "html_success_goto_advanced_prefix": {
-        "message": "For advanced session management, visit the"
+        "message": "Untuk manajemen sesi lanjutan, kunjungi"
     },
     "html_success_goto_advanced_suffix": {
-        "message": "page"
+        "message": "halaman"
     },
     "html_session_manager": {
-        "message": "session management"
+        "message": "Manajemen sesi"
     },
     "html_suspended_title": {
-        "message": "Suspended Tab"
+        "message": "Tab yang ditangguhkan"
     },
     "html_suspended_tab_suspended": {
-        "message": "Tab suspended"
+        "message": "Tab ditangguhkan"
     },
     "html_suspended_tab_reload": {
-        "message": "Reload tab"
+        "message": "Muat ulang tab"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Never suspend"
+        "message": "Jangan pernah menangguhkan"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Refresh or click to reload"
+        "message": "Refresh atau klik untuk memuat ulang"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "Kamu tidak terhubung ke Internet"
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "Automatic tab reloading is temporarily disabled."
+        "message": "Reload tab otomatis untuk sementara dinonaktifkan."
     },
     "html_permissions_title": {
-        "message": "Permissions"
+        "message": "Izin"
     },
     "html_permissions_heading": {
-        "message": "Please give me access to local file URLs"
+        "message": "Tolong beri saya akses ke URL file lokal"
     },
     "html_permissions_info": {
-        "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
+        "message": "Ekstensi ini saat ini tidak diizinkan untuk menangguhkan URL yang dimulai dengan kata \"file\".\n Untuk mengubah ini, silakan aktifkan \"Izinkan akses ke berkas URL\" dari halaman pengaturan ekstensi."
     },
     "html_permissions_backup": {
-        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
+        "message": "Harap diperhatikan: Mengubah opsi ini akan menyebabkan semua tab yang ditangguhkan milik Anda akan menghilang secara singkat.\nJika, sekarang mungkin adalah satu waktu yang tepat untuk menyimpan cadangan sesi tab Anda saat ini."
     },
     "html_update_title": {
-        "message": "Update"
+        "message": "Perbarui"
     },
     "html_update_heading2": {
-        "message": "is about to get greater"
+        "message": "akan menjadi lebih baik"
     },
     "html_update_info": {
-        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
+        "message": "Sebuah bersi baru dari The Marvellous Suspender siap dipasang.\nHarap diperhatikan: Selama pembaruan, tab yang ditangguhkan Anda akan menghilang sekilas."
     },
     "html_update_info_withbackup": {
-        "message": "Just in case, now might be a good time to save a backup of your current tab session."
+        "message": "Jika, sekarang mungkin adalah waktu yang tepat untuk menyimpan cadangan sesi tab Anda saat ini."
     },
     "html_update_info_nobackup_prefix": {
-        "message": "It is strongly recommended that you export a copy of your current session from "
+        "message": "Sangat disarankan agar Anda mengekspor sebuah salinan sesi Anda saat ini dari"
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " sebelum melanjutkan dengan pembaruan."
     },
     "html_updated_title": {
-        "message": "Updated"
+        "message": "Diperbarui"
     },
     "html_updating_heading": {
-        "message": "is updating"
+        "message": "sedang memperbarui"
     },
     "html_updating_message": {
-        "message": "Please wait while I restore your suspended tabs..."
+        "message": "Harap tunggu sementara saya memulihkan tab yang ditangguhkan milik Anda ..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "telah diperbarui"
     },
     "html_updated_info_line1": {
-        "message": "An automatic backup was made of your tabs before the update."
+        "message": "Cadangan otomatis terbuat dari tab Anda sebelum pembaruan."
     },
     "html_updated_info_line2_prefix": {
-        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
+        "message": "Jika Anda mengalami isu/masalah apa pun selama pembaruan, Anda dapat memulihkan tab yang hilang dari"
     },
     "html_updated_info_line2_suffix": {
-        "message": " page."
+        "message": " halaman."
     },
     "html_updated_detail_header_prefix": {
-        "message": "What's new in "
+        "message": "Apa yang baru di"
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
     },
     "html_updated_new_features_header": {
-        "message": "New features:"
+        "message": "Fitur baru:"
     },
     "html_updated_bug_fixes_header": {
-        "message": "Bug fixes:"
+        "message": "Perbaikan bug:"
     },
     "html_updated_release_notes": {
-        "message": "Visit GitHub for full release notes: "
+        "message": "Kunjungi GitHub untuk catatan rilis penuh:"
     },
     "html_updated_patch_message": {
-        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
+        "message": "Maaf atas gangguan tersebut. Saya hanya perlu melakukan sedikit pemeliharaan."
     },
     "html_welcome_title": {
-        "message": "Welcome"
+        "message": "Wilujeng Sumping"
     },
     "html_welcome_text_line1": {
-        "message": "Thanks for trying"
+        "message": "Terima kasih telah mencoba"
     },
     "html_welcome_text_line2": {
-        "message": "I make your computer run smoothly by suspending the tabs you aren't using."
+        "message": "Saya membuat komputer Anda berjalan dengan lancar dengan menangguhkan tab yang tidak Anda gunakan."
     },
     "html_welcome_text_line3": {
-        "message": "You can fine-tune the settings below."
+        "message": "Anda bisa menyempurnakan pengaturan di bawah ini."
     },
     "js_popup_normal": {
-        "message": "Tab will suspend automatically."
+        "message": "Tab akan ditangguhkan secara otomatis."
     },
     "js_popup_normal_pause": {
-        "message": "Not now"
+        "message": "Tidak sekarang"
     },
     "js_popup_special": {
-        "message": "Tab cannot be suspended"
+        "message": "Tab tidak bisa ditangguhkan"
     },
     "js_popup_suspended": {
-        "message": "Tab suspended"
+        "message": "Tab ditangguhkan"
     },
     "js_popup_suspended_pause": {
-        "message": "Don't suspend"
+        "message": "Jangan ditangguhkan"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "Situs telah diberikan daftar putih."
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remove from whitelist"
+        "message": "Hapus dari daftar putih"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "Tab sedang memainkan audio."
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "Tab sedang menerima input formulir."
     },
     "js_popup_form_input_unpause": {
-        "message": "Unpause"
+        "message": "BatalJeda"
     },
     "js_popup_pinned": {
-        "message": "Tab has been pinned"
+        "message": "Tab telah disematkan"
     },
     "js_popup_temp_whitelist": {
-        "message": "Tab suspension paused."
+        "message": "Penangguhan tab dijeda."
     },
     "js_popup_temp_whitelist_unpause": {
-        "message": "Unpause"
+        "message": "BatalJeda"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "Penangguhan tab secara otomatis dinonaktifkan."
     },
     "js_popup_no_connectivity": {
-        "message": "No network connection"
+        "message": "Tidak ada koneksi jaringan"
     },
     "js_popup_charging": {
-        "message": "Connected to power source"
+        "message": "Terhubung ke sumber daya (listrik)"
     },
     "js_popup_blockedFile": {
-        "message": "Local files cannot be suspended."
+        "message": "Berkas lokal tidak dapat ditangguhkan."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "Aktifkan"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "Menunggu tab untuk dimuat..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "Menunggu ekstensi untuk menginisialisasi..."
     },
     "js_popup_error": {
-        "message": "Auto-suspend unavailable for this tab"
+        "message": "Penangguhan-otomatis tidak tersedia untuk tab ini"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "hapus"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "ekspor"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "buka dan muat"
     },
     "js_history_resuspend": {
-        "message": "open and suspend"
+        "message": "buka dan tangguhkan"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "simpan"
     },
     "js_history_window": {
-        "message": "Window"
+        "message": "Jendela"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "Jendela"
     },
     "js_history_tab": {
         "message": "Tab"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Tab"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "Masukkan sebuah nama untuk sesi ini"
     },
     "js_history_confirm_delete": {
-        "message": "Are you sure you want to delete this session?"
+        "message": "Apakah kamu yakin ingin menghapus sesi ini?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "Sudah ada sesi yang disimpan dengan nama ini. Timpa sesi yang ada?"
     },
     "js_history_import_fail": {
-        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
+        "message": "Gagal memuat berkas. Pastikan berkas berupa teks biasa dan berisi sebuah URL tunggal per baris."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "Perlu ID ekstensi 32-karakter untuk migrasi dari"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "Tab $TABCOUNT$ berhasil dimigrasikan",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
@@ -740,48 +740,48 @@
         }
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remove site from whitelist"
+        "message": "Hapus situs dari daftar putih"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "Atur pintasan papan ketik"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "Tab ditangguhkan karena memori sistem rendah"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "Anda dalam mode penyamaran. Beberapa fitur tidak akan tersedia."
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "Tidak ada tab terbuka yang cocok dengan daftar putih saat ini."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "Tab terbuka yang diberikan daftar putih:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "dan"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "lebih."
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "Simpan cadangan"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "Buka pengaturan ekstensi"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "Kamu belum menyimpan sebuah cadangan. Lanjutkan perbarui ekstensi?"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "Simpan cadangan"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "Perbarui ekstensi sekarang"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "tidak diatur"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "Poin penyimpanan otomatis untuk v"
     }
 }
