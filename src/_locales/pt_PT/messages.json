@@ -3,28 +3,28 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Faça o seu computador funcionar sem problemas suspendendo as guias que você não está usando"
+        "message": "Faça o seu computador funcionar sem problemas suspendendo os separadores que não está a utilizar"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspender/Recarregar a guia ativa"
+        "message": "Suspender/Recarregar o separador ativo"
     },
     "ext_cmd_toggle_tab_pause_description": {
         "message": "Pausar/Retomar suspensão da guia ativa"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspender guias selecionadas"
+        "message": "Suspender separadores selecionados"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Recarregar guias selecionadas"
+        "message": "Reativar separadores selecionados"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspender todas as outras guias na janela ativa"
+        "message": "Suspender todos os outras separadores na janela ativa"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Forçar suspender todas as outras guias na janela ativa"
+        "message": "Forçar suspensão de todos os outros separadores na janela ativa"
     },
     "ext_cmd_unsuspend_active_window_description": {
         "message": "Recarregar todas as guias na janela ativa"
