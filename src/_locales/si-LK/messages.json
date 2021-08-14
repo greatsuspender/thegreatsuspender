@@ -423,7 +423,7 @@
         "message": "Suspend this tab now"
     },
     "html_popup_dont_suspend_now": {
-        "message": "Don't suspend for now"
+        "message": "දැනට අත්හිටුවන්න එපා"
     },
     "html_popup_never_suspend_domain": {
         "message": "Never suspend this domain"
@@ -447,7 +447,7 @@
         "message": "සැකසුම්"
     },
     "html_restoring_title": {
-        "message": "Restoring window"
+        "message": "කවුළුව ප්‍රත්‍යර්පණය වෙමින්"
     },
     "html_restoring_heading": {
         "message": "Restoring tabs"
@@ -549,7 +549,7 @@
         "message": "Permissions"
     },
     "html_permissions_heading": {
-        "message": "Please give me access to local file URLs"
+        "message": "මට ස්ථානීය ගොනු ඒ.ස.නි. වලට ප්‍රවේශය දෙන්න"
     },
     "html_permissions_info": {
         "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
@@ -618,7 +618,7 @@
         "message": "සාදරයෙන් පිළිගනිමු"
     },
     "html_welcome_text_line1": {
-        "message": "Thanks for trying"
+        "message": "උත්සාහ කළාට ස්තූතියි"
     },
     "html_welcome_text_line2": {
         "message": "I make your computer run smoothly by suspending the tabs you aren't using."
@@ -639,7 +639,7 @@
         "message": "Tab suspended"
     },
     "js_popup_suspended_pause": {
-        "message": "Don't suspend"
+        "message": "අත්හිටුවන්න එපා"
     },
     "js_popup_whitelisted": {
         "message": "Site whitelisted."
@@ -743,7 +743,7 @@
         "message": "Remove site from whitelist"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "යතුරුපුවරුවේ කෙටිමං සකසන්න"
     },
     "js_suspended_low_memory": {
         "message": "Tab suspended due to low system memory"
@@ -761,10 +761,10 @@
         "message": "සහ"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "තව."
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "උපස්ථය සුරකින්න"
     },
     "js_permissions_button_set": {
         "message": "Open extension settings"
@@ -773,13 +773,13 @@
         "message": "You have not saved a backup yet. Update the extension anyway?"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "උපස්ථය සුරකින්න"
     },
     "js_update_button_reload": {
         "message": "Update extension now"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "සකසා නැත"
     },
     "js_session_save_point": {
         "message": "Automatic save point for v"
