@@ -87,7 +87,7 @@
         "message": "доступно на GitHub, без рекламных трекеров"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", больше информации доступно в"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -153,16 +153,16 @@
         "message": "Ой-ой!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "не удалось запустить. Возможно, вы используете несовместимую версию Chrome?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Попробуйте перезапустить расширение. Если проблема не устранена, попросите помощи в"
     },
     "html_broken_line2_github_page": {
         "message": "Страница проекта на GitHub"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Вы можете восстановить потерянные вкладки из"
     },
     "html_broken_line3_session_management": {
         "message": "страница управления сессиями"
@@ -255,7 +255,7 @@
         "message": "Никогда не приостанавливать вкладки в режиме оффлайн"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Приостанавливать вкладку сразу же, если в адресной строке будет присутствовать 'suspended.html'"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Никогда не приостанавливать вкладки, когда подключён источник питания"
@@ -708,7 +708,7 @@
         "message": "Окно"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "Окна"
     },
     "js_history_tab": {
         "message": "Вкладка"
