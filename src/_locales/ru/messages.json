@@ -147,10 +147,10 @@
         "message": "."
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "сломан"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "Ой-ой!"
     },
     "html_broken_line1": {
         "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
@@ -159,16 +159,16 @@
         "message": "Try to restart the extension. If the problem persists, ask for help on the"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "Страница проекта на GitHub"
     },
     "html_broken_line3": {
         "message": "You can recover lost tabs from the"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "страница управления сессиями"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Перезапустить расширение"
     },
     "html_history_title": {
         "message": "Управление сессиями"
