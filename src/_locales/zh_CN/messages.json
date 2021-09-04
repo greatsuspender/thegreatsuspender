@@ -147,10 +147,10 @@
         "message": "."
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "已损坏"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "哦吼！"
     },
     "html_broken_line1": {
         "message": "启动失败。也许您正在使用不兼容的Chrome版本？"
@@ -162,7 +162,7 @@
         "message": "GitHub 项目页"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "您可以从这里恢复丢失的标签页:"
     },
     "html_broken_line3_session_management": {
         "message": "会话管理页面"
@@ -255,7 +255,7 @@
         "message": "只在联网时才自动冻结"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "默认声明(无缝迁移；如果'suspended.html'在网址中，标签页视为已暂停)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "只在未充电时才自动冻结"
@@ -708,7 +708,7 @@
         "message": " 个窗口"
     },
     "js_history_windows": {
-        "message": "窗口"
+        "message": "个窗口"
     },
     "js_history_tab": {
         "message": " 个标签页"
