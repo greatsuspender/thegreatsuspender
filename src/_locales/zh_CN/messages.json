@@ -84,10 +84,10 @@
         "message": "基于最初的"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "在 GitHub 上可用，没有 ADS 跟踪"
     },
     "html_about_fork_end": {
-        "message": ", 更多可用信息"
+        "message": "，更多信息在"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -153,22 +153,22 @@
         "message": "Ruh Roh!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "启动失败。也许您正在使用不兼容的Chrome版本？"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "请尝试重新启动扩展。如果问题仍然存在，请在下面寻求帮助"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "GitHub 项目页"
     },
     "html_broken_line3": {
         "message": "You can recover lost tabs from the"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "会话管理页面"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "重启扩展"
     },
     "html_history_title": {
         "message": "会话管理"
@@ -714,7 +714,7 @@
         "message": " 个标签页"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "标签页"
     },
     "js_history_enter_name_for_session": {
         "message": "为此会话命名"
