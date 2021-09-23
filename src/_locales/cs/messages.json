@@ -228,19 +228,19 @@
         "message": "hour"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "hodiny"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "den"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "dny"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "týden"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "týdny"
     },
     "html_options_suspend_no_pinned": {
         "message": "Never suspend pinned tabs"
@@ -495,13 +495,13 @@
         "message": "Change shortcuts"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "Nastavení"
     },
     "html_sidebar_session_management": {
         "message": "Session management"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Klávesové zkratky"
     },
     "html_sidebar_support": {
         "message": "About"
