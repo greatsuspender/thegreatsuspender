@@ -117,16 +117,16 @@
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Toto rozšíření používá"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "knihovnu napsanou Niklasem von Hertzenem."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Také používá indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
         "message": "written by Aaron Powell."
@@ -141,7 +141,7 @@
         "message": "for providing free chrome testing tools."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Toto rozšíření by nikdy nemohlo existovat bez"
     },
     "html_about_tgs_suffix": {
         "message": "."
