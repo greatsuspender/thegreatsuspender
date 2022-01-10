@@ -9,76 +9,76 @@
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "アクティブなタブを一時停止/停止解除"
+        "message": "アクティブなタブをサスペンド/サスペンド解除"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "アクティブなタブのポーズ/ポーズ解除"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "選択したタブをサスペンド"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "選択したタブをサスペンド解除"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "アクティブなウィンドウ内の他のすべてのタブをサスペンド"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "アクティブなウィンドウ内の他のすべてのタブを強制的にサスペンド"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "アクティブなウィンドウ内の他のすべてのタブをサスペンド解除"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブをサスペンド"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブを強制的にサスペンド"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブをサスペンド解除"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "リンクを新しいサスペンドされたタブで開く"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "このタブをサスペンド/サスペンド解除"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "このタブをポーズ/ポーズ解除"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "このドメインをサスペンドしない"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "このURLをサスペンドしない"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "選択したタブをサスペンド"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "選択したタブをサスペンド解除"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "このウィンドウ内の他のすべてのタブをサスペンド"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "このウィンドウ内の他のすべてのタブを強制的にサスペンド"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "このウィンドウ内の他のすべてのタブをサスペンド解除"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブをサスペンド"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブを強制的にサスペンド"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "すべてのウィンドウ内のすべてのタブをサスペンド解除"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "このアプリについて"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
@@ -99,13 +99,13 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "フィードバックがある場合、または問題を報告したい場合は、以下で行うことができます:"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": "新しく作成する前に、同じ提案や問題が既に存在しているかどうかを確認してください。ありがとうございます！"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "ログを有効にするか、デバッグフラグを設定するには、次に移動します: "
     },
     "html_about_debugging_suffix": {
         "message": "debug page."
@@ -159,31 +159,31 @@
         "message": "Try to restart the extension. If the problem persists, ask for help on the"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "GitHubのプロジェクトページ"
     },
     "html_broken_line3": {
         "message": "You can recover lost tabs from the"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "セッション管理ページ"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "拡張機能を再起動"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "セッション管理"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "現在のセッション"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "最近のセッション"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "保存されたセッション"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "セッションをインポート"
     },
     "html_history_migrate_tabs": {
         "message": "Migrate tabs"
