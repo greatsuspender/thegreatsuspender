@@ -3,13 +3,13 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "使用していないタブを一時停止して、コンピューターをスムーズに動作させます"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "アクティブなタブを一時停止/停止解除"
     },
     "ext_cmd_toggle_tab_pause_description": {
         "message": "Pause/Unpause suspension of active tab"
