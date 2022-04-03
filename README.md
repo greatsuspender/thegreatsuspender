@@ -4,7 +4,7 @@
 
 "**The Marvellous Suspender**" is a free and open-source Google Chrome extension for people who find that chrome is consuming too much system resource or suffer from frequent chrome crashing. Totally based on the original "[The Great Suspender](https://github.com/greatsuspender/thegreatsuspender)" but without ADS tracking and problems explained [in this GitHub issue](https://github.com/greatsuspender/thegreatsuspender/issues/1263).
 
-Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a while, freeing up memory and CPU that the tab was consuming.
+Once installed and enabled, this extension will automatically *suspend* tabs that have not been used for a default, or user-configurable, time interval. As a result, resources such as memory and CPU that the tab was consuming are freed.
 
 If you have suggestions or problems using the extension, please [submit a bug or a feature request](https://github.com/gioxx/MarvellousSuspender/issues/).
 
