@@ -3,28 +3,28 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Faça o seu computador funcionar sem problemas suspendendo as guias que você não está usando"
+        "message": "Faça o seu computador funcionar sem problemas suspendendo os separadores que não está a utilizar"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspender/Recarregar a guia ativa"
+        "message": "Suspender/Recarregar o separador ativo"
     },
     "ext_cmd_toggle_tab_pause_description": {
         "message": "Pausar/Retomar suspensão da guia ativa"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspender guias selecionadas"
+        "message": "Suspender separadores selecionados"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Recarregar guias selecionadas"
+        "message": "Reativar separadores selecionados"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspender todas as outras guias na janela ativa"
+        "message": "Suspender todos os outras separadores na janela ativa"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Forçar suspender todas as outras guias na janela ativa"
+        "message": "Forçar suspensão de todos os outros separadores na janela ativa"
     },
     "ext_cmd_unsuspend_active_window_description": {
         "message": "Recarregar todas as guias na janela ativa"
@@ -84,10 +84,10 @@
         "message": "Baseado no original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "disponível no GitHub, sem rastreamento de ADS"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", mais informações disponíveis em"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -147,28 +147,28 @@
         "message": "."
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "não funciona"
     },
     "html_broken_ruh_roh": {
-        "message": "Ruh Roh!"
+        "message": "Oops!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "falha ao iniciar. Talvez você esteja a utilizar uma versão incompatível do Chrome?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Tente reiniciar a extensão. Se o problema persistir, peça ajuda no"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "Página do projeto no GitHub"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Pode recuperar os separadores perdidos no"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "página de gestão da sessão"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Reiniciar extensão"
     },
     "html_history_title": {
         "message": "Gerenciamento de sessão"
@@ -255,7 +255,7 @@
         "message": "Nunca suspender as guias quando estiver off-line"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Reivindicar por padrão (migração sem interrupções; considere o spearador suspenso se 'suspenso.html' estiver no url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Nunca suspender as guias quando estiver conectado à fonte de energia"
@@ -714,7 +714,7 @@
         "message": "Guia"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Separadores"
     },
     "js_history_enter_name_for_session": {
         "message": "Digite um nome para esta sessão"

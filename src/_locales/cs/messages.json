@@ -3,82 +3,82 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "使用していないタブを一時停止して、コンピューターをスムーズに動作させます"
+        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "アクティブなタブをサスペンド/サスペンド解除"
+        "message": "Suspend/Unsuspend active tab"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "アクティブなタブのポーズ/ポーズ解除"
+        "message": "Pause/Unpause suspension of active tab"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "選択したタブをサスペンド"
+        "message": "Suspend selected tabs"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "選択したタブをサスペンド解除"
+        "message": "Unsuspend selected tabs"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "アクティブなウィンドウ内の他のすべてのタブをサスペンド"
+        "message": "Suspend all other tabs in active window"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "アクティブなウィンドウ内の他のすべてのタブを強制的にサスペンド"
+        "message": "Force suspend all other tabs in active window"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "アクティブなウィンドウ内の他のすべてのタブをサスペンド解除"
+        "message": "Unsuspend all tabs in active window"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "すべてのウィンドウ内のすべてのタブをサスペンド"
+        "message": "Suspend all tabs in all windows"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "すべてのウィンドウ内のすべてのタブを強制的にサスペンド"
+        "message": "Force suspend all tabs in all windows"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "すべてのウィンドウ内のすべてのタブをサスペンド解除"
+        "message": "Unsuspend all tabs in all windows"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "リンクを新しいサスペンドされたタブで開く"
+        "message": "Open Link in New Suspended Tab"
     },
     "js_context_toggle_suspend_state": {
-        "message": "このタブをサスペンド/サスペンド解除"
+        "message": "Suspend/Unsuspend this tab"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "このタブをポーズ/ポーズ解除"
+        "message": "Pause/Unpause suspension of this tab"
     },
     "js_context_never_suspend_domain": {
-        "message": "このドメインをサスペンドしない"
+        "message": "Never suspend this domain"
     },
     "js_context_never_suspend_page": {
-        "message": "このURLをサスペンドしない"
+        "message": "Never suspend this URL"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "選択したタブをサスペンド"
+        "message": "Suspend selected tabs"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "選択したタブをサスペンド解除"
+        "message": "Unsuspend selected tabs"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "このウィンドウ内の他のすべてのタブをサスペンド"
+        "message": "Suspend all other tabs in this window"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "このウィンドウ内の他のすべてのタブを強制的にサスペンド"
+        "message": "Force suspend all other tabs in this window"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "このウィンドウ内の他のすべてのタブをサスペンド解除"
+        "message": "Unsuspend all tabs in this window"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "すべてのウィンドウ内のすべてのタブをサスペンド"
+        "message": "Suspend all tabs in all windows"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "すべてのウィンドウ内のすべてのタブを強制的にサスペンド"
+        "message": "Force suspend all tabs in all windows"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "すべてのウィンドウ内のすべてのタブをサスペンド解除"
+        "message": "Unsuspend all tabs in all windows"
     },
     "html_about_title": {
-        "message": "このアプリについて"
+        "message": "About"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
@@ -99,13 +99,13 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "フィードバックがある場合、または問題を報告したい場合は、以下で行うことができます:"
+        "message": "If you have feedback or would like to report an issue, you can do so on the"
     },
     "html_about_report_issues_suffix": {
-        "message": "新しく作成する前に、同じ提案や問題が既に存在しているかどうかを確認してください。ありがとうございます！"
+        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
     },
     "html_about_debugging_prefix": {
-        "message": "ログを有効にするか、デバッグフラグを設定するには、次に移動します: "
+        "message": "To enable logging, or to set debugging flags, go to the "
     },
     "html_about_debugging_suffix": {
         "message": "debug page."
@@ -117,16 +117,16 @@
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Toto rozšíření používá"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "knihovnu napsanou Niklasem von Hertzenem."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Také používá indexedDb wrapper"
     },
     "html_about_indexedDb_suffix": {
         "message": "written by Aaron Powell."
@@ -141,7 +141,7 @@
         "message": "for providing free chrome testing tools."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Toto rozšíření by nikdy nemohlo existovat bez"
     },
     "html_about_tgs_suffix": {
         "message": "."
@@ -159,31 +159,31 @@
         "message": "Try to restart the extension. If the problem persists, ask for help on the"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHubのプロジェクトページ"
+        "message": "GitHub project page"
     },
     "html_broken_line3": {
         "message": "You can recover lost tabs from the"
     },
     "html_broken_line3_session_management": {
-        "message": "セッション管理ページ"
+        "message": "session management page"
     },
     "html_broken_button_restart_extension": {
-        "message": "拡張機能を再起動"
+        "message": "Restart extension"
     },
     "html_history_title": {
-        "message": "セッション管理"
+        "message": "Session management"
     },
     "html_history_current_session": {
-        "message": "現在のセッション"
+        "message": "Current session"
     },
     "html_history_recent_sessions": {
-        "message": "最近のセッション"
+        "message": "Recent sessions"
     },
     "html_history_saved_sessions": {
-        "message": "保存されたセッション"
+        "message": "Saved sessions"
     },
     "html_history_import_session": {
-        "message": "セッションをインポート"
+        "message": "Import session"
     },
     "html_history_migrate_tabs": {
         "message": "Migrate tabs"
@@ -228,19 +228,19 @@
         "message": "hour"
     },
     "html_options_suspend_hours": {
-        "message": "hours"
+        "message": "hodiny"
     },
     "html_options_suspend_day": {
-        "message": "day"
+        "message": "den"
     },
     "html_options_suspend_days": {
-        "message": "days"
+        "message": "dny"
     },
     "html_options_suspend_week": {
-        "message": "week"
+        "message": "týden"
     },
     "html_options_suspend_weeks": {
-        "message": "weeks"
+        "message": "týdny"
     },
     "html_options_suspend_no_pinned": {
         "message": "Never suspend pinned tabs"
@@ -495,13 +495,13 @@
         "message": "Change shortcuts"
     },
     "html_sidebar_general_settings": {
-        "message": "Settings"
+        "message": "Nastavení"
     },
     "html_sidebar_session_management": {
         "message": "Session management"
     },
     "html_sidebar_shortcuts": {
-        "message": "Keyboard shortcuts"
+        "message": "Klávesové zkratky"
     },
     "html_sidebar_support": {
         "message": "About"
