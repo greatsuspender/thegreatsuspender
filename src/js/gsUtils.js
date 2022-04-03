@@ -128,20 +128,21 @@ var gsUtils = {
     return tab.discarded;
   },
 
+  getTabUrl: function (tab) {
+    return tab.url || tab.pendingUrl;
+  },
+
   isValidTabWithUrl: function(tab) {
     if (!tab || typeof tab == "undefined") {
       return false;
     }
-    const url = tab.url || tab.pendingUrl;
+    const url = gsUtils.getTabUrl(tab);
     if (url && typeof url == "string" && url.length > 0) {
       return true;
     }
     return false;
   },
 
-  getTabUrl: function(tab) {
-    return tab.url || tab.pendingUrl;
-  },
 
   //tests for non-standard web pages. does not check for suspended pages!
   isSpecialTab: function(tab) {
