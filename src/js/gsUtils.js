@@ -23,25 +23,25 @@ var gsUtils = {
   STATUS_UNKNOWN: 'unknown',
 
   // eslint-disable-line no-unused-vars
-  contains: function (array, value) {
+  contains: function(array, value) {
     for (var i = 0; i < array.length; i++) {
       if (array[i] === value) return true;
     }
     return false;
   },
 
-  dir: function (object) {
+  dir: function(object) {
     if (debugInfo) {
       console.dir(object);
     }
   },
-  log: function (id, text, ...args) {
+  log: function(id, text, ...args) {
     if (debugInfo) {
       args = args || [];
       console.log(id, (new Date() + '').split(' ')[4], text, ...args);
     }
   },
-  warning: function (id, text, ...args) {
+  warning: function(id, text, ...args) {
     if (debugError) {
       args = args || [];
       const ignores = ['Error', 'gsUtils', 'gsMessages'];
@@ -60,7 +60,7 @@ var gsUtils = {
       );
     }
   },
-  errorIfInitialised: function (id, errorObj, ...args) {
+  errorIfInitialised: function(id, errorObj, ...args) {
     args = args || [];
     if (gsSession.isInitialising()) {
       gsUtils.warning(id, errorObj, args);
@@ -68,7 +68,7 @@ var gsUtils = {
       gsUtils.error(id, errorObj, args);
     }
   },
-  error: function (id, errorObj, ...args) {
+  error: function(id, errorObj, ...args) {
     if (errorObj === undefined) {
       errorObj = id;
       id = '?';
@@ -102,41 +102,56 @@ var gsUtils = {
     errorString += `\n${stackTrace}`;
     return errorString;
   },
-  getStackTrace: function () {
+  getStackTrace: function() {
     var obj = {};
     Error.captureStackTrace(obj, gsUtils.getStackTrace);
     return obj.stack;
   },
 
-  isDebugInfo: function () {
+  isDebugInfo: function() {
     return debugInfo;
   },
 
-  isDebugError: function () {
+  isDebugError: function() {
     return debugError;
   },
 
-  setDebugInfo: function (value) {
+  setDebugInfo: function(value) {
     debugInfo = value;
   },
 
-  setDebugError: function (value) {
+  setDebugError: function(value) {
     debugError = value;
   },
 
-  isDiscardedTab: function (tab) {
+  isDiscardedTab: function(tab) {
     return tab.discarded;
   },
 
-  //tests for non-standard web pages. does not check for suspended pages!
-  isSpecialTab: function (tab) {
+  isValidTabWithUrl: function(tab) {
+    if (!tab || typeof tab == "undefined") {
+      return false;
+    }
     const url = tab.url || tab.pendingUrl;
-    if (!tab || typeof tab === "undefined") {
+    if (url && typeof url == "string" && url.length > 0) {
+      return true;
+    }
+    return false;
+  },
+
+  getTabUrl: function(tab) {
+    return tab.url || tab.pendingUrl;
+  },
+
+  //tests for non-standard web pages. does not check for suspended pages!
+  isSpecialTab: function(tab) {
+    if (!gsUtils.isValidTabWithUrl(tab)) {
       return false;
     }
     if (gsUtils.isSuspendedTab(tab, true)) {
       return false;
     }
+    const url = gsUtils.getTabUrl(tab);
     // Careful, suspended urls start with "chrome-extension://"
     if (
       url.indexOf('about') === 0 ||
@@ -150,8 +165,11 @@ var gsUtils = {
     return false;
   },
 
-  isFileTab: function (tab) {
-    const url = tab.url || tab.pendingUrl;
+  isFileTab: function(tab) {
+    if (!gsUtils.isValidTabWithUrl(tab)) {
+      return false;
+    }
+    const url = gsUtils.getTabUrl(tab);
     if (url.indexOf('file') === 0) {
       return true;
     }
@@ -160,7 +178,7 @@ var gsUtils = {
 
   //tests if the page is a file:// page AND the user has not enabled access to
   //file URLs in extension settings
-  isBlockedFileTab: function (tab) {
+  isBlockedFileTab: function(tab) {
     if (gsUtils.isFileTab(tab) && !gsSession.isFileUrlsAccessAllowed()) {
       return true;
     }
@@ -168,24 +186,27 @@ var gsUtils = {
   },
 
   //does not include suspended pages!
-  isInternalTab: function (tab) {
-    const url = tab.url || tab.pendingUrl;
+  isInternalTab: function(tab) {
+    if (!gsUtils.isValidTabWithUrl(tab)) {
+      return false;
+    }
+    const url = gsUtils.getTabUrl(tab);
     var isLocalExtensionPage =
       url.indexOf('chrome-extension://' + chrome.runtime.id) === 0;
     return isLocalExtensionPage && !gsUtils.isSuspendedTab(tab);
   },
 
-  isProtectedPinnedTab: function (tab) {
+  isProtectedPinnedTab: function(tab) {
     var dontSuspendPinned = gsStorage.getOption(gsStorage.IGNORE_PINNED);
     return dontSuspendPinned && tab.pinned;
   },
 
-  isProtectedAudibleTab: function (tab) {
+  isProtectedAudibleTab: function(tab) {
     var dontSuspendAudible = gsStorage.getOption(gsStorage.IGNORE_AUDIO);
     return dontSuspendAudible && tab.audible;
   },
 
-  isProtectedActiveTab: function (tab) {
+  isProtectedActiveTab: function(tab) {
     var dontSuspendActiveTabs = gsStorage.getOption(
       gsStorage.IGNORE_ACTIVE_TABS,
     );
@@ -195,7 +216,7 @@ var gsUtils = {
   },
 
   // Note: Normal tabs may be in a discarded state
-  isNormalTab: function (tab, excludeDiscarded) {
+  isNormalTab: function(tab, excludeDiscarded) {
     excludeDiscarded = excludeDiscarded || false;
     return (
       !gsUtils.isSpecialTab(tab) &&
@@ -204,12 +225,12 @@ var gsUtils = {
     );
   },
 
-  isSuspendedTab: function (tab, looseMatching) {
+  isSuspendedTab: function(tab, looseMatching) {
     const url = tab.url || tab.pendingUrl;
     return gsUtils.isSuspendedUrl(url, looseMatching);
   },
 
-  isSuspendedUrl: function (url, looseMatching) {
+  isSuspendedUrl: function(url, looseMatching) {
     if (!url) {
       return false;
     } else if (looseMatching) {
@@ -219,7 +240,7 @@ var gsUtils = {
     }
   },
 
-  shouldSuspendDiscardedTabs: function () {
+  shouldSuspendDiscardedTabs: function() {
     var suspendInPlaceOfDiscard = gsStorage.getOption(
       gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     );
@@ -229,7 +250,7 @@ var gsUtils = {
     return suspendInPlaceOfDiscard && !discardInPlaceOfSuspend;
   },
 
-  removeTabsByUrlAsPromised: function (url) {
+  removeTabsByUrlAsPromised: function(url) {
     return new Promise(async resolve => {
       const tabs = await gsChrome.tabsQuery({ url });
       chrome.tabs.remove(tabs.map(o => o.id), () => {
@@ -238,7 +259,7 @@ var gsUtils = {
     });
   },
 
-  createTabAndWaitForFinishLoading: function (url, maxWaitTimeInMs) {
+  createTabAndWaitForFinishLoading: function(url, maxWaitTimeInMs) {
     return new Promise(async resolve => {
       let tab = await gsChrome.tabsCreate(url);
       maxWaitTimeInMs = maxWaitTimeInMs || 1000;
@@ -255,7 +276,7 @@ var gsUtils = {
     });
   },
 
-  createWindowAndWaitForFinishLoading: function (createData, maxWaitTimeInMs) {
+  createWindowAndWaitForFinishLoading: function(createData, maxWaitTimeInMs) {
     return new Promise(async resolve => {
       let window = await gsChrome.windowsCreate(createData);
       maxWaitTimeInMs = maxWaitTimeInMs || 1000;
@@ -272,26 +293,26 @@ var gsUtils = {
     });
   },
 
-  checkWhiteList: function (url) {
+  checkWhiteList: function(url) {
     return gsUtils.checkSpecificWhiteList(
       url,
       gsStorage.getOption(gsStorage.WHITELIST),
     );
   },
 
-  checkSpecificWhiteList: function (url, whitelistString) {
+  checkSpecificWhiteList: function(url, whitelistString) {
     var whitelistItems = whitelistString
       ? whitelistString.split(/[\s\n]+/)
       : [],
       whitelisted;
 
-    whitelisted = whitelistItems.some(function (item) {
+    whitelisted = whitelistItems.some(function(item) {
       return gsUtils.testForMatch(item, url);
     }, this);
     return whitelisted;
   },
 
-  removeFromWhitelist: function (url) {
+  removeFromWhitelist: function(url) {
     var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '',
       whitelistItems = oldWhitelistString.split(/[\s\n]+/).sort(),
       i;
@@ -312,7 +333,7 @@ var gsUtils = {
     );
   },
 
-  testForMatch: function (whitelistItem, word) {
+  testForMatch: function(whitelistItem, word) {
     if (whitelistItem.length < 1) {
       return false;
 
@@ -336,7 +357,7 @@ var gsUtils = {
     }
   },
 
-  saveToWhitelist: function (newString) {
+  saveToWhitelist: function(newString) {
     var oldWhitelistString = gsStorage.getOption(gsStorage.WHITELIST) || '';
     var newWhitelistString = oldWhitelistString + '\n' + newString;
     newWhitelistString = gsUtils.cleanupWhitelist(newWhitelistString);
@@ -350,7 +371,7 @@ var gsUtils = {
     );
   },
 
-  cleanupWhitelist: function (whitelist) {
+  cleanupWhitelist: function(whitelist) {
     var whitelistItems = whitelist ? whitelist.split(/[\s\n]+/).sort() : '',
       i,
       j;
@@ -371,20 +392,20 @@ var gsUtils = {
     }
   },
 
-  documentReadyAsPromised: function (doc) {
-    return new Promise(function (resolve) {
+  documentReadyAsPromised: function(doc) {
+    return new Promise(function(resolve) {
       if (doc.readyState !== 'loading') {
         resolve();
       } else {
-        doc.addEventListener('DOMContentLoaded', function () {
+        doc.addEventListener('DOMContentLoaded', function() {
           resolve();
         });
       }
     });
   },
 
-  localiseHtml: function (parentEl) {
-    let replaceTagFunc = function (match, p1) {
+  localiseHtml: function(parentEl) {
+    let replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
     for (let el of parentEl.getElementsByTagName('*')) {
@@ -405,7 +426,7 @@ var gsUtils = {
     }
   },
 
-  documentReadyAndLocalisedAsPromised: async function (doc) {
+  documentReadyAndLocalisedAsPromised: async function(doc) {
     await gsUtils.documentReadyAsPromised(doc);
     gsUtils.localiseHtml(doc);
     if (doc.body && doc.body.hidden) {
@@ -413,7 +434,7 @@ var gsUtils = {
     }
   },
 
-  generateSuspendedUrl: function (url, title, scrollPos) {
+  generateSuspendedUrl: function(url, title, scrollPos) {
     let encodedTitle = gsUtils.encodeString(title);
     var args =
       '#' +
@@ -429,7 +450,7 @@ var gsUtils = {
     return chrome.extension.getURL('suspended.html' + args);
   },
 
-  getRootUrl: function (url, includePath, includeScheme) {
+  getRootUrl: function(url, includePath, includeScheme) {
     let rootUrlStr = url;
     let scheme;
 
@@ -470,7 +491,7 @@ var gsUtils = {
     return rootUrlStr;
   },
 
-  getHashVariable: function (key, urlStr) {
+  getHashVariable: function(key, urlStr) {
     var valuesByKey = {},
       keyPairRegEx = /^(.+)=(.+)/,
       hashStr;
@@ -493,7 +514,7 @@ var gsUtils = {
       hashStr = hashStr.substr(0, uriIndex);
     }
 
-    hashStr.split('&').forEach(function (keyPair) {
+    hashStr.split('&').forEach(function(keyPair) {
       if (keyPair && keyPair.match(keyPairRegEx)) {
         valuesByKey[keyPair.replace(keyPairRegEx, '$1')] = keyPair.replace(
           keyPairRegEx,
@@ -503,19 +524,19 @@ var gsUtils = {
     });
     return valuesByKey[key] || false;
   },
-  getSuspendedTitle: function (urlStr) {
+  getSuspendedTitle: function(urlStr) {
     return gsUtils.decodeString(gsUtils.getHashVariable('ttl', urlStr) || '');
   },
-  getSuspendedScrollPosition: function (urlStr) {
+  getSuspendedScrollPosition: function(urlStr) {
     return gsUtils.decodeString(gsUtils.getHashVariable('pos', urlStr) || '');
   },
-  getOriginalUrl: function (urlStr) {
+  getOriginalUrl: function(urlStr) {
     return (
       gsUtils.getHashVariable('uri', urlStr) ||
       gsUtils.decodeString(gsUtils.getHashVariable('url', urlStr) || '')
     );
   },
-  getCleanTabTitle: function (tab) {
+  getCleanTabTitle: function(tab) {
     let cleanedTitle = gsUtils.decodeString(tab.title);
     if (
       !cleanedTitle ||
@@ -532,14 +553,14 @@ var gsUtils = {
     }
     return cleanedTitle;
   },
-  decodeString: function (string) {
+  decodeString: function(string) {
     try {
       return decodeURIComponent(string);
     } catch (e) {
       return string;
     }
   },
-  encodeString: function (string) {
+  encodeString: function(string) {
     try {
       return encodeURIComponent(string);
     } catch (e) {
@@ -547,7 +568,7 @@ var gsUtils = {
     }
   },
 
-  formatHotkeyString: function (hotkeyString) {
+  formatHotkeyString: function(hotkeyString) {
     return hotkeyString
       .replace(/Command/, '⌘')
       .replace(/[⌘\u2318]/, ' ⌘ ')
@@ -560,7 +581,7 @@ var gsUtils = {
       .replace(/[ ]/g, ' \u00B7 ');
   },
 
-  getSuspendedTabCount: async function () {
+  getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();
     const currentSuspendedTabs = currentTabs.filter(tab =>
       gsUtils.isSuspendedTab(tab),
@@ -568,18 +589,18 @@ var gsUtils = {
     return currentSuspendedTabs.length;
   },
 
-  htmlEncode: function (text) {
+  htmlEncode: function(text) {
     return document
       .createElement('pre')
       .appendChild(document.createTextNode(text)).parentNode.innerHTML;
   },
 
-  getChromeVersion: function () {
+  getChromeVersion: function() {
     var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
     return raw ? parseInt(raw[2], 10) : false;
   },
 
-  generateHashCode: function (text) {
+  generateHashCode: function(text) {
     var hash = 0,
       i,
       chr,
@@ -593,7 +614,7 @@ var gsUtils = {
     return Math.abs(hash);
   },
 
-  getAllExpiredTabs: function (callback) {
+  getAllExpiredTabs: function(callback) {
     var expiredTabs = [];
     chrome.tabs.query({}, tabs => {
       for (const tab of tabs) {
@@ -613,13 +634,13 @@ var gsUtils = {
     });
   },
 
-  performPostSaveUpdates: function (
+  performPostSaveUpdates: function(
     changedSettingKeys,
     oldValueBySettingKey,
     newValueBySettingKey,
   ) {
-    chrome.tabs.query({}, function (tabs) {
-      tabs.forEach(function (tab) {
+    chrome.tabs.query({}, function(tabs) {
+      tabs.forEach(function(tab) {
         if (gsUtils.isSpecialTab(tab)) {
           return;
         }
@@ -717,7 +738,7 @@ var gsUtils = {
             (gsUtils.checkSpecificWhiteList(
               tab.url,
               oldValueBySettingKey[gsStorage.WHITELIST],
-            ) &&
+              ) &&
               !gsUtils.checkSpecificWhiteList(
                 tab.url,
                 newValueBySettingKey[gsStorage.WHITELIST],
@@ -765,9 +786,9 @@ var gsUtils = {
     }
   },
 
-  getWindowFromSession: function (windowId, session) {
+  getWindowFromSession: function(windowId, session) {
     var window = false;
-    session.windows.some(function (curWindow) {
+    session.windows.some(function(curWindow) {
       //leave this as a loose matching as sometimes it is comparing strings. other times ints
       if (curWindow.id == windowId) {
         // eslint-disable-line eqeqeq
@@ -778,7 +799,7 @@ var gsUtils = {
     return window;
   },
 
-  removeInternalUrlsFromSession: function (session) {
+  removeInternalUrlsFromSession: function(session) {
     if (!session || !session.windows) {
       return;
     }
@@ -796,7 +817,7 @@ var gsUtils = {
     }
   },
 
-  getSimpleDate: function (date) {
+  getSimpleDate: function(date) {
     var d = new Date(date);
     return (
       ('0' + d.getDate()).slice(-2) +
@@ -811,21 +832,21 @@ var gsUtils = {
     );
   },
 
-  getHumanDate: function (date) {
+  getHumanDate: function(date) {
     var monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ],
       d = new Date(date),
       currentDate = d.getDate(),
       currentMonth = d.getMonth(),
@@ -862,12 +883,12 @@ var gsUtils = {
     );
   },
 
-  debounce: function (func, wait) {
+  debounce: function(func, wait) {
     var timeout;
-    return function () {
+    return function() {
       var context = this,
         args = arguments;
-      var later = function () {
+      var later = function() {
         timeout = null;
         func.apply(context, args);
       };
@@ -876,13 +897,13 @@ var gsUtils = {
     };
   },
 
-  setTimeout: async function (timeout) {
+  setTimeout: async function(timeout) {
     return new Promise(resolve => {
       window.setTimeout(resolve, timeout);
     });
   },
 
-  executeWithRetries: async function (
+  executeWithRetries: async function(
     promiseFn,
     fnArgsArray,
     maxRetries,
