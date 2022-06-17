@@ -183,16 +183,16 @@
         "message": "Saved sessions"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "වාරය අයාතය"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "පටිති සංක්‍රමණය"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "පරණ TGS දිගුවේ හැඳු."
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "දැන්වීම"
     },
     "html_notice_important_notice": {
         "message": "Important notice from The Marvellous Suspender"
@@ -201,19 +201,19 @@
         "message": "සැකසුම්"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "ස්වයංක්‍රීය පටිති අත්හිටුවීම"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "අත්හිටවූ පටිති"
     },
     "html_options_other_title": {
         "message": "වෙනත්"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "පසුව ස්වයංක්‍රීයව පටිති අත්හිටුවන්න"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "කවදාවත්"
     },
     "html_options_suspend_seconds": {
         "message": "තත්පර"
@@ -243,7 +243,7 @@
         "message": "සති"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "ඇමුණූ පටිති අත්හිටුවන්න එපා"
     },
     "html_options_suspend_no_forms": {
         "message": "Never suspend tabs that contain unsaved form inputs"
@@ -294,7 +294,7 @@
         "message": "තේමාව"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "දීප්ත"
     },
     "html_options_suspend_theme_dark": {
         "message": "අඳුරු"
@@ -348,7 +348,7 @@
         "message": "Enabling high quality screen capture mode may significantly increase CPU load"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "සහ මතකය භාවිතය."
     },
     "html_options_whitelist_title": {
         "message": "Never suspend tabs with URLs from the following list:"
