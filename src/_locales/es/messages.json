@@ -294,16 +294,16 @@
         "message": "Tema"
     },
     "html_options_suspend_theme_light": {
-        "message": "Brillante"
+        "message": "Claro"
     },
     "html_options_suspend_theme_dark": {
         "message": "Oscuro"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Pantalla de grabación"
+        "message": "Captura de pantalla"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Discapacitada"
+        "message": "Deshabilitada"
     },
     "html_options_suspend_screen_capturing_screen_only": {
         "message": "Capturar solo la parte superior de la pantalla"
