@@ -264,7 +264,7 @@
         "message": "Nunca suspender la pestaña activa en cada ventana"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Dessuspender automáticamente la pestaña cuando sea vista"
+        "message": "Anular suspensión automáticamente de la pestaña cuando sea vista"
     },
     "html_options_suspend_discard_after_suspend": {
         "message": "Aplicar el ahorro de memoria integrado de Chrome al suspender"
