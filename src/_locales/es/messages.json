@@ -264,7 +264,7 @@
         "message": "Nunca suspender la pestaña activa en cada ventana"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Dessuspender automáticamente la pestaña cuando sea vista"
+        "message": "Anular suspensión automáticamente de la pestaña cuando sea vista"
     },
     "html_options_suspend_discard_after_suspend": {
         "message": "Aplicar el ahorro de memoria integrado de Chrome al suspender"
@@ -294,16 +294,16 @@
         "message": "Tema"
     },
     "html_options_suspend_theme_light": {
-        "message": "Brillante"
+        "message": "Claro"
     },
     "html_options_suspend_theme_dark": {
         "message": "Oscuro"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Pantalla de grabación"
+        "message": "Captura de pantalla"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Discapacitada"
+        "message": "Deshabilitada"
     },
     "html_options_suspend_screen_capturing_screen_only": {
         "message": "Capturar solo la parte superior de la pantalla"
@@ -561,7 +561,7 @@
         "message": "Actualizar"
     },
     "html_update_heading2": {
-        "message": "is about to get marvellous-er"
+        "message": "está por volverse más maravilloso"
     },
     "html_update_info": {
         "message": "Una nueva versión de The Marvelous Suspender está lista para ser instalada.\nTenga en cuenta: durante la actualización, las pestañas suspendidas desaparecerán brevemente."

@@ -57,34 +57,34 @@
         "message": "تعليق علامات التبويب المحددة"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Sekmeleri taşı"
+        "message": "إلغاء تعليق علامات التبويب المحددة"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Bu penceredeki diğer tüm sekmeleri askıya alın"
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Bu penceredeki diğer tüm sekmeleri askıya almaya zorla"
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Bu penceredeki tüm sekmeleri askıya al"
+        "message": "إلغاء تعليق جميع علامات التبويب في النافذة النشطة"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Tüm pencerelerde tüm sekmeleri askıya alın"
+        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
     },
     "js_context_force_suspend_all_tabs": {
         "message": "Tüm pencerelerde tüm sekmeleri askıya almaya zorla"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Tüm pencerelerde tüm sekmeleri askıya alma"
+        "message": "إلغاء تعليق جميع علامات التبويب في جميع النوافذ"
     },
     "html_about_title": {
-        "message": "hakkında"
+        "message": "حول عن الإضافة"
     },
     "html_about_fork_beginning": {
-        "message": "Orijinale göre"
+        "message": "استناداً إلى الأصل"
     },
     "html_about_fork_mid": {
-        "message": "متاح في جيثب، بدون تتبع ADS"
+        "message": "متاح في جيت هب، بدون تتبع ADS"
     },
     "html_about_fork_end": {
         "message": "المزيد من المعلومات عن"
@@ -99,19 +99,19 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "Geri bildiriminiz varsa veya bir sorunu bildirmek istiyorsanız, bunu şu adresten yapabilirsiniz:"
+        "message": "إذا كان لديك ملاحظات أو ترغب في الإبلاغ عن مشكلة، فيمكنك القيام بذلك على سبيل المثال"
     },
     "html_about_report_issues_suffix": {
         "message": ". Lütfen yeni bir fikir oluşturmadan önce fikrinizin veya sorunun zaten var olup olmadığını kontrol edin. Teşekkürler!"
     },
     "html_about_debugging_prefix": {
-        "message": "Günlüğe kaydetmeyi etkinleştirmek veya hata ayıklama bayraklarını ayarlamak için,"
+        "message": "لتمكين التسجيل، أو لتعيين أعلام التصحيح، اذهب إلى "
     },
     "html_about_debugging_suffix": {
         "message": "صفحة التصحيح."
     },
     "html_about_the_github_issues_page": {
-        "message": "صفحة مشكلات GitHub"
+        "message": "صفحة المشكلات على \"جيت هاب\""
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
@@ -159,7 +159,7 @@
         "message": "حاول إعادة تشغيل الإضافة. إذا استمرت المشكلة، اطلب المساعدة على"
     },
     "html_broken_line2_github_page": {
-        "message": "صفحة مشروع جيثب"
+        "message": "صفحة مشروع جيت هب"
     },
     "html_broken_line3": {
         "message": "يمكنك استعادة علامات التبويب المفقودة من"
@@ -561,7 +561,7 @@
         "message": "التحديث"
     },
     "html_update_heading2": {
-        "message": "is about to get marvellous-er"
+        "message": "على وشك أن تصبح رائعة"
     },
     "html_update_info": {
         "message": "نسخة جديدة من الموصوف الجديد جاهزة للتثبيت.\nيرجى ملاحظة: خلال التحديث، ستختفي علامات التبويب المعلقة الخاصة بك لفترة وجيزة."

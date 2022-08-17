@@ -3,91 +3,91 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "ඔබ භාවිතා නොකරන ටැබ් අත්හිටුවීමෙන් ඔබේ පරිගණකය සුමටව ක්‍රියාත්මක වීමට සලස්වන්න"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "සක්‍රීය ටැබය අත්හිටුවීම/අවලංගු කිරීම"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "සක්‍රිය ටැබයේ විරාමය/විරාමය අත්හිටුවීම"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවන්න"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවීම ඉවත් කරන්න"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "සක්‍රිය කවුළුවේ අනෙකුත් සියලුම ටැබ් අත්හිටුවන්න"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "සක්‍රිය කවුළුව තුළ අනෙකුත් සියලුම ටැබ් අත්හිටුවීමට බල කරන්න"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "සක්‍රිය කවුළුවේ ඇති සියලුම ටැබ් අත්හිටුවන්න"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් අත්හිටුවන්න"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් බලහත්කාරයෙන් අත්හිටුවන්න"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් අත්හිටුවන්න"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "නව අත්හිටුවන ලද පටිත්තෙහි සබැඳිය විවෘත කරන්න"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "මෙම ටැබය අත්හිටුවීම/අවලංගු කිරීම"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "මෙම ටැබයේ අත්හිටුවීම විරාම/විරාම කිරීම"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "මෙම වසම කිසිවිටක අත්හිටුවන්න එපා"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "මෙම URL එක කිසිවිටක අත්හිටුවන්න එපා"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවන්න"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවීම ඉවත් කරන්න"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "මෙම කවුළුවේ අනෙකුත් සියලුම ටැබ් අත්හිටුවන්න"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "මෙම කවුළුවේ අනෙකුත් සියලුම ටැබ් අත්හිටුවීමට බල කරන්න"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "මෙම කවුළුවේ ඇති සියලුම ටැබ් අත්හිටුවන්න"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් අත්හිටුවන්න"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් බලහත්කාරයෙන් අත්හිටුවන්න"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "සියලුම කවුළු වල සියලුම ටැබ් අත්හිටුවන්න"
     },
     "html_about_title": {
         "message": "පිළිබඳව"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "මුල් පිටපත මත පදනම්ව"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "ADS ලුහුබැඳීමකින් තොරව GitHub මත තිබේ"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", වැඩි විස්තර ලබා ගත හැක"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -99,121 +99,121 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "ඔබට ප්‍රතිපෝෂණ තිබේ නම් හෝ ගැටලුවක් වාර්තා කිරීමට කැමති නම්, ඔබට එය කළ හැක"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". කරුණාකර නව එකක් සෑදීමට පෙර ඔබේ අදහස හෝ ගැටලුව දැනටමත් තිබේදැයි පරීක්ෂා කරන්න. ස්තුතියි!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "ලොග් වීම සබල කිරීමට හෝ නිදොස් කිරීමේ කොඩි සැකසීමට, වෙත යන්න "
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "දෝශ නිරාකරණ පිටුව."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "GitHub නිකුතු පිටුව"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "මෙම දිගුව භාවිතා කරයි"
     },
     "html_about_html2canvas_suffix": {
-        "message": "library written by Niklas von Hertzen."
+        "message": "Niklas von Hertzen විසින් ලියන ලද පුස්තකාලය."
     },
     "html_about_indexedDb": {
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "එය indexedDb wrapper ද භාවිතා කරයි"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "Aaron Powell විසින් ලියන ලද්දකි."
     },
     "html_about_browserstack": {
         "message": "BrowserStack"
     },
     "html_about_browserstack_prefix": {
-        "message": "Thank you also to"
+        "message": "ඔබටත් ස්තුතියි"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "නොමිලේ chrome පරීක්ෂණ මෙවලම් සැපයීම සඳහා."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "මෙම දිගුව නොමැතිව කිසිදා පැවතිය නොහැක"
     },
     "html_about_tgs_suffix": {
         "message": "."
     },
     "html_broken_title": {
-        "message": "is broken"
+        "message": "කැඩිලා"
     },
     "html_broken_ruh_roh": {
         "message": "රුහ් රොහ්!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "ආරම්භ කිරීමට අසමත් විය. සමහර විට ඔබ Chrome හි නොගැලපෙන අනුවාදයක් භාවිතා කරනවාද?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "දිගුව නැවත ආරම්භ කිරීමට උත්සාහ කරන්න. ගැටලුව දිගටම පවතින්නේ නම්, උදව් සඳහා විමසන්න"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "GitHub ව්‍යාපෘති පිටුව"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "ඔබට නැතිවූ ටැබ් නැවත ලබා ගත හැක"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "සැසි කළමනාකරණ පිටුව"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "දිගුව නැවත ආරම්භ කරන්න"
     },
     "html_history_title": {
-        "message": "Session management"
+        "message": "සැසි කළමනාකරණය"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "වත්මන් සැසිය"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "මෑත සැසි"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "සුරැකි සැසි"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "වාරය ආයාතය"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "පටිති සංක්‍රමණය"
     },
     "html_history_migrate_old_id": {
-        "message": "Old TGS Extension id"
+        "message": "පරණ TGS දිගුවේ හැඬු."
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "දැන්වීම"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "The Marvelous Suspender වෙතින් වැදගත් දැනුම්දීමක්"
     },
     "html_options_title": {
         "message": "සැකසුම්"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "ස්වයංක්‍රීය පටිති ආරම්භය"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "ඇතිවූ පටිති"
     },
     "html_options_other_title": {
         "message": "වෙනත්"
     },
     "html_options_suspend_automatically_after": {
-        "message": "Automatically suspend tabs after"
+        "message": "පසුව ස්වයංක්‍රීයව පටිතින්න"
     },
     "html_options_suspend_never": {
-        "message": "Never"
+        "message": "කවදාවත්"
     },
     "html_options_suspend_seconds": {
         "message": "තත්පර"
@@ -243,217 +243,217 @@
         "message": "සති"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "ඇමුණූ පටිතින්න එපා"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "නොසුරකින ලද ආකෘති ආදාන අඩංගු ටැබ් කිසිවිටෙක අත්හිටුවන්න එපා"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "ශ්‍රව්‍ය වාදනය කරන ටැබ් කිසිවිටෙක අත්හිටුවන්න එපා"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "නොබැඳි විට කිසිවිටෙක ටැබ් අත්හිටුවන්න එපා"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "පෙරනිමියෙන් හිමිකම් පෑම (සීමා රහිත සංක්‍රමණය; 'suspened.html' url හි තිබේ නම් ටැබ් අත්හිටුවා ඇති බව සලකන්න)"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "බල ප්‍රභවයට සම්බන්ධ වූ විට කිසිවිටක ටැබ් අත්හිටුවන්න එපා"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "සෑම කවුළුවකම සක්‍රිය ටැබය කිසිවිටෙක අත්හිටුවන්න එපා"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "ටැබ් එක බලන විට ස්වයංක්‍රීයව අත්හිටුවීම ඉවත් කරන්න"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "අත්හිටුවන විට Chrome හි බිල්ට් මතකය ඉතිරි කිරීම යොදන්න"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "භාවිතය මගින් අත්හිටුවන ලද ටැබ් එකක මතක භාවිතය තවත් අඩු කරයි"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "Chrome හි ඇති 'ටැබ් ඉවතලන' ක්‍රියාකාරීත්වය. මෙය ඉහළ යාමට හේතු විය හැක"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "ටැබ් විශාල සංඛ්‍යාවක් සමඟ වැඩ කරන විට 500% මතක ඉතිරියක් දක්වා."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "කෙසේ වෙතත්, එය තෝරාගැනීමේදී සුළු විදැහුම් ප්‍රමාදයක් ද ඇති කරයි"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "අත්හිටුවන ලද ටැබ් එකක්."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Chrome ඉවතලීම පිළිබඳ වැඩි විස්තර සඳහා බලන්න:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "තේමාව"
+        "message": "ප්රධාන"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "දීප්ත"
     },
     "html_options_suspend_theme_dark": {
         "message": "අඳුරු"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "තිර අල්ලා ගැනීම"
     },
     "html_options_suspend_screen_capturing_disabled": {
         "message": "අබල කර ඇත"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "තිරයේ ඉහළ කොටස පමණක් ග්‍රහණය කරන්න"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "සම්පූර්ණ පිටුව ග්‍රහණය කරන්න"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "අත්හිටුවන ලද පටිත්තක, දිගුවට ටැබ් එකෙහි රූප පෙරදසුනක් පෙන්විය හැක"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "එය අත්හිටුවීමට පෙර මෙන් දිස් විය."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "තිර ග්‍රහණය කිරීමේ විශේෂාංගය පර්යේෂණාත්මක වන අතර සැලකිය යුතු CPU භාවිතයක් ඇති කළ හැක"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "මෙන්ම මතක භාවිතය තරමක් වැඩි විය."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "ටැබ් අත්හිටුවීමට දිගු කාලයක් ගත වීම හෝ ක්‍රෝම් වැනි අමුතු හැසිරීම් ඔබ දුටුවහොත්"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "අනපේක්ෂිත ලෙස බිඳ වැටීම, මෙම විශේෂාංගය අක්‍රිය කිරීමට උත්සාහ කරන්න."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "උසස් තත්ත්වයේ තිර ග්‍රහණ මාදිලිය සබල කරන්න"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "අබල කළ විට, කාර්ය සාධනය සඳහා සහාය වීමට තිර ග්‍රහණවලට පහත සීමාවන් ඇත:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- අඩු ගුණාත්මක තිර ග්රහණය"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- රූපය ජනනය කිරීමට මිනිත්තු 1 කට වඩා ගත වුවහොත් තිරය ග්‍රහණය නොකරයි"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- තිර ග්‍රහණයේ උපරිම උස 5000px ට සීමා වේ"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "උසස් තත්ත්වයේ තිර ග්‍රහණ මාදිලිය සක්‍රීය කිරීම CPU භාරය සැලකිය යුතු ලෙස වැඩි කළ හැක"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "සහ මතකය භාවිතය."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "පහත ලැයිස්තුවෙන් URL සහිත ටැබ් කිසි විටෙකත් අත්හිටුවන්න එපා:"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "ඔබට නව පේළියක සුදු ලැයිස්තු කිරීමට අවශ්‍ය සෑම පිටුවකම URL එක් කරන්න. උදාහරණ වශයෙන්:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "එක් පේළියක අඩවි කිහිපයක් සුදු ලැයිස්තු කිරීමට ඔබට ඒ වෙනුවට url හි කොටසක් සඳහන් කළ හැක:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "ඔබට පෙළ ඉදිරියට slashs තුළට ඇතුළත් කිරීමෙන් සාමාන්‍ය ප්‍රකාශන ද නියම කළ හැක:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "පරීක්ෂණ සුදු ලැයිස්තුව"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "සන්දර්භය මෙනුව දකුණු-ක්ලික් කිරීමට පුදුමාකාර අත්හිටුවීම එක් කරන්න"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "වෙබ් පිටුවක දකුණු ක්ලික් මෙනුවට මෙම දිගුව සඳහා පාලන එක් කරන්න."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "මෙය ඔබට ලබා ගත නොහැකි උසස් අත්හිටුවීමේ ක්‍රියා වෙත ප්‍රවේශය ලබා දෙනු ඇත"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "දිගුවේ වෙනත් තැනක."
     },
     "html_options_other_enable_sync": {
-        "message": "Sync settings with your Chrome profile"
+        "message": "ඔබගේ Chrome පැතිකඩ සමඟ සැකසීම් සමමුහුර්ත කරන්න"
     },
     "html_options_other_enable_sync_tooltip_line1a": {
-        "message": "Extension settings will be synchronised across all chrome browsers which are"
+        "message": "සියලුම ක්‍රෝම් බ්‍රව්සර් හරහා දිගු සැකසීම් සමමුහුර්ත කෙරේ"
     },
     "html_options_other_enable_sync_tooltip_line1b": {
-        "message": "logged in with the same profile."
+        "message": "එකම පැතිකඩකින් ලොග් වී ඇත."
     },
     "html_options_other_enable_sync_tooltip_line2": {
-        "message": "This will also synchronise settings in incognito mode."
+        "message": "මෙය අප්‍රකට මාදිලියේ සිටුවම් ද සමමුහුර්ත කරයි."
     },
     "html_options_other_enable_sync_warning": {
-        "message": "Turning this on will overwrite settings on all other browsers logged into the same Chrome profile"
+        "message": "මෙය ක්‍රියාත්මක කිරීමෙන් එකම ක්‍රෝම් පැතිකඩට ලොග් වී ඇති අනෙකුත් සියලුම බ්‍රවුසරවල සිටුවම් උඩින් ලියවේ"
     },
     "html_options_suspend_on_low_memory": {
-        "message": "Instantly suspend when system memory gets very low"
+        "message": "පද්ධති මතකය ඉතා අඩු වූ විට ක්ෂණිකව අත්හිටුවන්න"
     },
     "html_options_suspend_on_low_memory_tooltip_line1": {
-        "message": "This option will override Chrome's automatic tab discarding functionality."
+        "message": "මෙම විකල්පය Chrome හි ස්වයංක්‍රීය ටැබ් ඉවතලන ක්‍රියාකාරීත්වය අභිබවා යයි."
     },
     "html_options_suspend_on_low_memory_tooltip_line2": {
-        "message": "If enabled, it will force a tab to suspend instead of being discarded by Chrome."
+        "message": "සබල කර ඇත්නම්, එය Chrome විසින් ඉවත දමනු වෙනුවට ටැබයක් අත්හිටුවීමට බල කරයි."
     },
     "html_options_suspend_on_low_memory_tooltip_line3": {
-        "message": "Typically, Chrome will only discard tabs once system memory gets very low."
+        "message": "සාමාන්‍යයෙන්, පද්ධති මතකය ඉතා අඩු වූ පසු Chrome විසින් ටැබ් ඉවතලනු ඇත."
     },
     "html_options_suspend_on_low_memory_tooltip_line4": {
-        "message": "Please note: This may cause tabs to suspend earlier than the time you have"
+        "message": "කරුණාකර සටහන් කරන්න: මෙය ඔබට ඇති කාලයට වඩා කලින් ටැබ් අත්හිටුවීමට හේතු විය හැක"
     },
     "html_options_suspend_on_low_memory_tooltip_line5": {
-        "message": "specified in the Automatic tab suspension options."
+        "message": "ස්වයංක්‍රීය ටැබ් අත්හිටුවීමේ විකල්පවල දක්වා ඇත."
     },
     "html_options_suspend_on_low_memory_tooltip_line6": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Chrome ඉවතලීම පිළිබඳ වැඩි විස්තර සඳහා බලන්න:"
     },
     "html_options_suspend_on_low_memory_tooltip_discarding_link": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_popup_unsuspend_tab": {
-        "message": "Unsuspend this tab"
+        "message": "මෙම ටැබය අත්හිටුවීම ඉවත් කරන්න"
     },
     "html_popup_suspend_tab": {
-        "message": "Suspend this tab now"
+        "message": "මෙම ටැබය දැන් අත්හිටුවන්න"
     },
     "html_popup_dont_suspend_now": {
-        "message": "දැනට අත්හිටුවන්න එපා"
+        "message": "දැනට පවතින්න එපා"
     },
     "html_popup_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "මෙම වසම කිසිවිටක අත්හිටුවන්න එපා"
     },
     "html_popup_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "මෙම URL එක කිසිවිටක අත්හිටුවන්න එපා"
     },
     "html_popup_suspend_other_tabs": {
-        "message": "Suspend all other tabs"
+        "message": "අනෙකුත් සියලුම ටැබ් අත්හිටුවන්න"
     },
     "html_popup_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs"
+        "message": "සියලුම ටැබ් අත්හිටුවීම ඉවත් කරන්න"
     },
     "html_popup_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවන්න"
     },
     "html_popup_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "තෝරාගත් ටැබ් අත්හිටුවීම ඉවත් කරන්න"
     },
     "html_popup_settings": {
         "message": "සැකසුම්"
     },
     "html_restoring_title": {
-        "message": "කවුළුව ප්‍රත්‍යර්පණය වෙමින්"
+        "message": "කවුළුව ප්‍රත්‍යර්පණය ස්ථානයේ"
     },
     "html_restoring_heading": {
-        "message": "Restoring tabs"
+        "message": "ටැබ් ප්‍රතිසාධනය කිරීම"
     },
     "html_restoring_detail": {
-        "message": "Please wait while I restore this window..."
+        "message": "මම මෙම කවුළුව ප්‍රතිසාධනය කරන තෙක් කරුණාකර රැඳී සිටින්න..."
     },
     "html_recovery_title": {
         "message": "ප්‍රතිසාධනය"
@@ -462,25 +462,25 @@
         "message": "රුහ් රොහ්!"
     },
     "html_recovery_description_line1": {
-        "message": "Looks like you're recovering from an extension crash."
+        "message": "ඔබ දිගු බිඳ වැටීමකින් සුවය ලබන බවක් පෙනේ."
     },
     "html_recovery_description_line2": {
-        "message": "Your suspended tabs may have crashed or disappeared."
+        "message": "ඔබගේ අත්හිටුවන ලද ටැබ් බිඳ වැටීමට හෝ අතුරුදහන් වී තිබිය හැක."
     },
     "html_recovery_restore_tabs_automatically": {
-        "message": "Restore tabs automatically"
+        "message": "ටැබ් ස්වයංක්‍රීයව ප්‍රතිසාධනය කරන්න"
     },
     "html_recovery_go_to_session_manager": {
-        "message": "Go to session manager"
+        "message": "සැසි කළමනාකරු වෙත යන්න"
     },
     "html_recovery_important_message": {
-        "message": "You currently have screen capturing turned on. If this extension is repeatedly crashing it is recommended you disable this option."
+        "message": "ඔබ දැනට තිර ග්‍රහණ ක්‍රියාත්මක කර ඇත. මෙම දිගුව නැවත නැවතත් බිඳ වැටෙන්නේ නම්, මෙම විකල්පය අක්‍රිය කිරීම නිර්දේශ කෙරේ."
     },
     "html_recovery_disable_screen_capturing": {
-        "message": "Turn off screen capturing"
+        "message": "තිර ග්‍රහණය අක්‍රිය කරන්න"
     },
     "html_recovery_tabs_to_restore": {
-        "message": "Tabs to restore"
+        "message": "ප්‍රතිසාධනය කිරීමට ටැබ්"
     },
     "html_shortcuts_title": {
         "message": "යතුරුපුවරුවේ කෙටිමං"
@@ -489,7 +489,7 @@
         "message": "යතුරුපුවරුවේ කෙටිමං"
     },
     "html_shortcuts_context_menu_note": {
-        "message": "Note: These actions are also available via the right-click context menu."
+        "message": "සටහන: මෙම ක්‍රියා දකුණු ක්ලික් සන්දර්භය මෙනුව හරහා ද ලබා ගත හැකිය."
     },
     "html_shortcuts_remap_keys": {
         "message": "කෙටිමං වෙනස් කරන්න"
@@ -498,7 +498,7 @@
         "message": "සැකසුම්"
     },
     "html_sidebar_session_management": {
-        "message": "Session management"
+        "message": "සැසි කළමනාකරණය"
     },
     "html_sidebar_shortcuts": {
         "message": "යතුරුපුවරු කෙටිමං"
@@ -507,43 +507,43 @@
         "message": "පිළිබඳව"
     },
     "html_success_great_success": {
-        "message": "Marvellous success!"
+        "message": "පුදුම සාර්ථකත්වයක්!"
     },
     "html_success_all_tabs_restored": {
-        "message": "All your tabs have been restored."
+        "message": "ඔබගේ සියලුම ටැබ් ප්‍රතිසාධනය කර ඇත."
     },
     "html_success_goto_advanced_prefix": {
-        "message": "For advanced session management, visit the"
+        "message": "උසස් සැසි කළමනාකරණය සඳහා, පිවිසෙන්න"
     },
     "html_success_goto_advanced_suffix": {
         "message": "පිටුව"
     },
     "html_session_manager": {
-        "message": "session management"
+        "message": "සැසි කළමනාකරණය"
     },
     "html_suspended_title": {
-        "message": "Suspended Tab"
+        "message": "අත්හිටුවන ලද ටැබ්"
     },
     "html_suspended_tab_suspended": {
-        "message": "Tab suspended"
+        "message": "ටැබය අත්හිටුවා ඇත"
     },
     "html_suspended_tab_reload": {
-        "message": "Reload tab"
+        "message": "ටැබ් නැවත පූරණය කරන්න"
     },
     "html_suspended_tab_whitelist_prefix": {
-        "message": "Never suspend"
+        "message": "කවදාවත් අත්හිටුවන්න එපා"
     },
     "html_suspended_tab_whitelist_suffix": {
         "message": "..."
     },
     "html_suspended_click_to_reload": {
-        "message": "Refresh or click to reload"
+        "message": "නැවත පූරණය කිරීමට නැවුම් කරන්න හෝ ක්ලික් කරන්න"
     },
     "html_suspended_toast_not_connected": {
-        "message": "You are not connected to the internet"
+        "message": "ඔබ අන්තර්ජාලයට සම්බන්ධ වී නැත"
     },
     "html_suspended_toast_reload_disabled": {
-        "message": "Automatic tab reloading is temporarily disabled."
+        "message": "ස්වයංක්‍රීය ටැබ් නැවත පූරණය කිරීම තාවකාලිකව අබල කර ඇත."
     },
     "html_permissions_title": {
         "message": "අවසර"
@@ -552,52 +552,52 @@
         "message": "මට ස්ථානීය ගොනු ඒ.ස.නි. වලට ප්‍රවේශය දෙන්න"
     },
     "html_permissions_info": {
-        "message": "This extension is not currently permitted to suspend URLs beginning with the word \"file\".\nTo change this, please turn on \"Allow access to file URLs\" from the extension settings page."
+        "message": "\"ගොනුව\" යන වචනයෙන් ආරම්භ වන URL අත්හිටුවීමට මෙම දිගුවට දැනට අවසර නැත.\nමෙය වෙනස් කිරීමට, කරුණාකර දිගු සැකසීම් පිටුවෙන් \"ගොනු URL වෙත ප්‍රවේශයට ඉඩ දෙන්න\" ක්‍රියාත්මක කරන්න."
     },
     "html_permissions_backup": {
-        "message": "Please note: changing this option will cause all your suspended tabs will briefly disappear.\nJust in case, now might be a good time to save a backup of your current tab session."
+        "message": "කරුණාකර සටහන් කරන්න: මෙම විකල්පය වෙනස් කිරීමෙන් ඔබගේ අත්හිටවූ ටැබ් සියල්ල කෙටියෙන් අතුරුදහන් වනු ඇත.\nයම් අවස්ථාවක, ඔබගේ වත්මන් ටැබ් සැසියේ උපස්ථයක් සුරැකීමට දැන් හොඳ කාලයක් විය හැක."
     },
     "html_update_title": {
         "message": "යාවත්කාල කරන්න "
     },
     "html_update_heading2": {
-        "message": "is about to get marvellous-er"
+        "message": "විශ්මයජනක වීමට ආසන්නයි"
     },
     "html_update_info": {
-        "message": "A new version of The Marvellous Suspender is ready to be installed.\nPlease note: during the update your suspended tabs will briefly disappear."
+        "message": "The Marvelous Suspender හි නව අනුවාදයක් ස්ථාපනය කිරීමට සූදානම්ය.\nකරුණාකර සටහන් කරන්න: යාවත්කාලීන කිරීමේදී ඔබගේ අත්හිටුවන ලද ටැබ් කෙටියෙන් අතුරුදහන් වනු ඇත."
     },
     "html_update_info_withbackup": {
-        "message": "Just in case, now might be a good time to save a backup of your current tab session."
+        "message": "යම් අවස්ථාවක දී, ඔබගේ වත්මන් ටැබ් සැසියේ උපස්ථයක් සුරැකීමට දැන් හොඳ කාලයක් විය හැකිය."
     },
     "html_update_info_nobackup_prefix": {
-        "message": "It is strongly recommended that you export a copy of your current session from "
+        "message": "ඔබගේ වත්මන් සැසියේ පිටපතක් අපනයනය කිරීම තරයේ නිර්දේශ කෙරේ "
     },
     "html_update_info_nobackup_suffix": {
-        "message": " before continuing with the update."
+        "message": " යාවත්කාලීන කිරීම දිගටම කරගෙන යාමට පෙර."
     },
     "html_updated_title": {
         "message": "යාවත්කාල වී ඇත"
     },
     "html_updating_heading": {
-        "message": "යාවත්කාල වෙමින්"
+        "message": "යාවත්කාල ස්ථානයේ"
     },
     "html_updating_message": {
-        "message": "Please wait while I restore your suspended tabs..."
+        "message": "මම ඔබගේ අත්හිටුවන ලද ටැබ් ප්‍රතිසාධනය කරන තෙක් කරුණාකර රැඳී සිටින්න..."
     },
     "html_updated_great_suspender_updated": {
-        "message": "has been updated"
+        "message": "යාවත්කාලීන කර ඇත"
     },
     "html_updated_info_line1": {
-        "message": "An automatic backup was made of your tabs before the update."
+        "message": "යාවත්කාලීන කිරීමට පෙර ඔබගේ ටැබ් වලින් ස්වයංක්‍රීය උපස්ථයක් සාදන ලදී."
     },
     "html_updated_info_line2_prefix": {
-        "message": "If you encountered any issues during the update, you can recover lost tabs from the "
+        "message": "යාවත්කාලීන කිරීමේදී ඔබට කිසියම් ගැටළුවක් ඇති වුවහොත්, ඔබට නැතිවූ ටැබ් නැවත ලබා ගත හැක "
     },
     "html_updated_info_line2_suffix": {
         "message": " පිටුව."
     },
     "html_updated_detail_header_prefix": {
-        "message": "What's new in "
+        "message": "අලුත් මොනවද තියෙන්නේ "
     },
     "html_updated_detail_header_suffix": {
         "message": "?"
@@ -606,13 +606,13 @@
         "message": "නව විශේෂාංග:"
     },
     "html_updated_bug_fixes_header": {
-        "message": "Bug fixes:"
+        "message": "දෝෂ නිවැරදි කිරීම්:"
     },
     "html_updated_release_notes": {
-        "message": "Visit GitHub for full release notes: "
+        "message": "සම්පූර්ණ නිකුතු සටහන් සඳහා GitHub වෙත පිවිසෙන්න: "
     },
     "html_updated_patch_message": {
-        "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
+        "message": "බාධාවට සමාවෙන්න. මට අවශ්‍ය වුණේ පොඩි නඩත්තුවක් කරන්න විතරයි."
     },
     "html_welcome_title": {
         "message": "සාදරයෙන් පිළිගනිමු"
@@ -621,118 +621,118 @@
         "message": "උත්සාහ කළාට ස්තූතියි"
     },
     "html_welcome_text_line2": {
-        "message": "I make your computer run smoothly by suspending the tabs you aren't using."
+        "message": "ඔබ භාවිතා නොකරන ටැබ් අත්හිටුවීමෙන් මම ඔබේ පරිගණකය සුමටව ක්‍රියාත්මක කිරීමට සලස්වන්නෙමි."
     },
     "html_welcome_text_line3": {
-        "message": "You can fine-tune the settings below."
+        "message": "ඔබට පහත සැකසුම් මනාව සකස් කළ හැක."
     },
     "js_popup_normal": {
-        "message": "Tab will suspend automatically."
+        "message": "ටැබය ස්වයංක්‍රීයව අත්හිටුවනු ඇත."
     },
     "js_popup_normal_pause": {
         "message": "දැන් නොවේ"
     },
     "js_popup_special": {
-        "message": "Tab cannot be suspended"
+        "message": "ටැබය අත්හිටුවිය නොහැක"
     },
     "js_popup_suspended": {
-        "message": "Tab suspended"
+        "message": "ටැබය අත්හිටුවා ඇත"
     },
     "js_popup_suspended_pause": {
-        "message": "අත්හිටුවන්න එපා"
+        "message": "අවශ්ය එපා"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "වෙබ් අඩවිය සුදු ලැයිස්තුගත කර ඇත."
     },
     "js_popup_whitelisted_remove": {
-        "message": "Remove from whitelist"
+        "message": "සුදු ලැයිස්තුවෙන් ඉවත් කරන්න"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "ටැබ් ඕඩියෝ වාදනය වේ."
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "ටැබය පෝරම ආදානය ලබමින් සිටී."
     },
     "js_popup_form_input_unpause": {
-        "message": "Unpause"
+        "message": "නවත්වන්න"
     },
     "js_popup_pinned": {
-        "message": "Tab has been pinned"
+        "message": "පටිත්ත අමුණා ඇත"
     },
     "js_popup_temp_whitelist": {
-        "message": "Tab suspension paused."
+        "message": "ටැබ් අත්හිටුවීම විරාම කරන ලදී."
     },
     "js_popup_temp_whitelist_unpause": {
-        "message": "Unpause"
+        "message": "නවත්වන්න"
     },
     "js_popup_never": {
-        "message": "Automatic tab suspension disabled."
+        "message": "ස්වයංක්‍රීය ටැබ් අත්හිටුවීම අබල කර ඇත."
     },
     "js_popup_no_connectivity": {
         "message": "ජාල සම්බන්ධතාවයක් නොමැත"
     },
     "js_popup_charging": {
-        "message": "Connected to power source"
+        "message": "බල ප්‍රභවයට සම්බන්ධයි"
     },
     "js_popup_blockedFile": {
-        "message": "Local files cannot be suspended."
+        "message": "දේශීය ගොනු අත්හිටුවිය නොහැක."
     },
     "js_popup_blockedFile_enable": {
         "message": "සබල කරන්න"
     },
     "js_popup_unknown": {
-        "message": "Waiting for tab to load..."
+        "message": "ටැබය පූරණය වන තෙක් රැඳී සිටිමින්..."
     },
     "js_popup_initialising": {
-        "message": "Waiting for extension to initialize..."
+        "message": "දිගුව ආරම්භ කිරීම සඳහා රැඳී සිටිමින්..."
     },
     "js_popup_error": {
-        "message": "Auto-suspend unavailable for this tab"
+        "message": "මෙම ටැබය සඳහා ස්වයංක්‍රීයව අත්හිටුවීම නොමැත"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "මකා දමන්න"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "අපනයන"
     },
     "js_history_reload": {
-        "message": "open and load"
+        "message": "විවෘත කර පැටවීම"
     },
     "js_history_resuspend": {
-        "message": "open and suspend"
+        "message": "විවෘත සහ අත්හිටුවීම"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "සුරකින්න"
     },
     "js_history_window": {
-        "message": "Window"
+        "message": "කවුළුව"
     },
     "js_history_windows": {
-        "message": "Windows"
+        "message": "වින්ඩෝස්"
     },
     "js_history_tab": {
-        "message": "Tab"
+        "message": "ටැබ්"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "ටැබ්"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "මෙම සැසිය සඳහා නමක් ඇතුළත් කරන්න"
     },
     "js_history_confirm_delete": {
-        "message": "Are you sure you want to delete this session?"
+        "message": "ඔබට මෙම සැසිය මැකීමට අවශ්‍ය බව විශ්වාසද?"
     },
     "js_history_confirm_session_overwrite": {
-        "message": "There is already a saved session with this name. Overwrite existing session?"
+        "message": "මෙම නම සමඟ දැනටමත් සුරැකි සැසියක් ඇත. පවතින සැසිය උඩින් ලියන්නද?"
     },
     "js_history_import_fail": {
-        "message": "Failed to load file. Ensure file is plain text and contains a single url per line."
+        "message": "ගොනුව පූරණය කිරීමට අසමත් විය. ගොනුව සරල අකුරු සහ පේළියකට තනි url එකක් අඩංගු බව සහතික කර ගන්න."
     },
     "js_history_migrate_fail": {
-        "message": "Need 32-character extension id to migrate from"
+        "message": "සංක්‍රමණය වීමට අනුලකුණු-32 දිගු id අවශ්‍යයි"
     },
     "js_history_migrate_success": {
-        "message": "Successfully migrated $TABCOUNT$ tabs",
+        "message": "ටැබ් $TABCOUNT$ ක් සාර්ථකව සංක්‍රමණය විය",
         "placeholders": {
             "tabcount": {
                 "content": "$1"
@@ -740,22 +740,22 @@
         }
     },
     "js_suspended_remove_from_whitelist": {
-        "message": "Remove site from whitelist"
+        "message": "වෙබ් අඩවිය සුදු ලැයිස්තුවෙන් ඉවත් කරන්න"
     },
     "js_suspended_hotkey_to_reload": {
         "message": "යතුරුපුවරුවේ කෙටිමං සකසන්න"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "අඩු පද්ධති මතකය හේතුවෙන් ටැබ් එක අත්හිටුවා ඇත"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "ඔබ අප්‍රකට මාදිලියේ සිටී. සමහර විශේෂාංග ලබා ගත නොහැකි වනු ඇත."
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "වත්මන් සුදු ලැයිස්තුවට ගැලපෙන විවෘත ටැබ් නොමැත."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "සුදු ලැයිස්තුගත විවෘත ටැබ්:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
         "message": "සහ"
@@ -767,21 +767,21 @@
         "message": "උපස්ථය සුරකින්න"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "දිගු සැකසුම් විවෘත කරන්න"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "ඔබ තවමත් උපස්ථයක් සුරැකී නැත. කෙසේ වෙතත් දිගුව යාවත්කාලීන කරන්නද?"
     },
     "js_update_button_export": {
         "message": "උපස්ථය සුරකින්න"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "දැන් දිගුව යාවත්කාලීන කරන්න"
     },
     "js_shortcuts_not_set": {
-        "message": "සකසා නැත"
+        "message": "සකස් කර නැත"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "v සඳහා ස්වයංක්‍රීය සුරැකුම් ලක්ෂ්‍යය"
     }
 }
