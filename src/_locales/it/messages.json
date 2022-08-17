@@ -453,7 +453,7 @@
         "message": "Ripristino le schede"
     },
     "html_restoring_detail": {
-        "message": "Attendi mentre ripristino questa finestra ..."
+        "message": "Attendi mentre ripristino questa finestra..."
     },
     "html_recovery_title": {
         "message": "Ripristino"
@@ -465,7 +465,7 @@
         "message": "Sembra che tu stia effettuando un ripristino da un crash dell'estensione."
     },
     "html_recovery_description_line2": {
-        "message": "Le tab sospese potrebbero essere crashate o scomparse."
+        "message": "Le schede sospese potrebbero essersi bloccate o scomparse."
     },
     "html_recovery_restore_tabs_automatically": {
         "message": "Ripristina automaticamente le schede"
@@ -612,7 +612,7 @@
         "message": "Visita GitHub per le note di rilascio complete: "
     },
     "html_updated_patch_message": {
-        "message": "Mi spiace per il disturbo. Avevo solo bisogno di eseguire un pò di manutenzione."
+        "message": "Mi dispiace per il disturbo. Avevo solo bisogno di eseguire un po 'di manutenzione."
     },
     "html_welcome_title": {
         "message": "Ciao"
@@ -755,7 +755,7 @@
         "message": "Non ci sono schede aperte che corrispondono all'attuale lista bianca."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Tab aperte in whitelist:"
+        "message": "Schede aperte nella whitelist:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
         "message": "e"
