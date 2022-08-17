@@ -15,7 +15,7 @@
         "message": "Pause/Unpause suspension of active tab"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspend selected tabs"
+        "message": "Suspendre les onglets sélectionnés"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
         "message": "Unsuspend selected tabs"
@@ -78,7 +78,7 @@
         "message": "Unsuspend all tabs in all windows"
     },
     "html_about_title": {
-        "message": "About"
+        "message": "À propos"
     },
     "html_about_fork_beginning": {
         "message": "Based on the original"
