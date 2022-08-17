@@ -9,7 +9,7 @@
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspend/Unsuspend active tab"
+        "message": "Suspendre/Rependre l'onglet actif"
     },
     "ext_cmd_toggle_tab_pause_description": {
         "message": "Pause/Unpause suspension of active tab"
