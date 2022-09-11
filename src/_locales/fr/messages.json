@@ -126,10 +126,10 @@
         "message": "db.js"
     },
     "html_about_indexedDb_prefix": {
-        "message": "It also uses the indexedDb wrapper"
+        "message": "Elle utilise aussi le wrapper indexedDb"
     },
     "html_about_indexedDb_suffix": {
-        "message": "written by Aaron Powell."
+        "message": "écrit par Aaron Powell."
     },
     "html_about_browserstack": {
         "message": "BrowserStack"
@@ -141,7 +141,7 @@
         "message": "for providing free chrome testing tools."
     },
     "html_about_tgs_prefix": {
-        "message": "This extension could never have existed without"
+        "message": "Cette extension n'aurait jamais pu exister sans"
     },
     "html_about_tgs_suffix": {
         "message": "."
@@ -192,10 +192,10 @@
         "message": "Ancien ID d'extension TGS"
     },
     "html_notice_title": {
-        "message": "Notice"
+        "message": "Annonce"
     },
     "html_notice_important_notice": {
-        "message": "Important notice from The Marvellous Suspender"
+        "message": "Annonce importante de The Marvellous Suspender"
     },
     "html_options_title": {
         "message": "Paramètres"
@@ -252,40 +252,40 @@
         "message": "Never suspend tabs that are playing audio"
     },
     "html_options_suspend_only_connected": {
-        "message": "Never suspend tabs when offline"
+        "message": "Ne jamais suspendre les onglets en mode hors connexion"
     },
     "html_options_suspend_claim_by_default": {
         "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
-        "message": "Never suspend tabs when connected to power source"
+        "message": "Ne jamais suspendre les onglets lorsque connecté à une source d'alimentation"
     },
     "html_options_suspend_no_active_tabs": {
-        "message": "Never suspend active tab in each window"
+        "message": "Ne jamais suspendre les onglets actifs dans chaque fenêtre"
     },
     "html_options_suspend_automatically_unsuspend": {
-        "message": "Automatically unsuspend tab when it is viewed"
+        "message": "Automatiquement annuler la suspension de l'onglet lorsqu'il est vu"
     },
     "html_options_suspend_discard_after_suspend": {
-        "message": "Apply Chrome's built-in memory-saving when suspending"
+        "message": "Appliquer l'économiseur de mémoire intégré à Chrome lors de la suspension"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1a": {
-        "message": "Reduces a suspended tab's memory usage even more, by utilizing"
+        "message": "Réduit encore plus l'utilisation de la mémoire d'un onglet suspendu, en utilisant la"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1b": {
-        "message": "Chrome's built-in 'tab discarding' functionality. This can result in up"
+        "message": "fonctionnalité intégrée de 'suppression d'onglets' de Chrome. Cela peut entraîner jusqu'à"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line1c": {
-        "message": "to 500% memory savings when working with large numbers of tabs."
+        "message": "500% d'économie de mémoire lorsque vous travaillez avec un grand nombre d'onglets."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2a": {
-        "message": "However, it will also cause a slight rendering delay when selecting"
+        "message": "Cependant, cela provoquera également un léger délai de rendu lors de la sélection"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line2b": {
-        "message": "a suspended tab."
+        "message": "d'un onglet suspendu."
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3a": {
-        "message": "For more information on Chrome discarding refer to:"
+        "message": "Pour plus d'informations sur les rejets de Chrome, reportez-vous à:"
     },
     "html_options_suspend_discard_after_suspend_tooltip_line3b": {
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
@@ -300,82 +300,82 @@
         "message": "Sombre"
     },
     "html_options_suspend_screen_capturing": {
-        "message": "Screen capturing"
+        "message": "Capture d'écran"
     },
     "html_options_suspend_screen_capturing_disabled": {
-        "message": "Disabled"
+        "message": "Désactivé"
     },
     "html_options_suspend_screen_capturing_screen_only": {
-        "message": "Capture top of screen only"
+        "message": "Capturer le haut de l'écran uniquement"
     },
     "html_options_suspend_screen_capturing_entire_page": {
         "message": "Capturer la page entière"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
-        "message": "On a suspended tab, the extension can display an image preview of the what the tab"
+        "message": "Dans un onglet suspendu, l'extension peut afficher un aperçu de l'image de ce que l'onglet"
     },
     "html_options_suspend_screen_capturing_tooltip_line1b": {
-        "message": "looked like just before it was suspended."
+        "message": "avait l'air juste avant d'être suspendu."
     },
     "html_options_suspend_screen_capturing_tooltip_line2a": {
-        "message": "The screen capturing feature is experimental and can cause significant CPU usage as"
+        "message": "La fonctionnalité de capture d'écran est expérimentale et peut causer une utilisation importante du processeur"
     },
     "html_options_suspend_screen_capturing_tooltip_line2b": {
-        "message": "well as slightly increased memory usage."
+        "message": "ainsi qu'une utilisation de mémoire légèrement augmentée."
     },
     "html_options_suspend_screen_capturing_tooltip_line3a": {
-        "message": "If you notice strange behaviour such as tabs taking a long time to suspend, or chrome"
+        "message": "Si vous remarquez un comportement étrange, comme les onglets qui prennent beaucoup de temps à se suspendre, ou chrome"
     },
     "html_options_suspend_screen_capturing_tooltip_line3b": {
-        "message": "crashing unexpectedly, try turning this feature off."
+        "message": "plantant inopinément, essayez de désactiver cette fonctionnalité."
     },
     "html_options_suspend_force_screen_capture": {
-        "message": "Enable high quality screen capture mode"
+        "message": "Activer le mode de capture d'écran haute qualité"
     },
     "html_options_suspend_force_screen_capture_tooltip_line1": {
-        "message": "When disabled, screen captures have the following limitations to aid in performance:"
+        "message": "Lorsqu'il est désactivé, les captures d'écran ont les limitations suivantes pour améliorer la performance:"
     },
     "html_options_suspend_force_screen_capture_tooltip_line2": {
-        "message": "- Low quality screen capture"
+        "message": "- Capture d'écran de faible qualité"
     },
     "html_options_suspend_force_screen_capture_tooltip_line4": {
-        "message": "- Will not capture screen if it takes more than 1 minute to generate image"
+        "message": "- Ne capturera pas l'écran si la génération d'image prend plus d'une minute"
     },
     "html_options_suspend_force_screen_capture_tooltip_line5": {
-        "message": "- Maximum height of screen capture limited to 5000px"
+        "message": "- Hauteur maximale de la capture d'écran limitée à 5000px"
     },
     "html_options_suspend_force_screen_capture_tooltip_line6": {
-        "message": "Enabling high quality screen capture mode may significantly increase CPU load"
+        "message": "Activer le mode de capture d'écran de haute qualité peut considérablement augmenter la charge du CPU"
     },
     "html_options_suspend_force_screen_capture_tooltip_line7": {
-        "message": "and memory usage."
+        "message": "et l'utilisation de la mémoire."
     },
     "html_options_whitelist_title": {
-        "message": "Never suspend tabs with URLs from the following list:"
+        "message": "Ne jamais suspendre les onglets avec des URL dans la liste suivante :"
     },
     "html_options_whitelist_tooltip_line1": {
-        "message": "Add the URL of each page you want to whitelist on a new line. For example:"
+        "message": "Ajouter l'URL de chaque page que vous souhaitez ajouter à la liste blanche sur une nouvelle ligne. Par exemple:"
     },
     "html_options_whitelist_tooltip_line2": {
-        "message": "To whitelist multiple sites in one line you can specify part of the url instead:"
+        "message": "Pour mettre en liste blanche plusieurs sites en une ligne, vous pouvez spécifier une partie de l'url à la place:"
     },
     "html_options_whitelist_tooltip_line3": {
-        "message": "You can also specify regular expressions by enclosing the text in forward slashes:"
+        "message": "Vous pouvez également spécifier des expressions régulières en mettant le texte entre des slashs:"
     },
     "html_options_whitelist_test": {
-        "message": "Test whitelist"
+        "message": "Tester la liste blanche"
     },
     "html_options_other_enable_context_menu": {
-        "message": "Add The Marvellous Suspender to right-click context menu"
+        "message": "Ajouter The Marvellous Suspender au menu contextuel du clic droit"
     },
     "html_options_other_enable_context_menu_tooltip_line1": {
-        "message": "Add controls for this extension to the right-click menu of a web page."
+        "message": "Ajouter des contrôles pour cette extension au menu contextuel d'une page web."
     },
     "html_options_other_enable_context_menu_tooltip_line2": {
-        "message": "This will give you access to advanced suspending actions not available"
+        "message": "Cela vous donnera accès aux actions de suspension avancées indisponibles"
     },
     "html_options_other_enable_context_menu_tooltip_line3": {
-        "message": "elsewhere in the extension."
+        "message": "autre part dans l'extension."
     },
     "html_options_other_enable_sync": {
         "message": "Synchroniser les paramètres avec votre profil Chrome"
