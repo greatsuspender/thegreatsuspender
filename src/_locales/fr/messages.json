@@ -3,91 +3,91 @@
         "message": "The Marvellous Suspender"
     },
     "ext_extension_description": {
-        "message": "Make your computer run smoothly by suspending the tabs you aren't using"
+        "message": "Améliore les performances de votre ordinateur en suspendant les onglets que vous n'utilisez pas"
     },
     "ext_default_title": {
         "message": "The Marvellous Suspender"
     },
     "ext_cmd_toggle_tab_suspension_description": {
-        "message": "Suspendre/Rependre l'onglet actif"
+        "message": "Suspend/Recharge l'onglet actif"
     },
     "ext_cmd_toggle_tab_pause_description": {
-        "message": "Pause/Unpause suspension of active tab"
+        "message": "Pause/Remet la suspension de l'onglet actif"
     },
     "ext_cmd_suspend_selected_tabs_description": {
-        "message": "Suspendre les onglets sélectionnés"
+        "message": "Suspend les onglets sélectionnés"
     },
     "ext_cmd_unsuspend_selected_tabs_description": {
-        "message": "Unsuspend selected tabs"
+        "message": "Annule la suspension des onglets sélectionnés"
     },
     "ext_cmd_soft_suspend_active_window_description": {
-        "message": "Suspend all other tabs in active window"
+        "message": "Suspend tous les autres onglets de la fenêtre active"
     },
     "ext_cmd_force_suspend_active_window_description": {
-        "message": "Force suspend all other tabs in active window"
+        "message": "Force la suspension de tous les autres onglets dans la fenêtre active"
     },
     "ext_cmd_unsuspend_active_window_description": {
-        "message": "Unsuspend all tabs in active window"
+        "message": "Annule la suspension de tous les onglets dans la fenêtre active"
     },
     "ext_cmd_soft_suspend_all_windows_description": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Suspend tous les onglets dans toutes les fenêtres"
     },
     "ext_cmd_force_suspend_all_windows_description": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Force la suspension de tous les onglets dans toutes les fenêtres"
     },
     "ext_cmd_unsuspend_all_windows_description": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Annuler la suspension de tous les onglets dans toutes les fenêtres"
     },
     "js_context_open_link_in_suspended_tab": {
-        "message": "Open Link in New Suspended Tab"
+        "message": "Ouvrir le lien dans un nouvel onglet suspendu"
     },
     "js_context_toggle_suspend_state": {
-        "message": "Suspend/Unsuspend this tab"
+        "message": "Suspendre/Annuler la suspension de cet onglet"
     },
     "js_context_toggle_pause_suspension": {
-        "message": "Pause/Unpause suspension of this tab"
+        "message": "Pause/Remettre la suspension de cet onglet"
     },
     "js_context_never_suspend_domain": {
-        "message": "Never suspend this domain"
+        "message": "Ne jamais suspendre ce domaine"
     },
     "js_context_never_suspend_page": {
-        "message": "Never suspend this URL"
+        "message": "Ne jamais suspendre cette URL"
     },
     "js_context_suspend_selected_tabs": {
-        "message": "Suspend selected tabs"
+        "message": "Suspendre les onglets sélectionnés"
     },
     "js_context_unsuspend_selected_tabs": {
-        "message": "Unsuspend selected tabs"
+        "message": "Annuler la suspension des onglets sélectionnés"
     },
     "js_context_soft_suspend_other_tabs_in_window": {
-        "message": "Suspend all other tabs in this window"
+        "message": "Suspendre tous les autres onglets de cette fenêtre"
     },
     "js_context_force_suspend_other_tabs_in_window": {
-        "message": "Force suspend all other tabs in this window"
+        "message": "Forcer la suspension de tous les autres onglets dans cette fenêtre"
     },
     "js_context_unsuspend_all_tabs_in_window": {
-        "message": "Unsuspend all tabs in this window"
+        "message": "Annuler la suspension de tous les onglets dans cette fenêtre"
     },
     "js_context_soft_suspend_all_tabs": {
-        "message": "Suspend all tabs in all windows"
+        "message": "Suspendre tous les onglets dans toutes les fenêtres"
     },
     "js_context_force_suspend_all_tabs": {
-        "message": "Force suspend all tabs in all windows"
+        "message": "Forcer la suspension de tous les onglets dans toutes les fenêtres"
     },
     "js_context_unsuspend_all_tabs": {
-        "message": "Unsuspend all tabs in all windows"
+        "message": "Annuler la suspension de tous les onglets dans toutes les fenêtres"
     },
     "html_about_title": {
         "message": "À propos"
     },
     "html_about_fork_beginning": {
-        "message": "Based on the original"
+        "message": "Basé sur l'original"
     },
     "html_about_fork_mid": {
         "message": "disponible sur GitHub, sans suivi publicitaire"
     },
     "html_about_fork_end": {
-        "message": ", more information available on"
+        "message": ", plus d'informations disponibles sur"
     },
     "html_about_github_title": {
         "message": "GitHub"
@@ -99,25 +99,25 @@
         "message": "Twitter"
     },
     "html_about_report_issues_prefix": {
-        "message": "If you have feedback or would like to report an issue, you can do so on the"
+        "message": "Si vous avez des commentaires ou souhaitez signaler un problème, vous pouvez le faire sur la"
     },
     "html_about_report_issues_suffix": {
-        "message": ". Please check to see if your idea or issue already exists before creating a new one. Thanks!"
+        "message": ". Veuillez vérifier si votre idée ou problème existe déjà avant d'en créer une nouvelle. Merci!"
     },
     "html_about_debugging_prefix": {
-        "message": "To enable logging, or to set debugging flags, go to the "
+        "message": "Pour activer la journalisation, ou pour définir des options de débogage, allez dans la "
     },
     "html_about_debugging_suffix": {
-        "message": "debug page."
+        "message": "page de débogage."
     },
     "html_about_the_github_issues_page": {
-        "message": "GitHub issues page"
+        "message": "page de problèmes GitHub"
     },
     "html_about_html2canvas": {
         "message": "html2canvas"
     },
     "html_about_html2canvas_prefix": {
-        "message": "This extension uses the"
+        "message": "Cette extension utilise le"
     },
     "html_about_html2canvas_suffix": {
         "message": "bibliothèque écrite par Niklas von Hertzen."
@@ -138,7 +138,7 @@
         "message": "Merci également à"
     },
     "html_about_browserstack_suffix": {
-        "message": "for providing free chrome testing tools."
+        "message": "pour fournir des outils de test de chrome gratuits."
     },
     "html_about_tgs_prefix": {
         "message": "Cette extension n'aurait jamais pu exister sans"
@@ -153,19 +153,19 @@
         "message": "Ruh Roh!"
     },
     "html_broken_line1": {
-        "message": "failed to start. Perhaps you are using an incompatible version of Chrome?"
+        "message": "n'a pas pu démarrer. Peut-être utilisez-vous une version incompatible de Chrome ?"
     },
     "html_broken_line2": {
-        "message": "Try to restart the extension. If the problem persists, ask for help on the"
+        "message": "Essayez de redémarrer l'extension. Si le problème persiste, demandez de l'aide sur la"
     },
     "html_broken_line2_github_page": {
-        "message": "GitHub project page"
+        "message": "page de projet GitHub"
     },
     "html_broken_line3": {
-        "message": "You can recover lost tabs from the"
+        "message": "Vous pouvez récupérer les onglets perdus depuis la"
     },
     "html_broken_line3_session_management": {
-        "message": "session management page"
+        "message": "page de gestion de session"
     },
     "html_broken_button_restart_extension": {
         "message": "Redémarrer l'extension"
@@ -201,10 +201,10 @@
         "message": "Paramètres"
     },
     "html_options_suspend_title": {
-        "message": "Automatic tab suspension"
+        "message": "Suspension automatique des onglets"
     },
     "html_options_suspended_title": {
-        "message": "Suspended tabs"
+        "message": "Onglets suspendus"
     },
     "html_options_other_title": {
         "message": "Autres"
@@ -243,19 +243,19 @@
         "message": "semaines"
     },
     "html_options_suspend_no_pinned": {
-        "message": "Never suspend pinned tabs"
+        "message": "Ne jamais suspendre les onglets épinglés"
     },
     "html_options_suspend_no_forms": {
-        "message": "Never suspend tabs that contain unsaved form inputs"
+        "message": "Ne jamais suspendre les onglets contenant des entrées de formulaire non enregistrées"
     },
     "html_options_suspend_no_audio": {
-        "message": "Never suspend tabs that are playing audio"
+        "message": "Ne jamais suspendre les onglets qui jouent de l'audio"
     },
     "html_options_suspend_only_connected": {
         "message": "Ne jamais suspendre les onglets en mode hors connexion"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab consider suspended if 'suspended.html' is in url)"
+        "message": "Réclamer par défaut (migration transparente ; onglet considéré comme suspendu si 'suspended.html' est dans l'url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Ne jamais suspendre les onglets lorsque connecté à une source d'alimentation"
