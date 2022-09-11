@@ -84,7 +84,7 @@
         "message": "Based on the original"
     },
     "html_about_fork_mid": {
-        "message": "available on GitHub, without ADS tracking"
+        "message": "disponible sur GitHub, sans suivi publicitaire"
     },
     "html_about_fork_end": {
         "message": ", more information available on"
@@ -168,25 +168,25 @@
         "message": "session management page"
     },
     "html_broken_button_restart_extension": {
-        "message": "Restart extension"
+        "message": "Redémarrer l'extension"
     },
     "html_history_title": {
         "message": "Gestion de session"
     },
     "html_history_current_session": {
-        "message": "Current session"
+        "message": "Session en cours"
     },
     "html_history_recent_sessions": {
-        "message": "Recent sessions"
+        "message": "Sessions récentes"
     },
     "html_history_saved_sessions": {
-        "message": "Saved sessions"
+        "message": "Sessions sauvegardées"
     },
     "html_history_import_session": {
-        "message": "Import session"
+        "message": "Importer une session"
     },
     "html_history_migrate_tabs": {
-        "message": "Migrate tabs"
+        "message": "Migration d'onglets"
     },
     "html_history_migrate_old_id": {
         "message": "Ancien ID d'extension TGS"
@@ -291,13 +291,13 @@
         "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
     },
     "html_options_suspend_theme": {
-        "message": "Theme"
+        "message": "Thème"
     },
     "html_options_suspend_theme_light": {
-        "message": "Light"
+        "message": "Clair"
     },
     "html_options_suspend_theme_dark": {
-        "message": "Dark"
+        "message": "Sombre"
     },
     "html_options_suspend_screen_capturing": {
         "message": "Screen capturing"
@@ -309,7 +309,7 @@
         "message": "Capture top of screen only"
     },
     "html_options_suspend_screen_capturing_entire_page": {
-        "message": "Capture entire page"
+        "message": "Capturer la page entière"
     },
     "html_options_suspend_screen_capturing_tooltip_line1a": {
         "message": "On a suspended tab, the extension can display an image preview of the what the tab"
@@ -609,7 +609,7 @@
         "message": "Bug fixes:"
     },
     "html_updated_release_notes": {
-        "message": "Visit GitHub for full release notes: "
+        "message": "Visitez GitHub pour les notes de version complètes : "
     },
     "html_updated_patch_message": {
         "message": "Sorry for the disturbance. I just needed to perform a little maintenance."
@@ -642,25 +642,25 @@
         "message": "Don't suspend"
     },
     "js_popup_whitelisted": {
-        "message": "Site whitelisted."
+        "message": "Site sur liste blanche."
     },
     "js_popup_whitelisted_remove": {
         "message": "Remove from whitelist"
     },
     "js_popup_audible": {
-        "message": "Tab is playing audio."
+        "message": "L'onglet est en cours de lecture audio."
     },
     "js_popup_form_input": {
-        "message": "Tab is receiving form input."
+        "message": "L'onglet est en train de recevoir des entrées de formulaire."
     },
     "js_popup_form_input_unpause": {
         "message": "Unpause"
     },
     "js_popup_pinned": {
-        "message": "Tab has been pinned"
+        "message": "L'onglet est épinglé"
     },
     "js_popup_temp_whitelist": {
-        "message": "Tab suspension paused."
+        "message": "La suspension de l'onglet a été interrompue."
     },
     "js_popup_temp_whitelist_unpause": {
         "message": "Unpause"
@@ -678,7 +678,7 @@
         "message": "Local files cannot be suspended."
     },
     "js_popup_blockedFile_enable": {
-        "message": "Enable"
+        "message": "Activer"
     },
     "js_popup_unknown": {
         "message": "Waiting for tab to load..."
@@ -690,10 +690,10 @@
         "message": "Auto-suspend unavailable for this tab"
     },
     "js_history_delete": {
-        "message": "delete"
+        "message": "supprimer"
     },
     "js_history_export": {
-        "message": "export"
+        "message": "exporter"
     },
     "js_history_reload": {
         "message": "open and load"
@@ -702,7 +702,7 @@
         "message": "open and suspend"
     },
     "js_history_save": {
-        "message": "save"
+        "message": "sauvegarder"
     },
     "js_history_window": {
         "message": "Window"
@@ -711,13 +711,13 @@
         "message": "Windows"
     },
     "js_history_tab": {
-        "message": "Tab"
+        "message": "Onglet"
     },
     "js_history_tabs": {
-        "message": "Tabs"
+        "message": "Onglets"
     },
     "js_history_enter_name_for_session": {
-        "message": "Enter a name for this session"
+        "message": "Saisissez un nom pour cette session"
     },
     "js_history_confirm_delete": {
         "message": "Are you sure you want to delete this session?"
@@ -743,45 +743,45 @@
         "message": "Remove site from whitelist"
     },
     "js_suspended_hotkey_to_reload": {
-        "message": "Set keyboard shortcuts"
+        "message": "Définir le raccourci clavier"
     },
     "js_suspended_low_memory": {
-        "message": "Tab suspended due to low system memory"
+        "message": "Onglet suspendu en raison d'une mémoire système faible"
     },
     "js_options_incognito_warning": {
-        "message": "You are in incognito mode. Some features will not be available."
+        "message": "Vous êtes en mode incognito. Certaines fonctionnalités ne seront pas disponibles."
     },
     "js_options_whitelist_no_matches": {
-        "message": "There are no open tabs that match the current whitelist."
+        "message": "Il n'y a aucun onglet ouvert correspondant à la liste blanche actuelle."
     },
     "js_options_whitelist_matches_heading": {
-        "message": "Whitelisted open tabs:"
+        "message": "Onglets ouverts sur la liste blanche:"
     },
     "js_options_whitelist_matches_overflow_prefix": {
-        "message": "and"
+        "message": "et"
     },
     "js_options_whitelist_matches_overflow_suffix": {
-        "message": "more."
+        "message": "plus."
     },
     "js_permissions_button_export": {
-        "message": "Save backup"
+        "message": "Enregistrer la sauvegarde"
     },
     "js_permissions_button_set": {
-        "message": "Open extension settings"
+        "message": "Ouvrir les paramètres de l'extension"
     },
     "js_update_confirm": {
-        "message": "You have not saved a backup yet. Update the extension anyway?"
+        "message": "Vous n'avez pas encore enregistré de sauvegarde. Mettre à jour l'extension quand même ?"
     },
     "js_update_button_export": {
-        "message": "Save backup"
+        "message": "Enregistrer la sauvegarde"
     },
     "js_update_button_reload": {
-        "message": "Update extension now"
+        "message": "Mettre à jour l'extension"
     },
     "js_shortcuts_not_set": {
-        "message": "not set"
+        "message": "non défini"
     },
     "js_session_save_point": {
-        "message": "Automatic save point for v"
+        "message": "Point de sauvegarde automatique pour v"
     }
 }
