@@ -255,7 +255,7 @@
         "message": "Ne jamais suspendre les onglets en mode hors connexion"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
+        "message": "Réclamer par défaut (migration transparente ; onglet considéré comme suspendu si 'suspended.html' est dans l'url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Ne jamais suspendre les onglets lorsque connecté à une source d'alimentation"
