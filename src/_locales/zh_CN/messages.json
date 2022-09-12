@@ -255,7 +255,7 @@
         "message": "只在联网时才自动冻结"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "默认声明(无缝迁移；如果'suspended.html'在网址中，标签页视为已暂停)"
+        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "只在未充电时才自动冻结"
