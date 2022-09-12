@@ -255,7 +255,7 @@
         "message": "නොබැඳි විට කිසිවිටෙක ටැබ් අත්හිටුවන්න එපා"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "පෙරනිමියෙන් හිමිකම් පෑම (සීමා රහිත සංක්‍රමණය; 'suspened.html' url හි තිබේ නම් ටැබ් අත්හිටුවා ඇති බව සලකන්න)"
+        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "බල ප්‍රභවයට සම්බන්ධ වූ විට කිසිවිටක ටැබ් අත්හිටුවන්න එපා"
