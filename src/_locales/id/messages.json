@@ -255,7 +255,7 @@
         "message": "Jangan pernah menangguhkan tab saat offline"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Klaim secara bawaan (migrasi yang lancar; tab dipertimbangkan ditangguhkan jika 'suspended.html' ada dalam URL)"
+        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Jangan pernah menangguhkan tab saat terhubung ke sumber daya (listrik)"
