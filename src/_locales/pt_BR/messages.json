@@ -255,7 +255,7 @@
         "message": "Nunca suspender as guias quando estiver off-line"
     },
     "html_options_suspend_claim_by_default": {
-        "message": "Reivindicar por padrão (migração invisível; considerar aba suspensa se ‘suspender.html' estiver no url)"
+        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
     },
     "html_options_suspend_only_on_battery": {
         "message": "Nunca suspender as guias quando estiver conectado à fonte de energia"
