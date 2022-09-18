@@ -1368,7 +1368,7 @@ var tgs = (function() {
     var icon = ![gsUtils.STATUS_NORMAL, gsUtils.STATUS_ACTIVE].includes(status)
       ? ICON_SUSPENSION_PAUSED
       : ICON_SUSPENSION_ACTIVE;
-    chrome.browserAction.setIcon({ path: icon, tabId: tabId }, function() {
+    chrome.action.setIcon({ path: icon, tabId: tabId }, function() {
       if (chrome.runtime.lastError) {
         gsUtils.warning(
           tabId,

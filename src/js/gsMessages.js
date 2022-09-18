@@ -130,13 +130,19 @@ var gsMessages = {
       if (callback) callback('tabId not specified');
       return;
     }
-    chrome.tabs.executeScript(tabId, { file: scriptPath }, function(response) {
+
+    function scriptCallback (response) {
       if (chrome.runtime.lastError) {
         if (callback) callback(chrome.runtime.lastError);
       } else {
         if (callback) callback(null, response);
       }
-    });
+    }
+
+    chrome.scripting.executeScript({
+      target: { tabId },
+      files: [scriptPath]
+    }, scriptCallback)
   },
 
   executeCodeOnTab: function(tabId, codeString, callback) {
@@ -144,12 +150,20 @@ var gsMessages = {
       if (callback) callback('tabId not specified');
       return;
     }
-    chrome.tabs.executeScript(tabId, { code: codeString }, function(response) {
+
+    function scriptCallback (response) {
       if (chrome.runtime.lastError) {
         if (callback) callback(chrome.runtime.lastError);
       } else {
         if (callback) callback(null, response);
       }
-    });
+    }
+
+    // TODO: This might need a deeper refactor depending and what `codeString` is and does.
+    // REF: https://developer.chrome.com/docs/extensions/reference/scripting/#injected-code
+    chrome.scripting.executeScript({
+      target: { tabId },
+      func: codeString
+    }, scriptCallback)
   },
 };

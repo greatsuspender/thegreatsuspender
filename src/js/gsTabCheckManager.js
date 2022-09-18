@@ -477,7 +477,7 @@ var gsTabCheckManager = (function() {
         gsUtils.log(
           QUEUE_ID,
           tab.id,
-          'chrome.tabs.executeScript failed to trigger callback'
+          'chrome.scripting.executeScript failed to trigger callback'
         );
         resolve(null);
       }, 10000);
