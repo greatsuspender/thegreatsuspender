@@ -11,7 +11,8 @@ var historyUtils = (function(global) {
   }
   chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
 
-  var noop = function() {};
+  var noop = function() {
+  };
 
   function importSession(e) {
     var f = e.target.files[0];
@@ -36,7 +37,7 @@ var historyUtils = (function(global) {
   async function handleImport(sessionName, textContents) {
     sessionName = window.prompt(
       chrome.i18n.getMessage('js_history_enter_name_for_session'),
-      sessionName
+      sessionName,
     );
     if (sessionName) {
       const shouldSave = await new Promise(resolve => {
@@ -103,22 +104,22 @@ var historyUtils = (function(global) {
     }
   }
 
-  function exportSessionWithId(sessionId, callback) {
+  function exportSessionWithId(windowId, sessionId, callback) {
     callback = typeof callback !== 'function' ? noop : callback;
 
+    // document.getElementById('debugWindowId').innerText = document.getElementById('debugWindowId').innerText + ' - Window ID retrieved: ' + windowId;
     gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       if (!session || !session.windows) {
         callback();
       } else {
-        exportSession(session, callback);
+        exportSession(session, callback, windowId);
       }
     });
   }
 
-  function exportSession(session, callback) {
-    let sessionString = '';
+  function exportSession(session, callback, windowId) {
+    function _exInternalExport(curWindow) {
 
-    session.windows.forEach(function(curWindow, index) {
       curWindow.tabs.forEach(function(curTab, tabIndex) {
         if (gsUtils.isSuspendedTab(curTab)) {
           sessionString += gsUtils.getOriginalUrl(curTab.url) + '\n';
@@ -128,6 +129,19 @@ var historyUtils = (function(global) {
       });
       //add an extra newline to separate windows
       sessionString += '\n';
+    }
+
+    let sessionString = '';
+
+    session.windows.forEach(function(curWindow, index) {
+      if (windowId != null) {
+        if (curWindow.id == windowId) {
+          _exInternalExport(curWindow);
+        }
+      } else {
+        _exInternalExport(curWindow);
+      }
+
     });
 
     const blob = new Blob([sessionString], { type: 'text/plain' });
@@ -147,7 +161,7 @@ var historyUtils = (function(global) {
       });
       if (nameExists) {
         var overwrite = window.confirm(
-          chrome.i18n.getMessage('js_history_confirm_session_overwrite')
+          chrome.i18n.getMessage('js_history_confirm_session_overwrite'),
         );
         if (!overwrite) {
           callback(false);
@@ -158,25 +172,31 @@ var historyUtils = (function(global) {
     });
   }
 
-  function saveSession(sessionId) {
+  function saveSession(sessionId, windowId) {
+    // document.getElementById('debugWindowId').innerText = document.getElementById('debugWindowId').innerText + ' - Window ID retrieved: ' + windowId;
     gsIndexedDb.fetchSessionBySessionId(sessionId).then(function(session) {
       if (!session) {
         gsUtils.warning(
           'historyUtils',
           'Could not find session with sessionId: ' +
-            sessionId +
-            '. Save aborted'
+          sessionId +
+          '. Save aborted',
         );
         return;
       }
       var sessionName = window.prompt(
-        chrome.i18n.getMessage('js_history_enter_name_for_session')
+        chrome.i18n.getMessage('js_history_enter_name_for_session'),
       );
       if (sessionName) {
         historyUtils.validateNewSessionName(sessionName, function(shouldSave) {
           if (shouldSave) {
             session.name = sessionName;
-            gsIndexedDb.addToSavedSessions(session).then(function() {
+            // document.getElementById('debugWindowId').innerText = document.getElementById('debugWindowId').innerText + ' - SessionData: ' + JSON.stringify(session);
+            let newSession = JSON.parse(JSON.stringify(session));
+            newSession.windows = (windowId !== null) ? session.windows.filter((curWindow) => (curWindow.id === windowId)) : session.windows;
+            // document.getElementById('debugWindowId').innerText = JSON.stringify(newSession);
+
+            gsIndexedDb.addToSavedSessions(newSession).then(function() {
               window.location.reload();
             });
           }
@@ -185,11 +205,33 @@ var historyUtils = (function(global) {
     });
   }
 
+  function migrateTabs(from_id) {
+    if (from_id.length == 32) {
+      chrome.tabs.query({}, function(tabs) {
+        var count = 0;
+        var prefix_before = 'chrome-extension://' + from_id;
+        var prefix_after = 'chrome-extension://' + chrome.i18n.getMessage('@@extension_id');
+        for (var tab of tabs) {
+          if (!tab.url.startsWith(prefix_before)) {
+            continue;
+          }
+          count += 1;
+          var migrated_url = prefix_after + tab.url.substr(prefix_before.length);
+          chrome.tabs.update(tab.id, { url: migrated_url });
+        }
+        alert(chrome.i18n.getMessage('js_history_migrate_success', '' + count));
+      });
+    } else {
+      alert(chrome.i18n.getMessage('js_history_migrate_fail'));
+    }
+  }
+
   return {
     importSession,
     exportSession,
     exportSessionWithId,
     validateNewSessionName,
     saveSession,
+    migrateTabs,
   };
 })(this);

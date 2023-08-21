@@ -53,7 +53,7 @@
   }
 
   Promise.all([
-    gsUtils.documentReadyAndLocalisedAsPromsied(document),
+    gsUtils.documentReadyAndLocalisedAsPromised(document),
     getTabStatusAsPromise(0, true),
     getSelectedTabsAsPromise(),
   ]).then(function([domLoadedEvent, initialTabStatus, selectedTabs]) {
@@ -261,9 +261,6 @@
     if (theme === 'dark') {
       document.body.classList.add('dark');
     }
-    setTimeout(function() {
-      document.getElementById('popupContent').style.opacity = 1;
-    }, 200);
   }
 
   function addClickHandlers() {

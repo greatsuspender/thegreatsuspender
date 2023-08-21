@@ -1,0 +1,787 @@
+{
+    "ext_extension_name": {
+        "message": "The Marvellous Suspender"
+    },
+    "ext_extension_description": {
+        "message": "اجعل جهاز الكمبيوتر يعمل بسلاسة عن طريق تعليق علامات التبويب التي لا تستخدمها"
+    },
+    "ext_default_title": {
+        "message": "The Marvellous Suspender"
+    },
+    "ext_cmd_toggle_tab_suspension_description": {
+        "message": "إيقاف / إلغاء تعليق التبويب النشط"
+    },
+    "ext_cmd_toggle_tab_pause_description": {
+        "message": "إيقاف مؤقت/إلغاء إيقاف التبويب النشط"
+    },
+    "ext_cmd_suspend_selected_tabs_description": {
+        "message": "تعليق علامات التبويب المحددة"
+    },
+    "ext_cmd_unsuspend_selected_tabs_description": {
+        "message": "إلغاء تعليق علامات التبويب المحددة"
+    },
+    "ext_cmd_soft_suspend_active_window_description": {
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+    },
+    "ext_cmd_force_suspend_active_window_description": {
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+    },
+    "ext_cmd_unsuspend_active_window_description": {
+        "message": "إلغاء تعليق جميع علامات التبويب في النافذة النشطة"
+    },
+    "ext_cmd_soft_suspend_all_windows_description": {
+        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
+    },
+    "ext_cmd_force_suspend_all_windows_description": {
+        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
+    },
+    "ext_cmd_unsuspend_all_windows_description": {
+        "message": "إلغاء تعليق جميع علامات التبويب في جميع النوافذ"
+    },
+    "js_context_open_link_in_suspended_tab": {
+        "message": "فتح الرابط في علامة تبويب معلق جديدة"
+    },
+    "js_context_toggle_suspend_state": {
+        "message": "تعليق/إلغاء تعليق التبويب هذا"
+    },
+    "js_context_toggle_pause_suspension": {
+        "message": "إيقاف مؤقت/إلغاء إيقاف هذا التبويب"
+    },
+    "js_context_never_suspend_domain": {
+        "message": "عدم تعليق هذا النطاق مطلقاً"
+    },
+    "js_context_never_suspend_page": {
+        "message": "عدم تعليق هذا الرابط مطلقاً"
+    },
+    "js_context_suspend_selected_tabs": {
+        "message": "تعليق علامات التبويب المحددة"
+    },
+    "js_context_unsuspend_selected_tabs": {
+        "message": "إلغاء تعليق علامات التبويب المحددة"
+    },
+    "js_context_soft_suspend_other_tabs_in_window": {
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+    },
+    "js_context_force_suspend_other_tabs_in_window": {
+        "message": "تعليق جميع علامات التبويب الأخرى في النافذة النشطة"
+    },
+    "js_context_unsuspend_all_tabs_in_window": {
+        "message": "إلغاء تعليق جميع علامات التبويب في النافذة النشطة"
+    },
+    "js_context_soft_suspend_all_tabs": {
+        "message": "تعليق جميع علامات التبويب في جميع النوافذ"
+    },
+    "js_context_force_suspend_all_tabs": {
+        "message": "Tüm pencerelerde tüm sekmeleri askıya almaya zorla"
+    },
+    "js_context_unsuspend_all_tabs": {
+        "message": "إلغاء تعليق جميع علامات التبويب في جميع النوافذ"
+    },
+    "html_about_title": {
+        "message": "حول عن الإضافة"
+    },
+    "html_about_fork_beginning": {
+        "message": "استناداً إلى الأصل"
+    },
+    "html_about_fork_mid": {
+        "message": "متاح في جيت هب، بدون تتبع ADS"
+    },
+    "html_about_fork_end": {
+        "message": "المزيد من المعلومات عن"
+    },
+    "html_about_github_title": {
+        "message": "GitHub"
+    },
+    "html_about_blog_title": {
+        "message": "Blog"
+    },
+    "html_about_twitter_title": {
+        "message": "Twitter"
+    },
+    "html_about_report_issues_prefix": {
+        "message": "إذا كان لديك ملاحظات أو ترغب في الإبلاغ عن مشكلة، فيمكنك القيام بذلك على سبيل المثال"
+    },
+    "html_about_report_issues_suffix": {
+        "message": ". Lütfen yeni bir fikir oluşturmadan önce fikrinizin veya sorunun zaten var olup olmadığını kontrol edin. Teşekkürler!"
+    },
+    "html_about_debugging_prefix": {
+        "message": "لتمكين التسجيل، أو لتعيين أعلام التصحيح، اذهب إلى "
+    },
+    "html_about_debugging_suffix": {
+        "message": "صفحة التصحيح."
+    },
+    "html_about_the_github_issues_page": {
+        "message": "صفحة المشكلات على \"جيت هاب\""
+    },
+    "html_about_html2canvas": {
+        "message": "html2canvas"
+    },
+    "html_about_html2canvas_prefix": {
+        "message": "هذه الإضافة تستخدم"
+    },
+    "html_about_html2canvas_suffix": {
+        "message": "المكتبة العامة التي كتبتها Niklas von Hertzen."
+    },
+    "html_about_indexedDb": {
+        "message": "db.js"
+    },
+    "html_about_indexedDb_prefix": {
+        "message": "كما أنها تستخدم تغليف فليديب"
+    },
+    "html_about_indexedDb_suffix": {
+        "message": "كتب بواسطة آرون باول."
+    },
+    "html_about_browserstack": {
+        "message": "BrowserStack"
+    },
+    "html_about_browserstack_prefix": {
+        "message": "شكراً لك أيضاً"
+    },
+    "html_about_browserstack_suffix": {
+        "message": "لتوفير أدوات اختبار متصفح الكروم مجانية."
+    },
+    "html_about_tgs_prefix": {
+        "message": "هذا التمديد لم يكن ليتحقق بدون"
+    },
+    "html_about_tgs_suffix": {
+        "message": "."
+    },
+    "html_broken_title": {
+        "message": "يتم كسر"
+    },
+    "html_broken_ruh_roh": {
+        "message": "روه روه!"
+    },
+    "html_broken_line1": {
+        "message": "فشل في البدء. ربما أنت تستخدم نسخة غير متوافقة من متصفح الكروم ؟"
+    },
+    "html_broken_line2": {
+        "message": "حاول إعادة تشغيل الإضافة. إذا استمرت المشكلة، اطلب المساعدة على"
+    },
+    "html_broken_line2_github_page": {
+        "message": "صفحة مشروع جيت هب"
+    },
+    "html_broken_line3": {
+        "message": "يمكنك استعادة علامات التبويب المفقودة من"
+    },
+    "html_broken_line3_session_management": {
+        "message": "إدارة الجلسة"
+    },
+    "html_broken_button_restart_extension": {
+        "message": "إعادة تشغيل الإضافة"
+    },
+    "html_history_title": {
+        "message": "إدارة الجلسة"
+    },
+    "html_history_current_session": {
+        "message": "الجلسة الحالية"
+    },
+    "html_history_recent_sessions": {
+        "message": "الجلسات الأخيرة"
+    },
+    "html_history_saved_sessions": {
+        "message": "الجلسات المحفوظة"
+    },
+    "html_history_import_session": {
+        "message": "استيراد الجلسة"
+    },
+    "html_history_migrate_tabs": {
+        "message": "ترحيل علامات التبويب"
+    },
+    "html_history_migrate_old_id": {
+        "message": "معرف اضافة TGS القديم"
+    },
+    "html_notice_title": {
+        "message": "إشعار"
+    },
+    "html_notice_important_notice": {
+        "message": "إشعار هام من The Marvelous Suspender"
+    },
+    "html_options_title": {
+        "message": "الإعدادات"
+    },
+    "html_options_suspend_title": {
+        "message": "تعليق علامة التبويب التلقائي"
+    },
+    "html_options_suspended_title": {
+        "message": "علامات التبويب المعلقة"
+    },
+    "html_options_other_title": {
+        "message": "آخر"
+    },
+    "html_options_suspend_automatically_after": {
+        "message": "تعليق علامات التبويب تلقائياً بعد"
+    },
+    "html_options_suspend_never": {
+        "message": "أبدا"
+    },
+    "html_options_suspend_seconds": {
+        "message": "ثواني"
+    },
+    "html_options_suspend_minute": {
+        "message": "دقيقة"
+    },
+    "html_options_suspend_minutes": {
+        "message": "دقائق"
+    },
+    "html_options_suspend_hour": {
+        "message": "ساعة"
+    },
+    "html_options_suspend_hours": {
+        "message": "ساعات"
+    },
+    "html_options_suspend_day": {
+        "message": "يوم"
+    },
+    "html_options_suspend_days": {
+        "message": "أيام"
+    },
+    "html_options_suspend_week": {
+        "message": "أسبوع"
+    },
+    "html_options_suspend_weeks": {
+        "message": "أسابيع"
+    },
+    "html_options_suspend_no_pinned": {
+        "message": "لا تعلق أبداً علامات التبويب الثابتة"
+    },
+    "html_options_suspend_no_forms": {
+        "message": "لا تعلق أبداً علامات التبويب التي تحتوي على مدخلات نموذج غير محفوظة"
+    },
+    "html_options_suspend_no_audio": {
+        "message": "لا تقم أبدا بتعليق علامات التبويب التي تشغل الصوت"
+    },
+    "html_options_suspend_only_connected": {
+        "message": "لا توقف أبداً علامات التبويب عند عدم الاتصال"
+    },
+    "html_options_suspend_claim_by_default": {
+        "message": "Claim by default (seamless migration; tab considered suspended if 'suspended.html' is in url)"
+    },
+    "html_options_suspend_only_on_battery": {
+        "message": "لا توقف أبداً علامات التبويب عند الاتصال بمصدر الطاقة"
+    },
+    "html_options_suspend_no_active_tabs": {
+        "message": "عدم تعليق علامة التبويب النشطة أبدا في كل نافذة"
+    },
+    "html_options_suspend_automatically_unsuspend": {
+        "message": "إلغاء تعليق علامة التبويب تلقائياً عند عرضها"
+    },
+    "html_options_suspend_discard_after_suspend": {
+        "message": "تطبيق تطبيق كروم المدمج لحفظ الذاكرة عند التعليق"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1a": {
+        "message": "يقلل من استخدام ذاكرة التبويب المعلق أكثر، من خلال استخدام"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1b": {
+        "message": "وظيفة كروم المدمجة في 'تجاهل التبويب'. يمكن أن يؤدي هذا إلى أعلى"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line1c": {
+        "message": "إلى 500٪ مدخرات الذاكرة عند العمل مع عدد كبير من علامات التبويب."
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line2a": {
+        "message": "غير أنه سيؤدي أيضا إلى تأخير طفيف عند الاختيار"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line2b": {
+        "message": "علامة التبويب المعلقة."
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line3a": {
+        "message": "وللحصول على مزيد من المعلومات، يرجى الرجوع إلى المرجع التالي:"
+    },
+    "html_options_suspend_discard_after_suspend_tooltip_line3b": {
+        "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
+    },
+    "html_options_suspend_theme": {
+        "message": "موضوع"
+    },
+    "html_options_suspend_theme_light": {
+        "message": "الضوء"
+    },
+    "html_options_suspend_theme_dark": {
+        "message": "مظلم"
+    },
+    "html_options_suspend_screen_capturing": {
+        "message": "التقاط الشاشة"
+    },
+    "html_options_suspend_screen_capturing_disabled": {
+        "message": "معطل"
+    },
+    "html_options_suspend_screen_capturing_screen_only": {
+        "message": "التقاط أعلى الشاشة فقط"
+    },
+    "html_options_suspend_screen_capturing_entire_page": {
+        "message": "التقاط صفحة كاملة"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line1a": {
+        "message": "في علامة التبويب المعلقة، يمكن للأضافة أن يعرض صورة معاينة لما تبويب"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line1b": {
+        "message": "يبدو وكأنه قبل أن يتم تعليقه."
+    },
+    "html_options_suspend_screen_capturing_tooltip_line2a": {
+        "message": "خاصية التقاط الشاشة تجريبية ويمكن أن تسبب استخداما كبيرا لوحدة المعالجة المركزية"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line2b": {
+        "message": "بالإضافة إلى زيادة طفيفة في استخدام الذاكرة."
+    },
+    "html_options_suspend_screen_capturing_tooltip_line3a": {
+        "message": "إذا لاحظت سلوك غريب، مثل علامات التبويب التي تستغرق وقتاً طويلاً لتعليقها، أو كرم"
+    },
+    "html_options_suspend_screen_capturing_tooltip_line3b": {
+        "message": "تعطل بشكل غير متوقع، حاول إيقاف تشغيل هذه الميزة."
+    },
+    "html_options_suspend_force_screen_capture": {
+        "message": "تمكين وضع التقاط الشاشة بجودة عالية"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line1": {
+        "message": "عند التعطيل، يكون لالتقاط الشاشة القيود التالية للمساعدة في الأداء:"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line2": {
+        "message": "- التقاط شاشة منخفضة الجودة"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line4": {
+        "message": "- لن يتم التقاط الشاشة إذا استغرق إنشاء الصورة أكثر من دقيقة واحدة"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line5": {
+        "message": "- أقصى ارتفاع لالتقاط الشاشة يقتصر على 5000px"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line6": {
+        "message": "تمكين وضع التقاط الشاشة عالي الجودة قد يزيد بشكل كبير من تحميل المعالج"
+    },
+    "html_options_suspend_force_screen_capture_tooltip_line7": {
+        "message": "و استخدام الذاكرة."
+    },
+    "html_options_whitelist_title": {
+        "message": "لا تعلق أبداً علامات التبويب مع عناوين URL من القائمة التالية:"
+    },
+    "html_options_whitelist_tooltip_line1": {
+        "message": "إضافة عنوان URL لكل صفحة تريد القائمة البيضاء على سطر جديد. على سبيل المثال:"
+    },
+    "html_options_whitelist_tooltip_line2": {
+        "message": "لقائمة بيضاء متعددة المواقع في سطر واحد يمكنك تحديد جزء من url بدلاً من ذلك:"
+    },
+    "html_options_whitelist_tooltip_line3": {
+        "message": "يمكنك أيضا تحديد التعبيرات العادية عن طريق إرفاق النص في الخطوط الأمامية:"
+    },
+    "html_options_whitelist_test": {
+        "message": "اختبار القائمة البيضاء"
+    },
+    "html_options_other_enable_context_menu": {
+        "message": "أضف الموصل المبتكر إلى قائمة السياق بالنقر الأيمن"
+    },
+    "html_options_other_enable_context_menu_tooltip_line1": {
+        "message": "إضافة عناصر تحكم لهذا الملحق إلى قائمة انقر بالزر الأيمن لصفحة ويب."
+    },
+    "html_options_other_enable_context_menu_tooltip_line2": {
+        "message": "هذا سيعطيك الوصول إلى إجراءات التعليق المتقدمة غير متوفرة"
+    },
+    "html_options_other_enable_context_menu_tooltip_line3": {
+        "message": "في مكان آخر من التمديد."
+    },
+    "html_options_other_enable_sync": {
+        "message": "مزامنة الإعدادات مع ملف تعريف كروم"
+    },
+    "html_options_other_enable_sync_tooltip_line1a": {
+        "message": "سيتم مزامنة إعدادات الملحق عبر جميع متصفحات الكروم"
+    },
+    "html_options_other_enable_sync_tooltip_line1b": {
+        "message": "تم تسجيل الدخول بنفس الملف الشخصي."
+    },
+    "html_options_other_enable_sync_tooltip_line2": {
+        "message": "سيؤدي هذا أيضا إلى مزامنة الإعدادات في الوضع المخفي."
+    },
+    "html_options_other_enable_sync_warning": {
+        "message": "تشغيل هذا سوف يستبدل الإعدادات في جميع المتصفحات الأخرى التي تم تسجيلها في نفس ملف كروم"
+    },
+    "html_options_suspend_on_low_memory": {
+        "message": "التعليق فوراً عندما تصبح ذاكرة النظام منخفضة جداً"
+    },
+    "html_options_suspend_on_low_memory_tooltip_line1": {
+        "message": "هذا الخيار سيتجاوز خاصية التبويب التلقائي لـ Chrome."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line2": {
+        "message": "إذا تم تفعيله، فإنه سيجبر علامة التبويب على التعليق بدلاً من أن يتم تجاهلها من قبل كروم."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line3": {
+        "message": "عادة ، لن يتم تجاهل علامات التبويب إلا بمجرد أن تصبح ذاكرة النظام منخفضة جداً."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line4": {
+        "message": "يرجى ملاحظة: قد يتسبب هذا في تعليق علامات التبويب قبل الوقت الذي لديك فيه"
+    },
+    "html_options_suspend_on_low_memory_tooltip_line5": {
+        "message": "محدد في خيارات التعليق التلقائي للتبويب."
+    },
+    "html_options_suspend_on_low_memory_tooltip_line6": {
+        "message": "وللحصول على مزيد من المعلومات عن رفض كروم يرجى الرجوع إلى ما يلي:"
+    },
+    "html_options_suspend_on_low_memory_tooltip_discarding_link": {
+        "message": "https://developers.google.com/web/updates/2015/09/tab-discarding"
+    },
+    "html_popup_unsuspend_tab": {
+        "message": "إلغاء تعليق علامة التبويب"
+    },
+    "html_popup_suspend_tab": {
+        "message": "تعليق علامة التبويب هذه الآن"
+    },
+    "html_popup_dont_suspend_now": {
+        "message": "لا تقم بالتعليق الآن"
+    },
+    "html_popup_never_suspend_domain": {
+        "message": "عدم تعليق هذا الرابط مطلقاً"
+    },
+    "html_popup_never_suspend_page": {
+        "message": "عدم تعليق هذا الرابط مطلقاً"
+    },
+    "html_popup_suspend_other_tabs": {
+        "message": "تعليق جميع علامات التبويب الأخرى"
+    },
+    "html_popup_unsuspend_all_tabs": {
+        "message": "إلغاء تعليق كل علامات التبويب"
+    },
+    "html_popup_suspend_selected_tabs": {
+        "message": "إلغاء تعليق علامات التبويب المحددة"
+    },
+    "html_popup_unsuspend_selected_tabs": {
+        "message": "إلغاء تعليق علامات التبويب المحددة"
+    },
+    "html_popup_settings": {
+        "message": "الإعدادات"
+    },
+    "html_restoring_title": {
+        "message": "إستعادة النافذة"
+    },
+    "html_restoring_heading": {
+        "message": "إستعادة علامات التبويب"
+    },
+    "html_restoring_detail": {
+        "message": "الرجاء الانتظار بينما استعيد هذه النافذة..."
+    },
+    "html_recovery_title": {
+        "message": "استرداد"
+    },
+    "html_recovery_ruh_roh": {
+        "message": "روه روه!"
+    },
+    "html_recovery_description_line1": {
+        "message": "يبدو أنك تستعيد عافيتك من تحطم الملحق."
+    },
+    "html_recovery_description_line2": {
+        "message": "قد تكون علامات التبويب المعلقة الخاصة بك قد تحطمت أو اختفت."
+    },
+    "html_recovery_restore_tabs_automatically": {
+        "message": "استعادة علامات التبويب تلقائياً"
+    },
+    "html_recovery_go_to_session_manager": {
+        "message": "اذهب إلى مدير الجلسة"
+    },
+    "html_recovery_important_message": {
+        "message": "لديك حاليا تشغيل التقاط الشاشة. إذا كان هذا الملحق يتعطل مرارا وتكرارا، فإنه من المستحسن تعطيل هذا الخيار."
+    },
+    "html_recovery_disable_screen_capturing": {
+        "message": "إيقاف تشغيل التقاط الشاشة"
+    },
+    "html_recovery_tabs_to_restore": {
+        "message": "علامات التبويب لإستعادتها"
+    },
+    "html_shortcuts_title": {
+        "message": "اختصارات لوحة المفاتيح"
+    },
+    "html_shortcuts_keyboard_shortcuts": {
+        "message": "اختصارات لوحة المفاتيح"
+    },
+    "html_shortcuts_context_menu_note": {
+        "message": "ملاحظة: هذه الإجراءات متاحة أيضا عن طريق قائمة السياق بالنقر الأيمن."
+    },
+    "html_shortcuts_remap_keys": {
+        "message": "تغيير الاختصارات"
+    },
+    "html_sidebar_general_settings": {
+        "message": "الإعدادات"
+    },
+    "html_sidebar_session_management": {
+        "message": "إدارة الجلسة"
+    },
+    "html_sidebar_shortcuts": {
+        "message": "اختصارات لوحة المفاتيح"
+    },
+    "html_sidebar_support": {
+        "message": "حول عن اضافة"
+    },
+    "html_success_great_success": {
+        "message": "نجاح رائع!"
+    },
+    "html_success_all_tabs_restored": {
+        "message": "تم استعادة جميع علامات التبويب الخاصة بك."
+    },
+    "html_success_goto_advanced_prefix": {
+        "message": "لإدارة الدورات المتقدمة، قم بزيارة"
+    },
+    "html_success_goto_advanced_suffix": {
+        "message": "الصفحة"
+    },
+    "html_session_manager": {
+        "message": "إدارة الجلسة"
+    },
+    "html_suspended_title": {
+        "message": "علامات التبويب المعلقة"
+    },
+    "html_suspended_tab_suspended": {
+        "message": "علامة التبويب معلقة"
+    },
+    "html_suspended_tab_reload": {
+        "message": "أعد تحميل الصفحة"
+    },
+    "html_suspended_tab_whitelist_prefix": {
+        "message": "لا تعلق مطلقاً"
+    },
+    "html_suspended_tab_whitelist_suffix": {
+        "message": "..."
+    },
+    "html_suspended_click_to_reload": {
+        "message": "قم بتحديث أو انقر لإعادة التحميل"
+    },
+    "html_suspended_toast_not_connected": {
+        "message": "يجب ان تكون متصلاً بالانترنت."
+    },
+    "html_suspended_toast_reload_disabled": {
+        "message": "إعادة تحميل التبويب التلقائي معطل مؤقتاً."
+    },
+    "html_permissions_title": {
+        "message": "الأذونات"
+    },
+    "html_permissions_heading": {
+        "message": "الرجاء منحي حق الوصول إلى عناوين URL للملف المحلي"
+    },
+    "html_permissions_info": {
+        "message": "هذا التمديد غير مسموح به حاليا لتعليق عناوين URL بدءاً بكلمة \"ملف\".\nلتغيير هذا، يرجى تشغيل \"السماح بالوصول إلى عناوين URLs\" من صفحة إعدادات الملحق."
+    },
+    "html_permissions_backup": {
+        "message": "يرجى ملاحظة أن تغيير هذا الخيار سيؤدي إلى اختفاء جميع علامات التبويب المعلقة الخاصة بك لفترة وجيزة.\nفقط في الحالة ، قد يكون الوقت جيدا لتوفير نسخة احتياطية من جلسة التبويب الحالية."
+    },
+    "html_update_title": {
+        "message": "التحديث"
+    },
+    "html_update_heading2": {
+        "message": "على وشك أن تصبح رائعة"
+    },
+    "html_update_info": {
+        "message": "نسخة جديدة من الموصوف الجديد جاهزة للتثبيت.\nيرجى ملاحظة: خلال التحديث، ستختفي علامات التبويب المعلقة الخاصة بك لفترة وجيزة."
+    },
+    "html_update_info_withbackup": {
+        "message": "فقط في الحالة، الآن قد يكون وقتاً جيداً لتوفير نسخة احتياطية من جلسة التبويب الحالية."
+    },
+    "html_update_info_nobackup_prefix": {
+        "message": "يوصى بشدة بأن تقوم بتصدير نسخة من الجلسة الحالية من "
+    },
+    "html_update_info_nobackup_suffix": {
+        "message": " قبل الاستمرار في التحديث."
+    },
+    "html_updated_title": {
+        "message": "التحديث"
+    },
+    "html_updating_heading": {
+        "message": "يتم التحديث"
+    },
+    "html_updating_message": {
+        "message": "الرجاء الانتظار بينما أستعيد علامات التبويب المعلقة الخاصة بك..."
+    },
+    "html_updated_great_suspender_updated": {
+        "message": "لقد تم تحديثها"
+    },
+    "html_updated_info_line1": {
+        "message": "تم إنشاء نسخة احتياطية تلقائية من علامات التبويب الخاصة بك قبل التحديث."
+    },
+    "html_updated_info_line2_prefix": {
+        "message": "إذا واجهت أي مشاكل أثناء التحديث، يمكنك استعادة علامات التبويب المفقودة من "
+    },
+    "html_updated_info_line2_suffix": {
+        "message": " الصفحة."
+    },
+    "html_updated_detail_header_prefix": {
+        "message": "ما هو الجديد في "
+    },
+    "html_updated_detail_header_suffix": {
+        "message": "?"
+    },
+    "html_updated_new_features_header": {
+        "message": "المميزات الجديدة :"
+    },
+    "html_updated_bug_fixes_header": {
+        "message": "إصلاح الأخطاء :"
+    },
+    "html_updated_release_notes": {
+        "message": "قم بزيارة GitHub للحصول على ملاحظات الإصدار الكامل : "
+    },
+    "html_updated_patch_message": {
+        "message": "عذرا على الإزعاج. كنت بحاجة للتو للقيام بصيانة صغيرة."
+    },
+    "html_welcome_title": {
+        "message": "أهلاً بك"
+    },
+    "html_welcome_text_line1": {
+        "message": "شكراً على المحاولة"
+    },
+    "html_welcome_text_line2": {
+        "message": "أجعل جهاز الكمبيوتر يعمل بسلاسة عن طريق تعليق علامات التبويب التي لا تستخدمها."
+    },
+    "html_welcome_text_line3": {
+        "message": "يمكنك ضبط الإعدادات أدناه."
+    },
+    "js_popup_normal": {
+        "message": "سيتم تعليق علامة التبويب تلقائياً."
+    },
+    "js_popup_normal_pause": {
+        "message": "ليس الآن"
+    },
+    "js_popup_special": {
+        "message": "لا يمكن تعليق علامة التبويب"
+    },
+    "js_popup_suspended": {
+        "message": "علامة التبويب معلقة"
+    },
+    "js_popup_suspended_pause": {
+        "message": "عدم التعليق"
+    },
+    "js_popup_whitelisted": {
+        "message": "قائمة بيضاء بالموقع."
+    },
+    "js_popup_whitelisted_remove": {
+        "message": "إزالة من القائمة البيضاء"
+    },
+    "js_popup_audible": {
+        "message": "علامة التبويب تقوم بتشغيل الصوت."
+    },
+    "js_popup_form_input": {
+        "message": "علامة التبويب تتلقى مدخلات النموذج."
+    },
+    "js_popup_form_input_unpause": {
+        "message": "إلغاء الإيقاف المؤقت"
+    },
+    "js_popup_pinned": {
+        "message": "تم تثبيت علامة التبويب"
+    },
+    "js_popup_temp_whitelist": {
+        "message": "تعليق علامة التبويب مؤقتاً."
+    },
+    "js_popup_temp_whitelist_unpause": {
+        "message": "إلغاء الإيقاف المؤقت"
+    },
+    "js_popup_never": {
+        "message": "تم تعطيل تعليق التبويب التلقائي."
+    },
+    "js_popup_no_connectivity": {
+        "message": "لا يوجد إتصال بالشبكة"
+    },
+    "js_popup_charging": {
+        "message": "متصل بمصدر الطاقة"
+    },
+    "js_popup_blockedFile": {
+        "message": "لا يمكن تعليق الملفات المحلية."
+    },
+    "js_popup_blockedFile_enable": {
+        "message": "تمكين"
+    },
+    "js_popup_unknown": {
+        "message": "في انتظار علامة التبويب للتحميل..."
+    },
+    "js_popup_initialising": {
+        "message": "في انتظار التمديد للتهيئة..."
+    },
+    "js_popup_error": {
+        "message": "التعليق التلقائي غير متوفر لهذا التبويب"
+    },
+    "js_history_delete": {
+        "message": "احذف"
+    },
+    "js_history_export": {
+        "message": "استخراج"
+    },
+    "js_history_reload": {
+        "message": "افتح و تحميل"
+    },
+    "js_history_resuspend": {
+        "message": "افتح و تعليق"
+    },
+    "js_history_save": {
+        "message": "احفظ"
+    },
+    "js_history_window": {
+        "message": "نافذة"
+    },
+    "js_history_windows": {
+        "message": "ويندوز"
+    },
+    "js_history_tab": {
+        "message": "علامة التبويب"
+    },
+    "js_history_tabs": {
+        "message": "علامات التبويب"
+    },
+    "js_history_enter_name_for_session": {
+        "message": "أدخل إسم لهذه الجلسة"
+    },
+    "js_history_confirm_delete": {
+        "message": "هل أنت متأكد أنك تريد حذف هذه الجلسة؟"
+    },
+    "js_history_confirm_session_overwrite": {
+        "message": "هناك بالفعل جلسة محفوظة بهذا الاسم. هل تريد الكتابة فوق جلسة العمل الحالية؟"
+    },
+    "js_history_import_fail": {
+        "message": "فشل تحميل الملف. تأكد من أن الملف نص عادي ويحتوي على عنوان URL واحد لكل سطر."
+    },
+    "js_history_migrate_fail": {
+        "message": "تحتاج إلى معرف اضافة 32 حرف للانتقال من"
+    },
+    "js_history_migrate_success": {
+        "message": "تم ترحيل $TABCOUNT$ علامات التبويب بنجاح",
+        "placeholders": {
+            "tabcount": {
+                "content": "$1"
+            }
+        }
+    },
+    "js_suspended_remove_from_whitelist": {
+        "message": "إزالة الموقع من القائمة البيضاء"
+    },
+    "js_suspended_hotkey_to_reload": {
+        "message": "تعيين اختصارات لوحة المفاتيح"
+    },
+    "js_suspended_low_memory": {
+        "message": "تم تعليق علامة التبويب بسبب انخفاض ذاكرة النظام"
+    },
+    "js_options_incognito_warning": {
+        "message": "أنت في وضع التخفي. بعض الميزات لن تكون متاحة."
+    },
+    "js_options_whitelist_no_matches": {
+        "message": "لا توجد علامات تبويب مفتوحة تتطابق مع القائمة البيضاء الحالية."
+    },
+    "js_options_whitelist_matches_heading": {
+        "message": "علامات التبويب المفتوحة في القائمة البيضاء:"
+    },
+    "js_options_whitelist_matches_overflow_prefix": {
+        "message": "و"
+    },
+    "js_options_whitelist_matches_overflow_suffix": {
+        "message": "المزيد."
+    },
+    "js_permissions_button_export": {
+        "message": "حفظ النسخة الاحتياطية"
+    },
+    "js_permissions_button_set": {
+        "message": "فتح إعدادات الإضافة"
+    },
+    "js_update_confirm": {
+        "message": "لم تقم بحفظ نسخة احتياطية بعد. هل تريد تحديث الإضافة على أية حال؟"
+    },
+    "js_update_button_export": {
+        "message": "حفظ النسخة الاحتياطية"
+    },
+    "js_update_button_reload": {
+        "message": "تحديث الإضافة الآن"
+    },
+    "js_shortcuts_not_set": {
+        "message": "لم يتم تعيينه"
+    },
+    "js_session_save_point": {
+        "message": "نقطة الحفظ التلقائي لـ v"
+    }
+}

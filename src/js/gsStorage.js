@@ -1,10 +1,7 @@
-/*global chrome, gsAnalytics, gsSession, localStorage, gsUtils */
+/*global chrome, gsSession, localStorage, gsUtils */
 'use strict';
 
-// Used to keep track of which settings were defined in the managed storage
-const managedOptions = []; // Example: ["gsTheme, gsWhitelist"]
-
-const gsStorageSettings = {
+var gsStorage = {
   SCREEN_CAPTURE: 'screenCapture',
   SCREEN_CAPTURE_FORCE: 'screenCaptureForce',
   SUSPEND_IN_PLACE_OF_DISCARD: 'suspendInPlaceOfDiscard',
@@ -12,6 +9,7 @@ const gsStorageSettings = {
   SUSPEND_TIME: 'gsTimeToSuspend',
   IGNORE_WHEN_OFFLINE: 'onlineCheck',
   IGNORE_WHEN_CHARGING: 'batteryCheck',
+  CLAIM_BY_DEFAULT: 'claimByDefault',
   IGNORE_PINNED: 'gsDontSuspendPinned',
   IGNORE_FORMS: 'gsDontSuspendForms',
   IGNORE_AUDIO: 'gsDontSuspendAudio',
@@ -25,24 +23,15 @@ const gsStorageSettings = {
 
   DISCARD_AFTER_SUSPEND: 'discardAfterSuspend',
   DISCARD_IN_PLACE_OF_SUSPEND: 'discardInPlaceOfSuspend',
-  USE_ALT_SCREEN_CAPTURE_LIB: 'useAlternateScreenCaptureLib',
-  TRACKING_OPT_OUT: 'trackingOptOut',
-  ENABLE_CLEAN_SCREENCAPS: 'cleanScreencaps'
-};
-
-var gsStorage = {
-  ...gsStorageSettings,
 
   APP_VERSION: 'gsVersion',
   LAST_NOTICE: 'gsNotice',
   LAST_EXTENSION_RECOVERY: 'gsExtensionRecovery',
 
-  SM_SESSION_METRICS: 'gsSessionMetrics',
-  SM_TIMESTAMP: 'sessionTimestamp',
-  SM_SUSPENDED_TAB_COUNT: 'suspendedTabCount',
-  SM_TOTAL_TAB_COUNT: 'totalTabCount',
+  UPDATE_AVAILABLE: 'gsUpdateAvailable',
 
-  noop: function() {},
+  noop: function() {
+  },
 
   getSettingsDefaults: function() {
     const defaults = {};
@@ -50,10 +39,10 @@ var gsStorage = {
     defaults[gsStorage.SCREEN_CAPTURE_FORCE] = false;
     defaults[gsStorage.SUSPEND_IN_PLACE_OF_DISCARD] = false;
     defaults[gsStorage.DISCARD_IN_PLACE_OF_SUSPEND] = false;
-    defaults[gsStorage.USE_ALT_SCREEN_CAPTURE_LIB] = false;
     defaults[gsStorage.DISCARD_AFTER_SUSPEND] = false;
     defaults[gsStorage.IGNORE_WHEN_OFFLINE] = false;
     defaults[gsStorage.IGNORE_WHEN_CHARGING] = false;
+    defaults[gsStorage.CLAIM_BY_DEFAULT] = false;
     defaults[gsStorage.UNSUSPEND_ON_FOCUS] = false;
     defaults[gsStorage.IGNORE_PINNED] = true;
     defaults[gsStorage.IGNORE_FORMS] = true;
@@ -66,8 +55,7 @@ var gsStorage = {
     defaults[gsStorage.NO_NAG] = false;
     defaults[gsStorage.WHITELIST] = '';
     defaults[gsStorage.THEME] = 'light';
-    defaults[gsStorage.TRACKING_OPT_OUT] = false;
-    defaults[gsStorage.ENABLE_CLEAN_SCREENCAPS] = false;
+    defaults[gsStorage.UPDATE_AVAILABLE] = false; //Set to true for debug
 
     return defaults;
   },
@@ -92,7 +80,7 @@ var gsStorage = {
           gsUtils.error(
             'gsStorage',
             'Failed to parse gsSettings: ',
-            localStorage.getItem('gsSettings')
+            localStorage.getItem('gsSettings'),
           );
         }
         if (!rawLocalSettings) {
@@ -147,7 +135,7 @@ var gsStorage = {
           ) {
             gsUtils.errorIfInitialised(
               'gsStorage',
-              'Missing key: ' + key + '! Will init with default.'
+              'Missing key: ' + key + '! Will init with default.',
             );
             mergedSettings[key] = defaultSettings[key];
           }
@@ -172,40 +160,6 @@ var gsStorage = {
         gsUtils.log('gsStorage', 'init successful');
         resolve();
       });
-    });
-  },
-
-  /**
-   * Checks the managed storage for settings and overrides the local storage
-   * Settings in managed storage are stored by key
-   * Settings in local storage are stored by name
-   * Example: in managed storage you will find "SYNC_SETTINGS": true.
-   *          in local storage you will find "gsSyncSettings": true
-   * I did this because I think the key is easier to interpret for someone
-   * editing the managed storage manually.
-   */
-  checkManagedStorageAndOverride() {
-    const settingsList = Object.keys(gsStorageSettings);
-    chrome.storage.managed.get(settingsList, result => {
-      const settings = gsStorage.getSettings();
-
-      Object.keys(result).forEach(key => {
-        if (key === 'WHITELIST') {
-          settings[gsStorage[key]] = result[key].replace(/[\s\n]+/g, '\n');
-        } else {
-          settings[gsStorage[key]] = result[key];
-        }
-
-        // Mark option as managed
-        managedOptions.push(gsStorage[key]);
-      });
-
-      gsStorage.saveSettings(settings);
-      gsUtils.log(
-        'gsStorage',
-        'overrode settings with managed storage config:',
-        settings
-      );
     });
   },
 
@@ -236,7 +190,7 @@ var gsStorage = {
               'gsStorage',
               'Changed value from sync',
               key,
-              remoteSetting.newValue
+              remoteSetting.newValue,
             );
             changedSettingKeys.push(key);
             oldValueBySettingKey[key] = localSettings[key];
@@ -250,7 +204,7 @@ var gsStorage = {
           gsUtils.performPostSaveUpdates(
             changedSettingKeys,
             oldValueBySettingKey,
-            newValueBySettingKey
+            newValueBySettingKey,
           );
         }
       }
@@ -292,7 +246,7 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'Failed to parse gsSettings: ',
-        localStorage.getItem('gsSettings')
+        localStorage.getItem('gsSettings'),
       );
     }
     if (!settings) {
@@ -305,12 +259,11 @@ var gsStorage = {
   saveSettings: function(settings) {
     try {
       localStorage.setItem('gsSettings', JSON.stringify(settings));
-      gsAnalytics.setUserDimensions();
     } catch (e) {
       gsUtils.error(
         'gsStorage',
         'failed to save gsSettings to local storage',
-        e
+        e,
       );
     }
   },
@@ -325,14 +278,14 @@ var gsStorage = {
         'gsStorage',
         'gsStorage',
         'Pushing local settings to sync',
-        settings
+        settings,
       );
       chrome.storage.sync.set(settings, () => {
         if (chrome.runtime.lastError) {
           gsUtils.error(
             'gsStorage',
             'failed to save to chrome.storage.sync: ',
-            chrome.runtime.lastError
+            chrome.runtime.lastError,
           );
         }
       });
@@ -347,12 +300,13 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'Failed to parse ' + gsStorage.APP_VERSION + ': ',
-        localStorage.getItem(gsStorage.APP_VERSION)
+        localStorage.getItem(gsStorage.APP_VERSION),
       );
     }
     version = version || '0.0.0';
     return version + '';
   },
+
   setLastVersion: function(newVersion) {
     try {
       localStorage.setItem(gsStorage.APP_VERSION, JSON.stringify(newVersion));
@@ -360,27 +314,11 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'failed to save ' + gsStorage.APP_VERSION + ' to local storage',
-        e
+        e,
       );
     }
   },
 
-  fetchNoticeVersion: function() {
-    var lastNoticeVersion;
-    try {
-      lastNoticeVersion = JSON.parse(
-        localStorage.getItem(gsStorage.LAST_NOTICE)
-      );
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'Failed to parse ' + gsStorage.LAST_NOTICE + ': ',
-        localStorage.getItem(gsStorage.LAST_NOTICE)
-      );
-    }
-    lastNoticeVersion = lastNoticeVersion || '0';
-    return lastNoticeVersion + '';
-  },
   setNoticeVersion: function(newVersion) {
     try {
       localStorage.setItem(gsStorage.LAST_NOTICE, JSON.stringify(newVersion));
@@ -388,7 +326,7 @@ var gsStorage = {
       gsUtils.error(
         'gsStorage',
         'failed to save ' + gsStorage.LAST_NOTICE + ' to local storage',
-        e
+        e,
       );
     }
   },
@@ -397,13 +335,13 @@ var gsStorage = {
     var lastExtensionRecoveryTimestamp;
     try {
       lastExtensionRecoveryTimestamp = JSON.parse(
-        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY)
+        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY),
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
         'Failed to parse ' + gsStorage.LAST_EXTENSION_RECOVERY + ': ',
-        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY)
+        localStorage.getItem(gsStorage.LAST_EXTENSION_RECOVERY),
       );
     }
     return lastExtensionRecoveryTimestamp;
@@ -412,54 +350,17 @@ var gsStorage = {
     try {
       localStorage.setItem(
         gsStorage.LAST_EXTENSION_RECOVERY,
-        JSON.stringify(extensionRecoveryTimestamp)
+        JSON.stringify(extensionRecoveryTimestamp),
       );
     } catch (e) {
       gsUtils.error(
         'gsStorage',
         'failed to save ' +
-          gsStorage.LAST_EXTENSION_RECOVERY +
-          ' to local storage',
-        e
+        gsStorage.LAST_EXTENSION_RECOVERY +
+        ' to local storage',
+        e,
       );
     }
   },
 
-  fetchSessionMetrics: function() {
-    var sessionMetrics = {};
-    try {
-      sessionMetrics = JSON.parse(
-        localStorage.getItem(gsStorage.SM_SESSION_METRICS)
-      );
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'Failed to parse ' + gsStorage.SM_SESSION_METRICS + ': ',
-        localStorage.getItem(gsStorage.SM_SESSION_METRICS)
-      );
-    }
-    return sessionMetrics;
-  },
-  setSessionMetrics: function(sessionMetrics) {
-    try {
-      localStorage.setItem(
-        gsStorage.SM_SESSION_METRICS,
-        JSON.stringify(sessionMetrics)
-      );
-    } catch (e) {
-      gsUtils.error(
-        'gsStorage',
-        'failed to save ' + gsStorage.SM_SESSION_METRICS + ' to local storage',
-        e
-      );
-    }
-  },
-
-  /**
-   * Used by the options page to tell whether an option is set in managed storage
-   * and thus should not be changed.
-   *
-   * @param option The option name, such as "gsWhitelist" (not "WHITELIST")
-   */
-  isOptionManaged: option => managedOptions.includes(option),
 };

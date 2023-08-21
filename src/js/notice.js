@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsStorage, gsUtils */
+/*global chrome, tgs, gsStorage, gsUtils */
 (function(global) {
   'use strict';
 
@@ -9,7 +9,7 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     var notice = tgs.requestNotice();
     if (
       notice &&
@@ -25,5 +25,4 @@
     //clear notice (to prevent it showing again)
     tgs.clearNotice();
   });
-  gsAnalytics.reportPageView('notice.html');
 })(this);

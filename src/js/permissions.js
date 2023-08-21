@@ -1,4 +1,4 @@
-/*global chrome, historyUtils, gsSession, gsChrome, gsUtils, gsAnalytics */
+/*global chrome, historyUtils, gsSession, gsChrome, gsUtils */
 (function(global) {
   'use strict';
 
@@ -9,7 +9,7 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     document.getElementById('exportBackupBtn').onclick = async function(e) {
       const currentSession = await gsSession.buildCurrentSession();
       historyUtils.exportSession(currentSession, function() {
@@ -24,5 +24,4 @@
       });
     };
   });
-  gsAnalytics.reportPageView('permissions.html');
 })(this);

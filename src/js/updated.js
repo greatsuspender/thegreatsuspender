@@ -14,7 +14,7 @@
     document.getElementById('updated').style.display = 'block';
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     // var versionEl = document.getElementById('updatedVersion');
     // versionEl.innerHTML = 'v' + chrome.runtime.getManifest().version;
 

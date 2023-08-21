@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsUtils */
+/*global chrome, gsUtils, gsStorage */
 (function(global) {
   'use strict';
 
@@ -9,7 +9,10 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
+    //Set theme
+    document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
+
     var shortcutsEl = document.getElementById('keyboardShortcuts');
     var configureShortcutsEl = document.getElementById('configureShortcuts');
 
@@ -45,5 +48,4 @@
     };
   });
 
-  gsAnalytics.reportPageView('shortcuts.html');
 })(this);

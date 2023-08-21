@@ -56,7 +56,7 @@ var gsUtils = {
         id,
         (new Date() + '').split(' ')[4],
         text,
-        ...args
+        ...args,
       );
     }
   },
@@ -86,13 +86,12 @@ var gsUtils = {
       errorObj = errorObj || {};
       console.log(id, (new Date() + '').split(' ')[4], 'Error:');
       console.error(
-        gsUtils.getPrintableError(errorMessage, stackTrace, ...args)
+        gsUtils.getPrintableError(errorMessage, stackTrace, ...args),
       );
     } else {
       // const logString = errorObj.hasOwnProperty('stack')
       //   ? errorObj.stack
       //   : `${JSON.stringify(errorObj)}\n${gsUtils.getStackTrace()}`;
-      // gsAnalytics.reportException(logString, false);
     }
   },
   // Puts all the error args into a single printable string so that all the info
@@ -129,12 +128,31 @@ var gsUtils = {
     return tab.discarded;
   },
 
+  getTabUrl: function (tab) {
+    return tab.url || tab.pendingUrl;
+  },
+
+  isValidTabWithUrl: function(tab) {
+    if (!tab || typeof tab == "undefined") {
+      return false;
+    }
+    const url = gsUtils.getTabUrl(tab);
+    if (url && typeof url == "string" && url.length > 0) {
+      return true;
+    }
+    return false;
+  },
+
+
   //tests for non-standard web pages. does not check for suspended pages!
   isSpecialTab: function(tab) {
-    const url = tab.url || tab.pendingUrl;
+    if (!gsUtils.isValidTabWithUrl(tab)) {
+      return false;
+    }
     if (gsUtils.isSuspendedTab(tab, true)) {
       return false;
     }
+    const url = gsUtils.getTabUrl(tab);
     // Careful, suspended urls start with "chrome-extension://"
     if (
       url.indexOf('about') === 0 ||
@@ -149,7 +167,10 @@ var gsUtils = {
   },
 
   isFileTab: function(tab) {
-    const url = tab.url || tab.pendingUrl;
+    if (!gsUtils.isValidTabWithUrl(tab)) {
+      return false;
+    }
+    const url = gsUtils.getTabUrl(tab);
     if (url.indexOf('file') === 0) {
       return true;
     }
@@ -167,7 +188,10 @@ var gsUtils = {
 
   //does not include suspended pages!
   isInternalTab: function(tab) {
-    const url = tab.url || tab.pendingUrl;
+    if (!gsUtils.isValidTabWithUrl(tab)) {
+      return false;
+    }
+    const url = gsUtils.getTabUrl(tab);
     var isLocalExtensionPage =
       url.indexOf('chrome-extension://' + chrome.runtime.id) === 0;
     return isLocalExtensionPage && !gsUtils.isSuspendedTab(tab);
@@ -185,7 +209,7 @@ var gsUtils = {
 
   isProtectedActiveTab: function(tab) {
     var dontSuspendActiveTabs = gsStorage.getOption(
-      gsStorage.IGNORE_ACTIVE_TABS
+      gsStorage.IGNORE_ACTIVE_TABS,
     );
     return (
       tgs.isCurrentFocusedTab(tab) || (dontSuspendActiveTabs && tab.active)
@@ -219,10 +243,10 @@ var gsUtils = {
 
   shouldSuspendDiscardedTabs: function() {
     var suspendInPlaceOfDiscard = gsStorage.getOption(
-      gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
+      gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     );
     var discardInPlaceOfSuspend = gsStorage.getOption(
-      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND
+      gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
     );
     return suspendInPlaceOfDiscard && !discardInPlaceOfSuspend;
   },
@@ -273,14 +297,14 @@ var gsUtils = {
   checkWhiteList: function(url) {
     return gsUtils.checkSpecificWhiteList(
       url,
-      gsStorage.getOption(gsStorage.WHITELIST)
+      gsStorage.getOption(gsStorage.WHITELIST),
     );
   },
 
   checkSpecificWhiteList: function(url, whitelistString) {
     var whitelistItems = whitelistString
-        ? whitelistString.split(/[\s\n]+/)
-        : [],
+      ? whitelistString.split(/[\s\n]+/)
+      : [],
       whitelisted;
 
     whitelisted = whitelistItems.some(function(item) {
@@ -306,7 +330,7 @@ var gsUtils = {
     gsUtils.performPostSaveUpdates(
       [key],
       { [key]: oldWhitelistString },
-      { [key]: whitelistString }
+      { [key]: whitelistString },
     );
   },
 
@@ -344,7 +368,7 @@ var gsUtils = {
     gsUtils.performPostSaveUpdates(
       [key],
       { [key]: oldWhitelistString },
-      { [key]: newWhitelistString }
+      { [key]: newWhitelistString },
     );
   },
 
@@ -369,7 +393,7 @@ var gsUtils = {
     }
   },
 
-  documentReadyAsPromsied: function(doc) {
+  documentReadyAsPromised: function(doc) {
     return new Promise(function(resolve) {
       if (doc.readyState !== 'loading') {
         resolve();
@@ -382,7 +406,7 @@ var gsUtils = {
   },
 
   localiseHtml: function(parentEl) {
-    var replaceTagFunc = function(match, p1) {
+    let replaceTagFunc = function(match, p1) {
       return p1 ? chrome.i18n.getMessage(p1) : '';
     };
     for (let el of parentEl.getElementsByTagName('*')) {
@@ -397,14 +421,14 @@ var gsUtils = {
           'data-i18n-tooltip',
           el
             .getAttribute('data-i18n-tooltip')
-            .replace(/__MSG_(\w+)__/g, replaceTagFunc)
+            .replace(/__MSG_(\w+)__/g, replaceTagFunc),
         );
       }
     }
   },
 
-  documentReadyAndLocalisedAsPromsied: async function(doc) {
-    await gsUtils.documentReadyAsPromsied(doc);
+  documentReadyAndLocalisedAsPromised: async function(doc) {
+    await gsUtils.documentReadyAsPromised(doc);
     gsUtils.localiseHtml(doc);
     if (doc.body && doc.body.hidden) {
       doc.body.hidden = false;
@@ -495,7 +519,7 @@ var gsUtils = {
       if (keyPair && keyPair.match(keyPairRegEx)) {
         valuesByKey[keyPair.replace(keyPairRegEx, '$1')] = keyPair.replace(
           keyPairRegEx,
-          '$2'
+          '$2',
         );
       }
     });
@@ -561,7 +585,7 @@ var gsUtils = {
   getSuspendedTabCount: async function() {
     const currentTabs = await gsChrome.tabsQuery();
     const currentSuspendedTabs = currentTabs.filter(tab =>
-      gsUtils.isSuspendedTab(tab)
+      gsUtils.isSuspendedTab(tab),
     );
     return currentSuspendedTabs.length;
   },
@@ -597,7 +621,7 @@ var gsUtils = {
       for (const tab of tabs) {
         const timerDetails = tgs.getTabStatePropForTabId(
           tab.id,
-          tgs.STATE_TIMER_DETAILS
+          tgs.STATE_TIMER_DETAILS,
         );
         if (
           timerDetails &&
@@ -614,7 +638,7 @@ var gsUtils = {
   performPostSaveUpdates: function(
     changedSettingKeys,
     oldValueBySettingKey,
-    newValueBySettingKey
+    newValueBySettingKey,
   ) {
     chrome.tabs.query({}, function(tabs) {
       tabs.forEach(function(tab) {
@@ -637,7 +661,7 @@ var gsUtils = {
           //if theme or screenshot preferences have changed then refresh suspended tabs
           const updateTheme = changedSettingKeys.includes(gsStorage.THEME);
           const updatePreviewMode = changedSettingKeys.includes(
-            gsStorage.SCREEN_CAPTURE
+            gsStorage.SCREEN_CAPTURE,
           );
           if (updateTheme || updatePreviewMode) {
             const suspendedView = tgs.getInternalViewByTabId(tab.id);
@@ -650,18 +674,18 @@ var gsUtils = {
                     suspendedView,
                     tab,
                     theme,
-                    isLowContrastFavicon
+                    isLowContrastFavicon,
                   );
                 });
               }
               if (updatePreviewMode) {
                 const previewMode = gsStorage.getOption(
-                  gsStorage.SCREEN_CAPTURE
+                  gsStorage.SCREEN_CAPTURE,
                 );
                 gsSuspendedTab.updatePreviewMode(
                   suspendedView,
                   tab,
-                  previewMode
+                  previewMode,
                 ); // async. unhandled promise.
               }
             }
@@ -669,7 +693,7 @@ var gsUtils = {
 
           //if discardAfterSuspend has changed then updated discarded tabs
           const updateDiscardAfterSuspend = changedSettingKeys.includes(
-            gsStorage.DISCARD_AFTER_SUSPEND
+            gsStorage.DISCARD_AFTER_SUSPEND,
           );
           if (
             updateDiscardAfterSuspend &&
@@ -688,7 +712,7 @@ var gsUtils = {
 
         //update content scripts of normal tabs
         const updateIgnoreForms = changedSettingKeys.includes(
-          gsStorage.IGNORE_FORMS
+          gsStorage.IGNORE_FORMS,
         );
         if (updateIgnoreForms) {
           gsMessages.sendUpdateToContentScriptOfTab(tab); //async. unhandled error
@@ -714,11 +738,11 @@ var gsUtils = {
           (changedSettingKeys.includes(gsStorage.WHITELIST) &&
             (gsUtils.checkSpecificWhiteList(
               tab.url,
-              oldValueBySettingKey[gsStorage.WHITELIST]
-            ) &&
+              oldValueBySettingKey[gsStorage.WHITELIST],
+              ) &&
               !gsUtils.checkSpecificWhiteList(
                 tab.url,
-                newValueBySettingKey[gsStorage.WHITELIST]
+                newValueBySettingKey[gsStorage.WHITELIST],
               )));
         if (updateSuspendTime) {
           tgs.resetAutoSuspendTimerForTab(tab);
@@ -726,7 +750,7 @@ var gsUtils = {
 
         //if SuspendInPlaceOfDiscard has changed then updated discarded tabs
         const updateSuspendInPlaceOfDiscard = changedSettingKeys.includes(
-          gsStorage.SUSPEND_IN_PLACE_OF_DISCARD
+          gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
         );
         if (updateSuspendInPlaceOfDiscard && gsUtils.isDiscardedTab(tab)) {
           gsTabDiscardManager.handleDiscardedUnsuspendedTab(tab); //async. unhandled promise.
@@ -884,7 +908,7 @@ var gsUtils = {
     promiseFn,
     fnArgsArray,
     maxRetries,
-    retryWaitTime
+    retryWaitTime,
   ) {
     const retryFn = async retries => {
       try {
@@ -899,7 +923,6 @@ var gsUtils = {
         return await retryFn(retries);
       }
     };
-    const result = await retryFn(0);
-    return result;
+    return await retryFn(0);
   },
 };

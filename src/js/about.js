@@ -1,4 +1,4 @@
-/* global chrome, XMLHttpRequest, gsStorage, gsAnalytics, gsUtils */
+/* global chrome, XMLHttpRequest, gsUtils, gsStorage */
 (function(global) {
   'use strict';
 
@@ -9,7 +9,10 @@
     return;
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
+    //Set theme
+    document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
+
     var versionEl = document.getElementById('aboutVersion');
     versionEl.innerHTML = 'v' + chrome.runtime.getManifest().version;
 
@@ -19,10 +22,9 @@
         document.getElementsByClassName('noIncognito'),
         function(el) {
           el.style.display = 'none';
-        }
+        },
       );
     }
   });
 
-  gsAnalytics.reportPageView('about.html');
 })(this);

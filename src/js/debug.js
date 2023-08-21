@@ -1,4 +1,4 @@
-/*global chrome, tgs, gsAnalytics, gsUtils, gsFavicon, gsStorage, gsChrome */
+/*global chrome, tgs, gsUtils, gsFavicon, gsStorage, gsChrome */
 (function(global) {
   'use strict';
 
@@ -76,7 +76,9 @@
     };
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(async function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(async function() {
+    //Set theme
+    document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
     await fetchInfo();
     addFlagHtml(
       'toggleDebugInfo',
@@ -94,16 +96,6 @@
       newVal => {
         gsStorage.setOptionAndSync(
           gsStorage.DISCARD_IN_PLACE_OF_SUSPEND,
-          newVal
-        );
-      }
-    );
-    addFlagHtml(
-      'toggleUseAlternateScreenCaptureLib',
-      () => gsStorage.getOption(gsStorage.USE_ALT_SCREEN_CAPTURE_LIB),
-      newVal => {
-        gsStorage.setOptionAndSync(
-          gsStorage.USE_ALT_SCREEN_CAPTURE_LIB,
           newVal
         );
       }
@@ -144,5 +136,4 @@
         });
         */
   });
-  gsAnalytics.reportPageView('debug.html');
 })(this);

@@ -1,4 +1,4 @@
-/*global chrome, gsAnalytics, gsStorage, gsChrome, gsUtils */
+/*global chrome, gsStorage, gsChrome, gsUtils */
 (function(global) {
   try {
     chrome.extension.getBackgroundPage().tgs.setViewGlobals(global);
@@ -10,11 +10,11 @@
   var elementPrefMap = {
     preview: gsStorage.SCREEN_CAPTURE,
     forceScreenCapture: gsStorage.SCREEN_CAPTURE_FORCE,
-    cleanScreenCaptures: gsStorage.ENABLE_CLEAN_SCREENCAPS,
     suspendInPlaceOfDiscard: gsStorage.SUSPEND_IN_PLACE_OF_DISCARD,
     onlineCheck: gsStorage.IGNORE_WHEN_OFFLINE,
     batteryCheck: gsStorage.IGNORE_WHEN_CHARGING,
     unsuspendOnFocus: gsStorage.UNSUSPEND_ON_FOCUS,
+    claimByDefault: gsStorage.CLAIM_BY_DEFAULT,
     discardAfterSuspend: gsStorage.DISCARD_AFTER_SUSPEND,
     dontSuspendPinned: gsStorage.IGNORE_PINNED,
     dontSuspendForms: gsStorage.IGNORE_FORMS,
@@ -26,8 +26,8 @@
     timeToSuspend: gsStorage.SUSPEND_TIME,
     theme: gsStorage.THEME,
     whitelist: gsStorage.WHITELIST,
-    trackingOptOut: gsStorage.TRACKING_OPT_OUT
   };
+
 
   function selectComboBox(element, key) {
     var i, child;
@@ -41,35 +41,28 @@
     }
   }
 
-  // Used to prevent options set in managed storage from being changed
-  function blockOption(element) {
-    element.setAttribute('disabled', '');
-  }
-
   //populate settings from synced storage
   function initSettings() {
+    //Set theme
+    document.body.classList.add(gsStorage.getOption(gsStorage.THEME) === 'dark' ? 'dark' : null);
+
     var optionEls = document.getElementsByClassName('option'),
       pref,
       element,
       i;
-
     for (i = 0; i < optionEls.length; i++) {
       element = optionEls[i];
       pref = elementPrefMap[element.id];
       populateOption(element, gsStorage.getOption(pref));
-      if (gsStorage.isOptionManaged(pref)) {
-        blockOption(element);
-      }
     }
 
+    addClickHandlers();
+
     setForceScreenCaptureVisibility(
-      gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
-    );
-    setCleanScreenCaptureVisibility(
-      gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0'
+      gsStorage.getOption(gsStorage.SCREEN_CAPTURE) !== '0',
     );
     setAutoSuspendOptionsVisibility(
-      parseFloat(gsStorage.getOption(gsStorage.SUSPEND_TIME)) > 0
+      parseFloat(gsStorage.getOption(gsStorage.SUSPEND_TIME)) > 0,
     );
     setSyncNoteVisibility(!gsStorage.getOption(gsStorage.SYNC_SETTINGS));
 
@@ -80,6 +73,27 @@
         .classList.remove('reallyHidden');
       document.querySelector('#options-heading').classList.add('reallyHidden');
     }
+  }
+
+  function addClickHandlers() {
+    document.getElementById('preview').addEventListener('change', function() {
+      if (this.value === '1' || this.value === '2') {
+        chrome.permissions.request({
+          origins: [
+            'http://*/*',
+            'https://*/*',
+            'file://*/*',
+          ],
+        }, function(granted) {
+          if (!granted) {
+            let select = document.getElementById('preview');
+            select.value = '0';
+            select.dispatchEvent(new Event('change'));
+          }
+        });
+      }
+    });
+
   }
 
   function populateOption(element, value) {
@@ -122,14 +136,6 @@
     }
   }
 
-  function setCleanScreenCaptureVisibility(visible) {
-    if (visible) {
-      document.getElementById('cleanScreenCapturesContainer').style.display = 'block';
-    } else {
-      document.getElementById('cleanScreenCapturesContainer').style.display = 'none';
-    }
-  }
-
   function setSyncNoteVisibility(visible) {
     if (visible) {
       document.getElementById('syncNote').style.display = 'block';
@@ -147,42 +153,38 @@
         } else {
           el.style.display = 'none';
         }
-      }
+      },
     );
   }
 
   function handleChange(element) {
     return function() {
-      let prefKey = elementPrefMap[element.id],
+      var pref = elementPrefMap[element.id],
         interval;
+
       //add specific screen element listeners
-      switch (prefKey) {
-        case gsStorage.SCREEN_CAPTURE:
-          setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
-          setCleanScreenCaptureVisibility(getOptionValue(element) !== '0');
-          break;
-        case gsStorage.SUSPEND_TIME:
-          interval = getOptionValue(element);
-          setAutoSuspendOptionsVisibility(interval > 0);
-          break;
-        case gsStorage.SYNC_SETTINGS:
-          if (getOptionValue(element)) {
-            setSyncNoteVisibility(false);
-          }
-          break;
-        case gsStorage.ENABLE_CLEAN_SCREENCAPS:
-          if (getOptionValue(element)) {
-            chrome.runtime.sendMessage({ action: 'loadCleanScreencaptureBlocklist' })
-          }
-          break;
+      if (pref === gsStorage.SCREEN_CAPTURE) {
+        setForceScreenCaptureVisibility(getOptionValue(element) !== '0');
+      } else if (pref === gsStorage.SUSPEND_TIME) {
+        interval = getOptionValue(element);
+        setAutoSuspendOptionsVisibility(interval > 0);
+      } else if (pref === gsStorage.SYNC_SETTINGS) {
+        // we only really want to show this on load. not on toggle
+        if (getOptionValue(element)) {
+          setSyncNoteVisibility(false);
+        }
+      } else if (pref === gsStorage.THEME) {
+        // when the user changes the theme, it reloads the page to apply instantly the modification
+        window.location.reload();
       }
 
       var [oldValue, newValue] = saveChange(element);
       if (oldValue !== newValue) {
+        var prefKey = elementPrefMap[element.id];
         gsUtils.performPostSaveUpdates(
           [prefKey],
           { [prefKey]: oldValue },
-          { [prefKey]: newValue }
+          { [prefKey]: newValue },
         );
       }
     };
@@ -206,7 +208,7 @@
     return [oldValue, newValue];
   }
 
-  gsUtils.documentReadyAndLocalisedAsPromsied(document).then(function() {
+  gsUtils.documentReadyAndLocalisedAsPromised(document).then(function() {
     initSettings();
 
     var optionEls = document.getElementsByClassName('option'),
@@ -220,7 +222,7 @@
         element.addEventListener(
           'input',
           gsUtils.debounce(handleChange(element), 200),
-          false
+          false,
         );
       } else {
         element.onchange = handleChange(element);
@@ -235,10 +237,10 @@
           tab =>
             gsUtils.isSuspendedTab(tab)
               ? gsUtils.getOriginalUrl(tab.url)
-              : tab.url
+              : tab.url,
         )
         .filter(
-          url => !gsUtils.isSuspendedUrl(url) && gsUtils.checkWhiteList(url)
+          url => !gsUtils.isSuspendedUrl(url) && gsUtils.checkWhiteList(url),
         )
         .map(url => (url.length > 55 ? url.substr(0, 52) + '...' : url));
       if (tabUrls.length === 0) {
@@ -247,14 +249,14 @@
       }
       const firstUrls = tabUrls.splice(0, 22);
       let alertString = `${chrome.i18n.getMessage(
-        'js_options_whitelist_matches_heading'
+        'js_options_whitelist_matches_heading',
       )}\n${firstUrls.join('\n')}`;
 
       if (tabUrls.length > 0) {
         alertString += `\n${chrome.i18n.getMessage(
-          'js_options_whitelist_matches_overflow_prefix'
+          'js_options_whitelist_matches_overflow_prefix',
         )} ${tabUrls.length} ${chrome.i18n.getMessage(
-          'js_options_whitelist_matches_overflow_suffix'
+          'js_options_whitelist_matches_overflow_suffix',
         )}`;
       }
       alert(alertString);
@@ -266,14 +268,14 @@
         document.getElementsByClassName('noIncognito'),
         function(el) {
           el.style.display = 'none';
-        }
+        },
       );
       window.alert(chrome.i18n.getMessage('js_options_incognito_warning'));
     }
   });
 
+
   global.exports = {
     initSettings,
   };
-  gsAnalytics.reportPageView('options.html');
 })(this);
